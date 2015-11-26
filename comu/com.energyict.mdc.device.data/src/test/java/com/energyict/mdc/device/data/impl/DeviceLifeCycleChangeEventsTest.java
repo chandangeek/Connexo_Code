@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.events.EventService;
@@ -98,6 +99,8 @@ public class DeviceLifeCycleChangeEventsTest {
     private Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private MeteringGroupsService meteringGroupsService;
+    @Mock
+    private MdcReadingTypeUtilService readingTypeUtilService;
     @Mock
     private User user;
     @Mock
@@ -286,7 +289,8 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.protocolPluggableService,
                 this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider,
-                this.meteringGroupsService)
+                this.meteringGroupsService,
+                this.readingTypeUtilService)
             .initialize(this.deviceConfiguration, "Hello world", "mRID");
     }
 

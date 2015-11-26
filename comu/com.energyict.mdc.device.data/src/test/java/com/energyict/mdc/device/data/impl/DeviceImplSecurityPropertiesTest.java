@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.events.EventService;
@@ -81,6 +82,8 @@ public class DeviceImplSecurityPropertiesTest {
     private Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private MeteringGroupsService meteringGroupsService;
+    @Mock
+    private MdcReadingTypeUtilService readingTypeUtilService;
     @Mock
     private DeviceConfiguration deviceConfiguration;
     @Mock
@@ -167,7 +170,7 @@ public class DeviceImplSecurityPropertiesTest {
                 this.validationService, this.connectionTaskService, this.communicationTaskService, this.securityPropertyService,
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider, this.protocolPluggableService, this.manuallyScheduledComTaskExecutionProvider,
-                this.firmwareComTaskExecutionProvider, this.meteringGroupsService);
+                this.firmwareComTaskExecutionProvider, this.meteringGroupsService, readingTypeUtilService);
         device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services");
         return device;
     }

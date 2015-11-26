@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.util.BigDecimalChecker;
 import com.energyict.mdc.common.ComWindow;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -40,6 +41,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.util.HasName;
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -119,6 +121,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     void setSerialNumber(String serialNumber);
 
     void setYearOfCertification(Integer yearOfCertification);
+
+    void setMultiplier(BigDecimal multiplier, Instant from);
+
+    BigDecimal getMultiplier();
+
+    Instant getMultiplierEffectiveTimeStamp();
 
     /**
      * Gets the year of certification of a device.

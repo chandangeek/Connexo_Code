@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.impl.TranslationKeys;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -31,6 +29,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -122,6 +121,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MdcReadingTypeUtilService readingTypeUtilService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -150,7 +150,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
                                       SchedulingService schedulingService, MessageService messageService,
                                       SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
-                                      QueryService queryService) {
+                                      QueryService queryService,
+                                      MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -175,6 +176,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setMeteringGroupsService(meteringGroupsService);
         this.setQueryService(queryService);
+        this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -396,6 +398,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.taskService = taskService;
     }
 
+    @Reference
+    public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService readingTypeUtilService){
+        this.readingTypeUtilService = readingTypeUtilService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -434,6 +441,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(BatchService.class).toInstance(batchService);
             }
         };

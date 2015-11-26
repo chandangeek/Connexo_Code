@@ -17,6 +17,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -83,6 +84,8 @@ public class DeviceDeleteTest {
     private Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private MeteringGroupsService meteringGroupsService;
+    @Mock
+    private MdcReadingTypeUtilService readingTypeUtilService;
     @Mock
     private Query<OpenIssue> openIssueQuery;
     @Mock
@@ -256,7 +259,7 @@ public class DeviceDeleteTest {
         return new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 connectionTaskService, communicationTaskService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
                 connectionInitiationProvider, scheduledComTaskExecutionProvider, protocolPluggableService, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider,
-                meteringGroupsService);
+                meteringGroupsService, readingTypeUtilService);
     }
 
 }
