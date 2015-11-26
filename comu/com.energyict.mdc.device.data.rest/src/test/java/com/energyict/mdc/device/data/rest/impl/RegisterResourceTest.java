@@ -1,9 +1,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cps.*;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.OverlapCalculatorBuilder;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ValuesRangeConflict;
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -21,7 +25,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,8 +88,8 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         customPropertySetValues.setProperty("testname", "testValue1");
         CustomPropertySetValues customPropertySetValues2 = CustomPropertySetValues.emptyDuring(Interval.of(Range.closedOpen(Instant.ofEpochMilli(endTimeFirst), Instant.ofEpochMilli(endTimeSecond))));
         customPropertySetValues2.setProperty("testname2", "testValue2");
-        when(customPropertySetService.getValuesFor(customPropertySet, registerSpec)).thenReturn(customPropertySetValues);
-        when(customPropertySetService.getValuesFor(eq(customPropertySet), eq(registerSpec), any(Instant.class))).thenReturn(customPropertySetValuesNoTimesliced);
+        when(customPropertySetService.getUniqueValuesFor(customPropertySet, registerSpec)).thenReturn(customPropertySetValues);
+        when(customPropertySetService.getUniqueValuesFor(eq(customPropertySet), eq(registerSpec), any(Instant.class))).thenReturn(customPropertySetValuesNoTimesliced);
         when(customPropertySetService.getAllVersionedValuesFor(customPropertySet, registerSpec)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
         ValuesRangeConflict conflict1 = mock(ValuesRangeConflict.class);
         when(conflict1.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeFirst),Instant.ofEpochMilli(endTimeFirst)));
