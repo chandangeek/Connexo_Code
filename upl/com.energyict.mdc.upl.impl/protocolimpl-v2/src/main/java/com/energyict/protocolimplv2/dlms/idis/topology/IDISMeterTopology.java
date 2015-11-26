@@ -44,20 +44,22 @@ public class IDISMeterTopology extends AbstractMeterTopology {
 
     @Override
     public void searchForSlaveDevices() {
-        deviceMapping = new ArrayList<>();
-        ObisCode obisCode = MBUS_CLIENT_OBISCODE;
-        for (int i = 1; i <= getMaxMBusChannels(); i++) {
-            try {
-                obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
-                long serialNumberValue = protocol.getDlmsSession().getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
-                if (serialNumberValue != 0) {
-                    String serialNumber = String.valueOf(serialNumberValue);
-                    deviceMapping.add(new DeviceMapping(serialNumber, i, false));
+        if(deviceMapping == null || deviceMapping.isEmpty()){
+            deviceMapping = new ArrayList<>();
+            ObisCode obisCode = MBUS_CLIENT_OBISCODE;
+            for (int i = 1; i <= getMaxMBusChannels(); i++) {
+                try {
+                    obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
+                    long serialNumberValue = protocol.getDlmsSession().getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
+                    if (serialNumberValue != 0) {
+                        String serialNumber = String.valueOf(serialNumberValue);
+                        deviceMapping.add(new DeviceMapping(serialNumber, i, false));
+                    }
+                } catch (DataAccessResultException e) {
+                    // fetch next
+                } catch (IOException e) {
+                    throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries()+1);
                 }
-            } catch (DataAccessResultException e) {
-                // fetch next
-            } catch (IOException e) {
-                throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries()+1);
             }
         }
     }
