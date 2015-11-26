@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -146,6 +147,16 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         verify(device).setSecurityProperties(eq(sps1), typedPropertiesArgumentCaptor.capture());
         assertThat(typedPropertiesArgumentCaptor.getValue().hasValueFor("string.property")).isTrue();
         assertThat(typedPropertiesArgumentCaptor.getValue().getProperty("string.property")).isEqualTo("Hello Kitty");
+    }
+
+    @Test
+    public void testSetValuesForSecuritySetWrongDeviceVersion() throws Exception {
+        DeviceSecurityPropertySetInfo info = new DeviceSecurityPropertySetInfo();
+        info.device = new LinkInfo();
+        info.device.version = 99999L; // WRONG VERSION
+
+        Response response = target("/devices/XAS/securitypropertysets/5").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test

@@ -102,13 +102,10 @@ public class DeviceSecurityPropertySetResource {
         if (propertySetInfo.device==null || propertySetInfo.device.version==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device.version");
         }
-        if (propertySetInfo.configuredSecurityPropertySet==null || propertySetInfo.configuredSecurityPropertySet.version==null) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "configuredSecurityPropertySet.version");
-        }
         Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, propertySetInfo.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
 
-        SecurityPropertySet securityPropertySet = deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(deviceSecurityPropertySetId, propertySetInfo.configuredSecurityPropertySet.version)
+        SecurityPropertySet securityPropertySet = deviceConfigurationService.findSecurityPropertySet(deviceSecurityPropertySetId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_SECURITY_PROPERTY_SET));
 
         TypedProperties typedProperties = TypedProperties.empty();
