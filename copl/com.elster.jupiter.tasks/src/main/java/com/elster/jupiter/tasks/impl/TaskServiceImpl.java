@@ -30,6 +30,9 @@ import com.elster.jupiter.tasks.security.Privileges;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -50,6 +53,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -61,9 +65,9 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.tasks",
-           service = { TaskService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
+           service = { TaskService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class },
            property = "name=" + TaskService.COMPONENTNAME, immediate = true)
-public class TaskServiceImpl implements TaskService, InstallService, TranslationKeyProvider, MessageSeedProvider {
+public class TaskServiceImpl implements TaskService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private DueTaskFetcher dueTaskFetcher;
     private volatile Clock clock;
@@ -73,6 +77,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     private volatile CompositeScheduleExpressionParser scheduleExpressionParser;
     private volatile JsonService jsonService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UserService userService;
 
     private Thread schedulerThread;
     private volatile DataModel dataModel;
@@ -85,7 +90,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
 
     // For unit test purposes only
     @Inject
-    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService, NlsService nlsService, ThreadPrincipalService threadPrincipalService) {
+    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, UserService userService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -96,6 +101,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
         this.setJsonService(jsonService);
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
+        this.setUserService(userService);
         this.activate();
         this.install();
     }
@@ -248,6 +254,11 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     }
 
     @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(TaskService.COMPONENTNAME, "Jupiter Tasks");
         for (TableSpecs each : TableSpecs.values()) {
@@ -309,5 +320,19 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
+    public String getModuleName() {
+        return TaskService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(TaskService.COMPONENTNAME, Privileges.RESOURCE_VALIDATION.getKey(), Privileges.RESOURCE_VALIDATION_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.VIEW_TASK_OVERVIEW)));
+        return resources;
     }
 }
