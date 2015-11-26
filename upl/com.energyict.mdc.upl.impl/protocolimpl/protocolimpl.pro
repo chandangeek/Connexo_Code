@@ -720,3 +720,7 @@
 
 -keepnames class com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5560
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.E35C
+
+-keepnames class com.energyict.protocolimpl.modbus.emco.FP93B
+-keepnames class com.energyict.protocolimpl.modbus.spiraxsarco.VLM20
+-keepnames class com.energyict.protocolimpl.modbus.spiraxsarco.RIM20

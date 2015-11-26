@@ -300,6 +300,10 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     AM540_IDIS_P2_DEVICE(264, "com.energyict.protocolimplv2.dlms.idis.am540.AM540", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
     AM540_IDIS_P2_MBUS_DEVICE(265, "com.energyict.protocolimplv2.dlms.idis.am540.MBusDevice", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
 
+    FP93B(266, "com.energyict.protocolimpl.modbus.emco.FP93B"),
+    VLM20(267, "com.energyict.protocolimpl.modbus.spiraxsarco.VLM20"),
+    RIM20(268, "com.energyict.protocolimpl.modbus.spiraxsarco.RIM20"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),

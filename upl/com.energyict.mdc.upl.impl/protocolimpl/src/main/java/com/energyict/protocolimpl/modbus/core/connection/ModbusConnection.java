@@ -217,7 +217,9 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                                 responseData.setFunctionCode(kar);
 
                                 if ((responseData.getFunctionCode() == FunctionCode.WRITE_MULTIPLE_REGISTER.getFunctionCode()) ||
-                                        (responseData.getFunctionCode() == FunctionCode.WRITE_SINGLE_REGISTER.getFunctionCode())) {
+                                        (responseData.getFunctionCode() == FunctionCode.WRITE_SINGLE_REGISTER.getFunctionCode()) ||
+                                        (responseData.getFunctionCode() == FunctionCode.WRITE_SINGLE_COIL.getFunctionCode()) ||
+                                        (responseData.getFunctionCode() == FunctionCode.WRITE_MULTIPLE_COILS.getFunctionCode())) {
                                     len = 4 + 2;  // 4 bytes data + 2 bytes crc
                                     state = STATE_WAIT_FOR_DATA;
                                 } else {

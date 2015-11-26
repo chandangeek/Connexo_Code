@@ -420,6 +420,8 @@ public class DeviceMessageConstants {
     public static final String RadixFormatAttributeName = "ModbusConfigurationDeviceMessage.radixformat";
     public static final String RegisterAddressAttributeName = "ModbusConfigurationDeviceMessage.registeraddress";
     public static final String RegisterValueAttributeName = "ModbusConfigurationDeviceMessage.RegisterValue(s)";
+    public static final String AddressAttributeName = "ModbusConfigurationDeviceMessage.address";
+    public static final String ValueAttributeName = "ModbusConfigurationDeviceMessage.Value(s)";
 
 
     public static final String SetMBusEveryAttributeName = "MBusConfigurationDeviceMessage.setmbusevery";
