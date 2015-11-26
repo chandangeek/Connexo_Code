@@ -1,6 +1,13 @@
 package com.energyict.mdc.protocol.api;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.properties.PropertySpec;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a component that will contain several properties for a specific DeviceProtocol.
@@ -23,6 +30,24 @@ import com.elster.jupiter.properties.HasDynamicProperties;
 public interface DeviceProtocolDialect extends HasDynamicProperties {
 
     /**
+     * Returns the {@link CustomPropertySet} that provides the storage area
+     * for the properties of a {@link DeviceProtocolDialectPropertyProvider} for this dialect
+     * or an empty Optional if this dialect does not have any properties.
+     * In that case, {@link #getPropertySpecs()} should return
+     * an empty collection as well for consistency.
+     *
+     * @return The CustomPropertySet
+     */
+    Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet();
+
+    @Override
+    default List<PropertySpec> getPropertySpecs() {
+        return this.getCustomPropertySet()
+                .map(CustomPropertySet::getPropertySpecs)
+                .orElseGet(Collections::emptyList);
+    }
+
+    /**
      * Provides a <b>unique</b> name for this DeviceProtocolDialect.
      * This name will be used in the RelationType that is going to be created for this
      * {@link DeviceProtocolDialect} and his corresponding {@link DeviceProtocol DeviceProtocol}
@@ -31,12 +56,12 @@ public interface DeviceProtocolDialect extends HasDynamicProperties {
      *
      * @return the unique name for this DeviceProtocolDialect
      */
-    public String getDeviceProtocolDialectName();
+    String getDeviceProtocolDialectName();
 
     /**
      * The display name of this Dialect.
      * @return the name the User will see for this dialect
      */
-    public String getDisplayName();
+    String getDisplayName();
 
 }
