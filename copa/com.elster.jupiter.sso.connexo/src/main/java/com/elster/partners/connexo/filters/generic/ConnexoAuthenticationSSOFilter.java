@@ -28,32 +28,56 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
             return;
         }
 
-        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance(this.properties);
+        ConnexoSecurityTokenManager securityManager = ConnexoSecurityTokenManager.getInstance(this.properties);
 
-        Cookie xsrf = null;
-        Cookie[] cookies = request.getCookies();
-        if(cookies != null) {
-            for (int i = 0; i < cookies.length; i++) {
-                if (cookies[i].getName().equals("X-CONNEXO-TOKEN")) {
-                    xsrf = cookies[i];
-                    break;
-                }
-            }
+        String xsrf = getTokenFromCookie(request);
+
+        if(xsrf == null) {
+            xsrf = getTokenFromAuthorizationHeader(request);
         }
 
-        if(xsrf == null || !manager.verifyToken(xsrf.getValue())) {
+        if(xsrf == null || !securityManager.verifyToken(xsrf)) {
             if(xsrf != null){
                 updateToken(response, null, 0); // clear out token
             }
             redirectToLogin(request, response);
         }
         else {
-            if(manager.needToUpdateToken()){
-                updateToken(response, manager.getUpdatedToken(), manager.getMaxAge());
+            if(securityManager.needToUpdateToken()){
+                updateToken(response, securityManager.getUpdatedToken(), securityManager.getMaxAge());
             }
 
-            filterChain.doFilter(new ConnexoAuthenticationRequestWrapper(manager.getPrincipal(), request), response);
+            filterChain.doFilter(new ConnexoAuthenticationRequestWrapper(securityManager.getPrincipal(), request), response);
         }
+    }
+
+    private String getTokenFromCookie(HttpServletRequest request) {
+        String xsrf = null;
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null) {
+            for (int i = 0; i < cookies.length; i++) {
+                if (cookies[i].getName().equals("X-CONNEXO-TOKEN")) {
+                    xsrf = cookies[i].getValue();
+                    break;
+                }
+            }
+        }
+        return xsrf;
+    }
+
+    private String getTokenFromAuthorizationHeader(HttpServletRequest request) {
+        String xsrf = null;
+        String authorization = request.getHeader("Authorization");
+        if(authorization != null){
+            if(authorization.startsWith("Bearer ")) {
+                xsrf = authorization.split(" ")[1];
+            }
+            else if (authorization.startsWith("Basic ")){
+                ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance(getConnexoUrl(), authorization);
+                xsrf = restManager.getToken();
+            }
+        }
+        return xsrf;
     }
 
     private void updateToken(HttpServletResponse response, String newValue, int maxAge) {
