@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 public enum Privileges implements TranslationKey {
 
     //Resources
-    RESOURCE_VALIDATION("task.tasks", "Tasks"),
-    RESOURCE_VALIDATION_DESCRIPTION("task.tasks.description", "Manage tasks"),
+    RESOURCE_TASKS("task.tasks", "Tasks"),
+    RESOURCE_TASKS_DESCRIPTION("task.tasks.description", "Manage tasks"),
 
     //Privileges
     VIEW_TASK_OVERVIEW(Constants.VIEW_TASK_OVERVIEW, "View task overview");
