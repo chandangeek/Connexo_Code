@@ -16,8 +16,6 @@ import javax.inject.Inject;
 @OnlyOneProtocolTaskIfFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
 public class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
 
-    private final Provider<FirmwareManagementTaskImpl> firmwareUpgradeTaskProvider;
-
     @Inject
     public ComTaskDefinedBySystemImpl(DataModel dataModel, Thesaurus thesaurus,
                                     EventService eventService,
@@ -29,15 +27,13 @@ public class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemCom
                                     Provider<RegistersTaskImpl> registersTaskProvider,
                                     Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
                                     Provider<TopologyTaskImpl> topologyTaskProvider,
-                                    Provider<FirmwareManagementTaskImpl> firmwareUpgradeTaskProvider,
                                     Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider) {
         super(logBooksTaskProvider, dataModel, statusInformationTaskProvider, messagesTaskProvider, basicCheckTaskProvider, registersTaskProvider, eventService, clockTaskProvider, topologyTaskProvider, thesaurus, loadProfilesTaskProvider, firmwareManagementTaskProvider);
-        this.firmwareUpgradeTaskProvider = firmwareUpgradeTaskProvider;
     }
 
     @Override
     public FirmwareManagementTask createFirmwareUpgradeTask() {
-        FirmwareManagementTaskImpl firmwareUpgradeTask = firmwareUpgradeTaskProvider.get();
+        FirmwareManagementTaskImpl firmwareUpgradeTask = firmwareManagementTaskProvider.get();
         firmwareUpgradeTask.ownedBy(this);
         addProtocolTask(firmwareUpgradeTask);
         return firmwareUpgradeTask;
