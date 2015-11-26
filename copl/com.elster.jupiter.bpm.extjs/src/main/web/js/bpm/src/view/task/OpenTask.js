@@ -228,7 +228,7 @@ Ext.define('Bpm.view.task.OpenTask', {
                                 privileges: Bpm.privileges.BpmManagement.execute,
                                 items: [
                                     {
-                                        xtype: 'grouped-property-form'
+                                        xtype: 'property-form'
                                     },
                                     {
                                         xtype: 'container',
