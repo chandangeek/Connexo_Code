@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.registerType', 'MDC', 'Register type'),
+                            fieldLabel: Uni.I18n.translate('channelConfig.registerType', 'MDC', 'Register type'),
                             name: 'registerTypeName'
                         },
                         {
@@ -47,15 +47,15 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.overFlowValue', 'MDC' ,'Overflow value'),
+                            fieldLabel: Uni.I18n.translate('channelConfig.overFlowValue', 'MDC' ,'Overflow value'),
                             name: 'overflowValue'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC' ,'Number of fraction digits'),
+                            fieldLabel: Uni.I18n.translate('channelConfig.nbrOfFractionDigits', 'MDC' ,'Number of fraction digits'),
                             name: 'nbrOfFractionDigits'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('registerConfig.useMultiplier', 'MDC', 'Use multiplier'),
+                            fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),
                             name: 'useMultiplier',
                             renderer: function (value) {
                                 return value

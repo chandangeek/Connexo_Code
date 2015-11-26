@@ -71,9 +71,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             'loadProfileConfigurationDetailSetup loadProfileConfigurationDetailChannelGrid': {
                 itemclick: this.loadGridItemDetail
             },
-            //'loadProfileConfigurationDetailForm reading-type-combo': {
-            //    change: this.onReadingTypeChange
-            //},
             'loadProfileConfigurationDetailForm button[name=loadprofilechannelaction]': {
                 click: this.onSubmit
             },
@@ -189,30 +186,15 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     },
 
     confirmationPanelHandler: function (channelConfigurationToDelete) {
-        var me = this;
+        var me = this,
+            jsonData = channelConfigurationToDelete.getRecordData(),
+            id = jsonData.measurementType.id;
 
-        //channelConfigurationToDelete.getProxy().url =
-        //    '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels';
-        ////channelConfigurationToDelete.getProxy().setExtraParam('deviceType', me.deviceTypeId);
-        ////channelConfigurationToDelete.getProxy().setExtraParam('deviceConfig', me.deviceConfigurationId);
-        ////channelConfigurationToDelete.getProxy().setExtraParam('loadProfileConfiguration', me.loadProfileConfigurationId);
-        //debugger;
-        //channelConfigurationToDelete.destroy({
-        //    success: function () {
-        //        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.removeSuccessMsg', 'MDC', 'Channel configuration removed'));
-        //        me.store.load(function () {
-        //            if (this.getCount() === 0) {
-        //                me.getPage().down('#rulesForChannelPreviewContainer').destroy();
-        //                me.getPage().down('#rulesForChannelConfig').destroy();
-        //            }
-        //        });
-        //    }
-        //});
-
+        jsonData.measurementType = {id: id};
         Ext.Ajax.request({
             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + channelConfigurationToDelete.getId(),
             method: 'DELETE',
-            jsonData: channelConfigurationToDelete.getRecordData(),
+            jsonData: jsonData,
             waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
             success: function () {
                 me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.removeSuccessMsg', 'MDC', 'Channel configuration removed'));
@@ -225,58 +207,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             }
         });
     },
-
-    //getAssociatedMeasurementType: function (measurementTypeId) {
-    //    var associatedMeasurementType = null;
-    //    this.availableMeasurementTypesStore.each(function (measurementType) {
-    //        if (measurementType.get('id') === measurementTypeId) {
-    //            associatedMeasurementType = measurementType;
-    //            return false;
-    //        }
-    //    });
-    //    return associatedMeasurementType;
-    //},
-
-    //onReadingTypeChange: function (combo) {
-    //    var readingType = combo.valueModels[0];
-    //    if (readingType) {
-    //        var form = this.getChannelForm(),
-    //            measurementType = this.getAssociatedMeasurementType(readingType);
-    //
-    //        Ext.Ajax.request({
-    //            url: '/api/mtr/readingtypes/' + readingType.get('mRID') + '/calculated',
-    //            method: 'GET',
-    //            success: function (response) {
-    //                var resp = Ext.JSON.decode(response.responseText);
-    //                if (!Ext.isEmpty(resp.readingTypes)) {
-    //                    var calculatedReadingType = resp.readingTypes[0],
-    //                        calculatedReadingTypeDisplayField = form.down('reading-type-displayfield[name=calculatedReadingType]'),
-    //                        calculatedReadingTypeDisplayFieldEl = calculatedReadingTypeDisplayField.el.down('[role=textbox]');
-    //
-    //                    calculatedReadingTypeDisplayField.setValue(calculatedReadingType);
-    //                    calculatedReadingTypeDisplayField.show();
-    //
-    //                    Ext.DomHelper.append(calculatedReadingTypeDisplayFieldEl, {
-    //                        tag: 'span',
-    //                        html: Uni.I18n.translate('channelConfig.bulkQuantityReadingTypeDescription', 'MDC', 'Selected reading type is bulk quantity reading type. Calculated reading type will hold a delta between two neighbour interval readings.'),
-    //                        style: {
-    //                            position: 'absolute',
-    //                            top: '2em',
-    //                            left: '0',
-    //                            width: '1000px',
-    //                            lineHeight: '1em',
-    //                            color: '#999'
-    //                        }
-    //                    });
-    //                }
-    //            }
-    //        });
-    //
-    //        if (measurementType) {
-    //            form.down('[name=obiscode]').setValue(measurementType.get('obisCode'));
-    //        }
-    //    }
-    //},
 
     retrySubmit: function (btn) {
         var formPanel = this.getChannelForm();
@@ -293,6 +223,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         var me = this,
             formPanel = me.getChannelForm(),
             form = formPanel.getForm(),
+            record = form.getRecord(),
             formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValues = form.getValues(),
             preloader,
@@ -303,73 +234,102 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             calculatedReadingTypeCombo = formPanel.down('#mdc-channel-config-calculated-readingType-combo'),
             router = this.getController('Uni.controller.history.Router');
 
-        if (form.isValid()) {
-            formValues.measurementType = {id: me.getRegisterTypeCombo().getValue()};
-            formValues.collectedReadingType = collectedReadingTypeField.getValue();
-            if (useMultiplier) {
-                if (calculatedReadingTypeField.isVisible()) {
-                    formValues.calculatedReadingType = calculatedReadingTypeField.getValue();
-                } else if (calculatedReadingTypeCombo.isVisible()) {
-                    var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
-                        calculatedReadingType = null;
-                    Ext.Array.forEach(possibleCalculatedReadingTypes, function(item) {
-                        if (item.get('mRID') === calculatedReadingTypeCombo.getValue()) {
-                            calculatedReadingType = item;
-                            return false; // stop iterating
-                        }
-                    });
-                    formValues.calculatedReadingType = calculatedReadingType;
-                }
-            } else {
-                if (calculatedReadingTypeField.isVisible()) {
-                    formValues.calculatedReadingType = calculatedReadingTypeField.getValue();
-                } else {
-                    formValues.calculatedReadingType = null;
-                }
-            }
+        Ext.suspendLayouts();
+        form.clearInvalid();
+        formErrorsPanel.hide();
+        Ext.resumeLayouts(true);
 
-            jsonValues = Ext.JSON.encode(formValues);
-            formErrorsPanel.hide();
-            switch (btn.action) {
-                case 'Add':
-                    preloader = Ext.create('Ext.LoadMask', {
-                        msg: "Adding channel",
-                        target: formPanel
-                    });
-                    preloader.show();
-                    Ext.Ajax.request({
-                        url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels',
-                        method: 'POST',
-                        jsonData: jsonValues,
-                        success: function () {
-                            me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.added', 'MDC', 'Channel configuration added'));
-                            router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward();
-                        },
-                        callback: function () {
-                            preloader.destroy();
+        if (form.isValid()) {
+
+            if (btn.action === 'Add') {
+                formValues.measurementType = {id: me.getRegisterTypeCombo().getValue()};
+                formValues.collectedReadingType = collectedReadingTypeField.getValue();
+
+                if (useMultiplier) {
+                    if (calculatedReadingTypeField.isVisible()) {
+                        formValues.multipliedCalculatedReadingType = calculatedReadingTypeField.getValue();
+                    } else if (calculatedReadingTypeCombo.isVisible()) {
+                        var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
+                            calculatedReadingType = null;
+                        Ext.Array.forEach(possibleCalculatedReadingTypes, function (item) {
+                            if (item.get('mRID') === calculatedReadingTypeCombo.getValue()) {
+                                calculatedReadingType = item;
+                                return false; // stop iterating
+                            }
+                        });
+                        formValues.multipliedCalculatedReadingType = calculatedReadingType.getData();
+                    }
+                } else {
+                    if (calculatedReadingTypeField.isVisible()) {
+                        formValues.calculatedReadingType = calculatedReadingTypeField.getValue();
+                    } else {
+                        formValues.calculatedReadingType = null;
+                    }
+                }
+
+                jsonValues = Ext.JSON.encode(formValues);
+
+                preloader = Ext.create('Ext.LoadMask', {
+                    msg: Uni.I18n.translate('general.adding', 'MDC', 'Adding...'),
+                    target: formPanel
+                });
+                preloader.show();
+                Ext.Ajax.request({
+                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels',
+                    method: 'POST',
+                    jsonData: jsonValues,
+                    success: function () {
+                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.added', 'MDC', 'Channel configuration added'));
+                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward();
+                    },
+                    callback: function () {
+                        preloader.destroy();
+                    }
+                });
+
+            } else if (btn.action === 'Save') {
+                form.updateRecord();
+
+                if (useMultiplier) {
+                    if (calculatedReadingTypeField.isVisible()) {
+                        record.setMultipliedCalculatedReadingType(calculatedReadingTypeField.getValue());
+                    } else if (calculatedReadingTypeCombo.isVisible()) {
+                        record.setMultipliedCalculatedReadingType(
+                            calculatedReadingTypeCombo.getStore().findRecord(calculatedReadingTypeCombo.valueField, calculatedReadingTypeCombo.getValue())
+                        );
+                    }
+                } else {
+                    if (calculatedReadingTypeField.isVisible()) {
+                        record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
+                    } else {
+                        record.setMultipliedCalculatedReadingType(null);
+                        record.setCalculatedReadingType(null);
+                    }
+                }
+
+                formPanel.setLoading();
+                record.save({
+                    backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(),
+                    success: function () {
+                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.saved', 'MDC', 'Channel configuration saved'));
+                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
+                    },
+                    failure: function (record, operation) {
+                        if (operation.response.status === 400) {
+                            return
                         }
-                    });
-                    break;
-                case 'Save':
-                    preloader = Ext.create('Ext.LoadMask', {
-                        msg: "Editing channel",
-                        target: formPanel
-                    });
-                    preloader.show();
-                    Ext.Ajax.request({
-                        url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId,
-                        method: 'PUT',
-                        jsonData: Ext.merge(formPanel.record, formValues),
-                        backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(),
-                        success: function () {
-                            me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.saved', 'MDC', 'Channel configuration saved'));
-                            router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
-                        },
-                        callback: function () {
-                            preloader.destroy();
+                        Ext.suspendLayouts();
+                        formErrorsPanel.show();
+                        var json = Ext.decode(operation.response.responseText);
+                        if (json && json.errors) {
+                            form.markInvalid(json.errors);
                         }
-                    });
-                    break;
+                        Ext.resumeLayouts(true);
+                    },
+                    callback: function () {
+                        formPanel.setLoading(false);
+                    }
+                });
             }
         } else {
             formErrorsPanel.show();
@@ -446,7 +406,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             preloader = Ext.create('Ext.LoadMask', {
                 msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: form
-            });
+            }),
+            calculatedReadingTypeField = me.getPage().down('#mdc-channel-config-preview-calculated');
+
         if (this.displayedItemId != channelId) {
             grid.clearHighlight();
             preloader.show();
@@ -454,10 +416,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             this.getLoadProfileDetailChannelPreview().setTitle(channelName);
             form.loadRecord(channelConfig);
 
-            if (channelConfig.get('calculatedReadingType') === undefined || channelConfig.get('calculatedReadingType') === '') {
-                me.getPage().down('#mdc-channel-config-preview-calculated').hide();
+            if (channelConfig.get('multipliedCalculatedReadingType') && channelConfig.get('multipliedCalculatedReadingType') !== '') {
+                calculatedReadingTypeField.setValue(channelConfig.get('multipliedCalculatedReadingType'));
+                calculatedReadingTypeField.show();
+            } else if (channelConfig.get('calculatedReadingType') && channelConfig.get('calculatedReadingType') !== '') {
+                calculatedReadingTypeField.show();
             } else {
-                me.getPage().down('#mdc-channel-config-preview-calculated').show();
+                calculatedReadingTypeField.hide();
             }
 
             this.getPage().down('#rulesForChannelConfig').setTitle(
@@ -567,7 +532,16 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     },
 
     showDeviceConfigurationLoadProfilesConfigurationChannelsEditView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId, channelId) {
-        var me = this;
+        var me = this,
+            widget = Ext.widget('loadProfileConfigurationDetailForm',
+                {
+                    loadProfileConfigurationChannelAction: 'Save',
+                    deviceTypeId: deviceTypeId,
+                    deviceConfigurationId: deviceConfigurationId,
+                    loadProfileConfigurationId: loadProfileConfigurationId
+                }),
+            title = Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration');
+
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.loadProfileConfigurationId = loadProfileConfigurationId;
@@ -577,79 +551,67 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             deviceConfig: deviceConfigurationId,
             loadProfileConfiguration: loadProfileConfigurationId
         });
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-                model.getProxy().setExtraParam('deviceType', deviceTypeId);
-                model.load(deviceConfigurationId, {
-                    success: function (deviceConfig) {
-                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        Ext.Ajax.request({
-                            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId,
-                            params: {},
-                            method: 'GET',
-                            success: function (response) {
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+        widget.down('form').setTitle(title);
+
+        var channelCfgModel = Ext.ModelManager.getModel('Mdc.model.Channel');
+        channelCfgModel.getProxy().extraParams = (
+            {
+                deviceType: deviceTypeId,
+                deviceConfig: deviceConfigurationId,
+                loadProfileConfig: loadProfileConfigurationId
+            }
+        );
+        channelCfgModel.load(channelId, {
+            success: function (channelConfiguration) {
+                me.channelConfigurationBeingEdited = channelConfiguration;
+                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+                    success: function (deviceType) {
+
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                        var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                        deviceConfigModel.getProxy().setExtraParam('deviceType', deviceTypeId);
+                        deviceConfigModel.load(deviceConfigurationId, {
+
+                            success: function (deviceConfig) {
+                                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                                 Ext.Ajax.request({
-                                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId,
+                                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId,
                                     params: {},
                                     method: 'GET',
                                     success: function (response) {
-                                        var channel = Ext.JSON.decode(response.responseText),
-                                            widget = Ext.widget('loadProfileConfigurationDetailForm',
-                                                {
-                                                    loadProfileConfigurationChannelAction: 'Save',
-                                                    deviceTypeId: deviceTypeId,
-                                                    deviceConfigurationId: deviceConfigurationId,
-                                                    loadProfileConfigurationId: loadProfileConfigurationId
-                                                }),
-                                            preloader = Ext.create('Ext.LoadMask', {
-                                                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
-                                                target: widget
-                                            }),
-                                            title = Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),
-                                            overruledObisField = widget.down('textfield[name=overruledObisCode]'),
-                                            overflowValueField = widget.down('textfield[name=overflowValue]'),
-                                            readingTypeDisplayField = widget.down('reading-type-displayfield[name=readingType]');
+                                        var loadProfileConfig = Ext.JSON.decode(response.responseText),
+                                            multiplierRadioGroup = widget.down('#mdc-channel-config-multiplierRadioGroup'),
+                                            registerTypeCombo = widget.down('#mdc-channel-config-registerTypeComboBox'),
+                                            registerTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.MeasurementType'});
 
-                                        me.channelConfigurationBeingEdited = channel;
-                                        me.getApplication().fireEvent('changecontentevent', widget);
-                                        preloader.show();
-                                        widget.down('form').setTitle(title);
-                                        widget.down('form').loadRecord(channel);
-                                        if (channel.isLinkedByActiveDeviceConfiguration) {
-                                            me.getRegisterTypeCombo().hide();
-                                            readingTypeDisplayField.setValue(channel.measurementType.readingType);
-                                            readingTypeDisplayField.show();
+                                        me.getApplication().fireEvent('loadLoadProfile', loadProfileConfig);
+
+                                        var measurementTypeId = channelConfiguration.getMeasurementType().get('id'),
+                                            measurementTypeName = channelConfiguration.getMeasurementType().get('readingType').fullAliasName;
+
+                                        channelConfiguration.getMeasurementType().name = measurementTypeName;
+                                        widget.down('form').loadRecord(channelConfiguration);
+
+                                        if (channelConfiguration.get('useMultiplier') === false) {
+                                            me.onMultiplierChange(multiplierRadioGroup);
                                         }
+                                        registerTypesStore.add(channelConfiguration.getMeasurementType());
+                                        registerTypeCombo.bindStore(registerTypesStore, true);
+                                        registerTypeCombo.setValue(measurementTypeId);
+                                        registerTypeCombo.setDisabled(true);
 
-                                        me.availableMeasurementTypesStore.load({
-                                            callback: function () {
-                                                var registerTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.MeasurementType'});
-                                                this.add(channel.measurementType);
-                                                this.each(function (record) {
-                                                    registerTypesStore.add(record.get('readingType'));
-                                                });
-                                                me.getRegisterTypeCombo().bindStore(registerTypesStore, true);
-                                                me.getRegisterTypeCombo().setValue(channel.measurementType.id);
-                                                preloader.destroy();
-                                            }
-                                        });
+                                        multiplierRadioGroup.setDisabled(deviceConfig.get('active'));
 
-                                        overruledObisField.setValue(channel.overruledObisCode);
-                                        overflowValueField.setValue(channel.overflowValue);
-                                        widget.down('[name=nbrOfFractionDigits]').setValue(channel.nbrOfFractionDigits);
+                                        me.registerTypesObisCode = channelConfiguration.getMeasurementType().get('obisCode');
+                                        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.getOverruledObisCodeField().getValue());
 
-                                        me.deviceTypeName = deviceType.get('name');
-                                        me.deviceConfigName = deviceConfig.get('name');
-
-                                        widget.down('#mdc-channel-config-multiplierRadioGroup').setDisabled(deviceConfig.get('active'));
-                                        me.registerTypesObisCode = channel.measurementType.obisCode;
-                                        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
+                                        widget.setLoading(false);
                                     }
                                 });
                             }
-
                         });
                     }
                 });
@@ -680,15 +642,14 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             registerType = undefined,
             useMultiplier = undefined;
 
-        if (field.name === 'measurementType') {
-            registerType = field.getStore().findRecord('id', value);
-            useMultiplier = multiplierRadioGroup.getValue().useMultiplier;
-            if (registerType != null) {
-                me.updateReadingTypeFields(registerType, useMultiplier);
-                me.registerTypesObisCode = registerType.get('obisCode');
-                me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
-                me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
-            }
+        multiplierRadioGroup.setDisabled(false);
+        registerType = field.getStore().findRecord('id', value);
+        useMultiplier = multiplierRadioGroup.getValue().useMultiplier;
+        if (registerType != null) {
+            me.updateReadingTypeFields(registerType, useMultiplier);
+            me.registerTypesObisCode = registerType.get('obisCode');
+            me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
+            me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
         }
     },
 
@@ -716,9 +677,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             calculatedReadingTypeCombo = form.down('#mdc-channel-config-calculated-readingType-combo'),
             collectedReadingType = dataContainer.get('collectedReadingType'),
             calculatedReadingType = dataContainer.get('calculatedReadingType'),
+            multipliedCalculatedReadingType = dataContainer.get('multipliedCalculatedReadingType'),
             possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes');
 
-        if (collectedReadingType !== undefined) {
+        if (collectedReadingType && collectedReadingType !== '') {
             collectedReadingTypeField.setValue(collectedReadingType);
         } else { // fallback
             collectedReadingTypeField.setValue(dataContainer.get('readingType'));
@@ -741,8 +703,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     readingTypesStore.add(item);
                 });
                 calculatedReadingTypeCombo.bindStore(readingTypesStore, true);
-                if (calculatedReadingType !== undefined && calculatedReadingType !== '') {
-                    calculatedReadingTypeCombo.setValue(calculatedReadingType.mRID);
+                if (multipliedCalculatedReadingType !== undefined && multipliedCalculatedReadingType !== '') {
+                    calculatedReadingTypeCombo.setValue(multipliedCalculatedReadingType.mRID);
                 } else {
                     calculatedReadingTypeCombo.setValue(readingTypesStore.getAt(0));
                 }
@@ -750,10 +712,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             calculatedReadingTypeField.setVisible(possibleCalculatedReadingTypes.length === 1);
             calculatedReadingTypeCombo.setVisible(possibleCalculatedReadingTypes.length > 1);
         } else {
-            if (calculatedReadingType) {
+            if (calculatedReadingType && calculatedReadingType !== '') {
                 calculatedReadingTypeField.setValue(calculatedReadingType);
+                calculatedReadingTypeField.setVisible(true);
+            } else {
+                calculatedReadingTypeField.setVisible(false);
             }
-            calculatedReadingTypeField.setVisible(calculatedReadingType);
             calculatedReadingTypeCombo.setVisible(false);
         }
     },
@@ -770,7 +734,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
     onRestoreObisCodeBtnClicked: function() {
         var me = this;
-        //me.getChannelForm().down('#editObisCodeField').setValue(me.registerTypesObisCode);
         me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
         me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
     }

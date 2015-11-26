@@ -20,9 +20,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     initComponent: function () {
         this.columns = [
             {
-                xtype: 'reading-type-column',
-                header: Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configuration'),
-                dataIndex: 'readingType',
+                header: Uni.I18n.translate('registerConfig.registerType', 'MDC', 'Register type'),
+                dataIndex: 'registerTypeName',
                 flex: 3
             },
             {

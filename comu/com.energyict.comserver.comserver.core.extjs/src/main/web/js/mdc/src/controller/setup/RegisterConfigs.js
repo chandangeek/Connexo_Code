@@ -194,6 +194,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        // For some reason this call is needed to get the first item of the register configs grid selected:
+                        widget.down('#registerConfigSetupPanel #previewContainer').updateOnChange(
+                            widget.down('#registerConfigSetupPanel #previewContainer registerConfigGrid').getStore().getCount() === 0
+                        );
                     }
                 });
             }
@@ -254,6 +258,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             useMultiplier = undefined;
 
         if (field.name === 'registerType') {
+            view.down('#multiplierRadioGroup').setDisabled(false);
             registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', value);
             useMultiplier = view.down('#multiplierRadioGroup').getValue().useMultiplier;
             me.updateReadingTypeFields(registerType, useMultiplier);

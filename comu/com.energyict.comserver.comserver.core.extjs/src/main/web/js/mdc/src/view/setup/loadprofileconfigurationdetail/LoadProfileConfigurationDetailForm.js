@@ -34,24 +34,19 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         hidden: true,
                         margin: '0 0 32 0'
                     },
-                    //{
-                    //    xtype: 'reading-type-displayfield',
-                    //    name: 'readingType',
-                    //    hidden: true
-                    //},
                     {
                         xtype: 'combobox',
-                        name: 'measurementType',
-                        fieldLabel: Uni.I18n.translate('registerConfig.registerType', 'MDC', 'Register type'),
+                        fieldLabel: Uni.I18n.translate('channelConfig.registerType', 'MDC', 'Register type'),
                         itemId: 'mdc-channel-config-registerTypeComboBox',
                         queryMode: 'local',
                         allowBlank: false,
                         displayField: 'name',
                         valueField: 'id',
-                        emptyText: Uni.I18n.translate('registerConfig.selectRegisterType', 'MDC', 'Select a register type...'),
+                        emptyText: Uni.I18n.translate('channelConfig.selectRegisterType', 'MDC', 'Select a register type...'),
                         required: true,
                         forceSelection: true,
                         editable: false,
+                        submitValue: false,
                         msgTarget: 'under'
                     },
                     {
@@ -59,7 +54,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         required: true,
                         width: 450,
                         layout: 'hbox',
-                        fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
+                        fieldLabel: Uni.I18n.translate('channelConfig.obisCode', 'MDC', 'OBIS code'),
                         items: [
                             {
                                 xtype: 'obis-field',
@@ -82,7 +77,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         xtype: 'numberfield',
                         name: 'overflowValue',
                         msgTarget: 'under',
-                        fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
+                        fieldLabel: Uni.I18n.translate('channelConfig.overflowValue', 'MDC', 'Overflow value'),
                         itemId: 'mdc-lpcfg-detailForm-overflow-value-field',
                         allowBlank: false,
                         width: 450,
@@ -95,7 +90,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     },
                     {
                         xtype: 'numberfield',
-                        fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
+                        fieldLabel: Uni.I18n.translate('channelConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                         name: 'nbrOfFractionDigits',
                         required: true,
                         value: 0,
@@ -108,7 +103,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     {
                         xtype: 'radiogroup',
                         itemId: 'mdc-channel-config-multiplierRadioGroup',
-                        fieldLabel: Uni.I18n.translate('registerConfig.useMultiplier', 'MDC', 'Use multiplier'),
+                        disabled: true,
+                        fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),
                         columns: 1,
                         defaults: {
                             name: 'useMultiplier'
@@ -152,7 +148,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         displayField: 'fullAliasName',
                         required: true,
                         width: 650,
-                        hidden: true
+                        hidden: true,
+                        submitValue: false
                     },
                     {
                         xtype: 'fieldcontainer',

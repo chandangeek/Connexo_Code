@@ -26,9 +26,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
         var me = this;
         this.columns = [
             {
-                //xtype: 'reading-type-column',
                 header: Uni.I18n.translate('registerConfig.registerType', 'MDC', 'Register type'),
-                //dataIndex: 'readingType',
                 dataIndex: 'registerTypeName',
                 flex: 1
             },

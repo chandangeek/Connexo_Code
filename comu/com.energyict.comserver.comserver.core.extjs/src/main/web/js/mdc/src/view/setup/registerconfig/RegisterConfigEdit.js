@@ -149,6 +149,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         itemId: 'multiplierRadioGroup',
                         fieldLabel: Uni.I18n.translate('registerConfig.useMultiplier', 'MDC', 'Use multiplier'),
                         columns: 1,
+                        disabled: true,
                         defaults: {
                             name: 'useMultiplier'
                         },
