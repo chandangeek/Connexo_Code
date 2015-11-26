@@ -632,8 +632,10 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public Optional<DataValidationTask> findValidationTaskByName(String name) {
-        Condition condition = where("name").isEqualTo(name);
-        return findValidationTasksQuery().select(condition).stream().findFirst();
+        Query<DataValidationTask> query =
+                queryService.wrap(dataModel.query(DataValidationTask.class, RecurrentTask.class));
+        Condition condition = where("recurrentTask.name").isEqualTo(name);
+        return query.select(condition).stream().findFirst();
     }
 
     @Override
