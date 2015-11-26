@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.mdc.dynamic.PropertySpecService;
+
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
@@ -21,17 +21,17 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     public static final String slaveTwoSerialNumberPropertyName = "SlaveTwoSerialNumber";
 
     public SDKTopologyTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(thesaurus, propertySpecService);
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_TOPOLOGY_DIALECT_NAME.getName();
+        return DeviceProtocolDialectName.SDK_SAMPLE_TOPOLOGY.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "SDK dialect for topology testing";
+        return this.getThesaurus().getFormat(DeviceProtocolDialectName.SDK_SAMPLE_TOPOLOGY).format();
     }
 
     @Override

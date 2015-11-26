@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum CustomPropertySetTranslationKeys implements TranslationKey {
 
+    // Connection Types
     EIWEB_CUSTOM_PROPERTY_SET_NAME("EIWebCustomPropertySet", "EIWeb"),
     EIWEB_PLUS_CUSTOM_PROPERTY_SET_NAME("EIWebPlusCustomPropertySet", "EIWeb+"),
     SIO_SERIAL_CUSTOM_PROPERTY_SET_NAME("SioSerialCustomPropertySet", "Sio serial"),

@@ -1,16 +1,15 @@
 package com.energyict.protocolimplv2.abnt.common.dialects;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a DeviceProtocolDialect for a Serial connection type
@@ -21,49 +20,23 @@ import java.util.List;
  */
 public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
-    public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
-    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
-    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
-    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(250, TimeDuration.TimeUnit.MILLISECONDS);
+    public AbntSerialDeviceProtocolDialect(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super(thesaurus, propertySpecService);
+    }
 
-    public AbntSerialDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    @Override
+    public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+        return Optional.of(new AbntDeviceProtocolDialectCustomPropertySet(this.getThesaurus(), this.getPropertySpecService()));
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.ABNT_SERIAL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectName.ABNT_SERIAL.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "Serial";
-    }
-
-
-    protected PropertySpec retriesPropertySpec() {
-        return getPropertySpecService().bigDecimalPropertySpec(DlmsProtocolProperties.RETRIES, false, DEFAULT_RETRIES);
-    }
-
-    protected PropertySpec timeoutPropertySpec() {
-        return getPropertySpecService().timeDurationPropertySpec(DlmsProtocolProperties.TIMEOUT, false, DEFAULT_TIMEOUT);
-    }
-
-    protected PropertySpec forcedDelayPropertySpec() {
-        return getPropertySpecService().timeDurationPropertySpec(DlmsProtocolProperties.FORCED_DELAY, false, DEFAULT_FORCED_DELAY);
-    }
-
-    protected PropertySpec delayAfterErrorPropertySpec() {
-        return getPropertySpecService().timeDurationPropertySpec(DlmsProtocolProperties.DELAY_AFTER_ERROR, false, DEFAULT_DELAY_AFTER_ERROR);
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
-                retriesPropertySpec(),
-                timeoutPropertySpec(),
-                forcedDelayPropertySpec(),
-                delayAfterErrorPropertySpec());
+        return this.getThesaurus().getFormat(DeviceProtocolDialectName.ABNT_SERIAL).format();
     }
 
 }

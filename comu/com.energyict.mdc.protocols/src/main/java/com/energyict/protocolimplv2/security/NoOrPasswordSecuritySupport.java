@@ -46,8 +46,12 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
         this.thesaurus = thesaurus;
     }
 
-    public PropertySpecService getPropertySpecService() {
+    protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Override

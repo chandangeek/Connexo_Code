@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -12,8 +14,6 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsSlaveProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessaging;
@@ -46,7 +46,7 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
                       LoadProfileFactory loadProfileFactory, Clock clock, Thesaurus thesaurus, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider,
                       Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider,
                       Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider) {
-        super(propertySpecService, inheritedAuthenticationDeviceAccessLevelProvider, inheritedEncryptionDeviceAccessLevelProvider);
+        super(thesaurus, propertySpecService, inheritedAuthenticationDeviceAccessLevelProvider, inheritedEncryptionDeviceAccessLevelProvider);
         masterProtocol = new AM540(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService,
                 collectedDataFactory, meteringService, loadProfileFactory, clock, thesaurus, dsmrSecuritySupportProvider);
         idisMBusMessaging = new IDISMBusMessaging(masterProtocol);

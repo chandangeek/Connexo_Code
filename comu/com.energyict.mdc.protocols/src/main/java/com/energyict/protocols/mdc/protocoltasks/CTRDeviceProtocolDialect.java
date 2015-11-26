@@ -1,17 +1,16 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 /**
 * Models a {@link DeviceProtocolDialect} for the CTR protocol.
@@ -21,67 +20,23 @@ import java.util.List;
 */
 public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
-    // Optional properties
-    public static final String TIMEOUT_PROPERTY_NAME = "Timeout";
-    public static final String RETRIES_PROPERTY_NAME = "Retries";
-    public static final String DELAY_AFTER_ERROR_PROPERTY_NAME = "DelayAfterError";
-    public static final String FORCED_DELAY_PROPERTY_NAME = "ForcedDelay";
-    public static final String ADDRESS_PROPERTY_NAME = MeterProtocol.NODEID;
+    public CTRDeviceProtocolDialect(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super(thesaurus, propertySpecService);
+    }
 
-    public static final String SEND_END_OF_SESSION_PROPERTY_NAME = "SendEndOfSession";
-    public static final String MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME = "MaxAllowedInvalidProfileResponses";
-
-    public CTRDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    @Override
+    public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+        return Optional.of(new CTRDeviceProtocolDialectCustomPropertySet(this.getThesaurus(), this.getPropertySpecService()));
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.CTR_DEVICE_PROTOCOL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectName.CTR_DEVICE_PROTOCOL.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "CTR";
+        return this.getThesaurus().getFormat(DeviceProtocolDialectName.CTR_DEVICE_PROTOCOL).format();
     }
 
-    private PropertySpec timeoutPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
-    }
-
-    private PropertySpec retriesPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
-    }
-
-    private PropertySpec delayAfterErrorPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME, false, new BigDecimalFactory());
-    }
-
-    private PropertySpec forcedDelayPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(FORCED_DELAY_PROPERTY_NAME, false, new BigDecimalFactory());
-    }
-
-    private PropertySpec addressPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(ADDRESS_PROPERTY_NAME, false, new BigDecimalFactory());
-    }
-
-    private PropertySpec sendEndOfSessionPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME, false, new BooleanFactory());
-    }
-
-    private PropertySpec maxAllowedInvalidProfileResponsesPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME, false, new BigDecimalFactory());
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs () {
-        return Arrays.asList(
-                this.timeoutPropertySpec(),
-                this.retriesPropertySpec(),
-                this.delayAfterErrorPropertySpec(),
-                this.forcedDelayPropertySpec(),
-                this.addressPropertySpec(),
-                this.sendEndOfSessionPropertySpec(),
-                this.maxAllowedInvalidProfileResponsesPropertySpec());
-    }
 }

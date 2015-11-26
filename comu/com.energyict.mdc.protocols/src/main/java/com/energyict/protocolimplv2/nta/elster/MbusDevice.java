@@ -28,7 +28,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
                       TopologyService topologyService,
                       Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider,
                       Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider, WebRTUKP webRtuKp) {
-        super(propertySpecService, topologyService, authenticationDeviceAccessLevelProvider, encryptionDeviceAccessLevelProvider, webRtuKp);
+        super(thesaurus, propertySpecService, topologyService, authenticationDeviceAccessLevelProvider, encryptionDeviceAccessLevelProvider, webRtuKp);
     }
 
     @Override

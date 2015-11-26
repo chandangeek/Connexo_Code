@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.mdc.dynamic.PropertySpecService;
+
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
@@ -25,17 +25,17 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
     public final String doSomeThingPropertyName = "DoSomeThing";
 
     public SDKStandardDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(thesaurus, propertySpecService);
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_STANDARD_DEVICE_PROTOCOL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectName.SDK_SAMPLE_STANDARD_DEVICE_PROTOCOL.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "SDK dialect (default)";
+        return this.getThesaurus().getFormat(DeviceProtocolDialectName.SDK_SAMPLE_STANDARD_DEVICE_PROTOCOL).format();
     }
 
     private PropertySpec getDoSomeThingPropertySpec() {

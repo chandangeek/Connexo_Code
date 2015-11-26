@@ -18,7 +18,17 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -29,14 +39,19 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.protocolimplv2.ace4000.requests.*;
-import com.energyict.protocols.mdc.protocoltasks.ACE4000DeviceProtocolDialect;
+import com.energyict.protocolimplv2.ace4000.requests.ReadFirmwareVersion;
+import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
+import com.energyict.protocolimplv2.ace4000.requests.ReadMBusRegisters;
+import com.energyict.protocolimplv2.ace4000.requests.ReadMeterEvents;
+import com.energyict.protocolimplv2.ace4000.requests.ReadRegisters;
+import com.energyict.protocolimplv2.ace4000.requests.SetTime;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -211,7 +226,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList(new ACE4000DeviceProtocolDialect(this.getPropertySpecService()));
+        return Collections.singletonList(new ACE4000DeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()));
     }
 
     @Override

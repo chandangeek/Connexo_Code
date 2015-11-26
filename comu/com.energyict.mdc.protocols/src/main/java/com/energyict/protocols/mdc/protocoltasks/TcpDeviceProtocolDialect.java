@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.math.BigDecimal;
@@ -26,17 +26,17 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
 
     public TcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(thesaurus, propertySpecService);
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.GARNET_TCP_DIALECT_NAME.getName();
+        return DeviceProtocolDialectName.GARNET_TCP.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "TCP";
+        return this.getThesaurus().getFormat(DeviceProtocolDialectName.GARNET_TCP).format();
     }
 
     protected PropertySpec retriesPropertySpec() {

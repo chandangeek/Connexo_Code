@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -62,6 +63,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final AbstractDlmsProtocol meterProtocol;
     private final String serialNumber;
@@ -70,10 +72,15 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private final Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider;
     private final Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider;
 
-    public AbstractNtaMbusDevice(PropertySpecService propertySpecService,  TopologyService topologyService,
-                                 Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider,
-                                 Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider,
-                                 WebRTUKP webRTUKP) {
+    public AbstractNtaMbusDevice(
+                Thesaurus thesaurus,
+                PropertySpecService propertySpecService,
+                TopologyService topologyService,
+                Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider,
+                Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider,
+                WebRTUKP webRTUKP) {
+        super();
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.topologyService = topologyService;
         this.authenticationDeviceAccessLevelProvider = authenticationDeviceAccessLevelProvider;
@@ -131,7 +138,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(propertySpecService));
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     /**

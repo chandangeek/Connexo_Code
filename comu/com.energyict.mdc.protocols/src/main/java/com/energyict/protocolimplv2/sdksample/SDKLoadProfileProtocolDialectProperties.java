@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
@@ -25,17 +25,17 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
     public static final String notSupportedLoadProfileObisCodePropertyName = "NotSupportedLoadProfile";
 
     public SDKLoadProfileProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(thesaurus, propertySpecService);
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_LOAD_PROFILE_DEVICE_PROTOCOL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectName.SDK_SAMPLE_LOAD_PROFILE_DEVICE_PROTOCOL.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "SDK dialect for loadProfile testing";
+        return this.getThesaurus().getFormat(DeviceProtocolDialectName.SDK_SAMPLE_LOAD_PROFILE_DEVICE_PROTOCOL).format();
     }
 
     @Override

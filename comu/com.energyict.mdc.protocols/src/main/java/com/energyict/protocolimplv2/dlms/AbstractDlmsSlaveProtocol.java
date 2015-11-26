@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -54,13 +55,18 @@ import java.util.Set;
  */
 public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider;
     private final Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider;
 
-    protected AbstractDlmsSlaveProtocol(PropertySpecService propertySpecService,
-                                        Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider,
-                                        Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider) {
+    protected AbstractDlmsSlaveProtocol(
+                    Thesaurus thesaurus,
+                    PropertySpecService propertySpecService,
+                    Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider,
+                    Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider) {
+        super();
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.inheritedAuthenticationDeviceAccessLevelProvider = inheritedAuthenticationDeviceAccessLevelProvider;
         this.inheritedEncryptionDeviceAccessLevelProvider = inheritedEncryptionDeviceAccessLevelProvider;
@@ -88,7 +94,7 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(propertySpecService));
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     /**

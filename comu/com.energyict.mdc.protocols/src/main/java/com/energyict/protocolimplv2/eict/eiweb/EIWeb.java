@@ -196,7 +196,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.<DeviceProtocolDialect>singletonList(new NoParamsDeviceProtocolDialect(propertySpecService));
+        return Collections.<DeviceProtocolDialect>singletonList(new NoParamsDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     @Override

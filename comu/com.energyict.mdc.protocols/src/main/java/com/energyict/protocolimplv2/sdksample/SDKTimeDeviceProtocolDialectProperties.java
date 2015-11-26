@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
@@ -23,17 +23,17 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     public static final String clockOffsetToReadPropertyName = "ClockOffsetWhenWriting";
 
     public SDKTimeDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(thesaurus, propertySpecService);
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_TIME_DEVICE_PROTOCOL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectName.SDK_SAMPLE_TIME_DEVICE_PROTOCOL.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "SDK dialect for time testing";
+        return this.getThesaurus().getFormat(DeviceProtocolDialectName.SDK_SAMPLE_TIME_DEVICE_PROTOCOL).format();
     }
 
     @Override

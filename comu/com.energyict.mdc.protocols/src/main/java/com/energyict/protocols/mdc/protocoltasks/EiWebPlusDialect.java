@@ -1,9 +1,9 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
@@ -20,17 +20,17 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     public static final String DEFAULT_LOG_LEVEL = "INFO";
 
     public EiWebPlusDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(thesaurus, propertySpecService);
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.EIWEBPLUS_DIALECT_NAME.getName();
+        return DeviceProtocolDialectName.EIWEBPLUS.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "EIWebPlus dialect";
+        return this.getThesaurus().getFormat(DeviceProtocolDialectName.EIWEBPLUS).format();
     }
 
     private String[] getPossibleLogValues() {

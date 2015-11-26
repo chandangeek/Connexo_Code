@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.common;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -39,7 +40,6 @@ import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLeve
 
 import javax.inject.Provider;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -60,17 +60,22 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
 
     private final String serialNumber;
     private final DeviceProtocol meterProtocol;
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider;
     private final Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider;
 
     public abstract DeviceMessageSupport getDeviceMessageSupport();
 
-    protected AbstractMbusDevice(DeviceProtocol meterProtocol, String serialNumber, PropertySpecService propertySpecService,
-                                 Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider,
-                                 Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider) {
+    protected AbstractMbusDevice(
+                    DeviceProtocol meterProtocol, String serialNumber,
+                    Thesaurus thesaurus,
+                    PropertySpecService propertySpecService,
+                    Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider,
+                    Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider) {
         this.meterProtocol = meterProtocol;
         this.serialNumber = serialNumber;
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.inheritedAuthenticationDeviceAccessLevelProvider = inheritedAuthenticationDeviceAccessLevelProvider;
         this.inheritedEncryptionDeviceAccessLevelProvider = inheritedEncryptionDeviceAccessLevelProvider;
@@ -78,7 +83,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
+        return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
     }
 
     @Override
@@ -108,7 +113,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(propertySpecService));
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(this.thesaurus, propertySpecService));
     }
 
     /**
