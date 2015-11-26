@@ -7,6 +7,7 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
 import com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
@@ -34,6 +35,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
@@ -220,7 +222,7 @@ public abstract class WaveFlow implements DeviceProtocol {
      */
     @Override
     public String getSerialNumber() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getSerialNumber");
+        throw CodingException.unsupportedMethod(this.getClass(), "getSerialNumber");
     }
 
     @Override
@@ -271,8 +273,13 @@ public abstract class WaveFlow implements DeviceProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getMessaging().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     public RadioCommandFactory getRadioCommandFactory() {

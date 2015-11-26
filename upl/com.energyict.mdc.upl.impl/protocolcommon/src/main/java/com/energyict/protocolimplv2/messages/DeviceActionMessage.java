@@ -81,11 +81,10 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     RebootApplication(40),
     DemandResetWithForceClock(41),
     HardResetDevice(42),
-    SyncMasterdataForDC(43, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dcDeviceIDAttributeName)),
+    SyncMasterdataForDC(43),
     PauseDCScheduler(44),
     ResumeDCScheduler(45),
     SyncDeviceDataForDC(46,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dcDeviceID2AttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName, false)),
     SyncOneConfigurationForDC(47, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.deviceConfigurationIDAttributeName));
 

@@ -7,6 +7,7 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
@@ -28,6 +29,8 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
@@ -201,7 +204,7 @@ public class A1055 extends AbstractAbntProtocol {
             DateTimeField dateTimeField = (DateTimeField) getRequestFactory().readDefaultParameters().getField(ReadParameterFields.currentDateTime);
             return dateTimeField.getDate(getProperties().getTimeZone());
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
     }
 
@@ -210,9 +213,9 @@ public class A1055 extends AbstractAbntProtocol {
         try {
             getRequestFactory().setTime(timeToSet);
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         } catch (AbntException e) {
-            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", e);
+            throw DeviceConfigurationException.notAllowedToExecuteCommand("date/time change", e);
         }
     }
 
@@ -252,8 +255,13 @@ public class A1055 extends AbstractAbntProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getMessageFactory().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getMessageFactory().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override

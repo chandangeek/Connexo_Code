@@ -17,12 +17,13 @@ import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
-import com.energyict.mdc.exceptions.ModemException;
+import com.energyict.protocol.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -127,7 +128,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_HANG_UP)) {
                 fail("Should have gotten exception indicating the hang up of the modem failed, but was " + e.getMessage());
             }
             throw e;
@@ -148,7 +149,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_HANG_UP)) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -202,7 +203,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-206")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_RESTORE_DEFAULT_PROFILE)) {
                 fail("Should have gotten exception indicating that the modem could not restore his default profile, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName, "ATZ", "NokToDefaultProfileRestore");
@@ -233,7 +234,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, properties);
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_HANG_UP)) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -273,7 +274,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING)) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName, "Not_CorrectAnswer", "ATS0=0E0V1");
@@ -345,7 +346,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-208")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_BUSY)) {
                 fail("Should have gotten exception indicating that the modem received a BUSY signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -370,7 +371,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-209")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_ERROR)) {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -395,7 +396,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-210")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_NO_ANSWER)) {
                 fail("Should have gotten exception indicating that the modem received a NO ANSWER signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -421,7 +422,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-211")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_NO_CARRIER)) {
                 fail("Should have gotten exception indicating that the modem received a NO CARRIER signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -446,7 +447,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-212")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_NO_DIALTONE)) {
                 fail("Should have gotten exception indicating that the modem received a NO DIALTONE signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -487,7 +488,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-208")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_BUSY)) {
                 fail("Should have gotten exception indicating that the connect failed with a busy command, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);

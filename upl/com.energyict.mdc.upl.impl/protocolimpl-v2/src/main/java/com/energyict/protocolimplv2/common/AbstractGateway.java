@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.common;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.CollectedLogBook;
@@ -15,6 +16,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.util.ArrayList;
@@ -71,56 +73,61 @@ public abstract class AbstractGateway implements DeviceProtocol {
 
     @Override
     public String getSerialNumber() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getSerialNumber");
+        throw CodingException.unsupportedMethod(this.getClass(), "getSerialNumber");
     }
 
     @Override
     public Date getTime() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getTime");
+        throw CodingException.unsupportedMethod(this.getClass(), "getTime");
     }
 
     @Override
     public void setTime(Date timeToSet) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setTime");
+        throw CodingException.unsupportedMethod(this.getClass(), "setTime");
     }
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "fetchLoadProfileConfiguration");
+        throw CodingException.unsupportedMethod(this.getClass(), "fetchLoadProfileConfiguration");
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLoadProfileData");
+        throw CodingException.unsupportedMethod(this.getClass(), "getLoadProfileData");
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLogBookData");
+        throw CodingException.unsupportedMethod(this.getClass(), "getLogBookData");
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "executePendingMessages");
+        throw CodingException.unsupportedMethod(this.getClass(), "executePendingMessages");
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "updateSentMessages");
+        throw CodingException.unsupportedMethod(this.getClass(), "updateSentMessages");
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "format");
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        throw CodingException.unsupportedMethod(this.getClass(), "format");
     }
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "readRegisters");
+        throw CodingException.unsupportedMethod(this.getClass(), "readRegisters");
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceTopology");
+        throw CodingException.unsupportedMethod(this.getClass(), "getDeviceTopology");
     }
 }

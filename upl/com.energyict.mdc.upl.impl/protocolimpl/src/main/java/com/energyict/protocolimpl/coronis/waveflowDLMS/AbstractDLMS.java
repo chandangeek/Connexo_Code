@@ -6,10 +6,10 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.core.*;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 import java.util.*;
@@ -459,7 +459,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
                     Thread.sleep(2000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e1);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e1);
                 }
 
             } // while(true)

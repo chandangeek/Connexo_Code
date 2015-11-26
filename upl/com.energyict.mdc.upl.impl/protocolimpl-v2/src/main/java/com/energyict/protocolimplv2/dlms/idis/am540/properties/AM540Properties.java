@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -54,7 +56,7 @@ public class AM540Properties extends IDISProperties {
     private int getMirrorLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
+            throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
         }
         return logicalDeviceId;
     }
@@ -62,7 +64,7 @@ public class AM540Properties extends IDISProperties {
     private int getGatewayLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
+            throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
         }
         return logicalDeviceId;
     }
@@ -99,5 +101,13 @@ public class AM540Properties extends IDISProperties {
     public boolean useBeaconGatewayDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+    }
+
+    public int getAARQRetries() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2)).intValue();
+    }
+
+    public long getAARQTimeout() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_TIMEOUT_PROPERTY, new TimeDuration(AM540ConfigurationSupport.NOT_USED_AARQ_TIMEOUT)).getMilliSeconds();
     }
 }

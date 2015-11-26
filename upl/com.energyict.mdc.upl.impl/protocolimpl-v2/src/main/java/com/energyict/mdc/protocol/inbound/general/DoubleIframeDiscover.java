@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocol.ProtocolInstantiator;
+import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocol.meteridentification.IdentificationFactory;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -28,7 +29,7 @@ public class DoubleIframeDiscover extends AbstractDiscover {
             this.setSerialNumber(requestSerialNumber(comChannel, protocolInstantiator));
             return DiscoverResultType.IDENTIFIER;
         } catch (InboundTimeOutException e) {
-            throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException(e.getMessage());
+            throw InboundFrameException.timeoutException(e, e.getMessage());
         }
     }
 

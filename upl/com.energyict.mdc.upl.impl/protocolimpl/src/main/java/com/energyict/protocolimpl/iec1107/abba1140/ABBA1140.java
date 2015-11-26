@@ -25,6 +25,7 @@ import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -360,7 +361,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
             Thread.sleep(pDelayBeforeConnect);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         ;
 

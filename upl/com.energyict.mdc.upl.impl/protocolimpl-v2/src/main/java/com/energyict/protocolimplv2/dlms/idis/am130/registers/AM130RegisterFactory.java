@@ -13,13 +13,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
-import com.energyict.dlms.cosem.attributes.ClockAttributes;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -29,28 +23,18 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedActivityCalendar;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedClock;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedData;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedDisconnectControl;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
+import com.energyict.protocolimplv2.common.composedobjects.*;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -81,7 +65,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
 
         result.addAll(readBillingRegisters(offlineRegisters));      // Cause these cannot be read out in bulk
         filterOutAllAllBillingRegistersFromList(offlineRegisters);  // Cause they are already read out (see previous line)
-        result.addAll(filterOutAllInvalidMBusRegistersFromList(offlineRegisters)); // For each invalid one, an 'Incompatible' collectedRegister will be added
+        result.addAll(filterOutAllInvalidRegistersFromList(offlineRegisters)); // For each invalid one, an 'Incompatible' collectedRegister will be added
 
         int count = 0;
         while ((count * BULK_RESQUEST_REGISTER_LIMIT) <= offlineRegisters.size()) {    //Read out in steps of x registers
@@ -285,17 +269,21 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private List<CollectedRegister> filterOutAllInvalidMBusRegistersFromList(List<OfflineRegister> offlineRegisters) {
-        List<CollectedRegister> invalidMBusRegisters = new ArrayList<>();
+    /**
+     * Filter out the following registers:
+     * - MBus devices (by serial number) that are not installed on the e-meter
+     */
+    protected List<CollectedRegister> filterOutAllInvalidRegistersFromList(List<OfflineRegister> offlineRegisters) {
+        List<CollectedRegister> invalidRegisters = new ArrayList<>();
         Iterator<OfflineRegister> it = offlineRegisters.iterator();
         while (it.hasNext()) {
             OfflineRegister register = it.next();
             if (getMeterProtocol().getPhysicalAddressFromSerialNumber(register.getSerialNumber()) == -1) {
-                invalidMBusRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device."));
+                invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device."));
                 it.remove();
             }
         }
-        return invalidMBusRegisters;
+        return invalidRegisters;
     }
 
     private List<CollectedRegister> readBillingRegisters(List<OfflineRegister> offlineRegisters) {
@@ -330,7 +318,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
             }
         } else {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, am130.getDlmsSession().getProperties().getRetries() + 1);
+            throw ConnectionCommunicationException.numberOfRetriesReached(e, am130.getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 

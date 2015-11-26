@@ -5,6 +5,7 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -19,6 +20,7 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +64,26 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
         } else {
             super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
         }
+    }
+
+    /**
+     * Filter out the following registers:
+     * - MBus devices (by serial number) that are not installed on the e-meter
+     * - Obiscode 0.0.128.0.2.255, this register value will be filled in by executing the path request message, not by the register reader
+     */
+    @Override
+    protected List<CollectedRegister> filterOutAllInvalidRegistersFromList(List<OfflineRegister> offlineRegisters) {
+        final List<CollectedRegister> invalidRegisters = super.filterOutAllInvalidRegistersFromList(offlineRegisters);
+
+        Iterator<OfflineRegister> it = offlineRegisters.iterator();
+        while (it.hasNext()) {
+            OfflineRegister register = it.next();
+            if (register.getObisCode().equals(G3NetworkManagement.getDefaultObisCode())) {
+                invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register with obiscode " + register.getObisCode() + " cannot be read out, use the path request message for this."));
+                it.remove();
+            }
+        }
+        return invalidRegisters;
     }
 
     @Override

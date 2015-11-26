@@ -86,8 +86,6 @@ public class DeviceMessageConstants {
     public static final String deviceGroupAttributeName = "SecurityMessage.devicegroup";
 
     public static final String deviceConfigurationIDAttributeName = "DeviceActionMessage.deviceConfigurationID";
-    public static final String dcDeviceIDAttributeName = "DeviceActionMessage.dcDeviceID";
-    public static final String dcDeviceID2AttributeName = "DeviceActionMessage.dcDeviceID2";
     public static final String cleanUpUnusedDeviceTypesAttributeName = "DeviceActionMessage.cleanupUnusedDeviceTypes";
     public static final String broadcastDevicesGroupAttributeName = "FirmwareDeviceMessage.broadcastDevicesGroup";
 
@@ -610,6 +608,7 @@ public class DeviceMessageConstants {
     public static final String delete = "delete";
     public static final String startTime = "startTime";
     public static final String macAddress = "macAddress";
+    public static final String macAddresses = "macAddresses";
     public static final String output = "output";
     public static final String enabled = "enabled";
     public static final String outputId = "OutputConfigurationMessage.outputId";
@@ -639,4 +638,10 @@ public class DeviceMessageConstants {
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
     public static final String servletURL = "servletURL";
     public static final String logLevel = "logLevel";
+
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber = "MBusSetupDeviceMessage.ChangeMBusClientIdentificationNumber";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientManufacturerId = "MBusSetupDeviceMessage.ChangeMBusClientManufacturerId";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientVersion = "MBusSetupDeviceMessage.ChangeMBusClientVersion";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientDeviceType = "MBusSetupDeviceMessage.ChangeMBusClientDeviceType";
+    public static final String MBusSetupDeviceMessage_mBusClientShortId = "MBusSetupDeviceMessage.MBusClientShortId";
 }

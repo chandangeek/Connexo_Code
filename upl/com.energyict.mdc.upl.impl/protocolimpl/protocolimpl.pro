@@ -628,6 +628,10 @@
     public void cacheRegisters(java.util.List);
 }
 
+-keep public class com.energyict.genericprotocolimpl.webrtu.common.MbusProvider {
+	public *;
+	protected *;
+}
 -keepnames class test.com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3

@@ -8,6 +8,7 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
+import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
@@ -31,10 +32,10 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
     public static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
     public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
-
-    private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
+    public static final String PROPERTY_IGNORE_DST_STATUS_CODE = "IgnoreDstStatusCode";
     public static final boolean DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = true;
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = true;
+    private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
@@ -58,15 +59,26 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
                 this.cumulativeCaptureTimeChannelPropertySpec(),
                 this.nodeAddressPropertySpec(),
                 this.callHomeIdPropertySpec(),
-                this.serverUpperMacAddressPropertySpec(),
+                this.mirrorLogicalDeviceIdPropertySpec(),
+                this.actualLogicalDeviceIdPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
                 this.checkNumberOfBlocksDuringFirmwareResumePropertySpec(),
-                this.useEquipmentIdentifierAsSerialNumberPropertySpec()
+                this.lastSeenDatePropertySpec(),
+                this.useEquipmentIdentifierAsSerialNumberPropertySpec(),
+                this.ignoreDstStatusCode()
         );
     }
 
-    private PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+    private PropertySpec mirrorLogicalDeviceIdPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
+    }
+
+    private PropertySpec actualLogicalDeviceIdPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
+    }
+
+    private PropertySpec lastSeenDatePropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(G3Properties.PROP_LASTSEENDATE);
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {
@@ -133,6 +145,10 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec ntaSimulationToolPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(NTA_SIMULATION_TOOL);
+    }
+
+    protected PropertySpec ignoreDstStatusCode() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(PROPERTY_IGNORE_DST_STATUS_CODE, false);
     }
 
     private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {

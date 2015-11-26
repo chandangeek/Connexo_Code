@@ -4,6 +4,7 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -128,7 +129,7 @@ public class PoregConnection implements ProtocolConnection {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (IOException e) {
                 throw new ConnectionException("Connection, readBytes() error " + e.getMessage());
             }
@@ -188,7 +189,7 @@ public class PoregConnection implements ProtocolConnection {
                 break;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
             if (System.currentTimeMillis() > timeOutMillis) {
                 break;              //Stop when timeout occurs

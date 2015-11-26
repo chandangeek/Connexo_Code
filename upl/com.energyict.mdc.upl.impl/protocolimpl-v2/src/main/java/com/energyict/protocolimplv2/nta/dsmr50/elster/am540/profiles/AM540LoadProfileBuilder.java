@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +25,13 @@ public class AM540LoadProfileBuilder extends LGLoadProfileBuilder {
      *
      * @param meterProtocol the {@link #meterProtocol}
      */
-    public AM540LoadProfileBuilder(AbstractDlmsProtocol meterProtocol) {
+    public AM540LoadProfileBuilder(AM540 meterProtocol) {
         super(meterProtocol);
+    }
+
+    @Override
+    protected boolean isIgnoreDstStatusCode() {
+        return ((AM540) getMeterProtocol()).getDlmsSessionProperties().isIgnoreDstStatusCode();
     }
 
     @Override

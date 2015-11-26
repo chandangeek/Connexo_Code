@@ -3,6 +3,8 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.protocol.inbound.crypto.ServerCryptographer;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.CTREncryption;
@@ -29,9 +31,9 @@ public class CTRCryptographer implements ServerCryptographer {
             CTREncryption ctrEncryption = new CTREncryption(properties);
             return (SMSFrame) ctrEncryption.decryptFrame(smsFrame);
         } catch (CTRParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         } catch (CTRCipheringException e) {
-            throw MdcManager.getComServerExceptionFactory().createCipheringException(e);
+            throw ConnectionCommunicationException.cipheringException(e);
         }
     }
 

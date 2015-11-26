@@ -78,6 +78,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private static final String PROPERTY_BILLING_DATE_FORMAT = "BillingDateFormat";
     private static final String INVERT_BILLING_ORDER = "InvertBillingOrder";
     private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
+    private static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
@@ -129,6 +130,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private int rs485RtuPlusServer = 0;
     private int limitMaxNrOfDays = 0;
 	private boolean invertBillingOrder;
+    private boolean useEquipmentIdentifierAsSerial;
 
 	/**
      * Creates a new instance of A1440, empty constructor
@@ -259,6 +261,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.rs485RtuPlusServer = Integer.parseInt(properties.getProperty("RS485RtuPlusServer", "0").trim());
             this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
 			this.invertBillingOrder = getBooleanProperty(properties, INVERT_BILLING_ORDER);
+            this.useEquipmentIdentifierAsSerial = getBooleanProperty(properties, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -344,6 +347,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         result.add("RS485RtuPlusServer");
         result.add(PR_LIMIT_MAX_NR_OF_DAYS);
 		result.add(INVERT_BILLING_ORDER);
+        result.add(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
         return result;
     }
 
@@ -860,7 +864,6 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 DataDumpParser ddp = new DataDumpParser(getDataReadout());
                 this.billingCount = ddp.getBillingCounter();
             } else {
-
                 String data;
                 try {
                     data = new String(read("0.1.0"));
@@ -879,17 +882,25 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                     this.billingCount = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
                     this.billingCount = 0;
-                    getLogger().info("Unable to read billingCounter. Defaulting to 0!");
+                    getLogger().info(A1440.class.getSimpleName() + " - Unable to read billingCounter. Defaulting to 0!");
                 }
             }
 
+            if (this.billingCount >= 100) {
+                this.billingCount = 0;
+                getLogger().warning(A1440.class.getSimpleName() + " - Encountered invalid billingCounter (" + this.billingCount + "). The billingCounter should be between 0 and 100, defaulting to 0!");
+            }
         }
         return this.billingCount;
     }
 
     private String getMeterSerial() throws IOException {
         if (this.meterSerial == null) {
-            this.meterSerial = (String) getA1440Registry().getRegister(this.a1440Registry.SERIAL);
+            this.meterSerial = (String) getA1440Registry().getRegister(
+                    this.useEquipmentIdentifierAsSerial
+                    ? a1440Registry.IEC1107_ADDRESS_EL
+                    : a1440Registry.SERIAL
+            );
         }
         return this.meterSerial;
     }
@@ -1010,6 +1021,10 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.halfDuplexController = controller;
         }
         this.halfDuplexController.setDelay(this.halfDuplex);
+
+        if (getFlagIEC1107Connection() != null) {
+            getFlagIEC1107Connection().setHalfDuplexController(this.halfDuplex != 0 ? this.halfDuplexController : null);
+        }
     }
 
     public int getLimitMaxNrOfDays() {

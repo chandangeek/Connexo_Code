@@ -2,6 +2,9 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
@@ -75,7 +78,7 @@ public class RequestFactory {
             this.meterSerialNumber = response.getMeterSerialNumber().getSerialNumber().getText();
             this.defaultParameters = (ReadParametersResponse) response.getData();
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+            throw ConnectionCommunicationException.protocolConnectFailed(e);
         }
     }
 
@@ -367,7 +370,7 @@ public class RequestFactory {
             response.doParseData();    // Parsing of the frame data content is done here
             return response;
         } catch (UnknownFunctionCodeParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw CommunicationException.unexpectedResponse(e);
         }
     }
 
@@ -377,7 +380,7 @@ public class RequestFactory {
             response.doParseData();    // Parsing of the frame data content is done here
             return response;
         } catch (UnknownFunctionCodeParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw CommunicationException.unexpectedResponse(e);
         }
     }
 
@@ -388,7 +391,7 @@ public class RequestFactory {
             } else if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.SocketComChannel.is(comChannel)) { // Serial ComChannel or a transparent socket ComChannel
                 this.connection = new SerialConnection(getComChannel(), getProperties());
             } else {
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.OpticalComChannel.name(), comChannel.getClass().getSimpleName());
+                throw DeviceConfigurationException.unexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.OpticalComChannel.name(), comChannel.getClass().getSimpleName());
             }
         }
         return connection;

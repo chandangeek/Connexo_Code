@@ -6,9 +6,11 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.G3NetworkManagementAttributes;
 import com.energyict.dlms.cosem.methods.G3NetworkManagementMethods;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -18,21 +20,13 @@ import java.util.Date;
 public class G3NetworkManagement extends AbstractCosemObject {
 
     /**
-     * The cached node list
-     */
-    private Array nodeList = null;
-
-    /**
      * The default obisCode as used in the RTU+Server
      */
     private static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.128.0.2.255");
-
     /**
-     * @return The default obisCode as defined in the RTU+Server
+     * The cached node list
      */
-    public static ObisCode getDefaultObisCode() {
-        return DEFAULT_OBIS_CODE;
-    }
+    private Array nodeList = null;
 
     /**
      * Creates a new instance of AbstractCosemObject
@@ -42,6 +36,34 @@ public class G3NetworkManagement extends AbstractCosemObject {
      */
     public G3NetworkManagement(ProtocolLink protocolLink, ObjectReference objectReference) {
         super(protocolLink, objectReference);
+    }
+
+    /**
+     * @return The default obisCode as defined in the RTU+Server
+     */
+    public static ObisCode getDefaultObisCode() {
+        return DEFAULT_OBIS_CODE;
+    }
+
+    /**
+     * Extracts the EUI64 address for a node from the MAC hex string. Returns it in the form of an {@link OctetString}.
+     *
+     * @param macAddress Hex string containing the MAC address.
+     * @return An {@link OctetString} containing the MAC address.
+     * @throws IOException In case the passed string has an invalid format or <code>null</code>.
+     */
+    private static final OctetString extractEUI64(final String macAddress) throws IOException {
+        if (macAddress == null) {
+            throw new IOException("MAC address string should not be null !");
+        }
+
+        final byte[] eui64 = DLMSUtils.getBytesFromHexString(macAddress, null);
+
+        if (eui64 == null || eui64.length != 8) {
+            throw new IOException("MAC address passed to this method [" + macAddress + "] is invalid : expected hex string containing exactly 8 bytes, this one contains [" + (eui64 != null ? eui64.length : "UNKNOWN") + "] bytes");
+        }
+
+        return OctetString.fromByteArray(eui64);
     }
 
     @Override
@@ -184,6 +206,30 @@ public class G3NetworkManagement extends AbstractCosemObject {
         methodInvoke(G3NetworkManagementMethods.ENABLE, new BooleanObject(enable).getBEREncodedByteArray());
     }
 
+    public boolean addToBlacklist(List<String> macAddresses) throws IOException {
+        final Array array = new Array();
+        for (String macAddress : macAddresses) {
+            final byte[] macAddressBytes = ProtocolTools.getBytesFromHexString(macAddress, "");
+            array.addDataType(OctetString.fromByteArray(macAddressBytes));
+        }
+
+        final byte[] response = methodInvoke(G3NetworkManagementMethods.ADD_TO_BLACKLIST, array.getBEREncodedByteArray());
+        final BooleanObject booleanObject = AXDRDecoder.decode(response, BooleanObject.class);
+        return booleanObject.getState();
+    }
+
+    public boolean removeFromBlacklist(List<String> macAddresses) throws IOException {
+        final Array array = new Array();
+        for (String macAddress : macAddresses) {
+            final byte[] macAddressBytes = ProtocolTools.getBytesFromHexString(macAddress, "");
+            array.addDataType(OctetString.fromByteArray(macAddressBytes));
+        }
+
+        final byte[] response = methodInvoke(G3NetworkManagementMethods.REMOVE_FROM_BLACKLIST, array.getBEREncodedByteArray());
+        final BooleanObject booleanObject = AXDRDecoder.decode(response, BooleanObject.class);
+        return booleanObject.getState();
+    }
+
     public void provideKeyPairs(Array keyPairs) throws IOException {
         methodInvoke(G3NetworkManagementMethods.PROVIDE_PSK, keyPairs.getBEREncodedByteArray());
     }
@@ -260,27 +306,6 @@ public class G3NetworkManagement extends AbstractCosemObject {
     }
 
     /**
-     * Extracts the EUI64 address for a node from the MAC hex string. Returns it in the form of an {@link OctetString}.
-     *
-     * @param macAddress Hex string containing the MAC address.
-     * @return An {@link OctetString} containing the MAC address.
-     * @throws IOException In case the passed string has an invalid format or <code>null</code>.
-     */
-    private static final OctetString extractEUI64(final String macAddress) throws IOException {
-        if (macAddress == null) {
-            throw new IOException("MAC address string should not be null !");
-        }
-
-        final byte[] eui64 = DLMSUtils.getBytesFromHexString(macAddress, null);
-
-        if (eui64 == null || eui64.length != 8) {
-            throw new IOException("MAC address passed to this method [" + macAddress + "] is invalid : expected hex string containing exactly 8 bytes, this one contains [" + (eui64 != null ? eui64.length : "UNKNOWN") + "] bytes");
-        }
-
-        return OctetString.fromByteArray(eui64);
-    }
-
-    /**
      * Requests the path to a particular node.
      * Returns a text description of the back and forth path,
      * e.g.: date:meterMac:mac1;mac2;mac3:mac1;mac2;mac3
@@ -290,6 +315,13 @@ public class G3NetworkManagement extends AbstractCosemObject {
      * @throws IOException In case of an IO error during method execution.
      */
     public final String requestPath(final String macAddress) throws IOException {
+        return requestPath(macAddress, true);
+    }
+
+    /**
+     * Extra info: include the current time and the MAC of the meter in the info.
+     */
+    public final String requestPath(final String macAddress, boolean extraInfo) throws IOException {
         final Structure response = this.methodInvoke(G3NetworkManagementMethods.PATH_REQUEST, extractEUI64(macAddress), Structure.class);
         if (response.nrOfDataTypes() != 2) {
             throw new IOException("Expected the response to the path request method to be a structure with 2 array elements");
@@ -299,14 +331,20 @@ public class G3NetworkManagement extends AbstractCosemObject {
 
         if (forwardPath != null && reversePath != null) {
             StringBuilder sb = new StringBuilder();
-            sb.append(new Date().getTime()).append(":").append(macAddress).append(":");
+            if (extraInfo) {
+                sb.append(new Date().getTime()).append(":").append(macAddress).append(":");
+            }
             for (final AbstractDataType element : forwardPath) {
-                sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
+                if (sb.length() > 0) {
+                    sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
+                }
                 sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
-        }
+            }
             sb.append(':');
             for (final AbstractDataType element : reversePath) {
-                sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
+                if (sb.length() > 0) {
+                    sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
+                }
                 sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
             }
             return sb.toString();
@@ -320,7 +358,7 @@ public class G3NetworkManagement extends AbstractCosemObject {
      *
      * @param macAddress Hex string containing the EUI64 address of the node to request a route to.
      * @return <code>true</code> if the route request was successful, <code>false</code> if it failed (possibly because the node
-     *         was not known).
+     * was not known).
      * @throws IOException If an IO error occurs during execution of the method.
      */
     public final boolean requestRoute(final String macAddress) throws IOException {
@@ -332,7 +370,7 @@ public class G3NetworkManagement extends AbstractCosemObject {
      *
      * @param macAddress Hex string containing the EUI64 address of the node to detach.
      * @return <code>true</code> if the node was detached successfully, <code>false</code> if it failed (possibly because the node
-     *         was not known).
+     * was not known).
      * @throws IOException If an IO error occurs during execution of the method.
      */
     public final boolean detachNode(final String macAddress) throws IOException {

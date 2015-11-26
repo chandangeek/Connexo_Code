@@ -7,12 +7,12 @@ package com.energyict.protocolimplv2.identifiers;
  * Author: khe
  */
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -51,7 +51,7 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     public Device findDevice () {
         Device device = getDeviceFactory().find(this.id);
         if (device == null) {
-            throw new NotFoundException("Device with id " + this.id + " not found");
+            throw NotFoundException.notFound(Device.class, this.toString());
         }
         else {
             return device;

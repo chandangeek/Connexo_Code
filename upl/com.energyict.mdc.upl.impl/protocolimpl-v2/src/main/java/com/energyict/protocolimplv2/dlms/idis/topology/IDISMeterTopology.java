@@ -4,6 +4,7 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -70,17 +71,31 @@ public class IDISMeterTopology extends AbstractMeterTopology {
     @Override
     public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
         int mBusChannelId = getPhysicalAddress(serialNumber);
-        if (mBusChannelId == 0) {
+        if ((mBusChannelId  == 0 && !obisCode.anyChannel() && obisCode.getB() != 128)) { // then don't correct the obisCode
             return obisCode;
-        } else {
-            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) mBusChannelId);
         }
+        return ProtocolTools.setObisCodeField(obisCode, 1, (byte) mBusChannelId);
+    }
+
+    /**
+     * Search for the next available physicalAddress
+     *
+     * @return the next available physicalAddress or -1 if none is available.
+     */
+    public int searchNextFreePhysicalAddress(){
+        int availablePhysicalAddress = 0;
+        for (DeviceMapping dm : this.deviceMapping) {
+            if(availablePhysicalAddress < dm.getPhysicalAddress()) {
+                availablePhysicalAddress = dm.getPhysicalAddress();
+            }
+        }
+        return availablePhysicalAddress + 1;
     }
 
     @Override
     public int getPhysicalAddress(String serialNumber) {
         if (serialNumber == null || serialNumber.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().missingProperty("SerialNumber");
+            throw DeviceConfigurationException.missingProperty("SerialNumber");
         }
         if (serialNumber.equals(protocol.getDlmsSession().getProperties().getSerialNumber())) {
             return 0;
@@ -90,7 +105,7 @@ public class IDISMeterTopology extends AbstractMeterTopology {
                 return mapping.getPhysicalAddress();
             }
         }
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("SerialNumber", serialNumber);
+        throw DeviceConfigurationException.unsupportedPropertyValue("SerialNumber", serialNumber);
     }
 
     @Override

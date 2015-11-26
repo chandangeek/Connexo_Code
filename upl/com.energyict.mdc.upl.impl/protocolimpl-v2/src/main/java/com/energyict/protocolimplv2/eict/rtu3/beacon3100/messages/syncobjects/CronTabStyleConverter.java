@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.shadow.tasks.NextExecutionSpecsShadow;
 import com.energyict.mdc.tasks.NextExecutionSpecs;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 /**
@@ -36,7 +37,7 @@ public class CronTabStyleConverter {
                     return "";
             }
         } else if (nextExecutionSpecs.getDialCalendar() != null) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("Comtask schedule", "Read schedule with ID " + String.valueOf(nextExecutionSpecs.getDialCalendar().getId()), "A read schedule (dial calendar) is not supported by this message");
+            throw DeviceConfigurationException.invalidPropertyFormat("Comtask schedule", "Read schedule with ID " + String.valueOf(nextExecutionSpecs.getDialCalendar().getId()), "A read schedule (dial calendar) is not supported by this message");
         } else {
             return "";
         }

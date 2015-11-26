@@ -8,6 +8,7 @@ import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionTy
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.ServerProximusSmsComChannel;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
@@ -36,6 +37,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -180,7 +182,7 @@ public class MTU155 implements DeviceProtocol {
         try {
             return getRequestFactory().getMeterInfo().getTime();
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw CommunicationException.unexpectedResponse(e);
         }
     }
 
@@ -189,7 +191,7 @@ public class MTU155 implements DeviceProtocol {
         try {
             getRequestFactory().getMeterInfo().setTime(timeToSet);
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw CommunicationException.unexpectedResponse(e);
         }
     }
 
@@ -209,8 +211,13 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getMessaging().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override

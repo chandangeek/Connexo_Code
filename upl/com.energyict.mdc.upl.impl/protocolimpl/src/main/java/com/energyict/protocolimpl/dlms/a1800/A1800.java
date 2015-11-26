@@ -5,9 +5,9 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.common.ProfileCacheImpl;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,7 +62,7 @@ public class A1800 extends AbstractDlmsSessionProtocol {
                 Thread.sleep(3000);
             } catch (InterruptedException interrupt) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(interrupt);
+                throw ConnectionCommunicationException.communicationInterruptedException(interrupt);
             }
         }
 

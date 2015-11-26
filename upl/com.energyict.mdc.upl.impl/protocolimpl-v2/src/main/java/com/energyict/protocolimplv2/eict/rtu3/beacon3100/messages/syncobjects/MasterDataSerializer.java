@@ -5,22 +5,43 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecPossibleValues;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
-import com.energyict.mdc.protocol.tasks.*;
-import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.protocol.tasks.ClockTask;
+import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
+import com.energyict.mdc.protocol.tasks.LogBooksTask;
+import com.energyict.mdc.protocol.tasks.ProtocolTask;
+import com.energyict.mdc.protocol.tasks.RegistersTask;
+import com.energyict.mdc.tasks.ComTaskEnablement;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
+import com.energyict.mdc.tasks.NextExecutionSpecs;
+import com.energyict.mdc.tasks.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.tasks.ServerComTask;
 import com.energyict.mdw.amr.RegisterGroup;
+import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterSpec;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceConfiguration;
+import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.LoadProfileSpec;
+import com.energyict.mdw.core.LoadProfileType;
+import com.energyict.mdw.core.LogBookSpec;
+import com.energyict.mdw.core.LogBookType;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
@@ -36,8 +57,10 @@ import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Helper class that takes a group of slave devices and returns a JSon serialized version of all their devicetypes, tasks & master data.
@@ -56,19 +79,23 @@ public class MasterDataSerializer {
     public static final ObisCode FIXED_SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
 
     private static final int NO_SCHEDULE = -1;
+    private static Logger logger;
 
-    public static String serializeMasterDataForOneConfig(Object messageAttribute) {
+    /**
+     * Return the serialized description of all master data (scheduling info, obiscodes, etc) for a given config.
+     */
+    public static String serializeMasterDataForOneConfig(int configId) {
 
-        final DeviceConfiguration deviceConfiguration = mw().getDeviceConfigurationFactory().find(((BigDecimal) messageAttribute).intValue());
+        final DeviceConfiguration deviceConfiguration = getMeteringWarehouse().getDeviceConfigurationFactory().find(configId);
         if (deviceConfiguration == null) {
-            throw invalidFormatException("'Device configuration ID'", messageAttribute.toString(), "ID should reference a unique device configuration");
+            throw invalidFormatException("'Device configuration ID'", String.valueOf(configId), "ID should reference a unique device configuration");
         }
 
         final AllMasterData allMasterData = new AllMasterData();
 
         //Use the CLIENT_MAC_ADDRESS of the first device of that config. Or the default value if there's no device available.
         Device slaveDevice = null;
-        final List<Device> devices = mw().getDeviceFactory().findByConfiguration(deviceConfiguration);
+        final List<Device> devices = getMeteringWarehouse().getDeviceFactory().findByConfiguration(deviceConfiguration);
         if (!devices.isEmpty()) {
             slaveDevice = devices.get(0);
         }
@@ -89,10 +116,13 @@ public class MasterDataSerializer {
 
     }
 
-    public static String serializeMasterData(Object messageAttribute) {
-        final Device masterDevice = mw().getDeviceFactory().find(((BigDecimal) messageAttribute).intValue());
+    /**
+     * Return the serialized description of all master data (scheduling info, obiscodes, etc) for the configs of all slave meters that are linked to a given device
+     */
+    public static String serializeMasterData(int deviceId) {
+        final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(deviceId);
         if (masterDevice == null) {
-            throw invalidFormatException("'DC device ID'", messageAttribute.toString(), "ID should reference a unique device");
+            throw invalidFormatException("'DC device ID'", String.valueOf(deviceId), "ID should reference a unique device");
         }
 
         final AllMasterData allMasterData = new AllMasterData();
@@ -115,7 +145,7 @@ public class MasterDataSerializer {
         final Beacon3100ProtocolConfiguration protocolConfiguration = getProtocolConfiguration(deviceConfiguration, masterDevice, deviceConfiguration.getDeviceType());
         final List<Beacon3100Schedulable> schedulables = getSchedulables(deviceConfiguration);
         if (schedulables.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("Comtask enablements on device configuration with ID " + deviceConfiguration.getId(), "empty", "Device configuration should have at least one comtask enablement that reads out meter data");
+            throw DeviceConfigurationException.invalidPropertyFormat("Comtask enablements on device configuration with ID " + deviceConfiguration.getId(), "empty", "Device configuration should have at least one comtask enablement that reads out meter data");
         }
 
         final Beacon3100ClockSyncConfiguration clockSyncConfiguration = getClockSyncConfiguration(deviceConfiguration);
@@ -156,10 +186,13 @@ public class MasterDataSerializer {
         return false;
     }
 
-    public static String serializeMeterDetails(Object messageAttribute) {
-        final Device masterDevice = mw().getDeviceFactory().find(((BigDecimal) messageAttribute).intValue());
+    /**
+     * Return the serialized description of all meter details of a given slave device
+     */
+    public static String serializeMeterDetails(int deviceId) {
+        final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(deviceId);
         if (masterDevice == null) {
-            throw invalidFormatException("'DC device ID'", messageAttribute.toString(), "ID should reference a unique device");
+            throw invalidFormatException("'DC device ID'", String.valueOf(deviceId), "ID should reference a unique device");
         }
 
         final List<Device> downstreamDevices = masterDevice.getDownstreamDevices();
@@ -209,13 +242,13 @@ public class MasterDataSerializer {
         return new Beacon3100MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, device.getSerialNumber(), wrappedPassword, wrappedAK, wrappedEK);
     }
 
-    private static MeteringWarehouse mw() {
-        final MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-        if (mw == null) {
+    private static MeteringWarehouse getMeteringWarehouse() {
+        final MeteringWarehouse meteringWarehouse = MeteringWarehouse.getCurrent();
+        if (meteringWarehouse == null) {
             MeteringWarehouse.createBatchContext();
             return MeteringWarehouse.getCurrent();
         } else {
-            return mw;
+            return meteringWarehouse;
         }
     }
 
@@ -225,7 +258,7 @@ public class MasterDataSerializer {
         try {
             mapper.writeValue(writer, object);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
         return writer.toString();
     }
@@ -245,7 +278,7 @@ public class MasterDataSerializer {
         } else if (nextExecutionSpecs.getTemporalExpression() != null) {
             return new NextExecutionSpecsShadowDecorator(nextExecutionSpecs.getShadow()).toString();
         } else if (nextExecutionSpecs.getDialCalendar() != null) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("Comtask schedule", "Read schedule with ID " + String.valueOf(nextExecutionSpecs.getDialCalendar().getId()), "A read schedule (dial calendar) is not supported by this message");
+            throw DeviceConfigurationException.invalidPropertyFormat("Comtask schedule", "Read schedule with ID " + String.valueOf(nextExecutionSpecs.getDialCalendar().getId()), "A read schedule (dial calendar) is not supported by this message");
         } else {
             return null;
         }
@@ -285,9 +318,9 @@ public class MasterDataSerializer {
                 final int logicalDeviceId = 1;  //Linky and AM540 devices always use 1 as logical device
                 int clientTypeId = getClientTypeId(comTaskEnablement);
 
-                ArrayList<ObisCode> loadProfileObisCodes = getLoadProfileObisCodesForComTask(deviceConfiguration, comTaskEnablement);
-                ArrayList<ObisCode> registerObisCodes = getRegisterObisCodesForComTask(deviceConfiguration, comTaskEnablement);
-                ArrayList<ObisCode> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<ObisCode> loadProfileObisCodes = getLoadProfileObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<ObisCode> registerObisCodes = getRegisterObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<ObisCode> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, comTaskEnablement);
 
                 if (isReadMeterDataTask(loadProfileObisCodes, registerObisCodes, logBookObisCodes)) {
                     final Beacon3100Schedulable schedulable = new Beacon3100Schedulable(comTaskEnablement, scheduleId, logicalDeviceId, clientTypeId, loadProfileObisCodes, registerObisCodes, logBookObisCodes);
@@ -298,7 +331,7 @@ public class MasterDataSerializer {
         return schedulables;
     }
 
-    private static boolean isReadMeterDataTask(ArrayList<ObisCode> loadProfileObisCodes, ArrayList<ObisCode> registerObisCodes, ArrayList<ObisCode> logBookObisCodes) {
+    private static boolean isReadMeterDataTask(List<ObisCode> loadProfileObisCodes, List<ObisCode> registerObisCodes, List<ObisCode> logBookObisCodes) {
         return !(loadProfileObisCodes.isEmpty() && registerObisCodes.isEmpty() && logBookObisCodes.isEmpty());
     }
 
@@ -319,7 +352,7 @@ public class MasterDataSerializer {
         }
     }
 
-    private static ArrayList<ObisCode> getLogBookObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+    private static List<ObisCode> getLogBookObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
         Set<ObisCode> logBookObisCodes = new HashSet<>();
         if (((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectEvents()) {        //We can safely cast to the Server interface here, the format method (and everything related to messages) is only called from the EIServer framework
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -340,7 +373,7 @@ public class MasterDataSerializer {
         return new ArrayList<>(logBookObisCodes);
     }
 
-    private static ArrayList<ObisCode> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+    private static List<ObisCode> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
         Set<ObisCode> registerObisCodes = new HashSet<>();
         if (((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectRegisterData()) {      //We can safely cast to the Server interface here, the format method (and everything related to messages) is only called from the EIServer framework
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -353,9 +386,15 @@ public class MasterDataSerializer {
                     } else {
                         for (RegisterSpec register : deviceConfiguration.getRegisterSpecs()) {
                             for (RegisterGroup registerGroup : registerGroups) {
-                                if (register.getRegisterMapping().getRtuRegisterGroup().getId() == registerGroup.getId()) {
-                                    registerObisCodes.add(register.getDeviceObisCode());
-                                    break;
+                                RegisterMapping registerMapping = register.getRegisterMapping();
+                                if (registerMapping != null) {
+                                    RegisterGroup rtuRegisterGroup = registerMapping.getRtuRegisterGroup();
+                                    if (rtuRegisterGroup != null) {
+                                        if (rtuRegisterGroup.getId() == registerGroup.getId()) {
+                                            registerObisCodes.add(register.getDeviceObisCode());
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -363,10 +402,29 @@ public class MasterDataSerializer {
                 }
             }
         }
-        return new ArrayList<>(registerObisCodes);
+        return filterOutUnwantedRegisterObisCodes(registerObisCodes);
     }
 
-    private static ArrayList<ObisCode> getLoadProfileObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+    private static List<ObisCode> filterOutUnwantedRegisterObisCodes(Set<ObisCode> obisCodes) {
+        Iterator<ObisCode> iterator = obisCodes.iterator();
+        while (iterator.hasNext()) {
+            ObisCode obisCode = iterator.next();
+            if (obisCode.equals(Clock.getDefaultObisCode()) || obisCode.equals(FIXED_SERIAL_NUMBER_OBISCODE)) {
+                getLogger().warning("Filtering out register with obiscode '" + obisCode.toString() + "', it is already present in the mirror logical device by default.");
+                iterator.remove();
+            }
+        }
+        return new ArrayList<>(obisCodes);
+    }
+
+    private static Logger getLogger() {
+        if (logger == null) {
+            logger = Logger.getLogger(MasterDataSerializer.class.getName());
+        }
+        return logger;
+    }
+
+    private static List<ObisCode> getLoadProfileObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
         Set<ObisCode> loadProfileObisCodes = new HashSet<>();
         if (((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectLoadProfileData()) {   //We can safely cast to the Server interface here, the format method (and everything related to messages) is only called from the EIServer framework
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -513,7 +571,7 @@ public class MasterDataSerializer {
             aesWrap.init(Cipher.WRAP_MODE, kek);
             return aesWrap.wrap(keyToWrap);
         } catch (GeneralSecurityException e) {
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
+            throw DataEncryptionException.dataEncryptionException(e);
         }
     }
 
@@ -560,7 +618,7 @@ public class MasterDataSerializer {
         }
     }
 
-    private static ComServerExecutionException invalidFormatException(String propertyName, String propertyValue, String message) {
-        return MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(propertyName, propertyValue, message);
+    private static ProtocolRuntimeException invalidFormatException(String propertyName, String propertyValue, String message) {
+        return DeviceConfigurationException.invalidPropertyFormat(propertyName, propertyValue, message);
     }
 }

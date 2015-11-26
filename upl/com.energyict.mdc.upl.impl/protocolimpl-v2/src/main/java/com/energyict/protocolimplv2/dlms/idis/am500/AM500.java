@@ -7,7 +7,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
@@ -24,8 +24,10 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.idis.IDISObjectList;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
@@ -112,33 +114,36 @@ public class AM500 extends AbstractDlmsProtocol {
     protected void connectWithRetries(DlmsSession dlmsSession) {
         int tries = 0;
         while (true) {
-            ComServerExecutionException exception;
+            ProtocolRuntimeException exception;
             try {
+                dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     dlmsSession.getDlmsV2Connection().connectMAC();
                     dlmsSession.createAssociation();
                 }
                 return;
-            } catch (ComServerExecutionException e) {
+            } catch (ProtocolRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e)) {
+                } else if (e instanceof ConnectionCommunicationException) {
                     throw e;
-                } else if (MdcManager.getComServerExceptionFactory().isDataEncryptionException(e)) {
+                } else if (e instanceof DataEncryptionException) {
                     throw e;
                 }
                 exception = e;
+            } finally {
+                dlmsSession.getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > dlmsSession.getProperties().getRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
+                throw ConnectionCommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     dlmsSession.getAso().releaseAssociation();
-                } catch (ComServerExecutionException e) {
+                } catch (ProtocolRuntimeException e) {
                     dlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
@@ -245,8 +250,13 @@ public class AM500 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getIDISMessaging().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getIDISMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     protected IDISMessaging getIDISMessaging() {

@@ -5,6 +5,7 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
@@ -73,7 +74,7 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
 
         if (success) {

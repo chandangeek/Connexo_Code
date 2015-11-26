@@ -82,6 +82,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private static final String PROPERTY_BILLING_DATE_FORMAT = "BillingDateFormat";
 	private static final String INVERT_BILLING_ORDER = "InvertBillingOrder";
     private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
+    private static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
 
     private String strID;
     private String strPassword;
@@ -115,7 +116,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private AS220ObisCodeMapper aS220ObisCodeMapper = new AS220ObisCodeMapper(this);
 
     private byte[] dataReadout = null;
-    private int[] billingCount;
+    private int billingCount = -1;
     private String firmwareVersion = null;
     private Date meterDate = null;
     private String meterSerial = null;
@@ -132,6 +133,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private DataDumpParser dataDumpParser;
     private String dateFormat = null;
     private String billingDateFormat = null;
+    private boolean useEquipmentIdentifierAsSerial;
 
     /**
      * Creates a new instance of AS220, empty constructor
@@ -265,6 +267,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.rs485RtuPlusServer = Integer.parseInt(properties.getProperty("RS485RtuPlusServer", "0").trim());
             this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
             this.invertBillingOrder = getBooleanProperty(properties, INVERT_BILLING_ORDER);
+            this.useEquipmentIdentifierAsSerial = getBooleanProperty(properties, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -349,6 +352,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         result.add("RS485RtuPlusServer");
         result.add(PR_LIMIT_MAX_NR_OF_DAYS);
 		result.add(INVERT_BILLING_ORDER);
+        result.add(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
         return result;
     }
 
@@ -823,10 +827,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     int getBillingCount() throws IOException {
-        if (this.billingCount == null) {
+        if (this.billingCount == -1) {
 
             if (isDataReadout()) {
-                this.billingCount = new int[]{getDataDumpParser().getBillingCounter()};
+                this.billingCount = getDataDumpParser().getBillingCounter();
             } else {
 
                 String data;
@@ -844,20 +848,28 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 String value = data.substring(start, stop);
 
                 try {
-                    this.billingCount = new int[]{Integer.parseInt(value)};
+                    this.billingCount = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
-                    this.billingCount = new int[]{0};
-                    getLogger().info("Unable to read billingCounter. Defaulting to 0!");
+                    this.billingCount = 0;
+                    getLogger().info(AS220.class.getSimpleName() + " - Unable to read billingCounter. Defaulting to 0!");
                 }
             }
 
+            if (this.billingCount >= 100) {
+                this.billingCount = 0;
+                getLogger().warning(AS220.class.getSimpleName() + " - Encountered invalid billingCounter (" + this.billingCount + "). The billingCounter should be between 0 and 100, defaulting to 0!");
+            }
         }
-        return this.billingCount[0];
+        return this.billingCount;
     }
 
     private String getMeterSerial() throws IOException {
         if (this.meterSerial == null) {
-            this.meterSerial = (String) getAS220Registry().getRegister(this.aS220Registry.SERIAL);
+            this.meterSerial = (String) getAS220Registry().getRegister(
+                    this.useEquipmentIdentifierAsSerial
+                    ? getAS220Registry().IEC1107_ADDRESS_EL
+                    : getAS220Registry().SERIAL
+            );
         }
         return this.meterSerial;
     }
@@ -975,6 +987,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.halfDuplexController = controller;
         }
         this.halfDuplexController.setDelay(this.halfDuplex);
+
+        if (getFlagIEC1107Connection() != null) {
+            getFlagIEC1107Connection().setHalfDuplexController(this.halfDuplex != 0 ? this.halfDuplexController : null);
+        }
     }
 
     public int getLimitMaxNrOfDays() {

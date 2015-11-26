@@ -1,43 +1,89 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
+import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FirewallSetup;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimpl.base.Base64EncoderDecoder;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirewallConfigurationMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import com.energyict.util.function.Consumer;
 
 /**
  * Copyrights EnergyICT
@@ -52,6 +98,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
+    private static final String SEPARATOR = ";";
 
     static {
         supportedMessages = new ArrayList<>();
@@ -120,18 +167,25 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(PLCConfigurationDeviceMessage.SetMinBe);
 
         supportedMessages.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
-        supportedMessages.add(PLCConfigurationDeviceMessage.EnableKeepAlive);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinInactiveMeterTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.EnableKeepAlive);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetMinInactiveMeterTime);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
         supportedMessages.add(PLCConfigurationDeviceMessage.EnableG3PLCInterface);
+        supportedMessages.add(PLCConfigurationDeviceMessage.KickMeter);
+        supportedMessages.add(PLCConfigurationDeviceMessage.AddMetersToBlackList);
+        supportedMessages.add(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList);
+        supportedMessages.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
     }
 
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
+    
+    /** We lock the critical section where we write the firmware file, making sure that we don't corrupt it. */
+    private final Lock firmwareFileLock = new ReentrantLock();
 
     public Beacon3100Messaging(Beacon3100 protocol) {
         super(protocol);
@@ -143,14 +197,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.dcDeviceIDAttributeName)) {
-            return MasterDataSerializer.serializeMasterData(messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceConfigurationIDAttributeName)) {
-            return MasterDataSerializer.serializeMasterDataForOneConfig(messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.dcDeviceID2AttributeName)) {
-            return MasterDataSerializer.serializeMeterDetails(messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.broadcastAuthenticationKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
@@ -170,37 +218,135 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 || propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds()); //Return value in seconds
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
-
-            //final UserFile userFile = (UserFile) messageAttribute;
-            //final byte[] bytes = userFile.loadFileInByteArray();
-            //final String fileName = System.getProperty(TEMP_DIR) + userFile.getFileName() + "_" + userFile.getId();
-
-            //final File testFile = new File(fileName);
-            //if (testFile.exists()) {
-            //    if (testFile.length() != bytes.length) {
-            //        if (testFile.delete()) {
-            //            ProtocolTools.writeBytesToFile(fileName, bytes, false);
-            //        } else {
-            //            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new IOException("Could not write file '" + userFile.getFileName() + "' to temp directory, it already exists but is still in use"));
-            //        }
-            //    }   //Else: file exists and has the correct content. Ok, continue to execute message.
-            //} else {
-            //    ProtocolTools.writeBytesToFile(fileName, bytes, false);
-            //}
-            //System.gc();    //Remove the in memory byte array
-
-
-            final byte[] data = ((UserFile) messageAttribute).loadFileInByteArray();
-            return new Base64EncoderDecoder().encode(data, true);
+        	final UserFile userFile = (UserFile)messageAttribute;
+        	final File tempFile = this.writeToTempDirectory(userFile);
+        	
+        	return tempFile.getAbsolutePath();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceGroupAttributeName)) {
+            Group group = (Group) messageAttribute;
+            StringBuilder macAddresses = new StringBuilder();
+            for (BusinessObject businessObject : group.getMembers()) {
+                if (businessObject instanceof Device) {
+                    Device device = (Device) businessObject;
+                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+                    if (!callHomeId.isEmpty()) {
+                        if (macAddresses.length() != 0) {
+                            macAddresses.append(SEPARATOR);
+                        }
+                        macAddresses.append(callHomeId);
+                    }
+                } else {
+                    //TODO throw proper exception
+                }
+            }
+            return macAddresses.toString();
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
         }
     }
 
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
+            return MasterDataSerializer.serializeMasterData(offlineDevice.getId());
+        } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
+            return MasterDataSerializer.serializeMeterDetails(offlineDevice.getId());
+        } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
+            int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
+            return MasterDataSerializer.serializeMasterDataForOneConfig(configId);
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * Writes the given {@link UserFile} to the temp directory.
+     * 
+     * @param 	userFile		The user file to write to the temp.
+     * 
+     * @return	The {@link File} that was written.
+     */
+    private final File writeToTempDirectory(final UserFile userFile) {
+    	final File tempDirectory = new File(System.getProperty(TEMP_DIR));
+    	final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
+    	
+    	try {
+    		this.firmwareFileLock.lock();
+    		
+        	final File tempFile = new File(tempDirectory, fileName);
+        	
+        	if (tempFile.exists()) {
+        		if (this.getLogger().isLoggable(Level.INFO)) {
+        			this.getLogger().log(Level.INFO, "Already have a file called [" + tempFile + "], checking file size.");
+        		}
+        		
+        		if (tempFile.length() != userFile.getFileSize()) {
+	        		if (this.getLogger().isLoggable(Level.INFO)) {
+	        			this.getLogger().log(Level.INFO, "File size differs for file [" + tempFile + "], deleting.");
+	        		}
+	        		
+        			final boolean deleted = tempFile.delete();
+        			
+        			if (!deleted) {
+        				throw new IllegalStateException("Could not delete file : [" + tempFile + "] : delete() returns false !");
+        			}
+        		}
+        	}
+        	
+        	if (!tempFile.exists()) {
+        		if (this.getLogger().isLoggable(Level.INFO)) {
+        			this.getLogger().log(Level.INFO, "Copying user file to [" + tempFile + "].");
+        		}
+        		
+        		final boolean created = tempFile.createNewFile();
+        		
+        		if (!created) {
+        			throw new IllegalStateException("Could not create temporary file [" + tempFile + "] : create() returns false !");
+        		}
+        		
+        		try (final OutputStream outStream = new FileOutputStream(tempFile)){
+        			userFile.processFileAsStream(new Consumer<InputStream>() {
+						@Override
+						public final void accept(final InputStream inStream) {
+							final byte[] buffer = new byte[2048];
+							
+							try {
+								int bytesRead = inStream.read(buffer);
+								
+								while (bytesRead != -1) {
+									outStream.write(buffer, 0, bytesRead);
+									bytesRead = inStream.read(buffer);
+								}
+								
+								outStream.flush();
+							} catch (IOException e) {
+								if (getLogger().isLoggable(Level.WARNING)) {
+									getLogger().log(Level.WARNING, "IO error while writing temporary file : [" + e.getMessage() + "]", e);
+								}
+								
+								throw new IllegalStateException("IO error while writing temporary file : [" + e.getMessage() + "]", e);
+							}
+						}
+        			});
+        		}
+        	}
+        	
+        	return tempFile;
+    	} catch (SQLException | IOException e) {
+			if (getLogger().isLoggable(Level.WARNING)) {
+				getLogger().log(Level.WARNING, "Error while writing temporary file : [" + e.getMessage() + "]", e);
+			}
+			
+			throw new IllegalStateException("Error while writing temporary file : [" + e.getMessage() + "]", e);
+    	} finally {
+    		this.firmwareFileLock.unlock();
+    	}
+    }
+    
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
@@ -209,8 +355,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-                boolean plcMessageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
-                if (!plcMessageExecuted) { // if it was not a PLC message
+                final CollectedMessage plcMessageResult = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
+                if (plcMessageResult != null) {
+                    collectedMessage = plcMessageResult;
+                } else { // if it was not a PLC message
                     if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
                         collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
@@ -225,6 +373,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         changeGPRSParameters(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PingMeter)) {
                         collectedMessage = pingMeter(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.KickMeter)) {
+                        collectedMessage = kickMeter(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.AddMetersToBlackList)) {
+                        collectedMessage = addMetersToBlackList(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList)) {
+                        collectedMessage = removeMetersFromBlackList(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.BroadcastFirmwareUpgrade)) {
                         collectedMessage = new BroadcastUpgrade(this).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
@@ -305,7 +459,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
-            plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice());
+            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice());
         }
         return plcConfigurationDeviceMessageExecutor;
     }
@@ -370,7 +524,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         try {
             ProtocolTools.getBytesFromHexString(hexMacAddress, "");
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("MAC address", hexMacAddress, "Should be 16 hex characters");
+            throw DeviceConfigurationException.invalidPropertyFormat("MAC address", hexMacAddress, "Should be 16 hex characters");
         }
 
         final long normalTimeout = getProtocol().getDlmsSessionProperties().getTimeout();
@@ -380,6 +534,91 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         getProtocol().getDlmsSession().getDLMSConnection().setTimeout(normalTimeout);
 
         collectedMessage.setDeviceProtocolInformation(pingTime + " ms");
+        return collectedMessage;
+    }
+
+    private CollectedMessage kickMeter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String macAddress = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+
+        final boolean result = getCosemObjectFactory().getG3NetworkManagement().detachNode(macAddress);
+
+        if (!result) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            final String errorMsg = "The Beacon was not able to kick the meter from the network.";
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+
+        return collectedMessage;
+    }
+
+    private CollectedMessage addMetersToBlackList(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        List<String> macAddresses = new ArrayList<>();
+
+        for (String macAddress : pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().split(SEPARATOR)) {
+            final String errorMsg = "MAC addresses should be a list of 16 hex characters, separated by a semicolon.";
+            try {
+                final byte[] macAddressBytes = ProtocolTools.getBytesFromHexString(macAddress, "");
+                if (macAddressBytes.length != 8) {
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    collectedMessage.setDeviceProtocolInformation(errorMsg);
+                    collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, errorMsg));
+                    return collectedMessage;
+                }
+            } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                collectedMessage.setDeviceProtocolInformation(errorMsg);
+                collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, errorMsg));
+                return collectedMessage;
+            }
+
+            macAddresses.add(macAddress);
+        }
+
+        final boolean result = getCosemObjectFactory().getG3NetworkManagement().addToBlacklist(macAddresses);
+
+        if (!result) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            final String errorMsg = "The Beacon was not able to add the meter(s) to the blacklist";
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+
+        return collectedMessage;
+    }
+
+    private CollectedMessage removeMetersFromBlackList(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        List<String> macAddresses = new ArrayList<>();
+
+        for (String macAddress : pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().split(SEPARATOR)) {
+            final String errorMsg = "MAC addresses should be a list of 16 hex characters, separated by a semicolon.";
+            try {
+                final byte[] macAddressBytes = ProtocolTools.getBytesFromHexString(macAddress, "");
+                if (macAddressBytes.length != 8) {
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    collectedMessage.setDeviceProtocolInformation(errorMsg);
+                    collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, errorMsg));
+                    return collectedMessage;
+                }
+            } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                collectedMessage.setDeviceProtocolInformation(errorMsg);
+                collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, errorMsg));
+                return collectedMessage;
+            }
+
+            macAddresses.add(macAddress);
+        }
+
+        final boolean result = getCosemObjectFactory().getG3NetworkManagement().removeFromBlacklist(macAddresses);
+
+        if (!result) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            final String errorMsg = "The beacon was not able to add the meter(s) to the blacklist";
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+
         return collectedMessage;
     }
 
@@ -395,10 +634,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-
-        String b64EncodedImage = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
-        byte[] image = new Base64EncoderDecoder().decode(b64EncodedImage);
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
 
@@ -406,9 +643,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         it.setPollingDelay(10000);
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
-        it.upgrade(image, false, imageIdentifier, true);
-
-        try {
+        
+        try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
+        	it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
             it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
             it.imageActivation();
         } catch (DataAccessResultException e) {
@@ -417,7 +654,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             } else {
                 throw e;
             }
-        }
+        } 
     }
 
     private boolean isTemporaryFailure(DataAccessResultException e) {
@@ -596,5 +833,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private int getSingleIntegerAttribute(OfflineDeviceMessage pendingMessage) {
         return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+    }
+    
+    /**
+     * Returns the {@link Logger} instance to be used.
+     * 
+     * @return	The logger instance to be used.
+     */
+    private final Logger getLogger() {
+    	return this.getProtocol().getLogger();
     }
 }

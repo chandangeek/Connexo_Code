@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.core.wavecell;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
@@ -204,7 +205,7 @@ public class WaveCellConnect extends WaveFlowConnect {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (IOException e) {
                 throw new ConnectionException("Connection, readBytes() error " + e.getMessage());
             }

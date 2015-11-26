@@ -18,12 +18,14 @@ import com.energyict.dlms.cosem.MasterboardSetup;
 import com.energyict.dlms.cosem.NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -418,12 +420,17 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.startTime) || propertySpec.getName().equals(DeviceMessageConstants.endTime)) {
             TimeOfDay timeOfDay = (TimeOfDay) messageAttribute;
             return String.valueOf(timeOfDay.getHoursPart() + ":" + timeOfDay.getMinutesPart() + ":" + timeOfDay.getSeconds());
         } else {
             return messageAttribute.toString(); // The default fall-back option, works for (Hex)String, BigDecimal, Boolean, ...
         }
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 }

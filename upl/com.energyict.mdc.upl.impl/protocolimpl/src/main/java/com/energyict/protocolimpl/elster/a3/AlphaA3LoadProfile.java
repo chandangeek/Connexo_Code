@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.elster.a3;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
 import com.energyict.protocolimpl.ansi.c12.tables.*;
@@ -583,7 +584,7 @@ public class AlphaA3LoadProfile {
                 }
                 catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             } else {
                 break;

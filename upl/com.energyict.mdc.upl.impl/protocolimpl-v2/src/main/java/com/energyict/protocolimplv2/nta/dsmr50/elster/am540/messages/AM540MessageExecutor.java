@@ -52,15 +52,17 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
                 collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
                 try {
-                    boolean messageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
-                    if (!messageExecuted) { // if it was not a PLC message
+                    final CollectedMessage plcMessageResult = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
+                    if (plcMessageResult != null) {
+                        collectedMessage = plcMessageResult;
+                    } else { // if it was not a PLC message
                         if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CLOSE_RELAY)) {
                             closeRelay(pendingMessage);
                         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
                             openRelay(pendingMessage);
                         } else {
-                            collectedMessage = null;
                             dsmr40Messages.add(pendingMessage); // These messages are not specific for AM540, but can be executed by the super (= Dsmr 4.0) messageExecutor
+                            collectedMessage = null;
                         }
                     }
                 } catch (IOException e) {

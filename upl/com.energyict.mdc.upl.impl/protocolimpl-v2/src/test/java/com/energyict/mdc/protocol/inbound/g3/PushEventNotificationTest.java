@@ -3,8 +3,6 @@ package com.energyict.mdc.protocol.inbound.g3;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
-import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.ports.InboundComPort;
@@ -35,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.mockito.Mockito.*;
 
@@ -63,13 +62,12 @@ public class PushEventNotificationTest extends TestCase {
         context = mock(InboundDiscoveryContext.class);
         inboundDAO = mock(InboundDAO.class);
         when(context.getInboundDAO()).thenReturn(inboundDAO);
+        when(context.getLogger()).thenReturn(Logger.getAnonymousLogger());
 
         when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(collectedDataFactory);
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
         LogBookIdentifier any = any(LogBookIdentifier.class);
         when(collectedDataFactory.createCollectedLogBook(any)).thenReturn(new DeviceLogBook(any));
-
-        ComServerExceptionFactoryProvider.instance.set(new DefaultComServerExceptionFactoryProvider());
     }
 
     @Test

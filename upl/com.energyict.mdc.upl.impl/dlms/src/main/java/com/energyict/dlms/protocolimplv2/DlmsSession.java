@@ -11,6 +11,7 @@ import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.util.TimeZone;
@@ -92,7 +93,7 @@ public class DlmsSession implements ProtocolLink {
         } else if (ComChannelType.SocketComChannel.is(comChannel)) {
             return new TCPIPConnection(comChannel, getProperties());
         } else {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.SocketComChannel.name(), comChannel.getClass().getSimpleName());
+            throw DeviceConfigurationException.unexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.SocketComChannel.name(), comChannel.getClass().getSimpleName());
         }
     }
 

@@ -3,16 +3,20 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
+import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -52,7 +56,11 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
         //First read out the G3 PLC registers, using the G3 PLC register mapper
         for (OfflineRegister register : allRegisters) {
             ObisCode obisCode = register.getObisCode();
-            if (getPLCRegisterMapper().getG3Mapping(obisCode) != null) {
+
+            if (obisCode.equals(G3NetworkManagement.getDefaultObisCode())) {
+                final CollectedRegister incompatibleRegister = createIncompatibleRegister(register, "Register with obiscode " + obisCode + " cannot be read out, use the path request message for this.");
+                collectedRegisters.add(incompatibleRegister);
+            } else if (getPLCRegisterMapper().getG3Mapping(obisCode) != null) {
                 try {
                     RegisterValue registerValue = getPLCRegisterMapper().readRegister(obisCode);
                     CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
@@ -105,6 +113,18 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
 
         //Finally, return all the register values
         return collectedRegisters;
+    }
+
+    @Override
+    protected RegisterValue convertCustomAbstractObjectsToRegisterValues(OfflineRegister register, AbstractDataType abstractDataType) throws UnsupportedException {
+        ObisCode rObisCode = getCorrectedRegisterObisCode(register);
+
+        //Non ASCII octetstring, so return a hexstring that represents the byte array
+        if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE) || rObisCode.equals(MODULE_FIRMWARE_SIGNATURE)) {
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, ParseUtils.decimalByteToString(abstractDataType.getContentByteArray()).toUpperCase());
+        }
+
+        return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
     }
 
     private String parseExecutionTimeArrayToHumanReadableText(Array executionTime) throws IOException {

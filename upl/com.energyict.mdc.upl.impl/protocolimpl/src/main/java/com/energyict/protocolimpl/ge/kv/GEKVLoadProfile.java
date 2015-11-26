@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.ge.kv;
 
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureFactory;
 import java.io.*;
 import java.math.*;
@@ -282,7 +283,7 @@ if (DEBUG>=1) System.out.println("KV_DEBUG> interval "+i+", endtime "+cal.getTim
                 }
                 catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
             else break;

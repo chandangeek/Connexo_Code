@@ -11,7 +11,7 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 
@@ -145,7 +145,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                                             // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
                 } else {
                     IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(ioException);
+                    throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
                 }
             }
         } else { /* During association request (AARQ and AARE) the request just needs to be forwarded */
@@ -225,7 +225,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                     return securedResponse; // Return as-is, content can only be decrypted once all blocks are received
                 } else {                    // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
                     IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(ioException);
+                    throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
                 }
             }
         } else { /* During association request (AARQ and AARE) the request just needs to be forwarded */

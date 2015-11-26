@@ -19,7 +19,7 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -27,11 +27,14 @@ import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ConnectionSetupException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -53,9 +56,6 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     private static final int METER_HAS_JOINED = 0xC2;
     private static final int METER_HAS_LEFT = 0xC3;
     private static final int METER_JOIN_ATTEMPT = 0xC5;
-
-    private static final int METER_SERIAL_NUMBER_READOUT_SUCCESS = 0x36;
-    private static final int METER_SERIAL_NUMBER_READOUT_FAIL = 0x37;
 
     protected ComChannel tcpComChannel;
     protected InboundDiscoveryContext context;
@@ -86,17 +86,19 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public DiscoverResultType doDiscovery() {
-        parser = new EventPushNotificationParser(comChannel, getContext());
-        parser.parseInboundFrame();
-        collectedLogBook = parser.getCollectedLogBook();
+        getEventPushNotificationParser().parseInboundFrame();
+        collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
+
+        context.getLogger().fine("Received inbound event notification. Message: '" + getMeterProtocolEvent().getMessage() + "', protocol code: '" + getMeterProtocolEvent().getProtocolCode() + "'");
 
         if (isJoinAttempt() || isSuccessfulJoin() || isMeterLeft()) {
             DeviceProtocol gatewayProtocol = newGatewayProtocol();
             try {
-                gatewayProtocol = initializeGatewayProtocol(parser.getSecurityPropertySet(), gatewayProtocol);
+                gatewayProtocol = initializeGatewayProtocol(getEventPushNotificationParser().getSecurityPropertySet(), gatewayProtocol);
                 if (isJoinAttempt()) {
                     providePSK(getDlmsSession(gatewayProtocol));
                 } else if (isSuccessfulJoin() || isMeterLeft()) {
+                    context.getLogger().fine("A module has joined/left the network, reading out the new topology");
                     collectedTopology = gatewayProtocol.getDeviceTopology();
                 }
             } finally {
@@ -109,6 +111,17 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         }
 
         return DiscoverResultType.DATA;
+    }
+
+    private MeterProtocolEvent getMeterProtocolEvent() {
+        return collectedLogBook.getCollectedMeterEvents().get(0);
+    }
+
+    protected EventPushNotificationParser getEventPushNotificationParser() {
+        if (parser == null) {
+            parser = new EventPushNotificationParser(comChannel, getContext());
+        }
+        return parser;
     }
 
     protected DeviceProtocol newGatewayProtocol() {
@@ -135,7 +148,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         addDefaultValuesIfNecessary(gatewayProtocol, dialectProperties);
 
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
-        OfflineDevice offlineDevice = context.getInboundDAO().findOfflineDevice(getDeviceIdentifier());
+        OfflineDevice offlineDevice = context.getInboundDAO().goOffline(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
         createTcpComChannel();
         gatewayProtocol.setDeviceCache(dummyCache);
         gatewayProtocol.addProperties(protocolProperties);
@@ -171,7 +184,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             InboundComPort comPort = context.getComPort();         //Note that this is indeed the INBOUND comport, it is only used for logging purposes in the ComChannel
             tcpComChannel = new OutboundTcpIpConnectionType().connect(comPort, connectionTaskProperties);
         } catch (ConnectionException e) {
-            throw MdcManager.getComServerExceptionFactory().createConnectionSetupException(e);
+            throw ConnectionSetupException.connectionSetupFailed(e);
         }
     }
 
@@ -185,7 +198,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         try {
             g3NetworkManagement = dlmsSession.getCosemObjectFactory().getG3NetworkManagement();
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
 
         try {
@@ -206,6 +219,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                                 final OctetString wrappedPSKKey = wrap(dlmsSession.getProperties().getProperties(), pskBytes);
                                 Structure macAndKeyPair = createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier);
                                 macKeyPairs.addDataType(macAndKeyPair);
+                                context.getLogger().fine("Providing PSK key for joining module '" + macAddress + "'");
                             } else {
                                 context.getLogger().warning("Device with MAC address " + macAddress + " has an invalid PSK property: '" + psk + "'. Should be 32 hex characters. Skipping.");
                             }
@@ -219,7 +233,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             }
             g3NetworkManagement.provideKeyPairs(macKeyPairs);
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         } catch (IOException e) {
             throw IOExceptionHandler.handle(e, dlmsSession);
         }
@@ -260,15 +274,15 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     }
 
     protected boolean isMeterLeft() {
-        return collectedLogBook.getCollectedMeterEvents().get(0).getProtocolCode() == METER_HAS_LEFT;
+        return getMeterProtocolEvent().getProtocolCode() == METER_HAS_LEFT;
     }
 
     protected boolean isSuccessfulJoin() {
-        return collectedLogBook.getCollectedMeterEvents().get(0).getProtocolCode() == METER_HAS_JOINED;
+        return getMeterProtocolEvent().getProtocolCode() == METER_HAS_JOINED;
     }
 
     protected boolean isJoinAttempt() {
-        return collectedLogBook.getCollectedMeterEvents().get(0).getProtocolCode() == METER_JOIN_ATTEMPT;
+        return getMeterProtocolEvent().getProtocolCode() == METER_JOIN_ATTEMPT;
     }
 
     @Override
@@ -293,7 +307,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-25 14:25:56 +0200 (Wed, 25 Nov 2015)$";
     }
 
     @Override

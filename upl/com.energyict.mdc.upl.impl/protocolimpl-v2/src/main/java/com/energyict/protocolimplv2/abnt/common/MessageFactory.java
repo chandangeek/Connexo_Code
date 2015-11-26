@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
@@ -8,9 +9,11 @@ import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Code;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
@@ -251,11 +254,11 @@ public class MessageFactory implements DeviceMessageSupport {
                 return offlineDeviceMessageAttribute.getDeviceMessageAttributeValue();
             }
         }
-        throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("DeviceMessage didn't contain a value found for MessageAttribute " + attributeName));
+        throw DataParseException.ioException(new ProtocolException("DeviceMessage didn't contain a value found for MessageAttribute " + attributeName));
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (messageAttribute instanceof Date) {
             Date date = (Date) messageAttribute;    //Date, expressed in EIMaster system timezone, which can be different than ComServer timezone
             Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -272,11 +275,16 @@ public class MessageFactory implements DeviceMessageSupport {
         }
     }
 
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
+    }
+
     private String convertCodeTableToXML(Code messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
     }
 

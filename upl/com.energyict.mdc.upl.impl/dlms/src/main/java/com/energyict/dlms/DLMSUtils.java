@@ -12,6 +12,7 @@ import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
@@ -1238,7 +1239,7 @@ public final class DLMSUtils {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 

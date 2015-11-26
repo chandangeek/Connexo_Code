@@ -22,6 +22,7 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.Discover;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -94,7 +95,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     	}
     	catch(InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     	
         doTheConnect();

@@ -24,9 +24,10 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
@@ -47,12 +48,17 @@ import java.util.List;
  */
 public class EventPushNotificationParser {
 
+    /**
+     * The default obiscode of the logbook to store the received events in
+     */
+    private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
+
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
     private static final int LAST_EVENT_ATTRIBUTE_NUMBER = 3;
-
     private final ComChannel comChannel;
     private final InboundDAO inboundDAO;
     private final InboundComPort inboundComPort;
+    private final ObisCode logbookObisCode;
     private CollectedLogBook collectedLogBook;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private DeviceIdentifier deviceIdentifier;
@@ -61,6 +67,14 @@ public class EventPushNotificationParser {
         this.comChannel = comChannel;
         this.inboundDAO = context.getInboundDAO();
         this.inboundComPort = context.getComPort();
+        this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
+    }
+
+    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, ObisCode logbookObisCode) {
+        this.comChannel = comChannel;
+        this.inboundDAO = context.getInboundDAO();
+        this.inboundComPort = context.getComPort();
+        this.logbookObisCode = logbookObisCode;
     }
 
     protected ComChannel getComChannel() {
@@ -77,7 +91,7 @@ public class EventPushNotificationParser {
         } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
             parseEncryptedFrame(inboundFrame);
         } else {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
+            throw DataParseException.ioException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
         }
     }
 
@@ -95,7 +109,7 @@ public class EventPushNotificationParser {
         int securityPolicy = inboundFrame.get() & 0xFF;
 
         if (getSecurityPropertySet().getEncryptionDeviceAccessLevel() != (securityPolicy / 16)) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException(
+            throw DataParseException.ioException(new ProtocolException(
                     "Security mismatch: received incoming event push notification encrypted with security policy " + (securityPolicy / 16) + ", but device in EIServer is configured with security level " + getSecurityPropertySet().getEncryptionDeviceAccessLevel()));
         }
 
@@ -109,7 +123,7 @@ public class EventPushNotificationParser {
         decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame));
         byte plainTag = decryptedFrame.get();
         if (plainTag != getCosemNotificationAPDUTag()) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + getCosemNotificationAPDUTag()));
+            throw DataParseException.ioException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + getCosemNotificationAPDUTag()));
         }
 
         parseAPDU(decryptedFrame);
@@ -119,6 +133,7 @@ public class EventPushNotificationParser {
         return DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST;
     }
 
+    //TODO this might change in the RTU3
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serialNumber = new String(systemTitle);
         serialNumber = serialNumber.replace("DC", "");      //Strip off the "DC" prefix
@@ -151,7 +166,7 @@ public class EventPushNotificationParser {
             if (securityProperties != null && !securityProperties.isEmpty()) {
                 this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(securityProperties);
             } else {
-                throw MdcManager.getComServerExceptionFactory().notConfiguredForInboundCommunication(deviceIdentifier);
+                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
             }
         }
         return this.securityPropertySet;
@@ -162,14 +177,14 @@ public class EventPushNotificationParser {
         getComChannel().startReading();
         int readBytes = getComChannel().read(header);
         if (readBytes != 8) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
+            throw DataParseException.ioException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
         }
         int length = ProtocolTools.getIntFromBytes(header, 6, 2);
 
         byte[] frame = new byte[length];
         readBytes = getComChannel().read(frame);
         if (readBytes != length) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
+            throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
         }
         return ByteBuffer.wrap(ProtocolTools.concatByteArrays(header, frame));
     }
@@ -179,19 +194,19 @@ public class EventPushNotificationParser {
 
         short classId = inboundFrame.getShort();
         if (classId != DLMSClassId.EVENT_NOTIFICATION.getClassId()) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Expected push event notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() + "' but was '" + classId + "'"));
+            throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() + "' but was '" + classId + "'"));
         }
 
         byte[] obisCodeBytes = new byte[6];
         inboundFrame.get(obisCodeBytes);
         ObisCode obisCode = ObisCode.fromByteArray(obisCodeBytes);
         if (!obisCode.equals(EVENT_NOTIFICATION_OBISCODE)) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Expected push event notification from object with obiscode '" + EVENT_NOTIFICATION_OBISCODE + "' but was '" + obisCode.toString() + "'"));
+            throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with obiscode '" + EVENT_NOTIFICATION_OBISCODE + "' but was '" + obisCode.toString() + "'"));
         }
 
         int attributeNumber = inboundFrame.get() & 0xFF;
         if (attributeNumber != LAST_EVENT_ATTRIBUTE_NUMBER) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Expected push event notification attribute '" + LAST_EVENT_ATTRIBUTE_NUMBER + "' but was '" + attributeNumber + "'"));
+            throw DataParseException.ioException(new ProtocolException("Expected push event notification attribute '" + LAST_EVENT_ATTRIBUTE_NUMBER + "' but was '" + attributeNumber + "'"));
         }
 
         byte[] eventData = new byte[inboundFrame.remaining()];
@@ -201,15 +216,15 @@ public class EventPushNotificationParser {
         try {
             structure = AXDRDecoder.decode(eventData, Structure.class);
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
         int nrOfDataTypes = structure.nrOfDataTypes();
         if (nrOfDataTypes != 5) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Expected a structure with 5 elements, but received a structure with " + nrOfDataTypes + " element(s)"));
+            throw DataParseException.ioException(new ProtocolException("Expected a structure with 5 elements, but received a structure with " + nrOfDataTypes + " element(s)"));
         }
         OctetString equipmentIdentifier = structure.getDataType(0).getOctetString();
         if (equipmentIdentifier == null) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
         }
         deviceIdentifier = new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
 
@@ -224,7 +239,7 @@ public class EventPushNotificationParser {
 
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, G3GatewayEvents.OBIS_CODE));
+        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
@@ -235,7 +250,7 @@ public class EventPushNotificationParser {
     private String parseDescription(Structure structure) {
         OctetString octetString = structure.getDataType(4).getOctetString();
         if (octetString == null) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Expected the fourth element of the received structure to be an OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Expected the fourth element of the received structure to be an OctetString"));
         }
         return octetString.stringValue();
     }
@@ -243,12 +258,12 @@ public class EventPushNotificationParser {
     private Date parseDateTime(Structure structure) {
         OctetString octetString = structure.getDataType(1).getOctetString();
         if (octetString == null) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Expected the second element of the received structure to be an OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Expected the second element of the received structure to be an OctetString"));
         }
         try {
             return new AXDRDateTime(octetString).getValue().getTime();
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
     }
 

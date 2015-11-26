@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.logbooks;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
@@ -9,6 +8,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.NotInObjectListException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class LogBookParser implements DeviceLogBookSupport {
 
-    private static final ObisCode EVENT_LOG_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
+    private static final ObisCode EVENT_LOG_OBISCODE = ObisCode.fromString("0.x.99.98.0.255");
 
     private AbstractDlmsProtocol protocol;
 
@@ -45,7 +45,7 @@ public class LogBookParser implements DeviceLogBookSupport {
 
             try {
                 protocol.getMeterTopology().getPhysicalAddress(meterSerialNumber);
-            } catch (ComServerExecutionException e) {
+            } catch (ProtocolRuntimeException e) {
                 //Serial number is not in meter map
                 collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                 result.add(collectedLogBook);

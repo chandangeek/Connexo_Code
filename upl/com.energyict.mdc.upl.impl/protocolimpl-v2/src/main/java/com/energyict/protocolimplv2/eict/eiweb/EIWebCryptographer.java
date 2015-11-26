@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.protocol.inbound.crypto.ServerCryptographer;
 import com.energyict.mdc.protocol.security.SecurityProperty;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.util.List;
@@ -45,7 +45,7 @@ public class EIWebCryptographer implements ServerCryptographer {
         this.usageCount++;
         TypedProperties connectionTypeProperties = this.inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, this.comPort);
         if (connectionTypeProperties == null) {
-            throw MdcManager.getComServerExceptionFactory().notConfiguredForInboundCommunication(deviceIdentifier);
+            throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
         } else {
             List<SecurityProperty> securityProperties = this.inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, this.comPort);
             if (securityProperties != null) {
@@ -56,7 +56,7 @@ public class EIWebCryptographer implements ServerCryptographer {
                 md5SeedBuilder.append(encryptionPassword);
                 return new StringBasedMD5Seed(md5SeedBuilder.toString());
             } else {
-                throw MdcManager.getComServerExceptionFactory().notConfiguredForInboundCommunication(deviceIdentifier);
+                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
             }
         }
     }

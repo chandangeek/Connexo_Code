@@ -43,7 +43,7 @@ public class MasterDataSync {
     public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         AllMasterData allMasterData;
         try {
-            final String serializedMasterData = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
             final JSONObject jsonObject = new JSONObject(serializedMasterData);
             allMasterData = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), AllMasterData.class);
         } catch (JSONException | IOException e) {
@@ -66,7 +66,7 @@ public class MasterDataSync {
     public CollectedMessage syncDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         Beacon3100MeterDetails[] meterDetails;
         try {
-            final String serializedMasterData = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dcDeviceID2AttributeName).getDeviceMessageAttributeValue();
+            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
             final JSONArray jsonObject = new JSONArray(serializedMasterData);
             meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
         } catch (JSONException | IOException e) {

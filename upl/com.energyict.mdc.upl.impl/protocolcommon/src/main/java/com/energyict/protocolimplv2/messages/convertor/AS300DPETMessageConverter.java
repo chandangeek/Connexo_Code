@@ -8,6 +8,7 @@ import com.energyict.mdw.amr.RegisterReading;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Group;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
@@ -85,15 +86,15 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
                         index++;
                     } else {
                         ApplicationException e = new ApplicationException("Device with serial number " + device.getSerialNumber() + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!");
-                        throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+                        throw DataParseException.generalParseException(e);
                     }
                 } else {
                     ApplicationException e = new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!");
-                    throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+                    throw DataParseException.generalParseException(e);
                 }
             }
         } catch (ClassCastException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
         return builder.toString();
     }
