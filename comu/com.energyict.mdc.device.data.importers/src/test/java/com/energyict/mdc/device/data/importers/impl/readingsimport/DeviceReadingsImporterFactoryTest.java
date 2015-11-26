@@ -1,23 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
-import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
-import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.SupportedNumberFormatInfo;
-import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
@@ -44,7 +26,31 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
+import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.google.common.collect.Range;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -61,32 +67,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT1;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT2;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT4;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterFactoryTest {
@@ -303,6 +289,24 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE).format(2, "VPB0001"));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 3, 1));
+    }
+
+    @Test
+    public void testDeviceInInStockState() {
+        String csv = "Device MRID;Reading date;Reading type MRID;Reading Value\n" +
+                "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;1005003";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+
+        mockDeviceInState("VPB0001", DefaultState.IN_STOCK);
+        User user = mockUser("batch executor");
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE).format(2, "VPB0001"));
         verifyNoMoreInteractions(logger);
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 3, 1));
     }

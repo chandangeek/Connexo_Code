@@ -98,11 +98,14 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
             complete();//when new mrid comes we store all previous data read
             device = this.context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
-            validateDeviceState(data, device);
         }
+        validateDeviceState(data, device);
     }
 
     private void validateDeviceState(DeviceReadingsImportRecord data, Device device) {
+        if (device.getState().getName().equals(DefaultState.IN_STOCK.getKey())) {
+            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE, data.getLineNumber(), device.getmRID());
+        }
         if (device.getState().getName().equals(DefaultState.DECOMMISSIONED.getKey())
                 && !((User)context.getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
             throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE, data.getLineNumber(), device.getmRID());

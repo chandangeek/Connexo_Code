@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.importers.impl.readingsimport;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -22,6 +24,7 @@ import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -44,6 +47,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
@@ -61,40 +65,8 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
     @Test
     @Transactional
     public void testImportRegisterAndChannelReadings() {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(deviceProtocolPluggableClass.getId()).thenReturn(1L);
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-
-        ReadingType readingTypeForRegister = inMemoryPersistence.getService(MeteringService.class).getReadingType("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0").get();
-        MasterDataService masterDataService = inMemoryPersistence.getService(MasterDataService.class);
-        RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingTypeForRegister).get();
-        LoadProfileType loadProfileType = masterDataService.newLoadProfileType("Daily Electriciyl", ObisCode.fromString("1.2.3.4.5.6"), TimeDuration.days(1), Arrays.asList(registerType));
-        loadProfileType.save();
-        DeviceConfigurationService deviceConfigurationService = inMemoryPersistence.getService(DeviceConfigurationService.class);
-        DeviceType deviceType = deviceConfigurationService.newDeviceType("Device Type", deviceProtocolPluggableClass);
-        deviceType.addRegisterType(registerType);
-        deviceType.addLoadProfileType(loadProfileType);
-        deviceType.save();
-
-        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Default").add();
-        deviceConfiguration.createNumericalRegisterSpec(registerType)
-                .setNumberOfDigits(8)
-                .setNumberOfFractionDigits(2)
-                .setOverflowValue(BigDecimal.valueOf(100000000))
-                .add().save();
-        LoadProfileSpec loadProfileSpec = deviceConfiguration.createLoadProfileSpec(loadProfileType).add();
-        loadProfileSpec.save();
-        deviceConfiguration.createChannelSpec(loadProfileType.getChannelTypes().get(0), loadProfileSpec)
-                .setNbrOfFractionDigits(2)
-                .setOverflow(BigDecimal.valueOf(100000000))
-                .add().save();
-        deviceConfiguration.activate();
-        deviceConfiguration.save();
-
-        DeviceService deviceService = inMemoryPersistence.getService(DeviceService.class);
-        Device device = deviceService.newDevice(deviceConfiguration, "TestDevice", "TestDevice");
-        device.save();
+        DeviceConfiguration deviceConfiguration = createDeviceConfiguration();
+        Device device = createDevice(deviceConfiguration);
 
         DeviceReadingsImporterFactory deviceReadingsImporterFactory = inMemoryPersistence.getService(DeviceReadingsImporterFactory.class);
         Map<String, Object> properties = new HashMap<>();
@@ -138,6 +110,52 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         assertThat(channelReadings).hasSize(1);
         assertThat(channelReadings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(channelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(800.45));
+    }
+
+    private DeviceConfiguration createDeviceConfiguration() {
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(1L);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+
+        ReadingType readingTypeForRegister = inMemoryPersistence.getService(MeteringService.class).getReadingType("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0").get();
+        MasterDataService masterDataService = inMemoryPersistence.getService(MasterDataService.class);
+        RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingTypeForRegister).get();
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType("Daily Electriciyl", ObisCode.fromString("1.2.3.4.5.6"), TimeDuration.days(1), Arrays.asList(registerType));
+        loadProfileType.save();
+        DeviceConfigurationService deviceConfigurationService = inMemoryPersistence.getService(DeviceConfigurationService.class);
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("Device Type", deviceProtocolPluggableClass);
+        deviceType.addRegisterType(registerType);
+        deviceType.addLoadProfileType(loadProfileType);
+        deviceType.save();
+
+        //change initial state of default lifecycle to have newly created devices not in In Stock state
+        FiniteStateMachine fsm = deviceType.getDeviceLifeCycle().getFiniteStateMachine();
+        Optional<State> newInitialState = fsm.getState(DefaultState.COMMISSIONING.getKey());
+        fsm.startUpdate().complete(newInitialState.get()).update();
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Default").add();
+        deviceConfiguration.createNumericalRegisterSpec(registerType)
+                .setNumberOfDigits(8)
+                .setNumberOfFractionDigits(2)
+                .setOverflowValue(BigDecimal.valueOf(100000000))
+                .add().save();
+        LoadProfileSpec loadProfileSpec = deviceConfiguration.createLoadProfileSpec(loadProfileType).add();
+        loadProfileSpec.save();
+        deviceConfiguration.createChannelSpec(loadProfileType.getChannelTypes().get(0), loadProfileSpec)
+                .setNbrOfFractionDigits(2)
+                .setOverflow(BigDecimal.valueOf(100000000))
+                .add().save();
+        deviceConfiguration.activate();
+        deviceConfiguration.save();
+        return deviceConfiguration;
+    }
+
+    private Device createDevice(DeviceConfiguration deviceConfiguration) {
+        DeviceService deviceService = inMemoryPersistence.getService(DeviceService.class);
+        Device device = deviceService.newDevice(deviceConfiguration, "TestDevice", "TestDevice");
+        device.save();
+        return device;
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {

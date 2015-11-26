@@ -38,7 +38,8 @@ public enum MessageSeeds implements MessageSeed {
     READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW(207, "ReadingValueDoesNotMatchChannelConfigOverflow", "Can''t process line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with channel configuration settings (overflow)", Level.WARNING),
     READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG(208, "ReadingValueWasTruncatedToRegisterConfig", "Note for line {0}: Reading value was truncated to {1} according to register configuration.", Level.INFO),
     READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(209, "ReadingValueWasTruncatedToChannelConfig", "Note for line {0}: Reading value was truncated to {1} according to channel configuration.", Level.INFO),
-    READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(210, "ReadingImportIsNotAllowedForDecommissionedDevices", "Can''t process line {0}: Readings import is not allowed for device {1} since it is decommissioned.", Level.WARNING),
+    READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(210, "ReadingImportIsNotAllowedForDecommissionedDevices", "Can''t process line {0}: Import service doesn''t have privileges to import readings for device with MRID: {1} since it is in Decommissioned state.", Level.WARNING),
+    READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE(211, "ReadingImportIsNotAllowedForInStockDevices", "Note for line {0}: Reading can''t be imported for device with MRID: {1} since this device is in In Stock state and was not installed or commissioned yet.", Level.WARNING),
 
     NO_CONNECTION_METHOD_ON_DEVICE(301, "NoSuchConnectionMethodOnDevice", "Can''t process line {0}: Connection method {1} is not supported on the device.", Level.WARNING),
     CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE(302, "ConnectionMethodIsNotUniqueInFile", "Failure in line {0}: Connection method name is not unique in the file.", Level.SEVERE),
