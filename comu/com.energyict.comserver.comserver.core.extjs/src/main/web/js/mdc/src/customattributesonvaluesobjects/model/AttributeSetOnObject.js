@@ -11,7 +11,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject', {
         {name: 'timesliced', type: 'boolean'},
         {name: 'isActive', type: 'boolean'},
         {name: 'startTime', dateFormat: 'time', type: 'date'},
-        {name: 'endTime', dateFormat: 'time', type: 'date'}
+        {name: 'endTime', dateFormat: 'time', type: 'date'},
+        {name: 'versionId', type: 'integer'}
     ],
 
     associations: [

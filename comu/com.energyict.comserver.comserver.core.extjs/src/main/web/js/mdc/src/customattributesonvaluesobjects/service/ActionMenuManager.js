@@ -21,7 +21,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.service.ActionMenuManager', {
                     handler: function () {
                         routeArguments.customAttributeSetId = record.get('id');
                         if (record.get('timesliced')) {
-                            routeArguments.versionId = record.get('startTime').getTime();
+                            routeArguments.versionId = record.get('versionId');
                         }
                         router.getRoute(route).forward(routeArguments);
                     }
