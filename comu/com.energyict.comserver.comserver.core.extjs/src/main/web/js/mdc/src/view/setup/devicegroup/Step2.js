@@ -66,6 +66,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                 {
                     xtype: 'panel',
                     itemId: 'device-group-filter',
+                    maskElement: 'el',
                     ui: 'filter',
                     defaults: {
                         xtype: 'panel',

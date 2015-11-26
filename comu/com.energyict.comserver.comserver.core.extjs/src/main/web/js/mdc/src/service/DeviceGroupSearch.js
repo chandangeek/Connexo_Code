@@ -33,7 +33,7 @@ Ext.define('Mdc.service.DeviceGroupSearch', {
             searchResults.addFilter(me.getFilters(), false);
             searchResults.load();
         } else {
-            searchResults.removeAll();
+            searchResults.loadData([]);
             searchResults.fireEvent('load', searchResults, [], true);
         }
     }
