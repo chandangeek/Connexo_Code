@@ -4,8 +4,8 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.pluggable.PluggableClassUsage;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 
 import aQute.bnd.annotation.ProviderType;

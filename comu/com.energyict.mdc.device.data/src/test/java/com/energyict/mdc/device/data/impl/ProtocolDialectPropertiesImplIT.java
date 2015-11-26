@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -15,18 +23,10 @@ import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.google.common.base.Strings;
 import com.google.common.collect.Range;
 

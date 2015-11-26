@@ -26,8 +26,8 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
