@@ -4,6 +4,7 @@ package com.elster.jupiter.time.rest.impl;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.impl.i18n.MessageSeeds;
 import com.elster.jupiter.time.security.Privileges;
@@ -44,7 +45,8 @@ public class TimeApplication extends Application implements MessageSeedProvider 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 RelativePeriodResource.class,
-                TimeFieldResource.class
+                TimeFieldResource.class,
+                RestValidationExceptionMapper.class
         );
     }
 
