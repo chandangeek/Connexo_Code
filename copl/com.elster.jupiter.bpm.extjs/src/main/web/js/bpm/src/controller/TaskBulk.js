@@ -106,27 +106,31 @@ Ext.define('Bpm.controller.TaskBulk', {
             tasks: Ext.encode(tasks)
         };
 
-        Ext.each(manageTaskActions, function (item) {
-            switch(item)
-            {
-                case 'assign':
-                    operation.assign = manageTaskForm.down('combobox[name=assigneeCombo]').getRawValue();
-                    break;
-                case 'setDueDate':
-                    operation.setDueDate = moment(manageTaskForm.down('#task-due-date').getValue()).valueOf();
-                    break;
-                case 'setPriority':
-                    operation.setPriority = manageTaskForm.down('#num-priority-number').getValue();
-                    break;
-            }
+        if(action === 'taskmanagement') {
+            Ext.each(manageTaskActions, function (item) {
+                switch (item) {
+                    case 'assign':
+                        operation.assign = manageTaskForm.down('combobox[name=assigneeCombo]').getRawValue();
+                        break;
+                    case 'setDueDate':
+                        operation.setDueDate = moment(manageTaskForm.down('#task-due-date').getValue()).valueOf();
+                        break;
+                    case 'setPriority':
+                        operation.setPriority = manageTaskForm.down('#num-priority-number').getValue();
+                        break;
+                }
 
-        });
-
+            });
+        }
+        else
+        {
+            operation.complete = 'true';
+        }
         url = '/api/bpm/runtime/managetasks';
 
         wizard.setLoading(true);
 
-        //wizard.down('#tskbw-step5').showProgressBar(action);
+        wizard.down('#tskbw-step5').showProgressBar(action);
 
         Ext.Ajax.request({
             url: url,

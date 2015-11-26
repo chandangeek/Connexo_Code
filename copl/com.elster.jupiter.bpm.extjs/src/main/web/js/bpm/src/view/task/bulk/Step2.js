@@ -21,10 +21,12 @@ Ext.define('Bpm.view.task.bulk.Step2', {
 
                 {
                     name: 'action',
+                    //itemId:'radio-taskmanagement',
                     boxLabel: '<b>' + Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management') + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">'
                     + Uni.I18n.translate('task.bulk.actionRadioGroup.taskManagementDescription', 'BPM', 'These actions allow you to manage selected tasks')
                     + '</span>',
+                    privileges: Bpm.privileges.BpmManagement.assign,
                     inputValue: 'taskmanagement',
                     checked: true
                 },
@@ -33,6 +35,7 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     align: 'right',
                     padding: '0 0 16 40',
                     itemId:'chkg-task-bulk',
+                    privileges: Bpm.privileges.BpmManagement.assign,
                     columns: 1,
                     vertical: true,
                     labelAlign: 'top',
@@ -64,10 +67,12 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                 },
                 {
                     name: 'action',
+                    //itemId:'radio-taskexecute',
                     boxLabel: '<b>' + Uni.I18n.translate('general.taskExecution', 'BPM', 'Task execution') + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">'
                     + Uni.I18n.translate('task.bulk.actionRadioGroup.taskExecutionDescription', 'BPM', 'This action allows you to execute selected tasks')
                     + '</span>',
+                    privileges: Bpm.privileges.BpmManagement.execute,
                     inputValue: 'taskexecute'
                 },
                 {
@@ -75,6 +80,7 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     itemId: 'tasks-bulk-execute-radiogroup',
                     columns: 1,
                     vertical: true,
+                    privileges: Bpm.privileges.BpmManagement.execute,
                     submitValue: false,
                     disabled:true,
                     defaults: {
@@ -94,15 +100,18 @@ Ext.define('Bpm.view.task.bulk.Step2', {
             listeners: {
                 change: function(radiogroup, radio) {
                     if (radio.action == 'taskexecute'){
-                        this.down('#chkg-task-bulk').disable();
+                        if(this.down('#chkg-task-bulk')) this.down('#chkg-task-bulk').disable();
                         this.down('#tasks-bulk-execute-radiogroup').enable();
 
                     }
                     else{
                         this.down('#chkg-task-bulk').enable();
-                        this.down('#tasks-bulk-execute-radiogroup').disable();
+                        if(this.down('#tasks-bulk-execute-radiogroup')) this.down('#tasks-bulk-execute-radiogroup').disable();
                     }
 
+                },
+                afterrender: function (radiogroup, radio) {
+                    //alert(!this.down('#radio-taskmanagement'))
                 }
             }
         }
@@ -110,12 +119,15 @@ Ext.define('Bpm.view.task.bulk.Step2', {
     ],
     getManagementActions: function() {
         var arrActions = [];
-        if(this.down('#chkg-task-bulk').disabled === false) {
-            var arrChk = this.down('#chkg-task-bulk').getChecked();
-            Ext.each(arrChk, function (item) {
-                arrActions.push(item.inputValue)
-            });
+        if(this.down('#chkg-task-bulk')) {
+            if (this.down('#chkg-task-bulk').disabled === false) {
+                var arrChk = this.down('#chkg-task-bulk').getChecked();
+                Ext.each(arrChk, function (item) {
+                    arrActions.push(item.inputValue)
+                });
+            }
         }
         return arrActions;
     }
+
 });
