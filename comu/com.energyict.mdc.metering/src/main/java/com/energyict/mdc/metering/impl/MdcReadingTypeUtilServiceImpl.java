@@ -123,6 +123,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
             readingTypeCodeBuilder.period(TimeAttribute.NOTAPPLICABLE);
         } else {
             readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval.orElse(null)));
+            readingTypeCodeBuilder.period(MacroPeriod.NOTAPPLICABLE);
         }
         return readingTypeCodeBuilder;
     }
