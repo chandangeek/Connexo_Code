@@ -73,7 +73,7 @@ Ext.define('Mdc.controller.Search', {
             'search-object-selector': {
                 change: function (field, value) {
                     Uni.util.History.setParsePath(false);
-                    router.getRoute('search').forward(null, Ext.apply(router.queryParams, {searchDomain: value}));
+                    router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
                     me.service.setDomain(value);
                 }
             },
@@ -115,14 +115,19 @@ Ext.define('Mdc.controller.Search', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
 
+        searchDomains.clearFilter(true);
+        searchDomains.addFilter({property: 'application', value: 'COMU'}, false);
         searchDomains.load({callback: function(records) {
             var value = router.queryParams.searchDomain,
                 selector = me.getObjectSelector(),
                 state, isStateChange;
 
-            me.service.initState();
-            state = me.service.getState();
-            isStateChange = !!(state && state.domain);
+            if (!!router.queryParams.restore === true) {
+                me.service.initState();
+                state = me.service.getState();
+                isStateChange = !!(state && state.domain);
+            }
+
 
             if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
                 selector.setValue(value, isStateChange);

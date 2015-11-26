@@ -23,7 +23,8 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            store = me.service.getSearchPropertiesStore();
 
         me.items = [
             {
@@ -65,6 +66,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                 {
                     xtype: 'panel',
                     itemId: 'device-group-filter',
+                    maskElement: 'el',
                     ui: 'filter',
                     defaults: {
                         xtype: 'panel',
@@ -143,5 +145,21 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
         };
 
         me.callParent(arguments);
+
+        var panel = me.down('#device-group-filter');
+        var listeners = store.on({
+            beforeload:  function() {
+                panel.setLoading(true);
+            },
+            load: function() {
+                panel.setLoading(false);
+            },
+            scope: me,
+            destroyable: true
+        });
+
+        me.on('destroy', function () {
+            listeners.destroy();
+        });
     }
 });
