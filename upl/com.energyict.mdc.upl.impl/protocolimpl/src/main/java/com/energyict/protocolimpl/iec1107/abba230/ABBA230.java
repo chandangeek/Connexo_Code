@@ -529,7 +529,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-07-17 16:46:42 +0200 (Thu, 17 Jul 2014) $";
     }
 
     /* (non-Javadoc)

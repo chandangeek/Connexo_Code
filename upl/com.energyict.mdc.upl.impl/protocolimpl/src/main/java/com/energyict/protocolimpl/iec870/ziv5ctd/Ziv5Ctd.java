@@ -407,7 +407,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

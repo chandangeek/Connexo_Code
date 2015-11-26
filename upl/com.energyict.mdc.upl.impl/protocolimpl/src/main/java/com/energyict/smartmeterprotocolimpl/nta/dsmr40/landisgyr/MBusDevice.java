@@ -41,7 +41,7 @@ public class MBusDevice extends AbstractNtaMbusDevice {
      * @return a version string
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     @Override

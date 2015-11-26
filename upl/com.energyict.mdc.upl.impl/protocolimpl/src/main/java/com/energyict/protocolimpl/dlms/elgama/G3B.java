@@ -130,7 +130,7 @@ public class G3B extends AbstractDLMSProtocol {
      * @return the protocol version (being the date of the latest commit)
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-09-30 17:16:32 +0200 (Tue, 30 Sep 2014) $";
     }
 
     /**

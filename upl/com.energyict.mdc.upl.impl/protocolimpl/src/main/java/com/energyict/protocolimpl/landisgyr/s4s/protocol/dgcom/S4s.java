@@ -146,7 +146,7 @@ public class S4s extends AbstractProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-07-17 08:54:15 +0200 (Thu, 17 Jul 2014) $";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

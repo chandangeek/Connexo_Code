@@ -119,7 +119,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-10-10 16:52:23 +0200 (Fri, 10 Oct 2014) $";
     }
 
     public String getFirmwareVersion() throws IOException {

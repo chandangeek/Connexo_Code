@@ -158,7 +158,7 @@ public class Trimaran extends AbstractProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-10-01 18:21:44 +0200 (Thu, 01 Oct 2015) $";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

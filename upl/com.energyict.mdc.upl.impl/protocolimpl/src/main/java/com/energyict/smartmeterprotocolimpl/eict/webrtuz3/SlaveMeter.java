@@ -43,7 +43,7 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
      * @return a version string
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2014-07-10 09:27:00 +0200 (Thu, 10 Jul 2014) $";
     }
 
     @Override

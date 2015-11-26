@@ -70,7 +70,7 @@ public class EictVeris extends Modbus {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-07-17 08:54:15 +0200 (Thu, 17 Jul 2014) $";
     }
     
     protected void initRegisterFactory() {

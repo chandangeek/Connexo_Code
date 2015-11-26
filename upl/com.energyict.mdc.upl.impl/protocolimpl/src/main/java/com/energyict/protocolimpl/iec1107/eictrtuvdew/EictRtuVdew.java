@@ -284,7 +284,7 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-10-20 09:39:12 +0200 (Tue, 20 Oct 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

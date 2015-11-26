@@ -263,7 +263,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     /* Protocol version */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

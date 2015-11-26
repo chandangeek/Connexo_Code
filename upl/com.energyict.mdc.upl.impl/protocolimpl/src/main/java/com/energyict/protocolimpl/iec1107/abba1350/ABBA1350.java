@@ -325,7 +325,7 @@ public class ABBA1350
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-10-02 11:22:01 +0200 (Fri, 02 Oct 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

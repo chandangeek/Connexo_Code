@@ -473,7 +473,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     /* (non-Javadoc)

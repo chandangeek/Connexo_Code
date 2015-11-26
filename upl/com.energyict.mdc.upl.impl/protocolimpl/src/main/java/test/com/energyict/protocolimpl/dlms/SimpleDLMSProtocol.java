@@ -605,7 +605,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the version of the specific protocol implementation
      */
     public String getProtocolVersion() {
-        return "$Date$";  //To change body of implemented methods use File | Settings | File Templates.
+        return "$Date: 2015-05-05 15:18:27 +0200 (Tue, 05 May 2015) $";  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**

@@ -75,7 +75,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     }
 
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-05-19 16:23:16 +0200 (Tue, 19 May 2015) $";
     }
 
     /**

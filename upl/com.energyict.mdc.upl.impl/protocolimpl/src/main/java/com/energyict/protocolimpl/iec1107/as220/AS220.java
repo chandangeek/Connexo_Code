@@ -357,7 +357,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-24 17:28:28 +0100 (Tue, 24 Nov 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

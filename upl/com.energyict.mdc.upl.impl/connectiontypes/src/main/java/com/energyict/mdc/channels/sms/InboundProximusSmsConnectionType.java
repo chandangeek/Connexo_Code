@@ -48,7 +48,7 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-02-03 13:33:01 +0100 (Tue, 03 Feb 2015) $";
     }
 
     @Override

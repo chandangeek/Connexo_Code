@@ -24,7 +24,7 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-04-29 16:11:31 +0200 (Wed, 29 Apr 2015) $";
     }
 
     protected DeviceProtocolSecurityCapabilities getSecurityCapabilities() {

@@ -112,7 +112,7 @@ public class AS1253 extends AbstractDLMS {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 }
 
