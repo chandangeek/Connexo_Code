@@ -1021,6 +1021,10 @@ Ext.define('Apr.controller.AppServers', {
         this.showMessageServices(this.getMessageServicesOverview().appServerName);
     },
 
+    onCellEdit: function (editor, e) {
+        e.record.set('numberOfThreads', e.value);
+    },
+
     messageServiceDataChanged: function(){
         if (!this.getSaveSettingsButton() && !this.getNoMessageServicesSaveSettingsButton()) { // We're not @ the details view
             return; // ... so nothing to update

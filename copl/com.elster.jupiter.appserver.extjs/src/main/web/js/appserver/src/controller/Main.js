@@ -10,6 +10,7 @@ Ext.define('Apr.controller.Main', {
         'Apr.controller.history.AppServer',
         'Apr.controller.AppServers',
         'Apr.controller.TaskOverview'
+        'Apr.controller.MessageQueues'
     ],
 
     stores: [
@@ -53,6 +54,11 @@ Ext.define('Apr.controller.Main', {
                         text: Uni.I18n.translate('general.taskOverview', 'APR', 'Task overview'),
                         href: '#/administration/taskoverview',
                         route: 'taskoverview'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.messageQueues', 'APR', 'Message queues'),
+                        href: '#/administration/messagequeues',
+                        route: 'messagequeues'
                     }
                 ]
             });
