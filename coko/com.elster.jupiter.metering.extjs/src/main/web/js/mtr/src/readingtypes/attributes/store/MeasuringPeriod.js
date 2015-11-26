@@ -4,10 +4,10 @@ Ext.define('Mtr.readingtypes.attributes.store.MeasuringPeriod',{
     fields: ['code', 'displayName'],
     proxy: {
         type: 'rest',
-        url: '/api/mtr/readingtypes/codes/measuringperiod',
+        url: '/api/mtr/readingtypes/codes/measurementPeriod',
         reader: {
             type: 'json',
-            root: 'measuringperiodCodes'
+            root: 'measurementPeriodCodes'
         },
         limitParam: false
     }
