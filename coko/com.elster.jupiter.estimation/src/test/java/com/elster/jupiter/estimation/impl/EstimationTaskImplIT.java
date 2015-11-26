@@ -28,6 +28,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -40,6 +41,7 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
@@ -70,6 +72,8 @@ import java.util.Optional;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.time.RelativeField.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationTaskImplIT {
@@ -78,6 +82,7 @@ public class EstimationTaskImplIT {
     private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
     private IEstimationService estimationService;
     private TaskService taskService;
+    private ThreadPrincipalService threadPrincipalService;
 
     private class MockModule extends AbstractModule {
 
@@ -116,6 +121,8 @@ public class EstimationTaskImplIT {
     private LogService logService;
     @Mock
     private PropertySpec propertySpec;
+    @Mock
+    private User user;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private TransactionService transactionService;
@@ -149,6 +156,9 @@ public class EstimationTaskImplIT {
 
     @Before
     public void setUp() throws SQLException {
+        when(userService.findUser(anyString())).thenReturn(Optional.of(user));
+        when(user.getName()).thenReturn("estimation");
+
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -187,6 +197,7 @@ public class EstimationTaskImplIT {
             timeService = injector.getInstance(TimeService.class);
             meteringService = injector.getInstance(MeteringService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
             return null;
         });
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
@@ -263,7 +274,8 @@ public class EstimationTaskImplIT {
 
         transactionService.builder().principal(() -> "ut")
                 .run(() -> {
-                    estimationTask.getRecurrentTask().runNow(new EstimationTaskExecutor(estimationService, transactionService, null, timeService));
+                    User user = injector.getInstance(UserService.class).findUser(EstimationServiceImpl.ESTIMATION_TASKS_USER).get();
+                    estimationTask.getRecurrentTask().runNow(new EstimationTaskExecutor(estimationService, transactionService, null, timeService, threadPrincipalService, userService, user));
                 });
 
         EstimationTask reloaded = estimationService.findEstimationTask(estimationTask.getId()).get();
