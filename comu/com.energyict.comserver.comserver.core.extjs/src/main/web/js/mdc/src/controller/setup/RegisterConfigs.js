@@ -456,7 +456,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 }
                 if (useMultiplier) {
                     if (calculatedReadingTypeField.isVisible()) {
-                        record.set('calculatedReadingType', calculatedReadingTypeField.getValue());
+                        record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
                     } else if (calculatedReadingTypeCombo.isVisible()) {
                         var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
                             calculatedReadingType = null;
