@@ -31,6 +31,8 @@ public interface DataExportService {
 
     Query<? extends ExportTask> getReadingTypeDataExportTaskQuery();
 
+    Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name);
+
     List<PropertySpec> getPropertiesSpecsForFormatter(String name);
 
     List<PropertySpec> getPropertiesSpecsForDataSelector(String name);
