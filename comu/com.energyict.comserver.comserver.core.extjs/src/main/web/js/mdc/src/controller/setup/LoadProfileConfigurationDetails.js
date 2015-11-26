@@ -299,10 +299,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         );
                     }
                 } else {
+                    record.setMultipliedCalculatedReadingType(null);
                     if (calculatedReadingTypeField.isVisible()) {
                         record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
                     } else {
-                        record.setMultipliedCalculatedReadingType(null);
                         record.setCalculatedReadingType(null);
                     }
                 }
