@@ -5,11 +5,16 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -182,7 +187,7 @@ public class VDEWRegister extends VDEWRegisterDataParse {
     }
     
     // read register in the meter if not cached
-    protected byte[] readRegister(boolean cached) throws FlagIEC1107ConnectionException,IOException {
+    protected byte[] readRegister(boolean cached) throws IOException {
         if (cached && (getProtocolLink().getDataReadout() != null)) {
             try {
                 regdata = doReadDataReadoutRawRegister();
@@ -257,7 +262,7 @@ public class VDEWRegister extends VDEWRegisterDataParse {
             return regdata;
         }
         catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("VDEWRegister, doReadRawRegister, FlagIEC1107ConnectionException, "+e.getMessage());
+            throw new ProtocolConnectionException("VDEWRegister, doReadRawRegister, FlagIEC1107ConnectionException, "+e.getMessage(), e.getReason());
         }
     } // private byte[] doReadRawRegister()
     

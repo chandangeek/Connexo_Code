@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
@@ -145,7 +146,7 @@ public class ABBA230DataIdentity {
                 break;
             } catch(FlagIEC1107ConnectionException e) {
                 if (iRetries++ >= dataIdentityFactory.getProtocolLink().getNrOfRetries()) {
-					throw e;
+					throw new ProtocolConnectionException(e.getMessage(), e.getReason());
 				}
                 dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().breakStreamingMode();
             }
@@ -154,7 +155,7 @@ public class ABBA230DataIdentity {
         String str = new String(dataBlock);
         if (str.indexOf("ERR") != -1) {
             String exceptionId = str.substring(str.indexOf("ERR"),str.indexOf("ERR")+4);
-            throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, readRawRegisterStream, "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
+            throw new ProtocolConnectionException("ABBA230DataIdentity, readRawRegisterStream error: "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
         }
         return dataBlock;
     }
@@ -167,7 +168,7 @@ public class ABBA230DataIdentity {
         byte[] dataBlock=null;
         long timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // After 4,5 min, do authentication before continue! otherwise we can receive ERR5, password timeout!
         if (dataLen <= 0) {
-			throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, wrong dataLength ("+dataLen+")!");
+			throw new ProtocolConnectionException("ABBA230DataIdentity, doReadRawRegister, wrong dataLength ("+dataLen+")!");
 		}
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         int packetid = ((dataLen/64) + ((dataLen%64)==0?0:1)) * set + 1; // calculate packetid
@@ -188,11 +189,11 @@ public class ABBA230DataIdentity {
             String str = new String(ba);
             if (str.indexOf("ERR") != -1) {
                 String exceptionId = str.substring(str.indexOf("ERR"),str.indexOf("ERR")+4);
-                throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
+                throw new ProtocolConnectionException("ABBA230DataIdentity, doReadRawRegister error: "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
             }
             
             if (ba.length != (len*2)) {
-				throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
+				throw new ProtocolConnectionException("ABBA230DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
 			}
             
             data.write(ba);

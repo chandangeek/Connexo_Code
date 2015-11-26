@@ -25,45 +25,17 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.CosemPDUConnection;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
@@ -73,18 +45,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism {
+abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, SerialNumberSupport {
 
     protected abstract String getDeviceID();
 
@@ -368,7 +334,6 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
                 getDLMSConnection().connectMAC();
                 this.aso.createAssociation();
                 checkCacheObjects();
-                validateSerialNumber();
             }
 
         } catch (DLMSConnectionException e) {
@@ -581,17 +546,6 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
     } // public void requestObjectList() throws IOException
 
 
-    protected void validateSerialNumber() throws IOException {
-        if ((configuredSerialNumber == null) || ("".compareTo(configuredSerialNumber) == 0)) {
-            return;
-        }
-        String sn = (String) getSerialNumber();
-        if ((sn != null) && (sn.compareTo(configuredSerialNumber) == 0)) {
-            return;
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + configuredSerialNumber);
-    }
-
     public String getConfiguredSerialNumber() {
         return configuredSerialNumber;
     }
@@ -631,11 +585,15 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * Return the serialNumber of the device.
      *
      * @return the serialNumber of the device.
-     * @throws IOException if an error occurs during the read
      */
-    public String getSerialNumber() throws IOException {
-        UniversalObject uo = meterConfig.getSerialNumberObject();
-        return getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getString();
+    public String getSerialNumber()  {
+        UniversalObject uo;
+        try {
+            uo = meterConfig.getSerialNumberObject();
+            return getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getString();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, iProtocolRetriesProperty + 1);
+        }
     }
 
     /**

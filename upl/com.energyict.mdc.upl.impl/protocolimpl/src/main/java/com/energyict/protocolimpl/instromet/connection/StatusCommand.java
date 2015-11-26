@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.instromet.connection;
 
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.instromet.core.InstrometProtocol;
 
 public class StatusCommand extends AbstractCommand {
@@ -20,27 +19,27 @@ public class StatusCommand extends AbstractCommand {
 		this.status = status;
 	}
 	
-	public void checkStatusCode(int statusCode) throws IOException {
+	public void checkStatusCode(int statusCode) throws ProtocolException {
 		if (statusCode == 0) // OK
 			return;
 		else if (statusCode == 3)
-			throw new IOException("Status code 3 was returned: Invalid function, function sent was invalid");
+			throw new ProtocolException("Status code 3 was returned: Invalid function, function sent was invalid");
 		else if (statusCode == 5)
-			throw new IOException("Status code 5 was returned: Read address error, Read operation to invalid address outside table");
+			throw new ProtocolException("Status code 5 was returned: Read address error, Read operation to invalid address outside table");
 		else if (statusCode == 6)
-			throw new IOException("Status code 6 was returned: Read length error, read of more than 65000 bytes was requested");
+			throw new ProtocolException("Status code 6 was returned: Read length error, read of more than 65000 bytes was requested");
 		else if (statusCode == 7)
-			throw new IOException("Status code 7 was returned: Write length error, write of more than 220 bytes was requested");
+			throw new ProtocolException("Status code 7 was returned: Write length error, write of more than 220 bytes was requested");
 		else if (statusCode == 8)
-			throw new IOException("Status code 8 was returned: Invalid Write, Write operation cannot be performed on location");
+			throw new ProtocolException("Status code 8 was returned: Invalid Write, Write operation cannot be performed on location");
 		else if (statusCode == 9)
-			throw new IOException("Status code 9 was returned: Write address error, Write operation to invalid address outside table");
+			throw new ProtocolException("Status code 9 was returned: Write address error, Write operation to invalid address outside table");
 		else if (statusCode == 10)
-			throw new IOException("Status code 10 was returned: EEProm write protect, EEProm is write protected");
+			throw new ProtocolException("Status code 10 was returned: EEProm write protect, EEProm is write protected");
 		else if (statusCode == 11)
-			throw new IOException("Status code 11 was returned: Table Switch provided was invalid");
+			throw new ProtocolException("Status code 11 was returned: Table Switch provided was invalid");
 		else
-			throw new IOException("Invalid status code returned: " + statusCode);
+			throw new ProtocolException("Invalid status code returned: " + statusCode);
 		
 	}
 

@@ -1,51 +1,14 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.ConcentratorSetup;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.FirewallSetup;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
@@ -62,6 +25,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
@@ -70,22 +34,24 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobject
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirewallConfigurationMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
-import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.util.function.Consumer;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Copyrights EnergyICT
@@ -459,7 +425,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     }
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));

@@ -9,6 +9,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -35,6 +36,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -47,7 +49,6 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayPr
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.G3GatewayRegisters;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
@@ -60,7 +61,7 @@ import java.util.*;
  * Date: 9/04/13
  * Time: 16:00
  */
-public class RtuPlusServer implements DeviceProtocol {
+public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
@@ -82,7 +83,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
+        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public DlmsSession getDlmsSession() {
@@ -138,7 +139,7 @@ public class RtuPlusServer implements DeviceProtocol {
         } catch (DataAccessResultException | ProtocolException e) {
             frameCounter = new Random().nextInt();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, publicDlmsSession);
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries()+ 1);
         }
 
         //Read out the frame counter using the public client, it has a pre-established association
@@ -157,7 +158,7 @@ public class RtuPlusServer implements DeviceProtocol {
         try {
             return getDlmsSession().getCosemObjectFactory().getData(SERIAL_NUMBER_OBISCODE).getString();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 
@@ -166,7 +167,7 @@ public class RtuPlusServer implements DeviceProtocol {
         try {
             return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries()+ 1);
         }
     }
 
@@ -178,7 +179,7 @@ public class RtuPlusServer implements DeviceProtocol {
             cal.setTime(currentTime);
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(cal));
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries()+ 1);
         }
     }
 
@@ -208,7 +209,7 @@ public class RtuPlusServer implements DeviceProtocol {
             sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
             nodeList = this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().getNodeList();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
 
         final List<G3Topology.G3Node> g3Nodes = G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone());
@@ -480,7 +481,7 @@ public class RtuPlusServer implements DeviceProtocol {
                 throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
             }
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 }

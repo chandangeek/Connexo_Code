@@ -6,12 +6,15 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
 /**
  *
  * @author  Koen
@@ -80,7 +83,7 @@ public class VDEWLogbook {
             return rawprofile;
         }
         catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("VDEWLogbook, readRawLogbookData, FlagIEC1107ConnectionException, "+e.getMessage());
+            throw new ProtocolConnectionException("VDEWLogbook, readRawLogbookData, FlagIEC1107ConnectionException, "+e.getMessage(), e.getReason());
         }
     }    
     

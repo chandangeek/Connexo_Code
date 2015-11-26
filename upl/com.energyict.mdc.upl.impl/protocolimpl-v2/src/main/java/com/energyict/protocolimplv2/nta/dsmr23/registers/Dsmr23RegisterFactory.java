@@ -10,6 +10,7 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -24,7 +25,6 @@ import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -119,8 +119,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     collectedRegisters.add(createUnsupportedRegister(register));
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                    if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries() + 1)) {
+                    if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                         collectedRegisters.add(createUnsupportedRegister(register));
                     } else {
                         collectedRegisters.add(createIncompatibleRegister(register, e.getMessage()));

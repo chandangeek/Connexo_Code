@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.elster.alpha.core.connection.ResponseFrame;
 
+import java.io.IOException;
 
 /**
  *
@@ -45,7 +45,7 @@ abstract public class AbstractClass {
 		parse(responseFrame.getData());
 	}
 
-	protected void verifyChecksum(byte[] data) throws IOException {
+	protected void verifyChecksum(byte[] data) throws ProtocolException {
 		int checksum = 0;
 		for (int i=0;i<data.length-1;i++) {
 			checksum += data[i];
@@ -54,7 +54,7 @@ abstract public class AbstractClass {
 
 		// KV_DEBUG temporary removed!!!
 		if (checksum != (data[data.length-1]&0xFF)) {
-			throw new IOException("AbstractClass, verifyChecksum(), Application layer class checksum wrong! (0x"+Integer.toHexString(checksum)+"!=0x"+Integer.toHexString(data[data.length-1])+")");
+			throw new ProtocolException("AbstractClass, verifyChecksum(), Application layer class checksum wrong! (0x"+Integer.toHexString(checksum)+"!=0x"+Integer.toHexString(data[data.length-1])+")");
 		}
 	}
 

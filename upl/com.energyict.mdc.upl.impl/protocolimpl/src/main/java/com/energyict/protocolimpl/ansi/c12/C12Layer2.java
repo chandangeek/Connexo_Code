@@ -100,7 +100,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
             catch(ConnectionException e) {
                 int mr=getMaxRetries();
                 if (retry++>=mr) {
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage());
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage(), MAX_RETRIES_ERROR);
                 }
             }
         }
@@ -117,7 +117,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
             catch(ConnectionException e) {
                 int mr=getMaxRetries();
                 if (retry++>=mr) {
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage());
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage(), MAX_RETRIES_ERROR);
                 }
             }
         }
@@ -131,7 +131,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     static private final int STATE_WAIT_FOR_DATA=5;
     static private final int STATE_WAIT_FOR_CRC=6;
 
-    protected ResponseData receiveResponseData() throws NestedIOException, IOException {
+    protected ResponseData receiveResponseData() throws IOException {
         long protocolTimeout,interFrameTimeout;
         int kar;
         int state=STATE_WAIT_FOR_START_OF_PACKET;

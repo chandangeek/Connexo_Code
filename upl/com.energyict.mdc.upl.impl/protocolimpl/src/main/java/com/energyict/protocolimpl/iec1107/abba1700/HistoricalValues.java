@@ -6,9 +6,12 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.util.*;
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
@@ -31,7 +34,7 @@ public class HistoricalValues {
     ABBA1700MeterType meterType;
     
     /** Creates a new instance of HistoricalValues */
-    public HistoricalValues(byte[] data, TimeZone timeZone, ABBA1700MeterType meterType) throws IOException {
+    public HistoricalValues(byte[] data, TimeZone timeZone, ABBA1700MeterType meterType) throws ProtocolException {
         this.meterType=meterType;
         this.timeZone=timeZone;
         
@@ -54,7 +57,7 @@ public class HistoricalValues {
                 ("511".compareTo(dataId) == 0));
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
        identity507 = ProtocolUtils.getSubArray2(data,0,identity507.length);
        identity508 = ProtocolUtils.getSubArray2(data,identity507.length,identity508.length);
        identity516 = ProtocolUtils.getSubArray2(data,identity507.length+identity508.length,identity516.length);

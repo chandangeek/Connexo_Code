@@ -12,12 +12,16 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author  Koen
@@ -190,7 +194,7 @@ public class ABBA1700RegisterFactory {
 
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700, setRegister, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700, setRegister error: " +e.getMessage(), e.getReason());
         }
     }
 
@@ -205,7 +209,7 @@ public class ABBA1700RegisterFactory {
 
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700, setRegister, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700, setRegister error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -220,7 +224,7 @@ public class ABBA1700RegisterFactory {
 
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700, setRegister, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700, setRegister error: "+e.getMessage(), e.getReason());
         }
     }
 
@@ -270,7 +274,7 @@ public class ABBA1700RegisterFactory {
            }
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700, getRegister, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700, getRegister, "+e.getMessage(), e.getReason());
         }
     }
     
@@ -285,7 +289,7 @@ public class ABBA1700RegisterFactory {
            return (register.readRegister(register.isCached(),dataLength,0));
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700, getRegisterRawData, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700, getRegisterRawData error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -295,7 +299,7 @@ public class ABBA1700RegisterFactory {
            return (register.readRegisterStream(register.isCached(),nrOfBlocks));
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700, getRegisterRawDataStream, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700, getRegisterRawDataStream error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -303,7 +307,7 @@ public class ABBA1700RegisterFactory {
     private ABBA1700Register findRegister(String name) throws IOException {
        ABBA1700Register register = (ABBA1700Register)registers.get(name);
         if (register == null) {
-            throw new IOException("ABBA1700RegisterFactory, findRegister, " + name + " does not exist!");
+            throw new ProtocolException("ABBA1700RegisterFactory, findRegister error: " + name + " does not exist!");
         } else {
             return register;
         }

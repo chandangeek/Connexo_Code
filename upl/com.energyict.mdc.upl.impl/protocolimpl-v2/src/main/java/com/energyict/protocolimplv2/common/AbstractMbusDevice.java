@@ -4,12 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -26,16 +21,12 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CodingException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * The Abstract Mbus device implements the {@link DeviceProtocol} interface so we can
@@ -47,7 +38,7 @@ import java.util.List;
  * @author sva
  * @since 19/06/2014 - 8:11
  */
-public abstract class AbstractMbusDevice implements DeviceProtocol {
+public abstract class AbstractMbusDevice implements DeviceProtocol, SerialNumberSupport {
 
     private final String serialNumber;
     private final DeviceProtocol meterProtocol;

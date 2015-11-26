@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
 
 /** @author Koen & fbo */
 
@@ -105,17 +106,17 @@ public class ABBA230Register extends ABBA230RegisterData {
     }
     
     protected byte[] readRegister(boolean cached)
-    throws FlagIEC1107ConnectionException, IOException {
+            throws IOException {
         return readRegister(cached, -1, 0);
     }
     
     protected byte[] readRegister(boolean cached, int set)
-    throws FlagIEC1107ConnectionException, IOException {
+            throws IOException {
         return readRegister(cached, -1, set);
     }
     
     protected byte[] readRegister(boolean cached, int dataLength, int set)
-    throws FlagIEC1107ConnectionException, IOException {
+            throws IOException {
         return (getABBA230DataIdentityFactory().getDataIdentity(getDataID(), cached, dataLength, set));
     }
     

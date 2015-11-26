@@ -7,7 +7,8 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,27 +79,27 @@ public class DummyFlagConnection extends FlagIEC1107Connection {
      * for the buffersizes and windowsizes.
      */
     @Override
-    public MeterType connectMAC() throws IOException, FlagIEC1107ConnectionException {
+    public MeterType connectMAC() throws FlagIEC1107ConnectionException {
         return null;
     }
 
     @Override
-    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID, int baudrate) throws IOException, FlagIEC1107ConnectionException {
+    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID, int baudrate) throws FlagIEC1107ConnectionException {
         return null;
     }
 
     @Override
-    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID) throws IOException, FlagIEC1107ConnectionException {
+    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID) throws FlagIEC1107ConnectionException {
         return null;
     }
 
     @Override
-    public byte[] dataReadout(String strIdent, String meterID) throws IOException, FlagIEC1107ConnectionException {
+    public byte[] dataReadout(String strIdent, String meterID) throws FlagIEC1107ConnectionException {
         return this.dataReadout;
     }
 
     @Override
-    public void sendRawCommandFrame(byte[] command, byte[] rawdata) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public void sendRawCommandFrame(byte[] command, byte[] rawdata) throws FlagIEC1107ConnectionException {
         //TODO do nothing
     }
 
@@ -111,7 +112,7 @@ public class DummyFlagConnection extends FlagIEC1107Connection {
      *
      */
     @Override
-    public byte[] receiveData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public byte[] receiveData() throws FlagIEC1107ConnectionException {
         return this.responseList.get(counter++); 
     }
 
@@ -124,7 +125,7 @@ public class DummyFlagConnection extends FlagIEC1107Connection {
      *
      */
     @Override
-    public byte[] receiveRawData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public byte[] receiveRawData() throws FlagIEC1107ConnectionException {
         return this.responseList.get(counter++);
     }
 

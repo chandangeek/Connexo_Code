@@ -6,14 +6,11 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -27,6 +24,8 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.dlms.g3.G3DeviceInfo;
 import com.energyict.protocolimpl.dlms.idis.IDISObjectList;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -40,6 +39,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISRegisterFactor
 import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +51,7 @@ import java.util.List;
  * @author khe
  * @since 19/12/2014 - 10:42
  */
-public class AM500 extends AbstractDlmsProtocol {
+public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     protected IDISLogBookFactory idisLogBookFactory = null;
     protected IDISMessaging idisMessaging = null;
@@ -292,10 +292,12 @@ public class AM500 extends AbstractDlmsProtocol {
 
     @Override
     public String getSerialNumber() {
-        if (serialNumber == null) {
-            serialNumber = super.getSerialNumber();
+        final G3DeviceInfo g3DeviceInfo = new G3DeviceInfo(getDlmsSession().getCosemObjectFactory());
+        try {
+            return g3DeviceInfo.getSerialNumber();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
         }
-        return serialNumber;
     }
 
     @Override
@@ -308,6 +310,6 @@ public class AM500 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-17 16:28:58 +0100 (Tue, 17 Nov 2015) $";
+        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }
 }

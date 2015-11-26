@@ -1,13 +1,14 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /** @author fbo */
 
@@ -40,7 +41,7 @@ public class HistoricalRegister {
      * @param meterType
      * @throws IOException
      */
-    public HistoricalRegister(byte[] data, ProtocolLink protocolLink ) throws IOException {
+    public HistoricalRegister(byte[] data, ProtocolLink protocolLink ) throws ProtocolException {
         this.protocolLink = protocolLink;
         parse(data);
     }
@@ -53,7 +54,7 @@ public class HistoricalRegister {
         || ("510".compareTo(dataId) == 0));
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
         ba507 = ProtocolUtils.getSubArray2(data, 0, 128);
         ba508 = ProtocolUtils.getSubArray2(data, 128, 128);
         //ba667 = ProtocolUtils.getSubArray2(data, 256, 16);

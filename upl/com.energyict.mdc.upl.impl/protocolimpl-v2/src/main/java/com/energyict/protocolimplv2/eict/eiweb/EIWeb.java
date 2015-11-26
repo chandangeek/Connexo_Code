@@ -22,6 +22,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
@@ -37,7 +38,7 @@ import java.util.*;
  * Date: 9/10/13
  * Time: 12:02 PM
  */
-public class EIWeb implements DeviceProtocol {
+public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     private static final String PHONE_NUMBER = "PhoneNumber";
     private OfflineDevice offlineDevice;
@@ -232,7 +233,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
+        return "$Date: 2015-11-26 15:26:44 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override

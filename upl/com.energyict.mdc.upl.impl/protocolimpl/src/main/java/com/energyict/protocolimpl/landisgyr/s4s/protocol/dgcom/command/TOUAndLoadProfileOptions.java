@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -62,7 +62,7 @@ public class TOUAndLoadProfileOptions extends AbstractCommand {
         return new byte[]{(byte)0x5A,0,0,0,0,0,0,0,0};
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         setOptionalFeatures(ProtocolUtils.getInt(data,0, 1));
         // byte 1 and 2 = boot signature BCD 1234
         

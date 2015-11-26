@@ -4,7 +4,9 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Copyrights EnergyICT
@@ -25,7 +27,7 @@ public class InstrumentationProfileConfigRegister implements ProfileConfigRegist
     private String phaseConfigurations[] = {"System", "Phase A", "Phase B", "Phase C"};
     private String storageConfigurations[] = {"Average", "Maximum", "Minimum", "Last"};
 
-    public void loadConfig(ABBA230RegisterFactory rFactory, byte[] data) throws IOException {
+    public void loadConfig(ABBA230RegisterFactory rFactory, byte[] data) {
         this.rFactory = rFactory;
         this.allChannelMask = data.clone();
         init();
@@ -40,7 +42,7 @@ public class InstrumentationProfileConfigRegister implements ProfileConfigRegist
         init();
     }
 
-    private void init() throws IOException {
+    private void init(){
         int i = 0;
 
         if (allChannelMask.length == 16) {

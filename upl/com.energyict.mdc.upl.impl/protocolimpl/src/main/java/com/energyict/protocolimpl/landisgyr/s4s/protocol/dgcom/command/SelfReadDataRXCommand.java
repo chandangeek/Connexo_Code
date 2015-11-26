@@ -10,11 +10,13 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -73,10 +75,10 @@ public class SelfReadDataRXCommand extends AbstractCommand {
             return new byte[]{(byte)0xA8,(byte)getSelfReadIndex(),0,0,0,0,0,0,0};
         }
         else
-            throw new IOException("SelfReadDataRXCommand, only for RX meters!");
+            throw new ProtocolException("SelfReadDataRXCommand, only for RX meters!");
     }
     
-    private void parseTimestamp(byte[] data, int offset) throws IOException {
+    private void parseTimestamp(byte[] data, int offset) throws ProtocolException {
         Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());
         cal.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[offset]));
         cal.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[offset+1]));

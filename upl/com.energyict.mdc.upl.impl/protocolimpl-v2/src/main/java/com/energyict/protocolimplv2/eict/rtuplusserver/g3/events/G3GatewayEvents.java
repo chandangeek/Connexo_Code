@@ -5,13 +5,13 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.*;
@@ -50,9 +50,9 @@ public class G3GatewayEvents {
 
                 collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
             } catch (IOException e) {
-                if (IOExceptionHandler.isAuthorizationProblem(e)) {
+                if (DLMSIOExceptionHandler.isAuthorizationProblem(e)) {
                     collectedLogBook.setFailureInformation(ResultType.ConfigurationError, MdcManager.getIssueFactory().createWarning(logBook, "logBookXissue", logBook.getLogBookObisCode(), e.getMessage()));
-                } else if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
+                } else if (DLMSIOExceptionHandler.isUnexpectedResponse(e, dlmsSession.getProperties().getRetries() + 1)) {
                     collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
                 }
             } catch (IndexOutOfBoundsException e) {

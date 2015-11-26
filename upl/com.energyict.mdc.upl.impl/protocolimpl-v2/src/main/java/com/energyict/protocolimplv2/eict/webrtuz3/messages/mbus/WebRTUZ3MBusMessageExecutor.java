@@ -4,6 +4,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -16,7 +17,6 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
             try {
                 collectedMessage = executeMessage(pendingMessage, collectedMessage);
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession().getProperties().getRetries() + 1)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));

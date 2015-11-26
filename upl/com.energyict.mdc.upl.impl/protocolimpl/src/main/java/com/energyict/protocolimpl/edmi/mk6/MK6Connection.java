@@ -10,12 +10,6 @@
 
 package com.energyict.protocolimpl.edmi.mk6;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
@@ -26,6 +20,11 @@ import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.edmi.mk6.core.ResponseData;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 
 /**
  *
@@ -99,7 +98,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
         }
     } // void sendByte(byte txbyte) throws ConnectionException
 
-    public ResponseData sendCommand(byte[] cmdData) throws IOException {
+    public ResponseData sendCommand(byte[] cmdData) throws ConnectionException, NestedIOException {
         int retry=0;
         doSendCommand(cmdData);
         while(true) {
@@ -111,7 +110,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
             catch(ConnectionException e) { 
                 if (retry++>=maxRetries) {
 //                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
-                	throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e);
+                	throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage() , MAX_RETRIES_ERROR);
                 }
             }
         } // while(true)
@@ -188,7 +187,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
     private static final int STATE_WAIT_FOR_STX=0;
     private static final int STATE_WAIT_FOR_DATA=1;
     
-    public ResponseData receiveFrame() throws NestedIOException, IOException {
+    public ResponseData receiveFrame() throws NestedIOException, ConnectionException {
         
         long protocolTimeout,interFrameTimeout;
         int kar;

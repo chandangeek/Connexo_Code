@@ -7,6 +7,7 @@ package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -175,7 +176,7 @@ abstract public class VDEWRegisterDataParse {
     
     
     // ********************************* parse received data *********************************
-    protected Object parse(byte[] data) throws IOException {
+    protected Object parse(byte[] data) throws ProtocolException {
         try {
             switch(getType()) {
                 
@@ -225,14 +226,15 @@ abstract public class VDEWRegisterDataParse {
                 	return parseStringValuePair(data);
 
                 default:
-                    throw new IOException("VDEWRegisterDataParse, parse , unknown type "+getType());
+                    throw new ProtocolException("VDEWRegisterDataParse, parse , unknown type "+getType());
             }
         }
         catch(NumberFormatException e) {
-            e.printStackTrace();
-        	throw new IOException("VDEWRegisterDataParse, parse error");
+        	throw new ProtocolException("VDEWRegisterDataParse, parse error");
+        } catch (IOException e) {
+            throw new ProtocolException("VDEWRegisterDataParse, parse error" + e.getMessage());
         }
-        
+
     } // protected Object parse(byte[] data)
     
     private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException {

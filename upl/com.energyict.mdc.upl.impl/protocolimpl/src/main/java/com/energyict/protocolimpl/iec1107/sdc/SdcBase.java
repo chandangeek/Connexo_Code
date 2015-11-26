@@ -6,17 +6,23 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.TimeZoneManager;
 import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.*;
+import java.util.logging.Logger;
 // com.energyict.protocolimpl.iec1107.sdc.Sdc
 /**
  *
@@ -26,8 +32,8 @@ import com.energyict.protocolimpl.iec1107.IEC1107Connection;
  *@endchanges
  *
  */
-abstract public class SdcBase extends AbstractProtocol {
-    
+abstract public class SdcBase extends AbstractProtocol implements SerialNumberSupport {
+
     IEC1107Connection iec1107Connection=null;
     DataReadingCommandFactory dataReadingCommandFactory=null;
     SdcLoadProfile sdcLoadProfile=null;
@@ -209,29 +215,7 @@ abstract public class SdcBase extends AbstractProtocol {
             return "No meter specific exception info for "+id;
     }
     
-    /*  
-     *  Method must be overridden by the subclass to verify the property 'SerialNumber'
-     *  against the serialnumber read from the meter.
-     *  Use code below as example to implement the method.
-     *  This code has been taken from a real protocol implementation.
-     */
-    protected void validateSerialNumber() throws IOException {
 
-    	ObisCode oc = new ObisCode(1,0,0,0,0,255);
-    	String str = readRegister(oc).getText();
-    	str = str.substring(str.indexOf(",") + 2 );
-    	if(!getInfoTypeNodeAddress().equalsIgnoreCase("")){
-	    	if ( str.compareTo(getInfoTypeNodeAddress().substring(getInfoTypeNodeAddress().indexOf(str.charAt(0)))) == -1 )
-	    		throw new IOException("Incorrect node Address!");
-    	}
-    	else 
-    		throw new IOException("Incorrect node Address!");
-	    
-    	return;
-    }
-    
-    
-    
     /*******************************************************************************************
      * m a i n ( )  i m p l e m e n t a t i o n ,  u n i t  t e s t i n g
      *******************************************************************************************/
@@ -397,7 +381,15 @@ abstract public class SdcBase extends AbstractProtocol {
     public com.energyict.protocolimpl.iec1107.sdc.SdcLoadProfile getSdcLoadProfile() {
         return sdcLoadProfile;
     }
-    
-    
+
+    public String getSerialNumber(){
+        try {
+            ObisCode oc = new ObisCode(1,0,0,0,0,255);
+            String str = readRegister(oc).getText();
+            return str.substring(str.indexOf(",") + 2 );
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
     
 } // class Sdc

@@ -14,6 +14,7 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -31,7 +32,6 @@ import com.energyict.protocolimplv2.common.composedobjects.*;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.*;
@@ -241,8 +241,8 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                     return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Encountered unexpected ComposedObject - data cannot be parsed."); // Should never occur
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
-                    if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession().getProperties().getRetries())) {
+                    if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                         return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
                     } else {
                         return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
@@ -311,8 +311,8 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     }
 
     protected CollectedRegister handleIOException(OfflineRegister offlineRegister, IOException e) {
-        if (IOExceptionHandler.isUnexpectedResponse(e, am130.getDlmsSession())) {
-            if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, am130.getDlmsSession().getProperties().getRetries())) {
+            if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             } else {
                 return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());

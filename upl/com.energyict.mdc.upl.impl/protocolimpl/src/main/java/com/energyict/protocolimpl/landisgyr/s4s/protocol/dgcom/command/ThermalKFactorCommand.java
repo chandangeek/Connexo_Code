@@ -10,12 +10,10 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.math.BigDecimal;
 
 
 /**
@@ -41,11 +39,11 @@ public class ThermalKFactorCommand extends AbstractCommand {
         return strBuff.toString();
     }
     
-    protected byte[] prepareBuild() throws IOException {
+    protected byte[] prepareBuild() throws ProtocolException {
         return new byte[]{(byte)0x17,0,0,0,0,0,0,0,0};
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         int offset=0;
         setThermalKFactor((int)ParseUtils.getBCD2LongLE(data, offset, 3));
         setBdThermalKFactor(BigDecimal.valueOf(getThermalKFactor()));

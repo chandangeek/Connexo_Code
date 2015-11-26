@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba1700.counters;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
@@ -37,7 +38,7 @@ public abstract class AbstractCounter {
      * @param data the data to parse
      * @throws IOException when the conversion of certain types did not succeed
      */
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data) throws ProtocolException {
         setCounter(ProtocolUtils.getIntLE(data, 0, CounterLength));
         long shift = (long) ProtocolUtils.getIntLE(data, CounterLength, DateTimeLength) & DateTimeMask;
         setMostRecentEventTime(ProtocolUtils.getCalendar(getTimeZone(), shift).getTime());

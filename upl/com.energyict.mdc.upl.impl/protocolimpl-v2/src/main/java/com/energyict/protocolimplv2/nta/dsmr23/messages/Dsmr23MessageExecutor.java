@@ -5,6 +5,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.*;
@@ -22,7 +23,6 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import org.xml.sax.SAXException;
 
@@ -146,7 +146,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());

@@ -4,12 +4,16 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 /** @author fbo */
 
@@ -581,7 +585,7 @@ public class ABBA230RegisterFactory {
 			}
             
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("Elster A230, setRegister, "+e.getMessage());
+            throw new ProtocolConnectionException("Elster A230, setRegister error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -595,7 +599,7 @@ public class ABBA230RegisterFactory {
 			}
             
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("Elster A230, setRegister, "+e.getMessage());
+            throw new ProtocolConnectionException("Elster A230, setRegister error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -666,11 +670,11 @@ public class ABBA230RegisterFactory {
                     return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint-12));
                 }
             } else {
-				throw new IOException("Elster A230, getRegister, invalid billing point "+billingPoint+"!");
+				throw new ProtocolException("Elster A230, getRegister, invalid billing point "+billingPoint+"!");
 			}
             
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("Elster A230, getRegister, "+e.getMessage());
+            throw new ProtocolConnectionException("Elster A230, getRegister error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -684,7 +688,7 @@ public class ABBA230RegisterFactory {
             ABBA230Register register = findRegister(name);
             return (register.readRegister(register.isCached(),dataLength,0));
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("Elster A230, getRegisterRawData, "+e.getMessage());
+            throw new ProtocolConnectionException("Elster A230, getRegisterRawData error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -693,16 +697,15 @@ public class ABBA230RegisterFactory {
             ABBA230Register register = findRegister(name);
             return (register.readRegisterStream(register.isCached(),nrOfBlocks));
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("Elster A230, getRegisterRawDataStream, "+e.getMessage());
+            throw new ProtocolConnectionException("Elster A230, getRegisterRawDataStream error: "+e.getMessage(), e.getReason());
         }
     }
     
     // search the map for the register info
-    private ABBA230Register findRegister(String name) throws IOException {
+    private ABBA230Register findRegister(String name) throws ProtocolException {
         ABBA230Register register = (ABBA230Register)registers.get(name);
         if (register == null) {
-            String msg = "Elster A230RegisterFactory, findRegister, " + name + " does not exist!";
-            throw new IOException(msg);
+            throw new ProtocolException("Elster A230RegisterFactory, findRegister error: " + name + " does not exist!");
         } else {
 			return register;
 		}

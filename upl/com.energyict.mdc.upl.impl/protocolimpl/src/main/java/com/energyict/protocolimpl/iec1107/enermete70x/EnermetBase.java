@@ -7,19 +7,9 @@
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
 import com.energyict.cbo.TimeZoneManager;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -30,13 +20,7 @@ import com.energyict.protocolimpl.iec1107.IEC1107Connection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
 // com.energyict.protocolimpl.iec1107.enermete70x.EnermetE70X
 /**
@@ -46,7 +30,7 @@ import java.util.logging.Logger;
  * Remark:
  * KV 08112004 HHU's getSerialNumber() implementation uses securitylevel 1 and password 1. Should have a public read. Mail has been send to Asko!
  */
-abstract public class EnermetBase extends AbstractProtocol {
+abstract public class EnermetBase extends AbstractProtocol{
     
     IEC1107Connection iec1107Connection=null;
     DataReadingCommandFactory dataReadingCommandFactory=null;
@@ -87,14 +71,6 @@ abstract public class EnermetBase extends AbstractProtocol {
             }
         }
         catch(ProtocolConnectionException e) {
-            throw new IOException(e.getMessage());
-        }
-        
-        try {
-            validateSerialNumber();
-        }
-        catch(ProtocolConnectionException e) {
-            disconnect();
             throw new IOException(e.getMessage());
         }
         
@@ -226,22 +202,7 @@ abstract public class EnermetBase extends AbstractProtocol {
             return "No meter specific exception info for "+id;
     }
     
-    /*  
-     *  Method must be overridden by the subclass to verify the property 'SerialNumber'
-     *  against the serialnumber read from the meter.
-     *  Use code below as example to implement the method.
-     *  This code has been taken from a real protocol implementation.
-     */
-    protected void validateSerialNumber() throws IOException {
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-        String sn = getDataReadingCommandFactory().getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-        throw new IOException("SerialNiumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-    }
-    
-    
-    
+
     /*******************************************************************************************
      * m a i n ( )  i m p l e m e n t a t i o n ,  u n i t  t e s t i n g
      *******************************************************************************************/

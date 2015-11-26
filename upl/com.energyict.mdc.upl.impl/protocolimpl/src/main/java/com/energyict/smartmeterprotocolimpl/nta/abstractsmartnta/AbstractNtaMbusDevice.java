@@ -1,23 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
@@ -42,7 +30,7 @@ import java.util.logging.Logger;
  * Date: 15-jul-2011
  * Time: 10:31:14
  */
-public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterProtocol, MessageProtocol {
+public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterProtocol, MessageProtocol, SerialNumberSupport {
 
     private final AbstractSmartNtaProtocol meterProtocol;
 

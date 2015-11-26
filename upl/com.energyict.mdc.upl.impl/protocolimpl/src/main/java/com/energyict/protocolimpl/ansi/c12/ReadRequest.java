@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
+import java.io.IOException;
 /**
  *
  * @author Koen
@@ -39,7 +39,7 @@ public class ReadRequest extends AbstractRequest {
         requestData.setCode(PARTIAL_READ_DEFAULT);
     }
     // full read
-    public void fullRead(int tableId) throws IOException {
+    public void fullRead(int tableId) {
         requestData.setCode(FULL_READ);
         byte[] data = new byte[2];
         data[0] = (byte)(tableId>>8);

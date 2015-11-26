@@ -12,7 +12,6 @@ package com.energyict.dlms.axrdencoding;
 
 import com.energyict.protocol.ProtocolException;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
 /**
@@ -27,7 +26,7 @@ public class TypeEnum extends AbstractDataType {
     /**
      * Creates a new instance of TypeEnum
      */
-    public TypeEnum(byte[] berEncodedData, int offset) throws IOException {
+    public TypeEnum(byte[] berEncodedData, int offset) throws ProtocolException {
         if (berEncodedData[offset] != AxdrType.ENUM.getTag()) {
 			throw new ProtocolException("Enum, invalid identifier "+berEncodedData[offset]);
 		}

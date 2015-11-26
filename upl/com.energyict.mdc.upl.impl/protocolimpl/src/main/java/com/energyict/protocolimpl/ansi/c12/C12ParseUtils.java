@@ -10,12 +10,15 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.protocolimpl.base.ParseUtils;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -397,7 +400,7 @@ public class C12ParseUtils {
         }
     }
     
-    static public int getInt(byte[] data, int offset) throws IOException {
+    static public int getInt(byte[] data, int offset) throws ProtocolException {
         return ProtocolUtils.getInt(data, offset, 1);
     }
     

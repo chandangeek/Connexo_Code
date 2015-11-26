@@ -37,27 +37,11 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.actarissl7000.Logbook;
 import com.energyict.protocolimpl.dlms.actarissl7000.ObisCodeMapper;
@@ -66,16 +50,10 @@ import com.energyict.protocolimpl.dlms.actarissl7000.StoredValuesImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
-public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
+public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
 
@@ -1120,9 +1098,6 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         } catch (IOException e) {
             throw new IOException(e.getMessage());
         }
-
-        validateSerialNumber(); // KV 19012004
-
     } // public void connect() throws IOException
 
 
@@ -1281,28 +1256,18 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return dc;
     } // public DataContainer doRequestAttribute(short sIC,byte[] LN,byte bAttr ) throws IOException
 
-    private void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
-            return;
+    public String getSerialNumber() {
+        UniversalObject uo;
+        try {
+            uo = meterConfig.getSerialNumberObject();
+            return getCosemObjectFactory().getGenericRead(uo).getString();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, iProtocolRetriesProperty + 1);
         }
-        String sn = (String) getSerialNumber();
-        if ((sn != null) && (sn.compareTo(serialNumber) == 0)) {
-            return;
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + serialNumber);
     }
 
-    public String getSerialNumber() throws IOException {
-        if (serialnr == null) {
-            UniversalObject uo = meterConfig.getSerialNumberObject();
-            serialnr = getCosemObjectFactory().getGenericRead(uo).getString();
-        }
-        return serialnr;
-    } // public String getSerialNumber() throws IOException
-
     public String getProtocolVersion() {
-        return "$Date: 2015-07-30 11:19:34 +0200 (Thu, 30 Jul 2015) $";
+        return "$Date: 2015-11-26 15:23:39 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

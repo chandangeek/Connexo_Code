@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.math.BigDecimal;
 
 /**
  *
@@ -24,7 +24,7 @@ public class RegisterType16BitUnsignedInt extends AbstractRegisterType {
     private int value;
     
     /** Creates a new instance of RegisterType16BitsInt */
-    public RegisterType16BitUnsignedInt(byte[] data) throws IOException {
+    public RegisterType16BitUnsignedInt(byte[] data) throws ProtocolException {
         
        setValue(ProtocolUtils.getInt(data,0,2));        
         

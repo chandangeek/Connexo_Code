@@ -1,12 +1,5 @@
 package com.energyict.protocolimpl.iec1107.ppm.opus;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
@@ -15,6 +8,13 @@ import com.energyict.protocolimpl.iec1107.ppm.Encryption;
 import com.energyict.protocolimpl.iec1107.ppm.PPM;
 import com.energyict.protocolimpl.iec1107.ppm.PPMIOException;
 import com.energyict.protocolimpl.iec1107.ppm.PPMUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  * For information regarding Opus protocol, read manufacturer documentation:
@@ -95,7 +95,7 @@ public class OpusConnection extends Connection {
 
 	public OpusResponse readRegister(String dataIdentity, int packetNr, int dayNr, int nrPackets, boolean isProfileData)
 
-	throws NestedIOException, ConnectionException, IOException {
+            throws NestedIOException, ConnectionException, PPMIOException {
 
 		ReadCommand command = new ReadCommand(dataIdentity, packetNr, dayNr, nrPackets, isProfileData);
 		doCommand(command);
@@ -335,7 +335,7 @@ public class OpusConnection extends Connection {
 
 	}
 
-	private void doCommand(OpusCommand command) throws IOException {
+	private void doCommand(OpusCommand command) throws NestedIOException, PPMIOException {
 
 		int tries = 0;
 		boolean done = false;

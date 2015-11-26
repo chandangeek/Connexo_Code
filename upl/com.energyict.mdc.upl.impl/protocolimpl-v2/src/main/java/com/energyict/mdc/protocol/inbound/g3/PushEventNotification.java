@@ -12,6 +12,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.meterdata.CollectedData;
@@ -19,7 +20,6 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -32,12 +32,12 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ConnectionSetupException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -235,7 +235,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         } catch (ProtocolException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(e);
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, dlmsSession);
+            throw DLMSIOExceptionHandler.handle(e, dlmsSession.getProperties().getRetries() + 1);
         }
     }
 
@@ -307,7 +307,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-25 14:25:56 +0200 (Wed, 25 Nov 2015)$";
+        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override

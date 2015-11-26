@@ -2,12 +2,18 @@ package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.WriteException;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * <blockquote><pre>
@@ -106,11 +112,11 @@ public class ProRegister {
         return fields.iterator();
     }
 
-    public String getRawData() throws IOException {
+    public String getRawData() throws ConnectionException, NestedIOException, WriteException, ProtocolException {
         return getRawData(true);
     }
 
-    public String getRawData(boolean retry) throws IOException {
+    public String getRawData(boolean retry) throws ConnectionException, WriteException, NestedIOException, ProtocolException {
         if (rawData == null) {
             String tmp = meter.read(id + "(" + fetchSize + ")", retry);
             if (!cacheable) {

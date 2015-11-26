@@ -10,15 +10,14 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -46,10 +45,10 @@ public class Class16EventLogData extends AbstractClass {
     private static final int DEMAND_RESET=6;
     private static final int EVENT_LOG_RESET=255;
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         
         if ((data.length%EVENT_RECORD_LENGTH) != 0) {
-            throw new IOException("Class16EventLogData, parse(), data length is not divideable by the event record length! ("+data.length+" % "+EVENT_RECORD_LENGTH+" = "+(data.length%EVENT_RECORD_LENGTH)+") !");
+            throw new ProtocolException("Class16EventLogData, parse(), data length is not divideable by the event record length! ("+data.length+" % "+EVENT_RECORD_LENGTH+" = "+(data.length%EVENT_RECORD_LENGTH)+") !");
         }
         
         meterEvents = new ArrayList();

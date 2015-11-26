@@ -1,14 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.TimeZone;
-
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.util.*;
 
 /** @author fbo */
 
@@ -33,7 +29,7 @@ public class HistoricalEventRegister {
     private TimeZone timeZone;
     
     /** Creates a new instance of HistoricalEventRegister */
-    public HistoricalEventRegister(byte[] data, TimeZone timeZone) throws IOException {
+    public HistoricalEventRegister(byte[] data, TimeZone timeZone) throws ProtocolException {
         this.timeZone=timeZone;
         parse(data);
     }
@@ -42,7 +38,7 @@ public class HistoricalEventRegister {
         return events;
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
         
         long shift;
         Date date;

@@ -56,7 +56,7 @@ public class IndigoPXAR extends AbstractIEC1107Protocol {
 	 * @return the ProtocolVerison 
 	 */
     public String getProtocolVersion() {
-        return "$Date: 2014-06-20 11:43:28 +0200 (Fri, 20 Jun 2014) $";
+        return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**

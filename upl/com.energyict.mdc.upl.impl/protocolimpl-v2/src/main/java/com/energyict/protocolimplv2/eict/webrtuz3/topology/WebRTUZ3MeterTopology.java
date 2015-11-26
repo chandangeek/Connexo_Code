@@ -6,6 +6,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -15,7 +16,6 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.DeviceMappingRange;
 
@@ -124,7 +124,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
                     }
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession().getProperties().getRetries() + 1)) {
                     continue;   //Go to the next meter
                 }
             }
@@ -149,7 +149,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
                     }
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession().getProperties().getRetries() + 1)) {
                     continue;   //Go to the next meter
                 }
             }

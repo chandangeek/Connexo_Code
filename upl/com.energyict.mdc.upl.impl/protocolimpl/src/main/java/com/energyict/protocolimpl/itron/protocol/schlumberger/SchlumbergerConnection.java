@@ -10,11 +10,19 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  *
@@ -120,7 +128,7 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
             } catch(ConnectionException e) {
                 if (DEBUG>=1) e.printStackTrace();
                 if (e.getReason() == PROTOCOL_ERROR)
-                    throw new ProtocolConnectionException("sendCommand() error, "+e.getMessage());
+                    throw new ProtocolConnectionException("sendCommand() error, "+e.getMessage(), e.getReason());
                 else {
 
                     //System.out.println("KV_DEBUG> timeout "+retry);
@@ -128,7 +136,7 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                     if (retry++>=5) {
                         //return;
 
-                        throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
+                        throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage(), MAX_RETRIES_ERROR);
                     }
                 }
             }
@@ -165,10 +173,10 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
             } catch(ConnectionException e) {
                 if (DEBUG>=1) e.printStackTrace();
                 if (e.getReason() == PROTOCOL_ERROR)
-                    throw new ProtocolConnectionException("sendCommand() error, "+e.getMessage());
+                    throw new ProtocolConnectionException("sendCommand() error, "+e.getMessage(), TIMEOUT_ERROR);
                 else {
                     if (retry++>=maxRetries) {
-                        throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
+                        throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage(), e.getReason());
                     }
                 }
             }

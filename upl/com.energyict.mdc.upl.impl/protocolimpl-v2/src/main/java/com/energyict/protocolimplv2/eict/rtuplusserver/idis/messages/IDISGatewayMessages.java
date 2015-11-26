@@ -2,20 +2,11 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages;
 
 import com.energyict.cbo.TimeOfDay;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.FirewallSetup;
-import com.energyict.dlms.cosem.GatewaySetup;
-import com.energyict.dlms.cosem.MasterboardSetup;
-import com.energyict.dlms.cosem.NetworkManagement;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.messages.DeviceMessage;
@@ -32,16 +23,8 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.IDISGatewayRegisters;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirewallConfigurationMessage;
-import com.energyict.protocolimplv2.messages.LoggingConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.OutputConfigurationMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -172,7 +155,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
                     collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, session)) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, session.getProperties().getRetries() + 1)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, messageFailed(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());

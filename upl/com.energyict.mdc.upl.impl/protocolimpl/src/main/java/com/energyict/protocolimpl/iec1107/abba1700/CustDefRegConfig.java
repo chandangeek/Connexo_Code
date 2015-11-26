@@ -6,10 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-
-import java.io.IOException;
 
 /**
  * @author Koen
@@ -27,11 +26,11 @@ public class CustDefRegConfig {
      * Creates a new instance of CustDefRegConfig
      *
      * @param data
-     * @throws IOException
+     * @throws ProtocolException
      */
-    public CustDefRegConfig(byte[] data) throws IOException {
+    public CustDefRegConfig(byte[] data) throws ProtocolException {
         if (data.length < (NUMBER_OF_CDRS * NORMAL_CDR_COMBINATIONS)) {
-            throw new IOException("Invalid content of the CustDefRegConfig register: " + ProtocolTools.getHexStringFromBytes(data));
+            throw new ProtocolException("Invalid content of the CustDefRegConfig register: " + ProtocolTools.getHexStringFromBytes(data));
         }
         extended = (data.length >= (EXTENDED_CDR_COMBINATIONS * NUMBER_OF_CDRS));
         custRegSource = new int[NUMBER_OF_CDRS][extended ? EXTENDED_CDR_COMBINATIONS : NORMAL_CDR_COMBINATIONS];

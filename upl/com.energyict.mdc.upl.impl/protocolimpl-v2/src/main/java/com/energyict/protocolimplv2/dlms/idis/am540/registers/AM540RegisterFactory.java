@@ -6,6 +6,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -16,7 +17,6 @@ import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.Date;
@@ -110,8 +110,8 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
                     RegisterValue registerValue = g3Mapping.parse(attributeValue, unit, captureTime);
                     return createCollectedRegister(registerValue, offlineRegister);
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
-                        if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
+                        if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                             return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
                         } else {
                             return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());

@@ -5,11 +5,15 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -20,7 +24,7 @@ import java.util.logging.Logger;
  * Time: 16:47
  * Author: khe
  */
-public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
+public abstract class ACE4000 extends NoOrPasswordSecuritySupport implements SerialNumberSupport {
 
     private ACE4000Connection ace4000Connection;
     private ACE4000Properties properties;

@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.am130;
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -28,7 +29,6 @@ import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class AM130 extends AM500 {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: 2015-11-26 15:26:44 +0200 (Thu, 26 Nov 2015)$";
     }
 
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
@@ -130,7 +130,7 @@ public class AM130 extends AM500 {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, publicDlmsSession);
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
         disconnectFromPublicClient(publicDlmsSession);
 

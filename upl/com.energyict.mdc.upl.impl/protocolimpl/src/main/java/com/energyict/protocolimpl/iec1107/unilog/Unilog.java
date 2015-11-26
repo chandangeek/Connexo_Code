@@ -9,28 +9,18 @@ package com.energyict.protocolimpl.iec1107.unilog;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -40,7 +30,7 @@ import java.util.logging.Logger;
  * KV|30032005|Handle StringOutOfBoundException in IEC1107 connection layer
  * @endchanges
  */
-public class Unilog extends AbstractUnilog {
+public class Unilog extends AbstractUnilog implements SerialNumberSupport {
 
     private final static String KAMSTRUP_ID = "/KAM5";
 
@@ -199,6 +189,19 @@ public class Unilog extends AbstractUnilog {
         return result;
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            String meterSerial = meterType.getReceivedIdent();
+            if (meterSerial == null) {
+                throw new ProtocolException("SerialNumber mismatch! configured serial = " + pSerialNumber + " meter serial unknown");
+            }
+            return pSerialNumber;
+        } catch (IOException e) {
+           throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
+    }
+
     /**
      * Init the protocol with all the given parameters
      *
@@ -228,7 +231,6 @@ public class Unilog extends AbstractUnilog {
     public void connect() throws IOException {
         try {
             meterType = flagIEC1107Connection.connectMAC(pAddress, pPassword, pSecurityLevel, pNodeId);
-            validateSerialNumber();
         } catch (FlagIEC1107ConnectionException e) {
             disconnect();
             throw new IOException(e.getMessage());
@@ -247,27 +249,6 @@ public class Unilog extends AbstractUnilog {
             flagIEC1107Connection.disconnectMAC();
         } catch (FlagIEC1107ConnectionException e) {
             getLogger().severe("disconnect() error, " + e.getMessage());
-        }
-    }
-
-    /**
-     * Validate the serial number with the serial number in EIServer if available
-     *
-     * @throws IOException
-     */
-    void validateSerialNumber() throws IOException {
-        if (pSerialNumber != null) {
-            String meterSerial = meterType.getReceivedIdent();
-            if (meterSerial == null) {
-                throw new IOException("SerialNumber mismatch! configured serial = " + pSerialNumber + " meter serial unknown");
-            } else {
-                String trimMeterSerial = meterSerial.substring(5, meterSerial.length());
-                trimMeterSerial = trimMeterSerial.replace(new String(new byte[]{0x0D, 0x0A}), "");  // Remove \r\n, but only if necessary
-
-                if (!trimMeterSerial.equals(pSerialNumber)) {
-                    throw new IOException("SerialNumber mismatch! configured serial = " + pSerialNumber + " meter serial = " + trimMeterSerial);
-                }
-            }
         }
     }
 
@@ -360,7 +341,7 @@ public class Unilog extends AbstractUnilog {
      * @return
      */
     public String getProtocolVersion() {
-        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+        return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**

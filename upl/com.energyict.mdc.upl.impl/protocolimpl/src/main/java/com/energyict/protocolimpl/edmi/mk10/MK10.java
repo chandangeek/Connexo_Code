@@ -2,14 +2,8 @@ package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -20,15 +14,12 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
 import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
 import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -55,7 +46,7 @@ import java.util.logging.Logger;
  * jme: 09/07/2010 -> COMMUNICATION-59 - Fixed timeouts when udp packets were > 1024 bytes.
  * sva: 29/10/2012 -> EISERVERSG-1200 - The Generic MK10Push inbound protocol is deprecated, it should be replaced by the MK10InboundDeviceProtocol (doing the inbound discovery), combined with the regular MK10 protocol.
  **/
-public class MK10 extends AbstractProtocol {
+public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 
 	private static final int DEBUG				= 0;
 	private static final boolean USE_HARD_INFO 	= true;
@@ -88,20 +79,6 @@ public class MK10 extends AbstractProtocol {
 		} else {
 			sendDebug("logOffDisabled = " + isLogOffDisabled() + " Ignoring disconnect call.");
 		}
-	}
-
-	// This method is never used.
-	// The protocol can't verify the serial number because the correct serial number is needed to communicate with the device
-	protected void validateSerialNumber() throws IOException {
-		sendDebug("doValidateProperties()");
-		if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
-			return;
-		}
-		String sn = getSerialNumber();
-		if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
-			return;
-		}
-		throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
 	}
 
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
@@ -166,7 +143,7 @@ public class MK10 extends AbstractProtocol {
     /** Protocol version **/
 	public String getProtocolVersion() {
 		sendDebug("getProtocolVersion()");
-		return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+		return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -178,9 +155,13 @@ public class MK10 extends AbstractProtocol {
 		"Serial number:"+getSerialNumber(); // serial number
 	}
 
-	public String getSerialNumber() throws IOException {
-		return getCommandFactory().getReadCommand(MK10Register.SYSTEM_SERIALNUMBER).getRegister().getString(); // Serial number
-	}
+	public String getSerialNumber()  {
+        try {
+            return getCommandFactory().getReadCommand(MK10Register.SYSTEM_SERIALNUMBER).getRegister().getString(); // Serial number
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries()+1);
+        }
+    }
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 		sendDebug("getProfileData()");

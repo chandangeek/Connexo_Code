@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
-import java.io.IOException;
+import com.energyict.protocol.ProtocolException;
 
 /**
  * Used for profile data entries, register values, ...
@@ -36,9 +36,9 @@ public class ExtendedValue {
         return type;
     }
 
-    public int getValue() throws IOException {
+    public int getValue() throws ProtocolException {
         if (!valid) {
-            throw new IOException("Error requesting data, returned value with length 0 (missing)");
+            throw new ProtocolException("Error requesting data, returned value with length 0 (missing)");
         }
         return value;
     }

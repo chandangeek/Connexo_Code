@@ -6,19 +6,14 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.math.BigDecimal;
-import java.io.IOException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 /*
  * @author  Koen
  */
@@ -37,19 +32,23 @@ public class MaximumDemand extends MainRegister implements Comparable {
     public MaximumDemand() {
     }
     
-    public MaximumDemand(byte[] data,TimeZone timeZone) throws IOException {
+    public MaximumDemand(byte[] data,TimeZone timeZone) throws ProtocolException {
         super();
         this.timeZone=timeZone;
         parse(data);
     }
     
     // TODO ?? energy of demand ??
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
         long shift = (long)ProtocolUtils.getIntLE(data,0,4)&0xFFFFFFFFL;
         setDateTime(ProtocolUtils.getCalendar(timeZone,shift).getTime());
         setRegSource(ProtocolUtils.getIntLE(data,4,1));
-        BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,5,7))));
-        setQuantity(new Quantity(bd,EnergyTypeCode.getUnitFromRegSource(getRegSource(),false)));
+        try {
+            BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data, 5, 7))));
+            setQuantity(new Quantity(bd, EnergyTypeCode.getUnitFromRegSource(getRegSource(), false)));
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
     }
     
     public String toString() {

@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.iec1107.vdew;
 
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -87,7 +88,7 @@ public abstract class AbstractVDEWRegistry {
             VDEWRegister register = findRegister(name);
             return (register.parse(register.readRegister(cached)));
         } catch (FlagIEC1107ConnectionException e) {
-            throw new IOException("AbstractVDEWRegistry, getRegister, " + e.getMessage());
+            throw new ProtocolConnectionException("AbstractVDEWRegistry, getRegister error:" + e.getMessage(), e.getReason());
         }
     }
 
@@ -96,7 +97,7 @@ public abstract class AbstractVDEWRegistry {
             VDEWRegister register = findRegister(name);
             return (register.readRegister(register.isCached()));
         } catch (FlagIEC1107ConnectionException e) {
-            throw new IOException("AbstractVDEWRegistry, getRegisterRawData, " + e.getMessage());
+            throw new ProtocolConnectionException("AbstractVDEWRegistry, getRegisterRawData error:" + e.getMessage(), e.getReason());
         }
     }
 
@@ -189,7 +190,7 @@ public abstract class AbstractVDEWRegistry {
         validateData(str);
     }
 
-    public void validateData(String str) throws IOException {
+    public void validateData(String str) throws VDEWException, FlagIEC1107ConnectionException {
         // Pure VDEW
         if (str.indexOf("(ERROR)") != -1) {
             if (getMeterExceptionInfo() != null) {

@@ -1,10 +1,6 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
@@ -13,33 +9,14 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.DataParseException;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -54,15 +31,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -71,7 +40,7 @@ import java.util.logging.Logger;
  * <p/>
  * 19-08-2009 jme > Copied ABBA1350 protocol as base for new AS220 protocol
  */
-public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
+public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol, SerialNumberSupport {
 
     private final static int DEBUG = 0;
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
@@ -213,6 +182,15 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     public Date getTime() throws IOException {
         this.meterDate = (Date) getAS220Registry().getRegister("TimeDate");
         return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
+    }
+
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getMeterSerial();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
     }
 
     /**
@@ -357,7 +335,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2015-11-24 17:28:28 +0100 (Tue, 24 Nov 2015) $";
+        return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -419,7 +397,6 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             throw new IOException(e.getMessage());
         }
 
-        validateSerialNumber();
         this.aS220ObisCodeMapper.initObis();
 
         if (this.extendedLogging >= 2) {
@@ -872,16 +849,6 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             );
         }
         return this.meterSerial;
-    }
-
-    protected void validateSerialNumber() throws IOException {
-        if ((this.serialNumber == null) || ("".compareTo(this.serialNumber) == 0)) {
-            return;
-        }
-        if (this.serialNumber.compareTo(getMeterSerial()) == 0) {
-            return;
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + getMeterSerial() + ", configured sn=" + this.serialNumber);
     }
 
     public void applyMessages(List messageEntries) throws IOException {
