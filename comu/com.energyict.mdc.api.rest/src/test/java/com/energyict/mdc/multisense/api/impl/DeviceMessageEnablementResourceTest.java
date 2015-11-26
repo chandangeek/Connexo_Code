@@ -101,6 +101,24 @@ public class DeviceMessageEnablementResourceTest extends MultisensePublicApiJers
     }
 
     @Test
+    public void testCreateDeviceMessageEnablementIncorrectDeviceTypeVersion() throws Exception {
+        DeviceMessageEnablementInfo info = new DeviceMessageEnablementInfo();
+        info.version = 101L;
+        info.deviceConfiguration = new DeviceConfigurationInfo();
+        info.deviceConfiguration.deviceType = new LinkInfo();
+        info.deviceConfiguration.id = 11L;
+        info.deviceConfiguration.version = 111L;
+        info.deviceConfiguration.deviceType.id = 10L;
+        info.deviceConfiguration.deviceType.version = 99999999L;
+        info.messageId = 15001L;
+        info.userActions = new HashSet<>();
+        info.userActions.add(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1);
+
+        Response post = target("/devicetypes/10/deviceconfigurations/11/devicemessageenablements/").request().post(Entity.json(info));
+        assertThat(post.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
     public void testDeviceMessageEnablementFields() throws Exception {
         Response response = target("/devicetypes/x/deviceconfigurations/x/devicemessageenablements").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());

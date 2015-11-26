@@ -1,6 +1,11 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.rest.BasicPropertyTypes;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -12,23 +17,30 @@ import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJerseyTest {
 
     Clock clock = Clock.fixed(Instant.ofEpochSecond(1448841600), ZoneId.systemDefault());
+    private Device device;
+    private SecurityPropertySet sps1, sps2;
 
 
     @Override
@@ -39,10 +51,10 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(2L, "device config", deviceType, 1002L);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationAccessLevel(3);
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mockEncryptionAccessLevel(4);
-        SecurityPropertySet sps1 = mockSecurityPropertySet(5L, deviceConfiguration, "sps1", encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, 1003L);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(6L, deviceConfiguration, "sps2", encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, 1004L);
+        sps1 = mockSecurityPropertySet(5L, deviceConfiguration, "sps1", encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, 1003L);
+        sps2 = mockSecurityPropertySet(6L, deviceConfiguration, "sps2", encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, 1004L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
-        Device device = mockDevice("XAS", "10101010101011", deviceConfiguration, 1005L);
+        device = mockDevice("XAS", "10101010101011", deviceConfiguration, 1005L);
         SecurityProperty securityProperty1 = mock(SecurityProperty.class);
         when(securityProperty1.getName()).thenReturn("string.property");
         when(securityProperty1.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
@@ -113,12 +125,82 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
     }
 
     @Test
+    public void testSetValuesForSecuritySet() throws Exception {
+        DeviceSecurityPropertySetInfo info = new DeviceSecurityPropertySetInfo();
+        info.device = new LinkInfo();
+        info.device.version = 1005L;
+        info.configuredSecurityPropertySet = new LinkInfo();
+        info.configuredSecurityPropertySet.version = 1003L;
+        PropertyValueInfo<String> valueInfo = new PropertyValueInfo<>("Hello Kitty", null, null, true);
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
+        propertyTypeInfo.simplePropertyType = BasicPropertyTypes.TEXT;
+        PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", valueInfo, propertyTypeInfo, true);
+        info.properties = new ArrayList<>();
+        info.properties.add(propertyInfo);
+
+        Response response = target("/devices/XAS/securitypropertysets/5").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ArgumentCaptor<TypedProperties> typedPropertiesArgumentCaptor = ArgumentCaptor.forClass(TypedProperties.class);
+
+        verify(device).setSecurityProperties(eq(sps1), typedPropertiesArgumentCaptor.capture());
+        assertThat(typedPropertiesArgumentCaptor.getValue().hasValueFor("string.property")).isTrue();
+        assertThat(typedPropertiesArgumentCaptor.getValue().getProperty("string.property")).isEqualTo("Hello Kitty");
+    }
+
+    @Test
+    public void testSetValuesForSecuritySetToNull() throws Exception {
+        DeviceSecurityPropertySetInfo info = new DeviceSecurityPropertySetInfo();
+        info.device = new LinkInfo();
+        info.device.version = 1005L;
+        info.configuredSecurityPropertySet = new LinkInfo();
+        info.configuredSecurityPropertySet.version = 1003L;
+        PropertyValueInfo<String> valueInfo = new PropertyValueInfo<>(null, null, null, true);
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
+        propertyTypeInfo.simplePropertyType = BasicPropertyTypes.TEXT;
+        PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", valueInfo, propertyTypeInfo, true);
+        info.properties = new ArrayList<>();
+        info.properties.add(propertyInfo);
+
+        Response response = target("/devices/XAS/securitypropertysets/5").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ArgumentCaptor<TypedProperties> typedPropertiesArgumentCaptor = ArgumentCaptor.forClass(TypedProperties.class);
+
+        verify(device).setSecurityProperties(eq(sps1), typedPropertiesArgumentCaptor.capture());
+        assertThat(typedPropertiesArgumentCaptor.getValue().hasValueFor("string.property")).isTrue();
+        assertThat(typedPropertiesArgumentCaptor.getValue().getProperty("string.property")).isEqualTo(null);
+    }
+
+    @Test
+    public void testSetValuesForSecuritySetUnset() throws Exception {
+        DeviceSecurityPropertySetInfo info = new DeviceSecurityPropertySetInfo();
+        info.device = new LinkInfo();
+        info.device.version = 1005L;
+        info.configuredSecurityPropertySet = new LinkInfo();
+        info.configuredSecurityPropertySet.version = 1003L;
+        PropertyValueInfo<String> valueInfo = new PropertyValueInfo<>(null, null, null, false);
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
+        propertyTypeInfo.simplePropertyType = BasicPropertyTypes.TEXT;
+        PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", valueInfo, propertyTypeInfo, true);
+        info.properties = new ArrayList<>();
+        info.properties.add(propertyInfo);
+
+        Response response = target("/devices/XAS/securitypropertysets/5").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ArgumentCaptor<TypedProperties> typedPropertiesArgumentCaptor = ArgumentCaptor.forClass(TypedProperties.class);
+
+        verify(device).setSecurityProperties(eq(sps1), typedPropertiesArgumentCaptor.capture());
+        assertThat(typedPropertiesArgumentCaptor.getValue().hasValueFor("string.property")).isFalse();
+    }
+
+    @Test
     public void testDeviceSecurityPropertySetFields() throws Exception {
         Response response = target("/devices/XAS/securitypropertysets").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<List>get("$")).hasSize(8);
         assertThat(model.<List<String>>get("$")).containsOnly("complete","configuredSecurityPropertySet","device","effectivePeriod","id","link","properties","version");
     }
-
 
 }
