@@ -82,13 +82,14 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
         device2.save();
         Device device3 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3);
         device3.save();
-        EndDeviceGroupBuilder.EnumeratedEndDeviceGroupBuilder builder = inMemoryPersistence.getMeteringGroupsService().createEnumeratedEndDeviceGroup();
-        builder.setMRID(ENUM_EDG_NAME);
-        builder.containing(
-                inMemoryPersistence.getMeteringService().findEndDevice(ED_MRID1).get(),
-                inMemoryPersistence.getMeteringService().findEndDevice(ED_MRID2).get());
-        builder.at(Instant.EPOCH);
-        builder.create();
+        inMemoryPersistence.getMeteringGroupsService().createEnumeratedEndDeviceGroup()
+                .setName(ENUM_EDG_NAME)
+                .setMRID(ENUM_EDG_NAME)
+                .containing(
+                        inMemoryPersistence.getMeteringService().findEndDevice(ED_MRID1).get(),
+                        inMemoryPersistence.getMeteringService().findEndDevice(ED_MRID2).get())
+                .at(Instant.EPOCH)
+                .create();
 
         //Business method
         Optional<EndDeviceGroup> found = inMemoryPersistence.getMeteringGroupsService().findEndDeviceGroup(ENUM_EDG_NAME);
