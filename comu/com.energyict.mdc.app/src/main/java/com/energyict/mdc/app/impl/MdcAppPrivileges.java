@@ -138,6 +138,10 @@ class MdcAppPrivileges {
                 com.elster.jupiter.bpm.security.Privileges.Constants.ASSIGN_TASK,
                 com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
                 com.elster.jupiter.bpm.security.Privileges.Constants.ADMINISTRATE_BPM,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_1,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_2,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_3,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_4,
 
                 //com.elster.jupiter.cps
                 com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1,
