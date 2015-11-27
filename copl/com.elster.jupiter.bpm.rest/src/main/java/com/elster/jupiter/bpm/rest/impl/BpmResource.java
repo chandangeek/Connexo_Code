@@ -14,10 +14,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.joda.time.DateTimeUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.omg.CORBA.ExceptionList;
+import sun.util.calendar.JulianCalendar;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -296,7 +300,7 @@ public class BpmResource {
             rest += "/assign?username=" + userName;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
-                bpmService.getBpmServer().doPost(rest);
+                bpmService.getBpmServer().doPost(rest, null);
             } catch (RuntimeException e) {
             }
             return Response.ok().build();
@@ -349,7 +353,7 @@ public class BpmResource {
                 rest += "?duedate=" + date;
             }
             try {
-                bpmService.getBpmServer().doPost(rest);
+                bpmService.getBpmServer().doPost(rest, null);
             } catch (RuntimeException e) {
 
             }
@@ -522,7 +526,7 @@ public class BpmResource {
             if (!req.equals("")) {
                 rest += req+"&tasks=2&currentuser=" + securityContext.getUserPrincipal().getName() ;
             }
-            bpmService.getBpmServer().doPost(rest);
+            bpmService.getBpmServer().doPost(rest, null);
 
         } catch (RuntimeException e) {
         }
@@ -551,7 +555,7 @@ public class BpmResource {
     @GET
     @Path("taskcontent/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public TaskContentInfos getTaskContent(@Context UriInfo uriInfo, @PathParam("id") long id) {
+    public TaskContentInfos getTaskContent(@PathParam("id") long id) {
         String jsonContent;
         JSONObject obj = null;
         TaskContentInfos taskContentInfos = null;
@@ -575,29 +579,79 @@ public class BpmResource {
     @Path("taskcontent/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response postTaskContent(TaskContentInfos taskContentInfos, @PathParam("id") long id, @Context SecurityContext securityContext) {
+        long postResult = 0;
         String userName = securityContext.getUserPrincipal().getName();
+        if(!taskContentInfos.action.equals("startTask")) {
+            TaskContentInfos taskContents = getTaskContent(id);
+            taskContentInfos.properties.stream()
+                    .forEach(s -> {
+                        if (s.propertyValueInfo.value == null) {
+                            Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
+                                    .filter(x -> x.key.equals(s.key))
+                                    .findFirst();
+                            if (taskContentInfo.isPresent()) {
+                                if (taskContentInfo.get().required) {
+                                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "properties." + s.key);
+                                }
+                            }
+                        } else if (s.propertyValueInfo.value.equals("")) {
+                            Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
+                                    .filter(x -> x.key.equals(s.key))
+                                    .findFirst();
+                            if (taskContentInfo.isPresent()) {
+                                if (taskContentInfo.get().required) {
+                                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "properties." + s.key);
+                                }
+                            }
+                        }
+                    });
+        }
         JSONObject obj = null;
         if(taskContentInfos.action.equals("startTask")){
             String rest = "/rest/tasks/" + id + "/contentstart/" + userName + "/";
-            bpmService.getBpmServer().doPost(rest);
+            postResult = bpmService.getBpmServer().doPost(rest, null);
         }
         if(taskContentInfos.action.equals("completeTask")){
             String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
-            bpmService.getBpmServer().doPost(rest);
+            postResult = bpmService.getBpmServer().doPost(rest, null);
         }
         if(taskContentInfos.action.equals("saveTask")){
-            String jsonContent;
             try {
-                String rest = "/rest/tasks/" + id + "/content";
-                jsonContent = bpmService.getBpmServer().doGet(rest);
-                if (!"".equals(jsonContent)) {
-                    obj = new JSONObject(jsonContent);
-                    obj = obj.getJSONObject("content");
-                }
+                TaskContentInfos taskContents = getTaskContent(id);
+                Map<String, Object> outputBindingContents = new HashMap<>();
+                taskContents.properties.stream()
+                        .filter(pi -> pi.outputBinding != null)
+                        .forEach(s -> {
 
-            } catch (JSONException e) {
+                            Optional<TaskContentInfo> taskContentInfo = taskContentInfos.properties.stream()
+                                    .filter(p -> p.key.equals(s.key))
+                                    .findFirst();
+                            if(taskContentInfo.isPresent()){
+                                if(taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("TIMESTAMP")){
+                                    Date date = new Date();
+                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
+                                    outputBindingContents.put(s.outputBinding, date);
+                                }else if(taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("DATE")){
+                                    Date date = new Date();
+                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
+                                    outputBindingContents.put(s.outputBinding, date);
+                                }else{
+                                    outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
+                                }
+                            }
+                        });
+                TaskOutputContentInfo taskOutputContentInfo = new TaskOutputContentInfo(outputBindingContents);
+                ObjectMapper mapper = new ObjectMapper();
+                String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
+                String rest = "/rest/tasks/" + id + "/contentsave";
+                postResult = bpmService.getBpmServer().doPost(rest, stringJson);
             } catch (RuntimeException e) {
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
+        }
+        if(postResult == -1) {
+            return Response.status(400).build();
         }
         return Response.ok().build();
 

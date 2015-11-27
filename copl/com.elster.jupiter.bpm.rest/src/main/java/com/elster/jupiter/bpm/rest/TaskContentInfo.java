@@ -8,6 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,6 +18,7 @@ public class TaskContentInfo {
 
     public String key;
     public String name;
+    public String outputBinding;
     public boolean required;
     public boolean isReadOnly;
     public PropertyTypeInfo propertyTypeInfo;
@@ -25,7 +28,7 @@ public class TaskContentInfo {
 
     }
 
-    public TaskContentInfo(JSONObject field,JSONObject content, String status){
+    public TaskContentInfo(JSONObject field,JSONObject content, JSONObject outputContent, String status){
         try {
             key = field.getString("type") + field.getString("id");
             JSONArray arr = field.getJSONArray("properties");
@@ -53,13 +56,15 @@ public class TaskContentInfo {
                     }
                     if(prop.getString("name").equals("inputBinding")){
                         if(!prop.getString("value").equals("")) {
-                            Iterator<?> keys = content.keys();
-                            while( keys.hasNext() ) {
-                                String key = (String)keys.next();
-                                if(key.equals(prop.getString("value"))){
-                                    propertyValueInfo = new PropertyValueInfo(content.getString(key));
-                                }
+                            setDefaultValueBinding(prop.getString("value"), content, field);
+                        }
+                    }
+                    if(prop.getString("name").equals("outputBinding")){
+                        if(!prop.getString("value").equals("")) {
+                            if(outputContent != null) {
+                                setDefaultValueBinding(prop.getString("value"), outputContent, field);
                             }
+                            outputBinding = prop.getString("value");
                         }
                     }
                 }
@@ -82,5 +87,35 @@ public class TaskContentInfo {
             }
         }
         return name.replace("quot","");
+    }
+
+    private void setDefaultValueBinding(String value, JSONObject jsonObject, JSONObject field){
+        Iterator<?> keys = jsonObject.keys();
+        while( keys.hasNext() ) {
+            String key = (String)keys.next();
+            if(key.equals(value)){
+                try {
+                    if(field.getString("type").equals("InputDate") || field.getString("type").equals("InputShortDate")){
+                        if(!jsonObject.getString(key).equals("")) {
+                            Date date = new Date(jsonObject.getLong(key));
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+                            if(field.getString("type").equals("InputShortDate")){
+                                dateFormat = new SimpleDateFormat("MM/dd/yy");
+                            }
+                            propertyValueInfo = new PropertyValueInfo(dateFormat.format(date));
+                        }
+                    }else {
+                        try {
+                            propertyValueInfo = new PropertyValueInfo(jsonObject.getString(key));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 }
