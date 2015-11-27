@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -38,6 +39,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueCaseInsensitive(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class AppServerImpl implements AppServer {
@@ -383,9 +386,15 @@ public class AppServerImpl implements AppServer {
                         Thread.currentThread().interrupt();
                     }
                 }).thenRun(() -> {
-                    transactionService.builder()
-                            .principal(principal)
-                            .run(AppServerImpl.this::removeMessageQueue);
+                    boolean inUseAgain = dataModel.stream(AppServer.class)
+                            .filter(where("name").isEqualTo(getName()))
+                            .findAny()
+                            .isPresent();
+                    if (!inUseAgain) {
+                        transactionService.builder()
+                                .principal(principal)
+                                .run(AppServerImpl.this::removeMessageQueue);
+                    }
                 });
             } else {
                 dataModel.mapper(AppServer.class).update(AppServerImpl.this);
