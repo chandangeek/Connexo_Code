@@ -2,9 +2,11 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -13,7 +15,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -43,6 +44,13 @@ import java.util.logging.Logger;
  * @since 2014-01-16 (10:59)
  */
 public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
+
+    private final PropertySpecService propertySpecService;
+
+    public MockMeterProtocol(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
@@ -172,14 +180,14 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     @Override
     public List<PropertySpec> getRequiredProperties() {
         List<PropertySpec> required = new ArrayList<>(1);
-        required.add(PropertySpecFactory.stringPropertySpec("RequiredProperty"));
+        required.add(PropertySpecFactory.stringPropertySpec("RequiredProperty", this.propertySpecService));
         return required;
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> optional = new ArrayList<>(1);
-        optional.add(PropertySpecFactory.stringPropertySpec("OptionalProperty"));
+        optional.add(PropertySpecFactory.stringPropertySpec("OptionalProperty", this.propertySpecService));
         return optional;
     }
 

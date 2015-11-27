@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
@@ -69,6 +70,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Adapter between a {@link MeterProtocol} and a {@link DeviceProtocol}.
@@ -89,7 +91,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     private final IssueService issueService;
     private final MessageAdapterMappingFactory messageAdapterMappingFactory;
     private final CollectedDataFactory collectedDataFactory;
-
+    private final Thesaurus thesaurus;
     private final MeteringService meteringService;
 
     /**
@@ -157,10 +159,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      */
     private HHUEnabler hhuEnabler;
 
-    public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Thesaurus thesaurus) {
         super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);
         this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.meteringService = meteringService;
+        this.thesaurus = thesaurus;
         this.protocolLogger = Logger.getAnonymousLogger(); // default for now
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
@@ -278,7 +281,25 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.getAdapterOptionalProperties();
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        List<PropertySpec> adapterOptionalPropertySpecs = this.getAdapterOptionalProperties();
+        Set<String> adapterOptionalPropertyNames =
+                adapterOptionalPropertySpecs
+                        .stream()
+                        .map(PropertySpec::getName)
+                        .collect(Collectors.toSet());
+        propertySpecs.addAll(adapterOptionalPropertySpecs);
+        this.meterProtocol
+                .getRequiredProperties()
+                .stream()
+                .filter(spec -> !adapterOptionalPropertyNames.contains(spec.getName()))
+                .forEach(propertySpecs::add);
+        this.meterProtocol
+                .getOptionalProperties()
+                .stream()
+                .filter(spec -> !adapterOptionalPropertyNames.contains(spec.getName()))
+                .forEach(propertySpecs::add);
+        return propertySpecs;
     }
 
     @Override
@@ -440,7 +461,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new AdapterDeviceProtocolDialect(this.getPropertySpecService(), this.getProtocolPluggableService(), this.meterProtocol, getSecurityPropertySpecs()));
+        dialects.add(new AdapterDeviceProtocolDialect(thesaurus, this.getPropertySpecService(), this.meterProtocol));
         return dialects;
     }
 

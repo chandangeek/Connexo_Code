@@ -264,10 +264,10 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void getRequiredKeysCorrectTest() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
-        List<com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec> requiredKeys = new ArrayList<>();
-        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r1"));
-        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r2"));
-        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r3"));
+        List<PropertySpec> requiredKeys = new ArrayList<>();
+        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r1", inMemoryPersistence.getPropertySpecService()));
+        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r2", inMemoryPersistence.getPropertySpecService()));
+        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r3", inMemoryPersistence.getPropertySpecService()));
         when(smartMeterProtocol.getRequiredProperties()).thenReturn(requiredKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
@@ -279,10 +279,10 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void getOptionalKeysCorrectTest() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
-        List<com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec> optionalKeys = new ArrayList<>();
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1"));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o2"));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3"));
+        List<PropertySpec> optionalKeys = new ArrayList<>();
+        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1", inMemoryPersistence.getPropertySpecService()));
+        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o2", inMemoryPersistence.getPropertySpecService()));
+        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3", inMemoryPersistence.getPropertySpecService()));
         when(smartMeterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
@@ -311,11 +311,11 @@ public class SmartMeterProtocolAdapterTest {
     public void getDeviceProtocolDialect() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         when(((DeviceSecuritySupport) smartMeterProtocol).getCustomPropertySet()).thenReturn(Optional.empty());
-        List<com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec> optionalKeys = new ArrayList<>();
+        List<PropertySpec> optionalKeys = new ArrayList<>();
         final List<String> optionalKeyNames = Arrays.asList("o1", "o2", "o3");
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1"));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o2"));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3"));
+        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1", inMemoryPersistence.getPropertySpecService()));
+        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o2", inMemoryPersistence.getPropertySpecService()));
+        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3", inMemoryPersistence.getPropertySpecService()));
         when(smartMeterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
         doReturn(new BasicPropertySpec("o1", false, new StringFactory()))
@@ -689,7 +689,7 @@ public class SmartMeterProtocolAdapterTest {
                 dataModel,
                 this.inMemoryPersistence.getIssueService(),
                 collectedDataFactory,
-                meteringService);
+                meteringService, thesaurus);
     }
 
     private interface MeterProtocolWithDeviceSecuritySupport extends SmartMeterProtocol, DeviceSecuritySupport {
@@ -698,7 +698,7 @@ public class SmartMeterProtocolAdapterTest {
     private class TestSmartMeterProtocolAdapter extends SmartMeterProtocolAdapter {
 
         private TestSmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, CollectedDataFactory collectedDataFactory) {
-            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, capabilityAdapterMappingFactory, messageAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), collectedDataFactory, meteringService);
+            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, capabilityAdapterMappingFactory, messageAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), collectedDataFactory, meteringService, thesaurus);
         }
 
         @Override

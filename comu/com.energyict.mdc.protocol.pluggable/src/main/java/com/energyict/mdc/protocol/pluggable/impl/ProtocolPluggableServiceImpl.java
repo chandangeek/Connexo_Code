@@ -12,6 +12,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -78,6 +80,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
@@ -115,8 +118,8 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-23 (13:47)
  */
-@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
-public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService, MessageSeedProvider {
+@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
+public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService, MessageSeedProvider, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(ProtocolPluggableServiceImpl.class.getName());
     private static final String MDC_APPLICATION_KEY = "MDC";
@@ -970,6 +973,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
+    public String getComponentName() {
+        return ProtocolPluggableService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
     }
 
     private class CompositeCollectedDataFactory implements CollectedDataFactory {

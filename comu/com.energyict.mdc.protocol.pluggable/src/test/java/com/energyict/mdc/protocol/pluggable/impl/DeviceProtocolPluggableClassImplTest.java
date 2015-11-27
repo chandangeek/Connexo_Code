@@ -198,7 +198,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void initializeDeviceProtocolService() {
         when(deviceProtocolService.createProtocol(MOCK_DEVICE_PROTOCOL)).thenReturn(new MockDeviceProtocol());
         when(deviceProtocolService.createProtocol(MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES)).thenReturn(new MockDeviceProtocolWithTestPropertySpecs(propertySpecService));
-        when(deviceProtocolService.createProtocol(MOCK_METER_PROTOCOL)).thenReturn(new MockMeterProtocol());
+        when(deviceProtocolService.createProtocol(MOCK_METER_PROTOCOL)).thenReturn(new MockMeterProtocol(propertySpecService));
         when(deviceProtocolService.createProtocol(MOCK_SMART_METER_PROTOCOL)).thenReturn(new MockSmartMeterProtocol());
         when(deviceProtocolService.createProtocol(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(new NotADeviceProtocol());
         when(deviceProtocolService.createProtocol(SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY)).thenReturn(new SDKDeviceProtocolTestWithMandatoryProperty(this.propertySpecService, mock(CollectedDataFactory.class)));

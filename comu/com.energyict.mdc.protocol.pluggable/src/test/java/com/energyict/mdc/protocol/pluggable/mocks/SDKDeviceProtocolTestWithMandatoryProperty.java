@@ -258,7 +258,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
-                new SDKLoadProfileProtocolDialectProperties(this.propertySpecService),
+                new SDKLoadProfileProtocolDialect(this.propertySpecService),
                 new SDKStandardDeviceProtocolDialectProperties(this.propertySpecService),
                 new SDKTimeDeviceProtocolDialectProperties(this.propertySpecService),
                 new SDKTopologyTaskProtocolDialectProperties(this.propertySpecService));
@@ -327,7 +327,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     private ObisCode getIgnoredObisCode() {
-        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileProtocolDialectProperties.notSupportedLoadProfileObisCodePropertyName, ObisCode.fromString("0.0.0.0.0.0"));
+        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName(), ObisCode.fromString("0.0.0.0.0.0"));
     }
 
     private TimeDuration getTimeDeviationPropertyForRead() {

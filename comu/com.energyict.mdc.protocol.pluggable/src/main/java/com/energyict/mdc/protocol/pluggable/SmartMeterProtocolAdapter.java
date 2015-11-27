@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
@@ -60,6 +61,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Sma
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -67,6 +69,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Adapter between a {@link SmartMeterProtocol} and a {@link DeviceProtocol}.
@@ -87,7 +90,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     private final IssueService issueService;
     private final MessageAdapterMappingFactory messageAdapterMappingFactory;
     private final CollectedDataFactory collectedDataFactory;
-
+    private final Thesaurus thesaurus;
     private final MeteringService meteringService;
 
     /**
@@ -155,10 +158,11 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      */
     private PropertiesAdapter propertiesAdapter;
 
-    public SmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public SmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Thesaurus thesaurus) {
         super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);
         this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.meteringService = meteringService;
+        this.thesaurus = thesaurus;
         this.protocolLogger = Logger.getAnonymousLogger(); // default for now
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
@@ -276,7 +280,25 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.getAdapterOptionalProperties();
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        List<PropertySpec> adapterOptionalPropertySpecs = this.getAdapterOptionalProperties();
+        Set<String> adapterOptionalPropertyNames =
+                adapterOptionalPropertySpecs
+                        .stream()
+                        .map(PropertySpec::getName)
+                        .collect(Collectors.toSet());
+        propertySpecs.addAll(adapterOptionalPropertySpecs);
+        this.meterProtocol
+                .getRequiredProperties()
+                .stream()
+                .filter(spec -> !adapterOptionalPropertyNames.contains(spec.getName()))
+                .forEach(propertySpecs::add);
+        this.meterProtocol
+                .getOptionalProperties()
+                .stream()
+                .filter(spec -> !adapterOptionalPropertyNames.contains(spec.getName()))
+                .forEach(propertySpecs::add);
+        return propertySpecs;
     }
 
     @Override
@@ -448,10 +470,9 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Collections.singletonList(
                     new AdapterDeviceProtocolDialect(
-                            this.getPropertySpecService(),
-                            this.getProtocolPluggableService(),
-                            this.meterProtocol,
-                            getSecurityPropertySpecs()));
+                            thesaurus, this.getPropertySpecService(),
+                            this.meterProtocol
+                    ));
     }
 
     @Override

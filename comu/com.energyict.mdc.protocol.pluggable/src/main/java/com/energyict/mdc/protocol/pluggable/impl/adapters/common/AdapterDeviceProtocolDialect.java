@@ -1,58 +1,44 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
 
-import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.properties.PropertySpec;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
- * Provides an Adapter implementation fo the DeviceProtocolDialect.
- * <p/>
+ * Provides an Adapter implementation for the {@link DeviceProtocolDialect} interface
+ * to support the legacy protocols.
+ *
  * Copyrights EnergyICT
  * Date: 9/10/12
  * Time: 13:37
  */
 public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
 
-    private static final String REMOVABLE_SECURITY_LEVEL_PROPERTY = "SecurityLevel";
-
-    private final ProtocolPluggableService protocolPluggableService;
+    private final Thesaurus thesaurus;
     private final HasDynamicProperties withDynamicProperties;
-    private final Set<String> removablePropertyNames;
 
-    /**
-     * Default constructor for the AdapterDeviceProtocolDialect
-     *
-     * @param withDynamicProperties The HasDynamicProperties
-     * @param removablePropertySpecs  propertySpecs which should be removed (eg. SecurityPropertySpecs)
-     */
-    public AdapterDeviceProtocolDialect(ProtocolPluggableService protocolPluggableService, HasDynamicProperties withDynamicProperties, List<PropertySpec> removablePropertySpecs) {
-        this.protocolPluggableService = protocolPluggableService;
+    private AdapterDeviceProtocolDialect(Thesaurus thesaurus, HasDynamicProperties withDynamicProperties) {
+        super();
+        this.thesaurus = thesaurus;
         this.withDynamicProperties = withDynamicProperties;
-        this.removablePropertyNames = new HashSet<>();
-        for (PropertySpec removablePropertyName : removablePropertySpecs) {
-            this.removablePropertyNames.add(removablePropertyName.getName());
-        }
-        this.removablePropertyNames.add(REMOVABLE_SECURITY_LEVEL_PROPERTY);
     }
 
-    public AdapterDeviceProtocolDialect(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SmartMeterProtocol meterProtocol, List<PropertySpec> removablePropertySpecs) {
-        this(protocolPluggableService, wrapAsDynamicProperties(propertySpecService, meterProtocol), removablePropertySpecs);
+    public AdapterDeviceProtocolDialect(Thesaurus thesaurus, PropertySpecService propertySpecService, SmartMeterProtocol meterProtocol) {
+        this(thesaurus, wrapAsDynamicProperties(propertySpecService, meterProtocol));
     }
 
-    public AdapterDeviceProtocolDialect (PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, MeterProtocol meterProtocol, List<PropertySpec> removablePropertySpecs) {
-        this(protocolPluggableService, wrapAsDynamicProperties(propertySpecService, meterProtocol), removablePropertySpecs);
+    public AdapterDeviceProtocolDialect(Thesaurus thesaurus, PropertySpecService propertySpecService, MeterProtocol meterProtocol) {
+        this(thesaurus, wrapAsDynamicProperties(propertySpecService, meterProtocol));
     }
 
     private static HasDynamicProperties wrapAsDynamicProperties(PropertySpecService propertySpecService, ConfigurationSupport configurationSupport) {
@@ -61,44 +47,24 @@ public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
 
     @Override
     public String getDisplayName() {
-        return "Default";
+        return this.thesaurus.getFormat(TranslationKeys.LEGACY_PROTOCOL).format();
+    }
+
+    @Override
+    public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+        return Optional.empty();
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        /*
-        This should return the SimpleName of the legacy protocols, concatenated with its javaclassname hashcode.
-        This name is used for creating a RelationType for this Dialect and his DeviceProtocol
-        We add the hashCode because we have multiple protocols with the same name (like 'MbusDevice' ...)
-         */
         if (this.withDynamicProperties instanceof ConfigurationSupportToDynamicPropertiesAdapter) {
             ConfigurationSupportToDynamicPropertiesAdapter adapter = (ConfigurationSupportToDynamicPropertiesAdapter) this.withDynamicProperties;
             ConfigurationSupport configurationSupport = adapter.getConfigurationSupport();
-            return this.protocolPluggableService.createOriginalAndConformRelationNameBasedOnJavaClassname(configurationSupport.getClass());
+            return configurationSupport.getClass().getName();
         }
         else {
-            return this.protocolPluggableService.createOriginalAndConformRelationNameBasedOnJavaClassname(this.withDynamicProperties.getClass());
+            return this.withDynamicProperties.getClass().getName();
         }
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs () {
-        List<PropertySpec> propertySpecs =
-            this.withDynamicProperties.getPropertySpecs()
-                .stream()
-                .filter(propertySpec -> !this.removablePropertyNames.contains(propertySpec.getName()))
-                .collect(Collectors.toList());
-        return removeDuplicates(propertySpecs);
-    }
-
-    private List<PropertySpec> removeDuplicates(List<PropertySpec> original) {
-        List<PropertySpec> nonDuplicateSpecs = new ArrayList<>();
-        for (PropertySpec propertySpec : original) {
-            if (!nonDuplicateSpecs.contains(propertySpec)) {
-                nonDuplicateSpecs.add(propertySpec);
-            }
-        }
-        return nonDuplicateSpecs;
     }
 
 }

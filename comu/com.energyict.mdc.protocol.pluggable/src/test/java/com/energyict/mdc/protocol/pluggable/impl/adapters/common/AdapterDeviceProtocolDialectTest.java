@@ -135,32 +135,32 @@ public class AdapterDeviceProtocolDialectTest {
 
     @Test
     public void testDialectName () {
-        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
+        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(dialect.getDeviceProtocolDialectName()).isEqualTo("MockMeterPro316065908");
     }
 
     @Test
     public void getRequiredKeysTest () {
-        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
+        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(getRequiredPropertiesFromSet(dialect.getPropertySpecs())).containsOnly(getRequiredPropertySpec());
     }
 
     @Test
     public void getOptionalKeysTest () {
-        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
+        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(getOptionalPropertiesFromSet(dialect.getPropertySpecs())).containsOnly(getOptionalPropertySpec());
     }
 
     @Test
     public void getPropertySpecTest () {
-        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
+        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(dialect.getPropertySpec(REQUIRED_PROPERTY_NAME)).isPresent();
         assertThat(dialect.getPropertySpec(REQUIRED_PROPERTY_NAME).get()).isEqualTo(getRequiredPropertySpec());
@@ -170,17 +170,17 @@ public class AdapterDeviceProtocolDialectTest {
 
     @Test
     public void testWithAdditionalProperties () {
-        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
+        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(dialect.getPropertySpecs()).containsOnly(this.getPropertySpecs());
     }
 
     @Test
     public void testWithRemovableProperties () {
-        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
+        MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
         List<PropertySpec> removableProperties = Arrays.asList(getFirstRemovableProperty(), getSecondRemovableProperty());
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, removableProperties);
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, propertySpecService, protocolPluggableService, mockDeviceProtocol, removableProperties);
 
         assertThat(dialect.getPropertySpecs()).containsOnly(this.getOptionalPropertySpec());
     }
@@ -188,7 +188,7 @@ public class AdapterDeviceProtocolDialectTest {
     @Test
     public void testWithOnlyAdditionalProperties () {
         MeterProtocol mockDeviceProtocol = mock(MeterProtocol.class);
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
         assertThat(dialect.getPropertySpecs()).isEmpty();
     }
@@ -197,7 +197,7 @@ public class AdapterDeviceProtocolDialectTest {
     public void testWithOnlyRemovableProperties () {
         MeterProtocol mockDeviceProtocol = mock(MeterProtocol.class);
         List<PropertySpec> removableProperties = Arrays.asList(getFirstRemovableProperty(), getSecondRemovableProperty());
-        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, removableProperties);
+        AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, propertySpecService, protocolPluggableService, mockDeviceProtocol, removableProperties);
 
         assertThat(dialect.getPropertySpecs()).isEmpty();
     }

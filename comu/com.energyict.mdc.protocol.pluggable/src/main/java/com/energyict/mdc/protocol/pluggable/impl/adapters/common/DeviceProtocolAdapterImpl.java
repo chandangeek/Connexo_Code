@@ -27,7 +27,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -182,7 +182,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
             return getCapabilitesListFromFlags(mapping);
         }
         else {
-            return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION);  //Default, if there's no mapping available
+            return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);  //Default, if there's no mapping available
         }
     }
 

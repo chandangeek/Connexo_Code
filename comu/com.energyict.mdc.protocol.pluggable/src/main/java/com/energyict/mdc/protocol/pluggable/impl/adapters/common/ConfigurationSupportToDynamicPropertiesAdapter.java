@@ -1,10 +1,9 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
-
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,17 +32,9 @@ public class ConfigurationSupportToDynamicPropertiesAdapter implements HasDynami
     @Override
     public List<PropertySpec> getPropertySpecs () {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.addAll(this.toPropertySpecs(this.configurationSupport.getRequiredProperties(), true));
-        propertySpecs.addAll(this.toPropertySpecs(this.configurationSupport.getOptionalProperties(), false));
+        propertySpecs.addAll(this.configurationSupport.getRequiredProperties());
+        propertySpecs.addAll(this.configurationSupport.getOptionalProperties());
         return propertySpecs;
-    }
-
-    private List<PropertySpec> toPropertySpecs (List<com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec> legacySpecs, boolean required) {
-        List<PropertySpec> newSpecs = new ArrayList<>(legacySpecs.size());
-        for (com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec legacySpec : legacySpecs) {
-            newSpecs.add(LegacyPropertySpecSupport.toPropertySpec(this.propertySpecService, legacySpec, required));
-        }
-        return newSpecs;
     }
 
 }
