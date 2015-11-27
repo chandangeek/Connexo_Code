@@ -21,16 +21,8 @@ public class DeviceAttributesInfo {
             }
         },
         MULTIPLIER {
-            @Override
-            public List<DefaultState> attributeIsEditableForStates() {
-                return Collections.emptyList();
-            }
         },
         MULTIPLIER_EFFECTIVE_DATE {
-            @Override
-            public List<DefaultState> attributeIsEditableForStates() {
-                return Collections.emptyList();
-            }
         },
         DEVICE_TYPE {
             @Override
