@@ -78,17 +78,25 @@ public final class MeterActivationImpl implements MeterActivation {
     }
 	
 	MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Instant start ) {
-		this.meter.set(meter);
-		this.usagePoint.set(usagePoint);
-		this.interval = Interval.of(Range.atLeast(start));
+        return init(meter, usagePoint, Range.atLeast(start));
+	}
+
+    MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Range<Instant> range ) {
+        this.meter.set(meter);
+        this.usagePoint.set(usagePoint);
+        this.interval = Interval.of(range);
         return this;
+    }
+
+    MeterActivationImpl init(Meter meter , Instant start ) {
+        return init(meter, null, start);
 	}
-	
-	MeterActivationImpl init(Meter meter , Instant start ) {
-        return init(meter,null,start);
-	}
-	
-	MeterActivationImpl init(UsagePoint usagePoint , Instant start ) {
+
+    MeterActivationImpl init(Meter meter , Range<Instant> range ) {
+        return init(meter, null, range);
+    }
+
+    MeterActivationImpl init(UsagePoint usagePoint, Instant start ) {
 		return init(null,usagePoint,start);
 	}
 	
@@ -124,7 +132,7 @@ public final class MeterActivationImpl implements MeterActivation {
 		for (int i = 0 ; i < readingTypes.length ; i++) {
 			extraTypes[i] = (ReadingTypeImpl) readingTypes[i];
 		}
-        Channel channel = channelBuilder.get().meterActivation(this).readingTypes((ReadingTypeImpl) main, extraTypes).build();
+        Channel channel = channelBuilder.get().meterActivation(this).readingTypes(main, extraTypes).build();
         channels.add(channel);
         eventService.postEvent(EventType.CHANNEL_CREATED.topic(), channel);
         return channel;

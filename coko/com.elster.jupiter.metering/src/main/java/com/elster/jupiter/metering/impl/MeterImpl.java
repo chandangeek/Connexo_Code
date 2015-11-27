@@ -80,11 +80,24 @@ final class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter 
         return result;
     }
 
+    @Override
+    public MeterActivationImpl activate(Range<Instant> range) {
+        checkOverlaps(range);
+        MeterActivationImpl result = meterActivationFactory.get().init(this, range);
+        getDataModel().persist(result);
+        meterActivations.add(result);
+        return result;
+    }
+
     private void checkOverlaps(Instant start) {
+        checkOverlaps(Range.atLeast(start));
+    }
+
+    private void checkOverlaps(Range<Instant> range) {
         if (meterActivations.stream()
-                .filter(meterActivation -> meterActivation.getRange().isConnected(Range.atLeast(start)))
-                .anyMatch(meterActivation -> !meterActivation.getRange().intersection(Range.atLeast(start)).isEmpty())) {
-            throw new MeterAlreadyActive(thesaurus, this, start);
+                .filter(meterActivation -> meterActivation.getRange().isConnected(range))
+                .anyMatch(meterActivation -> !meterActivation.getRange().intersection(range).isEmpty())) {
+            throw new MeterAlreadyActive(thesaurus, this, range.lowerEndpoint());
         }
     }
 
