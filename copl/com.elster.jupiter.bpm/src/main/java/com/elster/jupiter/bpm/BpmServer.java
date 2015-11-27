@@ -11,7 +11,7 @@ public interface BpmServer {
 
     String getUrl();
 
-    void doPost(String resourceURL);
+    long doPost(String resourceURL, String payload);
 
     String doGet(String resourceURL);
 }

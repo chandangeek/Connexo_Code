@@ -7,6 +7,7 @@ import org.osgi.framework.BundleContext;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
@@ -98,7 +99,8 @@ public class BpmServerImpl implements BpmServer {
         }
     }
 
-    public void doPost(String targetURL) {
+    public long doPost(String targetURL, String payload) {
+        long check = 0;
         HttpURLConnection httpConnection = null;
         try {
 
@@ -107,9 +109,18 @@ public class BpmServerImpl implements BpmServer {
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("POST");
             httpConnection.setRequestProperty("Authorization", authString);
+            httpConnection.setRequestProperty("Accept", "application/json");
+            httpConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            if(payload != null) {
+                OutputStreamWriter osw = new OutputStreamWriter(httpConnection.getOutputStream());
+                osw.write(payload);
+                osw.flush();
+                osw.close();
+            }
             if (httpConnection.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + httpConnection.getResponseCode());
+//                throw new RuntimeException("Failed : HTTP error code : "
+//                        + httpConnection.getResponseCode());
+                check = -1;
             }
         } catch (IOException e) {
             throw new RuntimeException(e.getStackTrace().toString());
@@ -117,6 +128,7 @@ public class BpmServerImpl implements BpmServer {
             if (httpConnection != null) {
                 httpConnection.disconnect();
             }
+            return check;
         }
     }
 }
