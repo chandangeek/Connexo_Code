@@ -55,12 +55,12 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
 
                 me.getStore('Dbp.deviceprocesses.store.RunningProcesses').getProxy().setUrl('mrid', me.mRID);
                 me.getStore('Dbp.deviceprocesses.store.HistoryProcesses').getProxy().setUrl('mrid', me.mRID);
-                if (!widget) {
+              //  if (!widget) {
                     widget = Ext.widget('dbp-device-processes-main-view', {device: device});
                     me.getApplication().fireEvent('changecontentevent', widget);
-                } else {
-                    widget.device = device;
-                }
+             //   } else {
+            //        widget.device = device;
+            //    }
 
                 var queryString = Uni.util.QueryString.getQueryStringValues(false);
                 me.getProcessesTab().setActiveTab(queryString.activeTab == 'history' ? 1 : 0);
@@ -99,9 +99,14 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
                 status = rec.get('statusDisplay'),
                 assign = rec.get('actualOwner').length >0? rec.get('actualOwner'): Uni.I18n.translate('dbp.process.unassigned', 'DBP', 'Unassigned');
 
-            openTasksValue += Ext.String.format('<a href =\"{0}\">{1}</a> ({2}, {3})',
-                router.getRoute('workspace/taksmanagementtasks/openTask').buildUrl({taskId: rec.get('id')}),
-                Ext.String.htmlEncode(taskName), status, assign);
+            if (Dbp.privileges.DeviceProcesses.canAssignOrExecute()) {
+                openTasksValue += Ext.String.format('<a href =\"{0}\">{1}</a> ({2}, {3})',
+                    router.getRoute('workspace/tasks/openTask').buildUrl({taskId: rec.get('id')}, {showNavigation: false}),
+                    Ext.String.htmlEncode(taskName), status, assign);
+            }
+            else {
+                openTasksValue += Ext.String.format('{0} ({1}, {2})', Ext.String.htmlEncode(taskName), status, assign);
+            }
         });
 
         me.getOpenTasksDisplay().setValue((openTasksValue.length > 0)? openTasksValue: Uni.I18n.translate('dbp.process.noOpenTasks', 'DBP', 'None'));
