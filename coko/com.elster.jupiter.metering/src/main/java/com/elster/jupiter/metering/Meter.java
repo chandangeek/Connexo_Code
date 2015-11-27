@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.metering.impl.MeterActivationImpl;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.google.common.collect.Range;
 
@@ -16,6 +17,8 @@ public interface Meter extends EndDevice, ReadingContainer {
     List<? extends MeterActivation> getMeterActivations();
 
     MeterActivation activate(Instant start);
+
+    MeterActivationImpl activate(Range<Instant> start);
 
     MeterActivation activate(UsagePoint usagePoint, Instant start);
 
