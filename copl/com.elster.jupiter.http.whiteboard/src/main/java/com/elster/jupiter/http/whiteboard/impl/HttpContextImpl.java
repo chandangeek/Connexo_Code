@@ -112,7 +112,7 @@ public class HttpContextImpl implements HttpContext {
             }
         } else if (authentication.startsWith("Bearer ") && !authentication.startsWith("Bearer undefined")) {
             refreshCookie = false;
-            String token = authentication.split(" ")[1];
+            String token = authentication.substring(authentication.lastIndexOf(" ")+1);
             if (xsrf.isPresent()) {
                 if (!token.equals(xsrf.get().getValue()))
                     return deny(request, response);
