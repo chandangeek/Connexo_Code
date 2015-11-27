@@ -7,9 +7,9 @@
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
@@ -19,13 +19,14 @@ import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,11 +56,10 @@ public abstract class EnermetBase extends AbstractProtocol {
     private boolean software7E1;
     private boolean testE70xConnection = false;
 
-    abstract protected RegisterConfig getRegs();
+    protected abstract RegisterConfig getRegs();
 
-    /** Creates a new instance of EnermetE70X */
-    public EnermetBase() {
-        super(false); // true for datareadout;
+    public EnermetBase(PropertySpecService propertySpecService) {
+        super(propertySpecService, false); // true for datareadout;
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -137,7 +137,7 @@ public abstract class EnermetBase extends AbstractProtocol {
     }
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
        return getEnermetLoadProfile().getNrOfChannels();
     }
 
@@ -158,7 +158,7 @@ public abstract class EnermetBase extends AbstractProtocol {
         this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getDataReadingCommandFactory().getFirmwareVersion();
     }
 
@@ -206,8 +206,8 @@ public abstract class EnermetBase extends AbstractProtocol {
      *  This code has been taken from a real protocol implementation.
      */
 
-    static public final String COMMAND_CANNOT_BE_EXECUTED="([4])";
-    static public final String ERROR_SIGNATURE="([";
+    public static final String COMMAND_CANNOT_BE_EXECUTED="([4])";
+    public static final String ERROR_SIGNATURE="([";
 
     static Map exceptionInfoMap = new HashMap();
     static {

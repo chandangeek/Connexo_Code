@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -20,6 +21,7 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.ConnectionMode;
@@ -29,7 +31,6 @@ import com.energyict.dlms.IF2HHUSignon;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
@@ -74,8 +75,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private final UserFileFactory userFileFactory;
 
     @Inject
-    public UkHub(OrmClient ormClient, UserFileFactory userFileFactory) {
-        super(ormClient);
+    public UkHub(PropertySpecService propertySpecService, OrmClient ormClient, UserFileFactory userFileFactory) {
+        super(propertySpecService, ormClient);
         this.userFileFactory = userFileFactory;
     }
 

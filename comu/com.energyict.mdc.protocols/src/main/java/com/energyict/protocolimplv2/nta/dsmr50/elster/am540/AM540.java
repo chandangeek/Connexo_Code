@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -37,11 +41,11 @@ import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
@@ -60,10 +64,6 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messag
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
-import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -96,7 +96,6 @@ public class AM540 extends AbstractDlmsProtocol {
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
     private Dsmr50RegisterFactory registerFactory;
     private AM540Cache am540Cache;
-    private final Thesaurus thesaurus;
 
     @Inject
     public AM540(
@@ -104,10 +103,9 @@ public class AM540 extends AbstractDlmsProtocol {
             IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
             IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService,
             LoadProfileFactory loadProfileFactory, Clock clock, Thesaurus thesaurus, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService,
+        super(clock, thesaurus, propertySpecService, socketService, serialComponentService, issueService, topologyService,
                 readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory,
                 dsmrSecuritySupportProvider);
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -264,8 +262,8 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new SioOpticalConnectionType(getSerialComponentService(), this.thesaurus));
-        result.add(new RxTxOpticalConnectionType(getSerialComponentService(), this.thesaurus));
+        result.add(new SioOpticalConnectionType(getSerialComponentService(), this.getThesaurus()));
+        result.add(new RxTxOpticalConnectionType(getSerialComponentService(), this.getThesaurus()));
         return result;
     }
 
@@ -327,8 +325,8 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.asList(
-                new TcpDeviceProtocolDialect(getPropertySpecService()),
-                new SerialDeviceProtocolDialect(getPropertySpecService()));
+                new TcpDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()),
+                new SerialDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()));
     }
 
     @Override

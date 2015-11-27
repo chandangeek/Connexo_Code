@@ -1,29 +1,32 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.DlmsSessionProperties;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageElement;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,6 +49,11 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     private DlmsSession session = null;
 
+    @Inject
+    public AbstractDlmsSessionProtocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     protected abstract DlmsSessionProperties getProperties();
 
     protected abstract void doInit();
@@ -56,7 +64,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
         String eisSerial = getProperties().getSerialNumber().trim();
         String meterSerialNumber = readSerialNumber().trim();
         getLogger().info("Meter serial number [" + meterSerialNumber + "]");
-        if (eisSerial.length() != 0) {
+        if (!eisSerial.isEmpty()) {
             if (!eisSerial.equalsIgnoreCase(meterSerialNumber)) {
                 String message = "Configured serial number [" + eisSerial + "] does not match with the meter serial number [" + meterSerialNumber + "]!";
                 getLogger().severe(message);
@@ -91,12 +99,12 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     public List<String> getRequiredKeys() {

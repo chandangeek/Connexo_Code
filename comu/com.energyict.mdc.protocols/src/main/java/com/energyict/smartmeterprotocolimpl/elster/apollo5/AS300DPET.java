@@ -1,16 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.protocolimpl.generic.ParseUtils;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300Properties;
@@ -31,8 +32,8 @@ import java.util.List;
 public class AS300DPET extends AS300 {
 
     @Inject
-    public AS300DPET(CodeFactory codeFactory, UserFileFactory userFileFactory, OrmClient ormClient) {
-        super(codeFactory, userFileFactory, ormClient);
+    public AS300DPET(PropertySpecService propertySpecService, CodeFactory codeFactory, UserFileFactory userFileFactory, OrmClient ormClient) {
+        super(propertySpecService, codeFactory, userFileFactory, ormClient);
     }
 
     @Override

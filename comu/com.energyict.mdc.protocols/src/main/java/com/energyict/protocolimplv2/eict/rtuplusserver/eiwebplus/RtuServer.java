@@ -205,7 +205,7 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.<DeviceProtocolDialect>singletonList(new EiWebPlusDialect(this.propertySpecService));
+        return Collections.<DeviceProtocolDialect>singletonList(new EiWebPlusDialect(this.thesaurus, this.propertySpecService));
     }
 
     @Override

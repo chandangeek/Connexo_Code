@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.elster.a3;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
@@ -23,6 +24,8 @@ import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.C1222Buffer;
 import com.energyict.protocolimpl.ansi.c12.C1222Layer;
@@ -42,7 +45,6 @@ import com.energyict.protocolimpl.elster.a3.procedures.ManufacturerProcedureFact
 import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.A3;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,8 +102,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     protected String calledAPTitle;
     protected String securityKey;
 
-    /** Creates a new instance of AlphaA3 */
-    public AlphaA3() {
+    protected AlphaA3(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {

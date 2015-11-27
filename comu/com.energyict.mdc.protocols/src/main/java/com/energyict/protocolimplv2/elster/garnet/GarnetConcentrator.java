@@ -258,7 +258,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect(propertySpecService), new SerialDeviceProtocolDialect(propertySpecService));
+        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect(this.thesaurus, this.propertySpecService), new SerialDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     @Override

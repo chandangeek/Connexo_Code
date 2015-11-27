@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.sdksample;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -22,12 +23,13 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
-import com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
+
+import com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 import org.xml.sax.SAXException;
 
@@ -71,8 +73,8 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     private SDKSmartMeterRegisterFactory registerFactory;
 
     @Inject
-    public SDKSmartMeterProtocol(Clock clock, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
-        super();
+    public SDKSmartMeterProtocol(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService);
         this.clock = clock;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;

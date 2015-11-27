@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
@@ -12,11 +13,13 @@ import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -138,12 +141,9 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     // first three bits are to be set in BuildIdent method (later)
     // byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 
-    /*
-      * constructors, usually the meteor() constructor will be called
-      * the source and destination address should be set in a method
-      * that is done in the properties method.
-      */
-    public Meteor() {// blank constructor for testing purposes only
+    @Inject
+    public Meteor(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         byte[] blank = {0, 0};
         ident = 0;                // see ident format listed below
         blockSize = 11;            // character count of block modulo 256
@@ -155,35 +155,8 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         port = 0;                    // DIP routing ???
     }
 
-    public Meteor(  // real constructor, sets header correct.
-                    byte[] sourceCode,
-                    byte sourceCodeExt,
-                    byte[] destinationCode,
-                    byte destinationCodeExt) {
-        ident = 0;
-        this.sourceCode = sourceCode;
-        this.sourceCodeExt = sourceCodeExt;
-        this.destinationCode = destinationCode;
-        this.destinationCodeExt = destinationCodeExt;
-        unit = 0; // correct?
-        port = 0; // correct?
-    }
-
-//	protected ProtocolConnection doInit(InputStream inputStream,
-//			OutputStream outputStream, int timeoutProperty,
-//			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
-//			int protocolCompatible, Encryptor encryptor,
-//			HalfDuplexController halfDuplexController) throws IOException {
-//
-//		this.inputStream=inputStream;
-//		this.outputStream=outputStream;
-//
-//		return null;
-//	}
-
     protected void doValidateProperties(Properties properties)
             throws MissingPropertyException, InvalidPropertyException {
-
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -431,12 +404,12 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**

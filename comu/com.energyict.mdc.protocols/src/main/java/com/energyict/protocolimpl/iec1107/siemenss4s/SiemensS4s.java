@@ -1,20 +1,23 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
+
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
 import com.energyict.protocolimpl.iec1107.siemenss4s.security.SiemensS4sEncryptor;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -30,18 +33,12 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	private String passWord;
 	private String serialNumber;
 
-	private boolean requestDataReadout;
-
 	private int securityLevel;
 	private int channelMap;
 
-	private byte[] dataReadout;
-
-	/**
-	 * Creates a new instance of the SiemesS4s protocol
-	 */
-	public SiemensS4s(){
-		super(new SiemensS4sEncryptor());
+	@Inject
+	public SiemensS4s(PropertySpecService propertySpecService){
+		super(propertySpecService, new SiemensS4sEncryptor());
 	}
 
     public void connect() throws IOException {
@@ -82,8 +79,8 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		this.profileObject = new SiemensS4sProfile(this.objectFactory);
 	}
 
-	protected List doGetOptionalKeys() {
-		return new ArrayList();
+	protected List<String> doGetOptionalKeys() {
+		return Collections.emptyList();
 	}
 
 	/**
@@ -93,7 +90,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	throws MissingPropertyException, InvalidPropertyException {
 		this.deviceId = properties.getProperty(MeterProtocol.ADDRESS);
 		this.passWord = properties.getProperty(MeterProtocol.PASSWORD,"4281602592");
-		if(this.passWord.equalsIgnoreCase("")){
+		if (this.passWord.isEmpty()) {
 			this.passWord = "4281602592";
 		}
 		//TODO set the level in the encryptor
@@ -129,7 +126,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	/**
 	 * @return the meter his current profileInterval.
 	 */
-	public int getProfileInterval() throws FlagIEC1107ConnectionException, ConnectionException, IOException{
+	public int getProfileInterval() throws IOException {
 		return this.profileObject.getProfileInterval();
 	}
 

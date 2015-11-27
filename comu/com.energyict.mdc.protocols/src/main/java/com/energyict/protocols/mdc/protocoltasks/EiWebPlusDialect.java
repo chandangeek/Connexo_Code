@@ -1,17 +1,18 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 /**
- * Models a DeviceProtocolDialect for usage with the RTU+Server and EIWebPlus
+ * Models a DeviceProtocolDialect for usage with the RTU+Server and EIWebPlus.
  */
 public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
 
@@ -19,7 +20,7 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     public static final String PORT_LOG_LEVEL_PROPERTY = "PortLogLevel";
     public static final String DEFAULT_LOG_LEVEL = "INFO";
 
-    public EiWebPlusDialect(PropertySpecService propertySpecService) {
+    public EiWebPlusDialect(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
 
@@ -33,30 +34,9 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
         return this.getThesaurus().getFormat(DeviceProtocolDialectName.EIWEBPLUS).format();
     }
 
-    private String[] getPossibleLogValues() {
-        List<String> possibleValues = new ArrayList<>();
-        possibleValues.add("OFF");
-        possibleValues.add("SEVERE");
-        possibleValues.add("WARNING");
-        possibleValues.add("INFO");
-        possibleValues.add("FINE");
-        possibleValues.add("FINER");
-        possibleValues.add("FINEST");
-        possibleValues.add("ALL");
-        return possibleValues.toArray(new String[8]);
-    }
-
-    protected PropertySpec serverLogLevelPropertySpec() {
-        return getPropertySpecService().stringPropertySpecWithValuesAndDefaultValue(SERVER_LOG_LEVER_PROPERTY, false, DEFAULT_LOG_LEVEL, getPossibleLogValues());
-    }
-
-    protected PropertySpec portLogLevelPropertySpec() {
-        return getPropertySpecService().stringPropertySpecWithValuesAndDefaultValue(PORT_LOG_LEVEL_PROPERTY, false, DEFAULT_LOG_LEVEL, getPossibleLogValues());
-    }
-
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(portLogLevelPropertySpec(), serverLogLevelPropertySpec());
+    public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+        return Optional.of(new EiWebPlusDialectCustomPropertySet(this.getThesaurus(), this.getPropertySpecService()));
     }
 
 }

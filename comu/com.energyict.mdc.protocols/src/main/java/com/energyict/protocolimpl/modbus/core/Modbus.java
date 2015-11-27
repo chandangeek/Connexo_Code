@@ -10,17 +10,18 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
@@ -30,12 +31,13 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.Discover;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusTCPConnection;
-import com.energyict.protocols.mdc.inbound.rtuplusserver.Discover;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,16 +63,17 @@ import java.util.TimeZone;
 public abstract class Modbus extends AbstractProtocol implements Discover, MessageProtocol {
 
     protected abstract void doTheConnect() throws IOException;
+
     protected abstract void doTheDisConnect() throws IOException;
     protected abstract void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
     protected abstract List<String> doTheGetOptionalKeys();
     protected abstract void initRegisterFactory();
-
     protected ModbusConnection modbusConnection;
+
     private AbstractRegisterFactory registerFactory=null;
     private int  interframeTimeout;
-
     private String networkId;
+
     private boolean virtualLoadProfile;
     int responseTimeout;
     int physicalLayer;
@@ -78,12 +81,12 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
     String meterFirmwareVersion;
     int connection;
     int nodeAddress;
-
     private int registerOrderFixedPoint;
+
     private int registerOrderFloatingPoint;
 
-    /** Creates a new instance of Modbus */
-    public Modbus() {
+    public Modbus(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     protected void doConnect() throws IOException {

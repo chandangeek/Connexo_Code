@@ -10,18 +10,17 @@
 
 package com.energyict.protocolimpl.itron.quantum1000;
 
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -33,23 +32,20 @@ import com.energyict.protocolimpl.itron.quantum1000.minidlms.RegisterMapFactory;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.ReplyException;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Koen
  */
 public class Quantum1000 extends AbstractProtocol implements ProtocolLink {
-
 
     private MiniDLMSConnection miniDLMSConnection=null;
     private ApplicationStateMachine applicationStateMachine=null;
@@ -63,9 +59,9 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink {
 
     private RegisterMapFactory registerMapFactory=null;
 
-    /** Creates a new instance of Quantum1000 */
-    public Quantum1000() {
-
+    @Inject
+    public Quantum1000(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -265,92 +261,6 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink {
         return strBuff.toString();
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        Quantum1000 quantum = new Quantum1000();
-        Dialer dialer=null;
-        try {
-
-            String[] phones = new String[]{"00019569836440,,22,+22,22"};
-            String[] passwords = new String[]{"000012400"};
-
-            int phoneId=0;
-
-            //dialer =DialerFactory.getDirectDialer().newDialer();
-            dialer =DialerFactory.getDefault().newDialer();
-            dialer.init("COM1");
-
-
-            dialer.getSerialCommunicationChannel().setBaudrate(9600);
-
-            dialer.connect(phones[phoneId],60000);
-
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-
-            properties.setProperty(MeterProtocol.PASSWORD,passwords[phoneId]);
-            //properties.setProperty("UnitType","QTM");
-            //properties.setProperty(MeterProtocol.NODEID,"T412    ");
-
-// transfer the properties to the protocol
-            quantum.setProperties(properties);
-
-// initialize the protocol
-            quantum.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("CST"),Logger.getLogger("name"));
-
-// if optical head dialer, enable the HHU signon mechanism
-
-            System.out.println("*********************** connect() ***********************");
-
-// connect to the meter
-            quantum.connect();
-
-
-            System.out.println(quantum.getFirmwareVersion());
-            System.out.println(quantum.getTime());
-
-//            System.out.println(quantum.getDataDefinitionFactory().getGeneralDiagnosticInfo());
-//            System.out.println(quantum.getDataDefinitionFactory().getGeneralDemandConfiguration());
-//            System.out.println(quantum.getDataDefinitionFactory().getDemandRegisterConfiguration());
-//            System.out.println(quantum.getDataDefinitionFactory().getGeneralEnergyConfiguration());
-//            System.out.println(quantum.getDataDefinitionFactory().getEnergyRegisterConfiguration());
-//            System.out.println(quantum.getDataDefinitionFactory().getMeterIDS());
-//            System.out.println(quantum.getDataDefinitionFactory().getSelfReadGeneralConfiguration());
-//            System.out.println(quantum.getDataDefinitionFactory().getSelfReadGeneralInformation());
-//            System.out.println(quantum.getDataDefinitionFactory().getSelfReadRegisterConfiguration());
-//
-//            System.out.println(quantum.getDataDefinitionFactory().getDefaultViewIdConfiguration());
-//
-
-
-
-//            System.out.println("Meter:  "+quantum.getTime());
-//            System.out.println("System: "+new Date());
-//            quantum.setTime();
-
-            Calendar from = ProtocolUtils.getCalendar(quantum.getTimeZone());
-            from.add(Calendar.DAY_OF_MONTH,-4);
-            System.out.println(quantum.getProfileData(from.getTime(),true));
-
-
-
-//System.out.println(quantum.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-
-            quantum.disconnect();
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
     public RemoteProcedureCallFactory getRemoteProcedureCallFactory() {
         return remoteProcedureCallFactory;
     }
@@ -382,6 +292,5 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink {
         }
         return registerMapFactory;
     }
-
 
 }

@@ -11,9 +11,9 @@
 package com.energyict.protocolimpl.elster.alpha.alphabasic;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -35,10 +36,12 @@ import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterF
 import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;
 import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -64,8 +67,9 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
     long whoAreYouTimeout;
     private int totalRegisterRate;
 
-    /** Creates a new instance of AlphaBasic */
-    public AlphaBasic() {
+    @Inject
+    public AlphaBasic(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -81,10 +85,12 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
 
     protected void doConnect() throws IOException {
         // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
-        if (commChannel!=null)
-            commandFactory.opticalHandshake(commChannel, getInfoTypePassword(),getDtrBehaviour());
-        else
-            commandFactory.signOn(getInfoTypeNodeAddressNumber(),getInfoTypePassword());
+        if (commChannel!=null) {
+            commandFactory.opticalHandshake(commChannel, getInfoTypePassword(), getDtrBehaviour());
+        }
+        else {
+            commandFactory.signOn(getInfoTypeNodeAddressNumber(), getInfoTypePassword());
+        }
 
         // set packetsize so that all Multiple (lenh lenl) packets behave corect (lenh bit 7 last packet)
         getCommandFactory().getFunctionWithDataCommand().PacketSize(4);
@@ -107,19 +113,16 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
         whoAreYouTimeout = Integer.parseInt(properties.getProperty("WhoAreYouTimeout","300").trim());
         totalRegisterRate = Integer.parseInt(properties.getProperty("TotalRegisterRate","1").trim());
     }
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("WhoAreYouTimeout");
-        result.add("TotalRegisterRate");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList("WhoAreYouTimeout", "TotalRegisterRate");
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         int pi = getClassFactory().getClass14LoadProfileConfiguration().getLoadProfileInterval();
         return pi==0?getInfoTypeProfileInterval():pi;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getClassFactory().getClass14LoadProfileConfiguration().getNrOfChannels();
     }
 
@@ -142,7 +145,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         try {
            return getClassFactory().getClass8FirmwareConfiguration().getFirmwareVersion()+" "+getClassFactory().getClass8FirmwareConfiguration().getMeterType();
         }

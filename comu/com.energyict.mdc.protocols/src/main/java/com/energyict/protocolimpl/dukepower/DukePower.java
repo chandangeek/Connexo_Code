@@ -14,36 +14,40 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 package com.energyict.protocolimpl.dukepower;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.SerialNumber;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.SerialNumber;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -241,11 +245,9 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     TimeZone timeZone = null;
     //Properties properties=null;
 
-    /**
-     * Creates a new instance of DukePower, empty constructor
-     */
-    public DukePower() {
-
+    @Inject
+    public DukePower(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     /**
@@ -521,7 +523,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
      *
      * @param iChannelNr Channel NR starting from 0.
      * @return NR of pulses counted by the remote meter for a channel.
-     * @throws MeterProtocolException
      */
     private long doGetMeterReading(int iChannelNr) throws IOException {
         buildFrameReadMeter(MasterCommandBuffer, iChannelNr);
@@ -584,20 +585,10 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         return getDemandValues(lNROfBlocksToRetrieve, bNROfChannels, includeEvents);
     }
 
-    /**
-     * This method requests for the demand values of the remote meter.
-     *
-     * @param bNROfBlocks   NR of 256 byte block to read (first 2 blocks are always event blocks).
-     * @param bNROfChannels NR of channels active in the meter.
-     * @return MeterDataCollection containing demand values and event codes with their timestamps.
-     * @throws MeterProtocolException
-     */
     private ProfileData getDemandValues(long lNROfBlocks, byte bNROfChannels, boolean includeEvents) throws IOException {
         ProfileData profileData;
         byte bYear = 0;
         long lMBN = 0, blockscount = 0;
-
-//System.out.println("KV_DEBUG> lNROfBlocks "+lNROfBlocks+", bNROfChannels="+bNROfChannels+", includeEvents="+includeEvents);
 
         // 05082002 add to solve align bug
 
@@ -801,7 +792,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateProperties(properties);
@@ -893,12 +883,12 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**
@@ -906,9 +896,8 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
      *
      * @return a list of strings
      */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     /**
@@ -916,12 +905,8 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
      *
      * @return a list of strings
      */
-    public List getOptionalKeys() {
-        List result = new ArrayList(3);
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList("Timeout", "Retries", "DelayAfterFail");
     }
 
     /**

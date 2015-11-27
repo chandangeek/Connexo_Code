@@ -6,33 +6,32 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.LinkException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec870.IEC870Connection;
 import com.energyict.protocolimpl.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.iec870.IEC870ProtocolLink;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -47,9 +46,7 @@ import java.util.logging.Logger;
  */
 public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLink {
 
-    static public final int MAX_COUNTER = 100000000; // = max counter + 1
-
-    private static final int DEBUG = 0;
+    public static final int MAX_COUNTER = 100000000; // = max counter + 1
 
     // properties
     String strID;
@@ -69,10 +66,9 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     DatawattRegistry datawattRegistry = null;
     DatawattProfile datawattProfile = null;
 
-    /**
-     * Creates a new instance of DataWatt
-     */
-    public DataWatt() {
+    @Inject
+    public DataWatt(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public void connect() throws IOException {
@@ -94,22 +90,22 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         }
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException("DataWatt, getFirmwareVersion");
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         return new Quantity(getDatawattRegistry().getRegister(Channel.parseChannel(name)), Unit.get(""));
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         if (channelId >= getChannelMap().getNrOfChannels()) {
             throw new IOException("DataWatt, getMeterReading, invalid channelId, " + channelId);
         }
         return new Quantity(getDatawattRegistry().getRegister(getChannelMap().getChannel(channelId)), Unit.get(""));
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return channelMap.getNrOfChannels();
     }
 
@@ -125,12 +121,12 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         return datawattProfile.getProfileData(fromCalendar, includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
 
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return iProfileInterval;
     }
 
@@ -138,32 +134,26 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return getDatawattRegistry().getRegister(Channel.parseChannel(name)).toString();
     }
 
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("MeterType");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList("Timeout", "Retries", "MeterType");
     }
 
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        result.add("ChannelMap");
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.singletonList("ChannelMap");
     }
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     public Date getTime() throws IOException {
@@ -211,7 +201,7 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         }
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException("DataWatt, initializeDevice");
     }
 
@@ -228,7 +218,7 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
      */
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    private void validateProperties(Properties properties) throws InvalidPropertyException {
         try {
             Iterator iterator = getRequiredKeys().iterator();
             while (iterator.hasNext()) {
@@ -253,7 +243,7 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         }
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException("DataWatt, setRegister");
     }
 
@@ -268,79 +258,6 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         }
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        Dialer dialer = null;
-        DataWatt dataWatt = null;
-        Calendar calendar = null;
-        try {
-            dataWatt = new DataWatt();
-            dialer = DialerFactory.getDefault().newDialer();
-            dialer.init("COM1", "AT+CBST=71,0,1");
-            dialer.connect("0,0031162481265", 60000);
-            InputStream is = dialer.getInputStream();
-            OutputStream os = dialer.getOutputStream();
-            dataWatt = new DataWatt();
-            Properties properties = new Properties();
-            //properties.setProperty(MeterProtocol.ADDRESS,"4");
-            properties.setProperty(MeterProtocol.ADDRESS, "61");
-            properties.setProperty(MeterProtocol.PASSWORD, "");
-            properties.setProperty("Retries", "5");
-            properties.setProperty("ProfileInterval", "300");
-            //properties.setProperty("ChannelMap","1.5:1.7:1.1:2.5:2.6:2.7");
-            //properties.setProperty("ChannelMap","1.5:1.7:1.1:2.5:2.6");
-            properties.setProperty("ChannelMap", "1.2"); //:1.5");
-            properties.setProperty("MeterType", "0");
-            dataWatt.setProperties(properties);
-
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                    SerialCommunicationChannel.DATABITS_8,
-                    SerialCommunicationChannel.PARITY_NONE,
-                    SerialCommunicationChannel.STOPBITS_1);
-
-            // initialize
-            dataWatt.init(is, os, TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
-
-            System.out.println("Start session");
-            dataWatt.connect();
-
-            //            System.out.println("******************************************** getApplicationFunction().testASDU() ********************************************");
-            //            dataWatt.getApplicationFunction().testASDU();
-
-
-            System.out.println("******************************************** getProfileData() ********************************************");
-            calendar = Calendar.getInstance(dataWatt.getTimeZone());
-            calendar.add(Calendar.HOUR_OF_DAY, -2);
-            dataWatt.getDatawattProfile().doLogMeterDataCollection(dataWatt.getProfileData(calendar.getTime(), true));
-
-
-            System.out.println("******************************************** getMeterReading() ********************************************");
-            System.out.println("Meterreading: " + dataWatt.getMeterReading("1.1").toString());
-
-//            System.out.println("******************************************** setTime() ********************************************");
-//            System.out.println("setTime()");
-//            dataWatt.setTime();
-
-            System.out.println("******************************************** getTime() ********************************************");
-            System.out.println("System: " + new Date());
-            System.out.println("Meter: " + dataWatt.getTime());
-
-
-            dataWatt.disconnect();
-            System.out.println("End session");
-        } catch (LinkException e) {
-            System.out.println("DataWatt, DialerException, " + e.getMessage());
-            dataWatt.disconnect();
-        } catch (IOException e) {
-            System.out.println("DataWatt, IOException, " + e.getMessage());
-            dataWatt.disconnect();
-        }
-
-    }
-
-    // implementation of IEC870ProtocolLink
     public String getPassword() {
         return strPassword;
     }
@@ -366,4 +283,4 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     public void release() throws IOException {
     }
 
-} // public class DataWatt implements MeterProtocol
+}

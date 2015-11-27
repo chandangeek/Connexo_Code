@@ -1,5 +1,13 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -10,13 +18,7 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -40,8 +42,8 @@ public class IDISMBus extends IDIS {
     private static final int MAX_MBUS_CHANNELS = 4;
 
     @Inject
-    public IDISMBus(OrmClient ormClient) {
-        super(ormClient);
+    public IDISMBus(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService, ormClient);
     }
 
     @Override

@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba1350;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -21,16 +21,16 @@ import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
@@ -41,16 +41,17 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
-import com.energyict.protocols.util.ProtocolUtils;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -78,7 +79,7 @@ public class ABBA1350
         extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol {
 
-    private final static int DEBUG = 0;
+    private static final int DEBUG = 0;
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
@@ -122,10 +123,9 @@ public class ABBA1350
 
     private boolean software7E1;
 
-    /**
-     * Creates a new instance of ABBA1350, empty constructor
-     */
-    public ABBA1350() {
+    @Inject
+    public ABBA1350(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -138,16 +138,15 @@ public class ABBA1350
         return getAbba1350Profile().getProfileData(lastReading, includeEvents, loadProfileNumber);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,
-            UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getAbba1350Profile().getProfileData(from, to, includeEvents, loadProfileNumber);
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -260,7 +259,7 @@ public class ABBA1350
         return (dataReadoutRequest == 1);
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
         flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
@@ -268,26 +267,25 @@ public class ABBA1350
         return new String(data);
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException,
-            UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         getAbba1350Registry().setRegister(name, value);
     }
 
     /**
      * this implementation throws UnsupportedException. Subclasses may override
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**
@@ -295,9 +293,8 @@ public class ABBA1350
      *
      * @return a list of strings
      */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     /**
@@ -305,32 +302,30 @@ public class ABBA1350
      *
      * @return a list of strings
      */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("LoadProfileNumber");
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("ChannelMap");
-        result.add("RequestHeader");
-        result.add("Scaler");
-        result.add("DataReadout");
-        result.add("ExtendedLogging");
-        result.add("VDEWCompatible");
-        result.add("ForceDelay");
-        result.add("Software7E1");
-        //result.add("FailOnUnitMismatch");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "LoadProfileNumber",
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "ChannelMap",
+                    "RequestHeader",
+                    "Scaler",
+                    "DataReadout",
+                    "ExtendedLogging",
+                    "VDEWCompatible",
+                    "ForceDelay",
+                    "Software7E1");
     }
 
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         if (this.firmwareVersion == null) {
-            this.firmwareVersion = (String) getAbba1350Registry().getRegister(abba1350Registry.FIRMWAREID);
+            this.firmwareVersion = (String) getAbba1350Registry().getRegister(ABBA1350Registry.FIRMWAREID);
         }
         return this.firmwareVersion;
     } // public String getFirmwareVersion()
@@ -416,7 +411,7 @@ public class ABBA1350
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (requestHeader == 1) {
             return getAbba1350Profile().getProfileHeader(loadProfileNumber).getNrOfChannels();
         } else {
@@ -428,7 +423,7 @@ public class ABBA1350
         return iSecurityLevel;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (requestHeader == 1) {
             return getAbba1350Profile().getProfileHeader(loadProfileNumber).getProfileInterval();
         } else {
@@ -780,7 +775,7 @@ public class ABBA1350
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty,
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty,
                 iProtocolRetriesProperty, 300, iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
@@ -837,7 +832,7 @@ public class ABBA1350
 
     private String getMeterSerial() throws IOException {
         if (this.meterSerial == null) {
-            this.meterSerial = (String) getAbba1350Registry().getRegister(abba1350Registry.SERIAL);
+            this.meterSerial = (String) getAbba1350Registry().getRegister(ABBA1350Registry.SERIAL);
         }
         return this.meterSerial;
     }
@@ -966,108 +961,4 @@ public class ABBA1350
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        ABBA1350 abba = new ABBA1350();
-
-        Dialer dialer = null;
-        try {
-
-            // direct rs232 connection
-            dialer = DialerFactory.getOpticalDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect();
-
-            // setup the properties (see AbstractProtocol for default properties)
-            // protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-
-            properties.setProperty("ChannelMap", "0:0:0:0:0:0");
-            properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-            properties.setProperty("DataReadout", "0");
-            properties.setProperty("ExtendedLogging", "1");
-            properties.setProperty("LoadProfileNumber", "2");
-            properties.setProperty(MeterProtocol.PASSWORD, "00000000");
-            properties.setProperty(MeterProtocol.PROFILEINTERVAL, "600");
-            properties.setProperty("RequestHeader", "0");
-            properties.setProperty("SecurityLevel", "1");
-            properties.setProperty("Timeout", "3000");
-            properties.setProperty("VDEWCompatible", "1");
-            properties.setProperty("Software7E1", "1");
-
-
-            //            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
-            //            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            //            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            //            iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            //            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-            //            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            //            profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
-            //            channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
-            //            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
-            //            protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
-            //            scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
-            //            dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
-            //            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            //            vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
-            //            loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
-
-
-            //transfer the properties to the protocol
-            abba.setProperties(properties);
-
-            // depending on the dialer, set the initial (pre-connect) communication parameters
-            //            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-            //                                                                     SerialCommunicationChannel.DATABITS_7,
-            //                                                                     SerialCommunicationChannel.PARITY_NONE,
-            //                                                                     SerialCommunicationChannel.STOPBITS_1);
-            // initialize the protocol
-            abba.init(dialer.getInputStream(), dialer.getOutputStream(), TimeZone.getTimeZone("ECT"), null);
-
-            // if optical head dialer, enable the HHU signon mechanism
-            if (DialerMarker.hasOpticalMarker(dialer)) {
-                abba.enableHHUSignOn(dialer.getSerialCommunicationChannel());
-            }
-
-            abba.connect(); // connect to the meter
-
-            //            int aEnd = 16;
-            //            int bEnd = 16;
-            //            int cEnd = 16;
-            //
-            //            for (int a = 0; a < aEnd; a++) {
-            //                for (int b = 0; b < bEnd; b++) {
-            //                    for (int c = 0; c < cEnd; c++) {
-            //                    	if ((a > 9) || (b > 9) || (c > 9)) {
-            //                    		String reg = 	ProtocolUtils.buildStringHex(a, 1).toUpperCase() + "." +
-            //                    		ProtocolUtils.buildStringHex(b, 1).toUpperCase() + "." +
-            //                    		ProtocolUtils.buildStringHex(c, 1).toUpperCase();
-            //
-            //                    		String result = new String(abba.read(reg));
-            //                    		if (!result.equalsIgnoreCase(reg + "()")) abba.sendDebug(result);
-            //                    	}
-            //                    }
-            //                }
-            //			}
-
-
-            int aEnd = 200;
-            String startString = "1.6.0.99";
-
-            for (int a = 0; a < aEnd; a++) {
-                String reg = startString + ProtocolUtils.buildStringHex(a, 2).toUpperCase();
-                String result = new String(abba.read(reg));
-                if (!result.equalsIgnoreCase(reg + "()")) {
-                    abba.sendDebug(" Reading register " + reg + ": " + result);
-                }
-            }
-
-
-            abba.disconnect();
-            dialer.disConnect();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 }

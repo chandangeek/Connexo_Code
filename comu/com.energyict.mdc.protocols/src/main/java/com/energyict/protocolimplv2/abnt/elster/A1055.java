@@ -166,7 +166,9 @@ public class A1055 extends AbstractAbntProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new AbntSerialDeviceProtocolDialect(propertySpecService), new AbntOpticalDeviceProtocolDialect(propertySpecService));
+        return Arrays.<DeviceProtocolDialect>asList(
+                new AbntSerialDeviceProtocolDialect(this.thesaurus, this.propertySpecService),
+                new AbntOpticalDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     @Override

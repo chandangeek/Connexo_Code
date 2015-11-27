@@ -1,18 +1,21 @@
 package com.energyict.protocolimpl.coronis.waveflow.waveflowV1;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.BubbleUpObject;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowV1Messages;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ParameterFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 
@@ -27,6 +30,11 @@ public class WaveFlowV1 extends WaveFlow implements MessageProtocol {
      * read and build the profiledata
      */
     private ProfileDataReaderV1 profileDataReader;
+
+    @Inject
+    public WaveFlowV1(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doTheInit() throws IOException {

@@ -11,11 +11,14 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.Discover;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -23,7 +26,6 @@ import com.energyict.protocolimpl.mbus.core.connection.MBusConnection;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.mbus.core.discover.SecondaryAddressDiscover;
-import com.energyict.protocols.mdc.inbound.rtuplusserver.Discover;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,11 +58,9 @@ public abstract class MBus extends AbstractProtocol implements Discover {
     int headerVersion;
     int headerMedium;
 
-    /** Creates a new instance of MBus */
-    public MBus() {
+    public MBus(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
-
 
     public void doConnect() throws IOException {
         try {
@@ -86,7 +86,6 @@ public abstract class MBus extends AbstractProtocol implements Discover {
             getLogger().severe("MBus, doDisConnect() error, "+e.getMessage());
         }
     }
-
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","3000").trim()));

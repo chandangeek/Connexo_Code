@@ -6,25 +6,24 @@
 
 package com.energyict.protocolimpl.pact.pripact;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
 import com.energyict.protocolimpl.pact.core.common.DateTime;
@@ -38,11 +37,11 @@ import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 import com.energyict.protocolimpl.pact.core.instant.InstantaneousFactory;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingIdentifier;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -103,10 +102,9 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     private PACTToolkit pactToolkit = null;
     private InstantaneousFactory instantaneousFactory = null;
 
-    /**
-     * Creates a new instance of PRIPremier
-     */
-    public PRIPact() {
+    @Inject
+    public PRIPact(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public void connect() throws java.io.IOException {
@@ -221,8 +219,8 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         }
     }
 
-    public java.util.List getOptionalKeys() {
-        List result = new ArrayList();
+    public List<String> getOptionalKeys() {
+        List<String> result = new ArrayList<>();
         result.add("Timeout");
         result.add("Retries");
         result.add("EchoCancelling");
@@ -325,65 +323,17 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
-    public java.util.List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
-
-    // public java.util.Date getTime() throws java.io.IOException {
-    // long roundTripTime = 0;
-    // int hour = 0; int min = 0; int sec = 0;
-    // roundTripTime = Calendar.getInstance().getTime().getTime();
-    // Date oldMeterDateTime = getPactRegisterFactory().getMeterReadingsInterpreter().getCounters().getMeterDateTime();
-    // Calendar oldCalendar = Calendar.getInstance(getTimeZone());
-    // String newMeterTime = getNewMeterTime();
-    // // if (!newMeterTime.equalsIgnoreCase("NotSupported")){
-    // // hour = Integer.parseInt(newMeterTime.substring(2, 4));
-    // // min = Integer.parseInt(newMeterTime.substring(5, 7));
-    // // sec = Integer.parseInt(newMeterTime.substring(8, 10));
-    // // oldCalendar.set(Calendar.HOUR_OF_DAY, hour);
-    // // oldCalendar.set(Calendar.MINUTE, min);
-    // // oldCalendar.set(Calendar.SECOND, sec);
-    // // roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
-    // // oldCalendar.setTimeInMillis(oldCalendar.getTimeInMillis() - roundTripTime);
-    // // }
-    //
-    // // else{
-    // DateTime dateTime = new DateTime(getPactConnection().sendRequest(PACTConnection.RTC),getTimeZone());
-    // Date dateTime2 = getPactRegisterFactory().getCurrentTime();
-    // roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
-    // oldCalendar.setTime(dateTime.getDate());
-    // oldCalendar.setTimeInMillis(oldCalendar.getTimeInMillis() - roundTripTime);
-    // // }
-    //
-    // return oldCalendar.getTime();
-    //
-    // }
-
-    // private String getNewMeterTime() throws IOException {
-    // String newMeterTime = null;
-    // int count = 0;
-    // do{
-    // if (count >= 3)
-    // throw new IOException("Error reading the dateTime from meter, will try again next communication.");
-    // byte[] data = getPactConnection().sendStringRequest("R");
-    // // byte[] data = getPactConnection().sendStringRequest("D");
-    // newMeterTime = new String(data);
-    // if (newMeterTime.equalsIgnoreCase("R") || newMeterTime.equalsIgnoreCase("R="))
-    // return new String("NotSupported");
-    // count++;
-    // }while( !(newMeterTime.startsWith("R=")) || !(newMeterTime.startsWith(":", 4)) || !(newMeterTime.startsWith(":",
-    // 7)) || (newMeterTime.length() != 10) );
-    // return newMeterTime;
-    // }
 
     public java.util.Date getTime() throws java.io.IOException {
         long roundTripTime = System.currentTimeMillis();
@@ -512,97 +462,6 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         return timeZone;
     }
 
-    static public void main(String[] args) {
-        Dialer dialer = null;
-        PRIPact priPact = null;
-        try {
-            dialer = DialerFactory.getDefault().newDialer();
-            dialer.init("COM1");
-            dialer.connect("optical", 60000);
-            InputStream is = dialer.getInputStream();
-            OutputStream os = dialer.getOutputStream();
-            priPact = new PRIPact();
-            Properties properties = new Properties();
-            properties.setProperty("SecurityLevel", "2");
-            properties.setProperty(MeterProtocol.ADDRESS, "");
-            // properties.setProperty(MeterProtocol.PASSWORD,"FEDC0003");
-            properties.setProperty(MeterProtocol.NODEID, "001");
-            properties.setProperty("Timeout", "5000");
-            properties.setProperty("Retries", "3");
-            properties.setProperty("ChannelMap", "0,3,3,3");
-            properties.setProperty("HighKey", "FCCA766563FA4F44E00BA59B6F26FF7EE8BBD2CCE970D571");
-            properties.setProperty("HighKeyRef", "8234");
-            properties.setProperty("LowKey", "00000000");
-            properties.setProperty("PAKNET", "1");
-            priPact.setProperties(properties);
-
-            // PRI CALMU3+ meter UK
-            // priPact.init(is,os,TimeZone.getTimeZone("GMT"),Logger.getLogger("name"));
-            // atDialer.setParams(1200, 8, SerialCommunicationChannel.PARITY_NONE, 1);
-
-            // PRI PREMIER meter EnergyICT
-            priPact.init(is, os, TimeZone.getTimeZone("GMT+1"), Logger.getLogger("name"));
-            dialer.getSerialCommunicationChannel().setParams(2400, SerialCommunicationChannel.DATABITS_8,
-                    SerialCommunicationChannel.PARITY_NONE, SerialCommunicationChannel.STOPBITS_1);
-
-            System.out.println("Start session");
-
-            priPact.connect();
-
-            // byte[] data = priPact.getPactConnection().getMeterReadingDataStream();
-            // ProtocolUtils.printResponseData(data);
-            // data = priPact.getPactConnection().getLoadSurveyDataStream(78, 0);
-            // ProtocolUtils.printResponseData(data);
-
-            // try {
-            // priPact.getPactConnection().getLogData();
-            // }
-            // catch(NestedIOException e) {
-            // System.out.println("not supported...");
-            // }
-            // System.out.println("TIME&DATE: "+priPact.getTime());
-            //
-            //
-            // System.out.println(priPact.getPactRegisterFactory().getMeterIdentitySerialNumber().toString());
-            System.out.println(priPact.getPactRegisterFactory().getMeterReadingsInterpreter().toString());
-            // System.out.println("TIME&DATE: "+priPact.getTime());
-            // priPact.setTime();
-            // System.out.println("time set");
-
-            // System.out.println("TIME&DATE: "+priPact.getTime());
-            // System.out.println(priPact.getPactRegisterFactory().getMeterIdentitySerialNumber().toString());
-            // System.out.println(priPact.getPactRegisterFactory().getMeterReadingsInterpreter().toString());
-            //
-            // System.out.println("Nr of channels: "+priPact.getNumberOfChannels());
-            // System.out.println("ProfileInterval: "+priPact.getProfileInterval());
-            // System.out.println("Time: "+priPact.getTime());
-            //
-            // for (int i = 0; i<2;i++) { //priPact.getNumberOfChannels();i++) {
-            // System.out.println(priPact.getMeterReading(i));
-            // }
-            // System.out.println(priPact.getMeterReading("TOTAL.1:ch0"));
-            // System.out.println(priPact.getMeterReading("TOTAL.1:ch1"));
-            // System.out.println(priPact.getMeterReading("TOTAL.1:ch2"));
-            //
-            //
-            // Calendar cal = ProtocolUtils.getCalendar(priPact.getTimeZone());
-            // cal.add(Calendar.HOUR_OF_DAY,-1);
-            // System.out.println(priPact.getProfileData(cal.getTime(),true).toString());
-
-            priPact.disconnect();
-
-            System.out.println("End session");
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                priPact.disconnect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    } // void main()
-
     public Logger getLogger() {
         return logger;
     }
@@ -680,8 +539,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         MeterReadingIdentifier mrid = new MeterReadingIdentifier(obisCode);
-        RegisterInfo registerInfo = new RegisterInfo(mrid.getObisRegisterMappingDescription());
-        return registerInfo;
+        return new RegisterInfo(mrid.getObisRegisterMappingDescription());
     }
 
     /**
@@ -726,10 +584,6 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
 
     public String getNodeId() {
         return nodeId;
-    }
-
-    public int getRoundtripCorrection() {
-        return roundtripCorrection;
     }
 
     public int getMeterType() {

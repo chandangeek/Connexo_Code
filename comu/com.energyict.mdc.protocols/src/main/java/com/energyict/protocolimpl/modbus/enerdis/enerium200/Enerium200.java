@@ -1,19 +1,23 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.MeterInfo;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.profile.Profile;
 
+import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -32,30 +36,23 @@ import java.util.Properties;
 
 public class Enerium200 extends Modbus {
 
-	private static final int DEBUG 	= 1;
 	private static final int NUMBER_OF_CHANNELS = 8;
+	private final Clock clock;
 
 	private MeterInfo meterInfo 	= null;
 	private Profile profile 		= null;
 
-	/*
-	 * Constructors
-	 */
-
-	public Enerium200() {}
-
-
-	/*
-	 * Abstract methods from ModBus class
-	 */
+	@Inject
+	public Enerium200(PropertySpecService propertySpecService, Clock clock) {
+		super(propertySpecService);
+		this.clock = clock;
+	}
 
 	protected void doTheConnect() throws IOException {}
 	protected void doTheDisConnect() throws IOException {}
 
-	protected List doTheGetOptionalKeys() {
-		List returnList = new ArrayList();
-        returnList.add("Connection");
-		return returnList;
+	protected List<String> doTheGetOptionalKeys() {
+		return Collections.singletonList("Connection");
 	}
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
@@ -109,7 +106,9 @@ public class Enerium200 extends Modbus {
 	}
 
 	public Profile getProfile() throws IOException {
-		if (this.profile == null) this.profile = new Profile(this);
+		if (this.profile == null) {
+			this.profile = new Profile(this);
+		}
 		return this.profile;
 	}
 
@@ -122,9 +121,8 @@ public class Enerium200 extends Modbus {
 	 */
 
     public Date getTime() throws IOException {
-    	long timeDiff = new Date().getTime() - getMeterInfo().getReadTime().getTime();
-    	Date correctedTime = new Date(getMeterInfo().getMeterTime().getTime() + timeDiff);
-    	return correctedTime;
+    	long timeDiff = this.clock.millis() - getMeterInfo().getReadTime().getTime();
+	    return new Date(getMeterInfo().getMeterTime().getTime() + timeDiff);
     }
 
     public void setTime() throws IOException {
@@ -136,32 +134,38 @@ public class Enerium200 extends Modbus {
     	return getMeterInfo().getSerialNumber();
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
     	return "Enerium 200 " + getMeterInfo().getVersion();
     }
 
     protected void validateSerialNumber() throws IOException {
-       if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+       if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+	       return;
+       }
        String sn = getSerialNumber();
-       if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+       if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
+	       return;
+       }
        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
     	return NUMBER_OF_CHANNELS;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
     	return getProfile().getProfileInterval();
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
     	ProfileData profileData = new ProfileData();
-    	List channelInfos = new ArrayList(0);
-    	List intervalDatas = new ArrayList(0);
+    	List channelInfos;
+    	List intervalDatas;
     	List meterEvents = new ArrayList(0);
 
-    	if (to == null) to = new Date();
+    	if (to == null) {
+		    to = new Date();
+	    }
 
     	channelInfos = getProfile().getChannelInfos();
     	intervalDatas = getProfile().getIntervalDatas(from, to, includeEvents);

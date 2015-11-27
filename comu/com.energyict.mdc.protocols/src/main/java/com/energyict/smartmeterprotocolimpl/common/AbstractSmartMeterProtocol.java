@@ -1,13 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.common;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+
 import com.energyict.protocolimpl.base.ProtocolProperties;
 
 import java.io.IOException;
@@ -25,10 +26,20 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
 
+    private final PropertySpecService propertySpecService;
     private InputStream inputStream;
     private OutputStream outputStream;
     private TimeZone timeZone;
     private Logger logger;
+
+    protected AbstractSmartMeterProtocol(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
 
     protected abstract ProtocolProperties getProtocolProperties();
 
@@ -47,7 +58,7 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
         this.logger = logger;
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -73,12 +84,12 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getProtocolProperties().getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getProtocolProperties().getRequiredKeys(), this.propertySpecService);
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getProtocolProperties().getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getProtocolProperties().getOptionalKeys(), this.propertySpecService);
     }
 
     public InputStream getInputStream() {
@@ -89,11 +100,6 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
         return outputStream;
     }
 
-    /**
-     * Get the protocol logger, or create a temporary one if not initialized yet.
-     *
-     * @return
-     */
     public Logger getLogger() {
         if (logger == null) {
             this.logger = Logger.getLogger(getClass().getName());

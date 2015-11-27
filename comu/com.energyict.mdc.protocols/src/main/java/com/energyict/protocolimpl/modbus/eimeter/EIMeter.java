@@ -4,21 +4,23 @@
 package com.energyict.protocolimpl.modbus.eimeter;
 
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
-import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -31,7 +33,10 @@ import java.util.Properties;
  */
 public class EIMeter extends Modbus {
 
-    public EIMeter() { }
+    @Inject
+    public EIMeter(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected void doTheConnect() throws IOException { /* relax */ }
 
@@ -41,18 +46,20 @@ public class EIMeter extends Modbus {
             throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "25").trim()));
         setInfoTypeMeterFirmwareVersion(properties.getProperty("MeterFirmwareVersion", "1.07"));
-        if (Float.parseFloat(getInfoTypeMeterFirmwareVersion())>=1.07)
+        if (Float.parseFloat(getInfoTypeMeterFirmwareVersion())>=1.07) {
             setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim()));
-        else
+        }
+        else {
             setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty("FirstTimeDelay", "400").trim()));
+        }
     }
 
     protected List<String> doTheGetOptionalKeys() {
-        return new ArrayList<String>();
+        return Collections.emptyList();
 
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "" + getRegisterFactory().findRegister("firmwareVersion").objectValueWithParser("value0");
 
     }
@@ -79,11 +86,13 @@ public class EIMeter extends Modbus {
      *******************************************************************************************/
     protected MessageResult doQueryMessage(MessageEntry messageEntry) throws IOException {
         try {
-            if (messageEntry.getContent().indexOf("<TestMessage")>=0) {
+            if (messageEntry.getContent().contains("<TestMessage")) {
                 getLogger().info(messageEntry.getContent());
                 return MessageResult.createSuccess(messageEntry);
             }
-            else return MessageResult.createUnknown(messageEntry);
+            else {
+                return MessageResult.createUnknown(messageEntry);
+            }
         }
         catch(Exception e) {
             return MessageResult.createFailed(messageEntry);
@@ -110,11 +119,6 @@ public class EIMeter extends Modbus {
      */
     private static final class RegisterFactory extends NDBaseRegisterFactory {
 
-        /**
-         * Create a new instance.
-         *
-         * @param protocol
-         */
         private RegisterFactory(final Modbus protocol) {
             super(protocol);
         }

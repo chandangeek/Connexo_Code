@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
@@ -72,6 +73,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
 
     private final ProtocolPluggableService protocolPluggableService;
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
@@ -107,11 +109,13 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     private final String delayAfterRequest = "DelayAfterRequest";
 
     @Inject
-    public SDKDeviceProtocol(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService,
-                             IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
-                             DlmsSecuritySupport dlmsSecuritySupport) {
+    public SDKDeviceProtocol(
+            ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus, PropertySpecService propertySpecService,
+            IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+            DlmsSecuritySupport dlmsSecuritySupport) {
         super();
         this.protocolPluggableService = protocolPluggableService;
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
@@ -124,6 +128,10 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         this.comChannel = comChannel;
         this.logger.log(Level.INFO, "Initializing DeviceProtocol for Device with serialNumber " + this.offlineDevice.getSerialNumber());
         simulateRealCommunicationIfApplicable();
+    }
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Override
@@ -240,7 +248,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {
-                this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the " + SDKLoadProfileProtocolDialectProperties.notSupportedLoadProfileObisCodePropertyName + " property");
+                this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the " + SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName() + " property");
                 loadProfileConfiguration.setSupportedByMeter(false);
             }
         }
@@ -312,11 +320,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
-                new SDKLoadProfileProtocolDialectProperties(propertySpecService),
-                new SDKStandardDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTimeDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTopologyTaskProtocolDialectProperties(propertySpecService),
-                new SDKFirmwareProtocolDialectProperties(propertySpecService)
+                new SDKLoadProfileProtocolDialect(this.thesaurus, this.propertySpecService),
+                new SDKStandardProtocolDialect(this.thesaurus, this.propertySpecService),
+                new SDKTimeProtocolDialect(this.thesaurus, this.propertySpecService),
+                new SDKTopologyTaskProtocolDialect(this.thesaurus, this.propertySpecService),
+                new SDKFirmwareProtocolDialect(this.thesaurus, this.propertySpecService)
         );
     }
 
@@ -399,23 +407,23 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     private ObisCode getIgnoredObisCode() {
-        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileProtocolDialectProperties.notSupportedLoadProfileObisCodePropertyName, ObisCode.fromString("0.0.0.0.0.0"));
+        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName(), ObisCode.fromString("0.0.0.0.0.0"));
     }
 
     private TimeDuration getTimeDeviationPropertyForRead() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToReadPropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDialectProperties.ActualFields.CLOCK_OFFSET_WHEN_WRITING.propertySpecName(), new TimeDuration(0));
     }
 
     private TimeDuration getTimeDeviationPropertyForWrite() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToWritePropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDialectProperties.ActualFields.CLOCK_OFFSET_WHEN_READING.propertySpecName(), new TimeDuration(0));
     }
 
     private String getSlaveOneSerialNumber() {
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveOneSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveOneSerialNumberPropertyName, "");
     }
 
     private String getSlaveTwoSerialNumber() {
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveTwoSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveTwoSerialNumberPropertyName, "");
     }
 
     @Override
@@ -434,17 +442,17 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         CollectedFirmwareVersion firmwareVersionsCollectedData = this.collectedDataFactory.createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
-        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareProtocolDialectProperties.activeMeterFirmwarePropertyName, ""));
-        firmwareVersionsCollectedData.setPassiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareProtocolDialectProperties.passiveMeterFirmwarePropertyName, ""));
-        firmwareVersionsCollectedData.setActiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareProtocolDialectProperties.activeCommunicationFirmwarePropertyName, ""));
-        firmwareVersionsCollectedData.setPassiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareProtocolDialectProperties.passiveCommunicationFirmwarePropertyName, ""));
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.ACTIVE_METER_FIRMWARE_VERSION.propertySpecName(), ""));
+        firmwareVersionsCollectedData.setPassiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.PASSIVE_METER_FIRMWARE_VERSION.propertySpecName(), ""));
+        firmwareVersionsCollectedData.setActiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.ACTIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName(), ""));
+        firmwareVersionsCollectedData.setPassiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.PASSIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName(), ""));
         simulateRealCommunicationIfApplicable();
         return firmwareVersionsCollectedData;
     }
 
     private void simulateRealCommunicationIfApplicable(){
         TimeDuration delayAfterRequest = getDelayAfterRequest();
-        if(!delayAfterRequest.isEmpty()){
+        if (!delayAfterRequest.isEmpty()) {
             try {
                 logger.info("Simulating real communication, waiting for " + delayAfterRequest + " ...");
                 Thread.sleep(delayAfterRequest.getMilliSeconds());
@@ -463,4 +471,5 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     public boolean supportsCommunicationFirmwareVersion() {
         return true;
     }
+
 }

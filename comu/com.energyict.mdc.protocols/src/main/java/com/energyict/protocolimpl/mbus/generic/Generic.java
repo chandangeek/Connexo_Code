@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.generic;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.SerialCommunicationSettings;
@@ -18,12 +19,14 @@ import com.energyict.mdc.protocol.api.dialer.core.Dialer;
 import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.protocolimpl.mbus.core.CIField72h;
-import com.energyict.protocolimpl.mbus.core.MBus;
-import com.energyict.protocolimpl.mbus.core.discover.DiscoverProtocolInfo;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 
+import com.energyict.protocolimpl.mbus.core.CIField72h;
+import com.energyict.protocolimpl.mbus.core.MBus;
+import com.energyict.protocolimpl.mbus.core.discover.DiscoverProtocolInfo;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,7 +41,6 @@ import java.util.logging.Logger;
  */
 public class Generic extends MBus {
 
-
     final int DEBUG=0;
 
     RegisterFactory registerFactory=null;
@@ -49,12 +51,10 @@ public class Generic extends MBus {
     List<DiscoverResult> discoverResults=null;
     int discoverResultIndex=0;
 
-    /**
-     * Creates a new instance of Generic
-     */
-    public Generic() {
+    @Inject
+    public Generic(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
 
     public DiscoverResult discover(DiscoverTools discoverTools) {
         if (DEBUG>=1) System.out.println("Generic, discover("+discoverTools+")");

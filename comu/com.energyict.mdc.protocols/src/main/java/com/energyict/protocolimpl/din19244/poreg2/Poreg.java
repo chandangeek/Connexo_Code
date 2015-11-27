@@ -1,14 +1,16 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
-import com.energyict.mdc.protocol.api.inbound.MeterType;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.din19244.poreg2.core.PoregConnection;
 import com.energyict.protocolimpl.din19244.poreg2.core.PoregMessages;
@@ -38,11 +40,15 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol 
     private int apparentEnergyResultLevel;
     private String systemAddress = "00000000";
 
+    public Poreg(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     protected void doDisConnect() throws IOException {
     }
 
-    abstract protected PoregMessages getMessageHandler();
+    protected abstract PoregMessages getMessageHandler();
 
     public PoregConnection getConnection() {
         return connection;

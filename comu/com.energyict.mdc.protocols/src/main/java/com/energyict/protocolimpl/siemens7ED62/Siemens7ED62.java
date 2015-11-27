@@ -10,28 +10,31 @@
 package com.energyict.protocolimpl.siemens7ED62;
 
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
+import com.google.inject.Inject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -64,6 +67,7 @@ GN|03042008|Added the MSYNC
  */
 public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
 
+    private final PropertySpecService propertySpecService;
     // init
     private TimeZone timeZone;
     private Logger logger;
@@ -96,9 +100,10 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     private int DEBUG = 0;
     private boolean software7E1;
 
-    /** Creates a new instance of Siemens7ED62 */
-    public Siemens7ED62() {
-
+    @Inject
+    public Siemens7ED62(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
     }
 
     /**
@@ -454,7 +459,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         result.add("ChannelMap");
         result.add("TimeSetMethod");
         result.add("Software7E1");
-        return PropertySpecFactory.toPropertySpecs(result);
+        return PropertySpecFactory.toPropertySpecs(result, this.propertySpecService);
     }
 
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException

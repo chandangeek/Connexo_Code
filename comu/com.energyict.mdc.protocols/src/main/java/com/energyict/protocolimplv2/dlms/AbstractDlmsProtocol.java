@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -79,6 +80,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private DlmsSecuritySupport dlmsSecuritySupport;
 
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final SocketService socketService;
     private final SerialComponentService serialComponentService;
@@ -91,13 +93,15 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final LoadProfileFactory loadProfileFactory;
     private final Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider;
 
-    protected AbstractDlmsProtocol(Clock clock, PropertySpecService propertySpecService, SocketService socketService,
-                                   SerialComponentService serialComponentService, IssueService issueService,
-                                   TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
-                                   IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
-                                   MeteringService meteringService, LoadProfileFactory loadProfileFactory,
-                                   Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
+    protected AbstractDlmsProtocol(
+            Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService,
+            SerialComponentService serialComponentService, IssueService issueService,
+            TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
+            IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+            MeteringService meteringService, LoadProfileFactory loadProfileFactory,
+            Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
@@ -419,6 +423,10 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     @Override
     public void copyProperties(TypedProperties properties) {
         getDlmsProperties().addProperties(properties);
+    }
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Override

@@ -1,16 +1,17 @@
 package com.energyict.protocolimpl.modbus.socomec.countis.ci;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
-import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -33,6 +34,11 @@ public class Ci extends Modbus {
 
 	private MultiplierFactory multiplierFactory=null;
 
+	@Inject
+	public Ci(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
 	@Override
 	protected void doTheConnect() throws IOException {
 	}
@@ -42,8 +48,8 @@ public class Ci extends Modbus {
 	}
 
 	@Override
-	protected List doTheGetOptionalKeys() {
-		return new ArrayList();
+	protected List<String> doTheGetOptionalKeys() {
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -65,7 +71,7 @@ public class Ci extends Modbus {
      * @param address - the given address
      * @return the multiplier for the given address
      */
-    public BigDecimal getRegisterMultiplier(int address) throws IOException, UnsupportedException {
+    public BigDecimal getRegisterMultiplier(int address) throws IOException {
         return getMultiplierFactory().getMultiplier(address);
     }
 
@@ -91,20 +97,6 @@ public class Ci extends Modbus {
 
     public void setTime() throws IOException {
     	getRegisterFactory().findRegister(RegisterFactory.currentDateTime).getWriteMultipleRegisters(DateTime.getCurrentDate());
-    }
-
-    /**
-     * Read the raw registers from the MobBus device
-     *
-     * @param address - startAddress
-     * @param length - the required data length
-     * @return the registers from the device
-     * @throws IOException if we couldn't read the data
-     */
-    int[] readRawValue(int address, int length)  throws IOException {
-    	HoldingRegister r = new HoldingRegister(address, length);
-        r.setRegisterFactory(getRegisterFactory());
-        return r.getReadHoldingRegistersRequest().getRegisters();
     }
 
 }

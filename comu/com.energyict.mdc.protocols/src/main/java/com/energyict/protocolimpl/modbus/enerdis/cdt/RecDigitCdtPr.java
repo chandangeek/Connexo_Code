@@ -2,15 +2,17 @@ package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -58,12 +60,16 @@ public class RecDigitCdtPr extends RecDigitCdt {
 
 	private RegisterFactoryCdtPr rFactory;
 
-    protected void initRegisterFactory() {
+	@Inject
+	public RecDigitCdtPr(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
+	protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactoryCdtPr(this));
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-    throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 
 		this.interval   = this.getProfileInterval();
 		this.rFactory   = this.getRecFactory();
@@ -168,7 +174,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
 		return profileData;
 	}
 
-    IntervalData[] parse(ByteArray active) throws UnsupportedException, IOException{
+    IntervalData[] parse(ByteArray active) throws IOException{
 
 		ByteArray fourByteAct = active.sub( 0, READ_BYTES );
 		BigDecimal actualAct = null, currentPercent, previousPercent;
@@ -321,7 +327,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
         currentTime.add(Calendar.SECOND, -interval);
     }
 
-    private void timeChecks(long intervalTime) throws UnsupportedException, IOException{
+    private void timeChecks(long intervalTime) throws IOException{
 		while (currentTime.getTime().before(calendar.getTime())){
         	calendar.add( Calendar.SECOND, -getProfileInterval() );
 		}
@@ -335,12 +341,12 @@ public class RecDigitCdtPr extends RecDigitCdt {
         return bd;
     }
 
-    private Date round( Date date ) throws UnsupportedException, IOException {
+    private Date round( Date date ) throws IOException {
         long msRest = date.getTime() % (getProfileInterval() * 1000);
         return new Date(date.getTime() - msRest);
     }
 
-    private int getPointer() throws UnsupportedException, IOException {
+    private int getPointer() throws IOException {
         if( pointer == -1 ) {
             pointer = readValue(0x03FC, Type.WORD).intValue();
         }
@@ -348,7 +354,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
         return pointer;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if( profileInterval == -1 ) {
             profileInterval = readValue( 0x1B86, Type.WORD).intValue();
         }
@@ -356,7 +362,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
     }
 
     public Date getTime() throws IOException {
-        return (Date)getRecFactory().toDate( readRawValue(0x0000, 4) );
+        return getRecFactory().toDate( readRawValue(0x0000, 4) );
     }
 
     private List newChannelInfo( ){

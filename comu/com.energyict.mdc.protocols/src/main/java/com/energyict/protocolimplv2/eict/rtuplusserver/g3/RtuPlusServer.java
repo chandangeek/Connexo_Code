@@ -313,7 +313,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.<DeviceProtocolDialect>singletonList(new TcpDeviceProtocolDialect(propertySpecService));
+        return Collections.<DeviceProtocolDialect>singletonList(new TcpDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     private DeviceProtocolSecurityCapabilities getSecuritySupport() {

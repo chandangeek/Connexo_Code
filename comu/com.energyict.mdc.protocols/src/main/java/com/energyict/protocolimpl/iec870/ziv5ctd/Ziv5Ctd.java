@@ -1,37 +1,37 @@
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.LinkException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.SerialNumber;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.SerialNumber;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -53,23 +53,22 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     /**
      * Property keys
      */
-    final static String PK_TIMEOUT = "Timeout";
-    final static String PK_RETRIES = "Retries";
-    final static String PK_SECURITY_LEVEL = "SecurityLevel";
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    final static String PK_FETCH_PROGRAM_PROFILE = "FetchProgramProfile";
-    final static String PK_CUMULATIVE_PROFILE = "CumulativeProfile";
+    static final String PK_TIMEOUT = "Timeout";
+    static final String PK_RETRIES = "Retries";
+    static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    static final String PK_FETCH_PROGRAM_PROFILE = "FetchProgramProfile";
+    static final String PK_CUMULATIVE_PROFILE = "CumulativeProfile";
 
     /**
      * Property Default values
      */
-    final static String PD_NODE_ID = "";
-    final static int PD_TIMEOUT = 10000;
-    final static int PD_RETRIES = 5;
-    final static int PD_ROUNDTRIP_CORRECTION = 0;
-    final static int PD_SECURITY_LEVEL = 2;
-    final static String PD_EXTENDED_LOGGING = "0";
-    final static boolean PD_CUMULATIVE_PROFILE = true;
+    static final String PD_NODE_ID = "";
+    static final int PD_TIMEOUT = 10000;
+    static final int PD_RETRIES = 5;
+    static final int PD_ROUNDTRIP_CORRECTION = 0;
+    static final int PD_SECURITY_LEVEL = 2;
+    static final String PD_EXTENDED_LOGGING = "0";
+    static final boolean PD_CUMULATIVE_PROFILE = true;
 
     /**
      * Property values Required properties will have NO default value Optional
@@ -88,7 +87,6 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     int pRetries = PD_RETRIES;
     /* Offset in ms to the get/set time */
     int pRountTripCorrection = PD_ROUNDTRIP_CORRECTION;
-    int pSecurityLevel = PD_SECURITY_LEVEL;
     int pCorrectTime = 0;
 
     String pFetchProgramProfile = "0";
@@ -104,7 +102,9 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     private TimeZone timeZone = null;
     private Logger logger = null;
 
-    public Ziv5Ctd() {
+    @Inject
+    public Ziv5Ctd(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     /* ___ Implement interface MeterProtocol ___ */
@@ -139,15 +139,15 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
         }
 
         if (p.getProperty(PK_TIMEOUT) != null) {
-            pTimeout = new Integer(p.getProperty(PK_TIMEOUT)).intValue();
+            pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
         }
 
         if (p.getProperty(PK_RETRIES) != null) {
-            pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
+            pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
         }
 
         if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
-            pRountTripCorrection = new Integer(p.getProperty(MeterProtocol.ROUNDTRIPCORR)).intValue();
+            pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.ROUNDTRIPCORR));
         }
 
         if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
@@ -172,38 +172,26 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(MeterProtocol.ADDRESS);
-        result.add(PK_TIMEOUT);
-        result.add(PK_RETRIES);
-        result.add(PK_EXTENDED_LOGGING);
-        result.add(PK_FETCH_PROGRAM_PROFILE);
-        result.add(PK_CUMULATIVE_PROFILE);
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    MeterProtocol.ADDRESS,
+                    PK_TIMEOUT,
+                    PK_RETRIES,
+                    PK_EXTENDED_LOGGING,
+                    PK_FETCH_PROGRAM_PROFILE,
+                    PK_CUMULATIVE_PROFILE);
     }
 
     /*
@@ -280,7 +268,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
         obisCodeMapper = null;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 6;   // always 6 channels ...
     }
 
@@ -314,11 +302,11 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
             throws IOException {
 
         int registerAddress = 0x0b;
-        if (pFetchProgramProfile.equals("1")) {
+        if ("1".equals(pFetchProgramProfile)) {
             registerAddress = 0x0c;
         }
 
-        Asdu a = null;
+        Asdu a;
         if (pCumulativeProfile) {
             a = asduFactory.create0x7a(registerAddress, from, to);
         } else {
@@ -340,8 +328,8 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
         return result;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
-        if (pFetchProgramProfile.equals("1"))
+    public int getProfileInterval() throws IOException {
+        if ("1".equals(pFetchProgramProfile))
         // programmed profile has a configurable integration time
         {
             return pProfileInterval;
@@ -410,16 +398,16 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException,
+    public Quantity getMeterReading(int channelId) throws
             IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException,
+    public Quantity getMeterReading(String name) throws
             IOException {
         throw new UnsupportedException();
     }
@@ -440,19 +428,17 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
 
     }
 
-    public String getRegister(String name) throws IOException,
-            UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public void setRegister(String name, String value) throws IOException,
-            NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         // TODO Auto-generated method stub
 
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         // TODO Auto-generated method stub
     }
 
@@ -479,8 +465,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
                 + ", configured sn=" + pSerialNumber);
     }
 
-    private void validateProperties() throws MissingPropertyException,
-            InvalidPropertyException {
+    private void validateProperties() {
 
     }
 
@@ -526,71 +511,6 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
      */
     void setLogger(Logger logger) {
         this.logger = logger;
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        Dialer dialer = null;
-        Ziv5Ctd ziv = new Ziv5Ctd();
-        try {
-
-            dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect("", 60000);
-            InputStream is = dialer.getInputStream();
-            OutputStream os = dialer.getOutputStream();
-
-            Properties properties = new Properties();
-            //properties.setProperty(MeterProtocol.ADDRESS,"4");
-            properties.setProperty(MeterProtocol.ADDRESS, "61");
-            properties.setProperty(MeterProtocol.PASSWORD, "2");
-            properties.setProperty("Retries", "5");
-            properties.setProperty("ProfileInterval", "300");
-            //   properties.setProperty(PK_EXTENDED_LOGGING,"1");
-            properties.setProperty(PK_FETCH_PROGRAM_PROFILE, "1");
-            properties.setProperty(MeterProtocol.SERIALNUMBER, "4d940f00");
-
-            //properties.setProperty("ChannelMap","1.5:1.7:1.1:2.5:2.6:2.7");
-            //properties.setProperty("ChannelMap","1.5:1.7:1.1:2.5:2.6");
-
-            properties.setProperty("ChannelMap", "1.2"); //:1.5");
-            properties.setProperty("MeterType", "0");
-            ziv.setProperties(properties);
-
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                    SerialCommunicationChannel.DATABITS_8,
-                    SerialCommunicationChannel.PARITY_NONE,
-                    SerialCommunicationChannel.STOPBITS_1);
-
-            ziv.init(is, os, TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
-            ziv.connect();
-
-            Calendar c = Calendar.getInstance(ziv.getTimeZone());
-            c.set(2006, 3, 13, 0, 0);
-            Date start = c.getTime();
-
-            c.set(2006, 3, 15, 0, 0);
-            Date end = c.getTime();
-
-
-            ArrayList list =
-                    ziv.rFactory.getMeterEvents(start, end);
-
-
-            Iterator i = list.iterator();
-            while (i.hasNext()) {
-                System.out.println(i.next() + "\n");
-            }
-
-        } catch (LinkException e) {
-            System.out.println("Ziv5Ctd, DialerException, " + e.getMessage());
-            ziv.disconnect();
-        } catch (IOException e) {
-            System.out.println("Ziv5Ctd, IOException, " + e.getMessage());
-            ziv.disconnect();
-        }
-
-
     }
 
 }

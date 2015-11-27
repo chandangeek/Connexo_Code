@@ -1,13 +1,15 @@
 package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.BubbleUpObject;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.BubbleUpObject;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.HydrekaMessages;
@@ -15,6 +17,7 @@ import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessage
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter.ParameterFactoryHydreka;
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.radiocommand.RadioCommandFactoryHydreka;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,6 +34,11 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
     private ParameterFactoryHydreka parameterFactory = null;
     private RadioCommandFactoryHydreka radioCommandFactory;
     private ProfileDataReader profileDataReader = null;
+
+    @Inject
+    public Hydreka(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();

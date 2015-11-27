@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.modbus.enerdis.recdigitcct;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
@@ -11,15 +12,17 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.iec1107.Channel;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
-import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
-import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -83,10 +86,12 @@ public class RecDigitCct extends Modbus {
     private int profileInterval = -1;
     private int nrChannels = -1;
 
-    public RecDigitCct() { }
+	@Inject
+	public RecDigitCct(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
 
-
-    protected void doTheConnect() throws IOException { }
+	protected void doTheConnect() throws IOException { }
     protected void doTheDisConnect() throws IOException {}
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 

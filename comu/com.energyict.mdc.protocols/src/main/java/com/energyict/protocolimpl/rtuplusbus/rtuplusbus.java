@@ -1,29 +1,33 @@
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -118,7 +122,9 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     // Time difference in ms between system time and rtu time
     private long rtuTimeDelta[];
 
-    public rtuplusbus() { // Create an RtuPlusBusFrame instance in order to Read / Write Frames
+    @Inject
+    public rtuplusbus(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         RtuPlusBusFrame = new RtuPlusBusFrames();
     }
 
@@ -197,29 +203,27 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    public List getOptionalKeys() {
-        List result = new ArrayList(10);
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        result.add("RtuPlusBusProtocolVersion");
-        result.add("MaximumNumberOfRecords");
-        result.add("HalfDuplex");
-        result.add("ForcedDelay");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "DelayAfterFail",
+                    "RtuPlusBusProtocolVersion",
+                    "MaximumNumberOfRecords",
+                    "HalfDuplex",
+                    "ForcedDelay");
     }
 
 

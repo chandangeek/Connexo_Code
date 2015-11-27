@@ -17,34 +17,31 @@ entries occur twice or more they need an SL flag.
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.SerialNumber;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.protocols.util.EventMapper;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.SerialNumber;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
@@ -53,7 +50,11 @@ import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
-import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.protocols.util.EventMapper;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -63,13 +64,16 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -201,7 +205,9 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
      */
     private boolean instrumentationProfileMode;
 
-    public ABBA230() {
+    @Inject
+    public ABBA230(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     /* ________ Impelement interface MeterProtocol ___________ */
@@ -297,11 +303,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 
             this.dontSendBreakCommand = !p.getProperty("DisableLogOffCommand", "0").equalsIgnoreCase("0");
-            if (this.dontSendBreakCommand) {
-                this.sendBreakBeforeDisconnect = false;
-            } else {
-                this.sendBreakBeforeDisconnect = true;
-            }
+            this.sendBreakBeforeDisconnect = !this.dontSendBreakCommand;
 
             this.instrumentationProfileMode = !p.getProperty(INSTRUMENTATION_PROFILE_MODE, "0").equalsIgnoreCase("0");
         } catch (NumberFormatException e) {
@@ -317,40 +319,32 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
-    /* (non-Javadoc)
-    * @see com.energyict.protocol.MeterProtocol#getRequiredKeys()
-    */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getOptionalKeys()
-      */
     public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ExtendedLogging");
-        result.add("EventMapperEnabled");
-        result.add("Software7E1");
-        result.add("ScriptingEnabled");
-        result.add("ForcedDelay");
-        result.add("DisableLogOffCommand");
-        result.add("InstrumentationProfileMode");
-        return result;
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ExtendedLogging",
+                    "EventMapperEnabled",
+                    "Software7E1",
+                    "ScriptingEnabled",
+                    "ForcedDelay",
+                    "DisableLogOffCommand",
+                    "InstrumentationProfileMode");
     }
 
     /* (non-Javadoc)
@@ -455,7 +449,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* (non-Javadoc)
       * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNumberOfChannels()
       */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         ABBA230Register r;
         ProfileConfigRegister lpcr;
 
@@ -490,7 +484,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
       * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
       */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-            throws IOException, UnsupportedException {
+            throws IOException {
         return this.profile.getProfileData(from, to, includeEvents);
     }
 
@@ -512,17 +506,14 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             ((CacheMechanism) getCache()).setCache(null);
 
             long roundtrip = System.currentTimeMillis();
-            Date date = getTime();
             roundtrip = (System.currentTimeMillis() - roundtrip) / 2;
 
-            Calendar calendar = null;
-            calendar = ProtocolUtils.getCalendar(this.timeZone);
+            Calendar calendar = ProtocolUtils.getCalendar(this.timeZone);
             calendar.add(Calendar.MILLISECOND, (int) roundtrip);
             getFlagIEC1107Connection().authenticate();
             this.rFactory.setRegister("TimeDate", calendar.getTime());
         } else {
-            Calendar calendar = null;
-            calendar = ProtocolUtils.getCalendar(this.timeZone);
+            Calendar calendar = ProtocolUtils.getCalendar(this.timeZone);
             calendar.add(Calendar.MILLISECOND, this.pRoundTripCorrection);
             getFlagIEC1107Connection().authenticate();
             this.rFactory.setRegister("TimeDate", calendar.getTime());
@@ -536,7 +527,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* (non-Javadoc)
       * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion()
       */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         String str = "unknown";
         // KV 15122003 only if pAddress is filled in
         if ((this.pAddress != null) && (this.pAddress.length() > 5)) {
@@ -561,7 +552,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* (non-Javadoc)
       * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getProfileInterval()
       */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return instrumentationProfileMode
                 ? ((Integer) this.rFactory.getRegister("InstrumentationProfileIntegrationPeriod")).intValue()
                 : ((Integer) this.rFactory.getRegister("LoadProfileIntegrationPeriod")).intValue();
@@ -727,16 +718,12 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         throw new IOException(msg);
     }
 
-    public ABBA230MeterType getAbba230MeterType() {
-        return this.abba230MeterType;
-    }
-
     /* ________ Not supported methods ___________ */
 
     /* method not supported
       * @see com.energyict.protocol.MeterProtocol#getMeterReading(java.lang.String)
       */
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         String msg = "method getMeterReading( String name ) is not supported.";
         throw new UnsupportedException(msg);
     }
@@ -744,7 +731,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* method not supported
       * @see com.energyict.protocol.MeterProtocol#getMeterReading(int)
       */
-    public Quantity getMeterReading(int channelID) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelID) throws IOException {
         String msg = "method getMeterReading( int channelID ) is not supported.";
         throw new UnsupportedException(msg);
     }
@@ -802,14 +789,14 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* method not supported
       * @see com.energyict.protocol.MeterProtocol#initializeDevice()
       */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
     /* (non-Javadoc)
       * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
       */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         if (name.compareTo("FIRMWAREPROGRAM") == 0) {
             try {
                 blankCheck();
@@ -915,7 +902,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* (non-Javadoc)
       * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
       */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
 
         //rFactory.getRegister("BlankCheck");
 
@@ -1261,49 +1248,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         return buf.toString();
     }
 
-    public String writeTag2(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
-
-        // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
-
-        // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
-                continue;
-            }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
-        }
-        if (msgTag.getSubElements().isEmpty()) {
-            buf.append("/>");
-            return buf.toString();
-        }
-        buf.append(">");
-        // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
-            MessageElement elt = (MessageElement) it.next();
-            if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
-            } else if (elt.isValue()) {
-                String value = writeValue((MessageValue) elt);
-                if ((value == null) || (value.length() == 0)) {
-                    return "";
-                }
-                buf.append(value);
-            }
-        }
-
-        // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
-
-        return buf.toString();
-    }
-
     public String writeValue(MessageValue msgValue) {
         return msgValue.getValue();
     }
@@ -1319,23 +1263,23 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 
         try {
-            if (messageEntry.getContent().indexOf("<" + DISCONNECT) >= 0) {
+            if (messageEntry.getContent().contains("<" + DISCONNECT)) {
                 ContactorController cc = new ABBA230ContactorController(this);
                 cc.doDisconnect();
-            } else if (messageEntry.getContent().indexOf("<" + CONNECT) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + CONNECT)) {
                 ContactorController cc = new ABBA230ContactorController(this);
                 cc.doConnect();
-            } else if (messageEntry.getContent().indexOf("<" + ARM) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + ARM)) {
                 ContactorController cc = new ABBA230ContactorController(this);
                 cc.doArm();
-            } else if (messageEntry.getContent().indexOf("<" + TARIFFPROGRAM) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + TARIFFPROGRAM)) {
                 this.logger.info("*************************** PROGRAM TARIFF *****************************");
                 int start = messageEntry.getContent().indexOf(TARIFFPROGRAM) + TARIFFPROGRAM.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(TARIFFPROGRAM) - 2;
                 String tariffXMLData = messageEntry.getContent().substring(start, end);
                 TariffSaxParser o = new TariffSaxParser(this.rFactory.getABBA230DataIdentityFactory());
                 o.start(tariffXMLData, false);
-            } else if (messageEntry.getContent().indexOf("<" + FIRMWAREPROGRAM) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + FIRMWAREPROGRAM)) {
                 this.logger.info("*************************** FIRMWARE UPGRADE ***************************");
                 int start = messageEntry.getContent().indexOf(FIRMWAREPROGRAM) + FIRMWAREPROGRAM.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(FIRMWAREPROGRAM) - 2;
@@ -1353,7 +1297,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
                 activate();
                 this.firmwareUpgrade = true;
-            } else if (messageEntry.getContent().indexOf("<" + BILLINGRESET) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + BILLINGRESET)) {
                 this.logger.info("************************* MD RESET *************************");
                 int start = messageEntry.getContent().indexOf(BILLINGRESET) + BILLINGRESET.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(BILLINGRESET) - 2;
@@ -1372,14 +1316,14 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         }
     }
 
-    private void executeDefaultScript() throws IOException {
+    private void executeDefaultScript() {
         if ((getCache() != null) && (getCache() instanceof CacheMechanism) && (getScriptingEnabled() == 2)) {
             ((CacheMechanism) getCache()).setCache(new String[]{"0", null});
             this.nrOfProfileBlocks = ((Integer) ((CacheMechanism) getCache()).getCache()).intValue();
         }
     }
 
-    private void executeRegisterScript() throws IOException {
+    private void executeRegisterScript() {
         if ((getCache() != null) && (getCache() instanceof CacheMechanism) && (getScriptingEnabled() == 1)) {
             // call the scriptexecution  scriptId,script
             String script = instrumentationProfileMode

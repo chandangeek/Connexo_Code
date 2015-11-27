@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -97,10 +98,10 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public SDKDeviceProtocolTestWithAllProperties(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService,
+    public SDKDeviceProtocolTestWithAllProperties(Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService,
                                                   IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
                                                   DlmsSecuritySupport dlmsSecuritySupport) {
-        super(protocolPluggableService, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
+        super(protocolPluggableService, thesaurus, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
         this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
@@ -249,7 +250,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {
-                this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the " + SDKLoadProfileProtocolDialectProperties.notSupportedLoadProfileObisCodePropertyName + " property");
+                this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the " + SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName() + " property");
                 loadProfileConfiguration.setSupportedByMeter(false);
             }
         }
@@ -311,10 +312,10 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
-                new SDKLoadProfileProtocolDialectProperties(propertySpecService),
-                new SDKStandardDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTimeDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTopologyTaskProtocolDialectProperties(propertySpecService));
+                new SDKLoadProfileProtocolDialect(this.getThesaurus(), this.propertySpecService),
+                new SDKStandardProtocolDialect(this.getThesaurus(), this.propertySpecService),
+                new SDKTimeProtocolDialect(this.getThesaurus(), this.propertySpecService),
+                new SDKTopologyTaskProtocolDialect(this.getThesaurus(), this.propertySpecService));
     }
 
     @Override
@@ -373,23 +374,23 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     }
 
     private ObisCode getIgnoredObisCode() {
-        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileProtocolDialectProperties.notSupportedLoadProfileObisCodePropertyName, ObisCode.fromString("0.0.0.0.0.0"));
+        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName(), ObisCode.fromString("0.0.0.0.0.0"));
     }
 
     private TimeDuration getTimeDeviationPropertyForRead() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToReadPropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDialectProperties.ActualFields.CLOCK_OFFSET_WHEN_WRITING.propertySpecName(), new TimeDuration(0));
     }
 
     private TimeDuration getTimeDeviationPropertyForWrite() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToWritePropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDialectProperties.ActualFields.CLOCK_OFFSET_WHEN_READING.propertySpecName(), new TimeDuration(0));
     }
 
     private String getSlaveOneSerialNumber(){
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveOneSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveOneSerialNumberPropertyName, "");
     }
 
     private String getSlaveTwoSerialNumber(){
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveTwoSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveTwoSerialNumberPropertyName, "");
     }
 
     @Override

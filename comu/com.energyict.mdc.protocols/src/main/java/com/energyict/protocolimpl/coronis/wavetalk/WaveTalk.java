@@ -1,28 +1,29 @@
 package com.energyict.protocolimpl.coronis.wavetalk;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.coronis.wavetalk.core.AbstractCommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavetalk.core.AbstractWaveTalk;
 import com.energyict.protocolimpl.coronis.wavetalk.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavetalk.core.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavetalk.core.ParameterFactoryImpl;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Properties;
 
 
 public class WaveTalk extends AbstractWaveTalk {
 
-
 	/**
 	 * specific obis code mapper
 	 */
 	private ObisCodeMapper obisCodeMapper;
-
 
 	/**
 	 * the common ohis code mapper for the WaveTalk
@@ -34,11 +35,13 @@ public class WaveTalk extends AbstractWaveTalk {
 	 */
 	private ParameterFactory parameterFactory=null;
 
+	@Inject
+	public WaveTalk(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
 
 	@Override
 	protected void doTheConnect() throws IOException {
-
-
 	}
 
 	@Override

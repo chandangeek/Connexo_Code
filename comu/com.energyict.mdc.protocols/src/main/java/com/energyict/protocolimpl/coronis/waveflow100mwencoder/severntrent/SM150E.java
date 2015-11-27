@@ -1,20 +1,22 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
 public class SM150E extends WaveFlow100mW {
-
 
 	/**
 	 * specific severntrent obis code mapper
@@ -26,10 +28,14 @@ public class SM150E extends WaveFlow100mW {
 	 */
 	private ProfileDataReader profileDataReader;
 
+	@Inject
+	public SM150E(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
 	@Override
 	protected void doTheConnect() throws IOException {
 	}
-
 
 	@Override
 	protected void doTheDisConnect() throws IOException {

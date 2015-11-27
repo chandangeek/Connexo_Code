@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.edp;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -13,6 +14,8 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.CacheMechanism;
 
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
@@ -24,8 +27,6 @@ import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.edp.logbooks.LogbookReader;
 import com.energyict.protocolimpl.dlms.edp.registers.EDPStoredValues;
 import com.energyict.protocolimpl.dlms.edp.registers.RegisterReader;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.util.CacheMechanism;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -56,8 +57,8 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     private EDPStoredValues storedValues;
 
     @Inject
-    public CX20009(OrmClient ormClient) {
-        super(ormClient);
+    public CX20009(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService, ormClient);
     }
 
     @Override

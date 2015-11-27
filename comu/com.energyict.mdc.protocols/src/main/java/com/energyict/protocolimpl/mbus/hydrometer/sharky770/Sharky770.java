@@ -10,25 +10,20 @@
 
 package com.energyict.protocolimpl.mbus.hydrometer.sharky770;
 
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.mbus.core.MBus;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
@@ -36,13 +31,9 @@ import java.util.logging.Logger;
  */
 public class Sharky770 extends MBus {
 
-
-    RegisterFactory registerFactory=null;
-
-    /**
-     * Creates a new instance of Sharky770
-     */
-    public Sharky770() {
+    @Inject
+    public Sharky770(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public DiscoverResult discover(DiscoverTools discoverTools) {
@@ -63,12 +54,11 @@ public class Sharky770 extends MBus {
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
     }
-    protected List doTheGetOptionalKeys() {
-        List list = new ArrayList();
-        return list;
+    protected List<String> doTheGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "NOT YET IMPLEMENTED";
     }
 
@@ -80,108 +70,4 @@ public class Sharky770 extends MBus {
         setRegisterFactory(new RegisterFactory(this));
     }
 
-
-    static public void main(String[] args) {
-        try {
-            // ********************** Dialer **********************
-            Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer.init("COM1"); // "/dev/ttyXR0";
-            dialer.getSerialCommunicationChannel().setParams(2400,
-                                                             SerialCommunicationChannel.DATABITS_8,
-                                                             SerialCommunicationChannel.PARITY_EVEN,
-                                                             SerialCommunicationChannel.STOPBITS_1);
-            dialer.connect();
-
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "60");
-            properties.setProperty(MeterProtocol.ADDRESS,"108");
-            //properties.setProperty("HalfDuplex", "-1");
-            // ********************** EictRtuModbus **********************
-            Sharky770 pN16 = new Sharky770();
-
-            pN16.setProperties(properties);
-            //pN16.setHalfDuplexController(dialer.getHalfDuplexController());
-            pN16.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-            pN16.connect();
-
-
-
-            //pN16.getMBusConnection().sendOut(new byte[]{0x68,0x04,0x04,0x68,0x53,0x6c,0x50,0x00,(byte)0xbf,0x16});
-            pN16.getMBusConnection().sendSND_NKE();
-            pN16.getMBusConnection().sendApplicationReset(0x00); // use 0x10,0x20,... for subsequent application reset subcodes
-            //pN16.getMBusConnection().sendREQ_UD1();
-            System.out.println("************************************************************************************************");
-
-
-
-            //IEC870Frame frame = pN16.getMBusConnection().sendREQ_UD2();
-            System.out.println(pN16.getTime());
-            System.out.println(pN16.getRegistersInfo(0));
-            //System.out.println(pN16.readRegister(ObisCode.fromString("1.1.52.7.0.255")));
-            System.out.println(pN16.readRegister(ObisCode.fromString("0.0.96.99.0.0")));
-            System.out.println(pN16.readRegister(ObisCode.fromString("0.0.96.99.0.1")));
-
-
-            //System.out.println(frame.getASDU().buildAbstractCIFieldObject(pN16.getTimeZone()));
-            //System.out.println(ProtocolUtils.outputHexString(asdu.getInformationObject().getObjData()));
-
-//            System.out.println("************************************************************************************************");
-//            frame = pN16.getMBusConnection().sendREQ_UD2();
-//            System.out.println(frame);
-//            asdu = frame.getASDU();
-//            System.out.println(asdu.toString(pN16.getTimeZone()));
-//            //System.out.println(ProtocolUtils.outputHexString(frame.getData()));
-//            System.out.println(ProtocolUtils.outputHexString(asdu.getInformationObject().getObjData()));
-//
-//            System.out.println("************************************************************************************************");
-//            frame = pN16.getMBusConnection().sendREQ_UD2();
-//            System.out.println(frame);
-//            asdu = frame.getASDU();
-//            System.out.println(asdu.toString(pN16.getTimeZone()));
-//            //System.out.println(ProtocolUtils.outputHexString(frame.getData()));
-//            System.out.println(ProtocolUtils.outputHexString(asdu.getInformationObject().getObjData()));
-
-
-            //System.out.println(pN16.getFirmwareVersion());
-
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.32.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.132.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-            dialer.disConnect();
-            pN16.disconnect();
-
-            //System.out.println(pN16.readRegister(ObisCode.fromString("1.1.52.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.72.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.12.7.0.255")));
-//
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.152.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.172.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.112.7.0.255")));
-//
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.31.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.51.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.71.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.11.7.0.255")));
-//
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.1.6.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.3.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.9.7.0.255")));
-//
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.21.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.41.7.0.255")));
-//            System.out.println(pN16.readRegister(ObisCode.fromString("1.1.61.7.0.255")));
-//
-//            System.out.println(pN16.getRegisterFactory().getFunctionCodeFactory().getReportSlaveId());
-
-
-            //System.out.println(pN16.getRegistersInfo(1));
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 }

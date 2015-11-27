@@ -11,17 +11,20 @@
 package com.energyict.protocolimpl.modbus.core.discover;
 
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.MandatoryDeviceIdentification;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,10 +43,9 @@ public class GenericModbusDiscover extends Modbus {
 
     final int DEBUG=0;
 
-    /**
-     * Creates a new instance of GenericModbusDiscover
-     */
-    public GenericModbusDiscover() {
+    @Inject
+    public GenericModbusDiscover(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     protected void doTheConnect() throws IOException {

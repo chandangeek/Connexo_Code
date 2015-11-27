@@ -1,24 +1,25 @@
 package com.energyict.protocolimpl.coronis.amco.rtm;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.BubbleUp;
+import com.energyict.mdc.protocol.api.BubbleUpObject;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.BubbleUp;
-import com.energyict.mdc.protocol.api.BubbleUpObject;
-import com.energyict.protocols.util.EventMapper;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.util.EventMapper;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -31,6 +32,7 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,6 +61,11 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     private int initialRFCommand = 0;
     private boolean roundDownToNearestInterval = false;
 
+    @Inject
+    public RTM(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     public ObisCodeMapper getObisCodeMapper() {
         return obisCodeMapper;
     }
@@ -82,7 +89,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         return parameterFactory;
     }
 
-    final public RadioCommandFactory getRadioCommandFactory() {
+    public final RadioCommandFactory getRadioCommandFactory() {
         if (radioCommandFactory == null) {
             radioCommandFactory = new RadioCommandFactory(this);
         }
@@ -134,7 +141,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         }
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         try {
             return profileDataReader.getProfileData(from, to, includeEvents);
         } catch (WaveFlowException e) {
@@ -147,7 +154,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         return verifyProfileInterval;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (isVerifyProfileInterval()) {
             return getParameterFactory().getProfileIntervalInSeconds();
         } else {
@@ -232,7 +239,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterInfo(obisCode);
+        return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     @Override

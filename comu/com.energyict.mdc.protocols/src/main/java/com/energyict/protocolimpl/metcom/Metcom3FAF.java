@@ -6,14 +6,17 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,14 +30,12 @@ import java.util.List;
 public class Metcom3FAF extends Metcom3 {
 
     private static final int DEBUG = 0;
-    //protected final String[] REG_NR_OF_CHANNELS8={"62300","63300"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
-    //protected final String[] REG_NR_OF_CHANNELS16={"62308","63308"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
     protected final String REG_PROFILEINTERVAL="70300";
     protected final String DIGITS_PER_VALUE="82001";
 
-
-    /** Creates a new instance of Metcom3FAF */
-    public Metcom3FAF() {
+    @Inject
+    public Metcom3FAF(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     protected BufferStructure getBufferStructure(int bufferNr) throws IOException, UnsupportedException, NoSuchRegisterException {
@@ -56,7 +57,9 @@ public class Metcom3FAF extends Metcom3 {
             int digitsPerValue = Integer.parseInt(getRegister(DIGITS_PER_VALUE).trim());
             bs = new BufferStructure(nrOfChannels,digitsPerValue,profileInterval);
         }
-        else throw new IOException("Metcom3FAF, invalid MeterClass property ("+getStrMeterClass()+")");
+        else {
+            throw new IOException("Metcom3FAF, invalid MeterClass property (" + getStrMeterClass() + ")");
+        }
 
         // Nr of channels can be found with
         //System.out.println("KV_DEBUG> "+Integer.parseInt(getRegister(REG_NR_OF_CHANNELS8[0]).trim()));
@@ -135,6 +138,6 @@ public class Metcom3FAF extends Metcom3 {
         catch (SiemensSCTMException e) {
             throw new IOException("Siemens7ED62, doGetProfileData, SiemensSCTMException, " + e.getMessage());
         }
-    } // protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException
+    }
 
 }

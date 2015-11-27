@@ -1,21 +1,23 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
-import com.energyict.mdc.protocol.api.BubbleUp;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.BubbleUp;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocols.util.EventMapper;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -56,7 +58,6 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     private int waveFlowId = -1;
 
     public static final String MUC_WAVECELL_CONNECTION = "0";
-    public static final String LEGACY_WAVECELL_CONNECTION = "1";
     public static final String CONNECTION_PROPERTY = "Connection";
 
     protected abstract void doTheInit() throws IOException;
@@ -75,6 +76,10 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     protected WaveFlowMessageParser waveFlowMessages;
     protected CommonObisCodeMapper commonObisCodeMapper = null;
     protected ParameterFactory parameterFactory = null;
+
+    public WaveFlow(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public boolean usesInitialRFCommand() {
         return getInitialRFCommand() == 0x06 || getInitialRFCommand() == 0x27;

@@ -1,9 +1,11 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -13,8 +15,8 @@ import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -24,11 +26,6 @@ import com.energyict.protocolimpl.dlms.g3.events.G3Events;
 import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.profile.G3Profile;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
-import com.energyict.protocolimpl.messaging.messages.AnnotatedFWUpdateMessageBuilder;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -59,7 +56,8 @@ public class AS330D extends AbstractDlmsSessionProtocol {
     private G3Cache cache = new G3Cache();
 
     @Inject
-    public AS330D(OrmClient ormClient) {
+    public AS330D(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService);
         this.ormClient = ormClient;
     }
 

@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.transdata.markv;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
@@ -25,6 +26,8 @@ import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -34,8 +37,8 @@ import com.energyict.protocolimpl.transdata.markv.core.commands.ObisCodeMapper;
 import com.energyict.protocolimpl.transdata.markv.core.commands.RegisterDataId;
 import com.energyict.protocolimpl.transdata.markv.core.commands.RegisterIdentification;
 import com.energyict.protocolimpl.transdata.markv.core.connection.MarkVConnection;
-import com.energyict.protocols.util.ProtocolUtils;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,8 +65,9 @@ public class MarkV extends AbstractProtocol {
     CommandFactory commandFactory=null;
     int verifyTimeDelay;
 
-    /** Creates a new instance of MarkV */
-    public MarkV() {
+    @Inject
+    public MarkV(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.

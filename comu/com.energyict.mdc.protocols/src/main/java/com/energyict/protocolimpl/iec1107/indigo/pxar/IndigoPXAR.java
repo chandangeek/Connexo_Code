@@ -1,10 +1,14 @@
 package com.energyict.protocolimpl.iec1107.indigo.pxar;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 
+import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -43,15 +47,12 @@ import java.util.Properties;
  */
 public class IndigoPXAR extends AbstractIEC1107Protocol {
 
-	/**
-	 * Default constructor
-	 */
-	public IndigoPXAR(){
-		super();
-		//TODO if necessary, add additional information to the super() [Like an encryptor for security]
+	@Inject
+	public IndigoPXAR(PropertySpecService propertySpecService) {
+		super(propertySpecService);
 	}
 
-    /**
+	/**
 	 * @return the ProtocolVerison
 	 */
     public String getProtocolVersion() {
@@ -71,9 +72,8 @@ public class IndigoPXAR extends AbstractIEC1107Protocol {
 	 * @return a List of Strings of optional keys
 	 */
 	@Override
-	protected List doGetOptionalKeys() {
-		// TODO Auto-generated method stub
-		return null;
+	protected List<String> doGetOptionalKeys() {
+		return Collections.emptyList()
 	}
 
 	/**
@@ -83,7 +83,6 @@ public class IndigoPXAR extends AbstractIEC1107Protocol {
 	protected void doValidateProperties(Properties properties)
 			throws MissingPropertyException, InvalidPropertyException {
 		// TODO Auto-generated method stub
-
 	}
 
 }

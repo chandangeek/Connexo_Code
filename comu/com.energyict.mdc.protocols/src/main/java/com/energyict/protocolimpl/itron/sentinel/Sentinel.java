@@ -10,23 +10,20 @@
 
 package com.energyict.protocolimpl.itron.sentinel;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.protocolimpl.ansi.c12.C12Layer2;
 import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
 import com.energyict.protocolimpl.ansi.c12.PSEMServiceFactory;
@@ -41,20 +38,18 @@ import com.energyict.protocolimpl.itron.sentinel.tables.ManufacturerTableFactory
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.SentinelItron;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 /**
  *
  * @author  Koen
- * @beginchanges
- * @endchanges
  */
 public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
 
@@ -76,16 +71,16 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
 
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
 
-    /** Creates a new instance of Sentinel */
-    public Sentinel() {
+    @Inject
+    public Sentinel(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading,new Date(),includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return sentinelLoadProfile.getProfileData(from,to,includeEvents);
     }
 
@@ -95,10 +90,13 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
     }
 
     protected void validateSerialNumber() throws IOException {
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+            return;
+        }
         String sn = getStandardTableFactory().getManufacturerIdentificationTable().getManufacturerSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
+            return;
+        }
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
 
@@ -120,14 +118,17 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
                                   SerialCommunicationChannel.DATABITS_8,
                                   SerialCommunicationChannel.PARITY_NONE,
                                   SerialCommunicationChannel.STOPBITS_1);
-            if (getDtrBehaviour() == 0)
+            if (getDtrBehaviour() == 0) {
                 commChannel.setDTR(false);
-            else if (getDtrBehaviour() == 1)
+            }
+            else if (getDtrBehaviour() == 1) {
                 commChannel.setDTR(true);
+            }
         }
 
-        if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
+        if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0))) {
             setInfoTypePassword(new String(new byte[]{0}));
+        }
 
       //identify with node 1 before you can address other nodes
         if (c12Layer2.getIdentity()!=1) {
@@ -167,12 +168,11 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
 
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("C12User");
-        result.add("C12UserId");
-        result.add("MaxNrPackets");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "C12User",
+                    "C12UserId",
+                    "MaxNrPackets");
     }
 
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
@@ -198,7 +198,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
         //return getDataReadFactory().getCurrentStateDataRead().getCurrentTimeDate();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels();
     }
 
@@ -206,7 +206,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturer()+", "+
                getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
                "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
@@ -216,14 +216,14 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
     /*
      * Override this method if the subclass wants to set a specific register
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
 
     }
 
     /*
      * Override this method if the subclass wants to get a specific register
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -243,7 +243,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         int skip=0;
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
 
 /*
         strBuff.append(getStandardTableFactory().getConfigurationTable());
@@ -258,51 +258,56 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
 
         strBuff.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n");
 
-        strBuff.append(getDataReadFactory().getConstantsDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getCapabilitiesDataRead()+"\n");
+        strBuff.append(getDataReadFactory().getConstantsDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getCapabilitiesDataRead()).append("\n");
 
-        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-            strBuff.append(getDataReadFactory().getClockRelatedDataRead()+"\n");
+        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+            strBuff.append(getDataReadFactory().getClockRelatedDataRead() + "\n");
+        }
 
-        strBuff.append(getDataReadFactory().getQuantityIdentificationDataRead()+"\n");
+        strBuff.append(getDataReadFactory().getQuantityIdentificationDataRead()).append("\n");
 
-        strBuff.append(getDataReadFactory().getCurrentStateDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getCurrentEnergyDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getCurrentDemandDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getCurrentCumulativeDemandDataRead()+"\n");
-        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-            strBuff.append(getDataReadFactory().getCurrentDemandTimeOfOccurenceDataRead()+"\n");
+        strBuff.append(getDataReadFactory().getCurrentStateDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getCurrentEnergyDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getCurrentDemandDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getCurrentCumulativeDemandDataRead()).append("\n");
+        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+            strBuff.append(getDataReadFactory().getCurrentDemandTimeOfOccurenceDataRead() + "\n");
+        }
 
-        strBuff.append(getDataReadFactory().getLastBillingPeriodStateDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getLastBillingPeriodEnergyDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getLastBillingPeriodDemandDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getLastBillingPeriodCumulativeDemandDataRead()+"\n");
-        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-            strBuff.append(getDataReadFactory().getLastBillingPeriodDemandTimeOfOccurenceDataRead()+"\n");
+        strBuff.append(getDataReadFactory().getLastBillingPeriodStateDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getLastBillingPeriodEnergyDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getLastBillingPeriodDemandDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getLastBillingPeriodCumulativeDemandDataRead()).append("\n");
+        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+            strBuff.append(getDataReadFactory().getLastBillingPeriodDemandTimeOfOccurenceDataRead() + "\n");
+        }
 
 
         if (getDataReadFactory().getCapabilitiesDataRead().getNumberOfTOURates() > 0) {
-            strBuff.append(getDataReadFactory().getLastSeasonStateDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSeasonEnergyDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSeasonDemandDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSeasonCumulativeDemandDataRead()+"\n");
-            if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-                strBuff.append(getDataReadFactory().getLastSeasonDemandTimeOfOccurenceDataRead()+"\n");
+            strBuff.append(getDataReadFactory().getLastSeasonStateDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSeasonEnergyDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSeasonDemandDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSeasonCumulativeDemandDataRead()).append("\n");
+            if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+                strBuff.append(getDataReadFactory().getLastSeasonDemandTimeOfOccurenceDataRead() + "\n");
+            }
         }
 
         if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasValidSelfReadData()) {
-            strBuff.append(getDataReadFactory().getLastSelfReadStateDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSelfReadEnergyDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSelfReadDemandDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSelfReadCumulativeDemandDataRead()+"\n");
-            if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-                strBuff.append(getDataReadFactory().getLastSelfReadDemandTimeOfOccurenceDataRead()+"\n");
+            strBuff.append(getDataReadFactory().getLastSelfReadStateDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSelfReadEnergyDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSelfReadDemandDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSelfReadCumulativeDemandDataRead()).append("\n");
+            if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+                strBuff.append(getDataReadFactory().getLastSelfReadDemandTimeOfOccurenceDataRead() + "\n");
+            }
         }
 
         if (getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels() > 0) {
-            strBuff.append(getDataReadFactory().getLoadProfileQuantitiesDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLoadProfilePulseWeightsDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLoadProfilePreliminaryDataRead()+"\n");
+            strBuff.append(getDataReadFactory().getLoadProfileQuantitiesDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLoadProfilePulseWeightsDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLoadProfilePreliminaryDataRead()).append("\n");
 
         }
 
@@ -312,7 +317,9 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
 
         while(true) {
             try {
-                if (skip<=0) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDeviceIdentificationTable());}
+                if (skip<=0) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getDeviceIdentificationTable());}
                 if (skip<=1) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConfigurationTable());}
                 if (skip<=2) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEndDeviceModeAndStatusTable());}
                 if (skip<=3) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getManufacturerIdentificationTable());}
@@ -373,158 +380,17 @@ if (skip<=29) { skip++;strBuff.append("-----------------------------------------
         return c12Layer2;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
-        if (getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels()>0)
-            return getDataReadFactory().getLoadProfilePreliminaryDataRead().getLoadProfileIntervalLength()*60;
-        else
+    public int getProfileInterval() throws IOException {
+        if (getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels()>0) {
+            return getDataReadFactory().getLoadProfilePreliminaryDataRead().getLoadProfileIntervalLength() * 60;
+        }
+        else {
             return getInfoTypeProfileInterval();
+        }
     }
 
     public TimeZone gettimeZone() {
         return super.getTimeZone();
-    }
-
-    static public void main(String[] args) {
-        try {
-            String[] phones          = new String[]{"2093343019","166.161.129.236:6100"};
-            String[] passwords       = new String[]{"READ","READ"};
-            String[] securityLevels  = new String[]{"1","1"};
-            int select=1;
-            String dialInternational="0001";
-
-            // ********************** Dialer **********************
-            //Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            //Dialer dialer = DialerFactory.getOpticalDialer().newDialer();
-
-            Dialer dialer = DialerFactory.get("IPDIALER").newDialer();
-            dialer.init("TCP01");
-            dialer.connect(phones[select],90000);
-
-//            Dialer dialer = DialerFactory.getDefault().newDialer();
-//            dialer.init("COM1"); //,"AT&FM0E0Q0V1&C1&D2");
-//            dialer.getSerialCommunicationChannel().setParams(9600,
-//                                                             SerialCommunicationChannel.DATABITS_8,
-//                                                             SerialCommunicationChannel.PARITY_NONE,
-//                                                             SerialCommunicationChannel.STOPBITS_1);
-//            dialer.connect(dialInternational+phones[select],90000);
-//
-
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-            //properties.setProperty(MeterProtocol.NODEID,"0");
-            //properties.setProperty(MeterProtocol.ADDRESS,"1");
-            properties.setProperty(MeterProtocol.PASSWORD,passwords[select]);
-            properties.setProperty("SecurityLevel",securityLevels[select]);
-            properties.setProperty("ChannelMap","1,1");
-            properties.setProperty("C12UserId", "2");
-
-            // ********************** EictRtuModbus **********************
-            Sentinel sentinel = new Sentinel();
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)sentinel).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-
-            sentinel.setHalfDuplexController(dialer.getHalfDuplexController());
-            sentinel.setProperties(properties);
-            sentinel.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-            sentinel.connect();
-
-
-            System.out.println(sentinel.getDataReadFactory().getConstantsDataRead());
-
-
-
-            System.out.println(sentinel.getStandardTableFactory().getDeviceIdentificationTable());
-
-            System.out.println(sentinel.getStandardTableFactory().getManufacturerIdentificationTable());
-            System.out.println(sentinel.getStandardTableFactory().getConfigurationTable());
-            System.out.println(sentinel.getStandardTableFactory().getEndDeviceModeAndStatusTable());
-//            System.out.println(sentinel.getManufacturerTableFactory().getGEDeviceTable());
-            System.out.println(sentinel.getStandardTableFactory().getDeviceIdentificationTable());
-//
-            System.out.println(sentinel.getStandardTableFactory().getClockTable());
-
-            //byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
-            //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
-            //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
-//            byte[] password = {(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6};
-//            sentinel.getPSEMServiceFactory().secure(password);
-
-            //System.out.println(sentinel.getManufacturerTableFactory().getMeterProgramConstants1());
-            try {
-               System.out.println(sentinel.getStandardTableFactory().getActualLogTable());
-            }
-            catch(IOException e) {
-                System.out.println("Table not supported! "+e.toString());
-            }
-            try {
-               System.out.println(sentinel.getStandardTableFactory().getEventsIdentificationTable());
-            }
-            catch(IOException e) {
-                System.out.println("Table not supported! "+e.toString());
-            }
-
-//            System.out.println(sentinel.getManufacturerTableFactory().getMeterProgramConstants2());
-//            System.out.println(sentinel.getManufacturerTableFactory().getDisplayConfigurationTable());
-//            System.out.println(sentinel.getManufacturerTableFactory().getScaleFactorTable());
-//            System.out.println(sentinel.getManufacturerTableFactory().getElectricalServiceConfiguration());
-//            System.out.println(sentinel.getManufacturerTableFactory().getElectricalServiceStatus());
-//
-            System.out.println(sentinel.getStandardTableFactory().getActualSourcesLimitingTable());
-            System.out.println(sentinel.getStandardTableFactory().getDemandControlTable());
-            System.out.println(sentinel.getStandardTableFactory().getDataControlTable());
-            System.out.println(sentinel.getStandardTableFactory().getConstantsTable());
-            System.out.println(sentinel.getStandardTableFactory().getSourceDefinitionTable());
-            System.out.println(sentinel.getStandardTableFactory().getActualRegisterTable());
-            System.out.println(sentinel.getStandardTableFactory().getDataSelectionTable());
-            System.out.println(sentinel.getStandardTableFactory().getCurrentRegisterDataTable());
-            System.out.println(sentinel.getStandardTableFactory().getPreviousSeasonDataTable());
-            System.out.println(sentinel.getStandardTableFactory().getPreviousDemandResetDataTable());
-            System.out.println(sentinel.getStandardTableFactory().getSelfReadDataTable());
-          //System.out.println(sentinel.getStandardTableFactory().getPresentRegisterSelectionTable());
-            System.out.println(sentinel.getStandardTableFactory().getPresentRegisterDataTable());
-            System.out.println(sentinel.getStandardTableFactory().getActualTimeAndTOUTable());
-            System.out.println(sentinel.getStandardTableFactory().getTimeOffsetTable());
-            System.out.println(sentinel.getStandardTableFactory().getCalendarTable());
-
-
-
-            // set time
-            //sentinel.setTime();
-
-//            System.out.println(sentinel.getStandardTableFactory().getClockStateTable());
-//            System.out.println(sentinel.getStandardTableFactory().getActualLoadProfileTable());
-//            System.out.println(sentinel.getStandardTableFactory().getLoadProfileControlTable());
-//            System.out.println(sentinel.getStandardTableFactory().getLoadProfileStatusTable());
-
-
-//            byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
-            //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
-            //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
-//            byte[] password = {(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6};
-//            sentinel.getPSEMServiceFactory().secure(password);
-
-
-//System.out.println("KV_DEBUG> program manufacturer specific table");
-//sentinel.getPSEMServiceFactory().fullWrite(66, new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//sentinel.getManufacturerTableFactory().getMeterProgramConstants1().setTableData(new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//sentinel.getManufacturerTableFactory().getMeterProgramConstants1().transfer();
-
-
-
-//            Calendar cal = Calendar.getInstance();
-//            cal.add(Calendar.DAY_OF_MONTH,-4);
-//            System.out.println(sentinel.getProfileData(cal.getTime(),true));
-
-            System.out.println(sentinel.getFirmwareVersion());
-
-
-            sentinel.disconnect();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     public PSEMServiceFactory getPSEMServiceFactory() {
@@ -552,8 +418,9 @@ if (skip<=29) { skip++;strBuff.append("-----------------------------------------
     }
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {
-        if (obisCodeInfoFactory == null)
-            obisCodeInfoFactory=new ObisCodeInfoFactory(this);
+        if (obisCodeInfoFactory == null) {
+            obisCodeInfoFactory = new ObisCodeInfoFactory(this);
+        }
         return obisCodeInfoFactory;
     }
 

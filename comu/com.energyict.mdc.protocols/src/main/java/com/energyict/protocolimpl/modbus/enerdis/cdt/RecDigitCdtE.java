@@ -1,10 +1,13 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 
+import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Date;
 
 
@@ -14,18 +17,25 @@ import java.util.Date;
 
 public class RecDigitCdtE extends RecDigitCdt {
 
+    private final Clock clock;
+
+    @Inject
+    public RecDigitCdtE(PropertySpecService propertySpecService, Clock clock) {
+        super(propertySpecService);
+        this.clock = clock;
+    }
 
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactoryCdtE(this));
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         throw new UnsupportedException();
     }
 
     /* meter does not have the time */
     public Date getTime() throws IOException {
-        return new Date();
+        return Date.from(this.clock.instant());
     }
 
     public String getProtocolVersion() {

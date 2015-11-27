@@ -1,29 +1,31 @@
 package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -80,11 +82,11 @@ import java.util.logging.Level;
 public class Prometer extends AbstractProtocol  {
 
     /** Property keys specific for CewePrometer protocol. */
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    final static String PK_LOGGER = "Logger";
+    static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    static final String PK_LOGGER = "Logger";
 
     /** By default the load profile of logger 1 is fetched */
-    final static int PD_LOGGER = 0;
+    static final int PD_LOGGER = 0;
 
     /** property for logger that must be fetched (1 or 2) */
     private int pLogger = PD_LOGGER;
@@ -398,27 +400,27 @@ public class Prometer extends AbstractProtocol  {
     /* Constants for interpreting the demandRegister configuration. */
 
     /** Reg no. Active import */
-    final static int ACTIVE_IMPORT    = 1021;
+    static final int ACTIVE_IMPORT    = 1021;
     /** Reg no. Active export */
-    final static int ACTIVE_EXPORT    = 1022;
+    static final int ACTIVE_EXPORT    = 1022;
     /** Reg no. Reactive import */
-    final static int REACTIVE_IMPORT  = 1023;
+    static final int REACTIVE_IMPORT  = 1023;
     /** Reg no. Reactive export */
-    final static int REACTIVE_EXPORT  = 1024;
+    static final int REACTIVE_EXPORT  = 1024;
     /** Reg no. Apparent import */
-    final static int APPARENT_IMPORT  = 1025;
+    static final int APPARENT_IMPORT  = 1025;
     /** Reg no. Apparent export */
-    final static int APPARENT_EXPORT  = 1026;
+    static final int APPARENT_EXPORT  = 1026;
     /** Reg no. External input 1 */
-    final static int EXTERNAL_INPUT_1 = 1027;
+    static final int EXTERNAL_INPUT_1 = 1027;
     /** Reg no. External input 2 */
-    final static int EXTERNAL_INPUT_2 = 1028;
+    static final int EXTERNAL_INPUT_2 = 1028;
     /** Reg no. External input 3 */
-    final static int EXTERNAL_INPUT_3 = 1029;
+    static final int EXTERNAL_INPUT_3 = 1029;
     /** Reg no. Summation 1 */
-    final static int SUMMATION_1      = 1030;
+    static final int SUMMATION_1      = 1030;
     /** Reg no. Summation 2 */
-    final static int SUMMATION_2      = 1031;
+    static final int SUMMATION_2      = 1031;
 
 
     /* Billing registers contain a String defining the stored phenomenon.
@@ -430,43 +432,43 @@ public class Prometer extends AbstractProtocol  {
      */
 
     /** Billing register reg type: Active import */
-    final static String REG_TYPE_ACTIVE_IMPORT = "PI";
+    static final String REG_TYPE_ACTIVE_IMPORT = "PI";
 
     /** Billing register reg type: Active export */
-    final static String REG_TYPE_ACTIVE_EXPORT = "PE";
+    static final String REG_TYPE_ACTIVE_EXPORT = "PE";
 
     /** Billing register reg type: Rective import */
-    final static String REG_TYPE_REACTIVE_IMPORT = "QI";
+    static final String REG_TYPE_REACTIVE_IMPORT = "QI";
 
     /** Billing register reg type: Rective export */
-    final static String REG_TYPE_REACTIVE_EXPORT = "QE";
+    static final String REG_TYPE_REACTIVE_EXPORT = "QE";
 
     /** Billing register reg type: Apparent import */
-    final static String REG_TYPE_APPARENT_IMPORT = "SI";
+    static final String REG_TYPE_APPARENT_IMPORT = "SI";
 
     /** Billing register reg type: Apparent export */
-    final static String REG_TYPE_APPARENT_EXPORT = "SE";
+    static final String REG_TYPE_APPARENT_EXPORT = "SE";
 
     /** Billing register reg type: Input 1 */
-    final static String REG_TYPE_INPUT_1 = "I1";
+    static final String REG_TYPE_INPUT_1 = "I1";
 
     /** Billing register reg type: Input 2 */
-    final static String REG_TYPE_INPUT_2 = "I2";
+    static final String REG_TYPE_INPUT_2 = "I2";
 
     /** Billing register reg type: Input 3 */
-    final static String REG_TYPE_INPUT_3 = "I3";
+    static final String REG_TYPE_INPUT_3 = "I3";
 
     /** Billing register reg type: Sum 1 */
-    final static String REG_TYPE_SUM_1 = "S1";
+    static final String REG_TYPE_SUM_1 = "S1";
 
     /** Billing register reg type: Sum 2 */
-    final static String REG_TYPE_SUM_2 = "S2";
+    static final String REG_TYPE_SUM_2 = "S2";
 
+    @Inject
+    public Prometer(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
-
-    /* (non-Javadoc)
-    * @see com.energyict.protocolimpl.base.AbstractProtocol#doInit(java.io.InputStream, java.io.OutputStream, int, int, int, int, int, com.energyict.protocolimpl.base.Encryptor, com.energyict.dialer.core.HalfDuplexController)
-    */
     protected ProtocolConnection doInit(
             InputStream iStream, OutputStream oStream,
             int pTimeout, int pRetries, int pForcedDelay,
@@ -604,7 +606,7 @@ public class Prometer extends AbstractProtocol  {
     }
 
     /* @see AbstractProtocol#getNumberOfChannels() */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getChannelInfo().size();
     }
 
@@ -655,7 +657,7 @@ public class Prometer extends AbstractProtocol  {
     /** Fetch firware version.
      * @see AbstractProtocol#getFirmwareVersion()
      */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return rSoftwareVersion.asString();
     }
 
@@ -678,16 +680,16 @@ public class Prometer extends AbstractProtocol  {
 
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         Quantity q = rProfileIntervalLength.asQuantity();
         return q.getAmount().intValue() * 60;
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getProfileData(from, true);
     }
 
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfo());

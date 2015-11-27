@@ -7,13 +7,16 @@
 package com.energyict.protocolimpl.sctm.faf;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.metcom.Metcom3FAF;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,8 +32,9 @@ public class FAF10 extends Metcom3FAF implements RegisterProtocol {
 
     FAF10Registers fafRegisters=null;
 
-    /** Creates a new instance of MTT3A */
-    public FAF10() {
+    @Inject
+    public FAF10(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         fafRegisters = new FAF10Registers(this);
     }
 
@@ -39,21 +43,19 @@ public class FAF10 extends Metcom3FAF implements RegisterProtocol {
     }
 
 
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("HalfDuplex");
-        result.add("ChannelMap");
-        result.add("ExtendedLogging");
-        result.add("RemovePowerOutageIntervals");
-        result.add("LogBookReadCommand");
-        result.add("ForcedDelay");
-        result.add("TimeSetMethod");
-        result.add("Software7E1");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "HalfDuplex",
+                    "ChannelMap",
+                    "ExtendedLogging",
+                    "RemovePowerOutageIntervals",
+                    "LogBookReadCommand",
+                    "ForcedDelay",
+                    "TimeSetMethod",
+                    "Software7E1");
     }
-
 
     /*******************************************************************************************
     R e g i s t e r P r o t o c o l  i n t e r f a c e

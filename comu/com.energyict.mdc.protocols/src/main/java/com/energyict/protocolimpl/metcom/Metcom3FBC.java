@@ -6,13 +6,14 @@
 
 package com.energyict.protocolimpl.metcom;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,14 +28,14 @@ public class Metcom3FBC extends Metcom3 {
 
     private static final int DEBUG = 0;
 
-    /** Creates a new instance of Metcom3FAF */
-    public Metcom3FBC() {
+    @Inject
+    public Metcom3FBC(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
-
-    protected BufferStructure getBufferStructure(int bufferNr) throws IOException, UnsupportedException, NoSuchRegisterException {
+    protected BufferStructure getBufferStructure(int bufferNr) throws IOException {
         try {
-            byte[] data = getSCTMConnection().sendRequest(getSCTMConnection().TABENQ3,String.valueOf(20+bufferNr+1).getBytes());
+            byte[] data = getSCTMConnection().sendRequest(SiemensSCTM.TABENQ3,String.valueOf(20+bufferNr+1).getBytes());
             return new BufferStructure(data);
         }
         catch(SiemensSCTMException e) {
@@ -53,7 +54,7 @@ public class Metcom3FBC extends Metcom3 {
 
     protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException {
        try {
-           ProfileData profileData=null;
+           ProfileData profileData;
            SCTMTimeData from = new SCTMTimeData(calendarFrom);
            SCTMTimeData to = new SCTMTimeData(calendarTo);
            List bufferStructures = new ArrayList();

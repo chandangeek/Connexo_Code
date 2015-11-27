@@ -1,14 +1,16 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.common.ProfileCache;
 
-
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,9 +39,11 @@ public class A1800 extends AbstractDlmsSessionProtocol {
     private ProfileCache cache = new ProfileCache();
     private RegisterReader registerReader = null;
 
-    /**
-     * The protocol version
-     */
+    @Inject
+    public A1800(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     public String getProtocolVersion() {
         return "$Date: 2014-06-27 13:00:00$";
     }
@@ -71,7 +75,7 @@ public class A1800 extends AbstractDlmsSessionProtocol {
             String eisSerial = getProperties().getSerialNumber().trim();
             String meterSerialNumber = readSerialNumber().trim();
             getLogger().info("Meter serial number [" + meterSerialNumber + "]");
-            if (eisSerial.length() != 0) {
+            if (!eisSerial.isEmpty()) {
                 if (!eisSerial.equalsIgnoreCase(meterSerialNumber)) {
                     String message = "Configured serial number [" + eisSerial + "] does not match with the meter serial number [" + meterSerialNumber + "]!";
                     getLogger().severe(message);

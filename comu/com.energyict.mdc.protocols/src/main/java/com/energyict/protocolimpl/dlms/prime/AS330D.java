@@ -1,5 +1,9 @@
 package com.energyict.protocolimpl.dlms.prime;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+
+import javax.inject.Inject;
+
 /**
  * Copyrights EnergyICT
  * Date: 29/08/12
@@ -8,8 +12,14 @@ package com.energyict.protocolimpl.dlms.prime;
  */
 public class AS330D extends AbstractPrimeMeter {
 
+    @Inject
+    public AS330D(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
+
 }

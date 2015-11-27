@@ -7,21 +7,18 @@
 package com.energyict.protocolimpl.emon.ez7;
 
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannel;
@@ -33,12 +30,12 @@ import com.energyict.protocolimpl.emon.ez7.core.EZ7Profile;
 import com.energyict.protocolimpl.emon.ez7.core.ObisCodeMapper;
 import com.energyict.protocolimpl.emon.ez7.core.command.SetKey;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
@@ -46,17 +43,13 @@ import java.util.logging.Logger;
  */
 public class EZ7 extends AbstractProtocol {
 
-    // properties
-    //int halfDuplex;
-    //HalfDuplexController halfDuplexController=null;
-
-    // core objects
     EZ7Connection ez7Connection=null;
     EZ7Profile ez7Profile=null;
     EZ7CommandFactory ez7CommandFactory=null;
 
-    /** Creates a new instance of EZ7 */
-    public EZ7() {
+    @Inject
+    public EZ7(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public String getProtocolVersion() {
@@ -67,7 +60,7 @@ public class EZ7 extends AbstractProtocol {
         return ez7CommandFactory.getVersion().getCompleteVersionString();
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return ez7Profile.getProfileData(from,to,includeEvents);
     }
 
@@ -75,13 +68,15 @@ public class EZ7 extends AbstractProtocol {
     protected void doConnect() throws java.io.IOException {
         ez7Profile = new EZ7Profile(this);
         ez7CommandFactory = new EZ7CommandFactory(this);
-        if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0))
-           ez7CommandFactory.getSetKey().logon(getInfoTypePassword());
+        if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0)) {
+            ez7CommandFactory.getSetKey().logon(getInfoTypePassword());
+        }
     }
 
     protected void doDisConnect() throws IOException {
-        if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0))
-           ez7CommandFactory.getSetKey().logoff();
+        if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0)) {
+            ez7CommandFactory.getSetKey().logoff();
+        }
 
         // This command must be initiated when the meter sets up the connection to indicate a successfull read!
         // See page 1-32 of the protocoldescription...
@@ -90,7 +85,6 @@ public class EZ7 extends AbstractProtocol {
     }
 
     protected void validateSerialNumber() throws IOException {
-        boolean check = true;
         if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
             return;
         }
@@ -102,16 +96,19 @@ public class EZ7 extends AbstractProtocol {
     }
 
     protected void validateDeviceId() throws IOException {
-        boolean check = true;
-        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) return;
+        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) {
+            return;
+        }
         String deviceId = getEz7CommandFactory().getRGLInfo().getDeviceId();
-        if (deviceId.compareTo(getInfoTypeDeviceID()) == 0) return;
+        if (deviceId.compareTo(getInfoTypeDeviceID()) == 0) {
+            return;
+        }
         throw new IOException("DeviceId mismatch! meter DeviceId="+deviceId+", configured deviceId="+getInfoTypeDeviceID());
     }
 
 
-    protected java.util.List doGetOptionalKeys() {
-        return null;
+    protected List<String> doGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     protected ProtocolConnection doInit(java.io.InputStream inputStream, java.io.OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws java.io.IOException {
@@ -143,19 +140,22 @@ public class EZ7 extends AbstractProtocol {
      */
     public void setTime() throws IOException {
         int accessLevel = getEz7CommandFactory().getSetKey().getAccessLevel();
-        if (accessLevel < 2)
-            throw new SecurityLevelException("EZ7, setTime(), accesslevel is "+SetKey.ACCESSLEVELS[accessLevel]);
+        if (accessLevel < 2) {
+            throw new SecurityLevelException("EZ7, setTime(), accesslevel is " + SetKey.ACCESSLEVELS[accessLevel]);
+        }
         ez7CommandFactory.setRTC();
     }
 
 
     public int getProtocolChannelValue(int channel) {
-        if (getProtocolChannelMap()==null)
+        if (getProtocolChannelMap()==null) {
             return -1;
+        }
         else {
             ProtocolChannel pc = ez7CommandFactory.getEz7().getProtocolChannelMap().getProtocolChannel(channel);
-            if (pc==null)
+            if (pc==null) {
                 return -1;
+            }
             else {
                 return pc.getValue();
             }
@@ -245,135 +245,6 @@ public class EZ7 extends AbstractProtocol {
         builder.append(obisCode).append(", ").append(ObisCode.fromString(obisCode).getDescription()).append("\n");
     }
 
-    /*******************************************************************************************
-     m a i n ( )  i m p l e m e n t a t i o n ,  u n i t  t e s t i n g
-     *******************************************************************************************/
-    public static void main(String[] args) {
-        Dialer dialer=null;
-        EZ7 ez7=null;
-        try {
-
-// ********************************** DIALER ***********************************$
-// modem dialup connection
-            dialer = DialerFactory.getDefault().newDialer();
-            dialer.init("COM1");//,"AT+MS=2,0,2400,2400");
-            //dialer.getSerialCommunicationChannel().setParams(2400,
-            //                                                 SerialCommunicationChannel.DATABITS_7,
-            //                                                 SerialCommunicationChannel.PARITY_EVEN,
-             //                                                SerialCommunicationChannel.STOPBITS_1);
-//            dialer.connect("phonenumber",60000);
-
-// optical head connection
-//            dialer =DialerFactory.getOpticalDialer().newDialer();
-//            dialer.init("COM1");
-//            dialer.connect("",60000);
-
-// direct rs232 connection
-//            dialer =DialerFactory.getDirectDialer().newDialer();
-//            dialer.init("COM4");
-//            dialer.connect("",60000);
-            //00018173853675
-            dialer.connect("00018173853675",90000);
-            //dialer.connect("4",60000);
-// *********************************** PROTOCOL ******************************************$
-            ez7 = new EZ7(); // instantiate the protocol
-
-            System.out.println("Serial number = "+ez7.getSerialNumber(new DiscoverInfo(dialer.getSerialCommunicationChannel(),null)));
-            if (true)
-                return;
-
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            //properties.setProperty("SecurityLevel","2");
-            properties.setProperty(MeterProtocol.PASSWORD,"BBCCDDEE00000000"); //13579B"); //"123456");
-            properties.setProperty("ProfileInterval", "900");
-//            properties.setProperty("HalfDuplex", "50");
-            //properties.setProperty("Retries", "0");
-
-// transfer the properties to the protocol
-            ez7.setProperties(properties);
-
-//            ez7.setHalfDuplexController(dialer.getHalfDuplexController());
-
-// depending on the dialer, set the initial (pre-connect) communication parameters
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                                                                     SerialCommunicationChannel.DATABITS_8,
-                                                                     SerialCommunicationChannel.PARITY_NONE,
-                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            ez7.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-
-// if optical head dialer, enable the HHU signon mechanism
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)ez7).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-
-            System.out.println("*********************** connect() ***********************");
-
-// connect to the meter
-            ez7.connect();
-            byte[] data=null;
-//            data = ez7.getEz7Connection().sendCommand("RKA8");
-//            System.out.println("received data "+data.length+" bytes, "+new String(data));
-//
-//            data = ez7.getEz7Connection().sendCommand("RAA8");
-//            System.out.println("received data "+data.length+" bytes, "+new String(data));
-
-//            data = ez7.getEz7Connection().sendCommand("RDA8");
-//            System.out.println("received data "+data.length+" bytes, "+new String(data));
-//
-//            data = ez7.getEz7Connection().sendCommand("RDD8");
-//            System.out.println("received data "+data.length+" bytes, "+new String(data));
-//
-//            data = ez7.getEz7Connection().sendCommand("RS*");
-//            System.out.println("received data "+data.length+" bytes, "+new String(data));
-//
-//            data = ez7.getEz7Connection().sendCommand("RAA8");
-//            System.out.println("received data "+data.length+" bytes, "+new String(data));
-
-//            data = ez7.getEz7Connection().sendCommand("RP2","03");
-//            System.out.println("received data "+data.length+" bytes, "+new String(data));
-
-            //data = ez7.getEz7Connection().sendCommand("RPH");
-            //System.out.println("received data "+data.length+" bytes, "+new String(data));
-            //System.out.println(ez7.getEz7CommandFactory().getAllMaximumDemand());
-
-            //System.out.println(ez7.getEz7CommandFactory().getVerifyKey());
-            //ez7.getEz7CommandFactory().getSetKey().logon("CCDDEEFF00000000");
-            //System.out.println(ez7.getEz7CommandFactory().getSetKey().getAccessLevel());
-            //ez7.getEz7CommandFactory().getSetKey().logoff();
-            //System.out.println(ez7.getEz7CommandFactory().getSetKey().getAccessLevel());
-
-            //System.out.println(ez7.getEz7CommandFactory().getRGLInfo());
-            System.out.println(ez7.getEz7CommandFactory().getVerifyKey());
-
-// get the meter profile data
-            System.out.println("*********************** getProfileData() ***********************");
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.DATE,-1);
-            //System.out.println(ez7.getEz7Profile().getProfileData(calendar.getTime(),new Date(),true));
-// get the metertime
-            System.out.println("*********************** getTime() ***********************");
-            Date date = ez7.getTime();
-            System.out.println(date);
-// set the metertime
-            System.out.println("*********************** setTime() ***********************");
-//            ez7.setTime();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                System.out.println("*********************** disconnect() ***********************");
-                ez7.disconnect();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     /**
      * Getter for property ez7Connection.
      * @return Value of property ez7Connection.
@@ -404,9 +275,7 @@ public class EZ7 extends AbstractProtocol {
         setProperties(properties);
         init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);
         connect();
-        String serialNumber =  getEz7CommandFactory().getRGLInfo().getSerialNumber();
-       // disconnect(); // no disconnect because the meter will hangup the link... disconnect contains an EZ7 protocol command to the meter that hangup the link!
-        return serialNumber;
+        return getEz7CommandFactory().getRGLInfo().getSerialNumber();
     }
 
 }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.edp;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import javax.inject.Inject;
@@ -13,8 +14,8 @@ import javax.inject.Inject;
 public class JanzB280 extends CX20009 {
 
     @Inject
-    public JanzB280(OrmClient ormClient) {
-        super(ormClient);
+    public JanzB280(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService, ormClient);
     }
 
     @Override

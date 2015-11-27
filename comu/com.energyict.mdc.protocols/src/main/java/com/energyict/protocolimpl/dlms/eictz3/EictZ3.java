@@ -1,11 +1,48 @@
 package com.energyict.protocolimpl.dlms.eictz3;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageElement;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -39,7 +76,6 @@ import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.DemandRegister;
@@ -52,56 +88,20 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.protocolimpl.base.Base64EncoderDecoder;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.dlms.Z3.AARQ;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.DisconnectControlLog;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.EventsLog;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.FraudDetectionLog;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.MbusLog;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.PowerFailureLog;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.mdc.protocol.api.messaging.Message;
-import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
-import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.mdc.protocol.api.messaging.MessageElement;
-import com.energyict.mdc.protocol.api.messaging.MessageSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTag;
-import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageValue;
-import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
-import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.dlms.Z3.AARQ;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -113,7 +113,9 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -242,11 +244,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * This is the default Obis code for the Epio.
      */
     private static final ObisCode OBIS_CODE_EPIO_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
-
-    /**
-     * Obis code we can use to request the RF network topology.
-     */
-    private static final ObisCode OBIS_CODE_NETWORK_TOPOLOGY = ObisCode.fromString("0.128.3.0.8.255");
 
     /**
      * Protocol status flag indicating load profile has been cleared.
@@ -503,10 +500,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      */
     private int cipheringType;
 
-    /**
-     * The used ApplicationServiceObject for proper handling the DLMS connection
-     */
-    private ApplicationServiceObject aso;
+    @Inject
+    public EictZ3(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public final DLMSConnection getDLMSConnection() {
         return this.dlmsConnection;
@@ -528,7 +525,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         //TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
         SecurityContext sc = new SecurityContext(this.encryptionLevel.getEncryptionValue(), this.authenticationLevel.getAuthenticationValue(), 0, "EIT12345".getBytes(), getSecurityProvider(), this.cipheringType);
 
-        this.aso = buildApplicationServiceObject(xDlmsAse, sc);
+        ApplicationServiceObject aso = buildApplicationServiceObject(xDlmsAse, sc);
 
         try {
             logger.info("Initializing DLMS connection...");
@@ -1536,12 +1533,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**
@@ -1550,9 +1547,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return a list of strings
      */
     public List<String> getRequiredKeys() {
-        final List<String> requiredProperties = new ArrayList<String>();
-
-        return requiredProperties;
+        return Collections.emptyList();
     }
 
     /**
@@ -1561,29 +1556,26 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return a list of strings
      */
     public final List<String> getOptionalKeys() {
-        final List<String> optionalProperties = new ArrayList<String>();
-
-        optionalProperties.add("Timeout");
-        optionalProperties.add("Retries");
-        optionalProperties.add("DelayAfterFail");
-        optionalProperties.add("RequestTimeZone");
-        optionalProperties.add("FirmwareVersion");
-        optionalProperties.add("SecurityLevel");
-        optionalProperties.add("ClientMacAddress");
-        optionalProperties.add("iServerUpperMacAddress");
-        optionalProperties.add("ServerLowerMacAddress");
-        optionalProperties.add("ExtendedLogging");
-        optionalProperties.add("AddressingMode");
-        optionalProperties.add("Connection");
-        optionalProperties.add("LoadProfileObisCode");
-        optionalProperties.add("FullLogbook");
-        optionalProperties.add("InformationFieldSize");
-        optionalProperties.add(PROPNAME_MAX_APDU_SIZE);
-        optionalProperties.add(PROPNAME_FORCE_DELAY);
-        optionalProperties.add(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD);
-        optionalProperties.add(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES);
-
-        return optionalProperties;
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "DelayAfterFail",
+                    "RequestTimeZone",
+                    "FirmwareVersion",
+                    "SecurityLevel",
+                    "ClientMacAddress",
+                    "iServerUpperMacAddress",
+                    "ServerLowerMacAddress",
+                    "ExtendedLogging",
+                    "AddressingMode",
+                    "Connection",
+                    "LoadProfileObisCode",
+                    "FullLogbook",
+                    "InformationFieldSize",
+                    PROPNAME_MAX_APDU_SIZE,
+                    PROPNAME_FORCE_DELAY,
+                    PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD,
+                    PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES);
     }
 
     public final void setCache(final Object cacheObject) {
@@ -2166,7 +2158,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The device serial number from the device itself.
      * @throws IOException If an error occurs during the communication with the device.
      */
-    private final String getDeviceSerialNumber() throws IOException {
+    private String getDeviceSerialNumber() throws IOException {
         if (this.deviceSerialNumber == null) {
             this.deviceSerialNumber = this.getCosemObjectFactory().getData(OBISCODE_R2_SERIAL_NUMBER).getString();
         }
@@ -2174,52 +2166,4 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.deviceSerialNumber;
     }
 
-    /**
-     * Returns the CyNet RF network topology. This is a really specific method that will poll a specific register on the EpIO (in which the current
-     * RF topology is stored).
-     *
-     * @return The CyNet RF network topology. The string has one line per node in the topology, and each line is manufacturerID and routing address,
-     *         separated by a comma.
-     */
-    public final String getRFNetworkTopology() throws IOException {
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "Requesting RF network topology from Z3.");
-        }
-
-        try {
-            final Data cosemTopology = this.getCosemObjectFactory().getData(OBIS_CODE_NETWORK_TOPOLOGY);
-
-            if (cosemTopology != null) {
-                final StringBuilder stringBuilder = new StringBuilder();
-                final DataStructure root = (cosemTopology).getDataContainer().getRoot();
-
-                for (int i = 0; i < root.element.length; i++) {
-                    final DataStructure topologyEntry = (DataStructure) root.element[i];
-
-                    final String manufacturerId = Long.toHexString((((Integer) topologyEntry.element[0]).intValue() & 0xFFFFFFFFl));
-                    final String routingAddress = Long.toHexString((((Integer) topologyEntry.element[1]).intValue() & 0xFFFFFFFFl));
-
-                    stringBuilder.append(manufacturerId).append(',').append(routingAddress).append("\n");
-                }
-
-                if (logger.isLoggable(Level.FINE)) {
-                    logger.log(Level.FINE, "Got routing table [" + stringBuilder.toString() + "] from the Z3.");
-                }
-
-                return stringBuilder.toString();
-            } else {
-                logger.log(Level.WARNING, "Query for OBIS code [" + OBIS_CODE_NETWORK_TOPOLOGY + "] did not yield any result, assuming no RF available.");
-            }
-
-            // The EpIO did not return anything when requested for the particular register, so we do neither.
-            return null;
-        } catch (final DataAccessResultException e) {
-            if (e.getCode() == DataAccessResultCode.OBJECT_UNDEFINED) {
-                // No such register.
-                logger.log(Level.INFO, "The EpIO says there is no register with Obis code [" + OBIS_CODE_NETWORK_TOPOLOGY + "], assuming it is not acting as an RF master.");
-            }
-
-            return null;
-        }
-    }
 }

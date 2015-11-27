@@ -4,18 +4,21 @@
 package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -26,10 +29,9 @@ import java.util.Properties;
  */
 public class CompactNSX extends Modbus {
 
-	/**
-	 *
-	 */
-	public CompactNSX() {
+	@Inject
+	public CompactNSX(PropertySpecService propertySpecService) {
+		super(propertySpecService);
 	}
 
 	protected void doTheConnect() throws IOException {
@@ -38,9 +40,8 @@ public class CompactNSX extends Modbus {
 	protected void doTheDisConnect() throws IOException {
 	}
 
-	protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        return result;
+	protected List<String> doTheGetOptionalKeys() {
+        return Collections.emptyList();
 	}
 
 	protected void doTheValidateProperties(Properties properties)
@@ -97,10 +98,12 @@ public class CompactNSX extends Modbus {
            return new RegisterValue(obisCode,getRegisterFactory().findRegister(obisCode).quantityValue());
        }
        catch(ModbusException e) {
-           if ((e.getExceptionCode()==0x02) && (e.getFunctionErrorCode()==0x83))
-               throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-           else
-               throw e;
+           if ((e.getExceptionCode()==0x02) && (e.getFunctionErrorCode()==0x83)) {
+	           throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+           }
+           else {
+	           throw e;
+           }
        }
    }
 
@@ -155,4 +158,5 @@ public class CompactNSX extends Modbus {
     	time[7] = (byte) ((cal.get(Calendar.MILLISECOND))&0xFF);
     	return time;
 	}
+
 }

@@ -10,26 +10,28 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.CommandFactory;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.registermappping.RegisterMapperFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -45,10 +47,10 @@ public class S4 extends AbstractProtocol {
     private RegisterMapperFactory registerMapperFactory;
     String modemPassword;
 
-    /** Creates a new instance of S4 */
-    public S4() {
+    @Inject
+    public S4(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     SerialCommunicationChannel commChannel;
@@ -62,10 +64,13 @@ public class S4 extends AbstractProtocol {
             commChannel.setBaudrate(9600);
             commChannel.getSerialPort().setDTR(getDtrBehaviour()==1);
         }
-        else getDgcomConnection().signon();
+        else {
+            getDgcomConnection().signon();
+        }
 
-        if (modemPassword!=null)
+        if (modemPassword!=null) {
             getCommandFactory().modemUnlock(modemPassword);
+        }
 
 
     }
@@ -80,7 +85,7 @@ public class S4 extends AbstractProtocol {
         return s4Profile.getProfileData(from, to, includeEvents);
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return getCommandFactory().getDemandIntervalCommand().getProfileInterval()*60;
     }
 
@@ -91,18 +96,25 @@ public class S4 extends AbstractProtocol {
      *  This code has been taken from a real protocol implementation.
      */
     protected void validateSerialNumber() throws IOException {
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+            return;
+        }
         String sn = getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
+            return;
+        }
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
 
     }
 
     protected void validateDeviceId() throws IOException {
-        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) return;
+        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) {
+            return;
+        }
         String devId = getCommandFactory().getDeviceIDExtendedCommand().getDeviceID();
-        if (devId.compareTo(getInfoTypeDeviceID()) == 0) return;
+        if (devId.compareTo(getInfoTypeDeviceID()) == 0) {
+            return;
+        }
         throw new IOException("Device ID mismatch! meter devId="+devId+", configured devId="+getInfoTypeDeviceID());
     }
 
@@ -112,13 +124,11 @@ public class S4 extends AbstractProtocol {
         modemPassword = properties.getProperty("ModemPassword");
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("ModemPassword");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Collections.singletonList("ModemPassword");
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getNrOfActiveChannels();
     }
 
@@ -142,7 +152,7 @@ public class S4 extends AbstractProtocol {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "ProductFamily: "+getCommandFactory().getFirmwareVersionCommand().getProductFamily()+"\nFirmware version: "+getCommandFactory().getFirmwareVersionCommand().getFirmwareVersion()+"\nDGCOM version: "+getCommandFactory().getFirmwareVersionCommand().getDgcomVersion()+"\nDSP revision: "+getCommandFactory().getSerialNumberCommand().getDspRevision();
     }
 
@@ -166,9 +176,7 @@ public class S4 extends AbstractProtocol {
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getRegisterMapperFactory().getRegisterMapper().getRegisterInfo());
-        return builder.toString();
+        return getRegisterMapperFactory().getRegisterMapper().getRegisterInfo();
     }
 
     public DGCOMConnection getDgcomConnection() {

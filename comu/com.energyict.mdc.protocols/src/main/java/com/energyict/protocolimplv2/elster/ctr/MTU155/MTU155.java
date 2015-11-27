@@ -258,9 +258,7 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new CTRDeviceProtocolDialect(this.propertySpecService));
-        return dialects;
+        return Collections.singletonList(new CTRDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     @Override

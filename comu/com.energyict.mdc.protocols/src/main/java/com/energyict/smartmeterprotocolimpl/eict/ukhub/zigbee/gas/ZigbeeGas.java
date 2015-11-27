@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -20,10 +21,10 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
@@ -63,8 +64,8 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     protected final UserFileFactory userFileFactory;
 
     @Inject
-    public ZigbeeGas(OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
-        super(ormClient);
+    public ZigbeeGas(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+        super(propertySpecService, ormClient);
         this.codeFactory = codeFactory;
         this.userFileFactory = userFileFactory;
     }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
@@ -21,12 +22,11 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     private Dsmr23MbusMessaging dsmr23MbusMessaging;
 
     @Inject
-    public MbusDevice(PropertySpecService propertySpecService,
+    public MbusDevice(Thesaurus thesaurus, PropertySpecService propertySpecService,
                       TopologyService topologyService,
                       Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider,
                       Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider, WebRTUKP webRtuKp) {
-        super(thesaurus, propertySpecService, topologyService,
-                authenticationDeviceAccessLevelProvider, encryptionDeviceAccessLevelProvider, webRtuKp);
+        super(thesaurus, propertySpecService, topologyService, authenticationDeviceAccessLevelProvider, encryptionDeviceAccessLevelProvider, webRtuKp);
     }
 
     @Override

@@ -64,7 +64,6 @@ public class CX20009 extends AbstractDlmsProtocol {
     private LogbookReader logbookReader = null;
     private RegisterReader registerReader;
     private EDPMessaging edpMessaging;
-    private final Thesaurus thesaurus;
 
     @Inject
     public CX20009(
@@ -74,10 +73,9 @@ public class CX20009 extends AbstractDlmsProtocol {
             IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
             LoadProfileFactory loadProfileFactory, MeteringService meteringService,
             Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
-        super(clock, propertySpecService, socketService, serialComponentService,
+        super(clock, thesaurus, propertySpecService, socketService, serialComponentService,
                 issueService, topologyService, readingTypeUtilService, identificationService,
                 collectedDataFactory, meteringService, loadProfileFactory, dsmrSecuritySupportProvider);
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -135,9 +133,9 @@ public class CX20009 extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType(this.thesaurus, getPropertySpecService(), getSocketService()));
-        result.add(new SioPlainSerialConnectionType(getSerialComponentService(), this.thesaurus));
-        result.add(new RxTxPlainSerialConnectionType(getSerialComponentService(), this.thesaurus));
+        result.add(new OutboundTcpIpConnectionType(this.getThesaurus(), getPropertySpecService(), getSocketService()));
+        result.add(new SioPlainSerialConnectionType(getSerialComponentService(), this.getThesaurus()));
+        result.add(new RxTxPlainSerialConnectionType(getSerialComponentService(), this.getThesaurus()));
         return result;
     }
 
@@ -198,7 +196,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new EDPSerialDeviceProtocolDialect(getPropertySpecService()), new TcpDeviceProtocolDialect(getPropertySpecService()));
+        return Arrays.<DeviceProtocolDialect>asList(new EDPSerialDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()), new TcpDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()));
     }
 
     @Override

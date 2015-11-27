@@ -72,8 +72,6 @@ import java.util.Set;
  */
 public class WebRTUKP extends AbstractDlmsProtocol {
 
-    private final Thesaurus thesaurus;
-
     @Inject
     public WebRTUKP(
             Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService,
@@ -82,10 +80,9 @@ public class WebRTUKP extends AbstractDlmsProtocol {
             IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
             MeteringService meteringService, LoadProfileFactory loadProfileFactory,
             Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService,
+        super(clock, thesaurus, propertySpecService, socketService, serialComponentService, issueService, topologyService,
                 readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory,
                 dsmrSecuritySupportProvider);
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -125,9 +122,9 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         return Arrays.asList(
-            new OutboundTcpIpConnectionType(this.thesaurus, getPropertySpecService(), getSocketService()),
-            new SioOpticalConnectionType(getSerialComponentService(), this.thesaurus),
-            new RxTxOpticalConnectionType(getSerialComponentService(), this.thesaurus));
+            new OutboundTcpIpConnectionType(this.getThesaurus(), this.getPropertySpecService(), getSocketService()),
+            new SioOpticalConnectionType(getSerialComponentService(), this.getThesaurus()),
+            new RxTxOpticalConnectionType(getSerialComponentService(), this.getThesaurus()));
     }
 
     @Override
@@ -167,7 +164,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(getPropertySpecService()), new TcpDeviceProtocolDialect(getPropertySpecService()));
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()), new TcpDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()));
     }
 
     @Override

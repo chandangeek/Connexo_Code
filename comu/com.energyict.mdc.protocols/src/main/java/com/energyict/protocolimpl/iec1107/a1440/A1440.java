@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DemandResetProtocol;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -27,10 +27,13 @@ import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
@@ -43,21 +46,23 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
-import com.energyict.protocols.util.ProtocolUtils;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -121,23 +126,25 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private int rs485RtuPlusServer = 0;
     private int limitMaxNrOfDays = 0;
 
-    /**
-     * Creates a new instance of A1440, empty constructor
-     */
-    public A1440() {
+    @Inject
+    public A1440(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(this.timeZone);
         calendar.add(Calendar.YEAR, -10);
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, boolean includeEvents) throws IOException {
         return getProfileData(from, new Date(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
     }
 
@@ -157,21 +164,24 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
         // If there are no intervals in the profile, read the profile data again, but now with limitMaxNrOfDays increased with the value of Custom Property limitMaxNrOfDays property
         // This way we can prevent the profile to be stuck at a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
-        if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0) && (limiter.getOldToDate().getTime() != limiter.getToDate().getTime())) {
+        if ((profileData.getIntervalDatas().isEmpty()) && (getLimitMaxNrOfDays() > 0) && (limiter.getOldToDate().getTime() != limiter.getToDate().getTime())) {
             profileData = getProfileWithLimiter(new ProfileLimiter(limiter.getOldFromDate(), limiter.getOldToDate(), limiter.getLimitMaxNrOfDays() + getLimitMaxNrOfDays()), includeEvents);
         }
         return profileData;
 
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    @Override
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    @Override
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public void setTime() throws IOException {
         if (this.vdewCompatible == 1) {
             setTimeVDEWCompatible();
@@ -181,8 +191,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     private void setTimeAlternativeMethod() throws IOException {
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(this.timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(this.timeZone);
         calendar.add(Calendar.MILLISECOND, this.iRoundtripCorrection);
         Date date = calendar.getTime();
         getA1440Registry().setRegister("TimeDate2", date);
@@ -205,6 +214,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
      * This implementation calls <code> validateProperties </code> and assigns
      * the argument to the properties field
      */
+    @Override
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateProperties(properties);
     }
@@ -216,12 +226,13 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
+            Optional<String> anyMissingKey =
+                    this.getRequiredKeys()
+                        .stream()
+                        .filter(key -> properties.getProperty(key) == null)
+                        .findAny();
+            if (anyMissingKey.isPresent()) {
+                throw new MissingPropertyException(anyMissingKey.get() + " key missing");
             }
             this.strID = properties.getProperty(MeterProtocol.ADDRESS, "");
             this.strPassword = properties.getProperty(MeterProtocol.PASSWORD);
@@ -242,7 +253,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             this.vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
             this.loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
-            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.software7E1 = !"0".equals(properties.getProperty("Software7E1", "0"));
             this.failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
             this.halfDuplex = Integer.parseInt(properties.getProperty("HalfDuplex", "0").trim());
             this.rs485RtuPlusServer = Integer.parseInt(properties.getProperty("RS485RtuPlusServer", "0").trim());
@@ -262,7 +273,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return (this.dataReadoutRequest == 1);
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    @Override
+    public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
         this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
@@ -270,25 +282,27 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return new String(data);
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    @Override
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
     /**
      * this implementation throws UnsupportedException. Subclasses may override
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    @Override
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**
@@ -296,9 +310,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
      *
      * @return a list of strings
      */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     /**
@@ -306,35 +319,36 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
      *
      * @return a list of strings
      */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("LoadProfileNumber");
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("ChannelMap");
-        result.add("RequestHeader");
-        result.add("Scaler");
-        result.add("DataReadout");
-        result.add("ExtendedLogging");
-        result.add("VDEWCompatible");
-        result.add("ForceDelay");
-        result.add("Software7E1");
-        result.add("HalfDuplex");
-        result.add("FailOnUnitMismatch");
-        result.add("RS485RtuPlusServer");
-        result.add(PR_LIMIT_MAX_NR_OF_DAYS);
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "LoadProfileNumber",
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "ChannelMap",
+                    "RequestHeader",
+                    "Scaler",
+                    "DataReadout",
+                    "ExtendedLogging",
+                    "VDEWCompatible",
+                    "ForceDelay",
+                    "Software7E1",
+                    "HalfDuplex",
+                    "FailOnUnitMismatch",
+                    "RS485RtuPlusServer",
+                    PR_LIMIT_MAX_NR_OF_DAYS);
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         if (this.firmwareVersion == null) {
-            this.firmwareVersion = (String) getA1440Registry().getRegister(this.a1440Registry.FIRMWAREID);
+            this.firmwareVersion = (String) getA1440Registry().getRegister(A1440Registry.FIRMWAREID);
         }
         return this.firmwareVersion;
     }
@@ -342,6 +356,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     /**
      * initializes the receiver
      */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         this.timeZone = timeZone;
         this.logger = logger;
@@ -363,6 +378,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     /**
      * @throws IOException
      */
+    @Override
     public void connect() throws IOException {
         try {
             if ((getFlagIEC1107Connection().getHhuSignOn() == null) && (isDataReadout())) {
@@ -404,6 +420,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return dataReadOur;
     }
 
+    @Override
     public void disconnect() throws IOException {
         try {
             this.flagIEC1107Connection.disconnectMAC();
@@ -412,7 +429,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         if (this.requestHeader == 1) {
             return getA1440Profile().getProfileHeader(this.loadProfileNumber).getNrOfChannels();
         } else {
@@ -424,7 +442,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return this.iSecurityLevel;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         if (this.requestHeader == 1) {
             return getA1440Profile().getProfileHeader(this.loadProfileNumber).getProfileInterval();
         } else {
@@ -432,52 +451,64 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         }
     }
 
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return this.flagIEC1107Connection;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return this.timeZone;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return true;
     }
 
+    @Override
     public String getPassword() {
         return this.strPassword;
     }
 
+    @Override
     public byte[] getDataReadout() {
         return this.dataReadout;
     }
 
+    @Override
     public Object getCache() {
         return null;
     }
 
+    @Override
     public Object fetchCache(int rtuid) throws SQLException, BusinessException {
         return null;
     }
 
+    @Override
     public void setCache(Object cacheObject) {
     }
 
+    @Override
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
     }
 
+    @Override
     public ChannelMap getChannelMap() {
         return this.channelMap;
     }
 
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public Logger getLogger() {
         return this.logger;
     }
 
-    static Map exceptionInfoMap = new HashMap();
+    static Map<String, String> exceptionInfoMap = new HashMap<>();
 
     static {
         exceptionInfoMap.put("ERROR", "Request could not execute!");
@@ -500,8 +531,9 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         exceptionInfoMap.put("ERROR16", "A1440 ERROR 16, no access due to configuration change denial!");
     }
 
+    @Override
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) exceptionInfoMap.get(ProtocolUtils.stripBrackets(id));
+        String exceptionInfo = exceptionInfoMap.get(ProtocolUtils.stripBrackets(id));
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {
@@ -509,6 +541,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         }
     }
 
+    @Override
     public int getNrOfRetries() {
         return this.iProtocolRetriesProperty;
     }
@@ -518,22 +551,24 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
      *
      * @return Value of property requestHeader.
      */
+    @Override
     public boolean isRequestHeader() {
         return this.requestHeader == 1;
     }
 
+    @Override
     public ProtocolChannelMap getProtocolChannelMap() {
         return this.protocolChannelMap;
     }
 
     /* Translate the obis codes to edis codes, and read */
-
+    @Override
     public RegisterValue readRegister(ObisCode obis) throws IOException {
         DataParser dp = new DataParser(getTimeZone());
         Date eventTime = null;
         Date toTime = null;
         String fs = "";
-        String toTimeString = "";
+        String toTimeString;
         byte[] data;
         byte[] timeStampData;
 
@@ -595,7 +630,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
                 // try to read the time stamp, and us it as the register toTime.
                 try {
-                    String billingPoint = "";
+                    String billingPoint;
                     if ("1.1.0.1.0.255".equalsIgnoreCase(obis.toString())) {
                         billingPoint = "*" + ProtocolUtils.buildStringDecimal(getBillingCount(), 2);
                     } else {
@@ -626,7 +661,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 temp = temp.substring(0, temp.indexOf('*'));
             }
 
-            if ((temp == null) || (temp.length() == 0)) {
+            if ((temp == null) || (temp.isEmpty())) {
                 throw new NoSuchRegisterException();
             }
 
@@ -713,6 +748,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return new Quantity(seconds, Unit.get(BaseUnit.SECOND));
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         String reginfo = (String) this.a1440ObisCodeMapper.getObisMap().get(obisCode.toString());
         if (reginfo == null) {
@@ -722,7 +758,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     private void getRegistersInfo() throws IOException {
-        StringBuffer rslt = new StringBuffer();
+        StringBuilder rslt = new StringBuilder();
 
         Iterator i = this.a1440ObisCodeMapper.getObisMap().keySet().iterator();
         while (i.hasNext()) {
@@ -762,19 +798,21 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         getLogger().info(returnString);
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, isDataReadout());
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty, 300,
-                this.iEchoCancelling);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty, 300, this.iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);
         getFlagIEC1107Connection().setHHUSignOn(hhuSignOn);
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
@@ -823,7 +861,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private String getMeterSerial() throws IOException {
         if (this.meterSerial == null) {
-            this.meterSerial = (String) getA1440Registry().getRegister(this.a1440Registry.SERIAL);
+            this.meterSerial = (String) getA1440Registry().getRegister(A1440Registry.SERIAL);
         }
         return this.meterSerial;
     }
@@ -838,26 +876,32 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         throw new IOException("SerialNumber mismatch! meter sn=" + getMeterSerial() + ", configured sn=" + this.serialNumber);
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         this.a1440Messages.applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return this.a1440Messages.queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return this.a1440Messages.getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return this.a1440Messages.writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return this.a1440Messages.writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return this.a1440Messages.writeValue(value);
     }
@@ -899,17 +943,15 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         }
 
         if (registerName.equals(A1440ObisCodeMapper.FIRMWARE)) {
-            String fw = "";
-            String hw = "";
-            String dev = "";
-            String fwdev = "";
+            String fw;
+            String dev;
 
             if (this.iSecurityLevel < 1) {
                 return "Unknown (SecurityLevel to low)";
             }
 
-            fwdev = (String) getA1440Registry().getRegister(A1440Registry.FIRMWARE);
-            hw = (String) getA1440Registry().getRegister(A1440Registry.HARDWARE);
+            String fwdev = (String) getA1440Registry().getRegister(A1440Registry.FIRMWARE);
+            String hw = (String) getA1440Registry().getRegister(A1440Registry.HARDWARE);
 
             if ((fwdev != null) && (fwdev.length() >= 30)) {
                 fw = fwdev.substring(0, 10);
@@ -929,6 +971,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return "";
     }
 
+    @Override
     public void resetDemand() throws IOException {
         this.a1440Messages.doDemandReset();
     }
@@ -937,6 +980,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return (this.rs485RtuPlusServer != 0);
     }
 
+    @Override
     public void setHalfDuplexController(HalfDuplexController controller) {
         if (isRS485RtuPlusServer()) {
             this.halfDuplexController = new RtuPlusServerHalfDuplexController(controller);
@@ -949,4 +993,5 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     public int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
     }
+
 }

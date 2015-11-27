@@ -6,22 +6,24 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -29,11 +31,13 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -57,8 +61,6 @@ import java.util.logging.Logger;
  * @endchanges
  */
 public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol { //,CommunicationParameters {
-
-    private static final byte DEBUG = 0;
 
     private static final int KAMSTRUP_NR_OF_CHANNELS = 6;
     private static final String[] KAMSTRUP_METERREADINGS_979D1 = {"23.2.0", "13.1.0", "1:13.0.0", "0:41.0.0", "0:42.0.0", "97.97.0"};
@@ -87,23 +89,22 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
 
     byte[] dataReadout = null;
 
-    /**
-     * Creates a new instance of ABBA1500, empty constructor
-     */
-    public Kamstrup() {
+    @Inject
+    public Kamstrup(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     } // public Kamstrup()
 
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.YEAR, -10);
-        return doGetProfileData(calendar.getTime(), includeEvents);
+        return doGetProfileData(calendar.getTime());
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        return doGetProfileData(lastReading, includeEvents);
+        return doGetProfileData(lastReading);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(timeZone);
@@ -114,7 +115,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
                 1);
     }
 
-    private ProfileData doGetProfileData(Date lastReading, boolean includeEvents) throws IOException {
+    private ProfileData doGetProfileData(Date lastReading) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(lastReading);
         return getKamstrupProfile().getProfileData(fromCalendar,
@@ -131,7 +132,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
                 1);
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         try {
             return (Quantity) getKamstrupRegistry().getRegister(name);
         } catch (ClassCastException e) {
@@ -139,7 +140,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
         }
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         String[] KAMSTRUP_METERREADINGS = null;
         try {
             String revision = (String) getKamstrupRegistry().getRegister("UNIGAS software revision number");
@@ -168,8 +169,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
      * @throws IOException
      */
     public void setTime() throws IOException {
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         Date date = calendar.getTime();
         getKamstrupRegistry().setRegister("0.9.1", date);
@@ -179,10 +179,6 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
     public Date getTime() throws IOException {
         Date date = (Date) getKamstrupRegistry().getRegister("TimeDate");
         return new Date(date.getTime() - iRoundtripCorrection);
-    }
-
-    public byte getLastProtocolState() {
-        return -1;
     }
 
     /************************************** MeterProtocol implementation ***************************************/
@@ -244,7 +240,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return ProtocolUtils.obj2String(getKamstrupRegistry().getRegister(name));
     }
 
@@ -257,7 +253,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         getKamstrupRegistry().setRegister(name, value);
     }
 
@@ -267,37 +263,26 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
+    public List<String> getOptionalKeys() {
+        List<String> result = new ArrayList<>();
         result.add("Timeout");
         result.add("Retries");
         result.add("SecurityLevel");
@@ -313,9 +298,9 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         try {
-            return ((String) getKamstrupRegistry().getRegister("CI software revision number") + " " + (String) getKamstrupRegistry().getRegister("UNIGAS software revision number"));
+            return (getKamstrupRegistry().getRegister("CI software revision number") + " " + getKamstrupRegistry().getRegister("UNIGAS software revision number"));
         } catch (IOException e) {
             throw new IOException("Kamstrup, getFirmwareVersion, " + e.getMessage());
         }
@@ -380,11 +365,11 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return KAMSTRUP_NR_OF_CHANNELS;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return iProfileInterval;
     }
 

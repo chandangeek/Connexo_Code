@@ -1,29 +1,33 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 public class CM10 extends AbstractProtocol {
 
-    final static String IS_C10_METER = "CM_10_meter";
+    static final String IS_C10_METER = "CM_10_meter";
     private static final int MAX_CLOCK_DEVIATION = 59;  // max 59 sec deviation
 
     private CM10Connection cm10Connection = null;
@@ -41,6 +45,11 @@ public class CM10 extends AbstractProtocol {
     private int delayAfterConnect;
 
     private boolean isCM10Meter;
+
+    @Inject
+    public CM10(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getCM10Profile().getProfileData(from, to, includeEvents);
@@ -92,13 +101,8 @@ public class CM10 extends AbstractProtocol {
         this.isCM10Meter = !"0".equals(properties.getProperty("CM_10_meter"));
     }
 
-    public List getOptionalKeys() {
-		ArrayList list = new ArrayList();
-		list.add("Timeout");
-		list.add("Retries");
-		list.add("DelayAfterConnect");
-		list.add(IS_C10_METER);
-		return list;
+    public List<String> getOptionalKeys() {
+		return Arrays.asList("Timeout", "Retries", "DelayAfterConnect", IS_C10_METER);
 	}
 
 	public PowerFailDetailsTable getPowerFailDetailsTable() throws IOException {
@@ -152,8 +156,8 @@ public class CM10 extends AbstractProtocol {
 	protected void doDisConnect() throws IOException {
 	}
 
-	protected List doGetOptionalKeys() {
-		return new ArrayList();
+	protected List<String> doGetOptionalKeys() {
+		return Collections.emptyList();
 	}
 
 	public RegisterFactory getRegisterFactory() throws IOException {

@@ -1,22 +1,23 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.base.SubMessageProtocol;
@@ -66,8 +67,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private FirmwareVersions passiveFirmwareVersion;
 
     @Inject
-    public AS220(OrmClient ormClient) {
-        super(ormClient);
+    public AS220(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService, ormClient);
         messagingList = new ArrayList<>();
     	messagingList.add(new AS220Messaging(this));
     	messagingList.add(new PLCMessaging(this));

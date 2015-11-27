@@ -10,9 +10,11 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -30,15 +32,14 @@ import java.util.Properties;
  *
  * @author Koen
  */
-abstract public class SchlumbergerProtocol extends AbstractProtocol implements ProtocolLink {
+public abstract class SchlumbergerProtocol extends AbstractProtocol implements ProtocolLink {
 
-    abstract protected void doTheInit();
-    abstract protected void doTheDoValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-    abstract protected List doTheDoGetOptionalKeys();
-    abstract protected void doTheConnect() throws IOException;
-    abstract protected void doTheDisConnect() throws IOException;
-    abstract protected void hangup() throws IOException;
-    abstract protected void offLine() throws IOException;
+    protected abstract void doTheInit();
+    protected abstract void doTheDoValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
+    protected abstract List<String> doTheDoGetOptionalKeys();
+    protected abstract void doTheConnect() throws IOException;
+    protected abstract void doTheDisConnect() throws IOException;
+    protected abstract void hangup() throws IOException;
 
     private SchlumbergerConnection schlumbergerConnection=null;
     private CommandFactory commandFactory=null;
@@ -49,11 +50,9 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
     private boolean allowClockSet;
     private boolean daisyChain;
 
-    /** Creates a new instance of SchlumbergerProtocol */
-    public SchlumbergerProtocol() {
-
+    public SchlumbergerProtocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
 
     protected void doConnect() throws IOException {
 
@@ -63,8 +62,9 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         //if ((!isDaisyChain()) || (isDaisyChain() && ((getInfoTypeNodeAddress()==null) || (getInfoTypeNodeAddress().compareTo("")==0)))) {
             getCommandFactory().enqCommand();
             getCommandFactory().getIdentifyCommand(getUnitId(), getUnitType());
-            if (getInfoTypeSecurityLevel()>=1)
+            if (getInfoTypeSecurityLevel()>=1) {
                 getCommandFactory().securityCommand(getInfoTypePassword());
+            }
         //}
 
         if (isDaisyChain()) {
@@ -72,8 +72,9 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
                 hangup();
                 getSchlumbergerConnection().sendEnqMultidrop(20,Integer.parseInt(getInfoTypeNodeAddress()));
                 getCommandFactory().getIdentifyCommand(getUnitId(), getUnitType());
-                if (getInfoTypeSecurityLevel()>=1)
+                if (getInfoTypeSecurityLevel()>=1) {
                     getCommandFactory().securityCommand(getInfoTypePassword());
+                }
             }
         }
 
@@ -81,13 +82,12 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
     }
 
     protected void doDisConnect() throws IOException {
-
-        if (isDaisyChain())
+        if (isDaisyChain()) {
             getSchlumbergerConnection().sendEnqMultidrop(2);
-        else
+        }
+        else {
             hangup();
-
-        //offLine();
+        }
     }
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
@@ -104,8 +104,8 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         doTheDoValidateProperties(properties);
     }
 
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList();
+    protected List<String> doGetOptionalKeys() {
+        List<String> list = new ArrayList<>();
         list.add("UnitType");
         list.add("UnitId");
         list.add("DelayAfterConnect");
@@ -115,7 +115,6 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         list.addAll(doTheDoGetOptionalKeys());
         return list;
     }
-
 
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         setSchlumbergerConnection(new SchlumbergerConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, 0));

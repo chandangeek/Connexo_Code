@@ -6,30 +6,31 @@
 
 package com.energyict.protocolimpl.iec1107;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.SerialNumber;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MeterExceptionInfo;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.SerialNumber;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -39,6 +40,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +59,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
      *
      * @throws IOException in case of an Exception
      */
-    abstract protected void doConnect() throws IOException;
+    protected abstract void doConnect() throws IOException;
 
     /**
      * Validate some protocol specific properties.<br>
@@ -68,7 +70,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
      * @throws MissingPropertyException If a property from the {@link #getRequiredKeys()} list was missing.
      * @throws InvalidPropertyException If a property has an invalid value/format
      */
-    abstract protected void doValidateProperties(Properties properties) throws MissingPropertyException,
+    protected abstract void doValidateProperties(Properties properties) throws MissingPropertyException,
             InvalidPropertyException;
 
     /**
@@ -76,7 +78,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
      *
      * @return a String List of properties
      */
-    abstract protected List doGetOptionalKeys();
+    protected abstract List<String> doGetOptionalKeys();
 
     TimeZone timeZone;
     Logger logger;
@@ -112,16 +114,16 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     protected boolean software7E1;
     protected Encryptor encryptor;
 
-    public AbstractIEC1107Protocol() {
-        this(false, null);
+    public AbstractIEC1107Protocol(PropertySpecService propertySpecService) {
+        this(propertySpecService, false, null);
     }
 
-    public AbstractIEC1107Protocol(boolean requestDataReadout) {
-        this(requestDataReadout, null);
+    public AbstractIEC1107Protocol(PropertySpecService propertySpecService, boolean requestDataReadout) {
+        this(propertySpecService, requestDataReadout, null);
     }
 
-    public AbstractIEC1107Protocol(Encryptor encryptor) {
-        this(false, encryptor);
+    public AbstractIEC1107Protocol(PropertySpecService propertySpecService, Encryptor encryptor) {
+        this(propertySpecService, false, encryptor);
     }
 
     /**
@@ -131,7 +133,8 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
      *                           programming mode to read registers individual. Datadump registers are always cached.
      * @param encryptor          interface to an encryption algorithm implemented specific for the protocol.
      */
-    public AbstractIEC1107Protocol(boolean requestDataReadout, Encryptor encryptor) {
+    public AbstractIEC1107Protocol(PropertySpecService propertySpecService, boolean requestDataReadout, Encryptor encryptor) {
+        super(propertySpecService);
         this.requestDataReadout = requestDataReadout;
         this.encryptor = encryptor;
     }
@@ -139,17 +142,17 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     // *******************************************************************************************
     // M e t e r p r o t o c o l i n t e r f a c e
     // *******************************************************************************************/
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
     // obsolete
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
     // obsolete
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -166,8 +169,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         return null;
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,
-            UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -187,14 +189,13 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     /*
       * Override this method if the subclass wants to set a specific register
       */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException,
-            UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
     }
 
     /*
       * Override this method if the subclass wants to get a specific register
       */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return null;
     }
 
@@ -204,12 +205,12 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**
@@ -217,9 +218,8 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
      *
      * @return a list of strings
      */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     /**
@@ -227,8 +227,8 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
      *
      * @return a list of strings
      */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
+    public List<String> getOptionalKeys() {
+        List<String> result = new ArrayList();
         result.add("Timeout");
         result.add("Retries");
         result.add("SecurityLevel");
@@ -241,10 +241,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         // if needed, add following codelines into the overridden doGetOptionalKeys() method
         // result.add("RequestHeader"));
         // result.add("Scaler"));
-        List result2 = doGetOptionalKeys();
-        if (result2 != null) {
-            result.addAll(result2);
-        }
+        result.addAll(this.doGetOptionalKeys());
         return result;
     }
 
@@ -283,7 +280,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     public void release() throws IOException {
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -319,11 +316,11 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     // * P r o t o c o l L i n k i n t e r f a c e M e t e r p r o t o c o l i n t e r f a c e
     // *******************************************************************************************/
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return profileInterval;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return channelMap.getNrOfChannels();
     }
 
@@ -520,7 +517,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
             requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "0").trim());
             scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "300").trim());
-            software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            software7E1 = !"0".equals(properties.getProperty("Software7E1", "0"));
             doValidateProperties(properties);
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());

@@ -6,13 +6,16 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,13 +29,12 @@ public class Metcom3FCL extends Metcom3 {
 
     private static final int DEBUG=0;
 
-    //protected final String[] REG_NR_OF_CHANNELS8={"62300","63300"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
-    //protected final String[] REG_NR_OF_CHANNELS16={"62308","63308"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
     protected final String[] REG_PROFILEINTERVAL={"70101","70102"};
     protected final String[] DIGITS_PER_VALUE={"62200","63200"};
 
-    /** Creates a new instance of Metcom3FCL */
-    public Metcom3FCL() {
+    @Inject
+    public Metcom3FCL(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     protected BufferStructure getBufferStructure(int bufferNr) throws IOException, UnsupportedException, NoSuchRegisterException {

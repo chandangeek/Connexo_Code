@@ -2,13 +2,14 @@ package com.energyict.protocolimpl.elster.opus;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -19,7 +20,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -110,14 +113,8 @@ public class Opus extends AbstractProtocol{
 
 	private TimeZone timezone;
 
-
-	public Opus(){
-	}
-
-	public Opus(String oldPassword, String newPassword, int outstationID){
-		this.oldPassword=oldPassword;
-		this.newPassword=newPassword;
-		this.outstationID=outstationID;
+	public Opus(PropertySpecService propertySpecService) {
+		super(propertySpecService);
 	}
 
 	public void connect() throws IOException {
@@ -153,12 +150,13 @@ public class Opus extends AbstractProtocol{
 		return null;
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		return this.firmwareVersion;
 	}
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
-        if (this.channelMap.getNrOfProtocolChannels() == -1)
-            throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
+	public int getNumberOfChannels() throws IOException {
+        if (this.channelMap.getNrOfProtocolChannels() == -1) {
+	        throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
+        }
 		return this.channelMap.getNrOfProtocolChannels();
 	}
 
@@ -174,12 +172,12 @@ public class Opus extends AbstractProtocol{
 		return getProfileData(fromTime, cal.getTime(), includeEvents);
 	}
 
-	public ProfileData getProfileData(Date fromTime, Date toTime, boolean event) throws IOException, UnsupportedException {
-		Calendar now=Calendar.getInstance(timezone);
+	public ProfileData getProfileData(Date fromTime, Date toTime, boolean event) throws IOException {
+		Calendar now= Calendar.getInstance(timezone);
 		Calendar endtime=Calendar.getInstance(timezone);
 		endtime.setTime(toTime);
 		long millis=endtime.getTimeInMillis();
-		if(now.getTimeInMillis()-1000*getProfileInterval()<millis){
+		if (now.getTimeInMillis()-1000*getProfileInterval()<millis) {
 			endtime.setTimeInMillis(millis-1000*getProfileInterval());
 			toTime=endtime.getTime();
 		}
@@ -188,7 +186,7 @@ public class Opus extends AbstractProtocol{
 		return ogpd.getProfileData(fromTime, toTime, event, this.channelMap, this.ocf, this.numChan, getProfileInterval(), this.attempts, this.timeOut);
 	}
 
-	public int getProfileInterval() throws UnsupportedException, IOException {
+	public int getProfileInterval() throws IOException {
 		return this.interval;
 	}
 
@@ -228,7 +226,7 @@ public class Opus extends AbstractProtocol{
 		ocf.command(101, attempts, timeOut, null);
 	}
 
-	public void initializeDevice() throws IOException, UnsupportedException {
+	public void initializeDevice() throws IOException {
 	}
 
 	public void release() throws IOException {
@@ -255,17 +253,12 @@ public class Opus extends AbstractProtocol{
 			BusinessException {
 	}
 
-	public List getOptionalKeys() {
-		ArrayList list = new ArrayList();
-		list.add("ChannelMap");
-		list.add("TimeOut");
-		return list;
+	public List<String> getOptionalKeys() {
+		return Arrays.asList("ChannelMap", "TimeOut");
 	}
 
-	public List getRequiredKeys() {
-		ArrayList list = new ArrayList();
-		list.add("Password");
-		return list;
+	public List<String> getRequiredKeys() {
+		return Collections.singletonList("Password");
 	}
 
 	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,

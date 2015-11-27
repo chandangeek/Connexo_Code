@@ -1,9 +1,12 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.coronis.waveflowDLMS.as1253.ProfileDataReader;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,6 +26,11 @@ public class AS1253 extends AbstractDLMS {
     public static final ObisCode AM700_FW_VERSION = ObisCode.fromString("1.1.155.0.0.255");
 
     private Map<ObisCode,ObjectEntry> objectEntries = null;
+
+    @Inject
+    public AS1253(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     /**
      * Override this method to request the load profile from the meter starting at lastreading until now.

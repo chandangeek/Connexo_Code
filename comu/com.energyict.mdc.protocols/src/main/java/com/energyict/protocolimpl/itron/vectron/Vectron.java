@@ -10,30 +10,24 @@
 
 package com.energyict.protocolimpl.itron.vectron;
 
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 import com.energyict.protocolimpl.itron.vectron.basepages.BasePagesFactory;
 import com.energyict.protocolimpl.itron.vectron.basepages.RegisterFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
@@ -46,10 +40,10 @@ public class Vectron extends SchlumbergerProtocol {
     private VectronProfile vectronProfile=null;
     boolean allowClockSet;
 
-    /** Creates a new instance of Vectron */
-    public Vectron() {
+    @Inject
+    public Vectron(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getFulcrumProfile().getProfileData(lastReading,includeEvents);
@@ -57,10 +51,6 @@ public class Vectron extends SchlumbergerProtocol {
 
     protected void hangup() throws IOException {
         //getBasePagesFactory().writeBasePage(0x2111, new byte[]{(byte)0xFF});
-    }
-
-    protected void offLine() throws IOException {
-        //getBasePagesFactory().writeBasePage(0x2112, new byte[]{(byte)0xFF});
     }
 
     protected void doTheDisConnect() throws IOException {
@@ -83,17 +73,15 @@ public class Vectron extends SchlumbergerProtocol {
         setDelayAfterConnect(Integer.parseInt(properties.getProperty("DelayAfterConnect","2000").trim()));
     }
 
-    protected List doTheDoGetOptionalKeys() {
-        List list = new ArrayList();
-        list.add("AllowClockSet");
-        return list;
+    protected List<String> doTheDoGetOptionalKeys() {
+        return Collections.singletonList("AllowClockSet");
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return getBasePagesFactory().getMassMemoryBasePages().getProfileInterval()*60;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getBasePagesFactory().getMassMemoryBasePages().getNrOfChannels();
     }
 
@@ -116,7 +104,7 @@ public class Vectron extends SchlumbergerProtocol {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "firmware revision="+getBasePagesFactory().getFirmwareAndSoftwareRevision().getFwVersion()+
                ", software revision="+getBasePagesFactory().getFirmwareAndSoftwareRevision().getSwVersion()+
                ", options=0x"+Integer.toHexString(getBasePagesFactory().getFirmwareOptionsBasePage().getOptions())+
@@ -125,106 +113,6 @@ public class Vectron extends SchlumbergerProtocol {
 
     public String getSerialNumber() throws IOException {
         return "getSerialNumber() not implemented yet";
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        Vectron vectron = new Vectron();
-        Dialer dialer=null;
-        try {
-
-            String[] phones = new String[]{"00012254734958","00017149909878"};
-            String[] passwords = new String[]{"EXKV",""};
-            int phoneId=1;
-
-            //dialer =DialerFactory.getDirectDialer().newDialer();
-            dialer =DialerFactory.getDefault().newDialer();
-            dialer.init("COM1");
-
-
-            dialer.getSerialCommunicationChannel().setBaudrate(1200);
-
-            dialer.connect(phones[phoneId],60000);
-
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-
-            properties.setProperty(MeterProtocol.PASSWORD,passwords[phoneId]);
-            //properties.setProperty("UnitType","QTM");
-            //properties.setProperty(MeterProtocol.NODEID,"T412    ");
-
-// transfer the properties to the protocol
-            vectron.setProperties(properties);
-
-// depending on the dialer, set the initial (pre-connect) communication parameters
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-                                                                     SerialCommunicationChannel.DATABITS_8,
-                                                                     SerialCommunicationChannel.PARITY_NONE,
-                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            vectron.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("PST"),Logger.getLogger("name"));
-
-// if optical head dialer, enable the HHU signon mechanism
-
-            System.out.println("*********************** connect() ***********************");
-
-// connect to the meter
-            vectron.connect();
-
-
-            //System.out.println(vectron.readRegister(ObisCode.fromString("1.1.9.16.0.0")));
-//            System.out.println(vectron.getSerialNumber());
-            System.out.println(vectron.getFirmwareVersion());
-            System.out.println(vectron.getCommandFactory().getIdentifyCommand());
-            System.out.println(vectron.getTime());
-
-
-            System.out.println(vectron.getBasePagesFactory().getMassMemoryBasePages());
-//            System.out.println(vectron.getBasePagesFactory().getProgramTableBasePage(false));
-//            System.out.println(vectron.getBasePagesFactory().getProgramTableBasePage(true));
-//            System.out.println(vectron.getBasePagesFactory().getMultipliersBasePage());
-//            System.out.println(vectron.getBasePagesFactory().getInstantaneousRegMultipliers());
-//            System.out.println(vectron.getBasePagesFactory().getPointerTimeDateRegisterReadingBasePage());
-//            System.out.println(vectron.getBasePagesFactory().getRegisterDataBasePage());
-//            System.out.println(vectron.getBasePagesFactory().getRegisterDataLastSeasonBasePage());
-//            System.out.println(vectron.getBasePagesFactory().getRegisterDataSelfReadBasePage());
-//            System.out.println(vectron.getBasePagesFactory().getVoltageAndCurrentBasePage());
-            System.out.println(vectron.getBasePagesFactory().getFrontEndFirmwareVersionBasePage());
-            System.out.println(vectron.getBasePagesFactory().getSelfreadIndexBasePage());
-            System.out.println(vectron.getBasePagesFactory().getFirmwareOptionsBasePage());
-            System.out.println(vectron.getBasePagesFactory().getModelTypeBasePage());
-            System.out.println(vectron.getBasePagesFactory().getMeterKhBasePage());
-            System.out.println(vectron.getBasePagesFactory().getRegisterConfigurationBasePage());
-            System.out.println(vectron.getBasePagesFactory().getRegisterMultiplierBasePage());
-
-//            System.out.println("Meter:  "+vectron.getTime());
-//            System.out.println("System: "+new Date());
-//            vectron.setTime();
-
-
-
-
-
-            Calendar from = ProtocolUtils.getCalendar(vectron.getTimeZone());
-            from.add(Calendar.DAY_OF_MONTH,-4);
-            System.out.println(vectron.getProfileData(from.getTime(),true));
-
-
-//System.out.println(vectron.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-
-            vectron.disconnect();
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-
     }
 
     public BasePagesFactory getBasePagesFactory() {
@@ -244,7 +132,7 @@ public class Vectron extends SchlumbergerProtocol {
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         ObisCodeMapper ocm = new ObisCodeMapper(this);
 
         // tables

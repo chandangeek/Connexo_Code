@@ -6,20 +6,22 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
@@ -53,25 +55,24 @@ import java.util.logging.Logger;
  *         GN 03042008 Added the MSYNC
  *         GN 17122008	Added timeSetMethod 3
  */
-abstract public class Metcom extends PluggableMeterProtocol implements HalfDuplexEnabler {
-
+public abstract class Metcom extends PluggableMeterProtocol implements HalfDuplexEnabler {
 
     private static final int DEBUG = 0;
     private boolean TESTING = false;
 
-    abstract public ProfileData getProfileData(boolean includeEvents) throws IOException;
+    public abstract ProfileData getProfileData(boolean includeEvents) throws IOException;
 
-    abstract public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException;
+    public abstract ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException;
 
-    abstract public String getDefaultChannelMap();
+    public abstract String getDefaultChannelMap();
 
-    abstract public String buildDefaultChannelMap() throws IOException;
+    public abstract String buildDefaultChannelMap() throws IOException;
 
-    abstract public int getNumberOfChannels() throws UnsupportedException, IOException;
+    public abstract int getNumberOfChannels() throws IOException;
 
-    abstract public String getProtocolVersion();
+    public abstract String getProtocolVersion();
 
-    abstract public String getRegistersInfo(int extendedLogging) throws IOException;
+    public abstract String getRegistersInfo(int extendedLogging) throws IOException;
 
     // init
     private TimeZone timeZone;
@@ -105,10 +106,8 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
     private int autoBillingPointNrOfDigits;
     protected int timeSetMethod;
 
-    /**
-     * Creates a new instance of Metcom3
-     */
-    public Metcom() {
+    protected Metcom(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     /**
@@ -163,11 +162,11 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
         return dumpData;
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -175,11 +174,11 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
         return siemensSCTM;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return iProfileInterval;
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         if ("GET_CLOCK_OBJECT".compareTo(name) == 0) {
             throw new NoSuchRegisterException();
         } else {
@@ -187,9 +186,9 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
         }
     }
 
-    private String doGetRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    private String doGetRegister(String name) throws IOException {
         try {
-            byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ1, name.getBytes());
+            byte[] data = siemensSCTM.sendRequest(SiemensSCTM.TABENQ1, name.getBytes());
             String str = new SCTMRegister(data).toString();
             return str;
         } catch (SiemensSCTMException e) {
@@ -197,19 +196,19 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
         }
     }
 
-    protected BufferStructure getBufferStructure() throws IOException, UnsupportedException, NoSuchRegisterException {
+    protected BufferStructure getBufferStructure() throws IOException {
         return getBufferStructure(0);
     }
 
-    protected BufferStructure getBufferStructure(int bufferId) throws IOException, UnsupportedException, NoSuchRegisterException {
+    protected BufferStructure getBufferStructure(int bufferId) throws IOException {
         try {
-            return new BufferStructure(siemensSCTM.sendRequest(siemensSCTM.TABENQ3, String.valueOf(20 + bufferId + 1).getBytes()));
+            return new BufferStructure(siemensSCTM.sendRequest(SiemensSCTM.TABENQ3, String.valueOf(20 + bufferId + 1).getBytes()));
         } catch (SiemensSCTMException e) {
             throw new IOException("Siemens7ED2, getTime, SiemensSCTMException, " + e.getMessage());
         }
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -228,7 +227,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
             // 26/02/2013 - the maximum set should always be read out, cause the device is forcing it! (e.g.: MSYNC timesets > maximum set are silently ignored).
             if (!getTesting()) {
                 byte[] delayRequest = new byte[]{0x37, 0x30, 0x34, 0x30, 0x30};
-                byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ1, delayRequest);
+                byte[] data = siemensSCTM.sendRequest(SiemensSCTM.TABENQ1, delayRequest);
                 if (data != null) {
                     maxDelay = Integer.parseInt(new String(data).trim());
                 } else {
@@ -256,9 +255,9 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
                     JUnitTestCode.sendRequest(0);
                     JUnitTestCode.waitRoutine();
                 } else {
-                    siemensSCTM.sendRequest(siemensSCTM.SETTIME, timeData.getSETTIMEData());
+                    siemensSCTM.sendRequest(SiemensSCTM.SETTIME, timeData.getSETTIMEData());
                     waitForMinute(calendar);
-                    siemensSCTM.sendRequest(siemensSCTM.SSYNC, null);
+                    siemensSCTM.sendRequest(SiemensSCTM.SSYNC, null);
                 }
             } else if ((getTimeSetMethod() == 1) || (getTimeSetMethod() == 2) || (getTimeSetMethod() == 3) || (getTimeSetMethod() == 4)) {    // the MSYNC method -> not shown in statusBits
                 if ((getTimeSetMethod() == 3) && (timeDifference > (maxDelay * 1000))) {
@@ -291,7 +290,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
                         }
                         waitForSubstraction(calendar, meterDate);
                     }
-                    siemensSCTM.sendRequest(siemensSCTM.MSYNC, null);
+                    siemensSCTM.sendRequest(SiemensSCTM.MSYNC, null);
                 }
 
                 if (DEBUG == 1) {
@@ -427,7 +426,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
 
     protected byte[] getClearingData(int buffer) throws IOException {
         try {
-            byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ3, new byte[]{'1', (byte) (0x31 + buffer)}); //siemensSCTM.CLEARINGDATA);
+            byte[] data = siemensSCTM.sendRequest(SiemensSCTM.TABENQ3, new byte[]{'1', (byte) (0x31 + buffer)}); //siemensSCTM.CLEARINGDATA);
 
             if (DEBUG >= 1) {
                 System.out.println("KV_DEBUG> " + new String(data));
@@ -441,7 +440,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
 
     public void sendPassword(byte[] password) throws IOException {
         try {
-            byte[] data = siemensSCTM.sendRequest(siemensSCTM.PASSWORD, password);
+            byte[] data = siemensSCTM.sendRequest(SiemensSCTM.PASSWORD, password);
             if (data != null) {
                 String retVal = new String(data);
                 if (retVal.compareTo("11111111") == 0) {
@@ -459,7 +458,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
 
     public Date getTime() throws IOException {
         try {
-            byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ3, siemensSCTM.DATETIME);
+            byte[] data = siemensSCTM.sendRequest(SiemensSCTM.TABENQ3, SiemensSCTM.DATETIME);
 
             String retVal = new String(data);
             if ((data.length == 8) && (retVal.compareTo("33333333") == 0)) {
@@ -473,7 +472,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
         }
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -543,12 +542,12 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     protected abstract List<String> getOptionalKeys();
@@ -583,7 +582,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
         }
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
     }
 
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
@@ -709,15 +708,4 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
         return software7E1;
     }
 
-    public static void main(String args[]) {
-//		30	30	32	30	30	35	36	37	30	31	37	30	2	30	38	30	39	30	39	20	32	31	34	31	35	31	39	3	10
-        byte[] b = {0x30, 0x38, 0x30, 0x39, 0x31, 0x30, 0x20, 0x33, 0x31, 0x34, 0x33, 0x35, 0x35, 0x35};
-        long d = 0;
-        try {
-            d = new SCTMTimeData(b).getDate(TimeZone.getDefault()).getTime();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println(new Date(d));
-    }
 }

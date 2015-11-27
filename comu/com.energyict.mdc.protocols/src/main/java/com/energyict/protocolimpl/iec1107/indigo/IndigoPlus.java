@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.iec1107.indigo;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -19,11 +20,13 @@ import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
 import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocols.util.ProtocolUtils;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -67,16 +70,14 @@ KV|15122005|Test if protocol retrieved new interval data, intervals retrieved be
  */
 public class IndigoPlus extends AbstractIEC1107Protocol {
 
-    private static final int DEBUG=0;
-
     LogicalAddressFactory logicalAddressFactory;
     IndigoProfile indigoProfile;
     int statusFlagChannel,readCurrentDay;
     int emptyNodeAddress;
 
-    /** Creates a new instance of IndigoPlus */
-    public IndigoPlus() {
-        super(false,new Encryption());
+    @Inject
+    public IndigoPlus(PropertySpecService propertySpecService) {
+        super(propertySpecService, false, new Encryption());
     }
 
     public String getProtocolVersion() {
@@ -93,8 +94,9 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
 
     public int getNumberOfChannels() throws UnsupportedException, IOException {
        int nrOfChannels = getLogicalAddressFactory().getMeteringDefinition().getNrOfIntervalRecordingChannels();
-       if ((!(isStatusFlagChannel())) && (getLogicalAddressFactory().getMeteringDefinition().isChannelUnitsStatusFlagsChannel()))
-          return nrOfChannels-1;
+       if ((!(isStatusFlagChannel())) && (getLogicalAddressFactory().getMeteringDefinition().isChannelUnitsStatusFlagsChannel())) {
+           return nrOfChannels - 1;
+       }
        return nrOfChannels;
     }
 
@@ -107,7 +109,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
      *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
      */
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("************************* Extended Logging *************************\n");
         strBuff.append(getLogicalAddressFactory().getMeterIdentity().toString()+"\n");
         strBuff.append(getLogicalAddressFactory().getMeterStatus().toString()+"\n");
