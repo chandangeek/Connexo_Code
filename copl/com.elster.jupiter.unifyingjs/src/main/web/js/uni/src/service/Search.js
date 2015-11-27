@@ -346,7 +346,7 @@ Ext.define('Uni.service.Search', {
         var me = this;
 
         return !!property.get('constraints').filter(function (c) {
-            return !me.getFilters().find(function (f) {
+            return !_.find(me.getFilters(), function (f) {
                 return (f.id === c) && f.value
             })
         }).length
