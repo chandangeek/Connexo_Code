@@ -51,8 +51,7 @@ Ext.define('Apr.controller.TaskOverview', {
 
     showPreview: function(records,record){
         var me = this;
-        Ext.suspendLayouts();
-        this.getTaskPreview().setTitle(record.get('task'));
+        this.getTaskPreview().setTitle(record.get('name'));
         this.getTaskPreview().down('form').loadRecord(record);
         if(record.get('queueStatus')== 'Busy'){
             this.getTaskPreview().down('#durationField').show();
@@ -61,6 +60,5 @@ Ext.define('Apr.controller.TaskOverview', {
             this.getTaskPreview().down('#durationField').hide();
             this.getTaskPreview().down('#currentRunField').hide();
         }
-        Ext.resumeLayouts(true);
     }
 });
