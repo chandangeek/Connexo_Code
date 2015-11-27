@@ -44,7 +44,7 @@ public class IDISMeterTopology extends AbstractMeterTopology {
 
     @Override
     public void searchForSlaveDevices() {
-        if(deviceMapping == null || deviceMapping.isEmpty()){
+        if(deviceMapping == null || (deviceMapping != null && deviceMapping.isEmpty())){
             deviceMapping = new ArrayList<>();
             ObisCode obisCode = MBUS_CLIENT_OBISCODE;
             for (int i = 1; i <= getMaxMBusChannels(); i++) {

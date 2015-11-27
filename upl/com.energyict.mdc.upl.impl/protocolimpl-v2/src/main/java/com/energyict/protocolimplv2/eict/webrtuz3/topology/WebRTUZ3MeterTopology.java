@@ -135,21 +135,23 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      */
     protected void discoverEMeters() {
-        eMeterMap = new ArrayList<>();
-        for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
-            try {
-                String eMeterSerial;
-                ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i);
-                if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
-                    OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.emeterSerialAttributes.get(i)).getOctetString();
-                    eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
-                    if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
-                        eMeterMap.add(new DeviceMapping(eMeterSerial, i));
+        if(eMeterMap == null){
+            eMeterMap = new ArrayList<>();
+            for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
+                try {
+                    String eMeterSerial;
+                    ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i);
+                    if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
+                        OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.emeterSerialAttributes.get(i)).getOctetString();
+                        eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
+                        if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
+                            eMeterMap.add(new DeviceMapping(eMeterSerial, i));
+                        }
                     }
-                }
-            } catch (IOException e) {
-                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession().getProperties().getRetries() + 1)) {
-                    continue;   //Go to the next meter
+                } catch (IOException e) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession().getProperties().getRetries() + 1)) {
+                        continue;   //Go to the next meter
+                    }
                 }
             }
         }
