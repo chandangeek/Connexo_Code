@@ -458,7 +458,7 @@ public final class MeterActivationImpl implements MeterActivation {
                     return multiplierValue;
                 })
                 .orElseGet(() -> {
-                    MultiplierValueImpl newMultiplier = MultiplierValueImpl.from(this, type, value);
+                    MultiplierValueImpl newMultiplier = MultiplierValueImpl.from(dataModel, this, type, value);
                     multipliers.add(newMultiplier);
                     dataModel.touch(this);
                     return newMultiplier;

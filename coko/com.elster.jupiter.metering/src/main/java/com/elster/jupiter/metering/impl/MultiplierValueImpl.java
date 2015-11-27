@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.inject.Inject;
@@ -10,14 +11,15 @@ import java.math.BigDecimal;
 
 class MultiplierValueImpl implements MultiplierValue {
 
+    private final DataModel dataModel;
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
     private Reference<MultiplierType> type = ValueReference.absent();
 
     private BigDecimal value;
 
     @Inject
-    MultiplierValueImpl() {
-
+    MultiplierValueImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     MultiplierValueImpl init(MeterActivation meterActivation, MultiplierType type, BigDecimal value) {
@@ -27,8 +29,8 @@ class MultiplierValueImpl implements MultiplierValue {
         return this;
     }
 
-    static MultiplierValueImpl from(MeterActivation meterActivation, MultiplierType type, BigDecimal value) {
-        return new MultiplierValueImpl().init(meterActivation, type, value);
+    static MultiplierValueImpl from(DataModel dataModel, MeterActivation meterActivation, MultiplierType type, BigDecimal value) {
+        return dataModel.getInstance(MultiplierValueImpl.class).init(meterActivation, type, value);
     }
 
     @Override
@@ -39,12 +41,7 @@ class MultiplierValueImpl implements MultiplierValue {
     @Override
     public void setValue(BigDecimal value) {
         this.value = value;
-        update();
-    }
-
-    private void update() {
-        //TODO automatically generated method body, provide implementation.
-
+        dataModel.mapper(MultiplierValue.class).update(this, "value");
     }
 
     @Override
