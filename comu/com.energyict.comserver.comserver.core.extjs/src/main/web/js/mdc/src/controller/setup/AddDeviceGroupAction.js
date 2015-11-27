@@ -478,9 +478,19 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     applyFilters: function () {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
-            staticGrid = wizard.down('static-group-devices-grid');
+            staticGrid = wizard.down('static-group-devices-grid'),
+            dynamicGrid = wizard.down('dynamic-group-devices-grid'),
+            record = Ext.clone(wizard.getRecord()),
+            isDynamic;
 
-        staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
+        wizard.updateRecord(record);
+        isDynamic = record.get('dynamic');
+        if (isDynamic) {
+            dynamicGrid.down('pagingtoolbartop').resetPaging();
+            dynamicGrid.down('pagingtoolbarbottom').resetPaging();
+        } else {
+            staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
+        }
         me.service.applyFilters.apply(me.service, arguments);
     },
 
