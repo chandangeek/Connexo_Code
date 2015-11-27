@@ -39,13 +39,13 @@ public class BasicAuthentication implements Authentication {
             if (xsrf.isPresent()){
                 refreshCookie = false;
                 if (authentication != null && authentication.startsWith("Bearer ") && !authentication.startsWith("Bearer undefined")) {
-                    if (!(authentication.split(" ")[1].equals(xsrf.get().getValue())))
+                    if (!(authentication.substring(authentication.lastIndexOf(" ")+1).equals(xsrf.get().getValue())))
                         return deny(request, response);
                 }
                 user = SecurityToken.verifyToken(xsrf.get().getValue(), request, response, userService);
             } else if (authentication != null && authentication.startsWith("Bearer ")){
                 refreshCookie = false;
-                user = SecurityToken.verifyToken(authentication.split(" ")[1], request, response, userService);
+                user = SecurityToken.verifyToken(authentication.substring(authentication.lastIndexOf(" ")+1), request, response, userService);
             }
 
         }
