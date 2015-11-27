@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -24,7 +26,6 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -85,6 +86,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -111,9 +113,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
@@ -194,8 +194,8 @@ public class ComSessionCrudIT {
         }
 
         @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return Collections.emptyList();
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.empty();
         }
 
     }

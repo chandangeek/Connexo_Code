@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
@@ -32,6 +34,7 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -41,9 +44,9 @@ import com.energyict.mdc.tasks.ComTask;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.*;
@@ -514,9 +517,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         }
 
         @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return Collections.emptyList();
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.empty();
         }
 
     }
+
 }

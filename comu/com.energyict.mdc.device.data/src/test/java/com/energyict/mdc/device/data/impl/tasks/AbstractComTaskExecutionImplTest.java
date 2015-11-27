@@ -1,5 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -18,19 +23,13 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-
 import java.time.Instant;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -230,8 +229,8 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         }
 
         @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return Collections.emptyList();
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.empty();
         }
 
     }
