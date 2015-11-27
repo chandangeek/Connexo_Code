@@ -2097,11 +2097,11 @@ Ext.define('Dxp.controller.Tasks', {
             scheduleRecords = [];
 
         if (recurrenceTriggerValue.recurrence && exportPeriodValue) {
-            me.fillGrid(0, scheduleRecords);
+            me.fillGrid(0, scheduleRecords, arguments);
         }
     },
 
-    fillGrid: function (i, scheduleRecords) {
+    fillGrid: function (i, scheduleRecords, fieldEventParams) {
         var me = this,
             page = me.getAddPage(),
             startOnDate = page.down('#start-on').getValue(),
@@ -2109,10 +2109,15 @@ Ext.define('Dxp.controller.Tasks', {
             updatePeriodId = page.down('#update-window').getValue(),
             everyAmount = page.down('#recurrence-number').getValue(),
             everyTimeKey = page.down('#recurrence-type').getValue(),
+            date = moment(startOnDate).add(everyAmount * i, everyTimeKey),
             sendingData = {};
 
+        if (!date.isValid()) {
+            fieldEventParams[0].setValue(fieldEventParams[2]);
+            return;
+        }
         sendingData.zoneOffset = startOnDate.getTimezoneOffset();
-        sendingData.date = moment(startOnDate).add(everyAmount * i, everyTimeKey).valueOf();
+        sendingData.date = date.valueOf();
 
         Ext.Ajax.request({
             url: '/api/tmr/relativeperiods/' + exportPeriodId + '/preview',
@@ -2125,11 +2130,11 @@ Ext.define('Dxp.controller.Tasks', {
                         method: 'PUT',
                         jsonData: sendingData,
                         success: function (response2) {
-                            me.populatePreview(i,scheduleRecords,response1,response2);
+                            me.populatePreview(i,scheduleRecords,response1,response2, fieldEventParams);
                         }
                     });
                 } else {
-                    me.populatePreview(i,scheduleRecords,response1);
+                    me.populatePreview(i,scheduleRecords,response1, undefined, fieldEventParams);
                 }
             }
         });
@@ -2156,7 +2161,7 @@ Ext.define('Dxp.controller.Tasks', {
         });
     },
 
-    populatePreview: function(i,scheduleRecords,response1,response2){
+    populatePreview: function(i,scheduleRecords,response1,response2, fieldEventParams){
         var me = this,
             obj = Ext.decode(response1.responseText, true),
             scheduleRecord = Ext.create('Dxp.model.SchedulePeriod'),
@@ -2216,7 +2221,7 @@ Ext.define('Dxp.controller.Tasks', {
         scheduleRecords.push(scheduleRecord);
         if (i < 4) {
             i++;
-            me.fillGrid(i, scheduleRecords);
+            me.fillGrid(i, scheduleRecords, fieldEventParams);
         } else {
             grid.getStore().loadData(scheduleRecords, false);
             gridPreview.show();
