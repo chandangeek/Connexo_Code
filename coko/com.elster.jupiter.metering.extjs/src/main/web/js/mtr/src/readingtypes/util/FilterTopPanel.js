@@ -3,7 +3,21 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
     alias: 'widget.reading-types-filter-top-panel',
     requires: [
         'Mtr.readingtypes.attributes.store.TimeOfUse',
-        'Mtr.readingtypes.attributes.store.UnitOfMeasures'
+        'Mtr.readingtypes.attributes.store.UnitOfMeasures',
+        'Mtr.readingtypes.attributes.store.Status',
+        'Mtr.readingtypes.attributes.store.Interval',
+        'Mtr.readingtypes.attributes.store.DataQualifier',
+        'Mtr.readingtypes.attributes.store.Accumulation',
+        'Mtr.readingtypes.attributes.store.DirectionOfFlow',
+        'Mtr.readingtypes.attributes.store.Commodity',
+        'Mtr.readingtypes.attributes.store.Kind',
+        'Mtr.readingtypes.attributes.store.InterharmonicNumerator',
+        'Mtr.readingtypes.attributes.store.InterharmonicDenominator',
+        'Mtr.readingtypes.attributes.store.ArgumentNumerator',
+        'Mtr.readingtypes.attributes.store.ArgumentDenominator',
+        'Mtr.readingtypes.attributes.store.Phase',
+        'Mtr.readingtypes.attributes.store.Multiplier',
+        'Mtr.readingtypes.attributes.store.Currency'
     ],
 layout: 'form',
     majorFilters: [
