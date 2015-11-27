@@ -19,7 +19,8 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
         'Mtr.readingtypes.attributes.store.ConsumptionTier',
         'Mtr.readingtypes.attributes.store.Phase',
         'Mtr.readingtypes.attributes.store.Multiplier',
-        'Mtr.readingtypes.attributes.store.Currency'
+        'Mtr.readingtypes.attributes.store.Currency',
+        'Uni.grid.filtertop.ClosableCombobox'
     ],
     layout: 'form',
     majorFilters: [
