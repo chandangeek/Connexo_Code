@@ -8,10 +8,10 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
     ],
 
     defaults: {
-        labelWidth: 170,
+        labelWidth: 150,
         xtype: 'displayfield',
         hidden: true,
-        width: 470,
+        width: 450,
         renderer: function (value) {
             if (Ext.isEmpty(value.displayValue)) {
                 return '-'

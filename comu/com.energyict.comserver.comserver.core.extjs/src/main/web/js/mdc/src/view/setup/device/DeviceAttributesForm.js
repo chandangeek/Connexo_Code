@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
     },
 
     defaults: {
-        labelWidth: 170,
+        labelWidth: 150,
         xtype: 'displayfield'
     },
 
