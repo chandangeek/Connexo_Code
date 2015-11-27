@@ -32,6 +32,7 @@ public class ColumnImpl implements Column {
     private String updateValue;
     private boolean skipOnUpdate;
     private String formula;
+    private boolean alwaysJournal = true;
 
     // associations
     private final Reference<TableImpl<?>> table = ValueReference.absent();
@@ -77,8 +78,7 @@ public class ColumnImpl implements Column {
 
     @Override
     public String getName(String alias) {
-        return
-                alias == null || alias.length() == 0 ? name : alias + "." + name;
+        return alias == null || alias.length() == 0 ? name : alias + "." + name;
     }
 
     @Override
@@ -93,8 +93,7 @@ public class ColumnImpl implements Column {
 
     @Override
     public String toString() {
-        return
-                "Column " + name + " in table " + getTable().getQualifiedName();
+        return "Column " + name + " in table " + getTable().getQualifiedName();
     }
 
     @Override
@@ -108,7 +107,7 @@ public class ColumnImpl implements Column {
 
     @Override
     public boolean isAutoIncrement() {
-        return sequenceName != null && sequenceName.length() > 0;
+        return sequenceName != null && !sequenceName.isEmpty();
     }
 
     @Override
@@ -133,7 +132,7 @@ public class ColumnImpl implements Column {
 
     @Override
     public boolean hasInsertValue() {
-        return insertValue != null && insertValue.length() > 0;
+        return insertValue != null && !insertValue.isEmpty();
     }
 
     @Override
@@ -146,9 +145,13 @@ public class ColumnImpl implements Column {
         return skipOnUpdate;
     }
 
+    boolean alwaysJournal() {
+        return alwaysJournal;
+    }
+
     @Override
     public boolean hasUpdateValue() {
-        return updateValue != null && updateValue.length() > 0;
+        return updateValue != null && !updateValue.isEmpty();
     }
 
     private ColumnConversionImpl.JsonConverter jsonConverter() {
@@ -401,6 +404,18 @@ public class ColumnImpl implements Column {
         @Override
         public Builder skipOnUpdate() {
             column.skipOnUpdate = true;
+            return this;
+        }
+
+        @Override
+        public Builder notAudited() {
+            column.alwaysJournal = false;
+            return this;
+        }
+
+        @Override
+        public Builder audited() {
+            column.alwaysJournal = true;
             return this;
         }
 

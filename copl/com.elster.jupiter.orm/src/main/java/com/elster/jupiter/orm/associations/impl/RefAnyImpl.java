@@ -1,10 +1,5 @@
 package com.elster.jupiter.orm.associations.impl;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.associations.RefAny;
@@ -13,25 +8,29 @@ import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.util.json.JsonService;
 
+import javax.inject.Inject;
+import java.util.Objects;
+import java.util.Optional;
+
 public final class RefAnyImpl implements RefAny {
-	
+
 	private String component;
 	private String table;
 	private String key;
 	@SuppressWarnings("unused")
 	private long id;
 	private Optional<?> targetHolder;
-	
+
 	private final OrmService ormService;
 	private final JsonService jsonService;
-	
-	
+
+
 	@Inject
 	public RefAnyImpl(OrmService ormService , JsonService jsonService) {
 		this.ormService = ormService;
 		this.jsonService = jsonService;
 	}
-	
+
 	public RefAnyImpl init(Object value, TableImpl<?> table) {
 		this.component = table.getComponentName();
 		this.table = table.getName();
@@ -40,8 +39,8 @@ public final class RefAnyImpl implements RefAny {
 		id = primaryKey.getId();
 		targetHolder = Optional.of(value);
 		return this;
-	}	
-	
+	}
+
 	public RefAnyImpl init(String component, String table, Object... keys) {
 		this.component = component;
 		this.table = table;
@@ -54,27 +53,27 @@ public final class RefAnyImpl implements RefAny {
 		}
 		return this;
 	}
-	
+
 	static RefAnyImpl from(DataModel dataModel, Object value , TableImpl<?> table) {
 		return dataModel.getInstance(RefAnyImpl.class).init(value,table);
 	}
-	
+
 	private OrmServiceImpl getOrmService() {
 		return (OrmServiceImpl) ormService;
 	}
-	
+
 	private Optional<?> getTargetHolder() {
 		if (targetHolder == null) {
-			targetHolder = getOrmService().getDataModel(component).get().getTable(table).getOptional(getPrimaryKey());
+			targetHolder = getOrmService().getDataModelImpl(component).get().getTable(table).getOptional(getPrimaryKey());
 		}
 		return targetHolder;
 	}
-	
+
 	@Override
 	public String toString() {
-		return 
-			"Reference to tuple with primary key " + key + 
-			" in table " + table + 
+		return
+			"Reference to tuple with primary key " + key +
+			" in table " + table +
 			" in component " + component;
 	}
 
@@ -87,21 +86,21 @@ public final class RefAnyImpl implements RefAny {
 	public Object get() {
 		return getTargetHolder().get();
 	}
-	
+
 	@Override
 	public boolean equals(Object other) {
 		if (this == other) {
 			return true;
 		}
-		
+
 		if (this.getClass() != other.getClass()) {
 			return false;
 		}
-		
+
 		RefAnyImpl o = (RefAnyImpl) other;
 		return this.component.equals(o.component) && this.table.equals(o.table) && this.key.equals(o.key);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(component,table,key);

@@ -15,6 +15,8 @@ import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.orm.query.impl.QueryStreamImpl;
+import com.elster.jupiter.util.streams.Functions;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -264,13 +266,15 @@ public class DataModelImpl implements DataModel {
     public RefAny asRefAny(Object reference) {
         checkRegistered();
         Class<?> clazz = Objects.requireNonNull(reference).getClass();
-        for (DataModelImpl dataModel : getOrmService().getDataModels()) {
-            Optional<TableImpl<?>> tableHolder = dataModel.getTable(clazz);
-            if (tableHolder.isPresent()) {
-                return getInstance(RefAnyImpl.class).init(reference, tableHolder.get());
-            }
-        }
-        throw new IllegalArgumentException("No table defined that maps " + reference.getClass());
+        return getOrmService()
+                .getDataModels()
+                .stream()
+                .map(DataModelImpl.class::cast)
+                .map(dataModel -> dataModel.getTable(clazz))
+                .flatMap(Functions.asStream())
+                .findFirst()
+                .map(table -> getInstance(RefAnyImpl.class).init(reference, table))
+                .orElseThrow(() -> new IllegalArgumentException("No table defined that maps " + reference.getClass()));
     }
 
     Injector getInjector() {
@@ -367,9 +371,9 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public <T> QueryExecutor<T> query(Class<T> api, Class<?>... eagers) {
-        return query(mapper(api), eagers);        
+        return query(mapper(api), eagers);
     }
-    
+
     public<T> QueryExecutorImpl<T> query(DataMapperImpl<T> root, Class<?> ... eagers) {
     	DataMapperImpl<?>[] mappers = new DataMapperImpl[eagers.length];
         for (int i = 0; i < eagers.length; i++) {
@@ -385,9 +389,9 @@ public class DataModelImpl implements DataModel {
         }
         return root.with(mappers);
     }
-    
+
     public<T> QueryStream<T> stream(Class<T> api) {
-    	return new QueryStreamImpl<>(mapper(api));    
+    	return new QueryStreamImpl<>(mapper(api));
     }
 
     Module getModule() {
@@ -478,7 +482,7 @@ public class DataModelImpl implements DataModel {
 			.filter(table -> table.lifeCycleClass() == lifeCycleClass)
 			.forEach(table -> table.dropData(upTo, logger));
 	}
-	
+
 	public void createPartitions(Instant upTo, Logger logger) {
 		getTables().stream()
 			.filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)

@@ -48,6 +48,10 @@ public interface Column {
 		Builder number();
 		Builder varChar(int length);
 		Builder varChar();
+
+		Builder audited();
+
+		Builder notAudited();
 		VirtualBuilder as(String formula);
 		Column add();
 	}

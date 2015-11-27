@@ -1,25 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2CURRENCY;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2PRINCIPAL;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTWRAPPER;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2NOW;
-import static com.elster.jupiter.util.Checks.is;
-
-import java.lang.reflect.Field;
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.logging.Logger;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DeleteRule;
@@ -37,14 +17,36 @@ import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
 import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 
+import java.lang.reflect.Field;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2CURRENCY;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2PRINCIPAL;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTWRAPPER;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2NOW;
+import static com.elster.jupiter.util.Checks.is;
+
 public class TableImpl<T> implements Table<T> {
-	
+
 	static final String JOURNALTIMECOLUMNNAME = "JOURNALTIME";
 	static final String MODTIMECOLUMNAME = "MODTIME";
-	
+
 	// persistent fields
 	private String schema;
 	private String name;
@@ -54,29 +56,30 @@ public class TableImpl<T> implements Table<T> {
 	private boolean cached;
     private boolean autoInstall = true;
     private int indexOrganized = -1;
-	
+
 	// associations
 	private final Reference<DataModelImpl> dataModel = ValueReference.absent();
 	private final List<ColumnImpl> columns = new ArrayList<>();
 	private final List<TableConstraintImpl> constraints = new ArrayList<>();
 	private final List<IndexImpl> indexes = new ArrayList<>();
-	
+
 	private Optional<Column> partitionColumn = Optional.empty();
 	private LifeCycleClass lifeCycleClass = LifeCycleClass.NONE;
-	
+
 	// mapping
 	private DataMapperType<T> mapperType;
-	
+
 	// transient, protection against forgetting to call add() on a builder
 	private boolean activeBuilder;
-	private Class<T> api; 
+	private Class<T> api;
+	private List<Class> alternativeApis = new ArrayList<>();
 	private TableCache<T> cache;
-	
+
 	// cached fields , initialized when the table's datamodel is registered with the orm service.
 	private List<ForeignKeyConstraintImpl> referenceConstraints;
 	private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
 	private List<ColumnImpl> realColumns;
-		
+
 	TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
@@ -172,7 +175,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public java.util.Optional<ColumnImpl> getColumn(String name) {
-    	return columns.stream().filter((column) -> column.getName().equalsIgnoreCase(name)).findFirst(); 
+    	return columns.stream().filter((column) -> column.getName().equalsIgnoreCase(name)).findFirst();
     }
 
     @Override
@@ -217,23 +220,12 @@ public class TableImpl<T> implements Table<T> {
     }
 
     ColumnImpl[] getVersionColumns() {
-        List<Column> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
-            if (column.isVersion()) {
-                result.add(column);
-            }
-        }
+        List<Column> result = columns.stream().filter(ColumnImpl::isVersion).collect(Collectors.toList());
         return result.toArray(new ColumnImpl[result.size()]);
     }
 
     List<ColumnImpl> getInsertValueColumns() {
-        List<ColumnImpl> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
-            if (column.hasInsertValue()) {
-                result.add(column);
-            }
-        }
-        return result;
+        return columns.stream().filter(ColumnImpl::hasInsertValue).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getUpdateValueColumns() {
@@ -247,23 +239,11 @@ public class TableImpl<T> implements Table<T> {
     }
 
     List<ColumnImpl> getStandardColumns() {
-        List<ColumnImpl> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
-            if (column.isStandard()) {
-                result.add(column);
-            }
-        }
-        return result;
+        return columns.stream().filter(ColumnImpl::isStandard).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getAutoUpdateColumns() {
-        List<ColumnImpl> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
-            if (column.hasAutoValue(true)) {
-                result.add(column);
-            }
-        }
-        return result;
+        return columns.stream().filter(column -> column.hasAutoValue(true)).collect(Collectors.toList());
     }
 
     @Override
@@ -335,13 +315,27 @@ public class TableImpl<T> implements Table<T> {
         return api;
     }
 
+    boolean supportsApi(Class<?> potentialApi) {
+        return potentialApi.equals(this.getApi())
+            || this.alternativeApis.stream().anyMatch(alternativeApi -> alternativeApi.equals(potentialApi));
+    }
+
+    @Override
+    public Table<T> alsoReferredToAs(Class<? super T> alternativeApi) {
+        if (!alternativeApi.isAssignableFrom(this.api)) {
+            throw new IllegalTableMappingException("Table : " + getName() + " : alternative api " + alternativeApi + " is not a super class of " + api);
+        }
+        this.alternativeApis.add(alternativeApi);
+        return this;
+    }
+
     @SuppressWarnings("unchecked")
     <S> DataMapperImpl<S> getDataMapper(Class<S> api) {
         if (getMapperType().getInjector() == null) {
             throw new IllegalStateException("Datamodel not registered");
         }
         if (maps(api)) {
-            return new DataMapperImpl<S>(api, (TableImpl<? super S>) this);
+            return new DataMapperImpl<>(api, (TableImpl<? super S>) this);
         } else {
             throw new IllegalArgumentException("Table " + getName() + " does not map " + api);
         }
@@ -613,14 +607,14 @@ public class TableImpl<T> implements Table<T> {
     	}
     	return indexOrganized;
     }
-    
+
     @Override
     public boolean isIndexOrganized() {
         return indexOrganized >= 0;
     }
 
     public Optional<? extends T> getOptional(Object... primaryKeyValues) {
-        return getDataMapper(api).getOptional(primaryKeyValues);
+        return getDataMapper().getOptional(primaryKeyValues);
     }
 
     @Override
@@ -628,10 +622,8 @@ public class TableImpl<T> implements Table<T> {
         if (this.mapperType != null) {
             throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
         }
-        if (!api.isAssignableFrom(implementation)) {
-            throw new IllegalTableMappingException("Table : " + getName() + " : " + implementation + " does not implement " + api);
-        }
-        this.mapperType = new SingleDataMapperType<T>(this, implementation);
+        checkCompatibleImplementation(implementation);
+        this.mapperType = new SingleDataMapperType<>(this, implementation);
         return this;
     }
 
@@ -643,13 +635,15 @@ public class TableImpl<T> implements Table<T> {
         if (Objects.requireNonNull(implementations).isEmpty()) {
             throw new IllegalArgumentException("Table : " + getName() + " : Empty map of implementors");
         }
-        for (Class<?> implementation : implementations.values()) {
-            if (!api.isAssignableFrom(implementation)) {
-                throw new IllegalArgumentException("Table : " + getName() + " : " + implementation + " does not implement " + api);
-            }
-        }
+        implementations.values().forEach(this::checkCompatibleImplementation);
         this.mapperType = new InheritanceDataMapperType<>(this, implementations);
         return this;
+    }
+
+    private void checkCompatibleImplementation(Class<?> implementation) {
+        if (!api.isAssignableFrom(implementation)) {
+            throw new IllegalTableMappingException("Table : " + getName() + " : " + implementation + " does not implement " + api);
+        }
     }
 
 	void prepare() {
@@ -659,12 +653,10 @@ public class TableImpl<T> implements Table<T> {
 		List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
 		for (int i = 0 ; i < primaryKeyColumns.size() ; i++) {
 			if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-				throw new IllegalStateException(MessageFormat.format("Table '" + getName() + "' : Primary key columns must be defined first and in order in table {0}", getName()));
+				throw new IllegalStateException(MessageFormat.format("Table '{0}' : Primary key columns must be defined first and in order", getName()));
 			}
 		}
-		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
-			constraint.prepare();
-		}
+        getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
 		buildReferenceConstraints();
 		buildReverseMappedConstraints();
 		realColumns = new ArrayList<>();
@@ -676,7 +668,7 @@ public class TableImpl<T> implements Table<T> {
 		}
 		cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
 	}
-	
+
 	private void checkMapped (Column column) {
 		if (column.getFieldName() == null) {
 			for (ForeignKeyConstraintImpl constraint : getReferenceConstraints()) {
@@ -699,7 +691,7 @@ public class TableImpl<T> implements Table<T> {
         }
 		throw new IllegalTableMappingException("Table " + getName() + " : Column " + column.getName() + " has no mapping");
 	}
-	
+
 	private void buildReferenceConstraints() {
 		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
 		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
@@ -708,9 +700,9 @@ public class TableImpl<T> implements Table<T> {
 				builder.add(constraint);
 			}
 		}
-		this.referenceConstraints = builder.build();		
+		this.referenceConstraints = builder.build();
 	}
-	
+
 	private List<ForeignKeyConstraintImpl> getReverseConstraints() {
 		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
 		for (TableImpl<?> table : getDataModel().getTables()) {
@@ -724,10 +716,11 @@ public class TableImpl<T> implements Table<T> {
 		}
 		return builder.build();
 	}
-	
+
     @Override
     public boolean maps(Class<?> clazz) {
-        return api.isAssignableFrom(clazz);
+        return api.isAssignableFrom(clazz)
+            || this.alternativeApis.stream().anyMatch(alternativeApi -> alternativeApi.isAssignableFrom(clazz));
     }
 
     public DomainMapper getDomainMapper() {
@@ -807,11 +800,11 @@ public class TableImpl<T> implements Table<T> {
 		}
 		return Optional.empty();
 	}
-	
+
 	Class<? extends T> classCast(Class<?> in) {
 		return in.asSubclass(api);
 	}
-	
+
 	private boolean hasAutoChange() {
 		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
 			DeleteRule rule = constraint.getDeleteRule();
@@ -821,24 +814,24 @@ public class TableImpl<T> implements Table<T> {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public IndexImpl.BuilderImpl index(String name) {
 		checkActiveBuilder();
 		activeBuilder = true;
-		return new IndexImpl.BuilderImpl(this,name);		
+		return new IndexImpl.BuilderImpl(this,name);
 	}
-	
+
 	IndexImpl add(IndexImpl index) {
 		activeBuilder = false;
 		this.indexes.add(index);
 		return index;
 	}
-	
+
 	List<IndexImpl> getIndexes() {
 		return Collections.unmodifiableList(indexes);
 	}
-	
+
 	public List<ColumnImpl> getRealColumns() {
 		return realColumns;
 	}
@@ -871,7 +864,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
 	@Override
-	public void dropJournal(Instant upTo, Logger logger) {		
+	public void dropJournal(Instant upTo, Logger logger) {
 		if (getJournalTableName() == null) {
 			return;
 		}
@@ -880,22 +873,22 @@ public class TableImpl<T> implements Table<T> {
 
 	@Override
 	public void dropData(Instant upTo, Logger logger) {
-		drop(getName(),upTo, logger);		
+		drop(getName(),upTo, logger);
 	}
 
-	private void drop(String tableName, Instant upTo, Logger logger) {		
+	private void drop(String tableName, Instant upTo, Logger logger) {
 		if (!getDataModel().getSqlDialect().hasPartitioning()) {
 			// todo sql delete
 			return;
 		}
-		getDataModel().dataDropper(tableName,logger).drop(upTo);		
+		getDataModel().dataDropper(tableName,logger).drop(upTo);
 	}
 
 	@Override
-	public void partitionOn(Column column) {	
+	public void partitionOn(Column column) {
 		this.partitionColumn = Optional.of(column);
 	}
-	
+
 	@Override
 	public void autoPartitionOn(Column column, LifeCycleClass lifeCycleClass) {
 		if (Objects.requireNonNull(lifeCycleClass) == LifeCycleClass.NONE) {
@@ -904,11 +897,11 @@ public class TableImpl<T> implements Table<T> {
 		partitionOn(column);
 		this.lifeCycleClass = lifeCycleClass;
 	}
-	
-	public Optional<Column> partitionColumn() {	
+
+	public Optional<Column> partitionColumn() {
 		return partitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
 	}
-	
+
 	@Override
 	public LifeCycleClass lifeCycleClass() {
 		return lifeCycleClass;
@@ -920,13 +913,13 @@ public class TableImpl<T> implements Table<T> {
 			.findFirst()
 			.filter(constraint -> getDataModel().getSqlDialect().hasPartitioning());
 	}
-	
+
 	PartitionMethod getPartitionMethod() {
 		if (partitionColumn().isPresent()) {
-			return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;			
+			return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;
 		}
 		if (refPartitionConstraint().isPresent()) {
-			return PartitionMethod.REFERENCE;			
+			return PartitionMethod.REFERENCE;
 		}
 		return PartitionMethod.NONE;
 	}

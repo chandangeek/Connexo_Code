@@ -18,7 +18,8 @@ public interface Table<T> {
 
     int NAME_LENGTH = 80;
     int SHORT_DESCRIPTION_LENGTH = 256;
-    int DESCRIPTION_LENGTH = 4000;
+    int MAX_STRING_LENGTH = 4000;
+    int DESCRIPTION_LENGTH = MAX_STRING_LENGTH;
 
     // datamodel construction api
     Column.Builder column(String name);
@@ -145,19 +146,18 @@ public interface Table<T> {
     List<? extends TableConstraint> getConstraints();
 
     boolean isAutoInstall();
-
     void doNotAutoInstall();
 
     TableConstraint getPrimaryKeyConstraint();
+    List<? extends Column> getPrimaryKeyColumns();
+
     List<? extends ForeignKeyConstraint> getForeignKeyConstraints();
 
     String getComponentName();
 
-    List<? extends Column> getPrimaryKeyColumns();
+    Table<T> alsoReferredToAs(Class<? super T> alternativeApi);
     Table<T> map(Class<? extends T> implementer);
-
     Table<T> map(Map<String, Class<? extends T>> implementers);
-
     boolean maps(Class<?> implementer);
 
     void partitionOn(Column column);
