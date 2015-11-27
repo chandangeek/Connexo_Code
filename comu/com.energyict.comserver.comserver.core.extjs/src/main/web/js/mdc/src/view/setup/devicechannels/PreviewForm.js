@@ -17,7 +17,8 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
             layout: 'column',
             defaults: {
                 xtype: 'form',
-                columnWidth: 0.5
+                columnWidth: 0.5,
+                minWidth: 450
             },
             items: [
                 {
