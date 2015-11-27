@@ -64,7 +64,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     init: function () {
         this.control({
-            '#registerconfiggrid': {
+            '#registerConfigSetupPanel #registerconfiggrid': {
                 selectionchange: this.previewRegisterConfig
             },
             '#registerConfigSetup button[action = createRegisterConfig]': {
@@ -141,7 +141,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         if (selectedRegisterConfigs.length === 1) {
             var registerConfig = selectedRegisterConfigs[0];
 
-            console.log(registerConfig);
             me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
 
             me.getRegisterConfigValidationRulesStore().getProxy().extraParams =
@@ -194,10 +193,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        // For some reason this call is needed to get the first item of the register configs grid selected:
-                        widget.down('#registerConfigSetupPanel #previewContainer').updateOnChange(
-                            widget.down('#registerConfigSetupPanel #previewContainer registerConfigGrid').getStore().getCount() === 0
-                        );
                     }
                 });
             }
@@ -295,17 +290,11 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 }
                 if (useMultiplier) {
                     if (calculatedReadingTypeField.isVisible()) {
-                        record.set('calculatedReadingType', calculatedReadingTypeField.getValue());
+                        record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
                     } else if (calculatedReadingTypeCombo.isVisible()) {
-                        var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
-                            calculatedReadingType = null;
-                        Ext.Array.forEach(possibleCalculatedReadingTypes, function(item) {
-                            if (item.get('mRID') === calculatedReadingTypeCombo.getValue()) {
-                                calculatedReadingType = item;
-                                return false; // stop iterating
-                            }
-                        });
-                        record.setCalculatedReadingType(calculatedReadingType);
+                        record.setCalculatedReadingType(
+                            calculatedReadingTypeCombo.getStore().findRecord(calculatedReadingTypeCombo.valueField, calculatedReadingTypeCombo.getValue())
+                        );
                     }
                 } else {
                     record.setCalculatedReadingType(null);
@@ -344,7 +333,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerConfig.removeUsedRegisterConfig', 'MDC', 'The register configuration will no longer be available.'),
-            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [registerConfigurationToDelete.get('name')]),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', registerConfigurationToDelete.get('registerTypeName')),
             config: {
                 registerConfigurationToDelete: registerConfigurationToDelete,
                 me: me
@@ -458,15 +447,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     if (calculatedReadingTypeField.isVisible()) {
                         record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
                     } else if (calculatedReadingTypeCombo.isVisible()) {
-                        var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
-                            calculatedReadingType = null;
-                        Ext.Array.forEach(possibleCalculatedReadingTypes, function(item) {
-                            if (item.get('mRID') === calculatedReadingTypeCombo.getValue()) {
-                                calculatedReadingType = item;
-                                return false; // stop iterating
-                            }
-                        });
-                        record.setCalculatedReadingType(calculatedReadingType);
+                        record.setCalculatedReadingType(
+                            calculatedReadingTypeCombo.getStore().findRecord(calculatedReadingTypeCombo.valueField, calculatedReadingTypeCombo.getValue())
+                        );
                     }
                 } else {
                     record.setCalculatedReadingType(null);
