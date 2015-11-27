@@ -21,6 +21,7 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.Numeric',
         'Uni.view.search.field.Selection',
         'Uni.view.search.field.Simple',
+        'Uni.view.search.field.Obis',
         'Uni.view.search.field.TimeDuration',
         'Uni.view.search.field.Date',
         'Uni.view.search.field.Clock',
@@ -34,7 +35,8 @@ Ext.define('Uni.view.search.Overview', {
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            store = Ext.getStore('Uni.store.search.Properties');
 
         me.items = [
             {
@@ -161,7 +163,7 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'mRID-sorting-button',
                                         ui: 'tag',
                                         iconCls: 'x-btn-sort-item-desc',
-                                        text: Uni.I18n.translate('general.mRID', 'UNI', 'mRID'),
+                                        text: Uni.I18n.translate('general.mRID', 'UNI', 'MRID'),
                                         disabled: false
                                     },
                                     {
@@ -190,9 +192,9 @@ Ext.define('Uni.view.search.Overview', {
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('search.overview.noItemsFoundPanel.title', 'UNI', 'No search results found'),
                             reasons: [
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'UNI', 'No filters have been applied.'),
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'UNI', 'No search criteria have been specified.'),
                                 Uni.I18n.translate('search.overview.noItemsFoundPanel.item2', 'UNI', 'There are no requested items.'),
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'The filter is too narrow.')
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'The applied search criteria are too specific.')
                             ],
                             margins: '16 0 0 0'
                         },
@@ -205,5 +207,21 @@ Ext.define('Uni.view.search.Overview', {
         ];
 
         this.callParent(arguments);
+
+        var panel = me.down('#search-main-container');
+        var listeners = store.on({
+            beforeload:  function() {
+                panel.setLoading(true);
+            },
+            load: function() {
+                panel.setLoading(false);
+            },
+            scope: me,
+            destroyable: true
+        });
+
+        me.on('destroy', function () {
+            listeners.destroy();
+        });
     }
 });
