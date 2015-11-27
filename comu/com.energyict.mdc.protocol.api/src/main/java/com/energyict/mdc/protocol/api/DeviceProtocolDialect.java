@@ -49,10 +49,6 @@ public interface DeviceProtocolDialect extends HasDynamicProperties {
 
     /**
      * Provides a <b>unique</b> name for this DeviceProtocolDialect.
-     * This name will be used in the RelationType that is going to be created for this
-     * {@link DeviceProtocolDialect} and his corresponding {@link DeviceProtocol DeviceProtocol}
-     * <p/>
-     * <b>NOTE: The length of the name is limited to 24 characters!</b>
      *
      * @return the unique name for this DeviceProtocolDialect
      */

@@ -13,13 +13,13 @@ public interface ConfigurationSupport {
      *
      * @return a List of String objects
      */
-    List<PropertySpec> getRequiredProperties();
+    List<com.elster.jupiter.properties.PropertySpec> getRequiredProperties();
 
     /**
      * Returns a list of optional property keys
      *
      * @return a List of String objects
      */
-    List<PropertySpec> getOptionalProperties();
+    List<com.elster.jupiter.properties.PropertySpec> getOptionalProperties();
 
 }

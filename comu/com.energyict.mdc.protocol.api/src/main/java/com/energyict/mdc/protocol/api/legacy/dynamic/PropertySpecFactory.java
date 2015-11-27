@@ -1,7 +1,10 @@
 package com.energyict.mdc.protocol.api.legacy.dynamic;
 
-import java.util.ArrayList;
+
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides factory services for {@link PropertySpec}s.
@@ -19,33 +22,19 @@ public class PropertySpecFactory {
      * Creates a PropertySpec for a String value.
      *
      * @param name The name of the PropertySpec
+     * @param propertySpecService The PropertySpecService
      * @return The PropertySpec
      */
-    public static PropertySpec<String> stringPropertySpec(String name) {
-        return simplePropertySpec(name, String.class, new StringFactory());
+    public static com.elster.jupiter.properties.PropertySpec stringPropertySpec(String name, PropertySpecService propertySpecService) {
+        return simplePropertySpec(propertySpecService, name, new com.elster.jupiter.properties.StringFactory());
     }
 
-    private static <T> PropertySpec<T> simplePropertySpec(String name, Class<T> domainClass, ValueFactory<T> valueFactory) {
-        return PropertySpecBuilder.
-                forClass(domainClass, valueFactory).
-                name(name).
-                finish();
+    private static com.elster.jupiter.properties.PropertySpec simplePropertySpec(PropertySpecService propertySpecService, String name, com.elster.jupiter.properties.ValueFactory valueFactory) {
+        return propertySpecService.basicPropertySpec(name, false, valueFactory);
     }
 
-    // for legacy conversion
-
-    /**
-     * Converts a list with string keys to the new List<PropertySpec> format.
-     *
-     * @param keys The list of keys
-     * @return The list of PropertySpecs
-     */
-    public static List<PropertySpec> toPropertySpecs(List<String> keys) {
-        List<PropertySpec> result = new ArrayList<>();
-        for (String key : keys) {
-            result.add(PropertySpecFactory.stringPropertySpec(key));
-        }
-        return result;
+    public static List<com.elster.jupiter.properties.PropertySpec> toPropertySpecs(List<String> keys, PropertySpecService propertySpecService) {
+        return keys.stream().map(key -> stringPropertySpec(key, propertySpecService)).collect(Collectors.toList());
     }
 
     // Hide utility class constructor

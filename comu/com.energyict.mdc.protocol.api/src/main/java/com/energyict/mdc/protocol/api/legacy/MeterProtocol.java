@@ -22,7 +22,6 @@ import java.util.logging.Logger;
  * system and the meter protocol implementation. The interface can both be
  * used at operational time and at configuration time
  * <p/>
- * </p><p>
  * During normal operations the data collection system will call the MeterProtocol
  * methods in the following sequence:
  * <ul>
@@ -34,7 +33,7 @@ import java.util.logging.Logger;
  * <li> disconnect </li>
  * </ul>
  * At configuration time, the getRequiredKeys, getOptionalKeys and setProperties methods
- * can be called in any sequence </p><p>
+ * can be called in any sequence.
  *
  * @author Karel
  *         KV 15122003 serialnumber of the device
@@ -68,18 +67,6 @@ public interface MeterProtocol extends Pluggable, CachingProtocol {
     String NODEID = "NodeAddress";
 
     /**
-     * The string used for the maxTimeDifference property.
-     * The property is used only by the collection software.
-     */
-    String MAXTIMEDIFF = "MaximumTimeDiff";
-
-    /**
-     * The string used for the minTimeDifference property.
-     * The property is used only by the collection software.
-     */
-    String MINTIMEDIFF = "MinimumTimeDiff";
-
-    /**
      * The string used for the roundtripCorrection property.
      * This property is used by the getTime() and setTime() method
      * to correct the communication roundtrip.
@@ -91,13 +78,6 @@ public interface MeterProtocol extends Pluggable, CachingProtocol {
      * The property is used only by the protocoltester software.
      */
     String CORRECTTIME = "CorrectTime";
-
-    /**
-     * This string used for the ExtraIntervals property.
-     * The property is used to subtract nr of ExtraIntervals from last reading so to request ExtraIntervals more profile data
-     * from a meter. This is don to ensure that enough intervals are read to calculate advances from cumulative values!
-     */
-    String EXTRAINTERVALS = "ExtraIntervals";
 
     /**
      * The string used for the protocol classname property
@@ -189,7 +169,7 @@ public interface MeterProtocol extends Pluggable, CachingProtocol {
      * @throws IOException          Thrown in case of an exception
      * @throws UnsupportedException Thrown if method is not supported
      */
-    String getFirmwareVersion() throws IOException, UnsupportedException;
+    String getFirmwareVersion() throws IOException;
 
     /**
      * <p>
