@@ -69,7 +69,9 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private volatile Thesaurus thesaurus;
     private volatile UserPreferencesService userPreferencesService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private List<User> loggedInUsers = new ArrayList<>();
     private volatile DataVaultService dataVaultService;
+
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
@@ -721,4 +723,29 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public Query<Group> getGroupsQuery() {
         return queryService.wrap(dataModel.query(Group.class));
     }
+
+    @Override
+    public Optional<User> getLoggedInUser(long userId) {
+        Optional<User> found = this.loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
+        if(!found.isPresent()){
+            found = this.getUser(userId);
+        }
+
+        return found;
+    }
+
+    @Override
+    public void addLoggedInUser(User user) {
+        if(!this.loggedInUsers.contains(user)){
+            this.loggedInUsers.add(user);
+        }else{
+            this.getLoggedInUser(user.getId());
+        }
+    }
+
+    @Override
+    public void removeLoggedUser(User user) {
+        this.loggedInUsers.remove(user);
+    }
+
 }
