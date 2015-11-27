@@ -140,6 +140,10 @@ Ext.define('Uni.property.view.property.Base', {
                 me.required = property.get('required');
                 me.allowBlank = !me.required;
             }
+
+            if ( property.get('isReadOnly')){
+                me.isReadOnly = property.get('isReadOnly');
+            }
         }
     },
 
