@@ -39,6 +39,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
     private DeviceSearchDomain domain;
     private SearchableProperty parent;
     private List<ProtocolDialect> protocolDialects = Collections.emptyList();
+    private DisplayStrategy displayStrategy = DisplayStrategy.NAME_ONLY;
 
     @Inject
     public ProtocolDialectSearchableProperty(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus) {
@@ -60,7 +61,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return ((ProtocolDialect) value).getName();
+        return this.displayStrategy.toDisplay((ProtocolDialect) value);
     }
 
     @Override
@@ -144,9 +145,15 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     private void refreshWithConstrictionValues(List<Object> deviceTypes) {
         this.validateObjectsType(deviceTypes);
+        if (deviceTypes.size() > 1) {
+            this.displayStrategy = DisplayStrategy.WITH_PROTOCOL;
+        }
+        else {
+            this.displayStrategy = DisplayStrategy.NAME_ONLY;
+        }
         this.protocolDialects = deviceTypes.stream()
                 .map(DeviceType.class::cast)
-                .flatMap(deviceType -> getProtocolDialectsOnDeviceType(deviceType))
+                .flatMap(this::getProtocolDialectsOnDeviceType)
                 .sorted((pd1, pd2) -> pd1.getName().compareToIgnoreCase(pd2.getName()))
                 .collect(Collectors.toList());
     }
@@ -236,5 +243,23 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
         public DeviceProtocolDialect getProtocolDialect() {
             return this.protocolDialect;
         }
+    }
+
+    private enum DisplayStrategy {
+        NAME_ONLY {
+            @Override
+            public String toDisplay(ProtocolDialect protocolDialect) {
+                return protocolDialect.getName();
+            }
+        },
+
+        WITH_PROTOCOL {
+            @Override
+            public String toDisplay(ProtocolDialect protocolDialect) {
+                return protocolDialect.getName() + " (" + protocolDialect.getPluggableClass().getName() + ")";
+            }
+        };
+
+        public abstract String toDisplay(ProtocolDialect protocolDialect);
     }
 }

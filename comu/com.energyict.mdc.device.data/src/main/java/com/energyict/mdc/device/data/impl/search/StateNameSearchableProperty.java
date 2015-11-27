@@ -248,7 +248,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         WITH_LIFE_CYCLE {
             @Override
             public DeviceState toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
-                return new DeviceState(state.getId(), getStateName(state, thesaurus) + "(" + deviceType.getDeviceLifeCycle().getName() + ")");
+                return new DeviceState(state.getId(), getStateName(state, thesaurus) + " (" + deviceType.getDeviceLifeCycle().getName() + ")");
             }
         };
 
