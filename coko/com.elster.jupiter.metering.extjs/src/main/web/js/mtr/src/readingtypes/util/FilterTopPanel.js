@@ -15,11 +15,13 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
         'Mtr.readingtypes.attributes.store.InterharmonicDenominator',
         'Mtr.readingtypes.attributes.store.ArgumentNumerator',
         'Mtr.readingtypes.attributes.store.ArgumentDenominator',
+        'Mtr.readingtypes.attributes.store.CriticalPeakPeriod',
+        'Mtr.readingtypes.attributes.store.ConsumptionTier',
         'Mtr.readingtypes.attributes.store.Phase',
         'Mtr.readingtypes.attributes.store.Multiplier',
         'Mtr.readingtypes.attributes.store.Currency'
     ],
-layout: 'form',
+    layout: 'form',
     majorFilters: [
         {
             type: 'text',
