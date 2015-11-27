@@ -248,7 +248,8 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
     updateOnChange: function(isEmpty) {
         var me = this,
-            activeIndex = me.items.indexOf(me.getLayout().getActiveItem());
+            activeIndex = me.items.indexOf(me.getLayout().getActiveItem()),
+            gridView = me.grid.getView();
 
         Ext.suspendLayouts();
         if (isEmpty && activeIndex !== 0) {
@@ -263,8 +264,13 @@ Ext.define('Uni.view.container.PreviewContainer', {
         }
 
         if (me.selectByDefault && !isEmpty) {
-            me.grid.getView().getSelectionModel().preventFocus = true;
-            me.grid.getView().getSelectionModel().select(0);
+            if (me.rendered) {
+                gridView.getSelectionModel().select(0);
+            } else {
+                gridView.on('render', function() {
+                    gridView.getSelectionModel().select(0);
+                }, me, {single:true});
+            }
         }
         Ext.resumeLayouts(true);
     },
