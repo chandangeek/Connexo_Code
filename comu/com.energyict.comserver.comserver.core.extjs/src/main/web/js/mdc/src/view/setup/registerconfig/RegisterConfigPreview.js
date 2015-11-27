@@ -133,7 +133,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
         }
 
         me.loadRecord(registerConfig);
-        me.setTitle(registerConfig.get('name'));
+        me.setTitle(registerConfig.get('registerTypeName'));
 
         if (me.rendered) {
             Ext.resumeLayouts(true);
