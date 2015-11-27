@@ -8,7 +8,8 @@ Ext.define('Dbp.controller.Main', {
 
     controllers: [
         'Dbp.controller.History',
-        'Dbp.deviceprocesses.controller.DeviceProcesses'
+        'Dbp.deviceprocesses.controller.DeviceProcesses',
+        'Dbp.deviceprocesses.controller.StartProcess'
     ],
 
     refs: [
