@@ -5,8 +5,11 @@ Ext.define('Uni.view.search.field.Numeric', {
     text: Uni.I18n.translate('search.field.numeric.text', 'UNI', 'Numeric'),
 
     requires: [
-        'Uni.view.search.field.internal.NumberLine'
+        'Uni.view.search.field.internal.CriteriaLine'
     ],
+    items: [],
+    menuConfig: {},
+    itemsDefaultConfig: {},
 
     getValue: function() {
         var value = [];
@@ -25,14 +28,14 @@ Ext.define('Uni.view.search.field.Numeric', {
             clearBtn = this.down('#clearall');
 
         if (clearBtn) {
-            clearBtn.setDisabled(!!Ext.isEmpty(value));
+            clearBtn.setDisabled(Ext.isEmpty(value));
         }
         this.setValue(value);
     },
 
     cleanup: function(menu) {
         menu.items.each(function (item) {
-            if (item && item.removable && Ext.isEmpty(item.getValue())) {
+            if (item && item.removable && Ext.isDefined(item.getValue())) {
                 menu.remove(item);
             }
         });
@@ -48,18 +51,34 @@ Ext.define('Uni.view.search.field.Numeric', {
         });
 
         me.onInputChange();
-        this.callParent(arguments);
+        me.callParent(arguments);
     },
 
     addCriteria: function () {
         var me = this;
-        me.down('menu').add({
-            xtype: 'uni-search-internal-numberline',
-            operator: '=',
-            removable: true,
-            onRemove: function() {
-                me.menu.remove(this);
-                me.onInputChange();
+
+        me.down('menu').add(me.createCriteriaLine({
+            removable: true
+        }));
+    },
+
+    createCriteriaLine: function(config) {
+        var me = this;
+
+        return Ext.apply({
+            xtype: 'uni-search-internal-criterialine',
+            itemsDefaultConfig: me.itemsDefaultConfig,
+            width: '455',
+            operator: '==',
+            removable: false,
+            operatorMap: {
+                '==': 'uni-search-internal-numberfield',
+                //'!=': 'uni-search-internal-numberfield',
+                //'>': 'uni-search-internal-numberfield',
+                //'>=': 'uni-search-internal-numberfield',
+                //'<': 'uni-search-internal-numberfield',
+                //'<=': 'uni-search-internal-numberfield',
+                'BETWEEN': 'uni-search-internal-numberrange'
             },
             listeners: {
                 change: {
@@ -67,26 +86,15 @@ Ext.define('Uni.view.search.field.Numeric', {
                     scope: me
                 }
             }
-        });
+        }, config)
     },
 
     initComponent: function () {
         var me = this;
 
-        me.items = [
-            {
-                xtype: 'uni-search-internal-numberline',
-                operator: '=',
-                listeners: {
-                    change: {
-                        fn: me.onInputChange,
-                        scope: me
-                    }
-                }
-            }
-        ];
+        me.items = me.createCriteriaLine();
 
-        me.menuConfig = {
+        Ext.apply(me.menuConfig, {
             minWidth: 150,
             defaults: {
                 margin: 0,
@@ -126,12 +134,13 @@ Ext.define('Uni.view.search.field.Numeric', {
                             text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
                             action: 'addcriteria',
                             handler: me.addCriteria,
+                            disabled: true,
                             scope : me
                         }
                     ]
                 }
             ]
-        };
+        });
 
         me.callParent(arguments);
     }

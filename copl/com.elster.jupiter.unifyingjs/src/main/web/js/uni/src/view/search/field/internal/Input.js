@@ -12,10 +12,17 @@ Ext.define('Uni.view.search.field.internal.Input', {
     onChange: function(elm, value) {
         this.down('#filter-clear').setVisible(!!value);
         this.fireEvent('change', this, value);
+        if (Ext.isEmpty(value)) {
+            this.fireEvent('reset');
+        }
     },
 
     setValue: function (value) {
         this.down('#filter-input').setValue(value);
+    },
+
+    getValue: function () {
+        return this.down('#filter-input').getValue();
     },
 
     reset: function() {
@@ -24,6 +31,12 @@ Ext.define('Uni.view.search.field.internal.Input', {
     },
 
     initComponent: function () {
+        var me = this;
+        me.init();
+        me.callParent(arguments);
+    },
+
+    init: function () {
         var me = this;
 
         me.items = {
@@ -67,7 +80,5 @@ Ext.define('Uni.view.search.field.internal.Input', {
                 }
             }
         };
-
-        me.callParent(arguments);
     }
 });

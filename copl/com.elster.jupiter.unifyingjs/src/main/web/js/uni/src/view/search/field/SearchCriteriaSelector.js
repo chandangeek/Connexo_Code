@@ -11,22 +11,31 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     text: Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
     arrowAlign: 'right',
     menuAlign: 'tr-br',
+    store: 'Uni.store.search.Properties',
+    config: {
+        service: null
+    },
+    menuItems: [],
 
     setChecked: function(property, value, suppressEvents) {
-        var item, me = this;
-        var base = property.get('groupId')
-            ? me.menu.items.findBy(function(i){return i.value === property.get('groupId');}).menu
-            : me.menu;
+        var item,
+            me = this,
+            base = property.get('groupId')
+                ? me.menu.items.findBy(function(i){return i.value === property.get('groupId');})
+                : me;
 
-        item = base.items.findBy(function(i){return i.criteria === property;});
-
-        if (item) {
-            item.setChecked(value, suppressEvents);
+        if (base) {
+            item = base.menu.items.findBy(function(i){return i.criteria === property;});
+            if (item) {
+                item.setChecked(value, suppressEvents);
+            }
         }
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            service = this.getService(),
+            listeners = [];
 
         me.menu = {
             plain: true,
@@ -35,8 +44,69 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             }
         };
 
-        this.callParent(arguments);
-        me.bindStore('ext-empty-store', true);
+        listeners.push(service.on({
+            add:  me.onCriteriaAdd,
+            remove: me.onCriteriaRemove,
+            change: me.onCriteriaChange,
+            reset: me.onReset,
+            scope: me,
+            destroyable: true
+        }));
+
+        me.callParent(arguments);
+        me.bindStore(me.store, true);
+
+        listeners.push(me.store.on('beforeload', function() {
+            me.setDisabled(true);
+            me.menu.setLoading(true);
+        }, me, {
+            destroyable: true
+        }));
+
+        listeners.push(me.store.on('load', me.onStoreLoad, me, {
+            destroyable: true
+        }));
+
+        me.on('destroy', function () {
+            listeners.map(function (i) {
+                i.destroy()
+            });
+        });
+    },
+
+    onReset: function() {
+        this.onStoreLoad(this.store);
+    },
+
+    onCriteriaAdd: function(filters, filter, property) {
+        if (!property.get('sticky')) {
+            this.setChecked(property, true, true);
+        }
+    },
+
+    onCriteriaRemove: function(filters, filter, property) {
+        if (!property.get('sticky')) {
+            this.setChecked(property, false, true);
+        }
+    },
+
+    /**
+     * performs constraint update
+     *
+     * @param widget
+     * @param value
+     */
+    onCriteriaChange: function (widget, value) {
+        var me = this,
+            deps = _.filter(me.menuItems, function (item) {
+                return !!(item.criteria.get('constraints')
+                && item.criteria.get('constraints').length
+                && item.criteria.get('constraints').indexOf(widget.property.get('name')) >= 0);
+            });
+
+        deps.map(function (item) {
+            item.setDisabled(!value);
+        });
     },
 
     createMenuItem: function (criteria) {
@@ -44,45 +114,60 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             xtype: 'menucheckitem',
             text: criteria.get('displayValue'),
             value: criteria.get('name'),
-            criteria: criteria
+            criteria: criteria,
+            checked: this.service.filters.get(criteria.get('name'))
         };
 
-        if (criteria.get('constraints') && criteria.get('constraints').length) {
+        if (    criteria.get('constraints')
+            &&  criteria.get('constraints').length
+            &&  this.service.checkConstraints(criteria)
+        ) {
             Ext.apply(menuitem, {
-                disabled: true
-                //todo: fix tooltip
-                //tooltip: {
-                //    title: 'Enable connection properties',
-                //    text: 'Connection properties become available as soon as a search value has been specified for Device type, Device configuration and Connection properties.',
-                //    maxWidth: 150
-                //}
+                disabled: true,
+                tooltip: {
+                    title: Uni.I18n.translate('search.criteriaselector.disabled.title', 'UNI', 'Enable {0}', [criteria.get('displayValue')]),
+                    text: Uni.I18n.translate('search.criteriaselector.disabled.body', 'UNI',
+                        '{0} become available as soon as a search value has been specified for {1}',
+                        [criteria.get('displayValue'), criteria.get('constraints').join(', ')]),
+                    maxWidth: 150
+                }
             })
         }
-        return menuitem
+
+        return menuitem;
     },
 
-    onBindStore: function (store) {
-        var me = this;
+    onStoreLoad: function (store) {
+        var me = this,
+            groups;
+
         me.setDisabled(!store.count());
         Ext.suspendLayouts();
         me.menu.removeAll();
+        me.menuItems = [];
         store.group('groupId');
 
         if (store.count()) {
             store.each(function (item) {
-                if (!item.get('groupId')) {
-                    me.menu.add(me.createMenuItem(item));
+                if (!item.get('groupId') && item.get('sticky') == false) {
+                    me.menuItems.push(me.menu.add(me.createMenuItem(item)));
                 }
             });
 
-            store.getGroups().map(function(group) {
+            groups = _.sortBy(store.getGroups(), function (item) {
+                var group = item.children[0].get('group');
+
+                return group.displayValue || group;
+            });
+            groups.map(function(group) {
                 var items = [];
+
                 group.children.map(function(item) {
                     items.push(me.createMenuItem(item));
                 });
 
                 if (items.length && !Ext.isEmpty(group.name)) {
-                    me.menu.add({
+                    me.menuItems = me.menuItems.concat(me.menu.add({
                         xtype: 'menuitem',
                         text: items[0].criteria.get('group').displayValue,
                         value: group.name,
@@ -90,37 +175,31 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                             itemId: 'search-criteria-sub-menu',
                             items: items
                         }
-                    })
+                    }).menu.items.getRange());
                 }
             });
         }
+
+        me.menu.setLoading(false);
+        me.updateLayout();
+
         Ext.resumeLayouts(true);
     },
 
-    setValue: function(value) {
+    setValue: function(value, suspendEvent) {
+        if (!Ext.isDefined(suspendEvent)) {
+            suspendEvent = false;
+        }
+
         var item = this.menu.items.findBy(function(item){return item.value == value});
         if (item) {
             item.setActive();
             this.setText(item.text);
-            this.fireEvent('change', this);
+
+            if (!suspendEvent) {
+                this.fireEvent('change', this);
+            }
         }
     }
-
-    //onUpdateRemovablesStore: function () {
-    //    var me = this,
-    //        emptyText = Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
-    //        addCriteriaCombo = me.getAddCriteriaCombo(),
-    //        criteriaStore = Ext.getStore('Uni.store.search.Removables');
-    //
-    //    if (addCriteriaCombo) {
-    //        addCriteriaCombo = me.getAddCriteriaCombo().down('#addcriteria');
-    //        if (criteriaStore.count() === 0) {
-    //            emptyText = Uni.I18n.translate('search.overview.addCriteria.emptyText.none', 'UNI', 'No criteria to add');
-    //        }
-    //        if (addCriteriaCombo.text !== emptyText) {
-    //            addCriteriaCombo.text = emptyText;
-    //        }
-    //    }
-    //},
 });
 

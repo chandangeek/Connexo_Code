@@ -190,7 +190,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         obj[me.pageSizeParam] = undefined;
         obj[me.pageStartParam] = undefined;
 
-        me.updateHrefIfNecessary(Uni.util.QueryString.buildHrefWithQueryString(obj));
+        me.updateHrefIfNecessary(Uni.util.QueryString.buildHrefWithQueryString(obj, false));
     },
 
     updateHrefIfNecessary: function (href) {
@@ -225,7 +225,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         obj[me.pageSizeParam] = me.store.pageSize;
         obj[me.pageStartParam] = start;
 
-        return Uni.util.QueryString.buildHrefWithQueryString(obj);
+        return Uni.util.QueryString.buildHrefWithQueryString(obj, false);
     },
 
     getPageStartValue: function (pageOffset) {

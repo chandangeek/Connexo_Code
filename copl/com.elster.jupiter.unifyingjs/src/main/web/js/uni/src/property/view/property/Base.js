@@ -30,7 +30,7 @@ Ext.define('Uni.property.view.property.Base', {
     removeButtonTooltip: null, // The tooltip for the edit button when in 'remove/clear mode'
     onEditFunc: {
         func : null,
-        scope: null,
+        scope: null
     },
 
     layout: 'hbox',

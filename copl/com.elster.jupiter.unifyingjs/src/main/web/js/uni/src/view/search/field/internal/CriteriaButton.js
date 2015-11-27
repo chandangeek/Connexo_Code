@@ -12,20 +12,28 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     },
 
     populateValue: function(value) {
-        throw 'this function should be overriden';
+        this.menu.items.each(function(item, index) {
+            item.setValue(value[index]);
+        });
     },
 
     setValue: function(value) {
+        if (value && !Ext.isArray(value)) {
+            value = [value];
+        }
+
         this.value = value;
         this.updateButtonText();
         this.fireEvent('change', this, value);
     },
 
     getFilter: function() {
-        var me = this;
+        var me = this,
+            value = me.getValue();
+
         return new Ext.util.Filter({
             property: me.dataIndex,
-            value: me.getValue(),
+            value: value ? value.map(function(v){return v.getData()}) : null,
             id: me.dataIndex
         });
     },
@@ -37,10 +45,9 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     },
 
     updateButtonText: function () {
-        var count = Ext.isArray(this.value) ? this.value.length : 1;
         Ext.isEmpty(this.value)
             ? this.setText(this.emptyText)
-            : this.setText(this.emptyText + '&nbsp;(' + count + ')');
+            : this.setText(this.emptyText + '&nbsp;(' + this.value.length + ')');
     },
 
     initComponent: function () {
@@ -55,7 +62,9 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
                 },
                 padding: 0,
                 minWidth: 273,
-                items: me.items
+                items: me.items,
+                onMouseOver: Ext.emptyFn,
+                enableKeyNav: false
             }, me.menuConfig)
         });
 

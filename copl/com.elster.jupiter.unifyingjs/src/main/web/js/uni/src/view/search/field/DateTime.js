@@ -2,9 +2,10 @@ Ext.define('Uni.view.search.field.DateTime', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     xtype: 'uni-search-criteria-datetime',
     requires: [
-        'Uni.view.search.field.internal.DateLine'
+        'Uni.view.search.field.internal.CriteriaLine'
     ],
     text: Uni.I18n.translate('search.field.dateTime.text', 'UNI', 'DateTime'),
+    menuConfig: {},
 
     getValue: function() {
         var value = [];
@@ -25,7 +26,8 @@ Ext.define('Uni.view.search.field.DateTime', {
         if (clearBtn) {
             clearBtn.setDisabled(!!Ext.isEmpty(value));
         }
-        this.setValue(this, value);
+
+        this.setValue(value);
     },
 
     reset: function () {
@@ -42,13 +44,28 @@ Ext.define('Uni.view.search.field.DateTime', {
 
     addRangeHandler: function () {
         var me = this;
-        me.down('menu').add({
-            xtype: 'uni-search-internal-dateline',
-            operator: '=',
-            removable: true,
-            onRemove: function() {
-                me.menu.remove(this);
-                me.onInputChange();
+
+        me.down('menu').add(me.createCriteriaLine({
+            removable: true
+        }));
+    },
+
+    createCriteriaLine: function(config) {
+        var me = this;
+
+        return Ext.apply({
+            xtype: 'uni-search-internal-criterialine',
+            width: '455',
+            operator: '==',
+            removable: false,
+            operatorMap: {
+                '==': 'uni-search-internal-datetimefield',
+                //'!=': 'uni-search-internal-datetimefield',
+                //'>': 'uni-search-internal-datetimefield',
+                //'>=': 'uni-search-internal-datetimefield',
+                //'<': 'uni-search-internal-datetimefield',
+                //'<=': 'uni-search-internal-datetimefield',
+                'BETWEEN': 'uni-search-internal-daterange'
             },
             listeners: {
                 change: {
@@ -56,7 +73,7 @@ Ext.define('Uni.view.search.field.DateTime', {
                     scope: me
                 }
             }
-        });
+        }, config)
     },
 
     cleanup: function (menu) {
@@ -68,24 +85,10 @@ Ext.define('Uni.view.search.field.DateTime', {
     },
 
     initComponent: function () {
-        var me = this,
-            listeners = {
-                change: {
-                    fn: me.onInputChange,
-                    scope: me
-                }
-            };
+        var me = this;
 
-        me.items = [
-                {
-                    xtype: 'uni-search-internal-dateline',
-                    operator: '=',
-                    listeners: listeners
-                }
-            ]
-        ;
-
-        me.menuConfig = {
+        me.items = me.createCriteriaLine();
+        Ext.apply(me.menuConfig, {
             minWidth: 150,
             defaults: {
                 margin: 0,
@@ -122,6 +125,7 @@ Ext.define('Uni.view.search.field.DateTime', {
                         {
                             xtype: 'button',
                             ui: 'action',
+                            disabled: true, //until 10.2
                             text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
                             action: 'addrange',
                             handler: me.addRangeHandler,
@@ -130,8 +134,8 @@ Ext.define('Uni.view.search.field.DateTime', {
                     ]
                 }
             ]
-        };
+        });
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

@@ -71,35 +71,39 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
     hasDefaultFilters: false,
 
-    dockedItems: [
+    additionalCmps: [],
+
+    actionButtons:[
         {
-            xtype: 'container',
-            dock: 'right',
-            layout: {
-                type: 'hbox'
-            },
-            items: [
-                {
-                    xtype: 'button',
-                    ui: 'action',
-                    text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
-                    action: 'applyAll',
-                    itemId: 'filter-apply-all'
-                },
-                {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
-                    action: 'clearAll',
-                    itemId: 'filter-clear-all',
-                    disabled: true
-                }
-            ]
+            xtype: 'button',
+            ui: 'action',
+            text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
+            action: 'applyAll',
+            itemId: 'filter-apply-all'
+        },
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
+            action: 'clearAll',
+            itemId: 'filter-clear-all',
+            disabled: true
         }
     ],
 
     initComponent: function () {
         var me = this,
             store = Ext.getStore(me.store) || Ext.create(me.store);
+
+        me.dockedItems = [
+            {
+                xtype: 'container',
+                dock: 'right',
+                layout: {
+                    type: 'hbox'
+                },
+                items: me.additionalCmps.concat(me.actionButtons)
+            }
+        ];
 
         me.callParent(arguments);
 
@@ -262,7 +266,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
     onRemoveFilter: function (store, dataIndex) {
         var me = this;
-
         me.clearFilter(dataIndex);
     },
 
@@ -357,7 +360,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
         for (var i = 0, tmp = obj; i < path.length - 1; i++) {
             tmp = tmp[path[i]] = {};
         }
-
         // At the end of the chain add the value in.
         tmp[path[i]] = value;
     },
@@ -468,6 +470,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
             }
             component.on('filterupdate', me.applyFilters, me);
         }
+        return component
     },
 
     createFilter: function (filter) {
@@ -510,6 +513,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 return 'Uni.grid.filtertop.Checkbox';
             case 'combobox':
                 return 'Uni.grid.filtertop.ComboBox';
+            case 'closablecombobox':
+                return 'Uni.grid.filtertop.ClosableCombobox';
             case 'date':
                 return 'Uni.grid.filtertop.Date';
             case 'interval':

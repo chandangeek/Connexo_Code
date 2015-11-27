@@ -11,8 +11,12 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
     arrowAlign: 'right',
     menuAlign: 'tl-bl',
 
-    setValue: function(value) {
+    setValue: function(value, suspendEvent) {
         this.value = value;
+        if (!Ext.isDefined(suspendEvent)) {
+            suspendEvent = false;
+        }
+
         this.menu.items.each(function(item) {
             item.setVisible(true);
         });
@@ -21,7 +25,10 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
         if (item) {
             item.setVisible(false);
             this.setText(item.text);
-            this.fireEvent('change', this, item.value);
+
+            if (!suspendEvent) {
+                this.fireEvent('change', this, item.value);
+            }
         }
     },
 
@@ -41,7 +48,15 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
 
         me.callParent(arguments);
         me.bindStore('Uni.store.search.Domains' || 'ext-empty-store', true);
-        me.getStore().on('load', me.onStoreLoad, me);
+        me.on('beforedestroy', me.onBeforeDestroy, me);
+    },
+
+    getStoreListeners: function () {
+        var me = this;
+
+        return {
+            load: me.onStoreLoad
+        };
     },
 
     onStoreLoad: function() {
@@ -61,6 +76,10 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
             me.setValue(me.value);
         }
         Ext.resumeLayouts(true);
+    },
+
+    onBeforeDestroy: function () {
+        this.bindStore('ext-empty-store');
     }
 });
 

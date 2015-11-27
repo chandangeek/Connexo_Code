@@ -7,10 +7,14 @@ Ext.define('Uni.store.search.Properties', {
     storeId: 'Uni.store.search.Properties',
     singleton: true,
     autoLoad: false,
+    remoteFilter: true,
 
     proxy: {
         type: 'ajax',
         url: '/api/jsr/search/{domainLinkHref}/searchcriteria', // Gets overwritten anyways.
+        limitParam: null,
+        pageParam: null,
+        startparam: null,
         reader: {
             type: 'json',
             root: 'properties'
@@ -40,31 +44,5 @@ Ext.define('Uni.store.search.Properties', {
                 return 0;
             }
         }
-        //{
-        //    sorterFn: function (o1, o2) {
-        //        return o1.get('displayValue') < o2.get('displayValue') ? -1 : 1;
-        //    }
-        //}
-    ],
-
-    // TODO Remove when back-end fix has been implemented for double properties.
-    listeners: {
-        load: function (store) {
-            // Using a map of already used names.
-            var hits = {};
-
-            store.filterBy(function (record) {
-                var name = record.get('name');
-                if (hits[name]) {
-                    return false;
-                } else {
-                    hits[name] = true;
-                    return true;
-                }
-            });
-
-            // Delete the filtered out records.
-            delete store.snapshot;
-        }
-    }
+    ]
 });
