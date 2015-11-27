@@ -157,13 +157,6 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
             },
             {
                 xtype: 'deviceFormDateField',
-                name: 'multiplierEffectiveDate',
-                itemId: 'fld-multiplier-effective-date',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplierEffectiveDate', 'MDC', 'Multiplier effective from'),
-                fullInfo: me.fullInfo
-            },
-            {
-                xtype: 'deviceFormDateField',
                 name: 'shipmentDate',
                 itemId: 'fld-device-shipment-date',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.shipmentDate', 'MDC', 'Shipment date'),

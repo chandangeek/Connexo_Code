@@ -313,8 +313,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             key === 'installationDate' ||
             key === 'deactivationDate' ||
             key === 'decommissioningDate' ||
-            key === 'shipmentDate' ||
-            key === 'multiplierEffectiveDate'
+            key === 'shipmentDate'
         );
     }
 });

@@ -129,25 +129,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             },
             {
 
-                name: 'multiplierEffectiveDate',
-                itemId: 'multiplierEffectiveDateView',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplierEffectiveDate', 'MDC', 'Multiplier effective from'),
-                renderer: function (value) {
-                    if (Ext.isEmpty(value.displayValue)) {
-                        return '-'
-                    } else {
-                        return Uni.DateTime.formatDateTimeShort(new Date(value.displayValue));
-                    }
-                }
-            },
-            {
-                xtype: 'deviceDateFieldEdited',
-                name: 'multiplierEffectiveDateEdit',
-                itemId: 'multiplierEffectiveDateEdit',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplierEffectiveDate', 'MDC', 'Multiplier effective from')
-            },
-            {
-
                 name: 'shipmentDate',
                 itemId: 'shipmentDateView',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.shipmentDate', 'MDC', 'Shipment date'),
