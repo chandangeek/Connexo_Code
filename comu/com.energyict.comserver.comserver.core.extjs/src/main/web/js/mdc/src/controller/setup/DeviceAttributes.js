@@ -270,7 +270,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 if (editField) {
                     if (key === 'usagePoint') {
                         record.set(key, {attributeId: editField.getValue(), available: true, editable: true});
-                    } else if (key === 'installationDate' || key === 'deactivationDate' || key === 'decommissioningDate' || key === 'shipmentDate') {
+                    } else if (me.isDateField(key)) {
                         record.set(key, {displayValue: editField.getTimeStampValue(), available: true, editable: true});
                     } else {
                         record.set(key, {displayValue: editField.getValue(), available: true, editable: true});
@@ -286,7 +286,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         var me = this,
             store;
 
-        if (key === 'installationDate' || key === 'deactivationDate' || key === 'decommissioningDate' || key === 'shipmentDate') {
+        if (me.isDateField(key)) {
             if (!Ext.isEmpty(value.displayValue)) {
                 var dt = new Date(value.displayValue);
                 field.setValue(dt);
@@ -306,7 +306,16 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         } else {
             field.setValue(value.displayValue);
         }
-    }
+    },
 
+    isDateField: function(key) {
+        return (
+            key === 'installationDate' ||
+            key === 'deactivationDate' ||
+            key === 'decommissioningDate' ||
+            key === 'shipmentDate' ||
+            key === 'multiplierEffectiveDate'
+        );
+    }
 });
 

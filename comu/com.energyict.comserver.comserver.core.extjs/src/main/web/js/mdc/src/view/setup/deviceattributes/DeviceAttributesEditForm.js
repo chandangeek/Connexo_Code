@@ -8,10 +8,10 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
     ],
 
     defaults: {
-        labelWidth: 150,
+        labelWidth: 170,
         xtype: 'displayfield',
         hidden: true,
-        width: 450,
+        width: 470,
         renderer: function (value) {
             if (Ext.isEmpty(value.displayValue)) {
                 return '-'
@@ -113,6 +113,38 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                         }
                     }
                 }
+            },
+            {
+                name: 'multiplier',
+                itemId: 'multiplierView',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier'),
+            },
+            {
+                xtype: 'numberfield',
+                name: 'multiplierEdit',
+                minValue: 1,
+                maxValue: 2147483647,
+                itemId: 'multiplierEdit',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier'),
+            },
+            {
+
+                name: 'multiplierEffectiveDate',
+                itemId: 'multiplierEffectiveDateView',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplierEffectiveDate', 'MDC', 'Multiplier effective from'),
+                renderer: function (value) {
+                    if (Ext.isEmpty(value.displayValue)) {
+                        return '-'
+                    } else {
+                        return Uni.DateTime.formatDateTimeShort(new Date(value.displayValue));
+                    }
+                }
+            },
+            {
+                xtype: 'deviceDateFieldEdited',
+                name: 'multiplierEffectiveDateEdit',
+                itemId: 'multiplierEffectiveDateEdit',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplierEffectiveDate', 'MDC', 'Multiplier effective from')
             },
             {
 
