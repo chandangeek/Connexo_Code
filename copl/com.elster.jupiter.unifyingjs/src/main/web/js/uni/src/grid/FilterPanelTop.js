@@ -18,7 +18,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
         'Uni.grid.filtertop.DateTime',
         'Uni.grid.filtertop.DateTimeSelect',
         'Uni.grid.filtertop.Duration',
-        'Uni.grid.filtertop.NoUi'
+        'Uni.grid.filtertop.NoUi',
+        'Uni.grid.filtertop.ClosableCombobox'
     ],
 
     /**
