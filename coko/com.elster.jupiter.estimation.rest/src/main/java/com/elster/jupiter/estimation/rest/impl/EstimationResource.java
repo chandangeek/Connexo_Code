@@ -374,7 +374,7 @@ public class EstimationResource {
     private List<? extends EstimationTask> queryTasks(QueryParameters queryParameters) {
         Query<? extends EstimationTask> query = estimationService.getEstimationTaskQuery();
         RestQuery<? extends EstimationTask> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.descending("lastRun").nullsLast(), Order.ascending("name"));
+        return restQuery.select(queryParameters, Order.descending("lastRun").nullsLast());
     }
 
     @GET

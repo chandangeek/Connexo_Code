@@ -64,6 +64,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -107,7 +108,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
     public void setUpMocks() {
         doReturn(query).when(estimationService).getEstimationTaskQuery();
         doReturn(restQuery).when(restQueryService).wrap(query);
-        doReturn(Arrays.asList(estimationTask)).when(restQuery).select(any(), any(Order.class), any(Order.class));
+        doReturn(Arrays.asList(estimationTask)).when(restQuery).select(any(), anyVararg());
         when(estimationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(estimationTask.getPeriod()).thenReturn(Optional.of(period));
         when(period.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));
