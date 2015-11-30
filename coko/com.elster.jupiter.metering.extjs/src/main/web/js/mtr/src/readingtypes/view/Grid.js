@@ -14,7 +14,7 @@ Ext.define('Mtr.readingtypes.view.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('readingtypesmanagment.readingtype', 'MTR', 'Reading type'),
+                header: Uni.I18n.translate('general.name', 'MTR', 'Name'),
                 dataIndex: 'fullAliasName',
                 flex: 3
             },            
