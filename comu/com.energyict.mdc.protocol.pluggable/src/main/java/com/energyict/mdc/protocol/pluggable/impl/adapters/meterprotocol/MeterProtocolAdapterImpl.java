@@ -461,7 +461,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new AdapterDeviceProtocolDialect(thesaurus, this.getPropertySpecService(), this.meterProtocol));
+        dialects.add(new AdapterDeviceProtocolDialect(thesaurus, this.meterProtocol));
         return dialects;
     }
 

@@ -68,7 +68,6 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
@@ -265,9 +264,9 @@ public class MeterProtocolAdapterTest {
     public void getRequiredKeysCorrectTest() {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         List<PropertySpec> requiredKeys = new ArrayList<>();
-        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r1", inMemoryPersistence.getPropertySpecService()));
-        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r2", inMemoryPersistence.getPropertySpecService()));
-        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r3", inMemoryPersistence.getPropertySpecService()));
+        requiredKeys.add(this.newStringPropertySpec("r1"));
+        requiredKeys.add(this.newStringPropertySpec("r2"));
+        requiredKeys.add(this.newStringPropertySpec("r3"));
         when(meterProtocol.getRequiredProperties()).thenReturn(requiredKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
@@ -275,45 +274,30 @@ public class MeterProtocolAdapterTest {
         assertThat(getRequiredPropertiesFromSet(meterProtocolAdapter.getPropertySpecs())).isEmpty(); // the optional properties are replaced by the hardcoded legacy values
     }
 
+    private PropertySpec newStringPropertySpec(String name) {
+        return new PropertySpecServiceImpl().basicPropertySpec(name, false, new StringFactory());
+    }
+
     private List<PropertySpec> getRequiredPropertiesFromSet(List<PropertySpec> propertySpecs) {
-        List<PropertySpec> requiredProperties = new ArrayList<>();
-        for (PropertySpec propertySpec : propertySpecs) {
-            if (propertySpec.isRequired()) {
-                requiredProperties.add(propertySpec);
-            }
-        }
-        return requiredProperties;
+        return propertySpecs
+                .stream()
+                .filter(PropertySpec::isRequired)
+                .collect(Collectors.toList());
     }
 
     @Test
     public void getOptionalKeysCorrectTest() {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         List<PropertySpec> optionalKeys = new ArrayList<>();
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1", inMemoryPersistence.getPropertySpecService()));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o2", inMemoryPersistence.getPropertySpecService()));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3", inMemoryPersistence.getPropertySpecService()));
+        optionalKeys.add(this.newStringPropertySpec("o1"));
+        optionalKeys.add(this.newStringPropertySpec("o2"));
+        optionalKeys.add(this.newStringPropertySpec("o3"));
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         List<PropertySpec> optionalPropertiesFromSet = getOptionalPropertiesFromSet(meterProtocolAdapter.getPropertySpecs());
-        assertThat(optionalPropertiesFromSet).isNotEmpty(); // the optional properties are replaced by the hardcoded legacy values
-        assertThat(optionalPropertiesFromSet).hasSize(4);
-        int count = 0;
-        for (PropertySpec propertySpec : meterProtocolAdapter.getPropertySpecs()) {
-            if (propertySpec.getName().equals(MeterProtocol.NODEID)) {
-                count |= 0b0001;
-            } else if (propertySpec.getName().equals(MeterProtocol.ADDRESS)) {
-                count |= 0b0010;
-            } else if (propertySpec.getName().equals(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName())) {
-                count |= 0b0100;
-            } else if (propertySpec.getName().equals(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName())) {
-                count |= 0b1000;
-            } else {
-                count = -1;
-            }
-        }
-        assertThat(count).isEqualTo(0b1111);
+        assertThat(optionalPropertiesFromSet).hasSize(7);
     }
 
     private List<PropertySpec> getOptionalPropertiesFromSet(List<PropertySpec> propertySpecs) {
@@ -344,13 +328,7 @@ public class MeterProtocolAdapterTest {
         // asserts
         assertThat(deviceProtocolDialects).hasSize(1);
         final DeviceProtocolDialect deviceProtocolDialect = deviceProtocolDialects.get(0);
-        assertThat(getOptionalPropertiesFromSet(deviceProtocolDialect.getPropertySpecs())).
-                areExactly(optionalKeys.size(), new Condition<PropertySpec>() {
-                    @Override
-                    public boolean matches(PropertySpec propertySpec) {
-                        return optionalKeyNames.contains(propertySpec.getName());
-                    }
-                });
+        assertThat(getOptionalPropertiesFromSet(deviceProtocolDialect.getPropertySpecs())).isEmpty();
         assertThat(getRequiredPropertiesFromSet(deviceProtocolDialect.getPropertySpecs())).isEmpty();
     }
 

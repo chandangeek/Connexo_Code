@@ -35,7 +35,6 @@ import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
@@ -59,12 +58,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -77,7 +74,6 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -274,9 +270,9 @@ public class SmartMeterProtocolAdapterTest {
     public void getRequiredKeysCorrectTest() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         List<PropertySpec> requiredKeys = new ArrayList<>();
-        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r1", inMemoryPersistence.getPropertySpecService()));
-        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r2", inMemoryPersistence.getPropertySpecService()));
-        requiredKeys.add(PropertySpecFactory.stringPropertySpec("r3", inMemoryPersistence.getPropertySpecService()));
+        requiredKeys.add(this.newStringPropertySpec("r1"));
+        requiredKeys.add(this.newStringPropertySpec("r2"));
+        requiredKeys.add(this.newStringPropertySpec("r3"));
         when(smartMeterProtocol.getRequiredProperties()).thenReturn(requiredKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
@@ -285,35 +281,24 @@ public class SmartMeterProtocolAdapterTest {
         assertThat(getOptionalPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isNotEmpty(); // the optional properties are replaced by the hardcoded legacy values
     }
 
+    private PropertySpec newStringPropertySpec(String name) {
+        return new PropertySpecServiceImpl().basicPropertySpec(name, false, new StringFactory());
+    }
+
     @Test
     public void getOptionalKeysCorrectTest() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         List<PropertySpec> optionalKeys = new ArrayList<>();
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1", inMemoryPersistence.getPropertySpecService()));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o2", inMemoryPersistence.getPropertySpecService()));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3", inMemoryPersistence.getPropertySpecService()));
+        optionalKeys.add(this.newStringPropertySpec("o1"));
+        optionalKeys.add(this.newStringPropertySpec("o2"));
+        optionalKeys.add(this.newStringPropertySpec("o3"));
         when(smartMeterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
-        assertThat(getRequiredPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isEmpty(); // the optional properties are replaced by the hardcoded legacy values
-        assertThat(getOptionalPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isNotEmpty(); // the optional properties are replaced by the hardcoded legacy values
-        assertThat(smartMeterProtocolAdapter.getPropertySpecs()).hasSize(4);
-        int count = 0;
-        for (PropertySpec propertySpec : smartMeterProtocolAdapter.getPropertySpecs()) {
-            if (propertySpec.getName().equals(MeterProtocol.NODEID)) {
-                count |= 0b0001;
-            } else if (propertySpec.getName().equals(MeterProtocol.ADDRESS)) {
-                count |= 0b0010;
-            } else if (propertySpec.getName().equals(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName())) {
-                count |= 0b0100;
-            } else if (propertySpec.getName().equals(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName())) {
-                count |= 0b1000;
-            } else {
-                count = -1;
-            }
-        }
-        assertThat(count).isEqualTo(0b1111);
+        assertThat(getRequiredPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isEmpty();
+        assertThat(getOptionalPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isNotEmpty();
+        assertThat(smartMeterProtocolAdapter.getPropertySpecs()).hasSize(7);
     }
 
     @Test
@@ -321,18 +306,10 @@ public class SmartMeterProtocolAdapterTest {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         when(((DeviceSecuritySupport) smartMeterProtocol).getCustomPropertySet()).thenReturn(Optional.empty());
         List<PropertySpec> optionalKeys = new ArrayList<>();
-        final List<String> optionalKeyNames = Arrays.asList("o1", "o2", "o3");
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1", inMemoryPersistence.getPropertySpecService()));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o2", inMemoryPersistence.getPropertySpecService()));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3", inMemoryPersistence.getPropertySpecService()));
+        optionalKeys.add(this.newStringPropertySpec("o1"));
+        optionalKeys.add(this.newStringPropertySpec("o2"));
+        optionalKeys.add(this.newStringPropertySpec("o3"));
         when(smartMeterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
-        PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
-        doReturn(new BasicPropertySpec("o1", false, new StringFactory()))
-            .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class));
-        doReturn(new BasicPropertySpec("o2", false, new StringFactory()))
-            .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class));
-        doReturn(new BasicPropertySpec("o3", false, new StringFactory()))
-            .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class));
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
@@ -341,14 +318,7 @@ public class SmartMeterProtocolAdapterTest {
         // asserts
         assertThat(deviceProtocolDialects).hasSize(1);
         final DeviceProtocolDialect deviceProtocolDialect = deviceProtocolDialects.get(0);
-        assertThat(getOptionalPropertiesFromSet(deviceProtocolDialect.getPropertySpecs())).
-                areExactly(optionalKeys.size(), new Condition<PropertySpec>() {
-                    @Override
-                    public boolean matches(PropertySpec propertySpec) {
-                        return optionalKeyNames.contains(propertySpec.getName());
-                    }
-                });
-        assertThat(getRequiredPropertiesFromSet(deviceProtocolDialect.getPropertySpecs())).isEmpty();
+        assertThat(getOptionalPropertiesFromSet(deviceProtocolDialect.getPropertySpecs())).isEmpty();
     }
 
     @Test

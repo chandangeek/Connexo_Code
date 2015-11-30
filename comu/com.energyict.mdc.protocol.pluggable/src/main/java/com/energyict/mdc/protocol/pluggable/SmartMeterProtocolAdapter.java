@@ -470,7 +470,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Collections.singletonList(
                     new AdapterDeviceProtocolDialect(
-                            thesaurus, this.getPropertySpecService(),
+                            thesaurus,
                             this.meterProtocol
                     ));
     }

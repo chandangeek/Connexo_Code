@@ -4,7 +4,6 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
@@ -33,15 +32,15 @@ public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
         this.withDynamicProperties = withDynamicProperties;
     }
 
-    public AdapterDeviceProtocolDialect(Thesaurus thesaurus, PropertySpecService propertySpecService, SmartMeterProtocol meterProtocol) {
-        this(thesaurus, wrapAsDynamicProperties(propertySpecService, meterProtocol));
+    public AdapterDeviceProtocolDialect(Thesaurus thesaurus, SmartMeterProtocol meterProtocol) {
+        this(thesaurus, wrapAsDynamicProperties(meterProtocol));
     }
 
-    public AdapterDeviceProtocolDialect(Thesaurus thesaurus, PropertySpecService propertySpecService, MeterProtocol meterProtocol) {
-        this(thesaurus, wrapAsDynamicProperties(propertySpecService, meterProtocol));
+    public AdapterDeviceProtocolDialect(Thesaurus thesaurus, MeterProtocol meterProtocol) {
+        this(thesaurus, wrapAsDynamicProperties(meterProtocol));
     }
 
-    private static HasDynamicProperties wrapAsDynamicProperties(PropertySpecService propertySpecService, ConfigurationSupport configurationSupport) {
+    private static HasDynamicProperties wrapAsDynamicProperties(ConfigurationSupport configurationSupport) {
         return new ConfigurationSupportToDynamicPropertiesAdapter(configurationSupport);
     }
 
