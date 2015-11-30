@@ -81,13 +81,13 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         deviceConfiguration.createNumericalRegisterSpec(registerType)
                 .numberOfFractionDigits(2)
                 .overflowValue(BigDecimal.valueOf(100000000))
-                .add().save();
+                .add();
         LoadProfileSpec loadProfileSpec = deviceConfiguration.createLoadProfileSpec(loadProfileType).add();
         loadProfileSpec.save();
         deviceConfiguration.createChannelSpec(loadProfileType.getChannelTypes().get(0), loadProfileSpec)
                 .nbrOfFractionDigits(2)
                 .overflow(BigDecimal.valueOf(100000000))
-                .add().save();
+                .add();
         deviceConfiguration.activate();
         deviceConfiguration.save();
 
