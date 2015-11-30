@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /*
  * a reference to a persistent Object of a known type
@@ -55,4 +56,8 @@ public interface Reference<T> {
 	public static <T> Reference<T> empty() {
 		return ValueReference.absent();
 	}
+
+	default Stream<T> stream() {
+        return map(Stream::of).orElseGet(Stream::empty);
+    }
 }
