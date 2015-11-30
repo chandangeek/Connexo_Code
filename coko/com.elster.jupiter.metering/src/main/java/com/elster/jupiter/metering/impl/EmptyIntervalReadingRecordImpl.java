@@ -1,11 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -13,6 +7,12 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.units.Quantity;
 import com.google.common.collect.Range;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class EmptyIntervalReadingRecordImpl extends IntervalReadingRecordImpl {
 	
@@ -86,8 +86,8 @@ public class EmptyIntervalReadingRecordImpl extends IntervalReadingRecordImpl {
     }
 
     @Override
-    public List<ReadingTypeImpl> getReadingTypes() {
-        List<ReadingTypeImpl> ret = new ArrayList<>();
+    public List<IReadingType> getReadingTypes() {
+        List<IReadingType> ret = new ArrayList<>();
         ret.add((ReadingTypeImpl) readingType);
         return ret;
     }

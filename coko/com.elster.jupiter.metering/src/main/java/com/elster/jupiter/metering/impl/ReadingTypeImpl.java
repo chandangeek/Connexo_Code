@@ -33,7 +33,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
 
-public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
+public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 
     private static final int MRID_FIELD_COUNT = 18;
     private static final int MACRO_PERIOD = 0;
@@ -238,7 +238,8 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		return builder.toString();
 	}
 
-	ReadingTypeCodeBuilder builder() {
+	@Override
+	public ReadingTypeCodeBuilder builder() {
 		return 
 			ReadingTypeCodeBuilder.of(commodity)
 				.period(macroPeriod)
@@ -470,11 +471,15 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         } else if (this.getMacroPeriod().equals(MacroPeriod.DAILY) || this.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
             fullAlias.append("[").append(getTranslationWithDefault(this.getMacroPeriod().getDescription())).append("] ");
         }
-		switch (this.getCommodity()){
-			case ELECTRICITY_PRIMARY_METERED: fullAlias.append(" ").append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.PRIMARY).format()).append(" ");break;
-			case ELECTRICITY_SECONDARY_METERED: fullAlias.append(" ").append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.SECONDARY).format()).append(" ");break;
+		switch (this.getCommodity()) {
+			case ELECTRICITY_PRIMARY_METERED:
+				fullAlias.append(" ").append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.PRIMARY).format()).append(" ");
+				break;
+			case ELECTRICITY_SECONDARY_METERED:
+				fullAlias.append(" ").append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.SECONDARY).format()).append(" ");
+				break;
 		}
-        fullAlias.append(this.getAliasName());
+		fullAlias.append(this.getAliasName());
         if (this.getUnit().isApplicable()) {
             fullAlias.append(" (").append(getTranslationWithDefault(this.getMultiplier().getSymbol())).append(getTranslationWithDefault(this.getUnit().getSymbol())).append(")");
         }

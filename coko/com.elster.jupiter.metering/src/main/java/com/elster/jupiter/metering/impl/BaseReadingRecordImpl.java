@@ -1,6 +1,13 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.units.Quantity;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
@@ -8,14 +15,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.util.units.Quantity;
-import com.google.common.collect.Range;
 
 
 public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
@@ -99,7 +98,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     }
 
     @Override
-    public List<ReadingTypeImpl> getReadingTypes() {
+    public List<IReadingType> getReadingTypes() {
         return channel.getReadingTypes();
     }
 

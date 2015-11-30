@@ -117,6 +117,9 @@ public class MeterActivationImplTest extends EqualsContractTest {
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(clock.getZone()).thenReturn(timeZone.toZoneId());
+        when(meter.getConfiguration(any())).thenReturn(Optional.empty());
+        when(usagePoint.getConfiguration(any())).thenReturn(Optional.empty());
+        when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
 
         meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
     }

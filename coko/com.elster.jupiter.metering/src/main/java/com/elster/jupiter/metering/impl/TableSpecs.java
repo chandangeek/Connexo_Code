@@ -197,8 +197,8 @@ public enum TableSpecs {
     MTR_READINGTYPE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ReadingType> table = dataModel.addTable(name(), ReadingType.class);
-            table.map(ReadingTypeImpl.class);
+            Table<IReadingType> table = dataModel.addTable(name(), IReadingType.class);
+            table.map(ReadingTypeImpl.class).alsoReferredToAs(ReadingType.class);
             table.cache();
             Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
             table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
@@ -319,7 +319,9 @@ public enum TableSpecs {
             Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column mainReadingTypeMRIDColumn = table.column("MAINREADINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
+            table.column("MAINDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mainDerivationRule").notNull().add();
             Column bulkQuantityReadingTypeMRIDColumn = table.column("BULKQUANTITYREADINGTYPEMRID").varChar(NAME_LENGTH).add();
+            table.column("BULKDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("bulkDerivationRule").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
             table.foreignKey("MTR_FK_CHANNELACTIVATION")
@@ -360,6 +362,7 @@ public enum TableSpecs {
             Column channelIdColumn = table.column("CHANNNELID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
             Column readingTypeMRidColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
+            table.column("DERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("derivationRule").notNull().add();
             table.primaryKey("MTR_PK_READINGTYPEINCHANNEL").on(channelIdColumn, positionColumn).add();
             table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1")
                     .on(channelIdColumn)

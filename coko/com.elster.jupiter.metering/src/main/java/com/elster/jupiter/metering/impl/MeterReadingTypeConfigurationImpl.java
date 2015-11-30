@@ -18,8 +18,8 @@ class MeterReadingTypeConfigurationImpl implements MeterReadingTypeConfiguration
     private Integer numberOfFractionDigits;
     private Reference<MultiplierTypeImpl> multiplierType = ValueReference.absent();
 
-    private Reference<ReadingType> measured = ValueReference.absent();
-    private Reference<ReadingType> calculated = ValueReference.absent();
+    private Reference<IReadingType> measured = ValueReference.absent();
+    private Reference<IReadingType> calculated = ValueReference.absent();
 
     private long version;
     private Instant createTime;
@@ -31,11 +31,11 @@ class MeterReadingTypeConfigurationImpl implements MeterReadingTypeConfiguration
     MeterReadingTypeConfigurationImpl() {
     }
 
-    static MeterReadingTypeConfigurationImpl from(MeterConfigurationImpl meterConfiguration, ReadingType readingType) {
+    static MeterReadingTypeConfigurationImpl from(MeterConfigurationImpl meterConfiguration, IReadingType readingType) {
         return new MeterReadingTypeConfigurationImpl().init(meterConfiguration, readingType);
     }
 
-    private MeterReadingTypeConfigurationImpl init(MeterConfigurationImpl meterConfiguration, ReadingType readingType) {
+    private MeterReadingTypeConfigurationImpl init(MeterConfigurationImpl meterConfiguration, IReadingType readingType) {
         this.meterConfiguration.set(meterConfiguration);
         this.measured.set(readingType);
         return this;
@@ -74,7 +74,7 @@ class MeterReadingTypeConfigurationImpl implements MeterReadingTypeConfiguration
         this.numberOfFractionDigits = numberOfFractionDigits;
     }
 
-    void setMultiplication(ReadingType calculated, MultiplierTypeImpl multiplierType) {
+    void setMultiplication(IReadingType calculated, MultiplierTypeImpl multiplierType) {
         this.calculated.set(calculated);
         this.multiplierType.set(multiplierType);
 

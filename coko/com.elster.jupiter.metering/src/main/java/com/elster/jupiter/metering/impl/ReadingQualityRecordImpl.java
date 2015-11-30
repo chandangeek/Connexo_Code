@@ -29,7 +29,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     private transient ReadingQualityType type;
     private transient Optional<BaseReadingRecord> baseReadingRecord;
     private Reference<Channel> channel = ValueReference.absent();
-    private Reference<ReadingType> readingType = ValueReference.absent();
+    private Reference<IReadingType> readingType = ValueReference.absent();
 
     private long version;
     @SuppressWarnings("unused")
@@ -52,7 +52,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading) {
         this.channel.set(cimChannel.getChannel());
-        this.readingType.set(cimChannel.getReadingType());
+        this.readingType.set((IReadingType) cimChannel.getReadingType());
         if (baseReading instanceof BaseReadingRecord) {
         	this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
         }
@@ -64,7 +64,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, Instant timestamp) {
         this.channel.set(cimChannel.getChannel());
-        this.readingType.set(cimChannel.getReadingType());
+        this.readingType.set((IReadingType) cimChannel.getReadingType());
         readingTimestamp = timestamp;
         this.type = type;
         this.typeCode = type.getCode();

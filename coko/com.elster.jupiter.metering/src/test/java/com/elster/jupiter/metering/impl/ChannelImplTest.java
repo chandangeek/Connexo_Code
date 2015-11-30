@@ -116,6 +116,9 @@ public class ChannelImplTest extends EqualsContractTest {
         when(vault.createRegularTimeSeries(recordSpec, TIME_ZONE, Period.ofDays(1), 0)).thenReturn(regularTimeSeries);
         when(timeSeries.getId()).thenReturn(TIMESERIES_ID);
         when(regularTimeSeries.getId()).thenReturn(TIMESERIES_ID);
+        when(meterActivation.getMeter()).thenReturn(Optional.empty());
+        when(meterActivation.getUsagePoint()).thenReturn(Optional.empty());
+        when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
 
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1, "1");
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, "2");

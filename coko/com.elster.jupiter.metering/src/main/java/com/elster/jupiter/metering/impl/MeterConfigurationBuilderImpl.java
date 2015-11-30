@@ -7,9 +7,7 @@ import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.graph.DiEdge;
 import com.elster.jupiter.util.graph.DiGraph;
-import com.elster.jupiter.util.graph.Node;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -53,19 +51,19 @@ class MeterConfigurationBuilderImpl implements MeterConfigurationBuilder {
         readingTypes.stream()
                 .filter(builder -> builder.calculated != null)
                 .forEach(builder -> {
-                    multiplierGraph.addEdge(DiEdge.between(Node.of(builder.measured), Node.of(builder.calculated)));
+                    multiplierGraph.addEdge(builder.measured, builder.calculated);
                 });
-        if (!multiplierGraph.isForrest()) {
+        if (!multiplierGraph.isForest()) {
             throw new IllegalArgumentException(); // TODO proper exception
         }
 
         readingTypes.stream()
                 .forEach(builder -> {
-                    MeterReadingTypeConfigurationImpl config = MeterReadingTypeConfigurationImpl.from(meterConfiguration, builder.measured);
+                    MeterReadingTypeConfigurationImpl config = MeterReadingTypeConfigurationImpl.from(meterConfiguration, (IReadingType) builder.measured);
                     config.setOverflowValue(builder.overflowValue);
                     config.setNumberOfFractionDigits(builder.numberOfFractionDigits);
                     if (builder.calculated != null) {
-                        config.setMultiplication(builder.calculated, builder.multiplierType);
+                        config.setMultiplication((IReadingType) builder.calculated, builder.multiplierType);
                     }
                     meterConfiguration.add(config);
                 });

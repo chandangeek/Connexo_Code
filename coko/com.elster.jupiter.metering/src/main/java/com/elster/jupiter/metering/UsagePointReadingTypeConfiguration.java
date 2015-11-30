@@ -1,10 +1,5 @@
 package com.elster.jupiter.metering;
 
-public interface UsagePointReadingTypeConfiguration {
-    ReadingType getMeasured();
-
-    ReadingType getCalculated();
-
-    MultiplierType getMultiplierType();
+public interface UsagePointReadingTypeConfiguration extends Multiplier {
 
 }

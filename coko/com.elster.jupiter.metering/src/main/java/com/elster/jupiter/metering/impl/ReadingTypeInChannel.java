@@ -15,27 +15,38 @@ public class ReadingTypeInChannel extends AbstractCimChannel {
     private int position;
     
     private final Reference<ChannelImpl> channel = ValueReference.absent();
-    private final Reference<ReadingTypeImpl> readingType = ValueReference.absent();
+    private final Reference<IReadingType> readingType = ValueReference.absent();
+    private DerivationRule derivationRule;
 
     @Inject
     ReadingTypeInChannel(DataModel dataModel, MeteringService meteringService) {
         super(dataModel, meteringService);
     }
 
-    ReadingTypeInChannel init(ChannelImpl channel, ReadingTypeImpl readingType) {
+    private ReadingTypeInChannel init(ChannelImpl channel, IReadingType readingType, DerivationRule derivationRule) {
         this.channel.set(channel);
         this.readingType.set(readingType);
+        this.derivationRule = derivationRule;
         return this;
     }
 
+    static ReadingTypeInChannel from(DataModel dataModel, ChannelImpl channel, IReadingType readingType, DerivationRule derivationRule) {
+        return dataModel.getInstance(ReadingTypeInChannel.class)
+                .init(channel, readingType, derivationRule);
+    }
+
     @Override
-    public ReadingTypeImpl getReadingType() {
+    public IReadingType getReadingType() {
         return readingType.get();
     }
 
     @Override
     public ChannelImpl getChannel() {
         return channel.get();
+    }
+
+    public DerivationRule getDerivationRule() {
+        return derivationRule;
     }
 
     @Override

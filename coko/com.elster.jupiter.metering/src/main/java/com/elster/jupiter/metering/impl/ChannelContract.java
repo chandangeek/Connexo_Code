@@ -11,5 +11,6 @@ public interface ChannelContract extends Channel {
 	Object[] toArray(BaseReading reading, ReadingType readingType, ProcessStatus status);
     void validateValues(BaseReading reading, Object[] values);
 	TimeSeries getTimeSeries();
+	DerivationRule getDerivationRule(IReadingType readingType);
 
 }

@@ -2,7 +2,9 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
@@ -15,11 +17,12 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.text.MessageFormat;
 import java.util.Currency;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,6 +55,13 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     public void initBefore() {
         when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
             return invocationOnMock.getArguments()[1];  // return the default value
+        });
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocation -> {
+            String defaultFormat = invocation.getArgumentAt(0, TranslationKey.class).getDefaultFormat();
+            NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+            when(nlsMessageFormat.format(anyVararg()))
+                    .thenAnswer(invocation1 -> MessageFormat.format(defaultFormat, invocation.getArguments()));
+            return nlsMessageFormat;
         });
     }
 

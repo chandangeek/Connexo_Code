@@ -31,7 +31,7 @@ public class UsagePointConfigurationBuilderImpl implements UsagePoint.UsagePoint
 
     @Override
     public UsagePoint.UsagePointReadingTypeConfigurationBuilder configureReadingType(ReadingType readingType) {
-        ReadingTypeConfigurationBuilder readingTypeConfigurationBuilder = new ReadingTypeConfigurationBuilder(readingType);
+        ReadingTypeConfigurationBuilder readingTypeConfigurationBuilder = new ReadingTypeConfigurationBuilder((IReadingType) readingType);
         readingTypes.add(readingTypeConfigurationBuilder);
         return readingTypeConfigurationBuilder;
     }
@@ -57,12 +57,12 @@ public class UsagePointConfigurationBuilderImpl implements UsagePoint.UsagePoint
     }
 
     private class ReadingTypeConfigurationBuilder implements UsagePoint.UsagePointReadingTypeConfigurationBuilder, UsagePoint.UsagePointReadingTypeMultiplierConfigurationBuilder {
-        private final ReadingType measured;
-        private ReadingType calculated;
+        private final IReadingType measured;
+        private IReadingType calculated;
         private MultiplierTypeImpl multiplierType;
 
 
-        public ReadingTypeConfigurationBuilder(ReadingType readingType) {
+        public ReadingTypeConfigurationBuilder(IReadingType readingType) {
             this.measured = readingType;
         }
 
@@ -79,7 +79,7 @@ public class UsagePointConfigurationBuilderImpl implements UsagePoint.UsagePoint
 
         @Override
         public UsagePoint.UsagePointConfigurationBuilder calculating(ReadingType readingType) {
-            this.calculated = readingType;
+            this.calculated = (IReadingType) readingType;
             return UsagePointConfigurationBuilderImpl.this;
         }
 

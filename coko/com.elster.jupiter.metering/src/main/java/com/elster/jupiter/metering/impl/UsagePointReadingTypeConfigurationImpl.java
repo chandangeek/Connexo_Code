@@ -13,8 +13,8 @@ public class UsagePointReadingTypeConfigurationImpl implements UsagePointReading
     private Reference<UsagePointConfigurationImpl> usagePointConfiguration = ValueReference.absent();
     private Reference<MultiplierTypeImpl> multiplierType = ValueReference.absent();
 
-    private Reference<ReadingType> measured = ValueReference.absent();
-    private Reference<ReadingType> calculated = ValueReference.absent();
+    private Reference<IReadingType> measured = ValueReference.absent();
+    private Reference<IReadingType> calculated = ValueReference.absent();
 
     private long version;
     private Instant createTime;
@@ -26,11 +26,11 @@ public class UsagePointReadingTypeConfigurationImpl implements UsagePointReading
     UsagePointReadingTypeConfigurationImpl() {
     }
 
-    static UsagePointReadingTypeConfigurationImpl from(UsagePointConfigurationImpl usagePointConfiguration, ReadingType readingType) {
+    static UsagePointReadingTypeConfigurationImpl from(UsagePointConfigurationImpl usagePointConfiguration, IReadingType readingType) {
         return new UsagePointReadingTypeConfigurationImpl().init(usagePointConfiguration, readingType);
     }
 
-    private UsagePointReadingTypeConfigurationImpl init(UsagePointConfigurationImpl usagePointConfiguration, ReadingType readingType) {
+    private UsagePointReadingTypeConfigurationImpl init(UsagePointConfigurationImpl usagePointConfiguration, IReadingType readingType) {
         this.usagePointConfiguration.set(usagePointConfiguration);
         this.measured.set(readingType);
         return this;
@@ -51,7 +51,7 @@ public class UsagePointReadingTypeConfigurationImpl implements UsagePointReading
         return multiplierType.get();
     }
 
-    void setMultiplication(ReadingType calculated, MultiplierTypeImpl multiplierType) {
+    void setMultiplication(IReadingType calculated, MultiplierTypeImpl multiplierType) {
         this.calculated.set(calculated);
         this.multiplierType.set(multiplierType);
 

@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.metering.impl.DerivationRule;
+import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.google.common.collect.Range;
 

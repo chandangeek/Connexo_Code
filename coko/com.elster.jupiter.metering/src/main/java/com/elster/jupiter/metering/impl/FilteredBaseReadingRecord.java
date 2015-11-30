@@ -47,7 +47,7 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
     }
 
     @Override
-    public List<ReadingTypeImpl> getReadingTypes() {
+    public List<IReadingType> getReadingTypes() {
         return view.perform(filtered.getReadingTypes());
     }
 
