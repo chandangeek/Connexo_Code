@@ -375,7 +375,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>jupiter-oracle</artifactId>
-                <version>1.11.2.03</version>
+                <version>12.1.0.2-0</version>
             </dependency>
             <dependency>
                 <groupId>com.github.oxo42</groupId>
