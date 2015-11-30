@@ -12,7 +12,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum PropertyTranslationKeys implements TranslationKey {
 
-    USAGEPOINT_MRID("usagepoint.mRID", "mRID"),
+    USAGEPOINT_MRID("usagepoint.mRID", "MRID"),
     USAGEPOINT_SERVICECATEGORY("usagepoint.serviceKind", "Service category"),
     USAGEPOINT_NAME("usagepoint.name", "Name"),
     USAGEPOINT_ALIASNAME("usagepoint.aliasName", "Alias name"),

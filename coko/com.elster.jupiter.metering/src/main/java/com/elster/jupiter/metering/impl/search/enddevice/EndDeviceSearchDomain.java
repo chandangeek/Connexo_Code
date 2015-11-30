@@ -81,6 +81,11 @@ public class EndDeviceSearchDomain implements SearchDomain {
     }
 
     @Override
+    public List<String> targetApplications() {
+        return Arrays.asList("COKO", "COIN");
+    }
+
+    @Override
     public List<SearchableProperty> getProperties() {
         return new ArrayList<>(Arrays.asList(
                 new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
