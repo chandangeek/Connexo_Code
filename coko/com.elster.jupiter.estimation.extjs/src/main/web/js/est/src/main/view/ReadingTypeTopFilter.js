@@ -16,13 +16,13 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
         this.filters = [
             {
                 type: 'text',
-                dataIndex: 'name',
+                dataIndex: 'fullAliasName',
                 itemId: 'name-field',
-                emptyText: Uni.I18n.translate('general.readingTypeName', 'EST', 'Reading type name'),
+                emptyText: Uni.I18n.translate('general.readingTypeName', 'EST', 'Reading type name')
             },
             {
                 type: 'combobox',
-                dataIndex: 'unitOfMeasure',
+                dataIndex: 'unit',
                 itemId: 'unitOfMeasureCombo',
                 emptyText: Uni.I18n.translate('general.unitOfMeasure', 'EST', 'Unit of measure'),
                 store: 'Est.main.store.UnitsOfMeasure',
@@ -34,7 +34,7 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
                     var record = me.findRecord(me.valueField || me.displayField, value);
                     if(record){
                         params['multiplier'] = record.get('multiplier');
-                        params['unitOfMeasure'] = record.get('unit');
+                        params['unit'] = record.get('unit');
                     }
                 }
             },
@@ -46,12 +46,10 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
                 store: 'Est.main.store.TimeOfUse',
                 displayField: 'name',
                 valueField: 'tou'
-
-
             },
             {
                 type: 'combobox',
-                dataIndex: 'time',
+                dataIndex: 'measurementPeriod',
                 itemId: 'interval-field',
                 emptyText: Uni.I18n.translate('general.interval', 'EST', 'Interval'),
                 store: 'Est.main.store.Intervals',
@@ -62,20 +60,25 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
                         value = me.getValue();
                     var record = me.findRecord(me.valueField || me.displayField, value);
                     if(record){
-                        params['time'] = record.get('time');
-                        params['macro'] = record.get('macro');
+                        params['measurementPeriod'] = record.get('time');
+                        params['macroPeriod'] = record.get('macro');
                     }
                 }
             },
             {
                 type: 'noui',
                 itemId: 'selectedReadingsFilter',
-                dataIndex: 'selectedReadings'
+                dataIndex: 'selectedreadingtypes'
             },
             {
                 type: 'noui',
                 itemId: 'equidistantFilter',
                 dataIndex: 'equidistant'
+            },
+            {
+                type: 'noui',
+                itemId: 'activeFilter',
+                dataIndex: 'active'
             }
         ];
 
@@ -85,7 +88,9 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
     setSelectedReadings: function(readingArray){
         this.getFilterByItemId('selectedReadingsFilter').setInitialValue(readingArray);
         this.getFilterByItemId('selectedReadingsFilter').setFilterValue(readingArray);
-        this.getFilterByItemId('equidistantFilter').setInitialValue('true');
-        this.getFilterByItemId('equidistantFilter').setFilterValue('true');
+        this.getFilterByItemId('equidistantFilter').setInitialValue(true);
+        this.getFilterByItemId('equidistantFilter').setFilterValue(true);
+        this.getFilterByItemId('activeFilter').setInitialValue(true);
+        this.getFilterByItemId('activeFilter').setFilterValue(true);
     }
 });
