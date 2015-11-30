@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
@@ -85,7 +86,7 @@ class ActiveCustomPropertySet {
     <T extends PersistentDomainExtension<D>, D> List<T> getValuesEntitiesFor(Condition condition) {
         return this.customPropertySetDataModel
                 .mapper(this.customPropertySet.getPersistenceSupport().persistenceClass())
-                .select(condition);
+                .select(condition, Order.ascending(HardCodedFieldNames.INTERVAL.javaName()));
     }
 
     <T extends PersistentDomainExtension<D>, D> void setValuesEntityFor(D businessObject, CustomPropertySetValues values) {
