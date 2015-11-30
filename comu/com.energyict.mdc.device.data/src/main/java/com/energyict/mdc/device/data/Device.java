@@ -122,6 +122,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setYearOfCertification(Integer yearOfCertification);
 
+    void setMultiplier(BigDecimal multiplier);
+
     void setMultiplier(BigDecimal multiplier, Instant from);
 
     BigDecimal getMultiplier();

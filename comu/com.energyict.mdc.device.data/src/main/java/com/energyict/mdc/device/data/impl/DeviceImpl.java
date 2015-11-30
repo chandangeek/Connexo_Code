@@ -639,14 +639,32 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public void setMultiplier(BigDecimal multiplier) {
+        this.setMultiplier(multiplier, null);
+    }
+
+    @Override
     public void setMultiplier(BigDecimal multiplier, Instant from) {
         if (multiplier.compareTo(getMultiplier()) == 0 || (multiplier.compareTo(BigDecimal.ONE) != 0)) {
-            Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
-            if (meter.hasData()) {
-                throw new CanNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
-            }
-            MeterActivation newMeterActivation = activate(from);
+            Instant now = clock.instant();
+            Optional<Instant> startDateMultiplier = Optional.ofNullable(from);
+            validateStartDateOfNewMultiplier(now, startDateMultiplier);
+            MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now));
             newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
+        }
+    }
+
+    private void validateStartDateOfNewMultiplier(Instant now, Optional<Instant> startDateMultiplier) {
+        Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
+        if (startDateMultiplier.isPresent()) {
+            if (meter.hasData() && startDateMultiplier.get().isBefore(now)) {
+                throw MultiplierConfigurationException.canNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
+            }
+            if (meter.getCurrentMeterActivation().isPresent()) {
+                if (!meter.getCurrentMeterActivation().get().getRange().contains(startDateMultiplier.get())) {
+                    throw MultiplierConfigurationException.canNotConfigureMultiplierWithStartDateOutOfCurrentMeterActivation(thesaurus);
+                }
+            }
         }
     }
 
@@ -1365,19 +1383,23 @@ public class DeviceImpl implements Device, CanLock {
         AmrSystem amrSystem = getMdcAmrSystem();
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
         if (currentMeterActivation.isPresent()) {
-            currentMeterActivation.ifPresent(meterActivation -> meterActivation.endAt(start));
-            Optional<UsagePoint> usagePoint = meter.getUsagePoint(start);
-            MeterActivation newMeterActivation;
-            if (usagePoint.isPresent()) {
-                newMeterActivation = meter.activate(usagePoint.get(), start);
-            } else {
-                newMeterActivation = meter.activate(start);
-            }
-            currentMeterActivation.get().getMultipliers().entrySet().forEach(multiplierTypeBigDecimalEntry -> newMeterActivation.setMultiplier(multiplierTypeBigDecimalEntry.getKey(), multiplierTypeBigDecimalEntry.getValue()));
-            return newMeterActivation;
+            return endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation.get());
         } else {
             return meter.activate(start);
         }
+    }
+
+    private MeterActivation endMeterActivationAndCreateNewWithCurrentAsTemplate(Instant start, Meter meter, MeterActivation meterActivation) {
+        meterActivation.endAt(start);
+        Optional<UsagePoint> usagePoint = meter.getUsagePoint(start);
+        MeterActivation newMeterActivation;
+        if (usagePoint.isPresent()) {
+            newMeterActivation = meter.activate(usagePoint.get(), start);
+        } else {
+            newMeterActivation = meter.activate(start);
+        }
+        meterActivation.getMultipliers().entrySet().forEach(multiplierTypeBigDecimalEntry -> newMeterActivation.setMultiplier(multiplierTypeBigDecimalEntry.getKey(), multiplierTypeBigDecimalEntry.getValue()));
+        return newMeterActivation;
     }
 
     @Override

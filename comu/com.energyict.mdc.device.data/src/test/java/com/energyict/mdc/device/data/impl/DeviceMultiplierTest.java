@@ -1,28 +1,40 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.tests.rules.Expected;
+import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.*;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.collect.Range;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -84,16 +96,49 @@ public class DeviceMultiplierTest {
     private MeterActivation meterActivation;
     @Mock
     private MultiplierType multiplierType;
+    @Rule
+    public TestRule expectedErrorRule = new ExpectedExceptionRule();
 
-    private Instant now = Instant.ofEpochMilli(1448460000000L);
+    private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
+    private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
+
 
     @Before
     public void setup() {
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocationOnMock -> {
+            TranslationKey translationKey = (TranslationKey) invocationOnMock.getArguments()[0];
+            return new NlsMessageFormat() {
+                @Override
+                public String format(Object... args) {
+                    return MessageFormat.format(translationKey.getDefaultFormat(), args);
+                }
+
+                @Override
+                public String format(Locale locale, Object... args) {
+                    return MessageFormat.format(translationKey.getDefaultFormat(), args);
+                }
+            };
+        });
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocationOnMock -> {
+            MessageSeed messageSeed = (MessageSeed) invocationOnMock.getArguments()[0];
+            return new NlsMessageFormat() {
+                @Override
+                public String format(Object... args) {
+                    return MessageFormat.format(messageSeed.getDefaultFormat(), args);
+                }
+
+                @Override
+                public String format(Locale locale, Object... args) {
+                    return MessageFormat.format(messageSeed.getDefaultFormat(), args);
+                }
+            };
+        });
         when(clock.instant()).thenReturn(now);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(String.valueOf(ID))).thenReturn(Optional.of(meter));
         when(meteringService.getMultiplierType(any())).thenReturn(Optional.of(multiplierType));
         when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.empty());
+        when(meterActivation.getRange()).thenReturn(Range.atLeast(startOfMeterActivation));
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
     }
 
@@ -136,6 +181,93 @@ public class DeviceMultiplierTest {
         verify(meterActivation).endAt(from);
         verify(meter).activate(from);
         verify(newMeterActivation).setMultiplier(multiplierType, multiplier);
+    }
+
+    @Test
+    public void setMultiplierInThePastTest() {
+        Device mockedDevice = createMockedDevice();
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+        Instant past = now.minus(1, ChronoUnit.DAYS);
+        MeterActivation newMeterActivation = mock(MeterActivation.class);
+        when(meter.activate(past)).thenReturn(newMeterActivation);
+
+        // business method
+        BigDecimal multiplier = BigDecimal.TEN;
+        mockedDevice.setMultiplier(multiplier, past);
+
+        verify(meterActivation).endAt(past);
+        verify(meter).activate(past);
+        verify(newMeterActivation).setMultiplier(multiplierType, multiplier);
+    }
+
+    @Test
+    @Expected(value = MultiplierConfigurationException.class, message = "You can not configure a multiplier in the past when your device already has data")
+    public void setMultiplierInThePastWhenAlreadyDataTest() {
+        Device mockedDevice = createMockedDevice();
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+        when(meter.hasData()).thenReturn(true);
+        Instant past = now.minus(1, ChronoUnit.DAYS);
+        MeterActivation newMeterActivation = mock(MeterActivation.class);
+        when(meter.activate(past)).thenReturn(newMeterActivation);
+
+        // business method
+        BigDecimal multiplier = BigDecimal.TEN;
+        mockedDevice.setMultiplier(multiplier, past);
+    }
+
+    @Test
+    public void setMultiplierInFutureWithAlreadyDataTest() {
+        Device mockedDevice = createMockedDevice();
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+        when(meter.hasData()).thenReturn(true);
+        Instant from = Instant.ofEpochSecond(1448466879L);
+        MeterActivation newMeterActivation = mock(MeterActivation.class);
+        when(meter.activate(from)).thenReturn(newMeterActivation);
+
+        // business method
+        BigDecimal multiplier = BigDecimal.TEN;
+        mockedDevice.setMultiplier(multiplier, from);
+
+        verify(meterActivation).endAt(from);
+        verify(meter).activate(from);
+        verify(newMeterActivation).setMultiplier(multiplierType, multiplier);
+    }
+
+    @Test
+    @Expected(value = MultiplierConfigurationException.class, message = "You can not configure a multiplier with a start date outside of the current meter activation")
+    public void setMultiplierInFutureOutsideRangeOfCurrentMeterActivationTest() {
+        Device mockedDevice = createMockedDevice();
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+        when(meterActivation.getRange()).thenReturn(Range.openClosed(startOfMeterActivation, now));
+        when(meter.hasData()).thenReturn(true);
+        Instant from = now.plus(1, ChronoUnit.DAYS);
+        MeterActivation newMeterActivation = mock(MeterActivation.class);
+        when(meter.activate(from)).thenReturn(newMeterActivation);
+
+        // business method
+        BigDecimal multiplier = BigDecimal.TEN;
+        mockedDevice.setMultiplier(multiplier, from);
+    }
+
+
+    @Test
+    @Expected(value = MultiplierConfigurationException.class, message = "You can not configure a multiplier with a start date outside of the current meter activation")
+    public void setMultiplierInPastOutsideRangeOfCurrentMeterActivationTest() {
+        Device mockedDevice = createMockedDevice();
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+        when(meterActivation.getRange()).thenReturn(Range.openClosed(startOfMeterActivation, now));
+        Instant from = startOfMeterActivation.minus(1, ChronoUnit.DAYS);
+        MeterActivation newMeterActivation = mock(MeterActivation.class);
+        when(meter.activate(from)).thenReturn(newMeterActivation);
+
+        // business method
+        BigDecimal multiplier = BigDecimal.TEN;
+        mockedDevice.setMultiplier(multiplier, from);
     }
 
     @Test
@@ -223,4 +355,5 @@ public class DeviceMultiplierTest {
 
         assertThat(mockedDevice.getMultiplierEffectiveTimeStamp()).isEqualTo(otherMeterActivationStart1);
     }
+
 }

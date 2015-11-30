@@ -1206,6 +1206,34 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(endDevice.getLifecycleDates().getRemovedDate()).contains(expectedRemovedDate);
     }
 
+    @Test
+    @Transactional
+    public void createMeterConfigurationForMultipliedRegisterSpecTest() {
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardEnergyReadingType);
+        RegisterType registerType2 = this.createRegisterTypeIfMissing(reverseEnergyObisCode, reverseEnergyReadingType);
+        deviceType.addRegisterType(registerType1);
+        deviceType.addRegisterType(registerType2);
+        DeviceType.DeviceConfigurationBuilder configurationWithRegisterTypes = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
+        NumericalRegisterSpec.Builder registerSpecBuilder1 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType1);
+        registerSpecBuilder1.numberOfFractionDigits(0);
+        registerSpecBuilder1.overflowValue(overflowValue);
+
+        //TODO fix it!
+//        registerSpecBuilder1.useMultiplier(true);
+
+        NumericalRegisterSpec.Builder registerSpecBuilder2 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType2);
+        registerSpecBuilder2.numberOfFractionDigits(0);
+        registerSpecBuilder2.overflowValue(overflowValue);
+        DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
+        deviceType.save();
+        deviceConfiguration.activate();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", "DeviceWithMultiplierOnRegister");
+        device.save();
+
+        //
+    }
+
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
         RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardEnergyReadingType);
         RegisterType registerType2 = this.createRegisterTypeIfMissing(reverseEnergyObisCode, reverseEnergyReadingType);
