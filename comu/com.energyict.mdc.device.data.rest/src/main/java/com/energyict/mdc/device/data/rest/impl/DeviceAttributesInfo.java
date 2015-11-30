@@ -5,6 +5,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,8 +22,6 @@ public class DeviceAttributesInfo {
             }
         },
         MULTIPLIER {
-        },
-        MULTIPLIER_EFFECTIVE_DATE {
         },
         DEVICE_TYPE {
             @Override
@@ -142,8 +141,7 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<String> deviceType;
     public DeviceAttributeInfo<String> deviceConfiguration;
     public DeviceAttributeInfo<String> serialNumber;
-    public DeviceAttributeInfo<Integer> multiplier;
-    public DeviceAttributeInfo<Instant> multiplierEffectiveDate;
+    public DeviceAttributeInfo<BigDecimal> multiplier;
     public DeviceAttributeInfo<Integer> yearOfCertification;
     public DeviceAttributeInfo<String> lifeCycleState;
     public DeviceAttributeInfo<String> batch;

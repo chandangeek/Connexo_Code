@@ -55,12 +55,8 @@ public class DeviceAttributesInfoFactory {
         fillAvailableAndEditable(info.serialNumber, DeviceAttribute.SERIAL_NUMBER, state);
 
         info.multiplier = new DeviceAttributeInfo<>();
-        info.multiplier.displayValue = device.getMultiplier().intValue();
+        info.multiplier.displayValue = device.getMultiplier();
         fillAvailableAndEditable(info.multiplier, DeviceAttribute.MULTIPLIER, state);
-
-        info.multiplierEffectiveDate = new DeviceAttributeInfo<>();
-        info.multiplierEffectiveDate.displayValue = device.getMultiplierEffectiveTimeStamp();
-        fillAvailableAndEditable(info.multiplierEffectiveDate, DeviceAttribute.MULTIPLIER_EFFECTIVE_DATE, state);
 
         info.yearOfCertification = new DeviceAttributeInfo();
         info.yearOfCertification.displayValue = device.getYearOfCertification();
@@ -168,7 +164,7 @@ public class DeviceAttributesInfoFactory {
             }
         }
         if(DeviceAttribute.MULTIPLIER.isEditableForState(state) && info.multiplier != null){
-            device.setMultiplier(BigDecimal.valueOf(info.multiplier.displayValue), info.multiplierEffectiveDate.displayValue);
+            device.setMultiplier(info.multiplier.displayValue);
         }
         Optional<UsagePoint> currentUsagePoint = device.getUsagePoint();
         if (DeviceAttribute.USAGE_POINT.isEditableForState(state)) {
