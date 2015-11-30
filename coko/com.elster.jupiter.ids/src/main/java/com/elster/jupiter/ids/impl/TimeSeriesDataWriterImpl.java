@@ -54,7 +54,7 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
     @Override
     public void add(TimeSeries timeSeries, Instant timeStamp, Object... values) {
         if (!timeSeries.isValidInstant(timeStamp)) {
-            throw new MeasurementTimeIsNotValidExcecption(this.thesaurus);
+            throw new MeasurementTimeIsNotValidException(this.thesaurus);
         }
         if (values.length != timeSeries.getRecordSpec().getFieldSpecs().size()) {
             throw new IllegalArgumentException();
