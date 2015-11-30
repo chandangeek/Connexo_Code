@@ -65,7 +65,9 @@ public class DeviceLifeCycleResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getDeviceLifeCycles(@BeanParam JsonQueryParameters queryParams) {
         List<DeviceLifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
-                .map(deviceLifeCycleFactory::from).collect(Collectors.toList());
+                .map(deviceLifeCycleFactory::from)
+                .sorted((info1, info2) -> info1.name.compareToIgnoreCase(info2.name))
+                .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycles", lifecycles, queryParams);
     }
 
