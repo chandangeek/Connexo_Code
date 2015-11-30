@@ -19,10 +19,13 @@ import org.mockito.stubbing.Answer;
 
 import java.text.MessageFormat;
 import java.util.Currency;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,11 +40,23 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     private final String plainAlias = "PlainAlias";
     private final String aliasWithMacroPeriod = "[Daily] PlainAlias";
+    private final String primaryAliasWithMacroPeriod = "[Daily] Primary PlainAlias";
+    private final String secondaryAliasWithMacroPeriod = "[Daily] Secondary PlainAlias";
     private final String aliasWithMeasuringPeriod = "[15-minute] PlainAlias";
+    private final String primaryAliasWithMeasuringPeriod = "[15-minute] Primary PlainAlias";
+    private final String secondaryAliasWithMeasuringPeriod = "[15-minute] Secondary PlainAlias";
     private final String aliasWithUnit = "PlainAlias (Wh)";
+    private final String primaryAliasWithUnit = "Primary PlainAlias (Wh)";
+    private final String secondaryAliasWithUnit = "Secondary PlainAlias (Wh)";
     private final String aliasWithPhase = "PlainAlias Phase-A";
+    private final String primaryAliasWithPhase = "Primary PlainAlias Phase-A";
+    private final String secondaryAliasWithPhase = "Secondary PlainAlias Phase-A";
     private final String aliasWithTOU = "PlainAlias ToU 3";
+    private final String primaryAliasWithTOU = "Primary PlainAlias ToU 3";
+    private final String secondaryAliasWithTOU = "Secondary PlainAlias ToU 3";
     private final String aliasWithAll = "[Monthly] PlainAlias (kWh) Phase-B ToU 3";
+    private final String primaryAliasWithAll = "[Monthly] Primary PlainAlias (kWh) Phase-B ToU 3";
+    private final String secondaryAliasWithAll = "[Monthly] Secondary PlainAlias (kWh) Phase-B ToU 3";
 
     @Mock
     private DataModel dataModel;
@@ -73,19 +88,19 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (readingType == null) {
-            readingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID, ALIAS);
+            readingType = mockReadingType(MRID, ALIAS);
         }
         return readingType;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new ReadingTypeImpl(dataModel, thesaurus).init(MRID, ALIAS);
+        return mockReadingType(MRID, ALIAS);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, ALIAS));
+        return ImmutableList.of(mockReadingType(MRID2, ALIAS));
     }
 
     @Override
@@ -98,7 +113,8 @@ public class ReadingTypeImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeImpl(dataModel, thesaurus);            }
+                return new ReadingTypeImpl(dataModel, thesaurus);
+            }
         });
     }
 
@@ -119,40 +135,40 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     @Test
     public void testIsBulkQuantityReadingType() {
-    	ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3,"3");
+        ReadingTypeImpl bulkReadingType = mockReadingType(MRID3, "3");
         assertThat(readingType.isBulkQuantityReadingType(bulkReadingType)).isTrue();
     }
 
     @Test
     public void testCurrency() {
-    	assertThat(ReadingTypeImpl.getCurrency(0, thesaurus)).isEqualTo(Currency.getInstance("XXX"));
-    	assertThat(ReadingTypeImpl.getCurrency(999, thesaurus)).isEqualTo(Currency.getInstance("XXX"));
-    	assertThat(ReadingTypeImpl.getCurrency(978, thesaurus)).isEqualTo(Currency.getInstance("EUR"));
+        assertThat(ReadingTypeImpl.getCurrency(0, thesaurus)).isEqualTo(Currency.getInstance("XXX"));
+        assertThat(ReadingTypeImpl.getCurrency(999, thesaurus)).isEqualTo(Currency.getInstance("XXX"));
+        assertThat(ReadingTypeImpl.getCurrency(978, thesaurus)).isEqualTo(Currency.getInstance("EUR"));
     }
 
     @Test
-    public void testSelfIsBulkQuantityReadingType(){
-        ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, ALIAS);
+    public void testSelfIsBulkQuantityReadingType() {
+        ReadingTypeImpl bulkReadingType = mockReadingType(MRID2, ALIAS);
         assertThat(bulkReadingType.isCumulative()).isTrue();
     }
 
     @Test
-    public void testSelfIsNotBulkQuantityReadingType(){
-        ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID, ALIAS);
+    public void testSelfIsNotBulkQuantityReadingType() {
+        ReadingTypeImpl bulkReadingType = mockReadingType(MRID, ALIAS);
         assertThat(bulkReadingType.isCumulative()).isFalse();
     }
 
     @Test
-    public void testUnexistingCalculatedReadingType(){
-        ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID, ALIAS);
+    public void testUnexistingCalculatedReadingType() {
+        ReadingTypeImpl bulkReadingType = mockReadingType(MRID, ALIAS);
         assertThat(bulkReadingType.getCalculatedReadingType().isPresent()).isFalse();
     }
 
     @Test
-    public void testCalculatedReadingType(){
+    public void testCalculatedReadingType() {
         String expectedDeltaReadingTypeCode = "0.0.7.4.0.8.2.9.16.9.110.0.0.0.0.0.0.0";
-        ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, ALIAS);
-        ReadingType calcReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(expectedDeltaReadingTypeCode, "Calculated");
+        ReadingTypeImpl bulkReadingType = mockReadingType(MRID2, ALIAS);
+        ReadingType calcReadingType = mockReadingType(expectedDeltaReadingTypeCode, "Calculated");
         DataMapper<ReadingType> mapper = mock(DataMapper.class);
         when(dataModel.mapper(ReadingType.class)).thenReturn(mapper);
         when(mapper.getOptional(expectedDeltaReadingTypeCode)).thenReturn(Optional.of(calcReadingType));
@@ -162,35 +178,40 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     }
 
     private ReadingType mockSimpleReadingTypeWithPlainAlias() {
-        return new ReadingTypeImpl(dataModel, thesaurus).init("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+        return mockReadingType("0.0.0.4.1.7.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+    }
+
+    private ReadingTypeImpl mockReadingType(String mRID, String plainAlias) {
+        return new ReadingTypeImpl(dataModel, thesaurus).init(mRID, plainAlias);
     }
 
     private ReadingType mockReadingTypeWithDailyPeriodAlias() {
-        return new ReadingTypeImpl(dataModel, thesaurus).init("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+        return mockReadingType("11.0.0.4.1.7.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
 
     }
 
     private ReadingType mockReadingTypeWith15MinPeriodAlias() {
-        return new ReadingTypeImpl(dataModel, thesaurus).init("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+        return mockReadingType("0.0.2.4.1.7.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
 
     }
 
     private ReadingType mockReadingTypeWithUnitAlias() {
-        return new ReadingTypeImpl(dataModel, thesaurus).init("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", plainAlias);
+        return mockReadingType("0.0.0.4.1.7.12.0.0.0.0.0.0.0.0.0.72.0", plainAlias);
 
     }
 
     private ReadingType mockReadingTypeWithPhaseAlias() {
-        return new ReadingTypeImpl(dataModel, thesaurus).init("0.0.0.4.1.1.12.0.0.0.0.0.0.0.128.0.0.0", plainAlias);
+        return mockReadingType("0.0.0.4.1.7.12.0.0.0.0.0.0.0.128.0.0.0", plainAlias);
 
     }
 
     private ReadingType mockReadingTypeWithTOUAlias() {
-        return new ReadingTypeImpl(dataModel, thesaurus).init("0.0.0.4.1.1.12.0.0.0.0.3.0.0.0.0.0.0", plainAlias);
+        return mockReadingType("0.0.0.4.1.7.12.0.0.0.0.3.0.0.0.0.0.0", plainAlias);
 
     }
+
     private ReadingType mockReadingTypeWithAllAlias() {
-        return new ReadingTypeImpl(dataModel, thesaurus).init("13.0.0.4.1.1.12.0.0.0.0.3.0.0.64.3.72.0", plainAlias);
+        return mockReadingType("13.0.0.4.1.7.12.0.0.0.0.3.0.0.64.3.72.0", plainAlias);
     }
 
     @Test
@@ -200,9 +221,33 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     }
 
     @Test
+    public void simplePrimaryReadingTypeWithPlainAliasTest() {
+        ReadingType readingType = mockReadingType("0.0.0.4.1.2.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo("Primary " + plainAlias);
+    }
+
+    @Test
+    public void simpleSecondaryReadingTypeWithPlainAliasTest() {
+        ReadingType readingType = mockReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo("Secondary " + plainAlias);
+    }
+
+    @Test
     public void readingTypeWithDailyPeriodTest() {
         ReadingType readingType = mockReadingTypeWithDailyPeriodAlias();
         assertThat(readingType.getFullAliasName()).isEqualTo(aliasWithMacroPeriod);
+    }
+
+    @Test
+    public void primaryReadingTypeWithDailyPeriodTest() {
+        ReadingType readingType = mockReadingType("11.0.0.4.1.2.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(primaryAliasWithMacroPeriod);
+    }
+
+    @Test
+    public void secondaryReadingTypeWithDailyPeriodTest() {
+        ReadingType readingType = mockReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(secondaryAliasWithMacroPeriod);
     }
 
     @Test
@@ -212,9 +257,33 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     }
 
     @Test
+    public void primaryReadingTypeWith15MinTest() {
+        ReadingType readingType = mockReadingType("0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(primaryAliasWithMeasuringPeriod);
+    }
+
+    @Test
+    public void secondaryReadingTypeWith15MinTest() {
+        ReadingType readingType = mockReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(secondaryAliasWithMeasuringPeriod);
+    }
+
+    @Test
     public void readingTypeWithUnitTest() {
         ReadingType readingType = mockReadingTypeWithUnitAlias();
         assertThat(readingType.getFullAliasName()).isEqualTo(aliasWithUnit);
+    }
+
+    @Test
+    public void primaryReadingTypeWithUnitTest() {
+        ReadingType readingType = mockReadingType("0.0.0.4.1.2.12.0.0.0.0.0.0.0.0.0.72.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(primaryAliasWithUnit);
+    }
+
+    @Test
+    public void secondaryReadingTypeWithUnitTest() {
+        ReadingType readingType = mockReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(secondaryAliasWithUnit);
     }
 
     @Test
@@ -224,14 +293,50 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     }
 
     @Test
+    public void primaryReadingTypeWithPhaseTest() {
+        ReadingType readingType = mockReadingType("0.0.0.4.1.2.12.0.0.0.0.0.0.0.128.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(primaryAliasWithPhase);
+    }
+
+    @Test
+    public void secondaryReadingTypeWithPhaseTest() {
+        ReadingType readingType = mockReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.128.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(secondaryAliasWithPhase);
+    }
+
+    @Test
     public void readingTypeWithTOUTest() {
         ReadingType readingType = mockReadingTypeWithTOUAlias();
         assertThat(readingType.getFullAliasName()).isEqualTo(aliasWithTOU);
     }
 
     @Test
+    public void primaryReadingTypeWithTOUTest() {
+        ReadingType readingType = mockReadingType("0.0.0.4.1.2.12.0.0.0.0.3.0.0.0.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(primaryAliasWithTOU);
+    }
+
+    @Test
+    public void secondaryReadingTypeWithTOUTest() {
+        ReadingType readingType = mockReadingType("0.0.0.4.1.1.12.0.0.0.0.3.0.0.0.0.0.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(secondaryAliasWithTOU);
+    }
+
+    @Test
     public void readingTypeWithAllTest() {
         ReadingType readingType = mockReadingTypeWithAllAlias();
         assertThat(readingType.getFullAliasName()).isEqualTo(aliasWithAll);
+    }
+
+    @Test
+    public void primaryReadingTypeWithAllTest() {
+        ReadingType readingType = mockReadingType("13.0.0.4.1.2.12.0.0.0.0.3.0.0.64.3.72.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(primaryAliasWithAll);
+    }
+
+    @Test
+    public void secondaryReadingTypeWithAllTest() {
+        ReadingType readingType = mockReadingType("13.0.0.4.1.1.12.0.0.0.0.3.0.0.64.3.72.0", plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo(secondaryAliasWithAll);
     }
 }
