@@ -62,6 +62,7 @@ Ext.define('Uni.form.field.DateTime', {
     minutesConfig: null,
 
     dateTimeSeparatorConfig: null,
+    valueInMilliseconds: false,
 
     initComponent: function () {
         var me = this,
@@ -231,7 +232,9 @@ Ext.define('Uni.form.field.DateTime', {
             if (minutes) {
                 date += minutes * 60000;
             }
-
+            if (me.valueInMilliseconds) {
+                return date;
+            }
             date = new Date(date);
             return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
         } else {
