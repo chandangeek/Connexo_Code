@@ -5,8 +5,10 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class ReadingTypeFilter {
 
@@ -26,6 +28,20 @@ public class ReadingTypeFilter {
         condition =  condition.and(Operator.LIKE.compare("fullAliasName", Where.toOracleSql(name)));
     }
 
+    public void addMRIDCondition(String mRID) {
+        condition = condition.and(Operator.LIKE.compare("mRID", Where.toOracleSql(mRID)));
+    }
+
+    public void addSelectedReadingTypesCondition(List<String> values) {
+        values.forEach(e -> condition = condition.and(Operator.LIKE.compare("mRID", e)).not());
+    }
+
+    public void addEquidistantCondition(boolean equidistant) {
+        condition = equidistant ?
+                condition.and(Operator.isTrue("equidistant")) :
+                condition.and(Operator.isFalse("equidistant"));
+    }
+
     public void addActiveCondition(boolean active){
         condition = active ?
                 condition.and(Operator.isTrue("active")) :
@@ -35,6 +51,11 @@ public class ReadingTypeFilter {
     public void addCodedValueCondition(String fieldName, List<String> values){
         condition = condition.and(Arrays.stream(ReadingTypeFields.values()).filter(candidate -> candidate.getName().equalsIgnoreCase(fieldName))
                 .findFirst().map(e -> e.getRegexpCondition(values)).orElse(Condition.TRUE));
+    }
+
+    public void addCodedValueCondition(String fieldName, String value) {
+        condition = condition.and(Arrays.stream(ReadingTypeFields.values()).filter(candidate -> candidate.getName().equalsIgnoreCase(fieldName))
+                .findFirst().map(e -> e.getRegexpCondition(Collections.singletonList(value))).orElse(Condition.TRUE));
     }
 
     public enum ReadingTypeFields{
@@ -53,7 +74,7 @@ public class ReadingTypeFilter {
         CPP("cpp",12),
         CONSUMPTION_TIER("consumptionTier",13),
         PHASES("phases",14),
-        MULTIPLIER("multiplier",16),
+        MULTIPLIER("multiplier",15),
         UNIT("unit",16),
         CURRENCY("currency",17);
 
@@ -72,7 +93,7 @@ public class ReadingTypeFilter {
         public Condition getRegexpCondition(List<String> values){
             Condition condition = Condition.TRUE;
             if(!values.isEmpty()) {
-                condition = condition.and(Operator.REGEXP_LIKE.compare("mRID", "^(\\d+\\.){" + offset + "}(" + String.join("|", values) + ")\\."));
+                condition = condition.and(where("mRID").matches("^(\\d+\\.){" + offset + "}(" + String.join("|", values) + ")\\.", ""));
             }
             return condition;
         }
