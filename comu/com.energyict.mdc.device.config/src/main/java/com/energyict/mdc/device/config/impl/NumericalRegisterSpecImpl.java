@@ -25,6 +25,7 @@ import java.util.Optional;
 @ValidOverFlowAndNumberOfFractionDigits(groups = {Save.Create.class, Save.Update.class})
 @ValidNumericalRegisterSpec(groups = {Save.Update.class})
 @ValidRegisterSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
+@ValidateUpdatableRegisterSpecFields(groups = {Save.Update.class})
 public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegisterSpec> implements NumericalRegisterSpec {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
@@ -60,7 +61,6 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         return numberOfFractionDigits != null;
     }
 
-    @Override
     public void setNumberOfFractionDigits(int numberOfFractionDigits) {
         this.numberOfFractionDigits = numberOfFractionDigits;
     }
@@ -69,7 +69,6 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         return overflow;
     }
 
-    @Override
     public void setOverflowValue(BigDecimal overflowValue) {
         this.overflow = overflowValue;
     }
@@ -122,14 +121,16 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         }
 
         @Override
-        public Builder calculatedReadingType(ReadingType calculatedReadingType) {
-            this.registerSpec.setCalculatedReadingType(calculatedReadingType);
+        public Builder noMultiplier() {
+            this.registerSpec.setUseMultiplier(false);
+            this.registerSpec.setCalculatedReadingType(null);
             return this;
         }
 
         @Override
-        public Builder useMultiplier(boolean useMultiplier) {
-            this.registerSpec.setUseMultiplier(useMultiplier);
+        public Builder useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType) {
+            this.registerSpec.setUseMultiplier(true);
+            this.registerSpec.setCalculatedReadingType(calculatedReadingType);
             return this;
         }
 
@@ -142,9 +143,9 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
 
     abstract static class AbstractUpdater implements Updater {
 
-        private final NumericalRegisterSpec registerSpec;
+        private final NumericalRegisterSpecImpl registerSpec;
 
-        AbstractUpdater(NumericalRegisterSpec registerSpec) {
+        AbstractUpdater(NumericalRegisterSpecImpl registerSpec) {
             super();
             this.registerSpec = registerSpec;
         }
@@ -172,14 +173,16 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         }
 
         @Override
-        public Updater calculatedReadingType(ReadingType calculatedReadingType) {
-            this.registerSpec.setCalculatedReadingType(calculatedReadingType);
+        public Updater noMultiplier() {
+            this.registerSpec.setUseMultiplier(false);
+            this.registerSpec.setCalculatedReadingType(null);
             return this;
         }
 
         @Override
-        public Updater useMultiplier(boolean useMultiplier) {
-            this.registerSpec.setUseMultiplier(useMultiplier);
+        public Updater useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType) {
+            this.registerSpec.setUseMultiplier(true);
+            this.registerSpec.setCalculatedReadingType(calculatedReadingType);
             return this;
         }
 

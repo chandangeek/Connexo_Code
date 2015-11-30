@@ -390,7 +390,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.useMultiplier(true);
+        channelSpecBuilder.useMultiplierWithCalculatedReadingType(null);
         channelSpecBuilder.add();
     }
     @Test
@@ -398,8 +398,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueWithoutViolationsTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.useMultiplier(true);
-        channelSpecBuilder.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
+        channelSpecBuilder.useMultiplierWithCalculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
         channelSpecBuilder.add();
     }
 
@@ -411,8 +410,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec channelSpec = channelSpecBuilder.add();
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.useMultiplier(true);
-        channelSpecUpdater.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
+        channelSpecUpdater.useMultiplierWithCalculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
         channelSpecUpdater.update();
     }
     @Test
@@ -424,7 +422,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec channelSpec = channelSpecBuilder.add();
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.useMultiplier(true);
+        channelSpecUpdater.useMultiplierWithCalculatedReadingType(null);
         channelSpecUpdater.update();
     }
 
@@ -434,8 +432,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void calculatedReadingTypeDoesNotMatchCriteriaTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.useMultiplier(true);
-        channelSpecBuilder.calculatedReadingType(invalidReadingTypeActiveEnergyPrimaryMetered);
+        channelSpecBuilder.useMultiplierWithCalculatedReadingType(invalidReadingTypeActiveEnergyPrimaryMetered);
         channelSpecBuilder.add();
     }
 
@@ -446,8 +443,33 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelType channelType = loadProfileType.findChannelType(registerTypeWhichCanNotBeMultiplied).get();
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.useMultiplier(true);
-        channelSpecBuilder.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
+        channelSpecBuilder.useMultiplierWithCalculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
         channelSpecBuilder.add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CANNOT_CHANGE_THE_USAGE_OF_THE_MULTIPLIER_OF_ACTIVE_CONFIG +"}")
+    public void multiplierUsageCanNotBeUpdatedOnActiveConfigTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        channelSpecBuilder.useMultiplierWithCalculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
+        ChannelSpec channelSpec = channelSpecBuilder.add();
+        getReloadedDeviceConfiguration().activate();
+
+        getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(inMemoryPersistence.getDeviceConfigurationService().findChannelSpec(channelSpec.getId()).get()).noMultiplier().update();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CANNOT_CHANGE_MULTIPLIER_OF_ACTIVE_CONFIG +"}", strict = false)
+    public void multiplierCanNotBeUpdatedOnActiveConfigTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        channelSpecBuilder.useMultiplierWithCalculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
+        ChannelSpec channelSpec = channelSpecBuilder.add();
+        getReloadedDeviceConfiguration().activate();
+
+        getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(inMemoryPersistence.getDeviceConfigurationService().findChannelSpec(channelSpec.getId()).get()).useMultiplierWithCalculatedReadingType(readingTypeActiveEnergySecondaryMetered).update();
     }
 }

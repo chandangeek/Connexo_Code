@@ -471,12 +471,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public NumericalRegisterSpec.Updater getRegisterSpecUpdaterFor(NumericalRegisterSpec registerSpec) {
-        return new NumericalRegisterSpecUpdaterForConfig(registerSpec);
+        return new NumericalRegisterSpecUpdaterForConfig((NumericalRegisterSpecImpl) registerSpec);
     }
 
     class NumericalRegisterSpecUpdaterForConfig extends NumericalRegisterSpecImpl.AbstractUpdater {
 
-        NumericalRegisterSpecUpdaterForConfig(NumericalRegisterSpec registerSpec) {
+        NumericalRegisterSpecUpdaterForConfig(NumericalRegisterSpecImpl registerSpec) {
             super(registerSpec);
         }
 
@@ -489,12 +489,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public TextualRegisterSpec.Updater getRegisterSpecUpdaterFor(TextualRegisterSpec registerSpec) {
-        return new TextualRegisterSpecUpdaterForConfig(registerSpec);
+        return new TextualRegisterSpecUpdaterForConfig((TextualRegisterSpecImpl) registerSpec);
     }
 
     class TextualRegisterSpecUpdaterForConfig extends TextualRegisterSpecImpl.AbstractUpdater {
 
-        TextualRegisterSpecUpdaterForConfig(TextualRegisterSpec registerSpec) {
+        TextualRegisterSpecUpdaterForConfig(TextualRegisterSpecImpl registerSpec) {
             super(registerSpec);
         }
 

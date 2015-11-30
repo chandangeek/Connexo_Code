@@ -19,8 +19,6 @@ public interface TextualRegisterSpec extends RegisterSpec {
     interface Builder {
 
 
-        Builder setRegisterType(RegisterType registerType);
-
         Builder setOverruledObisCode(ObisCode overruledObisCode);
 
         /**
@@ -37,10 +35,11 @@ public interface TextualRegisterSpec extends RegisterSpec {
     interface Updater {
 
         /**
-         * Completes the update procoess for the RegisterSpec.
+         * Completes the update process for the RegisterSpec.
          */
         void update();
 
+        Updater overruledObisCode(ObisCode overruledObisCode);
     }
 
 }

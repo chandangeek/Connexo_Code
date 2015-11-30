@@ -36,23 +36,9 @@ public interface ChannelSpec extends HasId {
 
     DeviceConfiguration getDeviceConfiguration();
 
-    void setChannelType(ChannelType channelType);
-
-    void setOverruledObisCode(ObisCode overruledObisCode);
-
-    void setNbrOfFractionDigits(int nbrOfFractionDigits);
-
-    void setOverflow(BigDecimal overflow);
-
-    void setInterval(TimeDuration interval);
-
     boolean isUseMultiplier();
 
-    void setUseMultiplier(boolean useMultiplier);
-
     Optional<ReadingType> getCalculatedReadingType();
-
-    void setCalculatedReadingType(ReadingType calculatedReadingType);
 
     ReadingType getReadingType();
 
@@ -76,9 +62,9 @@ public interface ChannelSpec extends HasId {
 
         ChannelSpecBuilder interval(TimeDuration interval);
 
-        ChannelSpecBuilder useMultiplier(boolean useMultiplier);
+        ChannelSpecBuilder useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
 
-        ChannelSpecBuilder calculatedReadingType(ReadingType calculatedReadingType);
+        ChannelSpecBuilder noMultiplier();
         /**
          * Does final validation and <i>creates</i> the {@link ChannelSpec}.
          * @return the ChannelSpec
@@ -94,9 +80,9 @@ public interface ChannelSpec extends HasId {
 
         ChannelSpecUpdater overflow(BigDecimal overflow);
 
-        ChannelSpecUpdater useMultiplier(boolean useMultiplier);
+        ChannelSpecUpdater useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
 
-        ChannelSpecUpdater calculatedReadingType(ReadingType calculatedReadingType);
+        ChannelSpecUpdater noMultiplier();
 
         /**
          * Updates the ChannelSpec.

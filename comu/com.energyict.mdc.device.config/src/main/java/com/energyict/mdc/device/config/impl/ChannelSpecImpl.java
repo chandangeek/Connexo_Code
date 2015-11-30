@@ -45,6 +45,7 @@ import static com.elster.jupiter.util.Checks.is;
  * Time: 13:22
  */
 @ValidChannelSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
+@ValidateUpdatableChannelSpecFields(groups = {Save.Update.class})
 public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ChannelSpec {
 
     enum ChannelSpecFields {
@@ -306,7 +307,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         return getDeviceConfiguration().getDeviceType().getName() + "/" + getDeviceConfiguration().getName() + "/" + getReadingType().getAliasName();
     }
 
-    @Override
     public void setChannelType(ChannelType channelType) {
         if (this.channelType.isPresent()) {
             validateChannelTypeForUpdate(channelType);
@@ -323,7 +323,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
 
-    @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
         if (overruledObisCode != null) {
             this.overruledObisCodeString = overruledObisCode.toString();
@@ -331,12 +330,10 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         this.overruledObisCode = overruledObisCode;
     }
 
-    @Override
     public void setNbrOfFractionDigits(int nbrOfFractionDigits) {
         this.nbrOfFractionDigits = nbrOfFractionDigits;
     }
 
-    @Override
     public void setOverflow(BigDecimal overflow) {
         this.overflow = overflow;
     }
@@ -353,7 +350,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         }
     }
 
-    @Override
     public void setInterval(TimeDuration interval) {
         this.interval = interval;
     }
@@ -404,14 +400,16 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder calculatedReadingType(ReadingType calculatedReadingType) {
-            this.channelSpec.setCalculatedReadingType(calculatedReadingType);
+        public ChannelSpec.ChannelSpecBuilder noMultiplier() {
+            this.channelSpec.setUseMultiplier(false);
+            this.channelSpec.setCalculatedReadingType(null);
             return this;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder useMultiplier(boolean useMultiplier) {
-            this.channelSpec.setUseMultiplier(useMultiplier);
+        public ChannelSpec.ChannelSpecBuilder useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType) {
+            this.channelSpec.setUseMultiplier(true);
+            this.channelSpec.setCalculatedReadingType(calculatedReadingType);
             return this;
         }
 
@@ -452,14 +450,16 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
 
 
         @Override
-        public ChannelSpec.ChannelSpecUpdater calculatedReadingType(ReadingType calculatedReadingType) {
-            this.channelSpec.setCalculatedReadingType(calculatedReadingType);
+        public ChannelSpec.ChannelSpecUpdater noMultiplier() {
+            this.channelSpec.setUseMultiplier(false);
+            this.channelSpec.setCalculatedReadingType(null);
             return this;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecUpdater useMultiplier(boolean useMultiplier) {
-            this.channelSpec.setUseMultiplier(useMultiplier);
+        public ChannelSpec.ChannelSpecUpdater useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType) {
+            this.channelSpec.setUseMultiplier(true);
+            this.channelSpec.setCalculatedReadingType(calculatedReadingType);
             return this;
         }
 

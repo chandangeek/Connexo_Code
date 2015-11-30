@@ -35,8 +35,6 @@ public interface RegisterSpec extends HasId {
      */
     public RegisterType getRegisterType();
 
-    void setRegisterType(RegisterType registerType);
-
     /**
      * Tests if this RegisterSpec was marked by the user to contain textual data.
      * When this returns <code>true</code>, it will be safe to cast to {@link TextualRegisterSpec}.
@@ -55,8 +53,6 @@ public interface RegisterSpec extends HasId {
      * @return the obis code
      */
     public ObisCode getObisCode();
-
-    public void setOverruledObisCode(ObisCode overruledObisCode);
 
     /**
      * Returns the obis code of the device.

@@ -158,12 +158,10 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
         this.deviceConfig.set(deviceConfig);
     }
 
-    @Override
     public void setRegisterType(RegisterType registerType) {
         this.registerType.set(registerType);
     }
 
-    @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
         this.overruledObisCode = overruledObisCode;
         this.overruledObisCodeString = overruledObisCode==null?null:overruledObisCode.toString();

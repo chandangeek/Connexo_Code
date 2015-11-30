@@ -42,12 +42,6 @@ public class TextualRegisterSpecImpl extends RegisterSpecImpl<TextualRegisterSpe
         }
 
         @Override
-        public TextualRegisterSpec.Builder setRegisterType(RegisterType registerType) {
-            this.registerSpec.setRegisterType(registerType);
-            return this;
-        }
-
-        @Override
         public TextualRegisterSpec.Builder setOverruledObisCode(ObisCode overruledObisCode) {
             this.registerSpec.setOverruledObisCode(overruledObisCode);
             return this;
@@ -63,15 +57,21 @@ public class TextualRegisterSpecImpl extends RegisterSpecImpl<TextualRegisterSpe
 
     abstract static class AbstractUpdater implements Updater {
 
-        private final TextualRegisterSpec registerSpec;
+        private final TextualRegisterSpecImpl registerSpec;
 
-        AbstractUpdater(TextualRegisterSpec registerSpec) {
+        AbstractUpdater(TextualRegisterSpecImpl registerSpec) {
             super();
             this.registerSpec = registerSpec;
         }
 
         public TextualRegisterSpec updateTarget() {
             return registerSpec;
+        }
+
+        @Override
+        public TextualRegisterSpec.Updater overruledObisCode(ObisCode overruledObisCode) {
+            registerSpec.setOverruledObisCode(overruledObisCode);
+            return this;
         }
 
         @Override

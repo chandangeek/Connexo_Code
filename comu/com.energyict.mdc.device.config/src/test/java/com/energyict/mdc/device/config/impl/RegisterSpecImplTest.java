@@ -325,29 +325,14 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType)
                 .overflowValue(overflowValue).numberOfFractionDigits(3).add();
         this.getReloadedDeviceConfiguration().activate();
-        registerSpec.setNumberOfFractionDigits(1); // decreased!!
-        registerSpec.save();
+        registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec).numberOfFractionDigits(1).update();
     }
 
     @Test
     @Transactional
     public void testDecreaseNumberOfFractionDigitsInactiveConfig() throws Exception {
         NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).overflowValue(overflowValue).numberOfFractionDigits(3).add();
-        registerSpec.setNumberOfFractionDigits(1); // decreased!!
-        registerSpec.save();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG +"}", property = "registerType")
-    public void testUpdateRegisterTypeForActiveConfig() throws Exception {
-        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).overflowValue(overflowValue).numberOfFractionDigits(3).add();
-        getReloadedDeviceConfiguration().save();
-        getReloadedDeviceConfiguration().activate();
-        RegisterType registerType2 = getRegisterType(readingType2);
-
-        registerSpec.setRegisterType(registerType2); // updated
-        registerSpec.save();
+        registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec).numberOfFractionDigits(1).update();
     }
 
     @Test
@@ -437,7 +422,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueTest() {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
-        registerSpecBuilder.useMultiplier(true);
+        registerSpecBuilder.useMultiplierWithCalculatedReadingType(null);
         registerSpecBuilder.add();
     }
     @Test
@@ -445,8 +430,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueWithoutViolationsTest() {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
-        registerSpecBuilder.useMultiplier(true);
-        registerSpecBuilder.calculatedReadingType(readingType3);
+        registerSpecBuilder.useMultiplierWithCalculatedReadingType(readingType3);
         registerSpecBuilder.add();
     }
 
@@ -458,8 +442,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec numericalRegisterSpec = registerSpecBuilder.add();
 
         NumericalRegisterSpec.Updater registerSpecUpdater = numericalRegisterSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(numericalRegisterSpec);
-        registerSpecUpdater.useMultiplier(true);
-        registerSpecUpdater.calculatedReadingType(readingType3);
+        registerSpecUpdater.useMultiplierWithCalculatedReadingType(readingType3);
         registerSpecUpdater.update();
     }
     @Test
@@ -471,7 +454,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec numericalRegisterSpec = registerSpecBuilder.add();
 
         NumericalRegisterSpec.Updater registerSpecUpdater = numericalRegisterSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(numericalRegisterSpec);
-        registerSpecUpdater.useMultiplier(true);
+        registerSpecUpdater.useMultiplierWithCalculatedReadingType(null);
         registerSpecUpdater.update();
     }
 
@@ -482,8 +465,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void calculatedReadingTypeDoesNotMatchCriteriaTest() {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
-        registerSpecBuilder.useMultiplier(true);
-        registerSpecBuilder.calculatedReadingType(invalidReadingTypeActiveEnergyPrimaryMetered);
+        registerSpecBuilder.useMultiplierWithCalculatedReadingType(invalidReadingTypeActiveEnergyPrimaryMetered);
         registerSpecBuilder.add();
     }
 
@@ -491,13 +473,37 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.READINGTYPE_CAN_NOT_BE_MULTIPLIED +"}")
     public void readingTypeCanNotBeMultipliedTest() {
-
         RegisterType registerTypeWhichCanNotBeMultiplied = createOrSetRegisterType(readingType3, registerTypeObisCode);
 
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerTypeWhichCanNotBeMultiplied);
         setRegisterSpecDefaultFields(registerSpecBuilder);
-        registerSpecBuilder.useMultiplier(true);
-        registerSpecBuilder.calculatedReadingType(readingType1);
+        registerSpecBuilder.useMultiplierWithCalculatedReadingType(readingType1);
         registerSpecBuilder.add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CANNOT_CHANGE_THE_USAGE_OF_THE_MULTIPLIER_OF_ACTIVE_CONFIG +"}")
+    public void multiplierUsageCanNotBeUpdatedOnActiveConfigTest() {
+        NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
+        setRegisterSpecDefaultFields(registerSpecBuilder);
+        registerSpecBuilder.useMultiplierWithCalculatedReadingType(readingType3);
+        NumericalRegisterSpec numericalRegisterSpec = registerSpecBuilder.add();
+
+        getReloadedDeviceConfiguration().activate();
+        getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(((NumericalRegisterSpec) inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(numericalRegisterSpec.getId()).get())).noMultiplier().update();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CANNOT_CHANGE_MULTIPLIER_OF_ACTIVE_CONFIG +"}", strict = false)
+    public void multiplierCanNotBeUpdatedOnActiveConfigTest() {
+        NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
+        setRegisterSpecDefaultFields(registerSpecBuilder);
+        registerSpecBuilder.useMultiplierWithCalculatedReadingType(readingType3);
+        NumericalRegisterSpec numericalRegisterSpec = registerSpecBuilder.add();
+
+        getReloadedDeviceConfiguration().activate();
+        getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(((NumericalRegisterSpec) inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(numericalRegisterSpec.getId()).get())).useMultiplierWithCalculatedReadingType(readingType1).update();
     }
 }

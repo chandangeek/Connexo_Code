@@ -30,8 +30,6 @@ public interface NumericalRegisterSpec extends RegisterSpec {
      */
     public int getNumberOfFractionDigits();
 
-    void setNumberOfFractionDigits(int numberOfFractionDigits);
-
     /**
      * Returns the overflow value
      *
@@ -39,15 +37,9 @@ public interface NumericalRegisterSpec extends RegisterSpec {
      */
     public BigDecimal getOverflowValue();
 
-    void setOverflowValue(BigDecimal overflowValue);
-
     boolean isUseMultiplier();
 
-    void setUseMultiplier(boolean useMultiplier);
-
     Optional<ReadingType> getCalculatedReadingType();
-
-    void setCalculatedReadingType(ReadingType calculatedReadingType);
 
     /**
      * Defines a Builder interface to construct a {@link NumericalRegisterSpec}.
@@ -60,9 +52,9 @@ public interface NumericalRegisterSpec extends RegisterSpec {
 
         Builder overflowValue(BigDecimal overflowValue);
 
-        Builder useMultiplier(boolean useMultiplier);
+        Builder useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
 
-        Builder calculatedReadingType(ReadingType calculatedReadingType);
+        Builder noMultiplier();
 
         /**
          * Does final validation and <i>creates</i> the {@link NumericalRegisterSpec}
@@ -87,9 +79,9 @@ public interface NumericalRegisterSpec extends RegisterSpec {
 
         Updater overflowValue(BigDecimal overflowValue);
 
-        Updater useMultiplier(boolean useMultiplier);
+        Updater useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
 
-        Updater calculatedReadingType(ReadingType calculatedReadingType);
+        Updater noMultiplier();
 
         /**
          * Completes the update procoess for the RegisterSpec.
