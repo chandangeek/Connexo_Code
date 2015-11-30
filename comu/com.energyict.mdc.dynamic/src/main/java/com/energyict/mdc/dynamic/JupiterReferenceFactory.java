@@ -1,11 +1,10 @@
 package com.energyict.mdc.dynamic;
 
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -59,11 +58,6 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     @Override
     public String getDatabaseTypeName () {
         return "number(10)";
-    }
-
-    @Override
-    public boolean requiresIndex () {
-        return true;
     }
 
     @Override
