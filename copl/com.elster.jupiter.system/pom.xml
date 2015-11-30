@@ -33,5 +33,9 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
     </dependencies>
 </project>
