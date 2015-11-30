@@ -199,8 +199,11 @@ public class LoadProfileConfigurationResource {
         channelBuilder.overflow(info.overflowValue);
         channelBuilder.overruledObisCode(info.overruledObisCode);
         channelBuilder.nbrOfFractionDigits(info.nbrOfFractionDigits);
-        channelBuilder.useMultiplier(info.useMultiplier != null && info.useMultiplier);
-        channelBuilder.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
+        if(info.useMultiplier){
+            channelBuilder.useMultiplierWithCalculatedReadingType(findCalculatedReadingType(info).orElse(null));
+        } else {
+            channelBuilder.noMultiplier();
+        }
         ChannelSpec newChannelSpec = channelBuilder.add();
         return Response.ok(ChannelSpecFullInfo.from(
                 newChannelSpec,
@@ -230,15 +233,15 @@ public class LoadProfileConfigurationResource {
         ChannelSpec channelSpec = resourceHelper.lockChannelSpecOrThrowException(info);
         DeviceConfiguration deviceConfiguration = channelSpec.getLoadProfileSpec().getDeviceConfiguration();
 
-        if (info.measurementType != null && info.measurementType.id > 0) {
-            channelSpec.setChannelType(resourceHelper.findChannelTypeByIdOrThrowException(info.measurementType.id));
-        }
         ChannelSpec.ChannelSpecUpdater specUpdater = deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
         specUpdater.overruledObisCode(info.overruledObisCode);
         specUpdater.overflow(info.overflowValue);
         specUpdater.nbrOfFractionDigits(info.nbrOfFractionDigits);
-        specUpdater.useMultiplier(info.useMultiplier != null && info.useMultiplier);
-        specUpdater.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
+        if(info.useMultiplier){
+            specUpdater.useMultiplierWithCalculatedReadingType(findCalculatedReadingType(info).orElse(null));
+        } else {
+            specUpdater.noMultiplier();
+        }
         specUpdater.update();
         return Response.ok(ChannelSpecFullInfo.from(
                 channelSpec,

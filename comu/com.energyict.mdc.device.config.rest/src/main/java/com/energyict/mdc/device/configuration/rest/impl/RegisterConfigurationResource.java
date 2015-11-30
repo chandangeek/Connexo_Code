@@ -88,11 +88,9 @@ public class RegisterConfigurationResource {
                     .overflowValue(registerConfigInfo.overflow)
                     .overruledObisCode(registerConfigInfo.overruledObisCode);
             if (registerConfigInfo.useMultiplier != null && registerConfigInfo.useMultiplier) {
-                builder.useMultiplier(registerConfigInfo.useMultiplier);
-                builder.calculatedReadingType(findCalculatedReadingType(registerConfigInfo).orElse(null));
+                builder.useMultiplierWithCalculatedReadingType(findCalculatedReadingType(registerConfigInfo).orElse(null));
             } else {
-                builder.useMultiplier(false);
-                builder.calculatedReadingType(null);
+                builder.noMultiplier();
             }
             registerSpec = builder.add();
         }
@@ -101,19 +99,22 @@ public class RegisterConfigurationResource {
 
     @PUT
     @Path("/{registerConfigId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public RegisterConfigInfo updateRegisterConfig(@PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo info) {
         info.id = registerConfigId;
         RegisterSpec registerSpec = resourceHelper.lockRegisterSpecOrThrowException(info);
-        RegisterType registerType = info.registerType ==null?null:resourceHelper.findRegisterTypeByIdOrThrowException(info.registerType);
+        RegisterType registerType = info.registerType == null ? null : resourceHelper.findRegisterTypeByIdOrThrowException(info.registerType);
         Optional<ReadingType> calculatedReadingType = findCalculatedReadingType(info);
-        if(stillTheSameDiscriminator(info, registerSpec)){
-            info.writeTo(registerSpec, registerType, calculatedReadingType.orElse(null));
+        if (stillTheSameDiscriminator(info, registerSpec)) {
             if (info.asText) {
-                registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor((TextualRegisterSpec) registerSpec).update();
+                TextualRegisterSpec.Updater registerSpecUpdater = registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(((TextualRegisterSpec) registerSpec));
+                info.writeTo(registerSpecUpdater);
+                registerSpecUpdater.update();
             } else {
-                registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor((NumericalRegisterSpec) registerSpec).update();
+                NumericalRegisterSpec.Updater registerSpecUpdater = registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(((NumericalRegisterSpec) registerSpec));
+                info.writeTo(registerSpecUpdater, calculatedReadingType.orElse(null));
+                registerSpecUpdater.update();
             }
         } else {
             registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);

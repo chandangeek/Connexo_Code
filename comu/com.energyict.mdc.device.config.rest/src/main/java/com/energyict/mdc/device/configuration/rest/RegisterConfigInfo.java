@@ -8,7 +8,6 @@ import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -98,19 +97,19 @@ public class RegisterConfigInfo {
         }
     }
 
-    public void writeTo(RegisterSpec registerSpec, RegisterType registerType, ReadingType calculatedReadingType) {
-        registerSpec.setOverruledObisCode(this.overruledObisCode);
-        registerSpec.setRegisterType(registerType);
-        if (!registerSpec.isTextual()) {
-            this.writeTo((NumericalRegisterSpec) registerSpec, calculatedReadingType);
-        }
+    public void writeTo(TextualRegisterSpec.Updater textualRegisterSpecUpdater){
+        textualRegisterSpecUpdater.overruledObisCode(this.overruledObisCode);
     }
 
-    private void writeTo(NumericalRegisterSpec registerSpec, ReadingType calculatedReadingType) {
-        registerSpec.setOverflowValue(this.overflow);
-        registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits != null ? this.numberOfFractionDigits : 0);
-        registerSpec.setUseMultiplier(this.useMultiplier);
-        registerSpec.setCalculatedReadingType(calculatedReadingType);
+    public void writeTo(NumericalRegisterSpec.Updater numericalRegisterSpecUpdater, ReadingType calculatedReadingType){
+        numericalRegisterSpecUpdater.overruledObisCode(this.overruledObisCode);
+        numericalRegisterSpecUpdater.overflowValue(this.overflow);
+        numericalRegisterSpecUpdater.numberOfFractionDigits(this.numberOfFractionDigits != null ? this.numberOfFractionDigits : 0);
+        if(this.useMultiplier) {
+            numericalRegisterSpecUpdater.useMultiplierWithCalculatedReadingType(calculatedReadingType);
+        } else {
+            numericalRegisterSpecUpdater.noMultiplier();
+        }
     }
 
 }

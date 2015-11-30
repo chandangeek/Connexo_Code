@@ -1088,7 +1088,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         ArgumentCaptor<RegisterType> registerTypeArgumentCaptor = ArgumentCaptor.forClass(RegisterType.class);
         verify(registerSpecBuilder).numberOfFractionDigits(6);
         verify(registerSpecBuilder).overflowValue(BigDecimal.TEN);
-        verify(registerSpecBuilder).useMultiplier(false);
+        verify(registerSpecBuilder).noMultiplier();
         verify(deviceConfiguration).createNumericalRegisterSpec(registerTypeArgumentCaptor.capture());
         assertThat(registerTypeArgumentCaptor.getValue()).isEqualTo(registerType);
     }
@@ -1138,12 +1138,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<ObisCode> obisCodeArgumentCaptor = ArgumentCaptor.forClass(ObisCode.class);
-        verify(registerSpec).setRegisterType(registerType);
-        verify(registerSpec).setOverruledObisCode(obisCodeArgumentCaptor.capture());
+        verify(updater).overruledObisCode(obisCodeArgumentCaptor.capture());
         assertThat(obisCodeArgumentCaptor.getValue().toString()).isEqualTo(obisCode.toString());
-        verify(registerSpec).setOverflowValue(BigDecimal.valueOf(123));
-        verify(registerSpec).setNumberOfFractionDigits(6);
-        verify(registerSpec).setUseMultiplier(false);
+        verify(updater).overflowValue(BigDecimal.valueOf(123));
+        verify(updater).numberOfFractionDigits(6);
+        verify(updater).noMultiplier();
         verify(deviceConfiguration).getRegisterSpecUpdaterFor(registerSpec);
         verify(updater).update();
     }
