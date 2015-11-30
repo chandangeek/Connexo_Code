@@ -315,9 +315,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
                     },
                     failure: function (record, operation) {
-                        if (operation.response.status === 400) {
-                            return
-                        }
                         Ext.suspendLayouts();
                         formErrorsPanel.show();
                         var json = Ext.decode(operation.response.responseText);
@@ -585,6 +582,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         var loadProfileConfig = Ext.JSON.decode(response.responseText),
                                             multiplierRadioGroup = widget.down('#mdc-channel-config-multiplierRadioGroup'),
                                             registerTypeCombo = widget.down('#mdc-channel-config-registerTypeComboBox'),
+                                            calculatedReadingTypeCombo = widget.down('#mdc-channel-config-calculated-readingType-combo'),
                                             registerTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.MeasurementType'});
 
                                         me.getApplication().fireEvent('loadLoadProfile', loadProfileConfig);
@@ -601,9 +599,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         registerTypeCombo.setDisabled(true);
 
                                         me.onMultiplierChange(multiplierRadioGroup); // (1) Keep this order
-                                        if (deviceConfig.get('active')) {
-                                            multiplierRadioGroup.setDisabled(true); // (2) Keep this order
-                                        }
+                                        multiplierRadioGroup.setDisabled(deviceConfig.get('active')); // (2) Keep this order
+                                        calculatedReadingTypeCombo.setDisabled(deviceConfig.get('active'));
 
                                         me.registerTypesObisCode = channelConfiguration.getMeasurementType().get('obisCode');
                                         me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.getOverruledObisCodeField().getValue());
