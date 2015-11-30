@@ -183,6 +183,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
         List result = new ArrayList();
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
+        result.add(PK_ECHO_CANCELLING);
         result.add(MeterProtocol.ROUNDTRIPCORR);
         result.add(PK_SOFTWARE_7E1);
         result.add(PK_CHANNEL_MAP);
@@ -341,7 +342,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
      * @return
      */
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2015-11-30 13:55:02 +0100 (Mon, 30 Nov 2015)$";
     }
 
     /**
