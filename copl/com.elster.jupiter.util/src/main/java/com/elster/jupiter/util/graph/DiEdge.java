@@ -9,10 +9,12 @@ public final class DiEdge<T> {
 
     private final Node<T> from;
     private final Node<T> to;
+    private final long weight;
 
-    private DiEdge(Node<T> from, Node<T> to) {
+    private DiEdge(Node<T> from, Node<T> to, long weight) {
         this.from = from;
         this.to = to;
+        this.weight = weight;
     }
 
     public Node<T> from() {
@@ -54,6 +56,18 @@ public final class DiEdge<T> {
     }
 
     public static <S> DiEdge<S> between(Node<S> a, Node<S> b) {
-        return new DiEdge<>(a, b);
+        return new DiEdge<>(a, b, 1L);
+    }
+
+    public static <S> DiEdge<S> between(S a, S b) {
+        return new DiEdge<>(Node.of(a), Node.of(b), 1L);
+    }
+
+    public DiEdge<T> withWeight(long weight) {
+        return new DiEdge<>(from, to, weight);
+    }
+
+    public long weight() {
+        return weight;
     }
 }

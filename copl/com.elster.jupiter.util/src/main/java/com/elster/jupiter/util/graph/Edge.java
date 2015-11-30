@@ -8,9 +8,16 @@ import java.util.Set;
 public final class Edge<T> {
 
     private final Set<Node<T>> nodes;
+    private final long weight;
 
     private Edge(Node<T> from, Node<T> to) {
         this.nodes = ImmutableSet.of(from, to);
+        this.weight = 1L;
+    }
+
+    private Edge(Edge<T> source, long weight) {
+        this.nodes = source.nodes;
+        this.weight = weight;
     }
 
     @Override
@@ -40,4 +47,9 @@ public final class Edge<T> {
     public static <S> Edge<S> between(Node<S> a, Node<S> b) {
         return new Edge<>(a, b);
     }
+
+    public Edge<T> withWeight(long weight) {
+        return new Edge<>(this, weight);
+    }
+
 }

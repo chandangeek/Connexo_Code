@@ -30,6 +30,10 @@ public final class Node<T> {
                 '}';
     }
 
+    public T getData() {
+        return data;
+    }
+
     public static <S> Node<S> of(S s) {
         return new Node<>(s);
     }
