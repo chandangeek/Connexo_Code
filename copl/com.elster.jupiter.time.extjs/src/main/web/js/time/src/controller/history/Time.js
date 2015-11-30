@@ -31,7 +31,7 @@ Ext.define('Tme.controller.history.Time', {
                             action: 'showRelativePeriodDetails',
                             callback: function (route) {
                                 this.getApplication().on('relativeperiodload', function (record) {
-                                    route.setTitle(record.get('name'));
+                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
                                     return true;
                                 }, {single: true});
                                 return this;
