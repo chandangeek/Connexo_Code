@@ -121,27 +121,4 @@ public class SCTMRegister {
         return new Quantity(new BigDecimal(numStrValue),Unit.get(unitStrValue));
     }
 
-    static public void main(String[] args) {
-
-        try {
-            SCTMRegister sr=null;
-            sr = new SCTMRegister("9000000.500MWh  ".getBytes());
-            System.out.println(sr.getQuantityValue()+" "+sr.isQuantity());
-            sr = new SCTMRegister("84257653.00V".getBytes());
-            System.out.println(sr.getQuantityValue()+" "+sr.isQuantity());
-            sr = new SCTMRegister("54257653.000kWh ".getBytes());
-            System.out.println(sr.getQuantityValue()+" "+sr.isQuantity());
-            sr = new SCTMRegister("00000023....".getBytes());
-
-            System.out.println(sr.isQuantity());
-            System.out.println(sr.getQuantityValue()+" "+sr.isQuantity());
-            sr = new SCTMRegister("dit is een  ".getBytes());
-            System.out.println(sr.isQuantity());
-            System.out.println(sr.toString());
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

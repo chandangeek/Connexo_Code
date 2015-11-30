@@ -337,17 +337,4 @@ class LineSelect {
         return description;
     }
 
-    public static void main( String  [] args ){
-
-        LineSelect [] ime = LineSelect.all;
-        for (int i = 0; i < ime.length; i++) {
-            String d = ime[i].getDescription();
-
-            d = ""+ ime[i];
-
-            System.out.println(d);
-        }
-
-    }
-
 }

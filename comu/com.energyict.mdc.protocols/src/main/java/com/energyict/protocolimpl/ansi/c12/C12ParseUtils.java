@@ -105,26 +105,11 @@ public class C12ParseUtils {
             } break;
 
             case 3: {
-//                Calendar calGMT = ProtocolUtils.getCleanGMTCalendar();
-//                long minutes = getLong(data,offset,4,dataOrder);
-//                int seconds = getInt(data,offset+4);
-//                Date date = new Date((minutes*60+seconds)*1000);
-//                calGMT.setTime(date);
-//                cal.setTime(calGMT.getTime());
-
                 long minutes = getLong(data,offset,4,dataOrder);
-//System.out.println("KV_DEBUG> minutes="+minutes);
-
                 int seconds = getInt(data,offset+4);
-//System.out.println("KV_DEBUG> seconds="+seconds);
-
                 Date date = new Date((minutes*60+seconds)*1000);
                 cal.setTime(date);
 
-//                System.out.println("KV_DEBUG>");
-//                cal.set(Calendar.YEAR,1970);
-//                cal.add(Calendar.MINUTE,(int)minutes);
-//                cal.add(Calendar.SECOND,(int)seconds);
             } break;
 
             default:
@@ -150,10 +135,9 @@ public class C12ParseUtils {
                 throw new IOException("C12ParseUtils, getSTimeSize, invalid timeformat, "+timeFormat+" ! Cannot continue!");
         }
 
-    } // public static int getSTimeSize(int timeFormat) throws IOException
+    }
 
     public static Date getDateFromSTimeAndAdjustForTimeZone(byte[] data, int offset, int timeFormat, TimeZone timeZone, int dataOrder) throws IOException {
-
         if (timeFormat==3) {
             return adjustBlockEndTime(getDateFromSTime(data, offset, timeFormat, timeZone, dataOrder), timeZone);
         }
@@ -164,14 +148,6 @@ public class C12ParseUtils {
 
     // Due to a spec non-conformity in the Sentinel meter for the UDATE (GMT minutes from 1970)
     private static Date adjustBlockEndTime(Date date, TimeZone timeZone) {
-
-        //System.out.println("KV_DEBUG>");
-        //return date;
-
-//        Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
-//        cal.add(Calendar.MINUTE,(int)(date.getTime()/(1000*60)));
-//        return cal.getTime();
-
         if (timeZone.inDaylightTime(date)) {
             return new Date(date.getTime() - (timeZone.getRawOffset() + 3600000));
         }
@@ -210,11 +186,6 @@ public class C12ParseUtils {
                 long minutes = getLong(data,offset,4,dataOrder);
                 Date date = new Date((minutes*60)*1000);
                 cal.setTime(date); //calGMT.getTime());
-
-//                System.out.println("KV_DEBUG> minutes="+minutes);
-//                cal.set(Calendar.YEAR,1970);
-//                cal.add(Calendar.MINUTE,(int)minutes);
-
             } break;
 
             default:
@@ -222,7 +193,7 @@ public class C12ParseUtils {
         }
 
         return cal.getTime();
-    } // public static Date getDateFromSTime(byte[] data, int offset, int timeFormat, TimeZone timeZone) throws IOException
+    }
 
     public static int getTimeSize(int timeFormat) throws IOException {
         switch(timeFormat) {
@@ -240,7 +211,7 @@ public class C12ParseUtils {
                 throw new IOException("C12ParseUtils, getTimeSize, invalid timeformat, "+timeFormat+" ! Cannot continue!");
         }
 
-    } // public static int getTimeSize(int timeFormat) throws IOException
+    }
 
     public static Date getDateFromTime(byte[] data, int offset, int timeFormat, TimeZone timeZone, int dataOrder) throws IOException {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
@@ -273,7 +244,7 @@ public class C12ParseUtils {
         }
 
         return cal.getTime();
-    } // public static Date getDateFromTime(byte[] data, int offset, int timeFormat, TimeZone timeZone) throws IOException
+    }
 
     public static int getNonIntegerSize(int niFormat) throws IOException {
         switch(niFormat) {
@@ -328,25 +299,9 @@ public class C12ParseUtils {
         }
     }
 
-    public static final int FORMAT_FLOAT64=0;
-    public static final int FORMAT_FLOAT32=1;
-    public static final int FORMAT_CHAR12=2;
-    public static final int FORMAT_CHAR6=3;
-    public static final int FORMAT_INT32FP=4;
-    public static final int FORMAT_ARRAY6BCD=5;
-    public static final int FORMAT_ARRAY4BCD=6;
-    public static final int FORMAT_INT24=7;
-    public static final int FORMAT_INT32=8;
-    public static final int FORMAT_INT40=9;
-    public static final int FORMAT_INT48=10;
     public static final int FORMAT_INT64=11;
 
-    //signed maken!
-
-
-
     public static Number getNumberFromNonInteger(byte[] data, int offset, int niFormat, int dataOrder) throws IOException {
-        Number number = null;
         switch(niFormat) {
             case 0: { // FLOAT64
                 long val = C12ParseUtils.getLong(data,offset, 8, dataOrder);
@@ -413,17 +368,21 @@ public class C12ParseUtils {
     }
 
     public static int getInt(byte[] data, int offset, int length, int dataOrder) throws IOException {
-        if (dataOrder == 1)
+        if (dataOrder == 1) {
             return ProtocolUtils.getInt(data, offset, length);
-        else
+        }
+        else {
             return ProtocolUtils.getIntLE(data, offset, length);
+        }
     }
 
     public static long getLong(byte[] data, int offset, int length, int dataOrder) throws IOException {
-        if (dataOrder == 1)
+        if (dataOrder == 1) {
             return ProtocolUtils.getLong(data, offset, length);
-        else
+        }
+        else {
             return ProtocolUtils.getLongLE(data, offset, length);
+        }
     }
 
     public static long getExtendedLong(byte[] data, int offset) throws IOException {
@@ -435,25 +394,30 @@ public class C12ParseUtils {
         }
         else {
             byte[] reversedData = new byte[length];
-            for(int i=0;i<length;i++)
-                reversedData[(length-1)-i] = data[i+offset];
+            for (int i=0;i<length;i++) {
+                reversedData[(length - 1) - i] = data[i + offset];
+            }
             return ProtocolUtils.getExtendedLong(reversedData, 0, length);
         }
     }
 
 
     public static BigDecimal getBCD2BigDecimal(byte[] data, int offset, int length, int dataOrder) throws IOException {
-        if (dataOrder == 1)
+        if (dataOrder == 1) {
             return doGetBCD2Long(data, offset, length);
-        else
+        }
+        else {
             return doGetBCD2LongLE(data, offset, length);
+        }
     }
 
     public static long getBCD2Long(byte[] data, int offset, int length, int dataOrder) throws IOException {
-        if (dataOrder == 1)
+        if (dataOrder == 1) {
             return doGetBCD2Long(data, offset, length).longValue();
-        else
+        }
+        else {
             return doGetBCD2LongLE(data, offset, length).longValue();
+        }
     }
 
 
@@ -477,13 +441,15 @@ public class C12ParseUtils {
 
                 int msn = getC1219Val(ProtocolUtils.byte2int(byteBuffer[i]) >> 4);
                 nibbleCount++;
-                if (msn==13) decimalpoint=nibbleCount;
+                if (msn==13) {
+                    decimalpoint = nibbleCount;
+                }
 
                 int lsn = getC1219Val(ProtocolUtils.byte2int(byteBuffer[i])& 0x0F);
                 nibbleCount++;
-                if (lsn==13) decimalpoint=nibbleCount;
-
-
+                if (lsn==13) {
+                    decimalpoint = nibbleCount;
+                }
 
                 if ((lsn!=13) && (lsn!=10)) {
                     val+=(lsn*multiplier);
@@ -530,13 +496,15 @@ public class C12ParseUtils {
             for(int i = offset; i < (offset+length) ; i++ ) {
                  int msn = getC1219Val(ProtocolUtils.byte2int(byteBuffer[i]) >> 4);
                 nibbleCount++;
-                if (msn==13) decimalpoint=nibbleCount;
+                if (msn==13) {
+                    decimalpoint = nibbleCount;
+                }
 
                 int lsn = getC1219Val(ProtocolUtils.byte2int(byteBuffer[i])& 0x0F);
                 nibbleCount++;
-                if (lsn==13) decimalpoint=nibbleCount;
-
-
+                if (lsn==13) {
+                    decimalpoint = nibbleCount;
+                }
 
                 if ((lsn!=13) && (lsn!=10)) {
                     val+=(lsn*multiplier);
@@ -564,27 +532,22 @@ public class C12ParseUtils {
         }
     }
 
-    private static int getC1219Val(int val) throws IOException {
-        if ((val>=0) && (val<=9))
+    private static int getC1219Val(int val) {
+        if ((val>=0) && (val<=9)) {
             return val;
-        else if (val==10)
+        }
+        else if (val==10) {
             return 10;
-        else if (val==11)
+        }
+        else if (val==11) {
             return 0;
-        else if (val==13)
+        }
+        else if (val==13) {
             return 13;
-        else return 0;
-    }
-
-    public static void main(String[] args) {
-        byte[] data=new byte[]{0x00,(byte)0x00,0x00,(byte)0x12,0x34,(byte)0x56};
-        try {
-            System.out.println(C12ParseUtils.getNumberFromNonInteger(data, 0, 5, 0));
         }
-        catch(Exception e) {
-            e.printStackTrace();
+        else {
+            return 0;
         }
-
     }
 
 }

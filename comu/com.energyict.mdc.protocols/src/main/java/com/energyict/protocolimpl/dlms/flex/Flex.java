@@ -57,8 +57,6 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -1431,51 +1429,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
-    }
-
-//    private AXDRDecoder axdrDecoder = AXDRDecoder();
-
-    public static void main(String[] args) throws IOException {
-
-        System.out.println("******************************************************");
-        System.out.println("");
-
-        System.out.println("MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN");
-        System.out.println("");
-        AbstractDataType adt;
-        byte[] abstractDataByte, abstractDataByte2;
-        abstractDataByte = new byte[]{(byte) 0x02, (byte) 0x04, (byte) 0x02, (byte) 0x04, (byte) 0x12,
-                (byte) 0x00, (byte) 0x08, (byte) 0x09, (byte) 0x06, (byte) 0x00, (byte) 0x00,
-                (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0xff, (byte) 0x0f, (byte) 0x02,
-                (byte) 0x12, (byte) 0x00, (byte) 0x00, (byte) 0x09, (byte) 0x0c, (byte) 0x07,
-                (byte) 0xd7, (byte) 0x06, (byte) 0x0a, (byte) 0xff, (byte) 0x00, (byte) 0x19,
-                (byte) 0x00, (byte) 0xff, (byte) 0x80, (byte) 0x00, (byte) 0x80, (byte) 0x09,
-                (byte) 0x0c, (byte) 0x07, (byte) 0xd7, (byte) 0x0c, (byte) 0x13, (byte) 0xff,
-                (byte) 0x0a, (byte) 0x1d, (byte) 0x00, (byte) 0xff, (byte) 0x80, (byte) 0x00,
-                (byte) 0x00, (byte) 0x01, (byte) 0x00};
-
-        abstractDataByte2 = new byte[]{(byte) 0x02, (byte) 0x04, (byte) 0x02, (byte) 0x04, (byte) 0x12, (byte) 0x00,
-                (byte) 0x08, (byte) 0x09, (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00,
-                (byte) 0x00, (byte) 0xFF, (byte) 0x0F, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x00,
-                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD7, (byte) 0x06, (byte) 0x0A, (byte) 0xFF,
-                (byte) 0x00, (byte) 0x19, (byte) 0x00, (byte) 0xFF, (byte) 0x80, (byte) 0x00, (byte) 0x80,
-                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD7, (byte) 0x0C, (byte) 0x14, (byte) 0xFF,
-                (byte) 0x08, (byte) 0x12, (byte) 0x00, (byte) 0xFF, (byte) 0x80, (byte) 0x00, (byte) 0x00,
-                (byte) 0x01, (byte) 0x00};
-
-        adt = AXDRDecoder.decode(abstractDataByte);
-        System.out.println(adt);
-        System.out.println("******************************************************");
-        adt = AXDRDecoder.decode(abstractDataByte2);
-        System.out.println(adt);
-        System.out.println("******************************************************");
-
-        String stringLN;
-
-        byte[] LN = {(byte) 0x01, (byte) 0x00, (byte) 0x03, (byte) 0x08, (byte) 0x00, (byte) 0xFF};
-        stringLN = DLMSUtils.getInfoLN(LN);
-        System.out.println(stringLN);
-
     }
 
 }

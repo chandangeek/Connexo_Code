@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocolimpl.base.ToStringBuilder;
 
 public class Enerium200Register {
 
@@ -88,21 +87,15 @@ public class Enerium200Register {
 		this.type = type;
 	}
 
-	public static void main(String[] args) {
-		System.out.println(ToStringBuilder.genCode(new Enerium200Register(0,0,ObisCode.fromString("1.1.1.1.1.1"),Unit.get(""),"blabla",0,0)));
-	}
-
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("Enerium200Register:");
-        strBuff.append(" obisCode="+getObisCode());
-        strBuff.append(" name="+getName());
-        strBuff.append(" unit="+getUnit());
-        strBuff.append(" scaler="+getScaler());
-        strBuff.append(" address="+getAddress());
-        strBuff.append(" type="+getType());
-        strBuff.append(" size="+getSize());
-        return strBuff.toString();
+	    return "Enerium200Register:" +
+			    " obisCode=" + getObisCode() +
+			    " name=" + getName() +
+			    " unit=" + getUnit() +
+			    " scaler=" + getScaler() +
+			    " address=" + getAddress() +
+			    " type=" + getType() +
+			    " size=" + getSize();
     }
 
 

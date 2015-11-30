@@ -21,23 +21,14 @@ public class ProgrammerEventLogEntry {
 		}
 	}
 
-//    public ProgrammerEventLogEntry() {
-//    }
-//    public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new ProgrammerEventLogEntry()));
-//    }
-
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("ProgrammerEventLogEntry:\n");
-        strBuff.append("   infoIndex="+getInfoIndex()+"\n");
-        strBuff.append("   programmerIndex="+getProgrammerIndex()+"\n");
-        strBuff.append("   timeStampIndex="+getTimeStampIndex()+"\n");
-        return strBuff.toString();
+	    return "ProgrammerEventLogEntry:\n" +
+			    "   infoIndex=" + getInfoIndex() + "\n" +
+			    "   programmerIndex=" + getProgrammerIndex() + "\n" +
+			    "   timeStampIndex=" + getTimeStampIndex() + "\n";
     }
 
-	static public int size() {
+	public static int size() {
 	   return 17;
 	}
 

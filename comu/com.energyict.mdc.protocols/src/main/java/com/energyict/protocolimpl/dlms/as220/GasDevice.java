@@ -60,7 +60,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
 	@Inject
 	public GasDevice(PropertySpecService propertySpecService, OrmClient ormClient) {
-		super(ormClient);
+		super(propertySpecService, ormClient);
 	}
 
 	@Override
@@ -85,11 +85,10 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	protected void doConnect() throws BusinessException {
 		// search for the channel of the Mbus Device
 		String tempSerial;
-		for(int i = 0; i < MAX_MBUS_CHANNELS; i++){
-			tempSerial = "";
+		for (int i = 0; i < MAX_MBUS_CHANNELS; i++) {
 			try {
 				tempSerial = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(i).getObisCode()).getString();
-				if(tempSerial.equalsIgnoreCase(gmeterSerialnumber)){
+				if (tempSerial.equalsIgnoreCase(gmeterSerialnumber)) {
 					setGasSlotId(i + 1);
                     dif = getMBusDIF();
 				}
@@ -155,10 +154,9 @@ public class GasDevice extends AS220 implements MessageProtocol{
 		super.setProperties(properties);
 	}
 
-	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+	private void validateProperties(Properties properties) {
 		this.gmeterSerialnumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
 		this.emeterSerialnumber = properties.getProperty(MeterProtocol.NODEID, "");
-
 	}
 
 	@Override
@@ -192,8 +190,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 			return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
 		} else if(obisCode.equals(ObisCode.fromString("0.0.24.4.129.255"))) {
             ContactorController.ContactorState cs = getgMeter().getGasValveController().getContactorState();
-            RegisterValue registerValue = new RegisterValue(obisCode,null, null, null, null, new Date(), 0, cs.name());
-            return registerValue;
+			return new RegisterValue(obisCode,null, null, null, null, new Date(), 0, cs.name());
         }
         else {
 			throw new NoSuchRegisterException(obisCode.toString() + " is not supported.");
@@ -233,7 +230,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
 	@Override
 	public List<String> getRequiredKeys() {
-		List<String> requiredKeys = new ArrayList<String>();
+		List<String> requiredKeys = new ArrayList<>();
 		requiredKeys.addAll(super.getRequiredKeys());
 		return requiredKeys;
 	}

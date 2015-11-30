@@ -35,15 +35,9 @@ public class EnergyRegister {
         }
     }
 
-//    public EnergyRegister() {
-//    }
-//    public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new EnergyRegister()));
-//    }
-
     public String toString() {
         // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("EnergyRegister:\n");
         strBuff.append("   totalValue="+getTotalValue()+"\n");
         for (int i=0;i<getValueRates().length;i++) {
@@ -52,7 +46,7 @@ public class EnergyRegister {
         return strBuff.toString();
     }
 
-    static public int size() {
+    public static int size() {
         return 5*4+4+4; // * extra unused 2*4 bytes
     }
 

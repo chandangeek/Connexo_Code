@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.generic;
 
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.Register;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -10,6 +7,10 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.Register;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,12 +24,12 @@ import java.util.TimeZone;
  * @author kvds
  */
 public class ParseUtils {
-     
+
     /** Creates a new instance of ParseUtils */
     public ParseUtils() {
     }
-    
-    
+
+
     /**
      *   Build a decimal String representation from an int value an 0-extend the value to length.
      *   E.g. buildStringHex(10,4) returns "0010" String
@@ -53,7 +54,7 @@ public class ParseUtils {
      * @param value Value to convert
      * @param length length of the String
      * @return 0-extended String value
-     */    
+     */
     public static String buildStringDecimal(long value,int length) {
         String str=Long.toString(value);
         StringBuffer strbuff = new StringBuffer();
@@ -65,9 +66,9 @@ public class ParseUtils {
         strbuff.append(str);
         return strbuff.toString();
     }
-    
-    
-    
+
+
+
     /**
      * Extract an long value from the BCD byte array starting at offset for length.
      * @param byteBuffer byte array
@@ -271,7 +272,7 @@ public class ParseUtils {
 			throw new IOException(e.getMessage());
 		}
 	}
-	
+
     public static void validateProfileData(ProfileData profileData, Date date) {
         Iterator it = profileData.getIntervalDatas().iterator();
         while (it.hasNext()) {
@@ -282,7 +283,7 @@ public class ParseUtils {
             }
         }
     }
-    
+
 	public AXDRDateTime convertUnixToGMTDateTime(String time) throws IOException{
 		try {
 			AXDRDateTime dateTime = null;
@@ -295,13 +296,5 @@ public class ParseUtils {
 			throw new IOException("Could not parse " + time + " to a long value");
 		}
 	}
-	
-	public static void main(String[] args){
-//		String str = "99.1.0";
-//		String sgn = ".";
-//		System.out.println(countEqualSignsInString(str, sgn));
-		
-		String str = "000100010010002b6129a109060760857405080101a203020100a305a103020100be10040e0800065f1f000000101904180007";
-		System.out.println(ParseUtils.hexStringToByteArray(str));
-	}
+
 }

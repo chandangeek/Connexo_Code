@@ -1,14 +1,15 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
@@ -29,24 +30,24 @@ import java.util.Map;
  */
 public class TransparentObjectListRead {
 
-    static private final int TRANSPARANT_OBJECT_LIST_READING_REQ_TAG=0x36;
-    static private final int TRANSPARANT_OBJECT_LIST_READING_RES_TAG=0xB6;
+    private static final int TRANSPARANT_OBJECT_LIST_READING_REQ_TAG=0x36;
+    private static final int TRANSPARANT_OBJECT_LIST_READING_RES_TAG=0xB6;
 
-    static private final int MAX_LIST_MULTIFRAME_LENGTH=135;
-    static private final int LIST_TAG=0xB6;
-    static private final int MAX_NR_OF_OBISCODES=16;
+    private static final int MAX_LIST_MULTIFRAME_LENGTH=135;
+    private static final int LIST_TAG=0xB6;
+    private static final int MAX_NR_OF_OBISCODES=16;
 
-    static private final int FIRST_FRAME_MAX_LENGTH=136;
-    static private final int NEXT_FRAME_MAX_LENGTH=135;
+    private static final int FIRST_FRAME_MAX_LENGTH=136;
+    private static final int NEXT_FRAME_MAX_LENGTH=135;
 
 
-    static private final int CLASS_DATA=1;
-    static private final int CLASS_REGISTER=3;
-    static private final int CLASS_EXTENDED_REGISTER=4;
-    static private final int CLASS_GENERIC_PROFILE=7;
+    private static final int CLASS_DATA=1;
+    private static final int CLASS_REGISTER=3;
+    private static final int CLASS_EXTENDED_REGISTER=4;
+    private static final int CLASS_GENERIC_PROFILE=7;
 
-    static private final int ATTRIBUTE_VALUE=2;
-    static private final int ATTRIBUTE_SCALER=3;
+    private static final int ATTRIBUTE_VALUE=2;
+    private static final int ATTRIBUTE_SCALER=3;
 
     // collected registervalues
     Map<ObisCode,RegisterValue> registerValues;
@@ -79,7 +80,7 @@ public class TransparentObjectListRead {
     }
 
     public TransparentObjectListRead(AbstractDLMS abstractDLMS,List<ObjectInfo> objectInfos) throws WaveFlowDLMSException {
-        this(abstractDLMS,objectInfos,new HashMap<ObisCode,RegisterValue>());
+        this(abstractDLMS,objectInfos, new HashMap<>());
     }
 
     public TransparentObjectListRead(final AbstractDLMS abstractDLMS,final List<ObjectInfo> objectInfos,final Map<ObisCode,RegisterValue> registerValues) throws WaveFlowDLMSException {
@@ -97,7 +98,7 @@ public class TransparentObjectListRead {
         return genericHeader;
     }
 
-    private final byte[] objectList2ByteArray() throws IOException {
+    private byte[] objectList2ByteArray() throws IOException {
         ByteArrayOutputStream baos = null;
         try {
             baos = new ByteArrayOutputStream();
@@ -127,7 +128,7 @@ public class TransparentObjectListRead {
     }
 
     public final void read() throws IOException {
-        if (objectInfos.size() == 0) {
+        if (objectInfos.isEmpty()) {
             throw new WaveFlowDLMSException("No obiscodes to read in the list! Cannort preform a transparant object list read");
         }
         int retry = 0;
@@ -184,11 +185,7 @@ public class TransparentObjectListRead {
         }
     }
 
-    private final void parseResponse(byte[] sendData) throws IOException {
-
-        //System.out.println("Received : "+ProtocolUtils.outputHexString(sendData));
-
-
+    private void parseResponse(byte[] sendData) throws IOException {
         DataInputStream dais = null;
         try {
             dais = new DataInputStream(new ByteArrayInputStream(sendData));
@@ -224,13 +221,7 @@ public class TransparentObjectListRead {
     }
 
     void parse(byte[] data) throws IOException {
-
-
-        //System.out.println("1-->"+ProtocolUtils.outputHexString(data));
         data = abstractDLMS.getEncryptor().decryptFrames(data,FIRST_FRAME_MAX_LENGTH,NEXT_FRAME_MAX_LENGTH);
-        //System.out.println("2-->"+ProtocolUtils.outputHexString(data));
-
-        int count=0;
         DataInputStream dais = null;
         byte[] temp;
         try {
@@ -258,7 +249,7 @@ public class TransparentObjectListRead {
         }
     }
 
-    private final byte[] decodeMultiFrame(final byte[] multiFrameData) throws IOException {
+    private byte[] decodeMultiFrame(final byte[] multiFrameData) throws IOException {
 
         ByteArrayOutputStream baos=new ByteArrayOutputStream();
         DataInputStream dais = null;
@@ -299,13 +290,17 @@ public class TransparentObjectListRead {
                     if (initialFrameCounter == 1) {
                         temp = new byte[dais.available()];
                         dais.read(temp);
-                        if (!duplicate) baos.write(temp);
+                        if (!duplicate) {
+                            baos.write(temp);
+                        }
                         return baos.toByteArray();
                     }
                     else {
                         temp = new byte[MAX_LIST_MULTIFRAME_LENGTH];
                         dais.read(temp);
-                        if (!duplicate) baos.write(temp);
+                        if (!duplicate) {
+                            baos.write(temp);
+                        }
                     }
                 }
             }
@@ -322,10 +317,8 @@ public class TransparentObjectListRead {
         }
     }
 
-    private final void parseHDLCFrames(final int nrOfResults,final byte[] data) throws IOException {
-        ByteArrayOutputStream baos=new ByteArrayOutputStream();
+    private void parseHDLCFrames(final int nrOfResults,final byte[] data) throws IOException {
         DataInputStream dais = null;
-
         try {
             dais = new DataInputStream(new ByteArrayInputStream(data));
             for (int i=0;i<nrOfResults;i++) {
@@ -378,7 +371,7 @@ public class TransparentObjectListRead {
      * @return DLMS data
      * @throws IOException
      */
-    private final byte[] parseHDLCData(final byte[] hdlcData) throws IOException {
+    private byte[] parseHDLCData(final byte[] hdlcData) throws IOException {
 
         ByteArrayOutputStream baos=new ByteArrayOutputStream();
         int hdlcDataLength = hdlcData.length;
@@ -405,7 +398,7 @@ public class TransparentObjectListRead {
 	 *      3 = register
 	 */
 
-    private final void parseAXDRObjectData(final ObjectInfo objectInfo,final byte[] axdrData) throws IOException {
+    private void parseAXDRObjectData(final ObjectInfo objectInfo,final byte[] axdrData) throws IOException {
         AbstractDataType adt = AXDRDecoder.decode(axdrData);
 
         if (objectInfo.getClassId() == CLASS_DATA) {
@@ -482,46 +475,4 @@ public class TransparentObjectListRead {
             registerValues.put(objectInfo.getObisCode(), new RegisterValue(objectInfo.getObisCode(), new Quantity(adt.toBigDecimal(),Unit.get(""))));
         }
     }
-//
-//	public static void main(String[] args) {
-//
-//		byte[] data = new byte[]{(byte)0x0C,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x01,(byte)0x08,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x15,(byte)0x7E,(byte)0xA0,(byte)0x13,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x52,(byte)0xC4,(byte)0x2A,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x11,(byte)0x00,(byte)0xAC,(byte)0x5B,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x01,(byte)0x08,(byte)0x00,(byte)0xFF,(byte)0x03,(byte)0x19,(byte)0x7E,(byte)0xA0,(byte)0x17,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x74,(byte)0xE0,(byte)0x43,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x02,(byte)0x02,(byte)0x0F,(byte)0x03,(byte)0x16,(byte)0x1E,(byte)0xF4,(byte)0x5E,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x02,(byte)0x08,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x15,(byte)0x7E,(byte)0xA0,(byte)0x13,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x96,(byte)0xEC,(byte)0xAA,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x11,(byte)0x00,(byte)0xAC,(byte)0x5B,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x02,(byte)0x08,(byte)0x00,(byte)0xFF,(byte)0x03,(byte)0x19,(byte)0x7E,(byte)0xA0,(byte)0x17,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0xB8,(byte)0x80,(byte)0x4F,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x02,(byte)0x02,(byte)0x0F,(byte)0x03,(byte)0x16,(byte)0x1E,(byte)0xF4,(byte)0x5E,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0xB6,(byte)0x02,(byte)0x01,(byte)0x03,(byte)0x08,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x15,(byte)0x7E,(byte)0xA0,(byte)0x13,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0xDA,(byte)0x84,(byte)0x22,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x11,(byte)0x00,(byte)0xAC,(byte)0x5B,(byte)0x7E,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x01,(byte)0x60,(byte)0x01,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x18,(byte)0x7E,(byte)0xA0,(byte)0x16,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0xFC,(byte)0xE4,(byte)0x40,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x06,(byte)0x00,(byte)0x30,(byte)0xEB,(byte)0xB7,(byte)0xD0,(byte)0x95,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x20,(byte)0x07,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x15,(byte)0x7E,(byte)0xA0,(byte)0x13,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x1E,(byte)0xAC,(byte)0xA2,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x11,(byte)0x00,(byte)0xAC,(byte)0x5B,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x34,(byte)0x07,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x15,(byte)0x7E,(byte)0xA0,(byte)0x13,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x30,(byte)0xD0,(byte)0x6A,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x11,(byte)0x00,(byte)0xAC,(byte)0x5B,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x48,(byte)0x07,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x16,(byte)0x7E,(byte)0xB6,(byte)0x01,(byte)0xA0,(byte)0x14,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x52,(byte)0x18,(byte)0x1A,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x12,(byte)0x09,(byte)0x3A,(byte)0xE0,(byte)0x39,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x1F,(byte)0x07,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x15,(byte)0x7E,(byte)0xA0,(byte)0x13,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x74,(byte)0xF0,(byte)0x6E,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x11,(byte)0x00,(byte)0xAC,(byte)0x5B,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x33,(byte)0x07,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x15,(byte)0x7E,(byte)0xA0,(byte)0x13,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x96,(byte)0xEC,(byte)0xAA,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x11,(byte)0x00,(byte)0xAC,(byte)0x5B,(byte)0x7E,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x01,(byte)0x47,(byte)0x07,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x15,(byte)0x7E,(byte)0xA0,(byte)0x13,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0xB8,(byte)0x90,(byte)0x62,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x11,(byte)0x00,(byte)0xAC,(byte)0x5B,(byte)0x7E};
-//
-//		TransparentObjectListRead o;
-//		try {
-//	    	List<ObjectInfo> objectInfos = new ArrayList<ObjectInfo>();
-//	    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.1.8.0.255")));
-//	    	objectInfos.add(new ObjectInfo(3, 3, ObisCode.fromString("1.1.1.8.0.255")));
-//	    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.2.8.0.255")));
-//	    	objectInfos.add(new ObjectInfo(3, 3, ObisCode.fromString("1.1.2.8.0.255")));
-//	    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.3.8.0.255")));
-//	    	objectInfos.add(new ObjectInfo(2, 1, ObisCode.fromString("1.1.96.1.0.255")));
-//	    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.32.7.0.255")));
-//	    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.52.7.0.255")));
-//	    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.72.7.0.255")));
-//	    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.31.7.0.255")));
-//	    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.51.7.0.255")));
-//	    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.71.7.0.255")));
-//
-//	    	o = new TransparentObjectListRead(null,objectInfos);
-//			o.parse(data);
-//
-//			for (RegisterValue rv : o.getRegisterValues().values()) {
-//				System.out.println(rv);
-//			}
-//
-//
-//		} catch (WaveFlowDLMSException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//
-//	}
-
-
-
 }

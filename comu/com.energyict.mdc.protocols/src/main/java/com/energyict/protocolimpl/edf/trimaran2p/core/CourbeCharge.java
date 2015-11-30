@@ -11,9 +11,9 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -709,56 +709,6 @@ public class CourbeCharge {
     		}
     	}
     	return val;
-    }
-
-    static public void main(String[] args) {
-
-    	int val = 32685;
-    	int mask = 0x8000;
-    	System.out.println("Before: " + val);
-		if(mask >= 32768){	// case no gap
-			if(val >= 16384)
-				val = val - 32768;
-		}
-		System.out.println("After: " + val);
-
-
-
-//    	byte b1 = (byte) 0x0FFF;
-//    	int i1 = 0x0FFF;
-//
-//    	System.out.println("Byte: " + b1 + "; Int: " + i1);
-
-//        try {
-//            CourbeCharge cc = new CourbeCharge(new TrimaranObjectFactory(null));
-//
-//			FileInputStream fis;
-//			File file = new File("c://TEST_FILES/Object_Values_0406_long0.bin");
-//			fis = new FileInputStream(file);
-//			ObjectInputStream ois = new ObjectInputStream(fis);
-//			int[] values = (int[])ois.readObject();
-//			ois.close();
-//			fis.close();
-//			cc.initCollections();
-//            cc.addValues(values);
-//            cc.now = new Date();
-//            cc.doParse();
-//
-//			file = new File("c://TEST_FILES/Object_Values_0406_long1.bin");
-//			fis = new FileInputStream(file);
-//			ois = new ObjectInputStream(fis);
-//			values = (int[])ois.readObject();
-//			ois.close();
-//			fis.close();
-//            cc.addValues(values);
-//            cc.doParse();
-//
-//        }
-//        catch(IOException e) {
-//            e.printStackTrace();
-//        } catch (ClassNotFoundException e) {
-//			e.printStackTrace();
-//		}
     }
 
     public ProfileData getProfileData() {

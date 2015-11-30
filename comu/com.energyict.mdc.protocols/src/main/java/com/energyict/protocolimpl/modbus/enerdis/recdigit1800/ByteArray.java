@@ -9,7 +9,7 @@ import java.util.List;
 class ByteArray {
 
     byte[] data;
-    
+
     ByteArray() {
         data = new byte[0];
     }
@@ -21,12 +21,12 @@ class ByteArray {
     ByteArray(byte[] data) {
         this.data = data;
     }
-    
+
     ByteArray(int [] value) {
         data = new byte[0];
         for (int i = 0; i < value.length; i++) {
             add( (byte)(( value[i] & 0x0000ff00) >> 8 ) );
-            add( (byte)(value[i] & 0x0000ffff) ); 
+            add( (byte)(value[i] & 0x0000ffff) );
         }
     }
 
@@ -63,9 +63,9 @@ class ByteArray {
         byte[] tmp = byteArray.getBytes();
         return add(tmp);
     }
-    
+
     /** Serialize an int to a ByteStream (prepended with typefield)
-     * 
+     *
      * @param anInt value to be serialized
      * @param length number of bytes used for value
      * @return this instance
@@ -76,24 +76,24 @@ class ByteArray {
             String msg = "length must be >=1 and <= 4";
             throw new SerializeException( msg );
         }
-        
+
         byte [] b = new byte[length+1];
         int bPos = 0;
-        
+
         b[bPos++] = (byte)(0x60 | length);
-        
+
         if( length > 3 ) b[bPos++] |= ((anInt & 0xff000000) >> 24);
         if( length > 2 ) b[bPos++] |= ((anInt & 0x00ff0000) >> 16);
         if( length > 1 ) b[bPos++] |= ((anInt & 0x0000ff00) >> 8 );
         b[bPos++] |= (anInt & 0x000000ff);
-        
-        this.add( b ); 
+
+        this.add( b );
         return this;
-        
+
     }
 
     /** Serialize an int to a ByteStream (without type field)
-     * 
+     *
      * @param anInt value to be serialized
      * @param length number of bytes used for value
      * @return this instance
@@ -104,18 +104,18 @@ class ByteArray {
             String msg = "length must be >=1 and <= 4";
             throw new SerializeException( msg );
         }
-        
+
         byte [] b = new byte[length];
         int bPos = 0;
-        
+
         if( length > 3 ) b[bPos++] |= ((anInt & 0xff000000) >> 24);
         if( length > 2 ) b[bPos++] |= ((anInt & 0x00ff0000) >> 16);
         if( length > 1 ) b[bPos++] |= ((anInt & 0x0000ff00) >> 8 );
         b[bPos++] |= (anInt & 0x000000ff);
-        
-        this.add( b ); 
+
+        this.add( b );
         return this;
-        
+
     }
 
     byte first() {
@@ -141,7 +141,7 @@ class ByteArray {
     int size() {
         return data.length;
     }
-    
+
     ByteArray trim( ) {
         int i = data.length-1;
         for( ; i >= 0; i-- )
@@ -152,22 +152,22 @@ class ByteArray {
         data = temp;
         return this;
     }
-    
+
     boolean getBit( int index ) {
         return ( data[index/8] & ( 1 << index%8 ) ) > 0;
     }
-    
+
     List split(int blockSize) {
         ArrayList result = new ArrayList();
         int index = 0;
-        
+
         while( (index + blockSize) <= data.length ) {
-            result.add( sub( index, blockSize) ); 
+            result.add( sub( index, blockSize) );
             index = index + blockSize;
         }
         if( index < data.length )
             result.add( sub( index, data.length - index ) );
-        
+
         return result;
     }
 
@@ -178,7 +178,7 @@ class ByteArray {
     String toHexaString(boolean display) {
         return toHexaString(data, 0, data.length, display);
     }
-    
+
     String toHexaString(int from, boolean display){
         return toHexaString(data, from, data.length, display);
     }
@@ -221,14 +221,14 @@ class ByteArray {
         }
         return result.toString();
     }
-    
+
     void dumpToFile( String fileName ) throws IOException {
         File f = new File( fileName );
         FileOutputStream fos = new FileOutputStream(f);
         fos.write( data );
         fos.close();
     }
-    
+
     public String toString( ) {
         return toHexaString(true);
     }
@@ -239,8 +239,5 @@ class ByteArray {
             super( msg );
         }
     }
-    
-    public static void main( String [] args ){
-        System.out.println( "" + new ByteArray( (byte) 0xff) );
-    }
+
 }

@@ -39,7 +39,7 @@ public class AnswerParametersTableForRemotePorts extends AbstractTable {
 
     public String toString() {
         // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("AnswerParametersTableForRemotePorts:\n");
         strBuff.append("   nrOfRings="+getNrOfRings()+"\n");
         strBuff.append("   nrOfRingsOutside="+getNrOfRingsOutside()+"\n");
@@ -47,10 +47,6 @@ public class AnswerParametersTableForRemotePorts extends AbstractTable {
             strBuff.append("   windows["+i+"]="+getWindows()[i]+"\n");
         return strBuff.toString();
     }
-//     public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new AnswerParametersTableForRemotePorts(null)));
-//     }
-
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset = 0;

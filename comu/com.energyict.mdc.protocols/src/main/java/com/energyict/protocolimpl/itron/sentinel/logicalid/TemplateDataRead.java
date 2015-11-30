@@ -13,7 +13,7 @@ package com.energyict.protocolimpl.itron.sentinel.logicalid;
 import java.io.IOException;
 
 /**
- * 
+ *
  * @author Koen
  */
 public class TemplateDataRead extends AbstractDataRead {
@@ -21,10 +21,6 @@ public class TemplateDataRead extends AbstractDataRead {
 	/** Creates a new instance of ConstantsDataRead */
 	public TemplateDataRead(DataReadFactory dataReadFactory) {
 		super(dataReadFactory);
-	}
-
-	public static void main(String[] args) {
-		System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateDataRead(null)));
 	}
 
 	protected void parse(byte[] data) throws IOException {

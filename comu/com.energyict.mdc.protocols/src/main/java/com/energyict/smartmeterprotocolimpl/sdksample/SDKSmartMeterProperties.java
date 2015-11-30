@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.sdksample;
 
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
@@ -38,10 +39,6 @@ public class SDKSmartMeterProperties extends AbstractProtocolProperties {
     @Override
     protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
 
-    }
-
-    public static void main(String[] args) {
-        System.out.println(new SDKSmartMeterProperties());
     }
 
 }

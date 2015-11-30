@@ -195,9 +195,4 @@ public class CommunicationDumpFile {
         return response;
     }
 
-    public static void main(String[] args) {
-        CommunicationDumpFile dumpFile = new CommunicationDumpFile("c:\\cewe\\2.log");
-        System.out.println(dumpFile.toStringAscii());
-    }
-
 }

@@ -84,12 +84,6 @@ public class MeterIdentitySerialNumber {
         }
     }
 
-    static public void main(String[] args) {
-        byte[] data={0x73,0x3D,0x0A,0x01,0x02,(byte)0xA7,0x10,0x00,0x00,0x00,0x0D};
-        MeterIdentitySerialNumber misn = new MeterIdentitySerialNumber(data);
-        System.out.println(misn.toString());
-    }
-
     /** Getter for property io.
      * @return Value of property io.
      *

@@ -79,13 +79,4 @@ public class ChannelMap {
         }
     }
 
-    static public void main(String[] args) {
-        try {
-            ChannelMap channelMap = new ChannelMap("1");
-            System.out.println(channelMap.getChannel(1).getRegister());
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

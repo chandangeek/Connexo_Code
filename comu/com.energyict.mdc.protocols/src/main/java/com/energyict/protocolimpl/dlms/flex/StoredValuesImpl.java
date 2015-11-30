@@ -6,6 +6,9 @@
 
 package com.energyict.protocolimpl.dlms.flex;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -16,8 +19,6 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -166,15 +167,6 @@ public class StoredValuesImpl implements StoredValues {
             billingSet.addBillingValue(getBillingValues(billingSetId, dc));
             billingSets.add(billingSet);
         } // for (billingSetId=0;billingSetId<nrOfBillingSets;billingSetId++)
-    } // private void processDataContainer(DataContainer dc)
-
-
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String[] args) {
-//        // TODO code application logic here
-//        StoredValuesImpl dcp = new StoredValuesImpl(StoredValuesImpl.getDataContainerDebug());
-//    }
+    }
 
 }

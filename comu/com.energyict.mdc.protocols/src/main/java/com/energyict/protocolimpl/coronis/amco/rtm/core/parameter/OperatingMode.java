@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class OperatingMode extends AbstractParameter {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         this.operationMode = ProtocolTools.getUnsignedIntFromBytes(data);
     }
 
@@ -141,7 +142,7 @@ public class OperatingMode extends AbstractParameter {
     public int readValveCommunicationFaultDetection() {
         return (operationMode & 0x4000) >> 14;
     }
-    
+
     public int readNetworkConfiguration() {
         return (operationMode & 0x3000) >> 12;
     }

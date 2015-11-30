@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
@@ -29,13 +30,6 @@ public class QueryTimeCommand extends AbstractCommand {
     public QueryTimeCommand(CommandFactory cm) {
         super(cm);
     }
-
-    // =0x"+Integer.toHexString(
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new QueryTimeCommand(null)));
-    }
-
-
 
     protected void parse(byte[] data) throws IOException {
         int offset=0;

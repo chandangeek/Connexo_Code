@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
 import com.energyict.mdc.common.NestedIOException;
+
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;
@@ -39,25 +40,6 @@ public class RTC extends AbstractCommand {
     public void write() throws IOException {
         write(0);
     }
-
-//    static public void main(String[] str) {
-//        TimeZone tz = TimeZone.getTimeZone("America/Mexico_City");
-//        SimpleDateFormat sdf = new SimpleDateFormat();
-//        sdf.setTimeZone(tz);
-//        Calendar cal = Calendar.getInstance(); //ProtocolUtils.getCalendar(tz);
-//        sdf.applyPattern("MM/dd/yy");
-//        String date = sdf.format(cal.getTime());
-//        sdf.applyPattern("HH:mm:ss");
-//        String time = sdf.format(cal.getTime());
-//        String writeStr = date+" "+cal.get(Calendar.DAY_OF_WEEK)+" "+time+" "+(tz.inDaylightTime(cal.getTime())?"01":"00");
-//        System.out.println(writeStr);
-//
-//        Calendar cal1 = Calendar.getInstance();
-//        Calendar cal2 = ProtocolUtils.getCalendar(tz);
-//
-//        System.out.println(cal1.getTime().getTime());
-//        System.out.println(cal2.getTime().getTime());
-//    }
 
     public void write(int roundTripCorrection) throws IOException {
         TimeZone tz = ez7CommandFactory.getEz7().getTimeZone();

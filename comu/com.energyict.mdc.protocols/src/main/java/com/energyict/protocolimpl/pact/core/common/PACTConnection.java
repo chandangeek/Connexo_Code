@@ -9,16 +9,16 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.dialer.connection.Connection;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.Connection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Calendar;
 
 /**
  *
@@ -876,24 +876,6 @@ public class PACTConnection extends Connection {
 
 	public void setForceDelay(long forceDelay) {
 		this.forceDelay = forceDelay;
-	}
-
-	public static void main(String[] args) throws IOException {
-
-		Calendar cal = Calendar.getInstance();
-
-		// byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x47,(byte)0x11,(byte)0x44,(byte)0x28};
-		// byte[] data = new byte[]{(byte)0x00,(byte)0x40,(byte)0x00,(byte)0x00,(byte)0x53,(byte)0x11};
-		// byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x68,(byte)0x00,(byte)0x45,(byte)0x28};
-		// byte[] data = new byte[]{(byte)0x00,(byte)0x87,(byte)0x00,(byte)0x00,(byte)0x70,(byte)0x40};
-		// byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x3D,(byte)0x00,(byte)0x43,(byte)0x28};
-		byte[] data = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF, (byte) 0x2A, (byte) 0xF9, (byte) 0x87 };
-
-		// 87 0 0 49 0 0 0
-
-		DateTime dateTime = new DateTime(data, cal.getTimeZone());
-		System.out.println(dateTime.getDate());
-
 	}
 
 }

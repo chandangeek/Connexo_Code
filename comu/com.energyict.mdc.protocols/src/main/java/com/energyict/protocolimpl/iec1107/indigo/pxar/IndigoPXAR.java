@@ -73,7 +73,7 @@ public class IndigoPXAR extends AbstractIEC1107Protocol {
 	 */
 	@Override
 	protected List<String> doGetOptionalKeys() {
-		return Collections.emptyList()
+		return Collections.emptyList();
 	}
 
 	/**

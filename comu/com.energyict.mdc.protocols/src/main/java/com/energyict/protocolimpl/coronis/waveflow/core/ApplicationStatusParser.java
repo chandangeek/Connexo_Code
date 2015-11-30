@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.LeakageEvent;
 
@@ -30,7 +31,7 @@ public class ApplicationStatusParser {
     }
 
     public List<MeterEvent> getMeterEvents(boolean usesInitialRFCommand, int applicationStatus, boolean valve) throws IOException {
-        EventStatusAndDescription translator = new EventStatusAndDescription(waveFlow);
+        EventStatusAndDescription translator = new EventStatusAndDescription(waveFlow.getDeviceType());
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         if (!usesInitialRFCommand && valve) {
             int valveApplicationStatus = waveFlow.getParameterFactory().readValveApplicationStatus();

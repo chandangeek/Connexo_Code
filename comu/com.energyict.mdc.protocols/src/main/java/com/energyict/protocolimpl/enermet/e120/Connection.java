@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
+
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.TimeZone;
 
 /** Connection encapsulates all the protocol layers:
  *  - application layer (message)
@@ -293,34 +293,6 @@ class Connection implements ProtocolConnection {
     public byte[] dataReadout(String strID,String nodeId)
         throws NestedIOException, ProtocolConnectionException {
         return null;
-    }
-
-    public static void main(String [] args) throws Exception {
-
-        E120 e120 = new E120();
-        e120.initDataType(TimeZone.getDefault());
-
-        Frame f = Frame.parse(e120, new ByteArray(Frame.m2) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m3) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m4) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m5) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m6) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m7) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m8) );
-        System.out.println(f.toString() );
-
     }
 
 }

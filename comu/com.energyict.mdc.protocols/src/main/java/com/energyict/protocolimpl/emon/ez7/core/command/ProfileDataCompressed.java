@@ -9,8 +9,9 @@ package com.energyict.protocolimpl.emon.ez7.core.command;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
-import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -254,14 +255,5 @@ public class ProfileDataCompressed extends AbstractCommand {
     public void setIntervalDatas(java.util.List intervalDatas) {
         this.intervalDatas = intervalDatas;
     }
-
-//    static public void main(String[] args) {
-//        double val = 345.56789;
-//        int channelval=0;
-//        double multiplier = Math.pow((double)10, (double)(channelval));
-//        double valRounded = (double)Math.round(val*multiplier)/multiplier;
-//        System.out.println(val);
-//        System.out.println(valRounded);
-//    }
 
 }

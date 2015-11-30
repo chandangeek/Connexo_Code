@@ -109,10 +109,10 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
     protected void initAfterConnect() throws ConnectionException {
         searchForSlaveDevices();
         for (DeviceMapping dm : getMeterTopology().geteMeterMap()) {
-            this.slaveMeters.add(new EMeter(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
+            this.slaveMeters.add(new EMeter(this.getPropertySpecService(), this, dm.getSerialNumber(), dm.getPhysicalAddress()));
         }
         for (DeviceMapping dm : getMeterTopology().getMbusMap()) {
-            this.slaveMeters.add(new MbusDevice(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
+            this.slaveMeters.add(new MbusDevice(this.getPropertySpecService(), this, dm.getSerialNumber(), dm.getPhysicalAddress()));
         }
     }
 
@@ -462,4 +462,5 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
         }
         return null;
     }
+
 }

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.SamplingPeriod;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
@@ -131,17 +132,17 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         lastLoggedTimeStamp = mostRecentRecord.getLastLoggedTimeStamp();
     }
 
-    public void parseBubbleUpData(byte[] data, byte[] radioAddress) throws IOException {
+    public void parseBubbleUpData(byte[] data, byte[] radioAddress, RTMFactory rtmFactory) throws IOException {
         if (data.length == 1 && ((data[0] & 0xFF) == 0xFF)) {
             throw new WaveFlowException("Error reading the Extended data logging table, returned 0xFF");
         }
         getGenericHeader().setRadioAddress(radioAddress);
-        getGenericHeader().parse(data);
+        getGenericHeader().parse(data, rtmFactory);
         OperatingMode operatingMode = getGenericHeader().getOperationMode();
         int offset = 23;    //Skip the rest of the generic header
 
         SamplingPeriod period = new SamplingPeriod(getRTM());
-        period.parse(ProtocolTools.getSubArray(data, offset, offset + 1));
+        period.parse(ProtocolTools.getSubArray(data, offset, offset + 1), rtmFactory);
         int multiplier = data[offset + 2] & 0xFF;
         profileInterval = period.getSamplingPeriodInSeconds() * multiplier;
         offset += 7;        //Skip data logging parameters in the first frame
@@ -165,14 +166,14 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         }
     }
 
-    public void parseBubbleUpData(byte[] data) throws IOException {
-        parseBubbleUpData(data, null);
+    public void parseBubbleUpData(byte[] data, RTMFactory rtmFactory) throws IOException {
+        parseBubbleUpData(data, null, rtmFactory);
     }
 
     @Override
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         if (getRTM().usesInitialRFCommand()) {
-            parseBubbleUpData(data);
+            parseBubbleUpData(data, rtmFactory);
             return;
         }
 
@@ -181,7 +182,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
             throw new WaveFlowException("No profile data available yet");
         }
         getGenericHeader().setRadioAddress(null);
-        getGenericHeader().parse(data);
+        getGenericHeader().parse(data, rtmFactory);
         int offset = 23;    //Skip generic header in the first frame
 
         do {

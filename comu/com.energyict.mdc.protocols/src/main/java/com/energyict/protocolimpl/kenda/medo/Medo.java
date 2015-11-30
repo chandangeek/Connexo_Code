@@ -33,66 +33,61 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+/**
+ * ---------------------------------------------------------------------------------<p>
+ * Medo Protocol description:<p>
+ * The protocol consists out of layers<p>
+ * <p/>
+ * 1) The deepest layer is the Parsers layer.  Part of the layer has been made
+ * static and made abstract.  The second layer extends this class.
+ * <p/>
+ * 2) All registers are implemented in classes. The classes always implement the
+ * type of methods: process to parse (deserializes) the byte array in the
+ * object variables,printData visualizes the data matrix (parsed) in the console
+ * and parseToByteArray serializes the object.
+ * <p/>
+ * 3) The MedoCommunicationsFactory deals with all the communication issues.  It
+ * arranges the data flows and communication.  It starts with sending the command
+ * and getting back the right object to parse the data in.  Also the profileData
+ * factory is implemented in this class.
+ * <p/>
+ * 4) This class: Medo.java masters and is the interface from the server
+ * <p/>
+ * Additional classes are implemented mostly to help in the Unit testing.
+ * <p/>
+ * no information on STPERIOD in code 7 can be found, therefore 2 possible implementations
+ * are made, use the properties profileDataPointer to give the starting year of counting
+ * to the protocol.
+ * <p/>
+ * Initial version:<p>
+ * ----------------<p>
+ * Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ * Version: 1.0 <p>
+ * First edit date: 1/07/2008 PST<p>
+ * Last edit date: 13/08/2008  PST<p>
+ * Comments: Beta ready for testing<p>
+ * Released for testing: 13/08/2008<p>
+ * <p/>
+ * Revisions<p>
+ * ----------------<p>
+ * Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ * Version:1.01<p>
+ * First edit date: 26/08/2008<p>
+ * Last edit date: 29/08/2008<p>
+ * Comments: Problems in the profile data read solved. In the MedoRequestReadMeterDemands
+ * on line 23-29 there will be an adaptation, stperiod number is not yet completely reverse
+ * engineered (december last year problem) a flag in the properties has been added<p>
+ * released for testing: 29/08/2008<p>
+ *
+ * @author Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ * @version 1.02 <p>
+ * First edit date: 29/08/2008 PST<p>
+ * Last edit date: 1/09/2008  PST<p>
+ * Comments: Beta+ ready for testing<p>
+ * Released for testing: 1/09/2008<p>
+ */
 public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
 
-    /**
-     * ---------------------------------------------------------------------------------<p>
-     * Medo Protocol description:<p>
-     * The protocol consists out of layers<p>
-     * <p/>
-     * 1) The deepest layer is the Parsers layer.  Part of the layer has been made
-     * static and made abstract.  The second layer extends this class.
-     * <p/>
-     * 2) All registers are implemented in classes. The classes always implement the
-     * type of methods: process to parse (deserializes) the byte array in the
-     * object variables,printData visualizes the data matrix (parsed) in the console
-     * and parseToByteArray serializes the object.
-     * <p/>
-     * 3) The MedoCommunicationsFactory deals with all the communication issues.  It
-     * arranges the data flows and communication.  It starts with sending the command
-     * and getting back the right object to parse the data in.  Also the profileData
-     * factory is implemented in this class.
-     * <p/>
-     * 4) This class: Medo.java masters and is the interface from the server
-     * <p/>
-     * Additional classes are implemented mostly to help in the Unit testing.
-     * <p/>
-     * no information on STPERIOD in code 7 can be found, therefore 2 possible implementations
-     * are made, use the properties profileDataPointer to give the starting year of counting
-     * to the protocol.
-     * <p/>
-     * Initial version:<p>
-     * ----------------<p>
-     * Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-     * Version: 1.0 <p>
-     * First edit date: 1/07/2008 PST<p>
-     * Last edit date: 13/08/2008  PST<p>
-     * Comments: Beta ready for testing<p>
-     * Released for testing: 13/08/2008<p>
-     * <p/>
-     * Revisions<p>
-     * ----------------<p>
-     * Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-     * Version:1.01<p>
-     * First edit date: 26/08/2008<p>
-     * Last edit date: 29/08/2008<p>
-     * Comments: Problems in the profile data read solved. In the MedoRequestReadMeterDemands
-     * on line 23-29 there will be an adaptation, stperiod number is not yet completely reverse
-     * engineered (december last year problem) a flag in the properties has been added<p>
-     * released for testing: 29/08/2008<p>
-     *
-     * @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-     * @Version: 1.02 <p>
-     * First edit date: 29/08/2008 PST<p>
-     * Last edit date: 1/09/2008  PST<p>
-     * Comments: Beta+ ready for testing<p>
-     * Released for testing: 1/09/2008<p>
-     * <p/>
-     * ---------------------------------------------------------------------------------<p>
-     */
-
-    private OutputStream outputStream;
-    private InputStream inputStream;
     private MedoCommunicationsFactory mcf;
     private int outstationID, retry, timeout, delayAfterConnect;
 
@@ -134,13 +129,11 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
         destinationCodeExt = 0;    // Defines peripheral equipment of final destination
     }
 
-    protected void doValidateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
+    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
     }
 
     public String getFirmwareVersion() throws IOException {
         MedoFirmwareVersion mfv = (MedoFirmwareVersion) mcf.transmitData(firmwareVersion, null);
-        //System.out.println("firmware version: "+mfv.getVersion());
         return mfv.getVersion();
     }
 
@@ -211,8 +204,6 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
                      Logger arg3) throws IOException {
         // set streams
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
         this.timezone = arg2;
         // build command factory
         this.mcf = new MedoCommunicationsFactory(sourceCode, sourceCodeExt, destinationCode, destinationCodeExt, inputStream, outputStream);
@@ -359,8 +350,7 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        RegisterInfo registerInfo = new RegisterInfo("");
-        return registerInfo;
+        return new RegisterInfo("");
     }
 
     public MedoCommunicationsFactory getMcf() {
@@ -374,4 +364,5 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     public int getTimeout() {
         return timeout;
     }
+
 }

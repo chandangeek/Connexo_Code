@@ -13,12 +13,6 @@ package com.energyict.protocolimpl.mbus.generic;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.SerialCommunicationSettings;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 
@@ -29,6 +23,7 @@ import com.energyict.protocolimpl.mbus.core.discover.DiscoverProtocolInfo;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -43,8 +38,6 @@ public class Generic extends MBus {
 
     final int DEBUG=0;
 
-    RegisterFactory registerFactory=null;
-
     // temporary
     // KV_TO_DO The Discover interface in core code does not return a list of secondary addresses. therefor
     // we cache this in the Generic protocol instantiation. and return the elements until iteration is complete...
@@ -57,19 +50,23 @@ public class Generic extends MBus {
     }
 
     public DiscoverResult discover(DiscoverTools discoverTools) {
-        if (DEBUG>=1) System.out.println("Generic, discover("+discoverTools+")");
+        if (DEBUG>=1) {
+            System.out.println("Generic, discover(" + discoverTools + ")");
+        }
 
-        if (Integer.parseInt(discoverTools.getProperties().getProperty("SecondaryAddressing","0")) == 1)
-        	return discoverSecondaryAddresses(discoverTools);
-        else
-        	return discoverPrimaryAddresses(discoverTools);
+        if (Integer.parseInt(discoverTools.getProperties().getProperty("SecondaryAddressing","0")) == 1) {
+            return discoverSecondaryAddresses(discoverTools);
+        }
+        else {
+            return discoverPrimaryAddresses(discoverTools);
+        }
     }
 
 
     public DiscoverResult discoverSecondaryAddresses(DiscoverTools discoverTools) {
 
     	if (discoverResults==null) {
-    		discoverResults = new ArrayList();
+    		discoverResults = new ArrayList<>();
 	        try {
 	            setProperties(discoverTools.getProperties());
 	            init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
@@ -154,19 +151,23 @@ public class Generic extends MBus {
 	            return null;
 	        }
 	        finally {
-	        	if (discoverResults.size() > discoverResultIndex)
-	        		return discoverResults.get(discoverResultIndex++);
-	        	else
-	        		return null;
+	        	if (discoverResults.size() > discoverResultIndex) {
+                    return discoverResults.get(discoverResultIndex++);
+                }
+                else {
+                    return null;
+                }
 	        }
         }
         else {
-        	if (discoverResults.size() > discoverResultIndex)
-        		return discoverResults.get(discoverResultIndex++);
-        	else
-        		return null;
+        	if (discoverResults.size() > discoverResultIndex) {
+                return discoverResults.get(discoverResultIndex++);
+            }
+            else {
+                return null;
+            }
         }
-    } // public DiscoverResult discoverSecondaryAddresses(DiscoverTools discoverTools)
+    }
 
     public DiscoverResult discoverPrimaryAddresses(DiscoverTools discoverTools) {
 
@@ -259,12 +260,11 @@ public class Generic extends MBus {
     		setInfoTypeDeviceID("253");
     	}
     }
-    protected List doTheGetOptionalKeys() {
-        List list = new ArrayList();
-        return list;
+    protected List<String> doTheGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "NOT YET IMPLEMENTED";
     }
 
@@ -274,181 +274,6 @@ public class Generic extends MBus {
 
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
-    }
-
-    private Properties getProperties(int address, int secondaryAddressing) {
-        Properties properties = new Properties();
-        properties.setProperty(MeterProtocol.ADDRESS,""+address);
-        properties.setProperty("Retries", "1");
-        properties.setProperty("Timeout", "250");
-        properties.setProperty("SecondaryAddressing", ""+secondaryAddressing);
-        return properties;
-    }
-
-    static public void main1(String[] args) {
-        try {
-            // ********************** Dialer **********************
-            Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer.init("COM1"); // "/dev/ttyXR0";
-            dialer.getSerialCommunicationChannel().setParams(2400,
-                                                             SerialCommunicationChannel.DATABITS_8,
-                                                             SerialCommunicationChannel.PARITY_EVEN,
-                                                             SerialCommunicationChannel.STOPBITS_1);
-            dialer.connect();
-
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "60");
-            properties.setProperty("SecondaryAddressing", "1");
-            properties.setProperty(MeterProtocol.ADDRESS,"253");
-
-
-            properties.setProperty("SerialNumber","1234FFFF");
-            properties.setProperty("HeaderManufacturerCode","FFFF");
-            properties.setProperty("HeaderVersion","FF");
-            properties.setProperty("HeaderMedium","FF");
-
-            properties.setProperty("Retries","2");
-            //properties.setProperty("SerialNumber","08072197"); //65553712");
-            //properties.setProperty("HalfDuplex", "-1");
-            // ********************** EictRtuModbus **********************
-            Generic generic = new Generic();
-
-            generic.setProperties(properties);
-            generic.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-            generic.connect();
-            System.out.println(generic.getRegistersInfo(0));
-//            try {
-//            	generic.getMBusConnection().sendSND_NKE(253);
-//            }
-//            catch(IOException e) {
-//            	// absorb
-//            }
-//            try {
-//            	generic.getMBusConnection().sendSND_NKE(255);
-//            }
-//            catch(IOException e) {
-//            	// absorb
-//            }
-//            //generic.getMBusConnection().selectSecondaryAddress(65553712); //,0x0FF0FFFF);
-//            //generic.getMBusConnection().selectSecondaryAddress("12345678_4d25_1_4");
-//            //generic.getMBusConnection().selectSecondaryAddress("12345678_19749_1_4");
-//            //System.out.println(generic.getMBusConnection().sendREQ_UD2());
-//
-//            Iterator<CIField72h> it = generic.discoverDeviceSerialNumbers().iterator();
-//
-//            while(it.hasNext()) {
-//            	System.out.println(it.next().header());
-//            }
-
-            System.out.println("************************************************************************************************");
-
-
-
-
-
-            dialer.disConnect();
-            generic.disconnect();
-
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    static public void main2(String[] args) {
-
-        try {
-            // ********************** EictRtuModbus **********************
-            DiscoverTools discoverTools = null;
-            for (int address = 0;address<5;address++) {
-                System.out.println("---------------------> discover address "+address);
-                try {
-                    Generic generic = new Generic();
-
-
-                    SerialCommunicationSettings settings = new SerialCommunicationSettings(2400,8, 'E', 1);
-
-                    if ((args==null) || (args.length<=1))
-                        //discoverTools = new DiscoverTools("COM1",settings);
-                    	discoverTools = new DiscoverTools("/dev/ttyXR2",settings);
-                    else
-                        discoverTools = new DiscoverTools(args[1],settings); //"/dev/ttyXR0";
-
-                    discoverTools.setProperties(generic.getProperties(address,0));
-                    discoverTools.setAddress(address);
-                    discoverTools.init();
-                    discoverTools.connect();
-
-                    DiscoverResult o = generic.discover(discoverTools);
-                    if (o.isDiscovered()) System.out.println(o);
-
-                }
-                catch(Exception e) {
-                    System.out.println(e.toString());
-                }
-                finally {
-                    try {
-                        discoverTools.disconnect();
-                    }
-                    catch(Exception e) {
-                       System.out.println(e.toString());
-                    }
-                }
-            }
-
-        }
-        catch(Exception e) {
-            //e.printStackTrace();
-        }
-    }
-
-    static public void main(String[] args) {
-
-        try {
-            // ********************** EictRtuModbus **********************
-            DiscoverTools discoverTools = null;
-            System.out.println("---------------------> discover secondary addresses");
-            try {
-                Generic generic = new Generic();
-
-
-                SerialCommunicationSettings settings = new SerialCommunicationSettings(2400,8, 'E', 1);
-
-                if ((args==null) || (args.length<=1))
-                    discoverTools = new DiscoverTools("COM1",settings);
-                else
-                    discoverTools = new DiscoverTools(args[1],settings); //"/dev/ttyXR0";
-
-                discoverTools.setProperties(generic.getProperties(253,1));
-                discoverTools.setAddress(253);
-                discoverTools.init();
-                discoverTools.connect();
-
-                DiscoverResult o=null;
-                do {
-	                o = generic.discover(discoverTools);
-	                if ((o!= null) &&(o.isDiscovered()))
-	                	System.out.println(o);
-                } while(o != null);
-
-            }
-            catch(Exception e) {
-                System.out.println(e.toString());
-            }
-            finally {
-                try {
-                    discoverTools.disconnect();
-                }
-                catch(Exception e) {
-                   System.out.println(e.toString());
-                }
-            }
-        }
-        catch(Exception e) {
-            //e.printStackTrace();
-        }
     }
 
 }

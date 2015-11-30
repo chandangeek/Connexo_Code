@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.mbus.core.DataRecordTypeG_CP16;
 
@@ -31,31 +32,32 @@ public class MBusInternalLogs extends AbstractRadioCommand {
 			this.value = value;
 		}
 
-		final public Calendar getCal() {
+		public final Calendar getCal() {
 			return cal;
 		}
-		final public Quantity getValue() {
+
+		public final Quantity getValue() {
 			return value;
 		}
 
 		public String toString() {
-			return cal.getTime()+" value: "+value;
+			return cal.getTime() + " value: " + value;
 		}
 	}
 
 	/**
 	 * 13 bhistorical last month values
 	 */
-	List<HistoricalValue> historicalValues = new ArrayList<HistoricalValue>();
+	List<HistoricalValue> historicalValues = new ArrayList<>();
 
 
-	final public List<HistoricalValue> getHistoricalValues() {
+	public final List<HistoricalValue> getHistoricalValues() {
 		return historicalValues;
 	}
 
-	MBusInternalLogs(WaveFlow100mW waveFlow100mW,int portId) {
+	MBusInternalLogs(WaveFlow100mW waveFlow100mW, int portId) {
 		super(waveFlow100mW);
-		this.portId=portId<=0?0:1;
+		this.portId = portId <= 0 ? 0 : 1;
 	}
 
 	@Override
@@ -64,74 +66,66 @@ public class MBusInternalLogs extends AbstractRadioCommand {
 	}
 
 
-
 	public String toString() {
 		StringBuilder strBuilder = new StringBuilder();
-		strBuilder.append("MBusInternalLogs for port"+(portId==0?"A":"B")+"\n");
-		for(HistoricalValue o : historicalValues) {
-			strBuilder.append(o+"\n");
+		strBuilder.append("MBusInternalLogs for port").append(portId == 0 ? "A" : "B").append("\n");
+		for (HistoricalValue o : historicalValues) {
+			strBuilder.append(o).append("\n");
 		}
 		return strBuilder.toString();
 	}
 
 	private TimeZone getTimeZone() {
-		if (getWaveFlow100mW() == null) return TimeZone.getDefault();
-		else return getWaveFlow100mW().getTimeZone();
+		if (getWaveFlow100mW() == null) {
+			return TimeZone.getDefault();
+		}
+		else {
+			return getWaveFlow100mW().getTimeZone();
+		}
 
 	}
 
 	@Override
 	void parse(byte[] data) throws IOException {
 
-		if (data.length != (MBUS_INTERNAL_LOGS_SIZE +1)) {
-			throw new WaveFlow100mwEncoderException("Invalid datalength for the MBUS Internal Log data requested ["+(MBUS_INTERNAL_LOGS_SIZE +1)+"], received ["+data.length+"]");
+		if (data.length != (MBUS_INTERNAL_LOGS_SIZE + 1)) {
+			throw new WaveFlow100mwEncoderException("Invalid datalength for the MBUS Internal Log data requested [" + (MBUS_INTERNAL_LOGS_SIZE + 1) + "], received [" + data.length + "]");
 		}
 
-		int offset=0;
+		int offset = 0;
 		int verifyPortId = WaveflowProtocolUtils.toInt(data[offset++]) - 1;
 		if (verifyPortId != portId) {
-			throw new WaveFlow100mwEncoderException("Invalid portId requested ["+(portId==0?"A":"B")+"], received ["+(verifyPortId==0?"A":"B")+"]");
+			throw new WaveFlow100mwEncoderException("Invalid portId requested [" + (portId == 0 ? "A" : "B") + "], received [" + (verifyPortId == 0 ? "A" : "B") + "]");
 		}
 
 		// received 91 bytes of tdata
 
-		while(offset <= MBUS_INTERNAL_LOGS_SIZE) {
+		while (offset <= MBUS_INTERNAL_LOGS_SIZE) {
 
-			byte[] temp = WaveflowProtocolUtils.getSubArray(data, offset, 2);offset+=2;
+			byte[] temp = WaveflowProtocolUtils.getSubArray(data, offset, 2);
+			offset += 2;
 			DataRecordTypeG_CP16 o = new DataRecordTypeG_CP16(getTimeZone());
 			o.parse(temp);
 			Calendar calendar = o.getCalendar();
-			calendar.set(Calendar.HOUR_OF_DAY,0);
-			calendar.set(Calendar.MINUTE,0);
-			calendar.set(Calendar.SECOND,0);
-			calendar.set(Calendar.MILLISECOND,0);
+			calendar.set(Calendar.HOUR_OF_DAY, 0);
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, 0);
+			calendar.set(Calendar.MILLISECOND, 0);
 
-		    int scale = Math.abs((WaveflowProtocolUtils.toInt(data[offset++])&0x07) - 6);
-		    long value = ProtocolUtils.getBCD2IntLE(data, offset, 4); offset+=4;
-		    BigDecimal bd = new BigDecimal(value);
-		    bd = bd.movePointLeft(scale);
+			int scale = Math.abs((WaveflowProtocolUtils.toInt(data[offset++]) & 0x07) - 6);
+			long value = ProtocolUtils.getBCD2IntLE(data, offset, 4);
+			offset += 4;
+			BigDecimal bd = new BigDecimal(value);
+			bd = bd.movePointLeft(scale);
 
-		    historicalValues.add(new HistoricalValue(calendar,new Quantity(bd, Unit.get(BaseUnit.CUBICMETER))));
+			historicalValues.add(new HistoricalValue(calendar, new Quantity(bd, Unit.get(BaseUnit.CUBICMETER))));
 		}
 	}
 
 
 	@Override
 	byte[] prepare() throws IOException {
-		return new byte[]{(byte)(portId+1)};
-	}
-
-
-	static public void main(String[] args) {
-		byte[] data = new byte[]{0x02,(byte)0x5F,(byte)0x13,(byte)0x14,(byte)0x74,(byte)0x65,(byte)0x06,(byte)0x00,(byte)0x5C,(byte)0x12,(byte)0x14,(byte)0x74,(byte)0x65,(byte)0x06,(byte)0x00,(byte)0x5F,(byte)0x11,(byte)0x14,(byte)0x74,(byte)0x65,(byte)0x06,(byte)0x00,(byte)0x3F,(byte)0x1C,(byte)0x14,(byte)0x96,(byte)0x57,(byte)0x06,(byte)0x00,(byte)0x3E,(byte)0x1B,(byte)0x14,(byte)0x13,(byte)0x36,(byte)0x06,(byte)0x00,(byte)0x3F,(byte)0x1A,(byte)0x14,(byte)0x11,(byte)0x13,(byte)0x06,(byte)0x00,(byte)0x3E,(byte)0x19,(byte)0x14,(byte)0x69,(byte)0x88,(byte)0x05,(byte)0x00,(byte)0x3F,(byte)0x18,(byte)0x14,(byte)0x62,(byte)0x66,(byte)0x05,(byte)0x00,(byte)0x3F,(byte)0x17,(byte)0x14,(byte)0x90,(byte)0x42,(byte)0x05,(byte)0x00,(byte)0x3E,(byte)0x16,(byte)0x14,(byte)0x13,(byte)0x12,(byte)0x05,(byte)0x00,(byte)0x3F,(byte)0x15,(byte)0x14,(byte)0x01,(byte)0x88,(byte)0x04,(byte)0x00,(byte)0x3E,(byte)0x14,(byte)0x14,(byte)0x46,(byte)0x65,(byte)0x04,(byte)0x00,(byte)0x3F,(byte)0x13,(byte)0x14,(byte)0x98,(byte)0x44,(byte)0x04,(byte)0x00};
-		MBusInternalLogs o = new MBusInternalLogs(null, 1);
-		try {
-			o.parse(data);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println(o);
+		return new byte[]{(byte) (portId + 1)};
 	}
 
 }

@@ -5,6 +5,7 @@ package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -54,13 +55,6 @@ public class Programmables{
 				setIxProgMoins1(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kvarh")), i);
 			}
 		}
-
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
 
 	}
 

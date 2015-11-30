@@ -3,9 +3,10 @@ package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.BubbleUpObject;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.BubbleUpObject;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.ProfileDataReader;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
@@ -63,13 +64,13 @@ public class BubbleUpFrameParser {
         result.setRegisterValues(registerValues);
 
         try {
-            table.parseBubbleUpData(data, radioAddress);
+            table.parseBubbleUpData(data, radioAddress, rtm);
             List<List<Integer[]>> rawValues = table.getProfileDataForAllPorts();
             ProfileDataReader profileDataReader = new ProfileDataReader(rtm);
 
             int numberOfPorts = 0;
             for (List<Integer[]> values : rawValues) {
-                if (values.size() > 0) {
+                if (!values.isEmpty()) {
                     numberOfPorts++;
                 }
             }
@@ -91,12 +92,12 @@ public class BubbleUpFrameParser {
         BubbleUpObject result = new BubbleUpObject();
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         ReadTOUBuckets readTOUBuckets = new ReadTOUBuckets(rtm);
-        readTOUBuckets.parse(data, radioAddress);
+        readTOUBuckets.parse(data, radioAddress, rtm);
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
         for (int port = 0; port < readTOUBuckets.getNumberOfPorts(); port++) {
             int value = readTOUBuckets.getListOfAllTotalizers().get(port).getCurrentReading();
-            int multiplier = genericHeader.getRtmUnit(port).getMultiplier();
+            int multiplier = genericHeader.getRtmUnit(port, rtm).getMultiplier();
             RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(value * multiplier, genericHeader.getUnit(port)), new Date());
             registerValues.add(reg);
 
@@ -118,11 +119,11 @@ public class BubbleUpFrameParser {
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
         CurrentRegisterReading currentRegisterReading = new CurrentRegisterReading(rtm);
-        currentRegisterReading.parse(data, radioAddress);
+        currentRegisterReading.parse(data, radioAddress, rtm);
 
         RegisterValue reg;
         for (int port = 0; port < currentRegisterReading.getNumberOfPorts(); port++) {
-            reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(currentRegisterReading.getCurrentReading(port + 1) * genericHeader.getRtmUnit(port).getMultiplier(), genericHeader.getUnit(port)), new Date());
+            reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(currentRegisterReading.getCurrentReading(port + 1) * genericHeader.getRtmUnit(port, rtm).getMultiplier(), genericHeader.getUnit(port)), new Date());
             registerValues.add(reg);
         }
         result.setRegisterValues(registerValues);
@@ -140,7 +141,7 @@ public class BubbleUpFrameParser {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
         genericHeader = new GenericHeader(rtm, radioAddress);
-        genericHeader.parse(data);
+        genericHeader.parse(data, rtm);
 
         double battery = genericHeader.getShortLifeCounter();
         RegisterValue batteryRegister = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(battery > 100 ? 100 : battery, Unit.get("")), new Date());
@@ -166,20 +167,20 @@ public class BubbleUpFrameParser {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
         DailyConsumption dailyConsumption = new DailyConsumption(rtm);
-        dailyConsumption.parse(data, radioAddress);
+        dailyConsumption.parse(data, radioAddress, rtm);
         List<List<Integer[]>> rawValues = new ArrayList<List<Integer[]>>();
 
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
         for (int port = 0; port < dailyConsumption.getNumberOfPorts(); port++) {
             int value = dailyConsumption.getCurrentIndexes()[port];
-            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(value * genericHeader.getRtmUnit(port).getMultiplier(), genericHeader.getUnit(port)), new Date());
+            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(value * genericHeader.getRtmUnit(port, rtm).getMultiplier(), genericHeader.getUnit(port)), new Date());
             registerValues.add(reg);
         }
         result.setRegisterValues(registerValues);
 
         for (int port = 0; port < dailyConsumption.getNumberOfPorts(); port++) {
-            List<Integer[]> resultPerPort = new ArrayList<Integer[]>();
+            List<Integer[]> resultPerPort = new ArrayList<>();
             for (Integer value : dailyConsumption.getDailyReadings(port)) {
                 resultPerPort.add(new Integer[]{value, genericHeader.getIntervalStatus(port), genericHeader.getApplicationStatus().getStatus()});
             }

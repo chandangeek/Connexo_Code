@@ -10,7 +10,6 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;
@@ -68,14 +67,6 @@ public class IMONInformation extends AbstractCommand {
         int offset = val-12;
         String ID = "GMT"+(offset>=0?("+"+offset):(""+offset));
         return TimeZone.getTimeZone(ID);
-    }
-
-    public static void main(String[] args) {
-        IMONInformation imonInformation = new IMONInformation(null);
-        TimeZone tz = imonInformation.buildTimeZone(7);
-        System.out.println(tz);
-        System.out.println(tz.getDisplayName(false,TimeZone.SHORT));
-
     }
 
     public TimeZone getTimeZone() {

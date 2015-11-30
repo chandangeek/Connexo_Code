@@ -2,7 +2,9 @@ package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 
 import java.io.IOException;
 
@@ -49,7 +51,7 @@ public class PulseWeight extends RtmUnit {
     }
 
     @Override
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         weight = (data[0] & 0xFF) & 0x1F;
         unitNumber = ((data[0] & 0xFF) >> 5);
         parseScaleAndMultiplier(weight);

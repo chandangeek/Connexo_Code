@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
@@ -555,10 +556,6 @@ class RegisterFactoryCdtPr extends RegisterFactory {
                 .append( register.registerValue(key).toString() )
                     .toString();
 
-    }
-
-    public static void main(String[] args) {
-        System.out.println( new RegisterFactoryCdtPr(null).toString() );
     }
 
 }

@@ -9,9 +9,9 @@ package com.energyict.protocolimpl.iec1107.enermete70x;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -118,16 +118,6 @@ public class RegisterSet {
         if (registers[index]==null)
             throw new NoSuchRegisterException("RegisterSet, getRegister, register with id "+index+" invalid!");
         return registers[index];
-    }
-
-    static public void main(String[] args) {
-        try {
-           RegisterSet registerSet = new RegisterSet(ProtocolUtils.readFile("GTR.txt"),TimeZone.getTimeZone("GMT"));
-           System.out.println(registerSet.toString());
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**

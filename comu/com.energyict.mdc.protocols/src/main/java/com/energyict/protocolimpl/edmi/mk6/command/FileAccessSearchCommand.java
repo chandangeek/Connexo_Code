@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.edmi.mk6.command;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edmi.mk6.core.DateTimeBuilder;
 
 import java.io.IOException;
@@ -35,12 +36,6 @@ public class FileAccessSearchCommand extends AbstractCommand {
     public FileAccessSearchCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-
-
-
-//    public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new FileAccessSearchCommand(null)));
-//    }
 
     protected byte[] prepareBuild() {
         byte[] data = new byte[17];

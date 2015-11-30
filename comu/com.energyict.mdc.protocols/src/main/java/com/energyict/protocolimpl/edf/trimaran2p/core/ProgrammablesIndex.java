@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
@@ -13,11 +13,11 @@ import java.util.List;
  *
  */
 public class ProgrammablesIndex{
-	
+
 	List programmables;
 
 	/**
-	 * 
+	 *
 	 */
 	public ProgrammablesIndex() {
 		setProgrammables(new ArrayList());
@@ -26,7 +26,7 @@ public class ProgrammablesIndex{
 	private void setProgrammables(ArrayList programmables) {
 		this.programmables = programmables;
 	}
-	
+
 	public String toString(){
         StringBuffer strBuff = new StringBuffer();
         for(int i = 0; i < getProgrammables().size(); i++) {
@@ -39,7 +39,7 @@ public class ProgrammablesIndex{
 	private List getProgrammables() {
 		return this.programmables;
 	}
-	
+
 	public Programmables getProgrammalbes(int variableName) throws IOException{
         Iterator it = getProgrammables().iterator();
         while(it.hasNext()) {
@@ -53,14 +53,6 @@ public class ProgrammablesIndex{
 
 	public void addProgrammables(Programmables programmables){
 		getProgrammables().add(programmables);
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

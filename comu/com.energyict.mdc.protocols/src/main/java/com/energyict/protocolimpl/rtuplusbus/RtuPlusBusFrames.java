@@ -6,12 +6,11 @@
 
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -665,49 +664,6 @@ public class RtuPlusBusFrames {
         return;
     }
 
-    public static void main( String args [] ) throws Exception {
-
-        //byte [] input = { (byte)0x01, (byte)0xa6, (byte)0x04, (byte)0xfb, (byte)0x45, (byte)0xba, (byte)0x2c };
-
-        // byte [] input = { (byte)0x01, (byte)0x6b, (byte)0x94, (byte)0xfb, (byte)0x45, (byte)0xba, (byte)0x2c, (byte)0x04, (byte)0xf1 };
-
-        byte [] input = {
-            (byte)0x01, (byte)0x7c, (byte)0x83,
-            (byte)0x04, (byte)0xfb, (byte)0xba,
-            (byte)0x2c, (byte)0x48, (byte)0xbc,
-
-            (byte)0x8f, (byte)0x2f, (byte)0x4f,
-            (byte)0x00, (byte)0x01, (byte)0x00,
-            (byte)0x00, (byte)0x00, (byte)0x1b,
-
-            (byte)0x00, (byte)0x0f, (byte)0x00,
-            (byte)0x59, (byte)0x00, (byte)0x00,
-            (byte)0x00, (byte)0xb2, (byte)0x00,
-
-            (byte)0x92, (byte)0x00, (byte)0x00,
-            (byte)0x00, (byte)0xdb, (byte)0x00,
-            (byte)0x00, (byte)0x00, (byte)0x00,
-
-            (byte)0x00, (byte)0x39, (byte)0x00,
-            (byte)0x00, (byte)0x00, (byte)0x55,
-            (byte)0x00, (byte)0x00, (byte)0x00,
-
-            (byte)0x48, (byte)0x00, (byte)0x00,
-            (byte)0x00, (byte)0x60, (byte)0x00,
-            (byte)0x00, (byte)0x00
-            };
-
-        RtuPlusBusFrames rpbf = new RtuPlusBusFrames();
-
-        ByteArrayInputStream bai = new ByteArrayInputStream( input );
-
-        rpbf.inputStream = bai;
-
-        //rpbf.doRTUReadFrame( 0x7c );
-
-
-    }
-
     public void setForcedDelay(int forcedDelay) {
         this.forcedDelay = forcedDelay;
     }
@@ -716,4 +672,4 @@ public class RtuPlusBusFrames {
         return iDelayAfterFailProperty;
     }
 
-}  // End of Class RtuPlusBusFrame
+}

@@ -151,22 +151,4 @@ public class EventMapperFactory {
 
 	}
 
-	public static void main(String[] args) {
-		EventMapperFactory o = new EventMapperFactory();
-		try {
-			Iterator it = o.getMeterEvents("00000000000080004000000000000000FFFFFFFFFF").iterator();
-			//Iterator it = o.getMeterEvents("000000000000000040000000000000000000000000").iterator();
-			while(it.hasNext()) {
-
-				System.out.println(it.next());
-
-			}
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
-
-
-	}
-
 }

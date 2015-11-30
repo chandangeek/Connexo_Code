@@ -14,8 +14,6 @@ package com.energyict.protocolimpl.modbus.core.discover;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 
@@ -27,7 +25,8 @@ import com.energyict.protocolimpl.modbus.core.functioncode.MandatoryDeviceIdenti
 import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.time.Clock;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -41,11 +40,14 @@ import java.util.logging.Logger;
  */
 public class GenericModbusDiscover extends Modbus {
 
-    final int DEBUG=0;
+    private static final int DEBUG=0;
+
+    private final Clock clock;
 
     @Inject
-    public GenericModbusDiscover(PropertySpecService propertySpecService) {
+    public GenericModbusDiscover(PropertySpecService propertySpecService, Clock clock) {
         super(propertySpecService);
+        this.clock = clock;
     }
 
     protected void doTheConnect() throws IOException {
@@ -61,12 +63,11 @@ public class GenericModbusDiscover extends Modbus {
     }
 
 
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        return result;
+    protected List<String> doTheGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "THIS PROTOCOL IS ONLY FOR DISCOVERY";
     }
 
@@ -79,8 +80,7 @@ public class GenericModbusDiscover extends Modbus {
     }
 
     public Date getTime() throws IOException {
-        //return getRegisterFactory().findRegister("clock").dateValue();
-        return new Date();
+        return Date.from(this.clock.instant());
     }
 
 
@@ -93,7 +93,9 @@ public class GenericModbusDiscover extends Modbus {
         discoverResult.setResult("");
 
         try {
-            if (DEBUG>=1) System.out.println("GenericModbusDiscover, discoverHoldingRegister...");
+            if (DEBUG>=1) {
+                System.out.println("GenericModbusDiscover, discoverHoldingRegister...");
+            }
             Iterator it = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
             while(it.hasNext()) {
                 DiscoverProtocolInfo dpi = (DiscoverProtocolInfo)it.next();
@@ -114,11 +116,13 @@ public class GenericModbusDiscover extends Modbus {
                     while(strTok.countTokens()>0) {
                         String detectionToken = strTok.nextToken();
 
-                        int detectiontokenValue=0;
-                        if (detectionToken.indexOf("0x") == 0)
-                        	detectiontokenValue=Integer.parseInt(detectionToken.substring(2),16);
-                        else
-                        	detectiontokenValue=Integer.parseInt(detectionToken);
+                        int detectiontokenValue;
+                        if (detectionToken.indexOf("0x") == 0) {
+                            detectiontokenValue = Integer.parseInt(detectionToken.substring(2), 16);
+                        }
+                        else {
+                            detectiontokenValue = Integer.parseInt(detectionToken);
+                        }
 
                         if (value==detectiontokenValue) {
                             discoverResult.setDiscovered(true);
@@ -130,7 +134,9 @@ public class GenericModbusDiscover extends Modbus {
                             break;
                         }
                     }
-                    if (found) break;
+                    if (found) {
+                        break;
+                    }
                 }
             }
         }
@@ -148,15 +154,19 @@ public class GenericModbusDiscover extends Modbus {
         discoverResult.setResult("");
 
         try {
-            if (DEBUG>=1) System.out.println("GenericModbusDiscover, discoverSlaveId...");
+            if (DEBUG>=1) {
+                System.out.println("GenericModbusDiscover, discoverSlaveId...");
+            }
 
             String str = getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getAdditionalDataAsString();
-            if (DEBUG>=1) System.out.println("getReportSlaveId().getAdditionalDataAsString()="+str);
+            if (DEBUG>=1) {
+                System.out.println("getReportSlaveId().getAdditionalDataAsString()=" + str);
+            }
             Iterator it = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
             while(it.hasNext()) {
                 DiscoverProtocolInfo dpi = (DiscoverProtocolInfo)it.next();
                 if (dpi.isDiscoverMethodSlaveId()) {
-                    if (str.toLowerCase().indexOf(dpi.getDetectionString().toLowerCase())>=0) {
+                    if (str.toLowerCase().contains(dpi.getDetectionString().toLowerCase())) {
                         discoverResult.setDiscovered(true);
                         discoverResult.setProtocolName(dpi.getProtocolName());
                         discoverResult.setAddress(discoverTools.getAddress());
@@ -185,16 +195,20 @@ public class GenericModbusDiscover extends Modbus {
         discoverResult.setResult("");
 
         try {
-            if (DEBUG>=1) System.out.println("GenericModbusDiscover, discoverMeterId...");
+            if (DEBUG>=1) {
+                System.out.println("GenericModbusDiscover, discoverMeterId...");
+            }
             MandatoryDeviceIdentification mdi = getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification();
 
-            if (DEBUG>=1) System.out.println(mdi);
+            if (DEBUG>=1) {
+                System.out.println(mdi);
+            }
 
             Iterator it = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
             while(it.hasNext()) {
                 DiscoverProtocolInfo dpi = (DiscoverProtocolInfo)it.next();
                 if (dpi.isDiscoverMethodMeterId()) {
-                    if ((mdi.getVendorName().toLowerCase().indexOf(dpi.getMeterId()[0].toLowerCase())>=0) && (mdi.getProductCode().toLowerCase().indexOf(dpi.getMeterId()[1].toLowerCase())>=0)) {
+                    if ((mdi.getVendorName().toLowerCase().contains(dpi.getMeterId()[0].toLowerCase())) && (mdi.getProductCode().toLowerCase().contains(dpi.getMeterId()[1].toLowerCase()))) {
                         discoverResult.setDiscovered(true);
                         discoverResult.setProtocolName(dpi.getProtocolName());
                         discoverResult.setAddress(discoverTools.getAddress());
@@ -215,23 +229,28 @@ public class GenericModbusDiscover extends Modbus {
 
     public DiscoverResult discover(DiscoverTools discoverTools) {
 
-        if (DEBUG>=1) System.out.println("GenericModbusDiscover, discover("+discoverTools+")");
+        if (DEBUG>=1) {
+            System.out.println("GenericModbusDiscover, discover(" + discoverTools + ")");
+        }
 
         DiscoverResult discoverResult = new DiscoverResult();
         discoverResult.setProtocolMODBUS();
 
         try {
             setProperties(discoverTools.getProperties());
-            if (getInfoTypeHalfDuplex() != 0)
+            if (getInfoTypeHalfDuplex() != 0) {
                 setHalfDuplexController(discoverTools.getDialer().getHalfDuplexController());
+            }
             init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             connect();
 
             discoverResult = discoverSlaveId(discoverTools);
-            if (!discoverResult.isDiscovered())
+            if (!discoverResult.isDiscovered()) {
                 discoverResult = discoverMeterId(discoverTools);
-            if (!discoverResult.isDiscovered())
+            }
+            if (!discoverResult.isDiscovered()) {
                 discoverResult = discoverHoldingRegister(discoverTools);
+            }
 
 
             return discoverResult;
@@ -251,37 +270,4 @@ public class GenericModbusDiscover extends Modbus {
         }
     }
 
-    private Properties getProperties(int address) {
-        Properties properties = new Properties();
-        properties.setProperty(MeterProtocol.ADDRESS,""+address);
-        properties.setProperty("ProfileInterval", "900");
-        properties.setProperty("HalfDuplex", "-1");
-        return properties;
-    }
-
-    static public void main(String[] args) {
-
-        try {
-            // ********************** EictRtuModbus **********************
-            GenericModbusDiscover genericModbusDiscover = new GenericModbusDiscover();
-            DiscoverTools discoverTools = null;
-
-            if ((args==null) || (args.length<=1))
-                discoverTools = new DiscoverTools("/home/alex/rs485");
-            else
-                discoverTools = new DiscoverTools(args[1]); //"/dev/ttyXR0";
-            discoverTools.setProperties(genericModbusDiscover.getProperties(1));
-            discoverTools.setAddress(1);
-            discoverTools.init();
-            discoverTools.connect();
-
-            System.out.println(genericModbusDiscover.discover(discoverTools));
-            discoverTools.disconnect();
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 }

@@ -7,8 +7,6 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -124,23 +122,6 @@ public class PreviousPeriodTable extends AbstractTable{
 				offset += 2;
 			}
 
-		}
-	}
-
-	public static void main(String args[]){
-		try{
-			PreviousPeriodTable ppt = new PreviousPeriodTable(null);
-
-	        File file = new File("c://TEST_FILES/PreviousPeriodTable.bin");
-	        FileInputStream fis = new FileInputStream(file);
-	        byte[] data=new byte[(int)file.length()];
-	        fis.read(data);
-	        fis.close();
-	        ppt.parse(data);
-	        System.out.println(ppt.toString());
-
-		}catch(IOException e){
-			e.printStackTrace();
 		}
 	}
 

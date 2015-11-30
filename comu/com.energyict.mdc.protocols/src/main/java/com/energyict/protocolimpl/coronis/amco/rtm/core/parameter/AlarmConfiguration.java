@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 
 import java.io.IOException;
 
@@ -31,7 +32,7 @@ public class AlarmConfiguration extends AbstractParameter {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         config = data[0] & 0xFF;
     }
 
@@ -51,7 +52,7 @@ public class AlarmConfiguration extends AbstractParameter {
     }
 
     public void setAlarmOnEncoderMisread(int enable) {
-        config = config & 0xEF;        
+        config = config & 0xEF;
         config = config | (0x10 * enable);
     }
 
@@ -66,7 +67,7 @@ public class AlarmConfiguration extends AbstractParameter {
     }
 
     public void setAlarmOnLowBattery(int enable) {
-        config = config & 0xFD;        
+        config = config & 0xFD;
         config = config | (0x02 * enable);
     }
 

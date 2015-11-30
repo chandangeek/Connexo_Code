@@ -13,12 +13,7 @@ import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.protocolimpl.base.AbstractProtocol;
@@ -38,8 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 // com.energyict.protocolimpl.iec1107.enermete70x.EnermetE70X
 /**
  *
@@ -243,142 +236,6 @@ public abstract class EnermetBase extends AbstractProtocol {
     }
 
 
-
-    /*******************************************************************************************
-     * m a i n ( )  i m p l e m e n t a t i o n ,  u n i t  t e s t i n g
-     *******************************************************************************************/
-    public static void main(String[] args) {
-        Dialer dialer=null;
-        EnermetE70X enermetE70X=null;
-        try {
-
-            // ********************************** DIALER ***********************************$
-            // modem dialup connection
-            //            dialer =DialerFactory.getDefault().newDialer();
-            //            dialer.init("COM1","AT+MS=2,0,1200,1200");
-            //            dialer.getSerialCommunicationChannel().setParams(1200,
-            //                                                             SerialCommunicationChannel.DATABITS_7,
-            //                                                             SerialCommunicationChannel.PARITY_EVEN,
-            //                                                             SerialCommunicationChannel.STOPBITS_1);
-            //            dialer.connect("000351249559970",60000);
-            //
-            // optical head connection
-            dialer =DialerFactory.getOpticalDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect("",60000);
-
-            // direct rs232 connection
-            //            dialer =DialerFactory.getDirectDialer().newDialer();
-            //            dialer.init("COM1");
-            //            dialer.connect("",60000);
-
-            // *********************************** PROTOCOL ******************************************$
-            enermetE70X = new EnermetE70X(); // instantiate the protocol
-
-            // setup the properties (see AbstractProtocol for default properties)
-            // protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            properties.setProperty("SecurityLevel","1");
-            properties.setProperty(MeterProtocol.PASSWORD,"2");
-            properties.setProperty("ProfileInterval", "900");
-
-            // depending on the dialer, set the NodeAddress property
-            if (DialerMarker.hasModemMarker(dialer))
-                properties.setProperty(MeterProtocol.NODEID,"");
-            else
-                properties.setProperty(MeterProtocol.NODEID,"");
-
-            // transfer the properties to the protocol
-            enermetE70X.setProperties(properties);
-
-            // depending on the dialer, set the initial (pre-connect) communication parameters
-            if (DialerMarker.hasModemMarker(dialer))
-                dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-                SerialCommunicationChannel.DATABITS_7,
-                SerialCommunicationChannel.PARITY_EVEN,
-                SerialCommunicationChannel.STOPBITS_1);
-            else
-                dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                SerialCommunicationChannel.DATABITS_7,
-                SerialCommunicationChannel.PARITY_EVEN,
-                SerialCommunicationChannel.STOPBITS_1);
-
-            // initialize the protocol
-            enermetE70X.init(dialer.getInputStream(),dialer.getOutputStream(), TimeZone.getTimeZone("GMT"),Logger.getLogger("name"));
-
-            // if optical head dialer, enable the HHU signon mechanism
-            if (DialerMarker.hasOpticalMarker(dialer)) {
-                enermetE70X.enableHHUSignOn(dialer.getSerialCommunicationChannel());
-            }
-
-            System.out.println("*********************** connect() ***********************");
-
-            //for (int i=0;i<100;i++) {
-
-                // connect to the meter
-                enermetE70X.connect();
-                //System.out.println(enermetE70X.getFirmwareVersion());
-                //System.out.println(enermetE70X.getTime());
-
-                System.out.println(enermetE70X.getDataReadingCommandFactory().getSerialNumber());
-
-
-                //            System.out.println(enermetE70X.getDataReadingCommandFactory().getRegisterSet(0).toString());
-                //            System.out.println(enermetE70X.getDataReadingCommandFactory().getRegisterSet(1).toString());
-                //            System.out.println(enermetE70X.getDataReadingCommandFactory().getRegisterSet(2).toString());
-                //            System.out.println(enermetE70X.getDataReadingCommandFactory().getRegisterSet(3).toString());
-
-                byte[] ba;
-                String strBa;
-                //            enermetE70X.getIec1107Connection().sendRawCommandFrame(IEC1107Connection.READ1,"HSR(1,100,2004,10,27,00,00,00)".getBytes());
-                //            ba = enermetE70X.getIec1107Connection().receiveRawData();
-                //            strBa = new String(ba);
-                //            System.out.println(strBa);
-                //            enermetE70X.getIec1107Connection().sendRawCommandFrame(IEC1107Connection.READ1,"HSR(1,96,2004,10,28,00,00,00)".getBytes());
-                //            ba = enermetE70X.getIec1107Connection().receiveRawData();
-                //            strBa = new String(ba);
-                //            System.out.println(strBa);
-                //            enermetE70X.getIec1107Connection().sendRawCommandFrame(IEC1107Connection.READ1,"HSZ(1,96,2004,10,28,00,00,00)".getBytes());
-                //            ba = enermetE70X.getIec1107Connection().receiveRawData();
-                //            strBa = new String(ba);
-                //            System.out.println(strBa);
-                //    System.out.println(enermetE70X.getEnermetLoadProfile().getProfileData(new Date((new Date()).getTime()-(3600000L*24*3))));
-                //System.out.println("nr of channels:"+enermetE70X.getEnermetLoadProfile().getNrOfChannels());
-                //System.out.println(enermetE70X.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-                //System.out.println(enermetE70X.readRegister(ObisCode.fromString("1.1.1.8.0.0")));
-                //System.out.println(enermetE70X.readRegister(ObisCode.fromString("1.1.1.8.0.1")));
-                //System.out.println(enermetE70X.readRegister(ObisCode.fromString("1.1.5.6.2.255")));
-
-                //enermetE70X.setTime();
-                System.out.println(enermetE70X.getTime());
-
-                //enermetE70X.getDataReadingCommandFactory().getEventLog();
-                //Calendar calendar = Calendar.getInstance(TimeZoneManager.getTimeZone("GMT"));
-                //calendar.add(Calendar.HOUR_OF_DAY,-2);
-                //calendar.add(Calendar.MINUTE, -3);
-
-                //enermetE70X.getEnermetLoadProfile().retrieveEventLog(calendar.getTime());
-                //System.out.println(enermetE70X.getProfileData(calendar.getTime(),false));
-
-                // temporary...
-             //   enermetE70X.disconnect();
-
-            //} // for (int i=0;i<100;i++)
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally{
-            try {
-                System.out.println("*********************** disconnect() ***********************");
-                enermetE70X.disconnect();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     /**
      * Getter for property dataReadingCommandFactory.

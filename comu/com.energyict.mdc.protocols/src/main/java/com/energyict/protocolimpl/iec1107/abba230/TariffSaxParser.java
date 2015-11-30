@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.mdc.common.NestedIOException;
+
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -58,17 +59,5 @@ public class TariffSaxParser {
         	throw new NestedIOException(e);
         }
 	}
-
-//	/**
-//	 * @param args
-//	 */
-//	public static void main(String[] args) {
-//		TariffSaxParser o = new TariffSaxParser(null);
-//		o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/tariff1.xml");
-//		o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/tariff2.xml");
-//		o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/tariff3.xml");
-//
-//
-//	}
 
 }

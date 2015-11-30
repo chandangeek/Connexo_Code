@@ -424,23 +424,6 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
         return booleanDataReadout;
     }
 
-//    public static void main(String[] args) {
-//        try {
-//            com.energyict.dialer.core.Dialer dialer = com.energyict.dialer.core.DialerFactory.getOpticalDialer().newDialer();
-//            dialer.init("COM1");
-//            dialer.connect();
-//            IEC1107HHUConnection iec1107hhuConnection = new IEC1107HHUConnection(dialer.getSerialCommunicationChannel(),2000,3,300,0);
-//            MeterId meterId = iec1107hhuConnection.discover(new String[]{"","000","001"});
-//            System.out.println(meterId);
-//        }
-//        catch(com.energyict.dialer.core.DialerException e) {
-//            e.printStackTrace();
-//        }
-//        catch(IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     public void wakeUp() throws NestedIOException, ConnectionException {
         try {
             long timeout = System.currentTimeMillis() + 2300;

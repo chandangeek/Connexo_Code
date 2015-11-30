@@ -73,7 +73,7 @@ class CP40Time extends Time {
 
     public ByteArray toByteArray( ) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append( toBitString( tarif, 1 ));
         sb.append( toBitString( invalid, 1 ));
@@ -106,22 +106,10 @@ class CP40Time extends Time {
 
     String toBitString(int value, int nrBits ){
         String binary = Integer.toBinaryString( value );
-        for( int i = binary.length(); i < nrBits; i ++ )
+        for( int i = binary.length(); i < nrBits; i ++ ) {
             binary = "0" + binary;
+        }
         return binary;
      }
-
-    public static void main(String args[]){
-
-        ByteArray s = new ByteArray( new byte [] { (byte)0x00, (byte)0x00, 0x01, 0x01, 0x00 } );
-        ByteArray b = new ByteArray( new byte [] { (byte)0x00, (byte)0x00, 0x01, 0x06, 0x07 } );
-
-        CP40Time cps = new CP40Time( TimeZone.getDefault(), s );
-        CP40Time cp = new CP40Time( TimeZone.getDefault(), b );
-
-        System.out.println( cps.getDate() );
-        System.out.println( cp.getDate() );
-
-    }
 
 }

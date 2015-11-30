@@ -28,16 +28,11 @@ public class OperatingSetUpBasePage extends AbstractBasePage {
         super(basePagesFactory);
     }
 
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new RealTimeBasePage(null)));
-    }
-
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x27E5, 1);
     }
 
     protected void parse(byte[] data) throws IOException {
-        int offset = 0;
         setDstEnabled((data[0] & 0x04) == 0x04);
     }
 
@@ -49,5 +44,4 @@ public class OperatingSetUpBasePage extends AbstractBasePage {
         this.dstEnabled = dstEnabled;
     }
 
-
-} // public class RealTimeBasePage extends AbstractBasePage
+}

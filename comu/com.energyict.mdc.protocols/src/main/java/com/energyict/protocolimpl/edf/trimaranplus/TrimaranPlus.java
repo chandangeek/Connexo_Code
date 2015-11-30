@@ -18,9 +18,6 @@ import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.util.ProtocolUtils;
@@ -41,12 +38,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *@beginchanges
@@ -291,98 +285,6 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
-    }
-
-    static public void main(String args[]) {
-        // TODO code application logic here
-        TrimaranPlus trimaranPlus = new TrimaranPlus();
-        Dialer dialer=null;
-
-        String[] phones=new String[]{"0033231830806","0033297667306","0033241701921","0033381506179"};
-        String[] clientPasswords=new String[]{"62696C636F62636C","525A5B5A5E5C535C","565c56565a575758","d6dcdededad7d7d8"};
-        String preDial="T0";
-        int index=3;
-
-        try {
-// direct rs232 connection
-            //dialer =DialerFactory.getDirectDialer().newDialer();
-            dialer =DialerFactory.getDefault().newDialer();
-            //dialer.init("COM1","ATZX5&B0B4C0U4&C1&D1","AT&S0"); //,"AT+MS=1,1,1200,1200","AT&C1&D1&S0");
-            dialer.init("COM1","AT&BB4&D2&D1&S1M0","AT&FV1E0QX4Z30S0=0S42=7");
-            //dialer.init("COM1");
-            dialer.getSerialCommunicationChannel().setParams(2400,
-                                                            SerialCommunicationChannel.DATABITS_8,
-                                                            SerialCommunicationChannel.PARITY_NONE,
-                                                            SerialCommunicationChannel.STOPBITS_1);
-            //dialer.getSerialCommunicationChannel().setDTR(false);
-
-
-
-            dialer.connect(preDial+phones[index],90000);
-
-//dialer.getSerialCommunicationChannel().setDTR(false); // KV_DEBUG
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            properties.setProperty(MeterProtocol.PASSWORD,clientPasswords[index]);
-            properties.setProperty("ProfileInterval", "600");
-            //properties.setProperty("SerialNumber","0304072680850001");
-            //properties.setProperty("DTSAP","3"); // VDE SUPERVISOR
-// transfer the properties to the protocol
-            trimaranPlus.setProperties(properties);
-
-// depending on the dialer, set the initial (pre-connect) communication parameters
-//            dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-//                                                                     SerialCommunicationChannel.DATABITS_8,
-//                                                                     SerialCommunicationChannel.PARITY_NONE,
-//                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            trimaranPlus.setHalfDuplexController(dialer.getHalfDuplexController());
-
-            trimaranPlus.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-
-            trimaranPlus.connect();
-            System.out.println("*********************** connect() ***********************");
-
-            //System.out.println(trimaranPlus.getTrimaranObjectFactory().readDateCourante());
-
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readParametresPplus1());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readParametresP());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readParametresPmoins1());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readParametresPmoins2());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readAccessPartiel());
-//            trimaranPlus.getTrimaranObjectFactory().writeAccessPartiel();
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readAccessPartiel());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readAsservissementClient());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readEnergieIndex());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readPmaxValues());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readDureeDepassementValues());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readDepassementQuadratiqueValues());
-//            System.out.println(trimaranPlus.getTrimaranObjectFactory().readTempsFonctionnementValues());
-
-            Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("ECT"));
-
-            cal.add(Calendar.MONTH, -8);
-            //cal.set(Calendar.HOUR_OF_DAY, 0);
-            //cal.set(Calendar.MINUTE, 0);
-            System.out.println("Load profile from "+cal.getTime());
-            System.out.println(trimaranPlus.getTrimaranObjectFactory().getCourbeCharge(cal.getTime()));
-
-
-            //System.out.println(trimaranPlus.getTime());
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                trimaranPlus.disconnect();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public VDEType getVDEType() {

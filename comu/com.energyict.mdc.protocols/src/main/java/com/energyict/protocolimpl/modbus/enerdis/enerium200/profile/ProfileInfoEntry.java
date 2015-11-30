@@ -2,8 +2,8 @@ package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.base.ToStringBuilder;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium150.Enerium150;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
@@ -173,24 +173,18 @@ public class ProfileInfoEntry {
         return loadCurveStatus;
     }
 
-	public static void main(String[] args) {
-	        System.out.println(ToStringBuilder.genCode(new ProfileInfoEntry()));
-	}
-
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("ProfileInfoEntry:");
-        strBuff.append(" entryID=" + ProtocolUtils.buildStringHex(getEntryID(), 4));
-        strBuff.append(" channels=" + ProtocolUtils.buildStringHex(getChannels(), 4));
-        strBuff.append(" nrChannels=" + getNumberOfchannels());
-        strBuff.append(" interval=" + ProtocolUtils.buildStringHex(getInterval(), 4));
-        strBuff.append(" startTime=" + getStartTime());
-        strBuff.append(" endTime=" + getEndTime());
-        strBuff.append(" startOnBound=" + isStartOnBoundary());
-        strBuff.append(" endOnBound=" + isEndOnBoundary());
-        strBuff.append(" entryBytes=" + getEntryBytes());
-        strBuff.append(" entries=" + getEntries());
-        return strBuff.toString();
+	    return "ProfileInfoEntry:" +
+			    " entryID=" + ProtocolUtils.buildStringHex(getEntryID(), 4) +
+			    " channels=" + ProtocolUtils.buildStringHex(getChannels(), 4) +
+			    " nrChannels=" + getNumberOfchannels() +
+			    " interval=" + ProtocolUtils.buildStringHex(getInterval(), 4) +
+			    " startTime=" + getStartTime() +
+			    " endTime=" + getEndTime() +
+			    " startOnBound=" + isStartOnBoundary() +
+			    " endOnBound=" + isEndOnBoundary() +
+			    " entryBytes=" + getEntryBytes() +
+			    " entries=" + getEntries();
     }
 
 }

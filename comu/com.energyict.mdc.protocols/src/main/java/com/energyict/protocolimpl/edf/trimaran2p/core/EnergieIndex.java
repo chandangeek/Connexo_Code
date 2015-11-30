@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
@@ -14,20 +14,20 @@ import java.util.List;
  *
  */
 public class EnergieIndex {
-	
+
 	List energies;
 
 	/**
-	 * 
+	 *
 	 */
 	public EnergieIndex() {
 		setEnergies(new ArrayList());
 	}
 
 	private void setEnergies(ArrayList energies) {
-		this.energies = energies;		
+		this.energies = energies;
 	}
-	
+
 	public String toString(){
         StringBuffer strBuff = new StringBuffer();
         for(int i = 0; i < getEnergies().size(); i++) {
@@ -40,7 +40,7 @@ public class EnergieIndex {
 	private List getEnergies() {
 		return this.energies;
 	}
-	
+
 	public Energies getEnergie(int variableName) throws IOException{
         Iterator it = getEnergies().iterator();
         while(it.hasNext()) {
@@ -51,17 +51,9 @@ public class EnergieIndex {
         }
         throw new IOException("EnergieIndex, invalid variableName "+variableName);
 	}
-	
+
 	public void addEnergie(Energies energie){
 		getEnergies().add(energie);
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

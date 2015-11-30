@@ -5,6 +5,7 @@ package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -82,14 +83,6 @@ public class Energies{
 		strBuff.append("	- NRJcap_Reste - Q- Erb4: " + getNRJcap_Reste(1));strBuff.append("\n");
 
 		return strBuff.toString();
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 	}
 
 	protected int getVariableName() {

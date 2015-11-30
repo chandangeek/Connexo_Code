@@ -20,9 +20,6 @@ public class ProgrammingEventLog extends AbstractEventLog {
 		super(timeZone);
 	}
 
-//  public static void main(String[] args) throws IOException {
-//      System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new ProgrammingEventLog(null)));
-//  }
 	public String toString() {
 	      // Generated code by ToStringBuilder
 	      StringBuilder builder = new StringBuilder();

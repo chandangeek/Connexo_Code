@@ -7,18 +7,17 @@
 package com.energyict.protocolimpl.iec1107.ferranti;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -288,21 +287,6 @@ public class FerrantiProfile extends VDEWProfile {
         profileData.sort();
 
         return profileData;
-    } // ProfileData buildProfileData(byte[] responseData) throws IOException
-
-
-    static public void main(String[] args) {
-        try {
-            FerrantiProfile fp = new FerrantiProfile(null,null,null);
-            File file = new File("FerrantiProfile.txt");
-            byte[] data = new byte[(int)file.length()];
-            FileInputStream fis = new FileInputStream(file);
-            fis.read(data,0,(int)file.length());
-            System.out.println(fp.buildProfileData(data, 3).toString());
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
     }
 
-} // FerrantiProfile
+}

@@ -234,11 +234,6 @@ public class MeterType {
         return "type="+getStrType()+", multiplier="+getMultiplier();
     }
 
-    static public void main(String[] args) {
-        MeterType mt = MeterType.getMeterType(1);
-        System.out.println(mt.toString());
-    }
-
     /** Getter for property strType.
      * @return Value of property strType.
      *

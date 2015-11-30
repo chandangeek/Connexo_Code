@@ -9,9 +9,9 @@ package com.energyict.protocolimpl.powermeasurement.ion;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -285,11 +285,6 @@ class ObisCodeMapper {
             return reversedOs.compareTo(other.reversedOs);
         }
 
-    }
-
-    public static void main(String [] args) throws Exception {
-        ObisCodeMapper ocm = new ObisCodeMapper(null);
-        System.out.println( ocm );
     }
 
 }

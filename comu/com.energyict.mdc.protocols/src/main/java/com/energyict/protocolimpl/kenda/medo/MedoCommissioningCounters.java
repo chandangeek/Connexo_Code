@@ -2,14 +2,8 @@ package com.energyict.protocolimpl.kenda.medo;
 
 public class MedoCommissioningCounters extends Parsers {
 	char[] cntr= new char[48];
-	
+
 	MedoCommissioningCounters(){}
-	MedoCommissioningCounters(byte[] b){
-		cntr=parseBArraytoCArray(b);
-	}
-	MedoCommissioningCounters(char[] c){
-		cntr=c;
-	}
 	public String toString(){
 		String s="";
 		for(int i=0; i<48; i++){
@@ -36,5 +30,5 @@ public class MedoCommissioningCounters extends Parsers {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }

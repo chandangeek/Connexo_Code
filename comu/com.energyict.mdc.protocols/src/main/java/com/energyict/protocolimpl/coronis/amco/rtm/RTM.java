@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 
-public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, BubbleUp {
+public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, BubbleUp, RTMFactory {
 
     private ObisCodeMapper obisCodeMapper;
     private WaveFlowConnect rtmConnect;
@@ -244,7 +244,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterValue(obisCode);
+        return obisCodeMapper.getRegisterValue(obisCode, this);
     }
 
     public void applyMessages(List messageEntries) throws IOException {
@@ -292,7 +292,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
         AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
-        alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()));
+        alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()), this);
         statusAndEvents.add(alarmFrame.getResponse());
         statusAndEvents.add(alarmFrame.getMeterEvents());
         return statusAndEvents;
@@ -301,4 +301,10 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
         return BubbleUpFrameParser.parse(data, this);
     }
+
+    @Override
+    public RTM newInstance() {
+        return new RTM(this.getPropertySpecService());
+    }
+
 }

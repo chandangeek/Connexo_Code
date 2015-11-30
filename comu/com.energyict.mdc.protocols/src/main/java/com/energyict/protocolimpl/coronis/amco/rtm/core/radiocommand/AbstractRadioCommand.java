@@ -1,13 +1,15 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,7 +17,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-abstract public class AbstractRadioCommand {
+public abstract class AbstractRadioCommand {
 
     protected enum RadioCommandId {
 
@@ -113,7 +115,7 @@ abstract public class AbstractRadioCommand {
         this.rtm = rtm;
     }
 
-    protected abstract void parse(byte[] data) throws IOException;
+    protected abstract void parse(byte[] data, RTMFactory rtmFactory) throws IOException;
 
     protected abstract byte[] prepare() throws IOException;
 
@@ -133,7 +135,7 @@ abstract public class AbstractRadioCommand {
                 DataOutputStream daos = new DataOutputStream(baos);
                 daos.writeByte(getRadioCommandId().getCommandId());
                 daos.write(prepare()); // write 1 parameter
-                parseResponse(getRTM().getWaveFlowConnect().sendData(baos.toByteArray()));
+                parseResponse(getRTM().getWaveFlowConnect().sendData(baos.toByteArray()), getRTM());
                 return;
             } catch (ConnectionException e) {
                 if (retry++ >= getRTM().getInfoTypeProtocolRetriesProperty()) {
@@ -172,7 +174,7 @@ abstract public class AbstractRadioCommand {
             DataOutputStream daos = new DataOutputStream(baos);
             daos.writeByte(getRadioCommandId().getCommandId());
             daos.write(prepare()); // write 1 parameter
-            parseResponse(getRTM().getWaveFlowConnect().sendData(baos.toByteArray()));
+            parseResponse(getRTM().getWaveFlowConnect().sendData(baos.toByteArray()), getRTM());
         } finally {
             if (baos != null) {
                 try {
@@ -185,7 +187,7 @@ abstract public class AbstractRadioCommand {
     }
 
 
-    private final void parseResponse(byte[] data) throws IOException {
+    private void parseResponse(byte[] data, RTMFactory rtmFactory) throws IOException {
         DataInputStream dais = null;
         try {
             dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -204,7 +206,7 @@ abstract public class AbstractRadioCommand {
 
                 byte[] temp = new byte[dais.available()];
                 dais.read(temp);
-                parse(temp);
+                parse(temp, rtmFactory);
             }
         } finally {
             if (dais != null) {

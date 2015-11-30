@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
@@ -64,7 +65,7 @@ public class SamplingPeriod extends AbstractParameter {
 
 
     @Override
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         int samplingByte = WaveflowProtocolUtils.toInt(data[0]);
         int multiplier = samplingByte >> 2;
         if (multiplier == 0) {

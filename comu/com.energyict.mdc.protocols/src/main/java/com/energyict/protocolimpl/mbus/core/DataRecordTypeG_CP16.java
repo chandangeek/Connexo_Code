@@ -48,20 +48,6 @@ public class DataRecordTypeG_CP16 extends AbstractDataRecordType {
         getCalendar().set(Calendar.YEAR,2000 + (((ProtocolUtils.getInt(data,1,1)&0xf0)>>1)|((ProtocolUtils.getInt(data,0,1)&0xe0)>>5)));
     }
 
-    static public void main(String[] args) {
-
-        try {
-            DataRecordTypeG_CP16 d = new DataRecordTypeG_CP16(TimeZone.getDefault());
-            byte[] data = new byte[]{(byte)0x00,0x00};
-            d.parse(data);
-            System.out.println(d);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public Calendar getCalendar() {
         return calendar;
     }

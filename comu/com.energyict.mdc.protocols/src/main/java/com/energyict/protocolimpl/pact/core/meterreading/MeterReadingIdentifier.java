@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.pact.core.meterreading;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 
 import java.io.IOException;
@@ -281,18 +282,6 @@ public class MeterReadingIdentifier {
 		} else {
 			return Integer.parseInt(sub);
 		}
-    }
-
-    static public void main(String[] args) {
-        try {
-            MeterReadingIdentifier mrid = new MeterReadingIdentifier("MD.1:ch4");
-            System.out.println(mrid.toString2());
-            mrid = new MeterReadingIdentifier(ObisCode.fromString("1.1.0.1.2.VZ"));
-            System.out.println(mrid.getObisRegisterMappingDescription());
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /** Getter for property registerNumber.

@@ -37,20 +37,14 @@ public class FileAccessInfoCommand extends AbstractCommand {
 
     public String toString() {
         // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("FileAccessInfoCommand:\n");
-        strBuff.append("   registerId=0x"+Integer.toHexString(getRegisterId())+"\n");
-        strBuff.append("   startRecord="+getStartRecord()+"\n");
-        strBuff.append("   numberOfRecords="+getNumberOfRecords()+"\n");
-        strBuff.append("   recordSize="+getRecordSize()+"\n");
-        strBuff.append("   fileType="+getFileType()+"\n");
-        strBuff.append("   fileName="+getFileName()+"\n");
-        return strBuff.toString();
+        return "FileAccessInfoCommand:\n" +
+                "   registerId=0x" + Integer.toHexString(getRegisterId()) + "\n" +
+                "   startRecord=" + getStartRecord() + "\n" +
+                "   numberOfRecords=" + getNumberOfRecords() + "\n" +
+                "   recordSize=" + getRecordSize() + "\n" +
+                "   fileType=" + getFileType() + "\n" +
+                "   fileName=" + getFileName() + "\n";
     }
-
-//    public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new FileAccessInfoCommand(null)));
-//    }
 
     protected byte[] prepareBuild() {
         byte[] data = new byte[6];

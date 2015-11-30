@@ -1,13 +1,10 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;
-import com.energyict.protocolimpl.instromet.v444.Instromet444;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -15,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 
 public class LoggedDataTable extends AbstractTable {
@@ -198,42 +193,5 @@ public class LoggedDataTable extends AbstractTable {
 		return ((((tableLength - 6) / bytesPerRecord)) * bytesPerRecord) + 6;
 
 	}
-
-	static public void main(String[] argv) throws Exception {
-
-		Dialer dialer =DialerFactory.getDefault().newDialer();
-        dialer.init("COM1", "AT+CBST=71");
-        dialer.getSerialCommunicationChannel().setParams(9600,
-                                                       SerialCommunicationChannel.DATABITS_8,
-                                                       SerialCommunicationChannel.PARITY_NONE,
-                                                      SerialCommunicationChannel.STOPBITS_1);
-        dialer.connect("0031651978414",60000);
-        Instromet444 instromet = new Instromet444();
-        instromet.init(
-        		dialer.getInputStream(),
-        		dialer.getOutputStream(),
-        		TimeZone.getDefault(),
-        		Logger.getLogger("name"));
-        instromet.connect();
-        LoggingConfigurationTable table =
-        	instromet.getTableFactory().getLoggingConfigurationTable();
-        System.out.println(table.getChannelInfos().size());
-        System.out.println(table);
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        //instromet.getTableFactory().getLoggedDataTable(cal.getTime());
-        System.out.println(instromet.getTime());
-        System.out.println("peak: " +
-        		instromet.getTableFactory().getPeakHourPeakDayTable().getPeak());
-        System.out.println("peak time: " +
-        		instromet.getTableFactory().getPeakHourPeakDayTable().getPeakTime());
-        /*System.out.println("uncorrected: " +
-        		instromet.getTableFactory().getCountersTable().getUnCorrectedVolume());
-
-        System.out.println("corrected: " +
-        		instromet.getTableFactory().getCountersTable().getCorrectedVolume());*/
-    }
-
-
 
 }

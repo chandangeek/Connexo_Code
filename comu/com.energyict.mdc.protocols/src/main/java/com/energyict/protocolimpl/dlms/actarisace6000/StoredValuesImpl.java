@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
+import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -17,7 +19,6 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -216,70 +217,6 @@ if (DEBUG>=1) System.out.println("**********************************************
             //billingSet.addBillingValues(getBillingValues(billingSetId,63,dc)); // excess demand
             billingSets.add(billingSet);
         } // for (billingSetId=0;billingSetId<nrOfBillingSets;billingSetId++)
-    } // private void processDataContainer(DataContainer dc)
-
-
-//    private void parseDataContainerDebug(DataContainer dc) {
-//        int[] count=new int[dc.getMaxLevel()+1];
-//        int level=0;
-//        boolean ret=true;
-//        DataStructure root = dc.getRoot();
-//
-//        while(true) {
-//            int i;
-//            for (i=count[level];i<root.getNrOfElements();i++) {
-//                if (root.isStructure(i)) {
-//                    root=root.getStructure(i);
-//                    count[level]=i+1;
-//                    level++;
-//                    System.out.println("level "+level+", elements : "+root.getNrOfElements());
-//                    i=0;
-//                    break;
-//                }
-//                else {
-//                    if (root.isOctetString(i)) {
-//                        System.out.print("NumberOfElements "+i+" = ");
-//                        ProtocolUtils.printResponseDataFormatted(root.getOctetString(i).getArray());
-//                    }
-//                    else
-//                        System.out.println("NumberOfElements "+i+" = "+root.getElement(i));
-//                }
-//            } // for (i=count[level];i<root.getNrOfElements();i++)
-//
-//            if (i == (root.getNrOfElements())) {
-//                root=root.getParent();
-//                count[level]=0;
-//                level--;
-//                if (root == null) {
-//                    System.out.println("****************** RETURN ******************");
-//                    //ret=false;
-//                    break;
-//                }
-//            } // if (i == (root.getNrOfElements()))
-//        } // while(true)
-//    } // private void parseDataContainerDebug()
-//
-//
-//    static public DataContainer getDataContainerDebug() {
-//        DataContainer dc=null;
-//        try {
-//            File file = new File("datacontainer.bin");
-//            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-//            dc = (DataContainer)ois.readObject();
-//            ois.close();
-//        }
-//        catch(Exception e) {
-//            e.printStackTrace();
-//        }
-//        return dc;
-//    }
-
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String[] args) {
-//        // TODO code application logic here
-//        StoredValuesImpl dcp = new StoredValuesImpl(StoredValuesImpl.getDataContainerDebug());
-//    }
+    }
 
 }

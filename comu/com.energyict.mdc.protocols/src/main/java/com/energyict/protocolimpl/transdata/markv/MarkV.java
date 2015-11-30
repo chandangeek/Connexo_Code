@@ -19,9 +19,6 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
@@ -44,16 +41,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
-//import com.energyict.protocolimpl.transdata.markv.core.*;
 /**
  *
  * @author koen
@@ -85,20 +79,20 @@ public class MarkV extends AbstractProtocol {
         getCommandFactory().issueLOCommand();
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
 
-        strBuff.append(getCommandFactory().getISCommand()+"\n");
-        strBuff.append(getCommandFactory().getMICommand()+"\n");
+        strBuff.append(getCommandFactory().getISCommand()).append("\n");
+        strBuff.append(getCommandFactory().getMICommand()).append("\n");
 
-        Iterator it = RegisterIdentification.getRegisterDataIds().iterator();
+        Iterator<RegisterDataId> it = RegisterIdentification.getRegisterDataIds().iterator();
         while(it.hasNext()) {
-            RegisterDataId rdi = (RegisterDataId)it.next();
-            strBuff.append(rdi+"\n");
+            RegisterDataId rdi = it.next();
+            strBuff.append(rdi).append("\n");
         }
         return strBuff.toString();
 
@@ -124,10 +118,13 @@ public class MarkV extends AbstractProtocol {
      *  This code has been taken from a real protocol implementation.
      */
     protected void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+            return;
+        }
         String sn = getCommandFactory().getMICommand().getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
+            return;
+        }
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
 
     }
@@ -140,21 +137,19 @@ public class MarkV extends AbstractProtocol {
         verifyTimeDelay=Integer.parseInt(properties.getProperty("VerifyTimeDelay","2000").trim());
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("VerifyTimeDelay");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Collections.singletonList("VerifyTimeDelay");
     }
 
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return getCommandFactory().getISCommand().getProfileInterval();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getCommandFactory().getDCCommand().getProtocolChannelMap().getNrOfProtocolChannels();
     }
 
@@ -177,157 +172,25 @@ public class MarkV extends AbstractProtocol {
         getCommandFactory().issueTICommand();
         if (!verifySetTime(new Date(),getTime())) {
             getCommandFactory().issueTICommand();
-            if (!verifySetTime(new Date(),getTime()))
-                throw new IOException("MarkV, setTime(), after 2 tries, the meter time still differs more then "+verifyTimeDelay+" ms (metertime="+getTime()+", systemtime="+new Date()+")");
+            if (!verifySetTime(new Date(),getTime())) {
+                throw new IOException("MarkV, setTime(), after 2 tries, the meter time still differs more then " + verifyTimeDelay + " ms (metertime=" + getTime() + ", systemtime=" + new Date() + ")");
+            }
         }
-
-
     }
-
 
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         Properties properties = new Properties();
         properties.setProperty("SecurityLevel", "0");
-        if ((discoverInfo.getNodeId()!= null) && ("".compareTo(discoverInfo.getNodeId()) != 0))
-            properties.setProperty(MeterProtocol.NODEID,discoverInfo.getNodeId());
+        if ((discoverInfo.getNodeId()!= null) && ("".compareTo(discoverInfo.getNodeId()) != 0)) {
+            properties.setProperty(MeterProtocol.NODEID, discoverInfo.getNodeId());
+        }
         setProperties(properties);
         init(discoverInfo.getCommChannel().getInputStream(),discoverInfo.getCommChannel().getOutputStream(),null,null);
         connect();
         BufferedReader br = new BufferedReader(new StringReader(new String(markVConnection.receiveWithTimeout("ID"))));
         br.readLine(); // skip ID code 1
         br.readLine(); // skip ID code 2
-        String serialNumber = br.readLine().trim();
-        //String serialNumber =  getCommandFactory().getIDCommand().getSerialNr();
-        //disconnect(); // KV 13102005 LO command does not react here...
-        return serialNumber;
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        MarkV markV=null;
-        Dialer dialer=null;
-                         //  CRESCENT REAL ESTATE777     testmeter at TransData
-        String[] phones={   "00018173363569,,,,,,1",    "00019724180460", "101"};
-        String[] passwords={"74944122",                 "22222222", "22222222"};
-
-
-        final int selection=2;
-
-
-        try {
-// ********************************** DIALER ***********************************$
-// modem dialup connection
-            dialer =DialerFactory.getDefault().newDialer();
-            dialer.init("COM1"); //,"ATV1M1S7=120S6=6S10=50");
-            //dialer.getSerialCommunicationChannel().setParams(2400,
-            //                                                 SerialCommunicationChannel.DATABITS_7,
-            //                                                 SerialCommunicationChannel.PARITY_EVEN,
-             //                                                SerialCommunicationChannel.STOPBITS_1);
-//            dialer.connect("phonenumber",60000);
-
-// optical head connection
-//            dialer =DialerFactory.getOpticalDialer().newDialer();
-//            dialer.init("COM1");
-//            dialer.connect("",60000);
-
-// direct rs232 connection
-//            dialer =DialerFactory.getDirectDialer().newDialer();
-//            dialer.init("COM4");
-//            dialer.connect("",60000);
-            //00018173853675
-
-            dialer.connect(phones[selection],90000);
-
-
-
-
-            //dialer.connect("4",60000);
-// *********************************** PROTOCOL ******************************************$
-            markV = new MarkV(); // instantiate the protocol
-
-            System.out.println("Serial number = "+markV.getSerialNumber(new DiscoverInfo(dialer.getSerialCommunicationChannel(),null)));
-            if (true)
-                return;
-
-
-//            System.out.println("Serial number = "+alphaPlus.getSerialNumber(new DiscoverInfo(dialer.getSerialCommunicationChannel(),null)));
-//            if (true)
-//                return;
-//
-//
-//            System.out.println("Serial number = "+alphaPlus.getSerialNumber(new DiscoverInfo(dialer.getSerialCommunicationChannel(),null)));
-//            if (true)
-//                return;
-
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            //properties.setProperty("SecurityLevel","2");
-            properties.setProperty(MeterProtocol.PASSWORD,passwords[selection]);
-            properties.setProperty("ProfileInterval", "900");
-            //properties.setProperty(MeterProtocol.NODEID,"0");
-//            properties.setProperty("HalfDuplex", "50");
-            //properties.setProperty("Retries", "0");
-
-// transfer the properties to the protocol
-            markV.setProperties(properties);
-
-//            ez7.setHalfDuplexController(dialer.getHalfDuplexController());
-
-// depending on the dialer, set the initial (pre-connect) communication parameters
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                                                                     SerialCommunicationChannel.DATABITS_8,
-                                                                     SerialCommunicationChannel.PARITY_NONE,
-                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            //markV.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("EST"),Logger.getLogger("name"));
-            markV.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("CST"),Logger.getLogger("name"));
-
-// if optical head dialer, enable the HHU signon mechanism
-            if (DialerMarker.hasOpticalMarker(dialer)) {
-                markV.enableHHUSignOn(dialer.getSerialCommunicationChannel());
-            }
-
-            System.out.println("*********************** connect() ***********************");
-
-// connect to the meter
-            markV.connect();
-
-            System.out.println(markV.getCommandFactory().getGTCommand());
-            System.out.println(markV.getCommandFactory().getMICommand());
-
-            System.out.println("*********************** Meter information ***********************");
-            System.out.println(markV.getNumberOfChannels());
-            System.out.println(markV.getProtocolVersion());
-            System.out.println(markV.getProfileInterval());
-
-// get the meter profile data
-            System.out.println("*********************** getProfileData() ***********************");
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.DATE,-1);
-            System.out.println(markV.getProfileData(calendar.getTime(),true));
-// get the metertime
-            System.out.println("*********************** getTime() ***********************");
-            Date date = markV.getTime();
-            System.out.println(date);
-// set the metertime
-//            System.out.println("*********************** setTime() ***********************");
-//            ez7.setTime();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                System.out.println("*********************** disconnect() ***********************");
-                markV.disconnect();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
+        return br.readLine().trim();
     }
 
     public MarkVConnection getMarkVConnection() {
@@ -377,11 +240,6 @@ public class MarkV extends AbstractProtocol {
     private boolean verifySetTime(Date src, Date dst) {
         //Date system = new Date();
         //Date meter = getTime();
-        if (Math.abs(src.getTime() - dst.getTime()) > verifyTimeDelay) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return Math.abs(src.getTime() - dst.getTime()) <= verifyTimeDelay;
     }
 }

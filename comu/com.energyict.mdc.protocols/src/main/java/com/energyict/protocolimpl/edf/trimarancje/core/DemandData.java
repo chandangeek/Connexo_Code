@@ -14,11 +14,10 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocols.util.ProtocolUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
+import com.energyict.protocolimpl.base.ParseUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -304,48 +303,6 @@ public class DemandData extends AbstractTable {
         this.data = data;
     }
 
-    // only for testing...
-    static public void main(String[] args) {
-        try {
-            DemandData dv = new DemandData(null);
-
-	        File file = new File("c://TEST_FILES/H3296.bin");
-	        FileInputStream fis = new FileInputStream(file);
-	        byte[] data=new byte[(int)file.length()];
-	        fis.read(data);
-	        fis.close();
-
-//	        dv.setData(data);
-//	        dv.calculateProfileInterval();
-	        dv.parse(data);
-
-//	        System.out.println(dv.getProfileInterval());
-
-	        System.out.println(dv);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
-//        byte[] data = new byte[4];
-//        byte[] data2 = new byte[4];
-//    	byte test = ProtocolUtils.hex2BCD(10);
-//    	byte test1 = ProtocolUtils.hex2BCD(15);
-//    	byte test2 = ProtocolUtils.hex2BCD(20);
-//    	byte test3 = ProtocolUtils.hex2BCD(25);
-//    	data[0] = test;
-//    	data[1] = test1;
-//    	data[2] = test2;
-//    	data[3] = test3;
-//
-//    	data2[0] = 0x10;
-//    	data2[1] = 0x15;
-//    	data2[2] = 0x20;
-//    	data2[3] = 0x25;
-
-
-   }
-
     public List getDemandValuesList() {
         return demandValuesList;
     }
@@ -358,15 +315,15 @@ public class DemandData extends AbstractTable {
     	return getChannelInfos(0);
     }
 
-    public List getChannelInfos(int i) {
-        List channelInfos = new ArrayList();
+    public List<ChannelInfo> getChannelInfos(int i) {
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         ChannelInfo channelInfo = new ChannelInfo(0,"Trimaran CJE kW channel",Unit.get(units[i]));
         channelInfos.add(channelInfo);
         return channelInfos;
     }
 
-    public List getIntervalDatas() throws IOException {
-        List<IntervalData> intervalDatas = new ArrayList();
+    public List<IntervalData> getIntervalDatas() throws IOException {
+        List<IntervalData> intervalDatas = new ArrayList<>();
 
         Iterator it = getDemandValuesList().iterator();
         while(it.hasNext()) {

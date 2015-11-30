@@ -11,13 +11,13 @@ import java.io.IOException;
  * @author gna
  *
  */
-abstract public class AbstractTrimaranObject {
+public abstract class AbstractTrimaranObject {
 
 	private TrimaranObjectFactory trimaranObjectFactory;
 
-    abstract protected byte[] prepareBuild() throws IOException;
-    abstract protected void parse(byte[] data) throws IOException;
-    abstract protected int getVariableName();
+    protected abstract byte[] prepareBuild() throws IOException;
+    protected abstract void parse(byte[] data) throws IOException;
+    protected abstract int getVariableName();
 
 	/**
 	 * Creates a new instance of AbstractTrimaranObject
@@ -35,12 +35,6 @@ abstract public class AbstractTrimaranObject {
 		parse(rr.getReadResponse().getReadResponseData());
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-	}
 	/**
 	 * @return the trimaranObjectFactory
 	 */

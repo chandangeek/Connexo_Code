@@ -60,9 +60,6 @@ public class FileAccessReadCommand extends AbstractCommand {
 		strBuff.append("   data (string)="+new String(getData())+", ");
 		return strBuff.toString();
 	}
-	//    public static void main(String[] args) {
-	//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new FileAccessRead(null)));
-	//    }
 
 	protected void parse(byte[] data) throws IOException {
 		int offset = 3;

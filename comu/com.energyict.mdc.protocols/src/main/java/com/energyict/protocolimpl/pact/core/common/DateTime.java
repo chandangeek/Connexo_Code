@@ -39,28 +39,6 @@ public class DateTime {
         setData(PactUtils.getPacsTimeDataFrame(calendar));
     }
 
-    static public void main(String[] args) {
-        try {
-            //b7155820
-            //$5f$24$59$20
-           DateTime dateTime = new DateTime(new byte[]{0x00,0x00,0x60,0x24,0x59,0x20},TimeZone.getTimeZone("ECT"));
-           System.out.println(dateTime.getDate());
-           dateTime = new DateTime(new byte[]{0x00,0x00,0x5F,0x24,0x59,0x20},TimeZone.getTimeZone("ECT"));
-           System.out.println(dateTime.getDate());
-
-           dateTime = new DateTime(Calendar.getInstance(TimeZone.getTimeZone("ECT")));
-           byte[] data = dateTime.getData();
-           byte[] frame = new byte[10];
-           ProtocolUtils.arrayCopy(data,frame,2);
-           dateTime = new DateTime(frame,TimeZone.getTimeZone("ECT"));
-           System.out.println(dateTime.getDate());
-
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     /** Getter for property date.
      * @return Value of property date.
      *

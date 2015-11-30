@@ -26,28 +26,15 @@ public class InitiateUploadCommand extends AbstractConfirmedServiceCommand {
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("InitiateUploadCommand:\n");
-        strBuff.append("   dataSetID="+getDataSetID()+"\n");
-        return strBuff.toString();
+        return "InitiateUploadCommand:\n" + "   dataSetID=" + getDataSetID() + "\n";
     }
-
-//    public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new InitiateUploadCommand(null)));
-//    }
 
     protected int getCommandId() {
         return 0x12;
-
     }
 
-
-
     protected byte[] prepareBuild() {
-
         return new byte[]{(byte)(getDataSetID()>>8),(byte)(getDataSetID())};
-
     }
 
     public int getDataSetID() {

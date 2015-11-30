@@ -23,10 +23,6 @@ public class DataIdentityTemplate extends AbstractDataDefinition {
         super(dataDefinitionFactory);
     }
 
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new DataIdentityTemplate(null)));
-    }
-
     protected int getVariableName() {
         return -1;
     }

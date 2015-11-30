@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 
 import java.io.IOException;
 
@@ -35,7 +37,7 @@ public class EncoderModel extends AbstractParameter {
     }
 
     @Override
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         encoderManufacturer = data[0] & 0xFF;
         encoderModel = data[1] & 0xFF;
     }

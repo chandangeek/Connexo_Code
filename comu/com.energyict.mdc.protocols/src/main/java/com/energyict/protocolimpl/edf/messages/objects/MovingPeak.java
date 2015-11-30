@@ -49,10 +49,6 @@ public class MovingPeak extends ComplexCosemObject {
             return strBuff.toString();
         }
 
-//        public static void main(String[] args) {
-//            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new MovingPeak()));
-//        }
-
 	public void addScript(int scriptId, int serviceId, int classId,
 			String logicalName, int index){
 		scripts.add(new MovingPeakScript(scriptId,serviceId,classId,

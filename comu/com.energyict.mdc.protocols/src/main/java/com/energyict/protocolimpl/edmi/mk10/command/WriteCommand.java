@@ -30,15 +30,8 @@ public class WriteCommand extends AbstractCommand {
 
 	public String toString() {
 		// Generated code by ToStringBuilder
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("WriteCommand:\n");
-		strBuff.append("   data="+ProtocolUtils.outputHexString(getData())+"\n");
-		return strBuff.toString();
+		return "WriteCommand:\n" + "   data=" + ProtocolUtils.outputHexString(getData()) + "\n";
 	}
-
-	//    public static void main(String[] args) {
-	//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new ReadCommand(null)));
-	//    }
 
 	private final char COMMAND='W'; // 'W'
 

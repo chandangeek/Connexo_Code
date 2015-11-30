@@ -22,7 +22,7 @@ public class FrequencyGroup extends Structure {
         super(berEncodedByteArray, 0, 0);
     }
 
-    public static final FrequencyGroup createFrequencyGroup(long fs, long fm) {
+    public static FrequencyGroup createFrequencyGroup(long fs, long fm) {
         if ((fs != -1) && (fm != -1)) {
             try {
                 Structure frequencyGroup = new Structure();
@@ -36,7 +36,7 @@ public class FrequencyGroup extends Structure {
         return null;
     }
 
-    public static final FrequencyGroup createFrequencyGroup(long fs, long fm, float snr, float creditWeight) {
+    public static FrequencyGroup createFrequencyGroup(long fs, long fm, float snr, float creditWeight) {
         if ((fs != -1) && (fm != -1)) {
             try {
                 Structure frequencyGroup = new Structure();
@@ -74,7 +74,7 @@ public class FrequencyGroup extends Structure {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("(");
         sb.append(getFs()).append("Hz,");
         sb.append(getFm()).append("Hz");
@@ -84,11 +84,6 @@ public class FrequencyGroup extends Structure {
         }
         sb.append(")");
         return sb.toString();
-    }
-
-    public static void main(String[] args) throws IOException {
-        System.out.println(FrequencyGroup.createFrequencyGroup(123, 456));
-        System.out.println(FrequencyGroup.createFrequencyGroup(123, 456, (float) 1.2, (float) 3.4));
     }
 
 }

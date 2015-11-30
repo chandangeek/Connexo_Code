@@ -4,9 +4,10 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.EncoderUnit;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ProfileType;
@@ -160,12 +161,12 @@ public class ObisCodeMapper {
         return strBuilder.toString();
     }
 
-    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
         String info = registerMaps.get(obisCode);
         return new RegisterInfo(info);
     }
 
-    public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
+    public RegisterValue getRegisterValue(ObisCode obisCode, RTMFactory rtmFactory) throws IOException {
         try {
             if (obisCode.equals(OBISCODE_APPLICATION_STATUS)) {
                 int status = rtm.getParameterFactory().readApplicationStatus().getStatus();
@@ -239,7 +240,7 @@ public class ObisCodeMapper {
                     rtm.getLogger().log(Level.WARNING, "No index logged yet for port " + port);
                     throw new NoSuchRegisterException("No index logged yet for port " + port);      //Indicated by value 0x7FFFFFFF
                 }
-                RtmUnit rtmUnit = currentRegister.getGenericHeader().getRtmUnit(port - 1);
+                RtmUnit rtmUnit = currentRegister.getGenericHeader().getRtmUnit(port - 1, rtmFactory);
                 return new RegisterValue(obisCode, new Quantity(currentRegister.getCurrentReading(port) * rtmUnit.getMultiplier(), rtmUnit.getUnit()));
             } else if (isPulseWeightReadout(obisCode)) {
                 if (!rtm.getParameterFactory().readProfileType().isPulse()) {
@@ -267,7 +268,7 @@ public class ObisCodeMapper {
                 }
                 ReadTOUBuckets bucketTotalizers = rtm.getRadioCommandFactory().readTOUBuckets();
                 int value = bucketTotalizers.getListOfAllTotalizers().get(port - 1).getTOUBucketsTotalizers()[bucket];
-                RtmUnit unit = bucketTotalizers.getGenericHeader().getRtmUnit(port - 1);
+                RtmUnit unit = bucketTotalizers.getGenericHeader().getRtmUnit(port - 1, rtmFactory);
                 return new RegisterValue(obisCode, new Quantity(value * unit.getMultiplier(), unit.getUnit()));
             } else {
                 rtm.getLogger().log(Level.WARNING, "Register with obiscode [" + obisCode + "] is not supported");

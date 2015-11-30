@@ -30,10 +30,6 @@ public class DateCommand extends AbstractCommand {
         date=null;
     }
 
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateCommand(null)));
-    }
-
     protected byte[] prepareBuild() {
         if (getDate()==null)
            return new byte[]{(byte)0x02,0,0,0,0,0,0,0,0};

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -13,13 +14,12 @@ import java.util.logging.Logger;
 
 public class Encryption {
 
-
 	/**
 	 * The 16 byte encryptionkey
 	 */
-	final private byte[] wavenisEncryptionKey;
+	private final byte[] wavenisEncryptionKey;
 
-	final private Logger logger;
+	private final Logger logger;
 
 	public Encryption(byte[] wavenisEncryptionKey, Logger logger) {
 		this.wavenisEncryptionKey = wavenisEncryptionKey;
@@ -27,7 +27,7 @@ public class Encryption {
 	}
 
 
-	static private byte[] generateTemporaryKeyFromRadioAddress(byte[] address) throws IOException {
+	private static byte[] generateTemporaryKeyFromRadioAddress(byte[] address) {
 
 		byte[] radioAdress = new byte[6];
 		// reverse
@@ -58,7 +58,7 @@ public class Encryption {
 		return temporaryKey;
 	}
 
-	static public byte[] generateEncryptedKey(byte[] radioAddress) throws IOException {
+	public static byte[] generateEncryptedKey(byte[] radioAddress) {
 
 
 		byte[] tempKey = generateTemporaryKeyFromRadioAddress(radioAddress);
@@ -228,40 +228,4 @@ public class Encryption {
 
 	}
 
-
-	// only for testing
-	private void start() {
-		try {
-			//String radioAddress="106E4AC0000C";
-			//System.out.println(ProtocolUtils.outputHexString(generateEncryptedKey(WaveflowProtocolUtils.getArrayFromStringHexNotation(radioAddress))));
-			//System.out.println(ProtocolUtils.outputHexString(encrypt(calculateTemporaryKey(radioAddress), initialKey(radioAddress))));
-			byte[] encryptedData = encrypt(new byte[]{0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F});
-			System.out.println("Encrypted: "+ProtocolUtils.outputHexString(encryptedData));
-			System.out.println("Decrypted: "+ProtocolUtils.outputHexString(decrypt(encryptedData)));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-
-	public static void main(String[] args) {
-		//String radioAddress="106E4AC0000C";
-		String radioAddress="0E6E4BC00045";
-		Encryption o;
-		try {
-			o = new Encryption(Encryption.generateEncryptedKey(WaveflowProtocolUtils.getArrayFromStringHexNotation(radioAddress)),Logger.getAnonymousLogger());
-			//o = new Encryption(new byte[]{0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F},Logger.getAnonymousLogger());
-//			System.out.println(ProtocolUtils.outputHexString(o.decrypt(WaveflowProtocolUtils.getArrayFromStringHexNotation("AE487317766779142DF3B7C0ED007A7436A6ECA6839D02362F1E521EA125DDC2"))));
-			//System.out.println(ProtocolUtils.outputHexString(o.decrypt(WaveflowProtocolUtils.getArrayFromStringHexNotation("A1FFAC26652947B5F6D4ECBDA0D2FAC0A0E66CED4ACE898A4F8B169F9759D26E2DA2249A2840E02DC866F57E50FFAF38BC87E8FA6A6F012EA28079C61B32A8B71C2D5119E0E0D718456B97621658680C4D2DE5A875A1B4EC11A0E21E7133B3DF7DBCE104CA872966D3405E485A174A07BEBB68E3042441D27C10C23372AA17A2894F1B90AC653B86D8458780134E1A5D"))));
-			System.out.println(ProtocolUtils.outputHexString(o.decrypt(WaveflowProtocolUtils.getArrayFromStringHexNotation("8F6DCA32E88F469AE3BD0DFEFBAC1973C493905FC11FD382255B021F0950B1BE"))));
-			System.out.println(ProtocolUtils.outputHexString(o.decrypt(WaveflowProtocolUtils.getArrayFromStringHexNotation("31021A187368F3EFA760BCE687B3617147C2270DAAA5F3910EA0435D33EDA69D"))));
-
-			//o.start();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
 }

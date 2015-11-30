@@ -10,7 +10,7 @@ class TypeClockCalendarRcd {
     int timeZoneOffset;
     int dstInForce;
     int dayOfWeek;
-    
+
     static TypeClockCalendarRcd parse( Assembly assembly, TimeZone timeZone ){
         TypeClockCalendarRcd r = new TypeClockCalendarRcd();
         r.clockCalendar = TypeDateTimeRcd.parse(assembly);
@@ -32,7 +32,7 @@ class TypeClockCalendarRcd {
     }
 
     /**
-     * @return DST on? controlled by date table.  This flg is set in 
+     * @return DST on? controlled by date table.  This flg is set in
      * each table entry for which DST is in effect. READ-ONLY
      */
     int getDstInForce() {
@@ -40,32 +40,20 @@ class TypeClockCalendarRcd {
     }
 
     /**
-     * @return From the Central computer Site in hours, 2 BCD positive value 
+     * @return From the Central computer Site in hours, 2 BCD positive value
      * digits, the ms bit is the sign bit, 0 = positive, 1 = negative
      */
     int getTimeZoneOffset() {
         return timeZoneOffset;
     }
-    
+
     public String toString( ){
-        return new StringBuffer()
-        .append( "TypeClockCalendar [ " )
-        .append( clockCalendar + " " )
-        .append( "dow " + dayOfWeek + " " )
-        .append( "GMT+" + timeZoneOffset + " " )
-        .append( "DST" + dstInForce + " " )
-        .append( "]" )
-        .toString();
+        return "TypeClockCalendar [ " +
+                clockCalendar + " " +
+                "dow " + dayOfWeek + " " +
+                "GMT+" + timeZoneOffset + " " +
+                "DST" + dstInForce + " " +
+                "]";
     }
 
-    public static void main(String [] args){
-        /*
-        ByteArray ba = new ByteArray( new byte [] { 0x04, 0x25, 0x06, 0x15, 0x00, 0x49, 0x00, 0x00, 0x03, 0x00 } );
-       // Assembly a = new Assembly( ba );
-      
-        System.out.println( 
-        TypeClockCalendarRcd.parse( a, TimeZone.getDefault() ));
-      */  
-    }
-    
 }

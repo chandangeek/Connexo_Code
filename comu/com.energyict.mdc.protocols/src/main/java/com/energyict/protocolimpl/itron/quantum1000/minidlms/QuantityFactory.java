@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ import java.util.List;
  */
 public class QuantityFactory {
 
-    static List quantities = new ArrayList();
+    static List<QuantityId> quantities = new ArrayList<>();
 
     static {
         quantities.add(new QuantityId(0,null,-1,-1,null));
@@ -375,11 +376,11 @@ public class QuantityFactory {
     private QuantityFactory() {
     }
 
-    static public QuantityId findQuantityId(int id) throws IOException {
-        Iterator it = quantities.iterator();
+    public static QuantityId findQuantityId(int id) throws IOException {
+        Iterator<QuantityId> it = quantities.iterator();
 
         while(it.hasNext()) {
-            QuantityId qid = (QuantityId)it.next();
+            QuantityId qid = it.next();
             if (qid.getId() == id) {
                 return qid;
             }
@@ -387,36 +388,6 @@ public class QuantityFactory {
 
         throw new IOException("QuantityFactory, findQuantityId, invalid id="+id);
 
-    } // public QuantityId findQuantityId(int id) throws IOException
-
-//    static void checkForDuplicates() {
-//        System.out.println("Start...");
-//        for (int i=0;i<quantities.size();i++) {
-//            QuantityId q1 = (QuantityId)quantities.get(i);
-//            for (int t=i;t<quantities.size();t++) {
-//                QuantityId q2 = (QuantityId)quantities.get(t);
-//
-//                if ((q1.getId() != q2.getId())&& (q1.getObisBField()==q2.getObisBField()) && (q1.getObisCField()==q2.getObisCField())) {
-//
-//                    System.out.println("Duplicate found! q1.id="+q1.getId()+" == q2.id="+q2.getId());
-//                }
-//
-//
-//
-//            }
-//
-//        }
-//        System.out.println("end.");
-//    }
-
-    static public void main(String[] args) {
-        //QuantityFactory.checkForDuplicates();
-        Iterator it = quantities.iterator();
-        while(it.hasNext()) {
-            QuantityId qid = (QuantityId)it.next();
-            System.out.println(qid.getObisBField()+", "+qid.getObisCField()+", "+qid.getDescription());
-
-        }
     }
 
-} // public class QuantityFactory
+}

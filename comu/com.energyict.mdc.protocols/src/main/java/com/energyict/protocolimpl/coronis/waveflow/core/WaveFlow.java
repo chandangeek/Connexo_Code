@@ -307,7 +307,7 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
         if (multiplier == null) {
             return null;
         }
-        return new PulseWeight(new WaveFlowV2(), scale, multiplier, port);
+        return new PulseWeight(new WaveFlowV2(this.getPropertySpecService()), scale, multiplier, port);
     }
 
     /**

@@ -9,36 +9,24 @@ package com.energyict.protocolimpl.iec1107.indigo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 
 // KV TO_DO
@@ -92,7 +80,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
         return indigoProfile.getProfileData(calendarFrom.getTime(),calendarTo.getTime(),isStatusFlagChannel(),isReadCurrentDay());
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
        int nrOfChannels = getLogicalAddressFactory().getMeteringDefinition().getNrOfIntervalRecordingChannels();
        if ((!(isStatusFlagChannel())) && (getLogicalAddressFactory().getMeteringDefinition().isChannelUnitsStatusFlagsChannel())) {
            return nrOfChannels - 1;
@@ -101,8 +89,8 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
     }
 
     protected void doConnect() throws java.io.IOException {
-        logicalAddressFactory = new LogicalAddressFactory((ProtocolLink)this,(MeterExceptionInfo)this);
-        indigoProfile = new IndigoProfile((ProtocolLink)this,(MeterExceptionInfo)this,logicalAddressFactory);
+        logicalAddressFactory = new LogicalAddressFactory(this, this);
+        indigoProfile = new IndigoProfile(this, this,logicalAddressFactory);
     }
 
     /*
@@ -111,45 +99,49 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         StringBuilder strBuff = new StringBuilder();
         strBuff.append("************************* Extended Logging *************************\n");
-        strBuff.append(getLogicalAddressFactory().getMeterIdentity().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getMeterStatus().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDefaultStatus().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDateTimeGMT().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDateTimeLocal().toString()+"\n");
+        strBuff.append(getLogicalAddressFactory().getMeterIdentity().toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getMeterStatus().toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getDefaultStatus().toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getDateTimeGMT().toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getDateTimeLocal().toString()).append("\n");
 
-        strBuff.append(getLogicalAddressFactory().getTotalRegisters(extendedLogging-1).toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getRateRegisters(extendedLogging-1).toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDemandRegisters(extendedLogging-1).toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDefaultRegisters(extendedLogging-1).toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getHistoricalData(extendedLogging-1).toString()+"\n");
+        strBuff.append(getLogicalAddressFactory().getTotalRegisters(extendedLogging - 1).toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getRateRegisters(extendedLogging - 1).toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getDemandRegisters(extendedLogging - 1).toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getDefaultRegisters(extendedLogging - 1).toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getHistoricalData(extendedLogging - 1).toString()).append("\n");
 
-        strBuff.append(getLogicalAddressFactory().getMeteringDefinition().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getClockDefinition().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getBillingPeriodDefinition().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getGeneralMeterData().toString()+"\n");
+        strBuff.append(getLogicalAddressFactory().getMeteringDefinition().toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getClockDefinition().toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getBillingPeriodDefinition().toString()).append("\n");
+        strBuff.append(getLogicalAddressFactory().getGeneralMeterData().toString()).append("\n");
 
 
         for (int i=-1;i<16;i++) {
             int billingPoint;
-            if (i==-1) billingPoint = 255;
-            else billingPoint = i;
+            if (i==-1) {
+                billingPoint = 255;
+            }
+            else {
+                billingPoint = i;
+            }
             strBuff.append("Cumulative registers (total & tariff):\n");
             for(int obisC=1;obisC<=9;obisC++) {
                 String code = "1.1."+obisC+".8.0."+billingPoint;
-                strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n");
+                strBuff.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
             }
             for(int obisC=1;obisC<=2;obisC++) {
                 for(int obisE=1;obisE<=9;obisE++) {
                     String code = "1.1."+obisC+".8."+obisE+"."+billingPoint;
-                    strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n");
+                    strBuff.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
                 }
             }
             String defaultRegCode = "1.2.1.8.0."+billingPoint;
-            strBuff.append(defaultRegCode+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))+" default register\n");
+            strBuff.append(defaultRegCode).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))).append(" default register\n");
             defaultRegCode = "1.2.9.8.0."+billingPoint;
-            strBuff.append(defaultRegCode+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))+" default register\n");
+            strBuff.append(defaultRegCode).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))).append(" default register\n");
             defaultRegCode = "1.2.129.8.0."+billingPoint;
-            strBuff.append(defaultRegCode+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))+" default register\n");
+            strBuff.append(defaultRegCode).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))).append(" default register\n");
 
             strBuff.append("Cumulative maximum demand registers:\n");
             strBuff.append(buildDemandReg(0,ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND,billingPoint));
@@ -172,11 +164,11 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
             strBuff.append("General purpose registers:\n");
             if( billingPoint != 255) {
                 String code = "1.1.0.1.2."+billingPoint;
-                strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n");
+                strBuff.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
             }
             if( billingPoint == 255) {
                String code = "1.1.0.1.0.255";
-               strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n");
+               strBuff.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
             }
         }
         return strBuff.toString();
@@ -184,10 +176,12 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
 
     private String buildDemandReg(int index, int obisD, int billingPoint) throws IOException {
        int obisC;
-       if (obisD == ObisCode.CODE_D_RISING_DEMAND)
-         obisC = DemandRegisters.OBISCMAPPINGRISINGDEMAND[index];
-       else
-         obisC = getLogicalAddressFactory().getHistoricalData(billingPoint==255?0:billingPoint).getObisC(index);
+       if (obisD == ObisCode.CODE_D_RISING_DEMAND) {
+           obisC = DemandRegisters.OBISCMAPPINGRISINGDEMAND[index];
+       }
+       else {
+           obisC = getLogicalAddressFactory().getHistoricalData(billingPoint == 255 ? 0 : billingPoint).getObisC(index);
+       }
        if (obisC != 255) {
           String code = "1.1."+obisC+"."+obisD+".0."+billingPoint;
           return code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n";
@@ -202,8 +196,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
     }
 
     public void setTime() throws IOException {
-        Calendar calendar=null;
-        calendar = ProtocolUtils.getCalendar(getTimeZone());
+        Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
         calendar.add(Calendar.MILLISECOND,getRoundtripCorrection());
         setTime(calendar.getTime());
     }
@@ -217,12 +210,8 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
         }
     }
 
-    protected java.util.List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("StatusFlagChannel");
-        result.add("ReadCurrentDay");
-        result.add("EmptyNodeAddress");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList("StatusFlagChannel", "ReadCurrentDay", "EmptyNodeAddress");
     }
 
     protected void doValidateProperties(java.util.Properties properties) throws MissingPropertyException, InvalidPropertyException {
@@ -260,96 +249,6 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
 
     }
 
-    // ********************************************************************************************************
-    // main
-    public static void main(String[] args) {
-        Dialer dialer;
-        IndigoPlus indigoPlus=null;
-        try {
-//            dialer =DialerFactory.getDefault().newDialer();
-//            dialer.init("COM1","AT+MS=2,0,2400,2400");
-//            dialer.getSerialCommunicationChannel().setParams(2400,
-//                                                             SerialCommunicationChannel.DATABITS_7,
-//                                                             SerialCommunicationChannel.PARITY_EVEN,
-//                                                             SerialCommunicationChannel.STOPBITS_1);
-//            dialer.connect("0,00441908607743",60000);
-            dialer =DialerFactory.getOpticalDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect("",60000);
-            InputStream is = dialer.getInputStream();
-            OutputStream os = dialer.getOutputStream();
-            indigoPlus = new IndigoPlus();
-            Properties properties = new Properties();
-            properties.setProperty("SecurityLevel","2");
-            properties.setProperty(MeterProtocol.PASSWORD,"ABCDEF"); //13579B"); //"123456");
-            properties.setProperty("ProfileInterval", "1800");
-            if (!(DialerMarker.hasOpticalMarker(dialer))) {
-                properties.setProperty(MeterProtocol.NODEID, "002");
-            }
-            else {
-                properties.setProperty(MeterProtocol.NODEID, "");
-            }
-            indigoPlus.setProperties(properties);
-            if (!(DialerMarker.hasOpticalMarker(dialer))) {
-                dialer.getSerialCommunicationChannel().setParamsAndFlush(2400,
-                        SerialCommunicationChannel.DATABITS_7,
-                        SerialCommunicationChannel.PARITY_EVEN,
-                        SerialCommunicationChannel.STOPBITS_1);
-            }
-            else {
-                dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                        SerialCommunicationChannel.DATABITS_7,
-                        SerialCommunicationChannel.PARITY_EVEN,
-                        SerialCommunicationChannel.STOPBITS_1);
-            }
-
-            // initialize
-            indigoPlus.init(is,os,TimeZone.getTimeZone("GMT"),Logger.getLogger("name"));
-
-            // KV 18092003
-            if (DialerMarker.hasOpticalMarker(dialer)) {
-                indigoPlus.enableHHUSignOn(dialer.getSerialCommunicationChannel());
-            }
-
-            System.out.println("Start session");
-
-            indigoPlus.connect();
-
-            System.out.println(indigoPlus.getLogicalAddressFactory().getMeterIdentity().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getMeterStatus().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getDefaultStatus().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getDateTimeGMT().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getDateTimeLocal().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getTotalRegisters().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getRateRegisters().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getDemandRegisters().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getDefaultRegisters().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getHistoricalData().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getMeteringDefinition().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getClockDefinition().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getBillingPeriodDefinition().toString());
-            System.out.println(indigoPlus.getLogicalAddressFactory().getGeneralMeterData().toString());
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.DATE,-10);
-            System.out.println(indigoPlus.getProfileData(calendar.getTime(),true).toString());
-            Date date = indigoPlus.getTime();
-            System.out.println(date);
-            //indigoPlus.setTime();
-            System.out.println("End session");
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally{
-            try {
-                indigoPlus.disconnect();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     /**
      * Getter for property logicalAddressFactory.
      * @return Value of property logicalAddressFactory.
@@ -368,7 +267,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
      *  This code has been taken from a real protocol implementation.
      */
 
-    static Map exceptionInfoMap = new HashMap();
+    static Map<String, String> exceptionInfoMap = new HashMap<>();
     static {
            exceptionInfoMap.put("ERRDAT","Error setting the time");
            exceptionInfoMap.put("ERRADD","Protocol error");
@@ -376,7 +275,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
 
     public String getExceptionInfo(String id) {
 
-        String exceptionInfo = (String)exceptionInfoMap.get(id);
+        String exceptionInfo = exceptionInfoMap.get(id);
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         }

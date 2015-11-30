@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.edf.trimaran.registermapping;
 import com.energyict.mdc.common.ObisCode;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -20,15 +21,14 @@ import java.util.HashMap;
  */
 public class RegisterNameFactory {
 
-
-    static HashMap map=new HashMap();
+    static Map<ObisCode, String> map= new HashMap<>();
 
     static {
         buildRegisterNames(255);
         buildRegisterNames(0);
     }
 
-    static public void buildRegisterNames(int fField) {
+    public static void buildRegisterNames(int fField) {
         for (int eField=1;eField<=3;eField++) {
             map.put(ObisCode.fromString("1.1.1.38."+eField+"."+fField), "Dépassement Quadratique");
             map.put(ObisCode.fromString("0.1.96.8."+eField+"."+fField), "Temps de fonctionnement");
@@ -54,16 +54,10 @@ public class RegisterNameFactory {
 
     }
 
-    static public String findObisCode(ObisCode obc) {
+    public static String findObisCode(ObisCode obc) {
         ObisCode obisCode = new ObisCode(obc.getA(),obc.getB(),obc.getC(),obc.getD(),obc.getE(),Math.abs(obc.getF()));
-        return (String)map.get(obisCode);
+        return map.get(obisCode);
 
-    }
-
-    public static void main(String[] args) {
-        System.out.println(RegisterNameFactory.findObisCode(ObisCode.fromString("1.1.1.10.1.1")));
-        System.out.println(RegisterNameFactory.findObisCode(ObisCode.fromString("1.1.1.128.1.255")));
-        System.out.println(RegisterNameFactory.findObisCode(ObisCode.fromString("0.1.96.8.1.1")));
     }
 
 }

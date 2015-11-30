@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class OtherDataIds {
 
-    static List list = new ArrayList();
+    static List<RegisterDataId> list = new ArrayList<>();
     static {
         list.add(new RegisterDataId(RegisterDataId.OTHER,RegisterDataId.STRING,66,-1,-1, -1, "Special ID code #1"));
         list.add(new RegisterDataId(RegisterDataId.OTHER,RegisterDataId.STRING,67,-1,-1, -1, "Special ID code #2"));
@@ -66,11 +66,8 @@ public class OtherDataIds {
 
     }
 
-    /** Creates a new instance of OtherDataIds */
-    public OtherDataIds() {
-    }
-
-    static public List getRegisterDataIds() {
+    public static List<RegisterDataId> getRegisterDataIds() {
         return list;
     }
+
 }

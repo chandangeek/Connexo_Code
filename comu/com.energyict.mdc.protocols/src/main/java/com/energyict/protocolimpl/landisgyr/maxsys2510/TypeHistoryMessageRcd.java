@@ -2,37 +2,33 @@ package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
-import java.util.Date;
-import java.util.Iterator;
 import java.util.TreeMap;
 
 class TypeHistoryMessageRcd {
 
-    private static TreeMap codes = new TreeMap();
+    private static TreeMap<Integer, TypeHistoryMessageRcd> codes = new TreeMap<>();
 
     private int id;
     private String description;
     private int eiCode;
 
     static TypeHistoryMessageRcd get( int id ){
-        return (TypeHistoryMessageRcd)codes.get( new Integer( id) );
+        return codes.get( new Integer( id) );
     }
 
     private static void put( int id, String description, int eiCode ){
-        Integer iId = new Integer(id);
         TypeHistoryMessageRcd hm = new TypeHistoryMessageRcd( );
         hm.id = id;
         hm.description = description;
         hm.eiCode = eiCode;
-        codes.put( iId, hm );
+        codes.put(id, hm);
     }
 
     private static void put( int id, String description ){
-        Integer iId = new Integer(id);
         TypeHistoryMessageRcd hm = new TypeHistoryMessageRcd( );
         hm.id = id;
         hm.description = description;
-        codes.put( iId, hm );
+        codes.put( id, hm );
     }
 
     /** Default EiCode is OTHER */
@@ -214,16 +210,6 @@ class TypeHistoryMessageRcd {
 
     public String toString(){
         return "HistoryMessage [" + Integer.toHexString(id) + ", " + description + " " + this.eiCode + "]";
-    }
-
-    public static void main( String [] args ) {
-        Iterator i = codes.values().iterator();
-
-        while( i.hasNext( ) ) {
-            TypeHistoryMessageRcd rcd = (TypeHistoryMessageRcd)i.next();
-            String dscr = new MeterEvent( new Date(), rcd.getEiCode() ).toString();
-            System.out.println( dscr + "\t" + rcd.getEiCode() + "\t0x" + Integer.toHexString(rcd.id) +  "\t" + rcd.getDescription() );
-        }
     }
 
 }

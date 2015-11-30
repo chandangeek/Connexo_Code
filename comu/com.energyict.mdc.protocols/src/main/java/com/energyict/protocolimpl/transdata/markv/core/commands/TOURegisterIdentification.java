@@ -44,10 +44,10 @@ public class TOURegisterIdentification {
                                                         {381,385,389,393,397,401,405,409}};
 
 
-    static List list = new ArrayList();
+    static List<RegisterDataId> list = new ArrayList<>();
     static {
 
-        int[] touAll = {5,347, 13,348, 21,349, 29,350};
+        int[] touAll = {5, 347, 13, 348, 21, 349, 29, 350};
         // TOTAL USAGE ALL
         for(int channel=0;channel<4;channel++) {
             for(int billing=0;billing<2;billing++) {
@@ -70,11 +70,7 @@ public class TOURegisterIdentification {
         }
     }
 
-    /** Creates a new instance of TOURegisterIdentification */
-    private TOURegisterIdentification() {
-    }
-
-    static public List getRegisterDataIds() {
+    public static List<RegisterDataId> getRegisterDataIds() {
         return list;
     }
 

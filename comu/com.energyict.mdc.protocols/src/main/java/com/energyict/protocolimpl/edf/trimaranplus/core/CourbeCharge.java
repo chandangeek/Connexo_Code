@@ -11,13 +11,14 @@
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.MagicNumberConstants;
 
 import java.io.DataInputStream;
@@ -652,16 +653,6 @@ public class CourbeCharge {
 
     public void setTrimaranObjectFactory(TrimaranObjectFactory trimaranObjectFactory) {
         this.trimaranObjectFactory = trimaranObjectFactory;
-    }
-
-    public static void main(String[] args) {
-        try {
-            CourbeCharge cc = new CourbeCharge(null);
-            cc.doParse(true);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public ProfileData getProfileData() {

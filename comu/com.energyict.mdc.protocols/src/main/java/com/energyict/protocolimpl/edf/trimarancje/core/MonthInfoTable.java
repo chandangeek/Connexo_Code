@@ -365,30 +365,12 @@ public class MonthInfoTable extends AbstractTable {
         this.rapport = rapport;
     }
 
-
-
     public int getExceededEnergy() {
         return exceededEnergy;
     }
 
     private void setExceededEnergy(int exceededEnergy) {
         this.exceededEnergy = exceededEnergy;
-    }
-
-    static public void main(String[] args) {
-        try {
-            byte[] data = new byte[]{(byte)0x19,(byte)0x06,(byte)0x06,(byte)0x10,(byte)0x19,(byte)0x57,(byte)0x05,(byte)0xb1,(byte)0x90,(byte)0x00,(byte)0x00,(byte)0xb4,(byte)0xbc,(byte)0x03,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x68,(byte)0x07,(byte)0xe5,(byte)0x01,(byte)0x5d,(byte)0x17,(byte)0xc2,(byte)0x00,(byte)0x80,(byte)0x07,(byte)0x4c,(byte)0x00,(byte)0x00,(byte)0x03,(byte)0x00,(byte)0x4a,(byte)0x05,(byte)0x31,(byte)0xf8,(byte)0x48,(byte)0x02,(byte)0x6f,(byte)0x52,(byte)0xfb,(byte)0x00,(byte)0xf0,(byte)0x09,(byte)0x8c,(byte)0x00,(byte)0x00,(byte)0x05,(byte)0x00,(byte)0x75,(byte)0x05,(byte)0x00,(byte)0x00,(byte)0x06,(byte)0x04,(byte)0x06,(byte)0x04,(byte)0x14,(byte)0x05,(byte)0x14,(byte)0x05,(byte)0x0a,(byte)0x00,(byte)0x06,(byte)0x04,(byte)0x06,(byte)0x04,(byte)0xaa,(byte)0x05,(byte)0xa0,(byte)0x0f,(byte)0x00,(byte)0x00,(byte)0x00};
-            MonthInfoTable mit = new MonthInfoTable(null);
-            mit.parse(data);
-            System.out.println(mit);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Calendar getTimestampCalendar() {
-        return timestampCalendar;
     }
 
     private void setTimestampCalendar(Calendar timestampCalendar) {

@@ -2,11 +2,12 @@ package com.energyict.protocolimpl.kenda.medo;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -20,7 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class MedoCommunicationsFactory{
+public class MedoCommunicationsFactory {
 	/**
  	 * ---------------------------------------------------------------------------------<p>
 	 * Medo CommunicationsFactory<p>
@@ -177,9 +178,9 @@ public class MedoCommunicationsFactory{
 			checkSum=checkSum+(int) dataToBeVerified[i];
 		}
 		checkSumFinal=(byte) (256-(checkSum%256));
-		if (checkSumFinal==dataToBeVerified[dataToBeVerified.length-1]){
-			return true; // checksum is ok
-		}else return false; // checksum is not ok => reject
+		// checksum is ok
+// checksum is not ok => reject
+		return checkSumFinal == dataToBeVerified[dataToBeVerified.length - 1];
 	}
 
 	// blocks received are to be merged in one byte array block
@@ -202,7 +203,7 @@ public class MedoCommunicationsFactory{
 		}
 		// add header
 		ident = block[0][0];
-		ident = buildIdent((ident & 0x80)==0x80,true,true,(byte) ((byte) ident & 0x1F));
+		ident = buildIdent((ident & 0x80)==0x80,true,true,(byte) (ident & 0x1F));
 		header= buildHeader(ident,(1+b.length)%256);
 		for(int i=0; i<10; i++){
 			b[i]=header[i];
@@ -310,7 +311,7 @@ public class MedoCommunicationsFactory{
 			if((br[br.length-1][0]&0x20)==0x20){
 				ack=true;
 			}
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+	        if (System.currentTimeMillis() - interFrameTimeout > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
@@ -441,7 +442,7 @@ public class MedoCommunicationsFactory{
 		MedoPowerFailDetails mpfd=(MedoPowerFailDetails) transmitData(powerFailDetails, null);
 		MedoCLK[] pfhist=mpfd.getPfhist();
 		for(int ii=0; ii<pfhist.length; ii++){
-			MedoCLK mclk=(MedoCLK) pfhist[ii];
+			MedoCLK mclk= pfhist[ii];
 			System.out.println(mclk.toString());
 			if(mclk.checkValidity() && !lastdata){
 				cal1=mclk.getCalendar();
@@ -591,7 +592,7 @@ public class MedoCommunicationsFactory{
 			// time out check
 		while(go){
 			interFrameTimeout = System.currentTimeMillis() + this.timeOut;
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+	        if (System.currentTimeMillis() - interFrameTimeout > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 			counter=0;
@@ -649,12 +650,14 @@ public class MedoCommunicationsFactory{
 		// checksum error check
 		// set p=null for transmission
 		boolean checkSum=verifyCheckSum(b);
-		if(b.length<11){throw new IOException("no data returned from the meter");}
+		if (b.length<11) {
+			throw new IOException("no data returned from the meter");
+		}
 		byte[] rawdata=new byte[b.length-11]; // strip header and checksum
 		for (int i=10; i<b.length-1; i++){
 			rawdata[i-10]=b[i];
 		}
-		if (checkSum==true){
+		if (checkSum) {
 			// here comes the processing
 			if (p==null){
 				// here comes the send

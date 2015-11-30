@@ -10,8 +10,6 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocols.util.ProtocolUtils;
-
 import java.util.Random;
 
 /**
@@ -20,13 +18,10 @@ import java.util.Random;
  */
 public class RandomGenerator {
 
-
-
-    /** Creates a new instance of RandomGenerator */
     private RandomGenerator() {
     }
 
-    static public byte[] getRandomSequence() {
+    public static byte[] getRandomSequence() {
         Random rnd = new Random();
         long val = rnd.nextLong();
         byte[] randomSequence = new byte[8];
@@ -34,10 +29,6 @@ public class RandomGenerator {
             randomSequence[7-i] = (byte)(val >> (8 * i));
         }
         return randomSequence;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(ProtocolUtils.outputHexString(RandomGenerator.getRandomSequence()));
     }
 
 }

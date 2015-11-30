@@ -3,6 +3,10 @@
  */
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -15,9 +19,6 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.LimiterAttributes;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -633,22 +634,5 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
         }
         return null;
     }
-
-	public static void main(String args[]){
-		try {
-			Limiter limiter = new Limiter(null ,null);
-			byte[] berEncodedData = new byte[]{2, 2, 2, 2, 9, 6, 1, 2, 3, 4, 5 ,6, 18, 0, 1, 2, 2, 9, 6, 6, 5, 4, 3, 2, 1, 18, 0, 2};
-			ActionType actionType = limiter.new ActionType(berEncodedData, 0, 0);
-			System.out.println(actionType);
-			System.out.println("ActionItem Over: " + actionType.getActionOverThreshold());
-			System.out.println("ActionItem Under: " + actionType.getActionUnderThreshold());
-
-			System.out.println("ActionItem Over logicalName: " + actionType.getActionOverThreshold().getScriptLogicalName());
-			System.out.println("ActionItem Over selector: " + actionType.getActionOverThreshold().getScriptSelector());
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("To bad, try again.");
-		}
-	}
 
 }

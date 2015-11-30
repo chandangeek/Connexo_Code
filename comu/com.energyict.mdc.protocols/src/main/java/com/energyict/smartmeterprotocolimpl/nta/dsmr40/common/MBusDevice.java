@@ -2,13 +2,14 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import javax.inject.Inject;
@@ -30,8 +31,8 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
     private final Clock clock;
 
     @Inject
-    public MBusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, Clock clock) {
-        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+    public MBusDevice(PropertySpecService propertySpecService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, Clock clock) {
+        super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
         this.clock = clock;
     }
 

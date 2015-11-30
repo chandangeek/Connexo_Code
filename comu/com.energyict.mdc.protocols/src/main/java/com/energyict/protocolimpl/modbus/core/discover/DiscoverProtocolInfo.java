@@ -11,10 +11,7 @@
 package com.energyict.protocolimpl.modbus.core.discover;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -124,18 +121,6 @@ public class DiscoverProtocolInfo {
 
     public void setDeviceType(String deviceType) {
         this.deviceType = deviceType;
-    }
-
-    public static void main(String[] args) {
-        Map map = new HashMap();
-        Iterator it = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
-        while(it.hasNext()) {
-            DiscoverProtocolInfo o = (DiscoverProtocolInfo)it.next();
-            if (map.get(o.getDeviceType()) == null) {
-                System.out.println(o);
-                map.put(o.getDeviceType(),"already populated");
-            }
-        }
     }
 
 }

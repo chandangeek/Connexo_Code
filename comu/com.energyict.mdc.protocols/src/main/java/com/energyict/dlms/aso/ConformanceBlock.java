@@ -13,7 +13,7 @@ import com.energyict.dlms.DLMSUtils;
  * Copyrights EnergyICT
  * </p>
  */
-public class ConformanceBlock{
+public class ConformanceBlock {
 	/**
 	 * Default conformance block with LongName referencing:
 	 * <pre>
@@ -319,8 +319,8 @@ public class ConformanceBlock{
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("ConformanceBlock{ rawValue = " + DLMSUtils.getHexStringFromBytes(getByteValue())).append(CRLF);
+        StringBuilder sb = new StringBuilder();
+        sb.append("ConformanceBlock{ rawValue = ").append(DLMSUtils.getHexStringFromBytes(getByteValue())).append(CRLF);
         for (int i = 0; i < NAMES.length; i++) {
             String name = NAMES[i];
             sb.append(block[i] ? "  * " : "    ").append("[").append(DLMSUtils.addPadding(String.valueOf(i), '0', 2, false)).append("] ");
@@ -328,12 +328,6 @@ public class ConformanceBlock{
         }
         sb.append("}");
         return sb.toString();
-    }
-
-
-    public static void main(String[] args) {
-        ConformanceBlock cb = new ConformanceBlock(DEFAULT_LN_CONFORMANCE_BLOCK);
-        System.out.println(cb);
     }
 
 }

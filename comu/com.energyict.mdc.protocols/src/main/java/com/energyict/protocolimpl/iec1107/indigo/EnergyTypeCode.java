@@ -83,12 +83,4 @@ public class EnergyTypeCode {
         this.description = description;
     }
 
-    static public void main(String[] agrs) {
-        try {
-           System.out.println(EnergyTypeCode.getCompountInfoFromObisC(9,true));
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

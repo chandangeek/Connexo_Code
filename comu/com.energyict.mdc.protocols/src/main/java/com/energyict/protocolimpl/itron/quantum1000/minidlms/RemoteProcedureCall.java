@@ -30,10 +30,6 @@ public class RemoteProcedureCall extends AbstractDataDefinition {
         super(dataDefinitionFactory);
     }
 
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new RemoteProcedureCall(null)));
-    }
-
     protected byte[] prepareBuild() {
         int functionName = remoteProcedure.getFunctionName();
         byte[] parameters =  remoteProcedure.getParameters();

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 
@@ -41,7 +42,7 @@ public class BackflowDetectionDate extends AbstractParameter {
     }
 
     @Override
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         date = TimeDateRTCParser.parse(data, 0, 7, getRTM().getTimeZone()).getTime();
     }
 

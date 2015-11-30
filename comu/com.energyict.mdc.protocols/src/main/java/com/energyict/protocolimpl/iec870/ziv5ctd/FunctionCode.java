@@ -8,11 +8,10 @@ public class FunctionCode {
     FrameType frameType;
     String description;
 
-    public final static int MASK = 0x0F;
+    public static final int MASK = 0x0F;
 
     private static FunctionCode create(int nr, FrameType frameType, String description) {
-        FunctionCode fc = new FunctionCode(nr, frameType, description);
-        return fc;
+        return new FunctionCode(nr, frameType, description);
     }
 
     private FunctionCode(int nr, FrameType frameType, String description) {
@@ -131,18 +130,7 @@ public class FunctionCode {
     }
 
     public String toString() {
-        return new StringBuffer()
-                .append("FunctionCode [ nr=").append(nr).append( ", ")
-                .append(frameType).append( ", ")
-                .append("description=").append(description)
-                .append(" ]").toString();
-    }
-
-    public static void main( String [] args ){
-
-        for( int i = 0; i < PRIMARY.length; i ++ )
-            System.out.println( PRIMARY[i] );
-
+        return "FunctionCode [ nr=" + nr + ", " + frameType + ", " + "description=" + description + " ]";
     }
 
 }

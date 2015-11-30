@@ -5,6 +5,7 @@ package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -37,67 +38,60 @@ public class PMaxMois extends AbstractTrimaranObject{
 	}
 
 	public String toString(){
-		StringBuffer strBuff = new StringBuffer();
+		StringBuilder strBuff = new StringBuilder();
 
 		strBuff.append(" *** PMaxMois: ***" + "\n");
-		strBuff.append("	- Numbre mois: " + getNumMois() + "\n");
+		strBuff.append("	- Numbre mois: ").append(getNumMois()).append("\n");
 
-		strBuff.append("	- PApMax 1: " + getPApMax(0) + "\n");
-		strBuff.append("	- PApMax 2: " + getPApMax(1) + "\n");
-		strBuff.append("	- PApMax 3: " + getPApMax(2) + "\n");
-		strBuff.append("	- PApMax 4: " + getPApMax(3) + "\n");
-		strBuff.append("	- PApMax 5: " + getPApMax(4) + "\n");
+		strBuff.append("	- PApMax 1: ").append(getPApMax(0)).append("\n");
+		strBuff.append("	- PApMax 2: ").append(getPApMax(1)).append("\n");
+		strBuff.append("	- PApMax 3: ").append(getPApMax(2)).append("\n");
+		strBuff.append("	- PApMax 4: ").append(getPApMax(3)).append("\n");
+		strBuff.append("	- PApMax 5: ").append(getPApMax(4)).append("\n");
 
-		strBuff.append("	- PAnMax 1: " + getPAnMax(0) + "\n");
-		strBuff.append("	- PAnMax 2: " + getPAnMax(1) + "\n");
-		strBuff.append("	- PAnMax 3: " + getPAnMax(2) + "\n");
-		strBuff.append("	- PAnMax 4: " + getPAnMax(3) + "\n");
-		strBuff.append("	- PAnMax 5: " + getPAnMax(4) + "\n");
+		strBuff.append("	- PAnMax 1: ").append(getPAnMax(0)).append("\n");
+		strBuff.append("	- PAnMax 2: ").append(getPAnMax(1)).append("\n");
+		strBuff.append("	- PAnMax 3: ").append(getPAnMax(2)).append("\n");
+		strBuff.append("	- PAnMax 4: ").append(getPAnMax(3)).append("\n");
+		strBuff.append("	- PAnMax 5: ").append(getPAnMax(4)).append("\n");
 
-		strBuff.append("	- PRpMax 1: " + getPRpMax(0) + "\n");
-		strBuff.append("	- PRpMax 2: " + getPRpMax(1) + "\n");
-		strBuff.append("	- PRpMax 3: " + getPRpMax(2) + "\n");
-		strBuff.append("	- PRpMax 4: " + getPRpMax(3) + "\n");
-		strBuff.append("	- PRpMax 5: " + getPRpMax(4) + "\n");
+		strBuff.append("	- PRpMax 1: ").append(getPRpMax(0)).append("\n");
+		strBuff.append("	- PRpMax 2: ").append(getPRpMax(1)).append("\n");
+		strBuff.append("	- PRpMax 3: ").append(getPRpMax(2)).append("\n");
+		strBuff.append("	- PRpMax 4: ").append(getPRpMax(3)).append("\n");
+		strBuff.append("	- PRpMax 5: ").append(getPRpMax(4)).append("\n");
 
-		strBuff.append("	- PRnMax 1: " + getPRnMax(0) + "\n");
-		strBuff.append("	- PRnMax 2: " + getPRnMax(1) + "\n");
-		strBuff.append("	- PRnMax 3: " + getPRnMax(2) + "\n");
-		strBuff.append("	- PRnMax 4: " + getPRnMax(3) + "\n");
-		strBuff.append("	- PRnMax 5: " + getPRnMax(4) + "\n");
+		strBuff.append("	- PRnMax 1: ").append(getPRnMax(0)).append("\n");
+		strBuff.append("	- PRnMax 2: ").append(getPRnMax(1)).append("\n");
+		strBuff.append("	- PRnMax 3: ").append(getPRnMax(2)).append("\n");
+		strBuff.append("	- PRnMax 4: ").append(getPRnMax(3)).append("\n");
+		strBuff.append("	- PRnMax 5: ").append(getPRnMax(4)).append("\n");
 
-		strBuff.append(" 	- DatesPApMax 1: " + getDatesPApMax(0));
-		strBuff.append(" 	- DatesPApMax 2: " + getDatesPApMax(1));
-		strBuff.append(" 	- DatesPApMax 3: " + getDatesPApMax(2));
-		strBuff.append(" 	- DatesPApMax 4: " + getDatesPApMax(3));
-		strBuff.append(" 	- DatesPApMax 5: " + getDatesPApMax(4));
+		strBuff.append(" 	- DatesPApMax 1: ").append(getDatesPApMax(0));
+		strBuff.append(" 	- DatesPApMax 2: ").append(getDatesPApMax(1));
+		strBuff.append(" 	- DatesPApMax 3: ").append(getDatesPApMax(2));
+		strBuff.append(" 	- DatesPApMax 4: ").append(getDatesPApMax(3));
+		strBuff.append(" 	- DatesPApMax 5: ").append(getDatesPApMax(4));
 
-		strBuff.append(" 	- DatesPAnMax 1: " + getDatesPAnMax(0));
-		strBuff.append(" 	- DatesPAnMax 2: " + getDatesPAnMax(1));
-		strBuff.append(" 	- DatesPAnMax 3: " + getDatesPAnMax(2));
-		strBuff.append(" 	- DatesPAnMax 4: " + getDatesPAnMax(3));
-		strBuff.append(" 	- DatesPAnMax 5: " + getDatesPAnMax(4));
+		strBuff.append(" 	- DatesPAnMax 1: ").append(getDatesPAnMax(0));
+		strBuff.append(" 	- DatesPAnMax 2: ").append(getDatesPAnMax(1));
+		strBuff.append(" 	- DatesPAnMax 3: ").append(getDatesPAnMax(2));
+		strBuff.append(" 	- DatesPAnMax 4: ").append(getDatesPAnMax(3));
+		strBuff.append(" 	- DatesPAnMax 5: ").append(getDatesPAnMax(4));
 
-		strBuff.append(" 	- DatesPRpMax 1: " + getDatesPRpMax(0));
-		strBuff.append(" 	- DatesPRpMax 2: " + getDatesPRpMax(1));
-		strBuff.append(" 	- DatesPRpMax 3: " + getDatesPRpMax(2));
-		strBuff.append(" 	- DatesPRpMax 4: " + getDatesPRpMax(3));
-		strBuff.append(" 	- DatesPRpMax 5: " + getDatesPRpMax(4));
+		strBuff.append(" 	- DatesPRpMax 1: ").append(getDatesPRpMax(0));
+		strBuff.append(" 	- DatesPRpMax 2: ").append(getDatesPRpMax(1));
+		strBuff.append(" 	- DatesPRpMax 3: ").append(getDatesPRpMax(2));
+		strBuff.append(" 	- DatesPRpMax 4: ").append(getDatesPRpMax(3));
+		strBuff.append(" 	- DatesPRpMax 5: ").append(getDatesPRpMax(4));
 
-		strBuff.append(" 	- DatesPRnMax 1: " + getDatesPRnMax(0));
-		strBuff.append(" 	- DatesPRnMax 2: " + getDatesPRnMax(1));
-		strBuff.append(" 	- DatesPRnMax 3: " + getDatesPRnMax(2));
-		strBuff.append(" 	- DatesPRnMax 4: " + getDatesPRnMax(3));
-		strBuff.append(" 	- DatesPRnMax 5: " + getDatesPRnMax(4));
+		strBuff.append(" 	- DatesPRnMax 1: ").append(getDatesPRnMax(0));
+		strBuff.append(" 	- DatesPRnMax 2: ").append(getDatesPRnMax(1));
+		strBuff.append(" 	- DatesPRnMax 3: ").append(getDatesPRnMax(2));
+		strBuff.append(" 	- DatesPRnMax 4: ").append(getDatesPRnMax(3));
+		strBuff.append(" 	- DatesPRnMax 5: ").append(getDatesPRnMax(4));
 
 		return strBuff.toString();
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
 	}
 
 	protected int getVariableName() {
@@ -105,12 +99,6 @@ public class PMaxMois extends AbstractTrimaranObject{
 	}
 
 	protected void parse(byte[] data) throws IOException {
-
-//    	System.out.println("GN_DEBUG> write to file");
-//    	File file = new File("c://TEST_FILES/089807000857PMaxMois.bin");
-//    	FileOutputStream fos = new FileOutputStream(file);
-//    	fos.write(data);
-//    	fos.close();
 
 		int offset = 0;
 		TrimaranDataContainer dc = new TrimaranDataContainer();

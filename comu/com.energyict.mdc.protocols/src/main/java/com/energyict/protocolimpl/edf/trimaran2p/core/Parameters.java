@@ -5,11 +5,10 @@ package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -44,28 +43,6 @@ public class Parameters extends AbstractTrimaranObject {
 	 */
 	public Parameters(TrimaranObjectFactory trimaranObjectFactory) {
 		super(trimaranObjectFactory);
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		try{
-			Parameters par = new Parameters(null);
-
-	        File file = new File("c://TEST_FILES/2P_Parameters.bin");
-	        FileInputStream fis = new FileInputStream(file);
-	        byte[] data=new byte[(int)file.length()];
-	        fis.read(data);
-	        fis.close();
-
-	        par.parse(data);
-
-	        System.out.println(par);
-
-		}catch(IOException e){
-			e.printStackTrace();
-		}
 	}
 
 	protected int getVariableName() {

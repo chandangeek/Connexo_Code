@@ -25,10 +25,6 @@ public class SelfReadRegisterConfiguration extends AbstractDataDefinition {
         super(dataDefinitionFactory);
     }
 
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new SelfReadRegisterConfiguration(null)));
-    }
-
     protected int getVariableName() {
         return 0x0047; // 71 DLMS_SELF_READ_REG_CONFIGURATION
     }

@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -78,7 +77,7 @@ class ByteArray {
     int size() {
         return data.length;
     }
-    
+
     ByteArray trim( ) {
         int i = data.length-1;
         for( ; i >= 0; i-- )
@@ -89,22 +88,22 @@ class ByteArray {
         data = temp;
         return this;
     }
-    
+
     boolean getBit( int index ) {
         return ( data[index/8] & ( 1 << index%8 ) ) > 0;
     }
-    
+
     List split(int blockSize) {
         ArrayList result = new ArrayList();
         int index = 0;
-        
+
         while( (index + blockSize) <= data.length ) {
-            result.add( sub( index, blockSize) ); 
+            result.add( sub( index, blockSize) );
             index = index + blockSize;
         }
         if( index < data.length )
             result.add( sub( index, data.length - index ) );
-        
+
         return result;
     }
 
@@ -115,7 +114,7 @@ class ByteArray {
     String toHexaString(boolean display) {
         return toHexaString(data, 0, data.length, display);
     }
-    
+
     String toHexaString(int from, boolean display){
         return toHexaString(data, from, data.length, display);
     }
@@ -152,24 +151,6 @@ class ByteArray {
                     ((data[bi] & 0x02) > 0) ? "1" : "0").append(((data[bi] & 0x01) > 0) ? "1" : "0");
         }
         return result.toString();
-    }
-    
-    public static void main( String [] args ){
-        
-        byte [] b = 
-        new byte [] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
-        
-        ByteArray ba = new ByteArray( b );
-        
-        System.out.println( ba.toHexaString( true) );
-        
-        Iterator i = ba.split( 2 ).iterator();
-        while( i.hasNext() )  {
-            ByteArray temp = (ByteArray)i.next();
-            System.out.println(temp.toHexaString(true));
-        
-        }
-        
     }
 
 }

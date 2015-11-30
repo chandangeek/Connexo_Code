@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.enermet.e120;
 
 import com.energyict.protocolimpl.enermet.e120.DataType.RegisterValueType;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -211,15 +210,6 @@ class MessageType {
 
         }
 
-    }
-
-    public static void main(String [] args){
-        Iterator i = all.keySet().iterator();
-        while( i.hasNext() ){
-            String key = (String)i.next();
-            Object value = all.get(key);
-            System.out.println(value);
-        }
     }
 
 }

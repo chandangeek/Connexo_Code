@@ -22,8 +22,8 @@ import java.util.TimeZone;
  */
 public class ParseUtils {
 
-    final static private int BIG_ENDIAN=0;
-    final static private int LITTLE_ENDIAN=1;
+    private static final int BIG_ENDIAN=0;
+    private static final int LITTLE_ENDIAN=1;
 
     /** Creates a new instance of ParseUtils */
     public ParseUtils() {
@@ -145,7 +145,7 @@ public class ParseUtils {
 
         // calc normalized value
         for (int i=0;i<fpBitsRight;i++) {
-           lF = (double)(lF)/2;
+           lF = lF /2;
            if ((temp & (decimal >> i)) != 0) {
 			val+=lF;
 		}
@@ -317,7 +317,7 @@ public class ParseUtils {
         return val;
     }
 
-    public static void roundUp2nearestInterval(Calendar cal, int profileInterval) throws IOException {
+    public static void roundUp2nearestInterval(Calendar cal, int profileInterval) {
         int rest = (int)(cal.getTime().getTime()/1000) % profileInterval;
         if (rest > 0) {
 			cal.add(Calendar.SECOND,profileInterval - rest);
@@ -332,17 +332,13 @@ public class ParseUtils {
     }
 
     public static boolean isOnIntervalBoundary(Calendar cal, int profileInterval) {
-        if ((cal.getTime().getTime()%(profileInterval*1000)) == 0) {
-			return true;
-		} else {
-			return false;
-		}
+        return (cal.getTime().getTime() % (profileInterval * 1000)) == 0;
     }
 
     public static void addIntervalValues(IntervalData intervalData,IntervalData intervalData2Add) {
         IntervalData tempIntervalData = new IntervalData(intervalData.getEndTime());
         for (int i = 0 ; i < intervalData.getIntervalValues().size() ; i++) {
-            int current = ((Number)intervalData2Add.get(i)).intValue() + ((Number)intervalData.get(i)).intValue();
+            int current = intervalData2Add.get(i).intValue() + intervalData.get(i).intValue();
             tempIntervalData.addValue(new Integer(current));
         }
         intervalData.setIntervalValues(tempIntervalData.getIntervalValues());
@@ -541,8 +537,8 @@ public class ParseUtils {
     	int arrayLength = nrOfBCDDigits/2+nrOfBCDDigits%2;
     	byte[] data = new byte[arrayLength];
     	for (int i=0;i<arrayLength;i++) {
-        	long modulo = (long)Double.valueOf(Math.pow(100,arrayLength-i)).longValue();
-        	long divide = (long)Double.valueOf(Math.pow(100,(arrayLength-1)-i)).longValue();
+        	long modulo = Double.valueOf(Math.pow(100,arrayLength-i)).longValue();
+        	long divide = Double.valueOf(Math.pow(100,(arrayLength-1)-i)).longValue();
         	long val2 = (val % modulo) / divide;
     		data[i] = ProtocolUtils.hex2BCD((byte)val2);
     	}
@@ -552,8 +548,8 @@ public class ParseUtils {
     	int arrayLength = nrOfBCDDigits/2+nrOfBCDDigits%2;
     	byte[] data = new byte[arrayLength];
     	for (int i=0;i<arrayLength;i++) {
-        	long modulo = (long)Double.valueOf(Math.pow(100,i+1)).longValue();
-        	long divide = (long)Double.valueOf(Math.pow(100,i)).longValue();
+        	long modulo = Double.valueOf(Math.pow(100,i+1)).longValue();
+        	long divide = Double.valueOf(Math.pow(100,i)).longValue();
         	long val2 = (val % modulo) / divide;
     		data[i] = ProtocolUtils.hex2BCD((byte)val2);
     	}
@@ -619,59 +615,5 @@ public class ParseUtils {
         }
         return builder.toString();
     }
-
-    static public void main(String[] argv) {
-        try {
-//            byte[] byteBuffer= new byte[]{(byte)0x09,(byte)0x99,0,0,0,0,0,0,0,0,0};
-//            System.out.println(ParseUtils.getBCD2Long(byteBuffer, 0, 2));
-//
-//            long val=0x124567;
-//            byte[] data = ParseUtils.getArray(val,3);
-//            System.out.println("val=0x"+Long.toHexString(val)+", "+ProtocolUtils.outputHexString(data));
-//
-//            val=0x124567;
-//            System.out.println(buildStringHexExtendedWithSpaces(val,7));
-
-//            byte[] byteBuffer= new byte[]{(byte)0xff,(byte)0xFE,(byte)0x76,(byte)0xF7,(byte)0xF9,(byte)0x20};
-//            //System.out.println(ParseUtils.convertNormSignedFP2NumberNeg(byteBuffer, 0, 6,16));
-//            //System.out.println(ParseUtils.convertNormSignedFP2Number(byteBuffer, 0, 6,16));
-//            System.out.println(ParseUtils.getBigInteger(byteBuffer, 2, 3));
-//            System.out.println(ParseUtils.getBigIntegerLE(byteBuffer, 2, 3));
-
-//            System.out.println(ProtocolUtils.outputHexString(createBCDByteArrayLEWithMask("FFFFFFFF",8)));
-
-//        	Calendar cal = Calendar.getInstance();
-//        	cal.add(Calendar.DATE, -1);
-//        	System.out.println(ParseUtils.getNrOfDays(cal.getTime(), new Date(), TimeZone.getTimeZone("ECT")));
-
-//            Calendar systemTime = ProtocolUtils.getCalendar(TimeZone.getTimeZone("CST"));
-//            Calendar timeUnderTest = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("CST"));
-//            timeUnderTest.set(Calendar.MONTH,11);
-//            timeUnderTest.set(Calendar.DAY_OF_MONTH,7);
-//
-//            ParseUtils.adjustYear(systemTime, timeUnderTest);
-//
-//            System.out.println("timeUnderTest="+timeUnderTest.getTime());
-//            System.out.println("systemTime="+systemTime.getTime());
-
-           // throw new IOException("test");
-
-        	Calendar cal = Calendar.getInstance();
-        	cal.set(Calendar.MINUTE,15);
-        	cal.set(Calendar.SECOND,0);
-        	cal.set(Calendar.MILLISECOND,0);
-        	System.out.println(cal.getTime());
-        	roundUp2nearestInterval(cal, 900);
-        	System.out.println(cal.getTime());
-
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
 
 }

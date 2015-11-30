@@ -23,12 +23,12 @@ public class LogonCommand extends AbstractCommand {
     private String logon;
 
     private String password;
-    
+
     /** Creates a new instance of LogonCommand */
     public LogonCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     protected byte[] prepareBuild() {
 //       String data = "L"+getLogon()+","+getPassword()+"\0";
         String data = "L" + getLogon() + "," + getPassword();
@@ -38,11 +38,11 @@ public class LogonCommand extends AbstractCommand {
             throw new IllegalStateException(e.getMessage(), e);
         }
     }
-    
+
     protected void parse(byte[] data) {
-        
+
     }
-    
+
     public String getLogon() {
         return logon;
     }
@@ -58,13 +58,5 @@ public class LogonCommand extends AbstractCommand {
     public void setPassword(String password) {
         this.password = password;
     }
-    
 
-    public static void main(String[] args) {
-        LogonCommand lc = new LogonCommand(null);
-        lc.setLogon("koen");
-        lc.setPassword("1234");
-        lc.prepareBuild();
-        
-    }
 }

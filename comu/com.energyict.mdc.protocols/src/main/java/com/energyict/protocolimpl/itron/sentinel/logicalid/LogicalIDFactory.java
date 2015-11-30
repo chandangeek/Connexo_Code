@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 
 import java.io.IOException;
@@ -1441,11 +1442,4 @@ public class LogicalIDFactory {
         throw new IOException("LogicalIDFactory, findLogicalId, illegal logical id 0x"+Long.toHexString(id));
     }
 
-//    static public void main(String[] args) {
-//        try {
-//            System.out.println(LogicalIDFactory.findLogicalId(0123));
-//        } catch(IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }

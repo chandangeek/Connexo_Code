@@ -97,17 +97,4 @@ public class DataInformationBlock {
         this.dataInformationfieldExtensions = dataInformationfieldExtensions;
     }
 
-    public static void main(String[] args) {
-
-        try {
-        byte[] data = new byte[]{(byte)0x85,(byte)0x91,(byte)0x11,(byte)0x08,(byte)0x2c,(byte)0x1e,(byte)0x30,(byte)0x53};
-        DataInformationBlock o = new DataInformationBlock(data,0, TimeZone.getTimeZone("ECT"));
-        System.out.println(Long.toHexString(o.getStorageNumber()));
-        System.out.println(Integer.toHexString(o.getTariffNumber()));
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

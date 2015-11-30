@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.elster.a3.tables;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
 
@@ -51,21 +52,14 @@ public class Event {
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("Event:\n");
-        strBuff.append("   edMfgStatus="+ProtocolUtils.outputHexString(getEdMfgStatus())+"\n");
-        strBuff.append("   edStdStatus1="+getEdStdStatus1()+"\n");
-        strBuff.append("   edStdStatus2="+getEdStdStatus2()+"\n");
-        strBuff.append("   originateControl="+getOriginateControl()+"\n");
-        return strBuff.toString();
+        return "Event:\n" +
+                "   edMfgStatus=" + ProtocolUtils.outputHexString(getEdMfgStatus()) + "\n" +
+                "   edStdStatus1=" + getEdStdStatus1() + "\n" +
+                "   edStdStatus2=" + getEdStdStatus2() + "\n" +
+                "   originateControl=" + getOriginateControl() + "\n";
     }
 
-//     public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new Event()));
-//     }
-
-    static public int getSize(TableFactory tableFactory) throws IOException {
+    public static int getSize(TableFactory tableFactory) {
         return 17;
     }
 

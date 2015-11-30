@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.AbstractRadioCommand;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,7 +14,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-abstract public class AbstractParameter extends AbstractRadioCommand {
+public abstract class AbstractParameter extends AbstractRadioCommand {
 
     static final int PARAM_UPDATE_OK = 0x00;
 
@@ -198,7 +199,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
     }
 
 
-    private final void parseBubbleUpConfigResponse(final byte[] data) throws IOException {
+    private void parseBubbleUpConfigResponse(final byte[] data) throws IOException {
         DataInputStream dais = null;
         try {
             dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -234,7 +235,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         }
     }
 
-    private final void parseWriteResponse(final byte[] data) throws IOException {
+    private void parseWriteResponse(final byte[] data) throws IOException {
         DataInputStream dais = null;
         try {
             dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -332,7 +333,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 
                     byte[] resultData = new byte[dais.available()];
                     dais.read(resultData);
-                    parse(resultData);
+                    parse(resultData, getRTM());
                 }
             }
         }
@@ -399,4 +400,5 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         daos.writeByte(getRTM().getBubbleUpEndHour() / 3600);
         return baos;
     }
+
 }

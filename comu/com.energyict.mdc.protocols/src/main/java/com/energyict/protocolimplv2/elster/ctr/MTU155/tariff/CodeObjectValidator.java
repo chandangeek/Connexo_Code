@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.codetables.Code;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeCalendarObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeDayTypeDefObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeDayTypeObject;
@@ -260,11 +261,6 @@ public class CodeObjectValidator {
             }
         }
         return false;
-    }
-
-    public static void main(String[] args) throws BusinessException, IOException {
-//        MeteringWarehouse.createBatchContext();
-        validateCodeTable(1);
     }
 
 }

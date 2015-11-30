@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 
 import java.io.IOException;
 
@@ -34,7 +36,7 @@ public class ProfileType extends AbstractParameter {
     private int profile = 0x01;
 
     @Override
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         this.profile = data[0] & 0xFF;
     }
 
