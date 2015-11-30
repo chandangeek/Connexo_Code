@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.api.legacy.dynamic;
 
+import com.elster.jupiter.properties.PropertySpec;
+
 import java.util.List;
 
 /**
@@ -13,13 +15,13 @@ public interface ConfigurationSupport {
      *
      * @return a List of String objects
      */
-    List<com.elster.jupiter.properties.PropertySpec> getRequiredProperties();
+    List<PropertySpec> getRequiredProperties();
 
     /**
      * Returns a list of optional property keys
      *
      * @return a List of String objects
      */
-    List<com.elster.jupiter.properties.PropertySpec> getOptionalProperties();
+    List<PropertySpec> getOptionalProperties();
 
 }

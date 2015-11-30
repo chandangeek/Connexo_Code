@@ -1,8 +1,6 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
-import com.energyict.mdc.protocol.api.legacy.dynamic.ValueFactory;
 
 /**
  * Models an attribute of a {@link DeviceMessage}.
@@ -38,8 +36,7 @@ public interface DeviceMessageAttribute {
 
     /**
      * Gets the value of this attribute, which is compatible
-     * with the {@link ValueFactory}
-     * and the {@link ValueDomain}
+     * with the ValueFactory ValueDomain
      * of the {@link PropertySpec specification}.
      * It is the responsibility of the caller to know
      * the ValueDomain and to cast the value to the class
