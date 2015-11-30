@@ -416,6 +416,27 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(registerSpec.getOverflowValue()).isEqualTo(overFlowValue);
     }
 
+
+    @Test
+    @Transactional
+    public void cloneNumericalRegisterWithMultiplierTest() {
+        ObisCode deviceObisCode = ObisCode.fromString("1.9.1.8.17.255");
+        BigDecimal overFlowValue = BigDecimal.valueOf(65111L);
+        int numberOfFractionDigits = 6;
+        NumericalRegisterSpec.Builder builder = getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType);
+        builder.overruledObisCode(deviceObisCode);
+        builder.overflowValue(overFlowValue);
+        builder.numberOfFractionDigits(numberOfFractionDigits);
+        builder.useMultiplierWithCalculatedReadingType(readingType3);
+        NumericalRegisterSpec numericalRegisterSpec = builder.add();
+
+        DeviceConfiguration cloneConfig = deviceType.newConfiguration("MyClone").add();
+        NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) ((NumericalRegisterSpecImpl) numericalRegisterSpec).cloneForDeviceConfig(cloneConfig);
+        assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(cloneConfig.getId());
+        assertThat(registerSpec.isUseMultiplier()).isTrue();
+        assertThat(registerSpec.getCalculatedReadingType().get().getMRID()).isEqualTo(readingType3.getMRID());
+    }
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY +"}")

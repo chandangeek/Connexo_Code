@@ -386,6 +386,22 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
+    public void cloneChannelSpecsWithMultiplierTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        channelSpecBuilder.useMultiplierWithCalculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
+        channelSpecBuilder.add();
+        DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
+
+        LoadProfileSpec lpSpecWithChannels = ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone);
+        assertThat(lpSpecWithChannels.getChannelSpecs()).hasSize(1);
+        ChannelSpec clonedChannelSpec = lpSpecWithChannels.getChannelSpecs().get(0);
+        assertThat(clonedChannelSpec.isUseMultiplier()).isTrue();
+        assertThat(clonedChannelSpec.getCalculatedReadingType().get().getMRID()).isEqualTo(readingTypeActiveDailyEnergyPrimaryMeteredDelta.getMRID());
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY +"}")
     public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();

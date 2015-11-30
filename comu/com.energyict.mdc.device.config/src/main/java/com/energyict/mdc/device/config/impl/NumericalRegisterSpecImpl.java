@@ -199,6 +199,11 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         builder.numberOfFractionDigits(getNumberOfFractionDigits());
         builder.overflowValue(getOverflowValue());
         builder.overruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode());
+        if(isUseMultiplier()){
+            builder.useMultiplierWithCalculatedReadingType(getCalculatedReadingType().get());
+        } else {
+            builder.noMultiplier();
+        }
         return builder.add();
     }
 }
