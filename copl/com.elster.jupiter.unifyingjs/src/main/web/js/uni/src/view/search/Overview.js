@@ -163,7 +163,7 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'mRID-sorting-button',
                                         ui: 'tag',
                                         iconCls: 'x-btn-sort-item-desc',
-                                        text: Uni.I18n.translate('general.mRID', 'UNI', 'mRID'),
+                                        text: Uni.I18n.translate('general.mRID', 'UNI', 'MRID'),
                                         disabled: false
                                     },
                                     {

@@ -245,11 +245,17 @@ Ext.define('Uni.service.Search', {
 
     applyFilters: function () {
         var me = this,
-            searchResults = me.getSearchResultsStore();
+            searchResults = me.getSearchResultsStore(),
+            filters = me.getFilters();
 
         searchResults.clearFilter(true);
-        searchResults.addFilter(me.getFilters(), false);
-        searchResults.load();
+        if (filters && filters.length) {
+            searchResults.addFilter(me.getFilters(), false);
+            searchResults.load();
+        } else {
+            searchResults.removeAll();
+        }
+
     },
 
     clearFilters: function () {
@@ -340,7 +346,7 @@ Ext.define('Uni.service.Search', {
         var me = this;
 
         return !!property.get('constraints').filter(function (c) {
-            return !me.getFilters().find(function (f) {
+            return !_.find(me.getFilters(), function (f) {
                 return (f.id === c) && f.value
             })
         }).length
