@@ -400,11 +400,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         @Override
-        public String getStructType() {
-            return null;
-        }
-
-        @Override
         public int getObjectFactoryId() {
             return 0;
         }
@@ -414,15 +409,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             return false;
         }
 
-        @Override
-        public boolean requiresIndex() {
-            return false;
-        }
-
-        @Override
-        public String getIndexType() {
-            return null;
-        }
     }
 
     public static class SharedData {

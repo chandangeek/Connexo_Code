@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * Models named set of security properties whose values
  * are managed against a Device.
- * The exact set of {@link com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec}s
+ * The exact set of {@link PropertySpec}s
  * that are used is determined by the {@link AuthenticationDeviceAccessLevel}
  * and/or {@link EncryptionDeviceAccessLevel} select in the SecurityPropertySet.
  * That in turn depends on the actual {@link DeviceProtocol}.
