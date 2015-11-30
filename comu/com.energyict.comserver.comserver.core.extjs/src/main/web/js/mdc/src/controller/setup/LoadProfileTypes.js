@@ -240,7 +240,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 editPage.getLayout().setActiveItem(0);
                 Ext.resumeLayouts(true);
                 return;
-            } else if (id == editPage.down('#load-profile-type-edit-form').getRecord().getId() && editPage.getLayout().getActiveItem().itemId !== 'load-profile-type-edit-form') {
+            } else if (id == editPage.down('#load-profile-type-edit-form').getRecord().getId()) {
                 me.getModel('Mdc.model.LoadProfileType').load(id, {
                     success: function (record) {
                         Ext.suspendLayouts();
