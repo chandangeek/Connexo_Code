@@ -44,6 +44,7 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -249,7 +250,7 @@ public enum TableSpecs {
     DDC_PROTOCOLDIALECTPROPS {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class);
+            Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class).alsoReferredToAs(DeviceProtocolDialectPropertyProvider.class);
             table.map(ProtocolDialectPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
