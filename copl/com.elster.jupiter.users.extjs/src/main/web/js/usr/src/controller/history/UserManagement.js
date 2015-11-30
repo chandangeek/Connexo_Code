@@ -25,7 +25,7 @@ Ext.define('Usr.controller.history.UserManagement', {
                             action: 'showEditOverview',
                             callback: function (route) {
                                 this.getApplication().on('editRole', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.editx', 'USR', "Edit '{0}'", [record.get('name')]));
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'USR', "Edit '{0}'", [record.get('name')], false));
                                     return true;
                                 }, {single: true});
 
