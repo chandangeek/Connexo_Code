@@ -11,7 +11,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -75,8 +74,6 @@ public class ProtocolPluggableServiceImplTest {
     private PropertySpecService propertySpecService;
     @Mock
     private PluggableService pluggableService;
-    @Mock
-    private RelationService relationService;
     @Mock
     private CustomPropertySetService customPropertySetService;
     @Mock
@@ -761,7 +758,7 @@ public class ProtocolPluggableServiceImplTest {
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
-        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.relationService, this.customPropertySetService, this.licenseService, this.dataVaultService);
+        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.customPropertySetService, this.licenseService, this.dataVaultService);
     }
 
 }

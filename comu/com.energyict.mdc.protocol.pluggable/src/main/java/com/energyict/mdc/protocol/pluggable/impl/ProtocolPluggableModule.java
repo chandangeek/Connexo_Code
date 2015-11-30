@@ -7,7 +7,6 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -28,7 +27,6 @@ public class ProtocolPluggableModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(EventService.class);
         requireBinding(PluggableService.class);
-        requireBinding(RelationService.class);
         requireBinding(CustomPropertySetService.class);
         requireBinding(LicenseService.class);
         requireBinding(IssueService.class);

@@ -1,9 +1,7 @@
 package com.energyict.mdc.protocol.pluggable;
 
 /**
- * Defines constants that should be used for names of
- * {@link com.energyict.mdc.dynamic.relation.RelationAttributeType}
- * that relate to storing device dialect properties.
+ * Soon to become obsolete.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-17 (17:08)

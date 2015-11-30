@@ -1,13 +1,14 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,8 +43,8 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
     public static DeviceMessageTestSpec allSimpleSpecs() {
         return new DeviceMessageTestSpec(
                         "TEST_SPEC_WITH_SIMPLE_SPECS",
-                        RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(SIMPLE_BIGDECIMAL_PROPERTY_SPEC_NAME),
-                        RequiredPropertySpecFactory.newInstance().stringPropertySpec(SIMPLE_STRING_PROPERTY_SPEC_NAME));
+                        new PropertySpecServiceImpl().basicPropertySpec(SIMPLE_BIGDECIMAL_PROPERTY_SPEC_NAME, true, new BigDecimalFactory()),
+                        new PropertySpecServiceImpl().basicPropertySpec(SIMPLE_STRING_PROPERTY_SPEC_NAME, true, new StringFactory()));
     };
 
     public static DeviceMessageTestSpec extendedSpecs(PropertySpecService propertySpecService) {

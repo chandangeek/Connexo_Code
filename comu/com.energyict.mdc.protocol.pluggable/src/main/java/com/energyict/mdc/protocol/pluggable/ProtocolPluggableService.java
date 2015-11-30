@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -233,12 +232,6 @@ public interface ProtocolPluggableService {
      */
     ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName, TypedProperties properties);
 
-    String createOriginalAndConformRelationNameBasedOnJavaClassname(Class<?> clazz);
-
-    String createConformRelationTypeName(String name);
-
-    String createConformRelationAttributeName(String name);
-
     /**
      * Returns a {@link DeviceProtocolDialectUsagePluggableClass} for the
      * dialect of the {@link DeviceProtocolPluggableClass} with the specified name.
@@ -248,8 +241,6 @@ public interface ProtocolPluggableService {
      * @return The DeviceProtocolDialectUsagePluggableClass
      */
     DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass(DeviceProtocolPluggableClass pluggableClass, String dialectName);
-
-    boolean isDefaultAttribute(RelationAttributeType attributeType);
 
     /**
      * Load the jsoned Cache object for the given string.

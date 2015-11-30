@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 
 import java.util.ArrayList;
@@ -16,12 +15,10 @@ import java.util.List;
  * @since 2013-12-03 (10:05)
  */
 public class ConfigurationSupportToDynamicPropertiesAdapter implements HasDynamicProperties {
-    private PropertySpecService propertySpecService;
     private ConfigurationSupport configurationSupport;
 
-    public ConfigurationSupportToDynamicPropertiesAdapter(PropertySpecService propertySpecService, ConfigurationSupport configurationSupport) {
+    public ConfigurationSupportToDynamicPropertiesAdapter(ConfigurationSupport configurationSupport) {
         super();
-        this.propertySpecService = propertySpecService;
         this.configurationSupport = configurationSupport;
     }
 

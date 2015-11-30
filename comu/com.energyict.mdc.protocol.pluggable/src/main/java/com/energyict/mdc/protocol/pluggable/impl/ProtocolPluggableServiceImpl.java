@@ -28,8 +28,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.WrappingFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
@@ -131,7 +129,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile PluggableService pluggableService;
-    private volatile RelationService relationService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile List<DeviceProtocolService> deviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<InboundDeviceProtocolService> inboundDeviceProtocolServices = new CopyOnWriteArrayList<>();
@@ -160,19 +157,18 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     // For unit testing purposes
     @Inject
     public ProtocolPluggableServiceImpl(
-            OrmService ormService,
-            ThreadPrincipalService threadPrincipalService,
-            EventService eventService,
-            NlsService nlsService,
-            IssueService issueService,
-            UserService userService,
-            MeteringService meteringService,
-            PropertySpecService propertySpecService,
-            PluggableService pluggableService,
-            RelationService relationService,
-            CustomPropertySetService customPropertySetService,
-            LicenseService licenseService,
-            DataVaultService dataVaultService) {
+                    OrmService ormService,
+                    ThreadPrincipalService threadPrincipalService,
+                    EventService eventService,
+                    NlsService nlsService,
+                    IssueService issueService,
+                    UserService userService,
+                    MeteringService meteringService,
+                    PropertySpecService propertySpecService,
+                    PluggableService pluggableService,
+                    CustomPropertySetService customPropertySetService,
+                    LicenseService licenseService,
+                    DataVaultService dataVaultService) {
         this();
         this.setOrmService(ormService);
         this.setThreadPrincipalService(threadPrincipalService);
@@ -181,7 +177,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setMeteringService(meteringService);
         this.setIssueService(issueService);
         this.setPropertySpecService(propertySpecService);
-        this.setRelationService(relationService);
         this.setCustomPropertySetService(customPropertySetService);
         this.setPluggableService(pluggableService);
         this.setUserService(userService);
@@ -388,7 +383,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass(DeviceProtocolPluggableClass pluggableClass, String dialectName) {
         DeviceProtocolDialect deviceProtocolDialect = this.getDeviceProtocolDialectFor(pluggableClass.getDeviceProtocol(), dialectName);
-        return new DeviceProtocolDialectUsagePluggableClassImpl(pluggableClass, deviceProtocolDialect, this.dataModel, this.relationService, this.propertySpecService);
+        return new DeviceProtocolDialectUsagePluggableClassImpl(pluggableClass, deviceProtocolDialect);
     }
 
     private DeviceProtocolDialect getDeviceProtocolDialectFor(DeviceProtocol deviceProtocol, String name) {
@@ -512,30 +507,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 .forEach(propertySpec -> connectionTypePluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName())));
         connectionTypePluggableClass.save();
         return connectionTypePluggableClass;
-    }
-
-    @Override
-    public String createOriginalAndConformRelationNameBasedOnJavaClassname(Class<?> clazz) {
-        return RelationUtils.createOriginalAndConformRelationNameBasedOnJavaClassname(clazz.getCanonicalName());
-    }
-
-    @Override
-    public String createConformRelationTypeName(String name) {
-        return RelationUtils.createConformRelationTypeName(name);
-    }
-
-    @Override
-    public String createConformRelationAttributeName(String name) {
-        return RelationUtils.createConformRelationAttributeName(name);
-    }
-
-    @Override
-    public boolean isDefaultAttribute(RelationAttributeType attributeType) {
-        List<PluggableClassRelationAttributeTypeUsage> usages =
-                this.dataModel
-                        .mapper(PluggableClassRelationAttributeTypeUsage.class)
-                        .find("relationAttributeTypeId", attributeType.getId());
-        return !usages.isEmpty();
     }
 
     @Override
@@ -713,15 +684,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         }
     }
 
-    public RelationService getRelationService() {
-        return relationService;
-    }
-
-    @Reference
-    public void setRelationService(RelationService relationService) {
-        this.relationService = relationService;
-    }
-
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
@@ -874,7 +836,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PluggableService.class).toInstance(pluggableService);
-                bind(RelationService.class).toInstance(relationService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(LicenseService.class).toInstance(licenseService);

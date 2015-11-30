@@ -42,7 +42,7 @@ public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
     }
 
     private static HasDynamicProperties wrapAsDynamicProperties(PropertySpecService propertySpecService, ConfigurationSupport configurationSupport) {
-        return new ConfigurationSupportToDynamicPropertiesAdapter(propertySpecService, configurationSupport);
+        return new ConfigurationSupportToDynamicPropertiesAdapter(configurationSupport);
     }
 
     @Override

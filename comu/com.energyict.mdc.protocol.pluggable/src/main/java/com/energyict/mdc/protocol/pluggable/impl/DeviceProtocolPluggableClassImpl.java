@@ -9,21 +9,21 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -35,6 +35,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterPro
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Defines a PluggableClass based on a {@link DeviceProtocol}.
@@ -57,19 +58,17 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
     private final CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
     private final MessageAdapterMappingFactory messageAdapterMappingFactory;
-    private final RelationService relationService;
     private final DataModel dataModel;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         super(eventService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
-        this.relationService = relationService;
         this.dataModel = dataModel;
         this.customPropertySetService = customPropertySetService;
         this.capabilityAdapterMappingFactory = capabilityAdapterMappingFactory;
@@ -146,49 +145,53 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         Save.action(this.getId()).validate(dataModel, this);
         super.save();
         this.registerSecurityCustomPropertySet();
-        this.createRelationTypes();
+        this.registerDialectCustomPropertySets();
     }
 
     private void registerSecurityCustomPropertySet() {
-        this.newInstance().getCustomPropertySet().ifPresent(this::register);
+        this.newInstance().getCustomPropertySet().ifPresent(this::registerSecuritySet);
     }
 
-    private void register(CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet) {
+    private void registerSecuritySet(CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet) {
         this.customPropertySetService.addSystemCustomPropertySet(customPropertySet);
     }
 
-    private void createRelationTypes () {
-        this.createDialectRelationTypes();
+    private void registerDialectCustomPropertySets() {
+        this.getDialectCustomPropertySets().forEach(this::registerDialect);
     }
 
-    private void createDialectRelationTypes () {
-        for (DeviceProtocolDialect deviceProtocolDialect : this.getDeviceProtocol().getDeviceProtocolDialects()) {
-            DeviceProtocolDialectUsagePluggableClass dialectUsagePluggableClass =
-                    new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService, this.propertySpecService);
-            dialectUsagePluggableClass.findOrCreateRelationType(true);
-        }
+    private Stream<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getDialectCustomPropertySets() {
+        return this.newInstance()
+                .getDeviceProtocolDialects()
+                .stream()
+                .map(DeviceProtocolDialect::getCustomPropertySet)
+                .flatMap(Functions.asStream());
+    }
+
+    private void registerDialect(CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>> customPropertySet) {
+        this.customPropertySetService.addSystemCustomPropertySet(customPropertySet);
     }
 
     @Override
     public void delete() {
         super.delete();
-        this.deleteDialectRelationTypes();
         this.unregisterSecurityCustomPropertySet();
-    }
-
-    private void deleteDialectRelationTypes() {
-        DeviceProtocolDialectUsagePluggableClassImpl deviceProtocolDialectUsagePluggableClass;
-        for (DeviceProtocolDialect deviceProtocolDialect : this.newInstance().getDeviceProtocolDialects()) {
-            deviceProtocolDialectUsagePluggableClass = new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService, this.propertySpecService);
-            deviceProtocolDialectUsagePluggableClass.deleteRelationType();
-        }
+        this.unregisterDialectCustomPropertySet();
     }
 
     private void unregisterSecurityCustomPropertySet() {
-        this.newInstance().getCustomPropertySet().ifPresent(this::unregister);
+        this.newInstance().getCustomPropertySet().ifPresent(this::unregisterSecuritySet);
     }
 
-    private void unregister(CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet) {
+    private void unregisterDialectCustomPropertySet() {
+        this.getDialectCustomPropertySets().forEach(this::unregisterDialect);
+    }
+
+    private void unregisterSecuritySet(CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet) {
+        this.customPropertySetService.removeSystemCustomPropertySet(customPropertySet);
+    }
+
+    private void unregisterDialect(CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>> customPropertySet) {
         this.customPropertySetService.removeSystemCustomPropertySet(customPropertySet);
     }
 

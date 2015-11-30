@@ -27,7 +27,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -84,7 +83,6 @@ public class InMemoryPersistence {
     private IssueService issueService;
     private PropertySpecService propertySpecService;
     private PluggableService pluggableService;
-    private RelationService relationService;
     private CustomPropertySetService customPropertySetService;
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
     private DataVaultService dataVaultService;
@@ -119,7 +117,6 @@ public class InMemoryPersistence {
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.dataVaultService = injector.getInstance(DataVaultService.class);
-            this.relationService = injector.getInstance(RelationService.class);
             this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.createNewProtocolPluggableService();
             for (DataModelInitializer initializer : dataModelInitializers) {
@@ -172,7 +169,6 @@ public class InMemoryPersistence {
                         this.meteringService,
                         this.propertySpecService,
                         this.pluggableService,
-                        this.relationService,
                         this.customPropertySetService,
                         this.licenseService,
                         this.dataVaultService);
