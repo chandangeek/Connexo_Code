@@ -110,6 +110,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         record.set('active', !isActive);
         record.getProxy().setUrl(ruleSetId);
         record.save({
+            isNotEdit: true,
             callback: function (record, operation, success) {
                 rulesStore.load(function () {
                     if (success) {

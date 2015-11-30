@@ -165,6 +165,7 @@ Ext.define('Est.estimationrules.controller.Overview', {
         record.set('active', !isActive);
         page.setLoading(true);
         record.save({
+            isNotEdit: true,
             callback: function (record, operation, success) {
                 page.setLoading(false);
                 if (success) {
