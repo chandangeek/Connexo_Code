@@ -5,7 +5,6 @@ import com.elster.jupiter.cbo.*;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,7 +42,7 @@ public enum ReadingTypeCodes {
     PHASES("phases",
             () -> Arrays.stream(Phase.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).filter(e -> e.code!=0).collect(Collectors.toList())),
     MULTIPLIER("multiplier",
-            () -> Arrays.stream(MetricMultiplier.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getSymbol())).filter(e -> e.code!=0).collect(Collectors.toList())),
+            () -> Arrays.stream(MetricMultiplier.values()).map(e -> new ReadingTypeCodeInfo(Long.valueOf(e.getId()).byteValue() & 0xFF, e.getSymbol())).filter(e -> e.code!=0).collect(Collectors.toList())),
     UNIT("unit",
             () -> Arrays.stream(ReadingTypeUnit.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getSymbol())).filter(e -> e.code!=0).collect(Collectors.toList())),
     CURRENCY("currency",
