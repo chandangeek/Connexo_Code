@@ -140,7 +140,7 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 		ti.setTime();
 	}
 
-    /** Protocol version **/
+    /** The protocol version **/
 	public String getProtocolVersion() {
 		sendDebug("getProtocolVersion()");
 		return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
