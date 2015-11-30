@@ -1,20 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
-import com.elster.jupiter.datavault.DataVaultService;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
@@ -42,6 +29,18 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -86,7 +85,6 @@ public class InMemoryPersistence {
     private com.elster.jupiter.tasks.TaskService jupiterTaskService;
     private TaskService mdcTaskService;
     private DeviceConfigurationService deviceConfigurationService;
-    private RelationService relationService;
     private ProtocolPluggableService protocolPluggableService;
     private EngineConfigurationService engineConfigurationService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -168,7 +166,6 @@ public class InMemoryPersistence {
         this.mdcTaskService = mock(TaskService.class);
         this.engineConfigurationService = mock(EngineConfigurationService.class);
         this.deviceConfigurationService = mock(DeviceConfigurationService.class);
-        this.relationService = mock(RelationService.class);
         this.protocolPluggableService = mock(ProtocolPluggableService.class);
         this.deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
         this.schedulingService = mock(SchedulingService.class);
@@ -205,7 +202,6 @@ public class InMemoryPersistence {
             bind(TaskService.class).toInstance(mdcTaskService);
             bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
             bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
-            bind(RelationService.class).toInstance(relationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             bind(SchedulingService.class).toInstance(schedulingService);
