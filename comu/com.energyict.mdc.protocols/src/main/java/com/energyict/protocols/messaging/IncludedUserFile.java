@@ -2,17 +2,11 @@ package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileShadow;
 
-import com.google.common.collect.Range;
-
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Implements {@link UserFile} to provide for an included user file as opposed to a user file that has been fetched
@@ -179,26 +173,6 @@ final class IncludedUserFile implements UserFile {
      */
     public boolean isExecutable() {
         return false;
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete) {
-        return Collections.EMPTY_LIST;
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete, int fromRow, int toRow) {
-        return Collections.EMPTY_LIST;
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public List<Relation> getAllRelations(RelationAttributeType attrib) {
-        return Collections.EMPTY_LIST;
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public List<Relation> getRelations(RelationAttributeType attrib, Range<Instant> period, boolean includeObsolete) {
-        return Collections.EMPTY_LIST;
     }
 
 }

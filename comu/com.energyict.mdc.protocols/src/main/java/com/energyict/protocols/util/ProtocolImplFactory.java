@@ -10,7 +10,6 @@
 
 package com.energyict.protocols.util;
 
-import com.energyict.mdc.protocol.api.ProtocolCollection;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 
 import java.io.IOException;
@@ -22,18 +21,8 @@ import java.io.IOException;
  */
 public class ProtocolImplFactory {
 
-    /**
-     * Creates a new instance of ProtocolImplFactory
-     */
-    private ProtocolImplFactory() {
-    }
-
     private static ProtocolImplFactory getInstance() {
         return new ProtocolImplFactory();
-    }
-
-    public static ProtocolCollection getProtocolCollection() throws IOException {
-        return (ProtocolCollection) getInstance().getInstance("com.energyict.protocolimpl.base.protocolcollections.ProtocolCollectionImpl");
     }
 
     public static ProtocolInstantiator getProtocolInstantiator(String className) throws IOException {
@@ -44,16 +33,6 @@ public class ProtocolImplFactory {
 
     public static IdentificationFactory getIdentificationFactory() throws IOException {
         return (IdentificationFactory) getInstance().getInstance("com.energyict.protocolimpl.meteridentification.IdentificationFactoryImpl");
-    }
-
-
-    public static String getProtocolImplVersion() {
-        try {
-            Class cls = Class.forName("com.energyict.protocolimpl.base.ProtocolVersionImpl");
-            return cls.getPackage().getSpecificationVersion();
-        } catch (ClassNotFoundException ex) {
-            return null;
-        }
     }
 
     private Object getInstance(String className) throws IOException {
@@ -70,5 +49,7 @@ public class ProtocolImplFactory {
         }
 
     }
+
+    private ProtocolImplFactory() {}
 
 }
