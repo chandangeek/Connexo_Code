@@ -877,12 +877,17 @@ Ext.define('Cfg.controller.Validation', {
             isNotEdit: true,
             success: function (record, operation) {
                 var ruleSet;
+                grid.getStore().load({
+                    params: {
+                        ruleSetId: grid.ruleSetId,
+                        versionId: grid.versionId
+                    }
+                });
                 if (versionsGrid) {
                     ruleSet = versionsGrid.down('#versionsList').getSelectionModel().getLastSelected();
                     ruleSet.set('numberOfInactiveRules', isActive ? ruleSet.get('numberOfInactiveRules') + 1 : ruleSet.get('numberOfInactiveRules') - 1);
                     ruleSet.commit();
                 }
-                view.down('validation-rule-preview').loadRecord(record);
                 if (isActive) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
                 } else {
@@ -1100,7 +1105,6 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     showVersions: function (id) {
-
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
