@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -62,6 +64,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -85,6 +88,7 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -296,8 +300,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
         }
 
         @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return Collections.emptyList();
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.empty();
         }
 
     }
