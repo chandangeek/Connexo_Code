@@ -406,6 +406,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         );
                                         me.registerTypesObisCode = registerConfiguration.get('obisCode');
                                         widget.down('#editObisCodeField').setValue(me.registerTypesObisCode);
+                                        widget.down('#mdc-calculated-readingType-combo').setDisabled(deviceConfiguration.get('active'));
+                                        widget.down('#valueTypeRadioGroup').setDisabled(deviceConfiguration.get('active'));
+                                        widget.down('#multiplierRadioGroup').setDisabled(deviceConfiguration.get('active'));
                                         me.getOverruledObisCodeField().setValue(registerConfiguration.get('overruledObisCode'));
                                         me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), registerConfiguration.get('overruledObisCode'));
                                         widget.setLoading(false);
@@ -464,9 +467,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
                     },
                     failure: function (record, operation) {
-                        if (operation.response.status === 400) {
-                            return
-                        }
                         Ext.suspendLayouts();
                         errorMsgPnl.show();
                         var json = Ext.decode(operation.response.responseText);
@@ -551,7 +551,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         collectedReadingTypeField.setVisible(dataContainer);
         if (!possibleCalculatedReadingTypes || possibleCalculatedReadingTypes.length === 0) {
             multiplierRadioGroup.setValue({ useMultiplier : false });
-            useMultiplier = multiplierRadioGroup.getValue().useMultiplier
+            useMultiplier = multiplierRadioGroup.getValue().useMultiplier;
             multiplierRadioGroup.setDisabled(true);
         } else {
             multiplierRadioGroup.setDisabled(false);
