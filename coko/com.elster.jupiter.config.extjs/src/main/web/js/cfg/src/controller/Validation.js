@@ -908,7 +908,7 @@ Ext.define('Cfg.controller.Validation', {
         var self = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('validation.removeRule.msg', 'CFG', 'This validation rule will no longer be available on the validation rule set.'),
-            title: Ext.String.format(Uni.I18n.translate('validation.removeRule.title', 'CFG', "Remove '{0}'?"), rule.get('name')),
+            title: Uni.I18n.translate('validation.removeRule.title', 'CFG', "Remove '{0}'?", rule.get('name'), true),
             config: {
                 rule: rule
             },
@@ -991,7 +991,7 @@ Ext.define('Cfg.controller.Validation', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: me.getDeleteRuleSetConfirmationMsg(jsonIsInUse),
-            title: Ext.String.format(Uni.I18n.translate('validation.removeRule.title', 'CFG', "Remove '{0}'?"), ruleSet.get('name')),
+            title: Uni.I18n.translate('validation.removeRule.title', 'CFG', "Remove '{0}'?", ruleSet.get('name'), true),
             config: {
                 rule: ruleSet
             },
