@@ -7,14 +7,14 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
     filters: [
         {
             type: 'text',
-            dataIndex: 'name',
+            dataIndex: 'fullAliasName',
             emptyText: Uni.I18n.translate('dataExportTasks.readingTypeName', 'DES', 'Reading type name'),
             displayField: 'name',
             valueField: 'id'
         },
         {
             type: 'combobox',
-            dataIndex: 'unitOfMeasure',
+            dataIndex: 'unit',
             emptyText: Uni.I18n.translate('dataExportTasks.unitOfMeasure', 'DES', 'Unit of measure'),
             displayField: 'name',
             valueField: 'name',
@@ -25,7 +25,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
 
                 if (record) {
                     params['multiplier'] = record.get('multiplier');
-                    params['unitOfMeasure'] = record.get('unit');
+                    params['unit'] = record.get('unit');
                 }
             }
         },
@@ -39,7 +39,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
         },
         {
             type: 'combobox',
-            dataIndex: 'time',
+            dataIndex: 'measurementPeriod',
             emptyText: Uni.I18n.translate('dataExportTasks.interval', 'DES', 'Interval'),
             displayField: 'name',
             valueField: 'name',
@@ -49,15 +49,20 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
                     record = me.findRecord(me.valueField || me.displayField, me.getValue());
 
                 if (record) {
-                    params['time'] = record.get('time');
-                    params['macro'] = record.get('macro');
+                    params['measurementPeriod'] = record.get('time');
+                    params['macroPeriod'] = record.get('macro');
                 }
             }
         },
         {
             type: 'noui',
-            dataIndex: 'selectedReadings',
+            dataIndex: 'selectedreadingtypes',
             itemId: 'selectedReadingsFilterComponent'
+        },
+        {
+            type: 'noui',
+            itemId: 'activeFilter',
+            dataIndex: 'active'
         }
     ],
 
@@ -65,5 +70,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
         var noUiComponent = this.getFilterByItemId('selectedReadingsFilterComponent');
         noUiComponent.setInitialValue(selectedReadings);
         noUiComponent.setFilterValue(selectedReadings);
+        this.getFilterByItemId('activeFilter').setInitialValue(true);
+        this.getFilterByItemId('activeFilter').setFilterValue(true);
     }
 });

@@ -13,7 +13,7 @@ Ext.define('Dxp.store.LoadedReadingTypes', {
 
     proxy: {
         type: 'rest',
-        url: '/api/mtr/fields/readingtypes',
+        url: '/api/mtr/readingtypes',
         reader: {
             type: 'json',
             root: 'readingTypes'
