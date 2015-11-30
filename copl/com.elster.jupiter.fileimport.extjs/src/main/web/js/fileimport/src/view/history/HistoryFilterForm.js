@@ -57,7 +57,7 @@ Ext.define('Fim.view.history.HistoryFilterForm', {
                                 padding: 0,
                                 marginBottom: '10px'
                             },
-                            getRawValue: true,
+                            valueInMilliseconds: true,
                             dateConfig: {
                                 format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                             }
@@ -96,7 +96,7 @@ Ext.define('Fim.view.history.HistoryFilterForm', {
                                 padding: 0,
                                 marginBottom: '10px'
                             },
-                            getRawValue: true,
+                            valueInMilliseconds: true,
                             dateConfig: {
                                 format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                             }
