@@ -166,7 +166,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             wizardLayout = me.getAddDeviceGroupWizard().getLayout(),
             currentStep = wizardLayout.getActiveItem().navigationIndex,
             direction,
-            nextStep;
+            nextStep,
+            changeStep = function () {
+                Ext.suspendLayouts();
+                me.prepareNextStep(nextStep);
+                wizardLayout.setActiveItem(nextStep - 1);
+                me.getNavigationMenu().moveToStep(nextStep);
+                Ext.resumeLayouts(true);
+            };
 
         if (button.action === 'step-next' || button.action === 'confirm-action') {
             direction = 1;
@@ -180,58 +187,73 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             }
         }
 
-        Ext.suspendLayouts();
+
 
         if (direction > 0) {
-            if (!me.validateCurrentStep(currentStep)) {
-                Ext.resumeLayouts(true);
-                return
-            }
+            me.validateCurrentStep(currentStep, changeStep);
+        } else {
+            changeStep();
         }
-
-        me.prepareNextStep(nextStep);
-        wizardLayout.setActiveItem(nextStep - 1);
-        me.getNavigationMenu().moveToStep(nextStep);
-
-        Ext.resumeLayouts(true);
     },
 
-    validateCurrentStep: function (stepNumber) {
+    validateCurrentStep: function (stepNumber, callback) {
         var me = this,
-            valid = true;
+            doCallback = function () {
+                if (Ext.isFunction(callback)) {
+                    callback();
+                }
+            };
 
         switch (stepNumber) {
             case 1:
-                valid = me.validateStep1();
+                me.validateStep1(doCallback);
                 break;
             case 2:
-                valid = me.validateStep2();
+                if (me.validateStep2() && doCallback()) {
+                    callback();
+                }
                 break;
+            default:
+                doCallback();
         }
-
-        return valid;
     },
 
-    validateStep1: function () {
+    validateStep1: function (callback) {
         var me = this,
-            valid = true,
-            group = me.getAddDeviceGroupWizard().getRecord(),
+            wizard = me.getAddDeviceGroupWizard(),
+            group = wizard.getRecord(),
             step1ErrorMsg = me.getStep1FormErrorMessage(),
             nameField = me.getNameTextField(),
             name = nameField.getValue();
 
         if (!nameField.validate()) {
-            valid = false;
             step1ErrorMsg.show();
-        } else if (name !== group.get('name') && me.getStore('Mdc.store.DeviceGroups').find('name', name) >= 0) { // todo: postponed from the previous functionality, should be replaced
-            valid = false;
-            nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name should be unique'));
-            step1ErrorMsg.show();
+        } else if (name !== group.get('name')) {
+            wizard.setLoading();
+            me.getStore('Mdc.store.DeviceGroups').load({
+                params: {
+                    filter: Ext.encode([{
+                        property: 'name',
+                        value: name
+                    }])
+                },
+                callback: function (records) {
+                    wizard.setLoading(false);
+                    if (!records.length) {
+                        step1ErrorMsg.hide();
+                        callback();
+                    } else {
+                        Ext.suspendLayouts();
+                        step1ErrorMsg.show();
+                        nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name should be unique'));
+                        Ext.resumeLayouts(true);
+                    }
+                }
+            });
         } else {
             step1ErrorMsg.hide();
+            callback();
         }
-
-        return valid;
     },
 
     validateStep2: function () {
@@ -246,8 +268,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         if (isDynamic) {
             valid = !!me.countNumberOfSearchCriteria();
+            Ext.suspendLayouts();
             me.getStep2FormErrorMessage().setVisible(!valid);
             wizard.down('#selection-criteria-error').setVisible(!valid);
+            Ext.resumeLayouts(true);
         }
 
         return valid;
@@ -299,7 +323,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 confirmBtn.hide();
                 finishBtn.hide();
                 cancelBtn.hide();
-                me.prepareStep4(wizard, finishBtn);
+                me.prepareStep4(wizard, finishBtn, navigationMenu);
                 break;
         }
     },
@@ -443,7 +467,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         return me.service.getSearchResultsStore().filters.getCount();
     },
 
-    prepareStep4: function (wizard, finishBtn) {
+    prepareStep4: function (wizard, finishBtn, navigationMenu) {
         var step4 = wizard.down('device-group-wizard-step4'),
             progressbar = step4.down('progressbar');
 
@@ -470,6 +494,29 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 step4.update(wizard.isEdit
                     ? Uni.I18n.translate('devicegroup.wizard.save.success', 'MDC', "Device group '{0}' has been saved.", [deviceGroupName])
                     : Uni.I18n.translate('devicegroup.wizard.add.success', 'MDC', "Device group '{0}' has been created.", [deviceGroupName]));
+                Ext.resumeLayouts(true);
+            },
+            failure: function (record, response) {
+                var deviceGroupName = record.get('name'),
+                    responseText = Ext.decode(response.response.responseText, true),
+                    reasons = '';
+
+                if (responseText && Ext.isArray(responseText.errors)) {
+                    Ext.Array.each(responseText.errors, function (error, index) {
+                        reasons += '<br>-' + error.msg;
+                    })
+                }
+                Ext.suspendLayouts();
+                navigationMenu.updateItemCls(4, true);
+                finishBtn.setUI('remove');
+                finishBtn.show();
+                progressbar.hide();
+                step4.update('<h3 style="color: #eb5642">'
+                + (wizard.isEdit
+                    ? Uni.I18n.translate('devicegroup.wizard.save.failure', 'MDC', "Failed to save device group '{0}'.", [deviceGroupName])
+                    : Uni.I18n.translate('devicegroup.wizard.add.failure', 'MDC', "Failed to add device group '{0}'.", [deviceGroupName]))
+                + '</h3>'
+                + reasons);
                 Ext.resumeLayouts(true);
             }
         });
