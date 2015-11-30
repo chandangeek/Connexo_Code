@@ -10,6 +10,8 @@ class SysAppPrivileges {
                 //appserver
                 com.elster.jupiter.appserver.security.Privileges.Constants.ADMINISTRATE_APPSEVER,
                 com.elster.jupiter.appserver.security.Privileges.Constants.VIEW_APPSEVER,
+                //tasks
+                com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
                 //license
                 com.elster.jupiter.license.security.Privileges.Constants.VIEW_LICENSE,
                 com.elster.jupiter.license.security.Privileges.Constants.UPLOAD_LICENSE,
