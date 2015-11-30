@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.google.common.collect.Range;
-
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.device.data.impl.PluggableClassUsagePropertyImpl;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.api.ConnectionType;
+
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 
@@ -22,11 +21,6 @@ public class ConnectionTaskPropertyImpl extends PluggableClassUsagePropertyImpl<
 
     public ConnectionTaskPropertyImpl(ConnectionTaskImpl connectionTask, String name) {
         super(name);
-        this.connectionTask = connectionTask;
-    }
-
-    public ConnectionTaskPropertyImpl(ConnectionTaskImpl connectionTask, Relation relation, String name, PluggableClass pluggableClass) {
-        super(relation, name, pluggableClass);
         this.connectionTask = connectionTask;
     }
 

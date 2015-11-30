@@ -1,43 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.users.Privilege;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.impl.TranslationKeys;
-import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
-import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
-import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
-import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
-import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
-import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
-import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
@@ -64,6 +26,41 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -115,7 +112,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
 
-    private volatile RelationService relationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile EngineConfigurationService engineConfigurationService;
@@ -145,20 +141,20 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     // For unit testing purposes only
     @Inject
-    public DeviceDataModelServiceImpl(BundleContext bundleContext,
-                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
-                                      PropertySpecService propertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
-                                      RelationService relationService, ProtocolPluggableService protocolPluggableService,
-                                      EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
-                                      MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
-                                      SchedulingService schedulingService, MessageService messageService,
-                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
-                                      QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService) {
+    public DeviceDataModelServiceImpl(
+            BundleContext bundleContext,
+            OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
+            PropertySpecService propertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
+            ProtocolPluggableService protocolPluggableService,
+            EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
+            MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
+            SchedulingService schedulingService, MessageService messageService,
+            SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
+            QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
-        this.setRelationService(relationService);
         this.setClock(clock);
         this.setKpiService(kpiService);
         this.setTaskService(taskService);
@@ -302,11 +298,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.clock = clock;
     }
 
-    @Reference
-    public void setRelationService(RelationService relationService) {
-        this.relationService = relationService;
-    }
-
     public ProtocolPluggableService protocolPluggableService() {
         return protocolPluggableService;
     }
@@ -419,7 +410,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(SecurityPropertyService.class).toInstance(securityPropertyService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-                bind(RelationService.class).toInstance(relationService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(IssueService.class).toInstance(issueService);

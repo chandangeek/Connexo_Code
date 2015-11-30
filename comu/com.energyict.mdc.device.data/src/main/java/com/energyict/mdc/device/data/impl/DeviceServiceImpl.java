@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -15,6 +17,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -33,11 +36,13 @@ import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
@@ -135,25 +140,37 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private void appendCountDevicesSql(ProtocolDialectConfigurationProperties configurationProperties, SqlBuilder sqlBuilder) {
         Instant now = this.deviceDataModelService.clock().instant();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
-        DeviceProtocolDialectUsagePluggableClass deviceProtocolDialectUsagePluggableClass =
-                this.protocolPluggableService
-                        .getDeviceProtocolDialectUsagePluggableClass(
-                                deviceProtocolPluggableClass,
-                                configurationProperties.getDeviceProtocolDialectName());
-        String propertiesTable = deviceProtocolDialectUsagePluggableClass.findRelationType().getDynamicAttributeTableName();
-        sqlBuilder.append(" from ");
-        sqlBuilder.append(propertiesTable);
-        sqlBuilder.append(" dru join ");
-        sqlBuilder.append(TableSpecs.DDC_PROTOCOLDIALECTPROPS.name());
-        sqlBuilder.append(" props on dru.");
-        sqlBuilder.append(DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
-        sqlBuilder.append(" = props.id where props.configurationpropertiesid =");
-        sqlBuilder.addLong(configurationProperties.getId());
-        sqlBuilder.append("and (fromdate <=");
-        sqlBuilder.addLong(now.getEpochSecond());
-        sqlBuilder.append(" and (todate is null or todate >");
-        sqlBuilder.addLong(now.getEpochSecond());
-        sqlBuilder.append("))");
+        Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> customPropertySet =
+                this.getCustomPropertySet(deviceProtocolPluggableClass.getDeviceProtocol(), configurationProperties.getDeviceProtocolDialectName());
+        if (customPropertySet.isPresent()) {
+            String propertiesTable = customPropertySet.get().getPersistenceSupport().tableName();
+            sqlBuilder.append(" from ");
+            sqlBuilder.append(propertiesTable);
+            sqlBuilder.append(" cps join ");
+            sqlBuilder.append(TableSpecs.DDC_PROTOCOLDIALECTPROPS.name());
+            sqlBuilder.append(" props on cps.");
+            sqlBuilder.append(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName());
+            sqlBuilder.append(" = props.id where props.configurationpropertiesid =");
+            sqlBuilder.addLong(configurationProperties.getId());
+            sqlBuilder.append("and (fromdate <=");
+            sqlBuilder.addLong(now.getEpochSecond());
+            sqlBuilder.append(" and (todate is null or todate >");
+            sqlBuilder.addLong(now.getEpochSecond());
+            sqlBuilder.append("))");
+        }
+        else {
+            sqlBuilder.append(" from dual where 1 = 0");
+        }
+    }
+
+    private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(DeviceProtocol deviceProtocol, String name) {
+        return deviceProtocol
+                    .getDeviceProtocolDialects()
+                    .stream()
+                    .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(name))
+                    .map(DeviceProtocolDialect::getCustomPropertySet)
+                    .flatMap(Functions.asStream())
+                    .findAny();
     }
 
     private long count(SqlBuilder sqlBuilder) {

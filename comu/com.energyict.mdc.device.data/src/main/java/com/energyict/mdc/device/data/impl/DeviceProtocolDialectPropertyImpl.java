@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
@@ -26,8 +25,8 @@ public class DeviceProtocolDialectPropertyImpl extends PluggableClassUsageProper
         this.setActivePeriod(Range.all());
     }
 
-    public DeviceProtocolDialectPropertyImpl(Relation relation, String name, PluggableClass pluggableClass) {
-        super(relation, name, pluggableClass);
+    public DeviceProtocolDialectPropertyImpl(String name, Object value, Range<Instant> activePeriod, PluggableClass pluggableClass) {
+        super(name, value, activePeriod, pluggableClass);
     }
 
     protected DeviceProtocolDialectPropertyImpl (String name, Object value, Range<Instant> activePeriod, PluggableClass pluggableClass, boolean inherited) {

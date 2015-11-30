@@ -44,7 +44,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -458,28 +457,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public String createOriginalAndConformRelationNameBasedOnJavaClassname(Class clazz) {
-            return protocolPluggableService.createOriginalAndConformRelationNameBasedOnJavaClassname(clazz);
-        }
-
-        @Override
-        public String createConformRelationTypeName(String name) {
-            return protocolPluggableService.createConformRelationTypeName(name);
-        }
-
-        @Override
-        public String createConformRelationAttributeName(String name) {
-            return protocolPluggableService.createConformRelationAttributeName(name);
-        }
-
-        @Override
         public DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass(DeviceProtocolPluggableClass pluggableClass, String dialectName) {
             return protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(pluggableClass, dialectName);
-        }
-
-        @Override
-        public boolean isDefaultAttribute(RelationAttributeType attributeType) {
-            return protocolPluggableService.isDefaultAttribute(attributeType);
         }
 
         @Override

@@ -73,7 +73,6 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -97,7 +96,6 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
@@ -259,7 +257,6 @@ public class DeviceImplDoSomethingWithEventsTest {
         private DeviceDataModelService deviceDataModelService;
         private IdentificationServiceImpl identificationService;
         private Clock clock = Clock.systemDefaultZone();
-        private RelationService relationService;
         private EngineConfigurationService engineConfigurationService;
         private SchedulingService schedulingService;
         private LicenseService licenseService;
@@ -324,7 +321,6 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.estimationService = injector.getInstance(EstimationService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
                 this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
-                this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);
                 this.issueService = injector.getInstance(IssueService.class);
@@ -338,7 +334,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.issueService,
                                 mock(PropertySpecService.class),
                                 mock(com.elster.jupiter.properties.PropertySpecService.class),
-                                this.relationService, this.protocolPluggableService, this.engineConfigurationService,
+                                this.protocolPluggableService, this.engineConfigurationService,
                                 this.deviceConfigurationService, this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),
                                 injector.getInstance(SecurityPropertyService.class),
@@ -415,24 +411,9 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(LoadProfileService.class).to(LoadProfileServiceImpl.class).in(Scopes.SINGLETON);
                 bind(LogBookService.class).to(LogBookServiceImpl.class).in(Scopes.SINGLETON);
                 bind(DataCollectionKpiService.class).to(DataCollectionKpiServiceImpl.class).in(Scopes.SINGLETON);
-                bind(DeviceDataModelService.class).toProvider(new Provider<DeviceDataModelService>() {
-                    @Override
-                    public DeviceDataModelService get() {
-                        return deviceDataModelService;
-                    }
-                });
-                bind(IdentificationServiceImpl.class).toProvider(new Provider<IdentificationServiceImpl>() {
-                    @Override
-                    public IdentificationServiceImpl get() {
-                        return identificationService;
-                    }
-                });
-                bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                    @Override
-                    public DataModel get() {
-                        return dataModel;
-                    }
-                });
+                bind(DeviceDataModelService.class).toProvider(() -> deviceDataModelService);
+                bind(IdentificationServiceImpl.class).toProvider(() -> identificationService);
+                bind(DataModel.class).toProvider(() -> dataModel);
                 bind(IdentificationService.class).to(IdentificationServiceImpl.class).in(Scopes.SINGLETON);
             }
 

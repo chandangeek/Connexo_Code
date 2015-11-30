@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
@@ -28,8 +27,8 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
         this.name = name;
     }
 
-    public PluggableClassUsagePropertyImpl (Relation relation, String name, PluggableClass pluggableClass) {
-        this(name, relation.get(name), relation.getPeriod(), pluggableClass, false);
+    public PluggableClassUsagePropertyImpl (String name, Object value, Range<Instant> activePeriod, PluggableClass pluggableClass) {
+        this(name, value, activePeriod, pluggableClass, false);
     }
 
     protected PluggableClassUsagePropertyImpl (String name, Object value, Range<Instant> activePeriod, PluggableClass pluggableClass, boolean inherited) {

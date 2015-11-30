@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
@@ -26,9 +27,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -38,7 +36,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Range;
 import com.google.inject.Module;
 
 import javax.validation.ConstraintViolationException;
@@ -46,14 +43,13 @@ import javax.validation.constraints.Size;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -61,9 +57,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Integration test for the {@link ProtocolDialectPropertiesImpl} component.
@@ -234,10 +228,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         // Asserts
         assertThat(dialectPropertiesList).isNotNull();
         assertThat(dialectPropertiesList).hasSize(1);
-        Set<String> dialectNames = new HashSet<>();
-        for (ProtocolDialectProperties protocolDialectProperties : dialectPropertiesList) {
-            dialectNames.add(protocolDialectProperties.getDeviceProtocolDialectName());
-        }
+        Set<String> dialectNames =
+                dialectPropertiesList
+                        .stream()
+                        .map(ProtocolDialectProperties::getDeviceProtocolDialectName)
+                        .collect(Collectors.toSet());
         assertThat(dialectNames).containsOnly(DIALECT_1_NAME);
     }
 
@@ -255,10 +250,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         // Asserts
         assertThat(dialectPropertiesList).isNotNull();
         assertThat(dialectPropertiesList).hasSize(2);
-        Set<String> dialectNames = new HashSet<>();
-        for (ProtocolDialectProperties protocolDialectProperties : dialectPropertiesList) {
-            dialectNames.add(protocolDialectProperties.getDeviceProtocolDialectName());
-        }
+        Set<String> dialectNames =
+                dialectPropertiesList
+                        .stream()
+                        .map(ProtocolDialectProperties::getDeviceProtocolDialectName)
+                        .collect(Collectors.toSet());
         assertThat(dialectNames).containsOnly(DIALECT_1_NAME, DIALECT_2_NAME);
     }
 
@@ -449,79 +445,49 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
                 inMemoryPersistence.getEventService(),
                 inMemoryPersistence.getThesaurus(),
                 inMemoryPersistence.getClock(),
-                inMemoryPersistence.getProtocolPluggableService());
+                inMemoryPersistence.getProtocolPluggableService(),
+                inMemoryPersistence.getCustomPropertySetService());
         properties.initialize(mock(Device.class), configurationProperties);
         return properties;
     }
 
     private void mockRequiredAndOptionalProperties(TestableProtocolDialectProperties protocolDialectProperties) {
-        Relation mockedRelation = this.newMockedRelation();
-        this.addRequiredAndOptionalProperties(mockedRelation);
-        protocolDialectProperties.addPropertyRelation(mockedRelation);
+        CustomPropertySetValues values = this.newCustomPropertySetValues();
+        this.addRequiredAndOptionalProperties(values);
+        protocolDialectProperties.addPropertyRelation(values);
     }
 
     private void mockRequiredProperties(TestableProtocolDialectProperties protocolDialectProperties) {
-        Relation mockedRelation = this.newMockedRelation();
-        this.addRequiredProperties(mockedRelation);
-        protocolDialectProperties.addPropertyRelation(mockedRelation);
+        CustomPropertySetValues values = this.newCustomPropertySetValues();
+        this.addRequiredProperties(values);
+        protocolDialectProperties.addPropertyRelation(values);
     }
 
-    private Relation newMockedRelation() {
-        RelationType relationType = this.mockRelationType();
-        Relation mockedRelation = mock(Relation.class);
-        when(mockedRelation.getRelationType()).thenReturn(relationType);
-        Instant from = Instant.now();
-        when(mockedRelation.getPeriod()).thenReturn(Range.atLeast(from));
-        when(mockedRelation.getFrom()).thenReturn(from);
-        when(mockedRelation.getTo()).thenReturn(null);
-        when(mockedRelation.includes(any(Instant.class))).thenReturn(true);
-        when(mockedRelation.isObsolete()).thenReturn(false);
-        return mockedRelation;
+    private CustomPropertySetValues newCustomPropertySetValues() {
+        return CustomPropertySetValues.emptyFrom(Instant.now());
     }
 
-    private RelationType mockRelationType() {
-        RelationType relationType = mock(RelationType.class);
-        RelationAttributeType requiredAttribute = mock(RelationAttributeType.class);
-        when(requiredAttribute.getRelationType()).thenReturn(relationType);
-        when(requiredAttribute.getRequired()).thenReturn(true);
-        when(requiredAttribute.getName()).thenReturn(REQUIRED_PROPERTY_NAME);
-        RelationAttributeType optionalAttribute = mock(RelationAttributeType.class);
-        when(optionalAttribute.getRelationType()).thenReturn(relationType);
-        when(optionalAttribute.getRequired()).thenReturn(false);
-        when(optionalAttribute.getName()).thenReturn(OPTIONAL_PROPERTY_NAME);
-        RelationAttributeType optionalAttributeWithLongName = mock(RelationAttributeType.class);
-        when(optionalAttributeWithLongName.getRelationType()).thenReturn(relationType);
-        when(optionalAttributeWithLongName.getRequired()).thenReturn(false);
-        when(optionalAttributeWithLongName.getName()).thenReturn(OPTIONAL_PROPERTY_WITH_CONVERTED_NAME);
-        when(relationType.getAttributeTypes()).thenReturn(Arrays.asList(requiredAttribute, optionalAttribute, optionalAttributeWithLongName));
-        when(relationType.getAttributeType(REQUIRED_PROPERTY_NAME)).thenReturn(requiredAttribute);
-        when(relationType.getAttributeType(OPTIONAL_PROPERTY_NAME)).thenReturn(optionalAttribute);
-        when(relationType.getAttributeType(OPTIONAL_PROPERTY_WITH_CONVERTED_NAME)).thenReturn(optionalAttributeWithLongName);
-        return relationType;
+    private void addRequiredAndOptionalProperties(CustomPropertySetValues values) {
+        this.addRequiredProperties(values);
+        this.addProperty(values, OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_VALUE);
+        this.addProperty(values, OPTIONAL_PROPERTY_WITH_CONVERTED_NAME, OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
     }
 
-    private void addRequiredAndOptionalProperties(Relation mockedRelation) {
-        this.addRequiredProperties(mockedRelation);
-        this.addProperty(mockedRelation, OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_VALUE);
-        this.addProperty(mockedRelation, OPTIONAL_PROPERTY_WITH_CONVERTED_NAME, OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
+    private void addRequiredProperties(CustomPropertySetValues values) {
+        this.addProperty(values, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
     }
 
-    private void addRequiredProperties(Relation mockedRelation) {
-        this.addProperty(mockedRelation, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
-    }
-
-    private void addProperty(Relation mockedRelation, String propertyName, String propertyValue) {
-        when(mockedRelation.get(propertyName)).thenReturn(propertyValue);
-        RelationAttributeType attributeType = mockedRelation.getRelationType().getAttributeType(propertyName);
-        when(mockedRelation.get(attributeType)).thenReturn(propertyValue);
+    private void addProperty(CustomPropertySetValues values, String propertyName, String propertyValue) {
+        values.setProperty(propertyName, propertyValue);
     }
 
     private void assertPropertyNames(List<DeviceProtocolDialectProperty> properties, String... propertyNames) {
         assertThat(properties.size()).isEqualTo(propertyNames.length);
-        Set<String> actualPropertyNames = new HashSet<>();
-        for (DeviceProtocolDialectProperty property : properties) {
-            actualPropertyNames.add(property.getName());
-        }
+        Set<String> actualPropertyNames =
+                properties
+                        .stream()
+                        .map(DeviceProtocolDialectProperty::getName)
+                        .collect(Collectors.toSet());
         assertThat(actualPropertyNames).containsOnly(propertyNames);
     }
 
@@ -699,15 +665,15 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
      */
     private final class TestableProtocolDialectProperties extends ProtocolDialectPropertiesImpl {
 
-        private List<Relation> propertyRelations = new ArrayList<>();
+        private CustomPropertySetValues values = CustomPropertySetValues.empty();
         private final String dialectName;
 
-        private TestableProtocolDialectProperties(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService) {
-            this(DIALECT_1_NAME, dataModel, eventService, thesaurus, clock, protocolPluggableService);
+        private TestableProtocolDialectProperties(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService) {
+            this(DIALECT_1_NAME, dataModel, eventService, thesaurus, clock, protocolPluggableService, customPropertySetService);
         }
 
-        private TestableProtocolDialectProperties(String dialectName, DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService) {
-            super(dataModel, eventService, thesaurus, clock, protocolPluggableService);
+        private TestableProtocolDialectProperties(String dialectName, DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService) {
+            super(dataModel, eventService, thesaurus, clock, protocolPluggableService, customPropertySetService);
             this.dialectName = dialectName;
         }
 
@@ -716,38 +682,13 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             return this.dialectName;
         }
 
-        private void addPropertyRelation(Relation relation) {
-            this.propertyRelations.add(relation);
-        }
-
         @Override
-        public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete) {
-            List<Relation> filteredByDate = this.filterByDate(this.propertyRelations, date);
-            if (includeObsolete) {
-                return filteredByDate;
-            } else {
-                return this.filterObsolete(filteredByDate);
-            }
+        protected List<DeviceProtocolDialectProperty> toProperties(CustomPropertySetValues values) {
+            return super.toProperties(this.values);
         }
 
-        private List<Relation> filterByDate(List<Relation> relations, Instant date) {
-            List<Relation> activeOnDate = new ArrayList<>(relations.size());    // Worst case: all relations are active on the specified Date
-            for (Relation relation : relations) {
-                if (relation.includes(date)) {
-                    activeOnDate.add(relation);
-                }
-            }
-            return activeOnDate;
-        }
-
-        private List<Relation> filterObsolete(List<Relation> relations) {
-            List<Relation> onlyActive = new ArrayList<>(relations.size());  // Worst case: no obsolete relations
-            for (Relation relation : relations) {
-                if (!relation.isObsolete()) {
-                    onlyActive.add(relation);
-                }
-            }
-            return onlyActive;
+        private void addPropertyRelation(CustomPropertySetValues values) {
+            this.values = values;
         }
 
     }

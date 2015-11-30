@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,24 +13,17 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.CanLock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
-import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
-import com.energyict.mdc.dynamic.relation.CanLock;
-import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -35,17 +32,13 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME;
 
 /**
  * Provides an implementation for the {@link ProtocolDialectProperties} interface.
@@ -58,7 +51,6 @@ public class ProtocolDialectPropertiesImpl
         extends PersistentNamedObject<ProtocolDialectProperties>
         implements
             CanLock,
-            DefaultRelationParticipant,
             PropertyFactory<DeviceProtocolDialect, DeviceProtocolDialectProperty>,
             ProtocolDialectProperties,
             PersistenceAware {
@@ -74,7 +66,6 @@ public class ProtocolDialectPropertiesImpl
     private DeviceProtocolDialectUsagePluggableClass deviceProtocolDialectUsagePluggableClass;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    private AttributeNameMapper attributeNameMapper = new AttributeNameMapper();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -85,10 +76,12 @@ public class ProtocolDialectPropertiesImpl
     private Instant modTime;
 
     private ProtocolPluggableService protocolPluggableService;
+    private final CustomPropertySetService customPropertySetService;
 
     @Inject
-    public ProtocolDialectPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService) {
+    public ProtocolDialectPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService) {
         super(ProtocolDialectProperties.class, dataModel, eventService, thesaurus);
+        this.customPropertySetService = customPropertySetService;
         this.cache = new PropertyCache<>(this);
         this.clock = clock;
         this.protocolPluggableService = protocolPluggableService;
@@ -152,31 +145,7 @@ public class ProtocolDialectPropertiesImpl
 
     @Override
     protected void doDelete() {
-        this.deleteAllProperties();
-    }
-
-    /**
-     * Deletes the {@link Relation}s that hold the values of
-     * all the {@link PluggableClass properties}.
-     */
-    private void deleteAllProperties() {
-        this.obsoleteAllProperties();
-    }
-
-    /**
-     * Makes all the {@link Relation}s that hold the values of
-     * all the {@link PluggableClass properties} obsolete.
-     */
-    protected void obsoleteAllProperties()  {
-        List<Relation> relations = this.getPluggableClass().getRelations(this, Range.all());
-        for (Relation relation : relations) {
-            try {
-                relation.makeObsolete();
-            }
-            catch (BusinessException | SQLException e) {
-                throw new RelationIsAlreadyObsoleteException(relation.getRelationType().getName(), this.getThesaurus(), MessageSeeds.CODING_RELATION_IS_ALREADY_OBSOLETE);
-            }
-        }
+        this.removeAllProperties();
     }
 
     @Override
@@ -224,76 +193,40 @@ public class ProtocolDialectPropertiesImpl
         return new DeviceProtocolDialectPropertyImpl(propertyName, propertyValue, Range.all(), this.getPluggableClass(), false);
     }
 
-    @Override
-    public Object get(String attributeName) {
-        return this.get(attributeName, this.clock.instant());
-    }
-
-    @Override
-    public Object get(RelationAttributeType attributeType, Instant date) {
-        return this.get(attributeType.getName(), date);
-    }
-
-    @Override
-    public Object get(RelationAttributeType attributeType) {
-        return this.get(attributeType, this.clock.instant());
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete) {
-        return attrib.getRelations(this, date, includeObsolete, 0, 0);
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete, int fromRow, int toRow) {
-        return attrib.getRelations(this, date, includeObsolete, fromRow, toRow);
-    }
-
-    @Override
-    public List<Relation> getAllRelations(RelationAttributeType attrib) {
-        return attrib.getAllRelations(this);
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType defaultAttribute, Range<Instant> period, boolean includeObsolete) {
-        return defaultAttribute.getRelations(this, period, includeObsolete);
-    }
-
     protected void saveAllProperties () {
         if (this.cache.isDirty()) {
             if (this.getTypedProperties().localSize() == 0) {
                 this.removeAllProperties();
             }
             else {
-                this.saveAllProperties(
-                        this.getAllLocalProperties(),
-                        new SimpleRelationTransactionExecutor<>(
-                                this,
-                                this.clock.instant(),
-                                this.findRelationType(),
-                                this.getThesaurus()));
+                this.getCustomPropertySet().ifPresent(this::saveAllProperties);
+                this.clearPropertyCache();
             }
         }
+    }
+
+    private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+        return this.getDeviceProtocol()
+                .getDeviceProtocolDialects()
+                .stream()
+                .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(this.getDeviceProtocolDialectName()))
+                .map(DeviceProtocolDialect::getCustomPropertySet)
+                .flatMap(Functions.asStream())
+                .findAny();
+    }
+
+    private void saveAllProperties(CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>> customPropertySet) {
+        this.customPropertySetService.setValuesFor(customPropertySet, this, this.toCustomPropertySetValues(this.getAllLocalProperties()));
+    }
+
+    private CustomPropertySetValues toCustomPropertySetValues(List<DeviceProtocolDialectProperty> properties) {
+        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
+        properties.forEach(property -> values.setProperty(property.getName(), property.getValue()));
+        return values;
     }
 
     protected void removeAllProperties() {
-        Relation relation = getDefaultRelation();
-        if (relation != null) {
-            try {
-                relation.makeObsolete();
-            }
-            catch (BusinessException e) {
-                throw new NestedRelationTransactionException(e, this.findRelationType().getName(), this.getThesaurus(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
-            }
-            // Cannot collapse catch blocks because of the constructor
-            catch (SQLException e) {
-                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
-            }
-        }
-    }
-
-    private RelationType findRelationType() {
-        return this.getDeviceProtocolDialectUsagePluggableClass().findRelationType();
+        this.getCustomPropertySet().ifPresent(cps -> this.customPropertySetService.removeValuesFor(cps, this));
     }
 
     @Override
@@ -303,7 +236,7 @@ public class ProtocolDialectPropertiesImpl
             typedProperties = TypedProperties.inheritingFrom(this.getProtocolDialectConfigurationProperties().getTypedProperties());
         }
         typedProperties.setAllProperties(this.getLocalTypedProperties());
-        return checkForCorrectRelationAttributeNamings(typedProperties);
+        return typedProperties;
     }
 
     private TypedProperties getLocalTypedProperties() {
@@ -316,24 +249,6 @@ public class ProtocolDialectPropertiesImpl
                                 property.getName(),
                                 property.getValue()));
         return typedProperties;
-    }
-
-    private void saveAllProperties(List<DeviceProtocolDialectProperty> propertyShadows, RelationTransactionExecutor<DeviceProtocolDialect> transactionExecutor) {
-        propertyShadows.forEach(transactionExecutor::add);
-        transactionExecutor.execute();
-        this.clearPropertyCache();
-    }
-
-    private TypedProperties checkForCorrectRelationAttributeNamings(TypedProperties typedProperties) {
-        TypedProperties correctedProperties = TypedProperties.inheritingFrom(typedProperties.getInheritedProperties());
-        typedProperties
-                .localPropertyNames()
-                .stream()
-                .forEach(propertyName -> {
-                    String propertySpecName = this.attributeNameMapper.toPropertySpecName(propertyName);
-                    correctedProperties.setProperty(propertySpecName, typedProperties.getLocalValue(propertyName));
-                });
-        return correctedProperties;
     }
 
     @Override
@@ -360,45 +275,8 @@ public class ProtocolDialectPropertiesImpl
         return this.deviceProtocolPluggableClass;
     }
 
-    @Override
-    public Relation getDefaultRelation() {
-        return this.getDefaultRelation(this.clock.instant());
-    }
-
-    @Override
-    public Relation getDefaultRelation(Instant date) {
-        return this.getPluggableClass().getRelation(this, date);
-    }
-
-    @Override
-    public RelationAttributeType getDefaultAttributeType() {
-        return this.getPluggableClass().getDefaultAttributeType();
-    }
-
-    @Override
-    public RelationType getDefaultRelationType() {
-        return this.getPluggableClass().findRelationType();
-    }
-
     protected void clearPropertyCache() {
         this.cache.clear();
-    }
-
-    @Override
-    public Object get(String propertyName, Instant date) {
-        PluggableClassWithRelationSupport pluggableClass = this.getPluggableClass();
-        if (pluggableClass.findRelationType().hasAttribute(propertyName)) {
-            // Should in fact be at most one since this is the default relation
-            Relation relation = this.getDefaultRelation(date);
-            if (relation == null) {
-                // No relation active on the specified Date, therefore no value
-                return null;
-            } else {
-                return relation.get(propertyName);
-            }
-        }
-        // Either no properties configured on the PluggableClass or not one of my properties
-        return null;
     }
 
     private TypedProperties getPluggableProperties() {
@@ -427,63 +305,52 @@ public class ProtocolDialectPropertiesImpl
 
     @Override
     public List<DeviceProtocolDialectProperty> loadProperties(Instant date) {
-        Relation defaultRelation = this.getDefaultRelation(date);
-        /* defaultRelation is null when the pluggable class has no properties.
-         * In that case, no relation type was created. */
-        if (defaultRelation != null) {
-            return this.toProperties(defaultRelation);
-        } else {
-            return new ArrayList<>(0);
-        }
+        return this.getCustomPropertySet()
+                    .map(cps -> this.getCustomProperties(cps, date))
+                    .map(this::toProperties)
+                    .orElse(Collections.emptyList());
+    }
+
+    private CustomPropertySetValues getCustomProperties(CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>> customPropertySet, Instant effectiveTimestamp) {
+        return this.customPropertySetService.getUniqueValuesFor(customPropertySet, this, effectiveTimestamp);
     }
 
     public DeviceProtocolDialectProperty getProperty(String propertyName) {
-        for (DeviceProtocolDialectProperty property : this.getAllProperties()) {
-            if (property.getName().equals(propertyName)) {
-                return property;
-            }
-        }
-        return null;
+        return this.getAllProperties()
+                .stream()
+                .filter(property -> property.getName().equals(propertyName))
+                .findAny()
+                .orElse(null);
     }
 
-    protected List<DeviceProtocolDialectProperty> toProperties(Relation relation) {
-        List<DeviceProtocolDialectProperty> properties = new ArrayList<>();
-        for (RelationAttributeType attributeType : relation.getRelationType().getAttributeTypes()) {
-            if (!isDefaultAttribute(attributeType) && this.attributeHasValue(relation, attributeType)) {
-                properties.add(this.newPropertyFor(relation, attributeType));
-            }
-        }
-        return properties;
+    protected List<DeviceProtocolDialectProperty> toProperties(CustomPropertySetValues values) {
+        return values
+                .propertyNames()
+                .stream()
+                .map(propertyName -> this.newDeviceProtocolDialectProperty(values, propertyName))
+                .collect(Collectors.toList());
     }
 
-    private DeviceProtocolDialectProperty newPropertyFor(Relation relation, RelationAttributeType attributeType) {
-        return new DeviceProtocolDialectPropertyImpl(relation, attributeType.getName(), this.getPluggableClass());
+    private DeviceProtocolDialectPropertyImpl newDeviceProtocolDialectProperty(CustomPropertySetValues values, String propertyName) {
+        return new DeviceProtocolDialectPropertyImpl(
+                propertyName,
+                values.getProperty(propertyName),
+                values.getEffectiveRange(),
+                this.getPluggableClass());
     }
 
     @Override
     public void setProperty(String propertyName, Object value) {
         Instant now = this.clock.instant();
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
-        this.cache.put(now, this.attributeNameMapper.toAttributeTypeName(propertyName), value);
+        this.cache.put(now, propertyName, value);
     }
 
     @Override
     public void removeProperty(String propertyName) {
         Instant now = this.clock.instant();
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
-        this.cache.remove(now, this.attributeNameMapper.toAttributeTypeName(propertyName));
-    }
-
-    private boolean attributeHasValue(Relation relation, RelationAttributeType attributeType) {
-        return relation.get(attributeType) != null;
-    }
-
-    private boolean isDefaultAttribute(RelationAttributeType attributeType) {
-        return this.getDefaultAttributeName().equals(attributeType.getName());
-    }
-
-    private String getDefaultAttributeName() {
-        return DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME;
+        this.cache.remove(now, propertyName);
     }
 
     @Override
@@ -491,23 +358,20 @@ public class ProtocolDialectPropertiesImpl
         List<DeviceProtocolDialectProperty> allProperties = new ArrayList<>();
         List<DeviceProtocolDialectProperty> localProperties = this.getAllLocalProperties(date);
         this.addConfigurationProperties(allProperties, localProperties);
-        return this.checkForRelationAttributeNameConversions(allProperties);
+        return allProperties;
     }
 
     private void addConfigurationProperties(List<DeviceProtocolDialectProperty> allProperties, List<DeviceProtocolDialectProperty> localProperties) {
         final ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties();
         if (configurationProperties != null) {
             TypedProperties inheritedProperties = configurationProperties.getTypedProperties();
-            for (String inheritedPropertyName : inheritedProperties.propertyNames()) {
-                if (!propertySpecifiedIn(localProperties, inheritedPropertyName)) { // If the inherited property is overruled by a local property, then do not add it
-                    allProperties.add(
-                            newInheritedPropertyFor(
-                                    inheritedPropertyName,
-                                    inheritedProperties.getProperty(inheritedPropertyName)
-                            )
-                    );
-                }
-            }
+            inheritedProperties
+                    .propertyNames()
+                    .stream()
+                    // If the inherited property is overruled by a local property, then do not add it
+                    .filter(inheritedPropertyName -> !this.propertySpecifiedIn(localProperties, inheritedPropertyName))
+                    .map(inheritedPropertyName -> this.newInheritedPropertyFor(inheritedPropertyName, inheritedProperties.getProperty(inheritedPropertyName)))
+                    .forEach(allProperties::add);
         }
         allProperties.addAll(localProperties);
     }
@@ -531,62 +395,6 @@ public class ProtocolDialectPropertiesImpl
             }
         }
         return false;
-    }
-
-    /**
-     * Reverts the names of the DeviceProtocolDialectProperty back to the original name
-     * as provided by the pluggable class in case the name was modified during
-     * relation type creation to comply with naming conventions
-     * for relation type attributes (such as length, removal of special characters,...).
-     *
-     * @param allProperties the list of DeviceProtocolDialectProperties we received from the relation
-     * @return a proper list of properties which can be forwarded to a DeviceProtocol
-     */
-    private List<DeviceProtocolDialectProperty> checkForRelationAttributeNameConversions(List<DeviceProtocolDialectProperty> allProperties) {
-        return allProperties
-                    .stream()
-                    .map(dialectProperty -> new DeviceProtocolDialectPropertyImpl(
-                            attributeNameMapper.toPropertySpecName(dialectProperty.getName()),
-                            dialectProperty.getValue(),
-                            dialectProperty.getActivePeriod(),
-                            dialectProperty.getPluggableClass(),
-                            dialectProperty.isInherited()))
-                    .collect(Collectors.toList());
-    }
-
-    private class AttributeNameMapper {
-        private boolean notInitialized = true;
-        private Map<String, String> propertySpecName2AttributeTypeName;
-        private Map<String, String> attributeTypeName2PropertySpecName;
-
-        String toAttributeTypeName(String propertySpecName) {
-            this.ensureMappingInitialized();
-            return this.propertySpecName2AttributeTypeName.get(propertySpecName);
-        }
-
-        String toPropertySpecName(String attributeTypeName) {
-            this.ensureMappingInitialized();
-            return this.attributeTypeName2PropertySpecName.get(attributeTypeName);
-        }
-
-        private void ensureMappingInitialized() {
-            if (this.notInitialized) {
-                this.propertySpecName2AttributeTypeName = new HashMap<>();
-                this.attributeTypeName2PropertySpecName = new HashMap<>();
-                getDeviceProtocolDialectUsagePluggableClass()
-                        .getDeviceProtocolDialect()
-                        .getPropertySpecs()
-                        .stream()
-                        .forEach(this::initializeMappingFor);
-                this.notInitialized = false;
-            }
-        }
-
-        private void initializeMappingFor(PropertySpec propertySpec) {
-            String attributeTypeName = protocolPluggableService.createConformRelationAttributeName(propertySpec.getName());
-            this.propertySpecName2AttributeTypeName.put(propertySpec.getName(), attributeTypeName);
-            this.attributeTypeName2PropertySpecName.put(attributeTypeName, propertySpec.getName());
-        }
     }
 
 }

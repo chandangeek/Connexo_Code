@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuild
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -189,12 +190,19 @@ public class DeviceSearchDomain implements SearchDomain {
                 if (!uniqueDeviceProtocolDialects.add(deviceProtocolDialectName)) {
                     continue;
                 }
-                String relationTableName = this.protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(),
-                        deviceProtocolDialectName).findRelationType().getDynamicAttributeTableName();
-                for (PropertySpec propertySpec : protocolDialect.getProtocolDialect().getPropertySpecs()) {
-                    dynamicProperties.add(injector.getInstance(ProtocolDialectDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName));
-                }
+                String relationTableName =
+                        this.protocolPluggableService
+                                .getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(),deviceProtocolDialectName)
+                                .getDeviceProtocolDialect()
+                                .getCustomPropertySet().get()
+                                .getPersistenceSupport()
+                                .tableName();
+                protocolDialect
+                        .getProtocolDialect()
+                        .getPropertySpecs()
+                        .stream()
+                        .map(propertySpec -> injector.getInstance(ProtocolDialectDynamicSearchableProperty.class).init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName))
+                        .forEach(dynamicProperties::add);
             }
             return dynamicProperties;
         }
