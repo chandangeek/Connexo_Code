@@ -1,9 +1,17 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
@@ -15,27 +23,33 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Range;
+import com.google.inject.Module;
 
 import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.Size;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -61,16 +75,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest {
 
-    private static final String REQUIRED_PROPERTY_NAME_D1 = "ThisIsTheRequiredPropertyName";
+    private static final String REQUIRED_PROPERTY_NAME = "ThisIsTheRequiredPropertyName";
     private static final String REQUIRED_PROPERTY_VALUE = "lmskdjfsmldkfjsqlmdkfj";
-    private static final String OPTIONAL_PROPERTY_NAME_D1 = "ThisIsTheOptionalPropertyName";
+    private static final String OPTIONAL_PROPERTY_NAME = "ThisIsTheOptionalPropertyName";
     private static final String OPTIONAL_PROPERTY_VALUE = "sdlfkjnsqdlmfjsqdfsqdfsqdf";
-    private static final String OPTIONAL_PROPERTY_WITH_LONG_NAME_D1 = "OptionalPropertyWithExtremelyLongNameWhichIsGoingToBeConverted";
     private static final String OPTIONAL_PROPERTY_WITH_CONVERTED_NAME = "OptionalPropertyWith1227106396";
     private static final String OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE = "jklmdsqfjkldsqlozidkcxjnnclsqkdkjoijfze65465zef65e6f51ze6f51zefze";
     private static final String INHERITED_OPTIONAL_PROPERTY_VALUE = "inheritedmqjdsflmdsqkjflmsqdjkfmsqldkfjlmdsqjkf";
-    private static final String REQUIRED_PROPERTY_NAME_D2 = "RequiredDialect2";
-    private static final String OPTIONAL_PROPERTY_NAME_D2 = "OptionalDialect2";
 
     private static final String DIALECT_1_NAME = TestProtocolDialect1.class.getSimpleName();
     private static final String DIALECT_2_NAME = TestProtocolDialect2.class.getSimpleName();
@@ -148,7 +159,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Transactional
     public void createWithoutViolationsTest() throws BusinessException, SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithoutViolationsTest", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
 
         // Business method
         device.save();
@@ -161,14 +172,14 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         assertThat(dialectProperties.get().getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
         assertThat(dialectProperties.get().getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
         assertThat(dialectProperties.get().getTypedProperties().size()).isEqualTo(1);
-        assertThat(dialectProperties.get().getTypedProperties().getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+        assertThat(dialectProperties.get().getTypedProperties().getProperty(REQUIRED_PROPERTY_NAME)).isEqualTo(REQUIRED_PROPERTY_VALUE);
     }
 
     @Test
     @Transactional
     public void createAndReloadWithoutViolationsTest() throws BusinessException, SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createAndReloadWithoutViolationsTest", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         device.save();
         Device deviceReloaded = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
 
@@ -183,66 +194,18 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         assertThat(dialectProperties.get().getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
         assertThat(dialectProperties.get().getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
         assertThat(dialectProperties.get().getTypedProperties().size()).isEqualTo(1);
-        assertThat(dialectProperties.get().getTypedProperties().getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
-    }
-
-    @Test
-    @Transactional
-    public void createWithoutViolationsWithVeryLongAttributeTest() throws BusinessException, SQLException {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithoutViolationsTest", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
-
-        // Business method
-        device.save();
-
-        // Asserts
-        Optional<ProtocolDialectProperties> dialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
-        assertThat(dialectProperties.isPresent()).isTrue();
-        assertThat(dialectProperties.get().getDevice()).isNotNull();
-        assertThat(dialectProperties.get().getDevice().getId()).isEqualTo(device.getId());
-        assertThat(dialectProperties.get().getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
-        assertThat(dialectProperties.get().getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
-        TypedProperties typedProperties = dialectProperties.get().getTypedProperties();
-        assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
-    }
-
-    @Test
-    @Transactional
-    public void createAndReloadWithoutViolationsWithVeryLongAttributeTest() throws BusinessException, SQLException {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createAndReloadWithoutViolationsTest", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
-        device.save();
-        Device deviceReloaded = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
-
-        // Business method
-        Optional<ProtocolDialectProperties> dialectProperties = deviceReloaded.getProtocolDialectProperties(DIALECT_1_NAME);
-
-        // Asserts
-        assertThat(dialectProperties.isPresent()).isTrue();
-        assertThat(dialectProperties.get().getDevice()).isNotNull();
-        assertThat(dialectProperties.get().getDevice()).isNotNull();
-        assertThat(dialectProperties.get().getDevice().getId()).isEqualTo(device.getId());
-        assertThat(dialectProperties.get().getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
-        assertThat(dialectProperties.get().getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
-        TypedProperties typedProperties = dialectProperties.get().getTypedProperties();
-        assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
+        assertThat(dialectProperties.get().getTypedProperties().getProperty(REQUIRED_PROPERTY_NAME)).isEqualTo(REQUIRED_PROPERTY_VALUE);
     }
 
     @Test
     @Transactional
     public void createWithoutViolationsWhenRequiredPropertySpecifiedByInheritedPropertyTest() throws BusinessException, SQLException {
         // Add all required properties to the configuration level first
-        protocolDialect1ConfigurationProperties.setProperty(REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        protocolDialect1ConfigurationProperties.setProperty(REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.save();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithoutViolationsWhenRequiredPropertySpecifiedByInheritedPropertyTest", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_VALUE);
 
         // Business method
         device.save();
@@ -253,16 +216,16 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         List<DeviceProtocolDialectProperty> properties = protocolDialectProperties.getProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
         assertThat(typedProperties.localSize()).isEqualTo(1);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
-        assertThat(typedProperties.getInheritedProperties().getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
-        this.assertPropertyNames(properties, REQUIRED_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_NAME_D1);
+        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getInheritedProperties().getProperty(REQUIRED_PROPERTY_NAME)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+        this.assertPropertyNames(properties, REQUIRED_PROPERTY_NAME, OPTIONAL_PROPERTY_NAME);
     }
 
     @Test
     @Transactional
     public void findSingleDialectsForDeviceTest() throws BusinessException, SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "findSingleDialectsForDeviceTest", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         device.save();
 
         // Business method
@@ -282,8 +245,8 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Transactional
     public void findAllDialectsForDeviceTest() throws BusinessException, SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "findAllDialectsForDeviceTest", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
-        device.setProtocolDialectProperty(DIALECT_2_NAME, REQUIRED_PROPERTY_NAME_D2, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_2_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         device.save();
 
         // Business method
@@ -316,7 +279,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Transactional
     public void findDialect() {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "findDialect", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         device.save();
 
         // Business method
@@ -331,7 +294,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Transactional
     public void findDialectThatDoesNotExist() {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "findDialectThatDoesNotExist", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         device.save();
 
         // Business method
@@ -345,12 +308,12 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Transactional
     public void getPropertiesIncludingInheritedOnesTest() throws BusinessException, SQLException {
         // Add one optional property to the configuration level first
-        protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_VALUE);
+        protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.save();
 
         // Business method
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "getPropertiesIncludingInheritedOnesTest", MRID);
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         device.save();
         ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME).get();
         TypedProperties typedProperties = protocolDialectProperties.getTypedProperties();
@@ -358,25 +321,25 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
         // Asserts
         assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
-        assertThat(typedProperties.getInheritedProperties().getProperty(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getInheritedProperties().getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
 
         assertThat(properties.size()).isEqualTo(2);
-        assertPropertyNames(properties, REQUIRED_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_NAME_D1);
+        assertPropertyNames(properties, REQUIRED_PROPERTY_NAME, OPTIONAL_PROPERTY_NAME);
     }
 
     @Test
     @Transactional
     public void testInheritedPropertiesAreOverriddenByLocalProperties() throws BusinessException, SQLException {
         // Add properties to the configuration level first
-        protocolDialect1ConfigurationProperties.setProperty(REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
-        protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_NAME_D1, INHERITED_OPTIONAL_PROPERTY_VALUE);
+        protocolDialect1ConfigurationProperties.setProperty(REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
+        protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_NAME, INHERITED_OPTIONAL_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.save();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "testInheritedPropertiesAreOverriddenByLocalProperties", MRID);
         // Override the optional property
-        device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_VALUE);
 
         // Business method
         device.save();
@@ -385,12 +348,12 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         // Asserts
         TypedProperties typedProperties = protocolDialectProperties.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
-        assertThat(typedProperties.getInheritedValue(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(INHERITED_OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getInheritedValue(OPTIONAL_PROPERTY_NAME)).isEqualTo(INHERITED_OPTIONAL_PROPERTY_VALUE);
 
         List<DeviceProtocolDialectProperty> properties = protocolDialectProperties.getProperties();
         assertThat(properties.size()).isEqualTo(2);
-        assertPropertyNames(properties, REQUIRED_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_NAME_D1);
+        assertPropertyNames(properties, REQUIRED_PROPERTY_NAME, OPTIONAL_PROPERTY_NAME);
     }
 
     @Test(expected = ProtocolDialectConfigurationPropertiesIsRequiredException.class)
@@ -399,7 +362,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithNonExistingConfigurationPropertiesTest", MRID);
 
         // Business method
-        device.setProtocolDialectProperty("DoesNotExist", REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty("DoesNotExist", REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
 
         // Asserts: see expected exception rule
     }
@@ -410,7 +373,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithNonExistingConfigurationPropertiesTest", MRID);
 
         // Business method
-        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, Strings.repeat("A", StringFactory.MAX_SIZE + 1));
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, Strings.repeat("A", StringFactory.MAX_SIZE + 1));
         device.save();
 
         // Asserts: see expected exception rule
@@ -437,16 +400,15 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
         // Asserts
         assertThat(typedProperties.propertyNames()).isNotEmpty();
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
+        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME)).isEqualTo(REQUIRED_PROPERTY_VALUE);
     }
 
     @Test
     @Transactional
     public void getTypedPropertiesFromInheritedPropertiesNamingTest() {
         // Add properties to the configuration level first
-        protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, INHERITED_OPTIONAL_PROPERTY_VALUE);
+        protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_NAME, INHERITED_OPTIONAL_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.save();
         TestableProtocolDialectProperties protocolDialectProperties = this.newTestableProtocolDialectProperties(protocolDialect1ConfigurationProperties);
         this.mockRequiredProperties(protocolDialectProperties);
@@ -456,15 +418,15 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
         // Asserts
         assertThat(typedProperties.propertyNames()).isNotEmpty();
-        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1)).isEqualTo(INHERITED_OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(INHERITED_OPTIONAL_PROPERTY_VALUE);
     }
 
     @Test
     @Transactional
     public void getTypedPropertiesWithOverriddenInheritedPropertyNamingTest() {
         // Add properties to the configuration level first
-        protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, INHERITED_OPTIONAL_PROPERTY_VALUE);
+        protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_NAME, INHERITED_OPTIONAL_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.save();
         TestableProtocolDialectProperties protocolDialectProperties = this.newTestableProtocolDialectProperties(protocolDialect1ConfigurationProperties);
         this.mockRequiredAndOptionalProperties(protocolDialectProperties);
@@ -474,11 +436,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
         // Asserts
         assertThat(typedProperties.propertyNames()).isNotEmpty();
-        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
-        assertThat(typedProperties.hasInheritedValueFor(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1)).isTrue();
-        assertThat(typedProperties.getInheritedProperties().getProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1)).isEqualTo(INHERITED_OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
+        assertThat(typedProperties.hasInheritedValueFor(OPTIONAL_PROPERTY_NAME)).isTrue();
+        assertThat(typedProperties.getInheritedProperties().getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(INHERITED_OPTIONAL_PROPERTY_VALUE);
     }
 
     private TestableProtocolDialectProperties newTestableProtocolDialectProperties(ProtocolDialectConfigurationProperties configurationProperties) {
@@ -522,30 +484,30 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         RelationAttributeType requiredAttribute = mock(RelationAttributeType.class);
         when(requiredAttribute.getRelationType()).thenReturn(relationType);
         when(requiredAttribute.getRequired()).thenReturn(true);
-        when(requiredAttribute.getName()).thenReturn(REQUIRED_PROPERTY_NAME_D1);
+        when(requiredAttribute.getName()).thenReturn(REQUIRED_PROPERTY_NAME);
         RelationAttributeType optionalAttribute = mock(RelationAttributeType.class);
         when(optionalAttribute.getRelationType()).thenReturn(relationType);
         when(optionalAttribute.getRequired()).thenReturn(false);
-        when(optionalAttribute.getName()).thenReturn(OPTIONAL_PROPERTY_NAME_D1);
+        when(optionalAttribute.getName()).thenReturn(OPTIONAL_PROPERTY_NAME);
         RelationAttributeType optionalAttributeWithLongName = mock(RelationAttributeType.class);
         when(optionalAttributeWithLongName.getRelationType()).thenReturn(relationType);
         when(optionalAttributeWithLongName.getRequired()).thenReturn(false);
         when(optionalAttributeWithLongName.getName()).thenReturn(OPTIONAL_PROPERTY_WITH_CONVERTED_NAME);
         when(relationType.getAttributeTypes()).thenReturn(Arrays.asList(requiredAttribute, optionalAttribute, optionalAttributeWithLongName));
-        when(relationType.getAttributeType(REQUIRED_PROPERTY_NAME_D1)).thenReturn(requiredAttribute);
-        when(relationType.getAttributeType(OPTIONAL_PROPERTY_NAME_D1)).thenReturn(optionalAttribute);
+        when(relationType.getAttributeType(REQUIRED_PROPERTY_NAME)).thenReturn(requiredAttribute);
+        when(relationType.getAttributeType(OPTIONAL_PROPERTY_NAME)).thenReturn(optionalAttribute);
         when(relationType.getAttributeType(OPTIONAL_PROPERTY_WITH_CONVERTED_NAME)).thenReturn(optionalAttributeWithLongName);
         return relationType;
     }
 
     private void addRequiredAndOptionalProperties(Relation mockedRelation) {
         this.addRequiredProperties(mockedRelation);
-        this.addProperty(mockedRelation, OPTIONAL_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_VALUE);
+        this.addProperty(mockedRelation, OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_VALUE);
         this.addProperty(mockedRelation, OPTIONAL_PROPERTY_WITH_CONVERTED_NAME, OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
     }
 
     private void addRequiredProperties(Relation mockedRelation) {
-        this.addProperty(mockedRelation, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        this.addProperty(mockedRelation, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
     }
 
     private void addProperty(Relation mockedRelation, String propertyName, String propertyValue) {
@@ -575,24 +537,10 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             return this.getDeviceProtocolDialectName();
         }
 
+
         @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return Arrays.asList(
-                    this.requiredPropertySpec(),
-                    this.optionalPropertySpec(),
-                    this.optionalWithLongNamePropertySpec());
-        }
-
-        private PropertySpec requiredPropertySpec() {
-            return new PropertySpecServiceImpl().basicPropertySpec(REQUIRED_PROPERTY_NAME_D1, true, new StringFactory());
-        }
-
-        private PropertySpec optionalPropertySpec() {
-            return new PropertySpecServiceImpl().stringPropertySpec(OPTIONAL_PROPERTY_NAME_D1, false, OPTIONAL_PROPERTY_VALUE);
-        }
-
-        private PropertySpec optionalWithLongNamePropertySpec() {
-            return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, false, new StringFactory());
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.of(new ProtocolDialectCustomPropertySet());
         }
 
     }
@@ -610,20 +558,140 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         }
 
         @Override
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.of(new ProtocolDialectCustomPropertySet());
+        }
+
+    }
+
+    public static class PersistentProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
+        @Size(max=Table.MAX_STRING_LENGTH)
+        private String required;
+        @Size(max=Table.MAX_STRING_LENGTH)
+        private String optional;
+
+        @Override
+        protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+            this.required = (String) propertyValues.getProperty(REQUIRED_PROPERTY_NAME);
+            this.optional = (String) propertyValues.getProperty(OPTIONAL_PROPERTY_NAME);
+        }
+
+        @Override
+        protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+            this.setPropertyIfNotNull(propertySetValues, REQUIRED_PROPERTY_NAME, this.required);
+            this.setPropertyIfNotNull(propertySetValues, OPTIONAL_PROPERTY_NAME, this.optional);
+        }
+
+        @Override
+        public void validateDelete() {
+            // nothing to validate
+        }
+    }
+
+    public static class ProtocolDialectPropertiesPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, PersistentProtocolDialectProperties> {
+        @Override
+        public String componentName() {
+            return DeviceDataServices.COMPONENT_NAME;
+        }
+
+        @Override
+        public String tableName() {
+            return "DDC_TST_DIALECT";
+        }
+
+        @Override
+        public String domainForeignKeyName() {
+            return "FK_DDC_TSTDIALECT_PROPS";
+        }
+
+        @Override
+        public String domainFieldName() {
+            return CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.javaName();
+        }
+
+        @Override
+        public String domainColumnName() {
+            return CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName();
+        }
+
+        @Override
+        public Class<PersistentProtocolDialectProperties> persistenceClass() {
+            return PersistentProtocolDialectProperties.class;
+        }
+
+        @Override
+        public Optional<Module> module() {
+            return Optional.empty();
+        }
+
+        @Override
+        public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+            table
+                .column("REQUIRED")
+                .varChar()
+                .map("required")
+                .add();
+            table
+                .column("OPTIONAL")
+                .varChar()
+                .map("optional")
+                .add();
+        }
+    }
+
+    public static class ProtocolDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, PersistentProtocolDialectProperties> {
+        @Override
+        public String getId() {
+            return ProtocolDialectCustomPropertySet.class.getName();
+        }
+
+        @Override
+        public String getName() {
+            return ProtocolDialectCustomPropertySet.class.getName();
+        }
+
+        @Override
+        public Class<DeviceProtocolDialectPropertyProvider> getDomainClass() {
+            return DeviceProtocolDialectPropertyProvider.class;
+        }
+
+        @Override
+        public PersistenceSupport<DeviceProtocolDialectPropertyProvider, PersistentProtocolDialectProperties> getPersistenceSupport() {
+            return new ProtocolDialectPropertiesPersistenceSupport();
+        }
+
+        @Override
+        public boolean isRequired() {
+            return false;
+        }
+
+        @Override
+        public boolean isVersioned() {
+            return true;
+        }
+
+        @Override
+        public Set<ViewPrivilege> defaultViewPrivileges() {
+            return EnumSet.allOf(ViewPrivilege.class);
+        }
+
+        @Override
+        public Set<EditPrivilege> defaultEditPrivileges() {
+            return EnumSet.allOf(EditPrivilege.class);
+        }
+
+        @Override
         public List<PropertySpec> getPropertySpecs() {
+            PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl();
             return Arrays.asList(
-                    this.requiredPropertySpec(),
-                    this.optionalPropertySpec());
+                propertySpecService.basicPropertySpec(REQUIRED_PROPERTY_NAME, true,  new StringFactory()),
+                propertySpecService.basicPropertySpec(OPTIONAL_PROPERTY_NAME, false,  new StringFactory()));
         }
-
-        private PropertySpec requiredPropertySpec() {
-            return RequiredPropertySpecFactory.newInstance().stringPropertySpec(REQUIRED_PROPERTY_NAME_D2);
-        }
-
-        private PropertySpec optionalPropertySpec() {
-            return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_NAME_D2, false, new StringFactory());
-        }
-
     }
 
     /**
