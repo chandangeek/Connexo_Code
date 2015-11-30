@@ -29,7 +29,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                             action: 'showCloneDeviceLifeCycle',
                             callback: function (route) {
                                 this.getApplication().on('devicelifecyclecloneload', function (title) {
-                                    route.setTitle(Ext.String.htmlEncode(title));
+                                    route.setTitle(title);
                                     return true;
                                 }, {single: true});
                                 return this;
