@@ -21,8 +21,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.osgi.service.device.Device;
-
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
@@ -38,6 +36,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
@@ -344,7 +343,6 @@ public class UsagePointValidationResource {
                 .count();
         if (statuses.isEmpty()) {
             usagePointValidationStatusInfo.allDataValidated &= regularChannels.stream()
-//                    .flatMap(l -> l.getChannels().stream())
                     .allMatch(r -> getUsagePointValidation(usagePoint).allDataValidated(r, clock.instant()));
         } else {
             usagePointValidationStatusInfo.allDataValidated = statuses.stream()
@@ -354,9 +352,9 @@ public class UsagePointValidationResource {
 
     @Path("/validationstatus")
     @PUT
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-//    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response setValidationFeatureStatus(@PathParam("mrid") String mRID, UsagePointValidationStatusInfo info) {
         info.usagePoint.mRID = mRID;
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info.usagePoint);
