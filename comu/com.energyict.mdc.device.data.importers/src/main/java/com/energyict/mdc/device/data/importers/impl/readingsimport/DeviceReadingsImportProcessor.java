@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -52,13 +53,13 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
 
     @Override
     public void process(DeviceReadingsImportRecord data, FileImportLogger logger) throws ProcessorException {
-        setDevice(data);
+        setDevice(data, logger);
         validateReadingDate(device, data.getReadingDateTime(), data.getLineNumber());
         for (int i = 0; i < data.getReadingTypes().size(); i++) {
             String readingTypeMRID = data.getReadingTypes().get(i);
             ReadingType readingType = this.context.getMeteringService().getReadingType(readingTypeMRID)
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeMRID));
-            validateReadingType(readingType, data);
+            validateReadingType(readingType, data.getReadingDateTime(), data.getLineNumber());
             if (i < data.getValues().size()) {
                 BigDecimal readingValue = data.getValues().get(i);
                 ValueValidator validator = createValueValidator(device, readingType, logger, data.getLineNumber());
@@ -69,7 +70,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
     }
 
     @Override
-    public void complete() {
+    public void complete(FileImportLogger logger) {
         if (device == null || channelReadingsToStore.isEmpty() && registerReadingsToStore.isEmpty()) {
             return;
         }
@@ -93,9 +94,9 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
         registerReadingsToStore.clear();
     }
 
-    private void setDevice(DeviceReadingsImportRecord data) {
+    private void setDevice(DeviceReadingsImportRecord data, FileImportLogger logger) {
         if (device == null || !device.getmRID().equals(data.getDeviceMRID())) {
-            complete();//when new mrid comes we store all previous data read
+            complete(logger);//when new mrid comes we store all previous data read
             device = this.context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         }
@@ -139,10 +140,22 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
         return meterActivations.isEmpty() || meterActivations.stream().filter(ma -> ma.getInterval().toOpenClosedRange().contains(timeStamp)).findFirst().isPresent();
     }
 
-    private void validateReadingType(ReadingType readingType, DeviceReadingsImportRecord data) {
-        if (readingType.isRegular() && readingType.getMeasuringPeriod().isApplicable()) {
-            throw new ProcessorException(MessageSeeds.NOT_SUPPORTED_READING_TYPE, data.getLineNumber(), readingType.getMRID());
+    private void validateReadingType(ReadingType readingType, ZonedDateTime readingDate, long lineNumber) {
+        if (readingType.isRegular()) {
+            if (readingType.getMeasuringPeriod().isApplicable()) {
+                throw new ProcessorException(MessageSeeds.NOT_SUPPORTED_READING_TYPE, lineNumber, readingType.getMRID());
+            }
+            if (MacroPeriod.DAILY == readingType.getMacroPeriod() && !validTimeOfDay(readingDate)) {
+                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_DAILY_CHANNEL, lineNumber, readingType.getMRID());
+            }
+            if (MacroPeriod.MONTHLY == readingType.getMacroPeriod() && !(readingDate.getDayOfMonth() == 1 && validTimeOfDay(readingDate))) {
+                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL, lineNumber, readingType.getMRID());
+            }
         }
+    }
+
+    private boolean validTimeOfDay(ZonedDateTime dateTime) {
+        return dateTime.getHour() == 0 && dateTime.getMinute() == 0 && dateTime.getSecond() == 0 && dateTime.getNano() == 0;
     }
 
     private ValueValidator createValueValidator(Device device, ReadingType readingType, FileImportLogger logger, long lineNumber) {

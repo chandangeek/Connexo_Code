@@ -64,6 +64,11 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
         isFirstRow = false;
     }
 
+    @Override
+    public void complete(FileImportLogger logger) {
+        // do nothing
+    }
+
     private void logMissingPropertiesIfIncomplete(ConnectionTask<?, ?> connectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) {
         if (connectionTask.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)) {
             TypedProperties properties = connectionTask.getTypedProperties();

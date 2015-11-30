@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
@@ -423,6 +424,44 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.NOT_SUPPORTED_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 2, 1));
+    }
+
+    @Test
+    public void testReadingDateIncorrectDailyReadingType() {
+        String csv = "Device MRID;Reading date;Reading type MRID;Reading Value;\n" +
+                "VPB0001;01/08/2015 00:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;\n" +
+                "VPB0001;02/08/2015 01:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        Channel channel = mockChannel(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        when(channel.getReadingType().getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_DAILY_CHANNEL).format(3, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
+    }
+
+    @Test
+    public void testReadingDateIncorrectMonthlyReadingType() {
+        String csv = "Device MRID;Reading date;Reading type MRID;Reading Value;\n" +
+                "VPB0001;01/08/2015 00:00;13.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;\n" +
+                "VPB0001;02/08/2015 01:00;13.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        Channel channel = mockChannel(device, "13.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        when(channel.getReadingType().getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL).format(3, "13.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
     }
 
     @Test

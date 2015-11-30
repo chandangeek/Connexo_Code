@@ -53,6 +53,11 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         afterTransition(device, data, logger);
     }
 
+    @Override
+    public void complete(FileImportLogger logger) {
+        // do nothing
+    }
+
     protected void beforeTransition(Device device, T data) throws ProcessorException {
         // do nothing
     }

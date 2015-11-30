@@ -40,6 +40,8 @@ public enum MessageSeeds implements MessageSeed {
     READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(209, "ReadingValueWasTruncatedToChannelConfig", "Note for line {0}: Reading value was truncated to {1} according to channel configuration.", Level.INFO),
     READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(210, "ReadingImportIsNotAllowedForDecommissionedDevices", "Can''t process line {0}: Import service doesn''t have privileges to import readings for device with MRID: {1} since it is in Decommissioned state.", Level.WARNING),
     READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE(211, "ReadingImportIsNotAllowedForInStockDevices", "Note for line {0}: Reading can''t be imported for device with MRID: {1} since this device is in In Stock state and was not installed or commissioned yet.", Level.WARNING),
+    READING_DATE_INCORRECT_FOR_DAILY_CHANNEL(212, "ReadingDateIncorrectForDailyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Time of reading date of daily reading must be midnight.", Level.WARNING),
+    READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL(213, "ReadingDateIncorrectForMonthlyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Reading date of monthly reading must be the 1st day of the month and time of the day must be midnight.", Level.WARNING),
 
     NO_CONNECTION_METHOD_ON_DEVICE(301, "NoSuchConnectionMethodOnDevice", "Can''t process line {0}: Connection method {1} is not supported on the device.", Level.WARNING),
     CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE(302, "ConnectionMethodIsNotUniqueInFile", "Failure in line {0}: Connection method name is not unique in the file.", Level.SEVERE),
