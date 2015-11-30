@@ -133,11 +133,6 @@ public class EndDeviceSearchDomain implements SearchDomain {
                     Condition::and);
     }
     
-    @Override
-    public List<String> targetApplications() {
-        return Arrays.asList("COIN");
-    }
-
     private class ConditionBuilder {
         private final SearchablePropertyCondition spec;
         private final SearchableEndDeviceProperty property;
