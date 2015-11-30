@@ -114,6 +114,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 		ti.setTime();
 	}
 
+	/** The protocol verison **/
     public String getProtocolVersion() {
 		return "$Date: 2015-11-26 15:24:26 +0200 (Thu, 26 Nov 2015)$";
 	}
