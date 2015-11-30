@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.TypedProperties;
@@ -7,7 +8,6 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -52,57 +53,57 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
 
     @Override
     public String getProtocolVersion() {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
     public String getFirmwareVersion() throws IOException {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
     public Quantity getMeterReading(int channelId) throws IOException {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
     public Quantity getMeterReading(String name) throws IOException {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
     public int getNumberOfChannels() throws IOException {
-        return 0;          // nothing to set
+        return 0;
     }
 
     @Override
     public int getProfileInterval() throws IOException {
-        return 0;          // nothing to set
+        return 0;
     }
 
     @Override
     public Date getTime() throws IOException {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
     public String getRegister(String name) throws IOException {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
@@ -132,12 +133,12 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
 
     @Override
     public Object getCache() {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
     public Object fetchCache(int rtuId) throws SQLException, BusinessException {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
@@ -147,7 +148,7 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
 
     @Override
     public String getVersion() {
-        return null;          // nothing to set
+        return null;
     }
 
     @Override
@@ -157,12 +158,12 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return null;          // nothing to set
+        return Collections.emptyList();
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return null;          // nothing to set
+        return Collections.emptyList();
     }
 
 

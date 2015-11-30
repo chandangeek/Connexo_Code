@@ -1,12 +1,16 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A standard set of properties
@@ -15,7 +19,7 @@ import java.util.List;
  * Date: 5/02/13
  * Time: 15:02
  */
-public class SDKStandardDeviceProtocolDialectProperties extends AbstractDeviceProtocolDialect {
+public class SDKStandardDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     private final PropertySpecService propertySpecService;
 
@@ -24,7 +28,7 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
      */
     public final String doSomeThingPropertyName = "DoSomeThing";
 
-    public SDKStandardDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
+    public SDKStandardDeviceProtocolDialect(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
     }
@@ -44,10 +48,8 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(getDoSomeThingPropertySpec());
-        return optionalProperties;
+    public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+        return Optional.of(new SDKStandardDialectCustomPropertySet(this.propertySpecService));
     }
 
 }

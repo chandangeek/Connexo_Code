@@ -259,9 +259,9 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
                 new SDKLoadProfileProtocolDialect(this.propertySpecService),
-                new SDKStandardDeviceProtocolDialectProperties(this.propertySpecService),
-                new SDKTimeDeviceProtocolDialectProperties(this.propertySpecService),
-                new SDKTopologyTaskProtocolDialectProperties(this.propertySpecService));
+                new SDKStandardDeviceProtocolDialect(this.propertySpecService),
+                new SDKTimeDeviceProtocolDialect(this.propertySpecService),
+                new SDKTopologyTaskProtocolDialect(this.propertySpecService));
     }
 
     @Override
@@ -331,19 +331,19 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     private TimeDuration getTimeDeviationPropertyForRead() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToReadPropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialect.clockOffsetToReadPropertyName, new TimeDuration(0));
     }
 
     private TimeDuration getTimeDeviationPropertyForWrite() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToWritePropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialect.clockOffsetToWritePropertyName, new TimeDuration(0));
     }
 
     private String getSlaveOneSerialNumber() {
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveOneSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveOneSerialNumberPropertyName, "");
     }
 
     private String getSlaveTwoSerialNumber() {
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveTwoSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveTwoSerialNumberPropertyName, "");
     }
 
     @Override
