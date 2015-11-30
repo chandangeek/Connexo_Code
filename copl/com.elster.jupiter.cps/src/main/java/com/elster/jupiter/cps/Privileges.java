@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 @ProviderType
 public enum Privileges implements TranslationKey {
     //Resources
-    RESOURCE_CUSTOM_PROPERTIES("customPropertySet.customPropertySets", "Custom property sets"),
-    RESOURCE_CUSTOM_PROPERTIES_DESCRIPTION("customPropertySet.customPropertySets.description", "Manage custom property sets"),
-    RESOURCE_CUSTOM_PRIVILEGES("customPropertySet.customPropertyPrivileges", "Custom property sets privileges"),
-    RESOURCE_CUSTOM_PRIVILEGES_DESCRIPTION("customPropertySet.customPropertyPrivileges.description", "Manage custom property sets privileges"),
+    RESOURCE_CUSTOM_PROPERTIES("customPropertySet.customPropertySets", "Custom attribute sets"),
+    RESOURCE_CUSTOM_PROPERTIES_DESCRIPTION("customPropertySet.customPropertySets.description", "Manage custom attribute sets"),
+    RESOURCE_CUSTOM_PRIVILEGES("customPropertySet.customPropertyPrivileges", "Custom attribute sets privileges"),
+    RESOURCE_CUSTOM_PRIVILEGES_DESCRIPTION("customPropertySet.customPropertyPrivileges.description", "Manage custom attribute sets privileges"),
 
     //Privileges
     ADMINISTER_PRIVILEGES(Constants.ADMINISTER_PRIVILEGES, "Administrate"),
