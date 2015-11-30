@@ -70,11 +70,6 @@ public class ServiceCategoryValueFactory implements ValueFactory<ServiceCategory
     }
 
     @Override
-    public String getStructType() {
-        return null;
-    }
-
-    @Override
     public int getObjectFactoryId() {
         return 0;
     }
@@ -82,16 +77,6 @@ public class ServiceCategoryValueFactory implements ValueFactory<ServiceCategory
     @Override
     public boolean isPersistent(ServiceCategoryForTestingPurposes value) {
         return false;
-    }
-
-    @Override
-    public boolean requiresIndex() {
-        return false;
-    }
-
-    @Override
-    public String getIndexType() {
-        return null;
     }
 
 }
