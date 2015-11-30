@@ -7,12 +7,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class UnitOfMeasureFieldInfo {
     public String name;
-    public int multiplier;
+    public long multiplier;
     public int unit;
 
     public UnitOfMeasureFieldInfo(MetricMultiplier multiplier, ReadingTypeUnit unit) {
         this.name=multiplier.getSymbol() + unit.getSymbol();
-        this.multiplier=multiplier.getMultiplier();
+        this.multiplier = Long.valueOf(multiplier.getMultiplier()).byteValue() & 0xFF;
         this.unit=unit.getId();
     }
 }

@@ -10,7 +10,7 @@ public class TimeOfUseFieldInfos {
     public List<TimeOfUseFieldInfo> timeOfUse = new ArrayList<>();
 
     public TimeOfUseFieldInfos() {
-        for (total = 0; total <= 255; total++) {
+        for (total = 0; total <= 7; total++) {
             timeOfUse.add(new TimeOfUseFieldInfo(total));
         }
         total = timeOfUse.size();

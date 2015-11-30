@@ -319,6 +319,7 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         when(readingType.getUnit()).thenReturn(unit);
         when(readingType.getVersion()).thenReturn(1L);
         when(readingType.getFullAliasName()).thenReturn("["+timeAttribute+"]"+aliasName+" "+unit+" "+phasea+" "+tou);
+        when(readingType.isActive()).thenReturn(true);
         return readingType;
     }
 }

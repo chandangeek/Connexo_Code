@@ -13,6 +13,7 @@ import javax.ws.rs.core.Application;
 
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -154,6 +155,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(clock).to(Clock.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(thesaurus).to(MessageInterpolator.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 }
