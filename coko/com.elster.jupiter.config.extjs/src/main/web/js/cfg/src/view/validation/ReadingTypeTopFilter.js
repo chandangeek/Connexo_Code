@@ -16,13 +16,13 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
         this.filters = [
             {
                 type: 'text',
-                dataIndex: 'name',
+                dataIndex: 'fullAliasName',
                 itemId: 'readingTypeNameCombo',
-                emptyText: Uni.I18n.translate('validation.readingTypeName', 'CFG', 'Reading type name'),
+                emptyText: Uni.I18n.translate('validation.readingTypeName', 'CFG', 'Reading type name')
             },
             {
                 type: 'combobox',
-                dataIndex: 'unitOfMeasure',
+                dataIndex: 'unit',
                 itemId: 'unitOfMeasureCombo',
                 emptyText: Uni.I18n.translate('validation.unitOfMeasure', 'CFG', 'Unit of measure'),
                 store:  'UnitsOfMeasure',
@@ -34,7 +34,7 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
                     var record = me.findRecord(me.valueField || me.displayField, value);
                     if(record){
                         params['multiplier'] = record.get('multiplier');
-                        params['unitOfMeasure'] = record.get('unit');
+                        params['unit'] = record.get('unit');
                     }
                 }
             },
@@ -51,7 +51,7 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
             },
             {
                 type: 'combobox',
-                dataIndex: 'time',
+                dataIndex: 'measurementPeriod',
                 emptyText: Uni.I18n.translate('validation.interval', 'CFG', 'Interval'),
                 itemId: 'intervalCombo',
                 store: 'Intervals',
@@ -62,15 +62,20 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
                         value = me.getValue();
                     var record = me.findRecord(me.valueField || me.displayField, value);
                     if(record){
-                        params['time'] = record.get('time');
-                        params['macro'] = record.get('macro');
+                        params['measurementPeriod'] = record.get('time');
+                        params['macroPeriod'] = record.get('macro');
                     }
                 }
             },
             {
                 type: 'noui',
                 itemId: 'selectedReadingsFilter',
-                dataIndex: 'selectedReadings'
+                dataIndex: 'selectedreadingtypes'
+            },
+            {
+                type: 'noui',
+                itemId: 'activeFilter',
+                dataIndex: 'active'
             }
         ];
 
@@ -80,5 +85,7 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
     setSelectedReadings: function(readingArray){
         this.getFilterByItemId('selectedReadingsFilter').setInitialValue(readingArray);
         this.getFilterByItemId('selectedReadingsFilter').setFilterValue(readingArray);
+        this.getFilterByItemId('activeFilter').setInitialValue(true);
+        this.getFilterByItemId('activeFilter').setFilterValue(true);
     }
 });

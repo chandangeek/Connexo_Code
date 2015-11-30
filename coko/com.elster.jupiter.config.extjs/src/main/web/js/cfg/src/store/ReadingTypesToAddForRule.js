@@ -11,7 +11,7 @@ Ext.define('Cfg.store.ReadingTypesToAddForRule', {
 
     proxy: {
         type: 'rest',
-        url: '/api/mtr/fields/readingtypes',
+        url: '/api/mtr/readingtypes',
         reader: {
             type: 'json',
             root: 'readingTypes'
