@@ -1,9 +1,9 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.util.sql.SqlBuilder;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
  * Provides code reuse opportunities for components that implement the {@link ValueFactory} interface.
@@ -19,11 +19,6 @@ public abstract class AbstractValueFactory<T> implements ValueFactory<T> {
     }
 
     @Override
-    public String getStructType() {
-        return null;
-    }
-
-    @Override
     public boolean isReference () {
         return false;
     }
@@ -31,16 +26,6 @@ public abstract class AbstractValueFactory<T> implements ValueFactory<T> {
     @Override
     public boolean isPersistent (T value) {
         return false;
-    }
-
-    @Override
-    public boolean requiresIndex () {
-        return false;
-    }
-
-    @Override
-    public String getIndexType () {
-        return null;
     }
 
     @Override

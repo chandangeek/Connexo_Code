@@ -1,9 +1,9 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.util.sql.SqlBuilder;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
  * Models the behavior of a component that
@@ -15,29 +15,27 @@ import com.elster.jupiter.util.sql.SqlBuilder;
  */
 public interface ValueFactory<T> {
 
-    public T fromStringValue(String stringValue);
+    T fromStringValue(String stringValue);
 
-    public String toStringValue(T object);
+    String toStringValue(T object);
 
-    public Class<T> getValueType();
+    Class<T> getValueType();
 
-    public boolean isReference ();
+    boolean isReference();
 
-    public String getDatabaseTypeName ();
+    String getDatabaseTypeName();
 
-    public int getJdbcType ();
+    int getJdbcType();
 
-    public T valueFromDatabase (Object object);
+    T valueFromDatabase(Object object);
 
-    public Object valueToDatabase (T object);
+    Object valueToDatabase(T object);
 
-    public void bind (PreparedStatement statement, int offset, T value) throws SQLException;
+    void bind(PreparedStatement statement, int offset, T value) throws SQLException;
 
-    public void bind (SqlBuilder builder, T value);
+    void bind(SqlBuilder builder, T value);
 
-    public String getStructType();
-
-    public int getObjectFactoryId ();
+    int getObjectFactoryId();
 
     /**
      * Test if the specified value is persistent.
@@ -45,10 +43,6 @@ public interface ValueFactory<T> {
      * @param value The value
      * @return A flag that indicates if the specified value is persistent
      */
-    public boolean isPersistent (T value);
-
-    public boolean requiresIndex ();
-
-    public String getIndexType ();
+    boolean isPersistent(T value);
 
 }
