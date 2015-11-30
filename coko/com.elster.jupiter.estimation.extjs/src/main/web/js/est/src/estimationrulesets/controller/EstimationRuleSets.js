@@ -105,22 +105,19 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this,
             isActive = record.get('active'),
             ruleSetId = record.get('ruleSet').id,
-            rulePreview = me.getRuleSetRulePreview();
+            rulesStore = me.getStore('Est.estimationrules.store.Rules');
 
         record.set('active', !isActive);
         record.getProxy().setUrl(ruleSetId);
         record.save({
             callback: function (record, operation, success) {
-                if (success) {
-                    record.commit();
-                    me.refreshRuleSetRecord(record.get('ruleSet').id);
-                    rulePreview.updateForm(record);
-                    me.getApplication().fireEvent('acknowledge', isActive
-                        ? Uni.I18n.translate('estimationrules.deactivateRuleSuccess', 'EST', 'Estimation rule deactivated')
-                        : Uni.I18n.translate('estimationrules.activateRuleSuccess', 'EST', 'Estimation rule activated'));
-                } else {
-                    record.set('active', isActive);
-                }
+                rulesStore.load(function () {
+                    if (success) {
+                        me.getApplication().fireEvent('acknowledge', isActive
+                            ? Uni.I18n.translate('estimationrules.deactivateRuleSuccess', 'EST', 'Estimation rule deactivated')
+                            : Uni.I18n.translate('estimationrules.activateRuleSuccess', 'EST', 'Estimation rule activated'));
+                    }
+                });
             }
         });
     },
@@ -136,7 +133,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
     },
 
     selectRule: function (grid, record) {
-        var me =this,
+        var me = this,
             previewForm = me.getRuleSetRulePreview(),
             menu = previewForm.down('menu');
         previewForm.updateForm(record);
@@ -268,8 +265,8 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             },
             success: function (record) {
                 var msg = action == 'create' ?
-                        Uni.I18n.translate('estimationrulesets.add.successMsg', 'EST', 'Estimation rule set added') :
-                        Uni.I18n.translate('estimationrulesets.edit.successMsg', 'EST', 'Estimation rule set edited');
+                    Uni.I18n.translate('estimationrulesets.add.successMsg', 'EST', 'Estimation rule set added') :
+                    Uni.I18n.translate('estimationrulesets.edit.successMsg', 'EST', 'Estimation rule set edited');
 
                 me.getApplication().fireEvent('acknowledge', msg);
 
@@ -289,7 +286,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('estimationrulesets.remove.message', 'EST', 'This estimation rele set and estimation rules will no longer available'),
-            title: Uni.I18n.translate('estimationrulesets.remove.title', 'EST', "Remove '{0}'?",[record.get('name')]),
+            title: Uni.I18n.translate('estimationrulesets.remove.title', 'EST', "Remove '{0}'?", [record.get('name')]),
             config: {
                 record: record,
                 me: me
@@ -305,7 +302,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
     removeRuleAction: function (record) {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('general.removex', 'EST', "Remove '{0}'?",[record.get('name')]),
+            title: Uni.I18n.translate('general.removex', 'EST', "Remove '{0}'?", [record.get('name')]),
             msg: Uni.I18n.translate('estimationrules.deleteConfirmation.msg', 'EST', 'This estimation rule will no longer be available.'),
             config: {
                 record: record,
@@ -368,7 +365,10 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             router = me.getController('Uni.controller.history.Router'),
             previousRoute = router.getRoute().buildUrl();
 
-        router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward({ruleSetId: ruleSetId, ruleId: ruleId}, {previousRoute: previousRoute})
+        router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward({
+            ruleSetId: ruleSetId,
+            ruleId: ruleId
+        }, {previousRoute: previousRoute})
     },
 
     navigateEdit: function (record) {

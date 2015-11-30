@@ -2,7 +2,7 @@ Ext.define('Est.estimationrules.controller.Overview', {
     extend: 'Ext.app.Controller',
     requires: [
         'Uni.controller.history.Router'/*,
-        'Uni.controller.AppController'*/
+         'Uni.controller.AppController'*/
     ],
 
     views: [
@@ -59,18 +59,23 @@ Ext.define('Est.estimationrules.controller.Overview', {
                 actionMenuItemId: 'estimation-rules-overview-action-menu',
                 editOrder: router.queryParams.editOrder
             }),
-            grid = widget.down('estimation-rules-grid'),
-            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+            grid = widget.down('estimation-rules-grid');
 
-        pageView.setLoading(true);
         grid.getStore().loadData([], false);
 
         me.getModel('Est.estimationrules.model.Rule').getProxy().setUrl(ruleSetId);
+        me.getApplication().fireEvent('changecontentevent', widget);
+        me.loadEstimationRuleSet(widget, grid, ruleSetId);
+    },
+
+    loadEstimationRuleSet: function (widget, grid, ruleSetId) {
+        var me = this,
+            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+
+        pageView.setLoading(true);
         me.getModel('Est.estimationrulesets.model.EstimationRuleSet').load(ruleSetId, {
             success: function (record) {
                 var rules = record.rules();
-
-                me.getApplication().fireEvent('changecontentevent', widget);
                 Ext.suspendLayouts();
                 me.getSideMenu().down('#estimation-rule-set-link').setText(record.get('name'));
                 rules.totalCount = rules.getCount();
@@ -110,7 +115,7 @@ Ext.define('Est.estimationrules.controller.Overview', {
         switch (item.action) {
             case 'remove':
                 Ext.create('Uni.view.window.Confirmation').show({
-                    title: Uni.I18n.translate('general.removex', 'EST', "Remove '{0}'?",[menu.record.get('name')]),
+                    title: Uni.I18n.translate('general.removex', 'EST', "Remove '{0}'?", [menu.record.get('name')]),
                     msg: Uni.I18n.translate('estimationrules.deleteConfirmation.msg', 'EST', 'This estimation rule will no longer be available.'),
                     fn: function (state) {
                         switch (state) {
@@ -153,6 +158,8 @@ Ext.define('Est.estimationrules.controller.Overview', {
     toggleActivation: function (record) {
         var me = this,
             page = me.getPage(),
+            router = me.getController('Uni.controller.history.Router'),
+            grid = me.getGrid(),
             isActive = record.get('active');
 
         record.set('active', !isActive);
@@ -161,15 +168,10 @@ Ext.define('Est.estimationrules.controller.Overview', {
             callback: function (record, operation, success) {
                 page.setLoading(false);
                 if (success) {
-                    record.commit();
+                    me.loadEstimationRuleSet(page, grid, router.arguments.ruleSetId);
                     me.getApplication().fireEvent('acknowledge', isActive
                         ? Uni.I18n.translate('estimationrules.deactivateRuleSuccess', 'EST', 'Estimation rule deactivated')
                         : Uni.I18n.translate('estimationrules.activateRuleSuccess', 'EST', 'Estimation rule activated'));
-                    if (page.rendered) {
-                        me.getPreview().updateForm(record);
-                    }
-                } else {
-                    record.set('active', isActive);
                 }
             }
         });
