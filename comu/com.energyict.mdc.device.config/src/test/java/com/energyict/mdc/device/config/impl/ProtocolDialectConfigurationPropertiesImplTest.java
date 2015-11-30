@@ -3,6 +3,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -20,7 +22,10 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
@@ -62,12 +67,15 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
@@ -104,6 +112,7 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import javax.validation.constraints.Size;
 import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -242,10 +251,23 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             when(deviceProtocolFinder.valueDomain()).thenReturn(DeviceProtocolDialectTestImpl.class);
             when(deviceProtocolDialectFinderProvider.finders()).thenReturn(Collections.singletonList(deviceProtocolFinder));
             injector.getInstance(PropertySpecService.class).addFactoryProvider(deviceProtocolDialectFinderProvider);
+            registerDeviceProtocolDialectPropertyProviderTable(injector.getInstance(OrmService.class));
             DataModel dataModel = deviceConfigurationService.getDataModel();
             OracleAliasCreator.createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
         }
+    }
+
+    private void registerDeviceProtocolDialectPropertyProviderTable(OrmService ormService) {
+        DataModel dataModel = ormService.newDataModel("TST", "For testing purposes only");
+        Table<DeviceProtocolDialectPropertyProvider> table = dataModel.addTable("TST_DEVPROTDIALECT", DeviceProtocolDialectPropertyProvider.class);
+        table.map(Whatever.class);
+        Column id = table.addAutoIdColumn();
+        table
+            .primaryKey("PK_TST_DEVPROTDIALECT").on(id)
+            .add();
+        dataModel.install(true, false);
+        dataModel.register();
     }
 
     private static class DeviceProtocolDialectTestImpl implements HasId {
@@ -411,10 +433,39 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
     }
 
+    private static class Whatever implements DeviceProtocolDialectPropertyProvider {
+        private long id;
+        @Override
+        public List<DeviceProtocolDialectProperty> getProperties() {
+            return Collections.emptyList();
+        }
+    }
+
+    public static class MyDialectProperties extends CommonDeviceProtocolDialectProperties {
+        @Size(max= Table.MAX_STRING_LENGTH)
+        private String myProperty;
+
+        @Override
+        protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+            this.myProperty = (String) propertyValues.getProperty(MY_PROPERTY);
+        }
+
+        @Override
+        protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+            this.setPropertyIfNotNull(propertySetValues, MY_PROPERTY, this.myProperty);
+        }
+
+        @Override
+        public void validateDelete() {
+
+        }
+    }
     public static class SharedData {
         private static DeviceProtocolDialect protocolDialect;
         private static PropertySpec propertySpec;
         private static ValueFactory valueFactory;
+        private static CustomPropertySet<DeviceProtocolDialectPropertyProvider, MyDialectProperties> customPropertySet;
+        private static PersistenceSupport<DeviceProtocolDialectPropertyProvider, MyDialectProperties> persistenceSupport;
 
         private interface State {
             DeviceProtocolDialect getProtocolDialect();
@@ -445,12 +496,24 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 valueFactory = new MyPropertyValueFactory();
                 propertySpec = mock(PropertySpec.class);
                 when(propertySpec.getName()).thenReturn(MY_PROPERTY);
+                persistenceSupport = mock(PersistenceSupport.class);
+                when(persistenceSupport.tableName()).thenReturn("TST_MYPROPS");
+                when(persistenceSupport.domainColumnName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName());
+                when(persistenceSupport.domainFieldName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.javaName());
+                when(persistenceSupport.domainForeignKeyName()).thenReturn("FK_TST_MYPROPS");
+                when(persistenceSupport.persistenceClass()).thenReturn(MyDialectProperties.class);
+                when(persistenceSupport.module()).thenReturn(Optional.empty());
+                customPropertySet = mock(CustomPropertySet.class);
+                when(customPropertySet.getId()).thenReturn(ProtocolDialectConfigurationPropertiesImplTest.class.getSimpleName());
+                when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+                when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
+                when(customPropertySet.getDomainClass()).thenReturn(DeviceProtocolDialectPropertyProvider.class);
                 protocolDialect = mock(DeviceProtocolDialect.class);
                 when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
-                when(getProtocolDialect().getPropertySpecs()).thenReturn(Collections.singletonList(getPropertySpec()));
-                when(getProtocolDialect().getPropertySpec(MY_PROPERTY)).thenReturn(Optional.of(getPropertySpec()));
-                when(getPropertySpec().getValueFactory()).thenReturn(getValueFactory());
-                when(getProtocolDialect().getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
+                when(protocolDialect.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
+                when(protocolDialect.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+                when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+                when(protocolDialect.getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
             }
         }
 
@@ -504,7 +567,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         @Override
         public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-            return null;
+            return Collections.emptyList();
         }
 
         @Override
