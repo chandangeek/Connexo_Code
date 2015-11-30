@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativePeriod;
@@ -178,8 +179,11 @@ public class RelativePeriodResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD, Privileges.Constants.VIEW_RELATIVE_PERIOD})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public RelativePeriodPreviewInfo pregviewRelativePeriod(@PathParam("id") long id, RelativeDatePreviewInfo relativeDatePreviewInfo) {
+    public RelativePeriodPreviewInfo previewRelativePeriod(@PathParam("id") long id, RelativeDatePreviewInfo relativeDatePreviewInfo) {
         RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
+        new RestValidationBuilder()
+                .notEmpty(relativeDatePreviewInfo.date, "date")
+                .validate();
         ZonedDateTime referenceDate = getZonedDateTime(relativeDatePreviewInfo);
         ZonedDateTime start = relativePeriod.getRelativeDateFrom().getRelativeDate(referenceDate);
         ZonedDateTime end = relativePeriod.getRelativeDateTo().getRelativeDate(referenceDate);
