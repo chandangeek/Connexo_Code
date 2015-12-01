@@ -23,7 +23,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
     /**
      * This field will be used as boxLabel on checkbox
      */
-    displayField: 'name',
+    displayField: Ext.String.htmlEncode('name'),
 
     /**
      * This field will define the value of checkbox
@@ -57,7 +57,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
         me.store.each(function (record) {
             me.add({
                 xtype: 'checkbox',
-                boxLabel: record.get(me.displayField),
+                boxLabel: Ext.String.htmlEncode(record.get(me.displayField), false),
                 inputValue: record.get(me.valueField),
                 name: me.name,
                 getModelData: function () {

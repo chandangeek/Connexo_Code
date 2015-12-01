@@ -1,15 +1,6 @@
 Ext.define('Uni.view.window.CustomAttributeTypeDetails', {
-    extend: 'Ext.window.Window',
+    extend: 'Uni.view.window.Notification',
     xtype: 'custom-attribute-type-details',
-    closable: true,
-    width: 400,
-    constrain: true,
-    autoShow: true,
-    modal: true,
-    layout: 'fit',
-    closeAction: 'destroy',
-    floating: true,
-    possibleValues: null,
 
     initComponent: function() {
         var me = this,
@@ -30,10 +21,10 @@ Ext.define('Uni.view.window.CustomAttributeTypeDetails', {
         me.items = [{
             xtype:'panel',
             ui: 'medium',
-            title: Uni.I18n.translate('customattributetype.title', 'UNI', 'Attribute details'),
             items: possibleItems
         }];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
+        me.setFormTitle(Uni.I18n.translate('customattributetype.title', 'UNI', 'Attribute details'));
     }
 });
