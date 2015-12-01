@@ -85,16 +85,6 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     }
 
     @Override
-    public void bind(PreparedStatement statement, int offset, T value) throws SQLException {
-        statement.setLong(offset, value.getId());
-    }
-
-    @Override
-    public void bind(SqlBuilder builder, T value) {
-        builder.addLong(value.getId());
-    }
-
-    @Override
     public T fromStringValue (String stringValue) {
         try {
             return this.valueFromDatabase(new Long(stringValue));
