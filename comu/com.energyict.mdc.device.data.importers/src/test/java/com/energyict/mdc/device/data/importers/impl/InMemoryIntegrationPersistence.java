@@ -75,6 +75,7 @@ public class InMemoryIntegrationPersistence {
 
     public void initializeDatabase(boolean showSqlLogging) throws SQLException {
         this.bootstrapModule = new InMemoryBootstrapModule();
+
         this.injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -157,5 +158,4 @@ public class InMemoryIntegrationPersistence {
             bind(MessageInterpolator.class).toInstance(thesaurus);
         }
     }
-
 }

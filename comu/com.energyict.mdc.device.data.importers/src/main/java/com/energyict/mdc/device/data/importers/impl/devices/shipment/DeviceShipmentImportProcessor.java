@@ -39,6 +39,11 @@ public class DeviceShipmentImportProcessor implements FileImportProcessor<Device
         setShipmentDate(device, data);
     }
 
+    @Override
+    public void complete(FileImportLogger logger) {
+        // do nothing
+    }
+
     private DeviceType getDeviceTypeOrThrowException(DeviceShipmentImportRecord data) {
         return this.context.getDeviceConfigurationService().findDeviceTypeByName(data.getDeviceType())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE_TYPE, data.getLineNumber(), data.getDeviceType()));
