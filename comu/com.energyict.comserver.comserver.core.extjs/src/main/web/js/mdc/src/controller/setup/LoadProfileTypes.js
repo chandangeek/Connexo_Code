@@ -233,22 +233,13 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             widget,
             form;
 
+
         if (editPage) {
             if (!id) {
                 Ext.suspendLayouts();
                 editPage.setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
                 editPage.getLayout().setActiveItem(0);
                 Ext.resumeLayouts(true);
-                return;
-            } else if (id == editPage.down('#load-profile-type-edit-form').getRecord().getId()) {
-                me.getModel('Mdc.model.LoadProfileType').load(id, {
-                    success: function (record) {
-                        Ext.suspendLayouts();
-                        editPage.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]));
-                        editPage.getLayout().setActiveItem(0);
-                        Ext.resumeLayouts(true);
-                    }
-                });
                 return;
             }
         }
