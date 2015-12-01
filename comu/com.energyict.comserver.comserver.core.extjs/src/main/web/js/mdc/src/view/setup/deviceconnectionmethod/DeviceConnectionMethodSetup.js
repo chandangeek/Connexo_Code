@@ -65,12 +65,14 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
                 stepItems: [
                     {
                         text: Uni.I18n.translate('deviceconnectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
+                        privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                         itemId: 'createDeviceOutboundConnectionButton',
                         action: 'createDeviceOutboundConnectionMethod',
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions
                     },
                     {
                         text: Uni.I18n.translate('deviceconnectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
+                        privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                         itemId: 'createDeviceInboundConnectionButton',
                         action: 'createDeviceInboundConnectionMethod',
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions
