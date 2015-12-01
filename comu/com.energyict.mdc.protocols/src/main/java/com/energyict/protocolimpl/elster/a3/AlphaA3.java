@@ -46,6 +46,7 @@ import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.A3;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -102,6 +103,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     protected String calledAPTitle;
     protected String securityKey;
 
+    @Inject
     protected AlphaA3(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }

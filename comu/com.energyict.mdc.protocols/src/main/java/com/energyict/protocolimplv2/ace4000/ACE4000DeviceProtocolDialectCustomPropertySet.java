@@ -66,12 +66,12 @@ public class ACE4000DeviceProtocolDialectCustomPropertySet implements CustomProp
 
     @Override
     public Set<ViewPrivilege> defaultViewPrivileges() {
-        return EnumSet.allOf(ViewPrivilege.class);
+        return EnumSet.noneOf(ViewPrivilege.class);
     }
 
     @Override
     public Set<EditPrivilege> defaultEditPrivileges() {
-        return EnumSet.allOf(EditPrivilege.class);
+        return EnumSet.noneOf(EditPrivilege.class);
     }
 
     @Override
