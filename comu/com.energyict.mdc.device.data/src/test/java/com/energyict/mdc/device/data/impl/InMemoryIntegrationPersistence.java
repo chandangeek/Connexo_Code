@@ -145,7 +145,6 @@ public class InMemoryIntegrationPersistence {
     private User principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
     private EventService eventService;
     private NlsService nlsService;
     private static final Clock clock = mock(Clock.class);
@@ -238,6 +237,7 @@ public class InMemoryIntegrationPersistence {
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
+                new CustomPropertySetsModule(),
                 new PluggableModule(),
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
@@ -258,7 +258,7 @@ public class InMemoryIntegrationPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
-            this.ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(OrmService.class);
             injector.getInstance(CustomPropertySetService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
@@ -296,6 +296,7 @@ public class InMemoryIntegrationPersistence {
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(CustomPropertySetService.class);
             initializeFactoryProviders();
             createOracleAliases(dataModel.getConnection(true));
             initializePrivileges();

@@ -334,6 +334,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.issueService,
                                 mock(PropertySpecService.class),
                                 mock(com.elster.jupiter.properties.PropertySpecService.class),
+                                mock(CustomPropertySetService.class),
                                 this.protocolPluggableService, this.engineConfigurationService,
                                 this.deviceConfigurationService, this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),

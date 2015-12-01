@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
@@ -112,6 +113,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
 
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile EngineConfigurationService engineConfigurationService;
@@ -145,7 +147,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
             BundleContext bundleContext,
             OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
             PropertySpecService propertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
-            ProtocolPluggableService protocolPluggableService,
+            CustomPropertySetService customPropertySetService, ProtocolPluggableService protocolPluggableService,
             EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
             MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
             SchedulingService schedulingService, MessageService messageService,
@@ -161,6 +163,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setIssueService(issueService);
         this.setPropertySpecService(propertySpecService);
         this.setJupiterPropertySpecService(jupiterPropertySpecService);
+        this.setCustomPropertySetService(customPropertySetService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setEngineConfigurationService(engineConfigurationService);
         this.setDeviceConfigurationService(deviceConfigurationService);
@@ -303,6 +306,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
     }
@@ -442,6 +450,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(BatchService.class).toInstance(batchService);
                 bind(TaskService.class).toInstance(mdcTaskService);
                 bind(MasterDataService.class).toInstance(masterDataService);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
         };
     }

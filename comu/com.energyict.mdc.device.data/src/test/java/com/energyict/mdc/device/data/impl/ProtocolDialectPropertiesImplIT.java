@@ -434,7 +434,6 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         assertThat(typedProperties.propertyNames()).isNotEmpty();
         assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME)).isEqualTo(REQUIRED_PROPERTY_VALUE);
         assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(OPTIONAL_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
         assertThat(typedProperties.hasInheritedValueFor(OPTIONAL_PROPERTY_NAME)).isTrue();
         assertThat(typedProperties.getInheritedProperties().getProperty(OPTIONAL_PROPERTY_NAME)).isEqualTo(INHERITED_OPTIONAL_PROPERTY_VALUE);
     }
@@ -613,7 +612,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     public static class ProtocolDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, PersistentProtocolDialectProperties> {
         @Override
         public String getId() {
-            return ProtocolDialectCustomPropertySet.class.getName();
+            return ProtocolDialectPropertiesImplIT.class.getSimpleName() + ProtocolDialectCustomPropertySet.class.getSimpleName();
         }
 
         @Override
@@ -643,12 +642,12 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
         @Override
         public Set<ViewPrivilege> defaultViewPrivileges() {
-            return EnumSet.allOf(ViewPrivilege.class);
+            return EnumSet.noneOf(ViewPrivilege.class);
         }
 
         @Override
         public Set<EditPrivilege> defaultEditPrivileges() {
-            return EnumSet.allOf(EditPrivilege.class);
+            return EnumSet.noneOf(EditPrivilege.class);
         }
 
         @Override

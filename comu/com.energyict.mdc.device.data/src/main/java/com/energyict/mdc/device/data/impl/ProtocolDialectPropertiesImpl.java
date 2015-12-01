@@ -216,11 +216,12 @@ public class ProtocolDialectPropertiesImpl
     }
 
     private void saveAllProperties(CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>> customPropertySet) {
-        this.customPropertySetService.setValuesFor(customPropertySet, this, this.toCustomPropertySetValues(this.getAllLocalProperties()));
+        Instant now = this.clock.instant();
+        this.customPropertySetService.setValuesFor(customPropertySet, this, this.toCustomPropertySetValues(this.getAllLocalProperties(), now), now);
     }
 
-    private CustomPropertySetValues toCustomPropertySetValues(List<DeviceProtocolDialectProperty> properties) {
-        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
+    private CustomPropertySetValues toCustomPropertySetValues(List<DeviceProtocolDialectProperty> properties, Instant now) {
+        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(now);
         properties.forEach(property -> values.setProperty(property.getName(), property.getValue()));
         return values;
     }

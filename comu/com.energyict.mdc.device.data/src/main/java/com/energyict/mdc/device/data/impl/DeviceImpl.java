@@ -694,12 +694,10 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Optional<ProtocolDialectProperties> getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectProperties> propertiesList) {
-        for (ProtocolDialectProperties properties : propertiesList) {
-            if (properties.getDeviceProtocolDialectName().equals(dialectName)) {
-                return Optional.of(properties);
-            }
-        }
-        return Optional.empty();
+        return propertiesList
+                .stream()
+                .filter(properties -> properties.getDeviceProtocolDialectName().equals(dialectName))
+                .findAny();
     }
 
     @Override

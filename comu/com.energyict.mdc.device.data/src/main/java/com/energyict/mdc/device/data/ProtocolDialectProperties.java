@@ -31,7 +31,7 @@ public interface ProtocolDialectProperties
      *
      * @return the Device referring to this ProtocolDialectProperties
      */
-    public Device getDevice ();
+    Device getDevice();
 
     /**
      * The name of the {@link DeviceProtocolDialect}
@@ -39,20 +39,20 @@ public interface ProtocolDialectProperties
      *
      * @return The DeviceProtocolDialect
      */
-    public String getDeviceProtocolDialectName ();
+    String getDeviceProtocolDialectName();
 
     /**
      * The {@link ProtocolDialectConfigurationProperties} from which this ProtocolDialectProperties inherits.
      *
      * @return the ProtocolDialectConfigurationProperties
      */
-    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
+    ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 
     /**
      * Returns the current properties in the TypedProperties format.
      *
      * @return the TypedProperties of this ProtocolDialectProperties object
      */
-    public TypedProperties getTypedProperties();
+    TypedProperties getTypedProperties();
 
 }
