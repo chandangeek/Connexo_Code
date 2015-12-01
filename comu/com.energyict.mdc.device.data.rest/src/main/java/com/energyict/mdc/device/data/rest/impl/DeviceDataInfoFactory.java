@@ -88,7 +88,7 @@ public class DeviceDataInfoFactory {
             // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
             channelIntervalInfo.mainValidationInfo = new MinimalVeeReadingValueInfo();
             channelIntervalInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
-            if(channelIntervalInfo.isBulk) {
+            if(channel.getReadingType().isCumulative()) {
                 channelIntervalInfo.bulkValidationInfo = new MinimalVeeReadingValueInfo();
                 channelIntervalInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
