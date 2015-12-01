@@ -231,6 +231,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new EventPushNotificationConfig(protocolLink, getObjectReference(EventPushNotificationConfig.getDefaultObisCode()));
     }
 
+    public BeaconEventPushNotificationConfig getBeaconEventPushNotificationConfig() throws NotInObjectListException {
+        return new BeaconEventPushNotificationConfig(protocolLink, getObjectReference(BeaconEventPushNotificationConfig.getDefaultObisCode()));
+    }
+
     public EventPushNotificationConfig getEventPushNotificationConfig(ObisCode obisCode) throws NotInObjectListException {
         return new EventPushNotificationConfig(protocolLink, getObjectReference(obisCode));
     }

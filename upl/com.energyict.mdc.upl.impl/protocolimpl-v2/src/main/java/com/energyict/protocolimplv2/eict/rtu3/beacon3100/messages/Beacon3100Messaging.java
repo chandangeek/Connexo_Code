@@ -780,8 +780,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void enableEventNotifications(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        GenericInvoke genericInvoke = getCosemObjectFactory().getGenericInvoke(EVENT_NOTIFICATION_OBISCODE, DLMSClassId.EVENT_NOTIFICATION.getClassId(), 1);
-        genericInvoke.invoke(new BooleanObject(enable).getBEREncodedByteArray());
+        getCosemObjectFactory().getBeaconEventPushNotificationConfig().enable(enable);
     }
 
     private void setModemWatchdogParameters(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -816,7 +815,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getDeviceMessageAttributeValue();
         int messageType = AlarmConfigurationMessage.MessageType.valueOf(messageTypeString).getId();
 
-        getCosemObjectFactory().getEventPushNotificationConfig().writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
+        getCosemObjectFactory().getBeaconEventPushNotificationConfig().writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
     }
 
     private void writeUplinkPingTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
