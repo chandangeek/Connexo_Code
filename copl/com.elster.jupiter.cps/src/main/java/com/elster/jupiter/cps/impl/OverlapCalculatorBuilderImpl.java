@@ -48,8 +48,10 @@ public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
             Range<Instant> r = value.getEffectiveRange();
 
             if (hasOverlap(r,newRange)) {
-                if (hasEndOverlap(r,newRange)) {
-                    if(!r.hasLowerBound()) {
+                if (newRange.encloses(r)) {
+                    issues.add(getValuesRangeConflictDelete(value, getConflictingRangeOverlap(r, newRange)));
+                } else if (hasEndOverlap(r, newRange)) {
+                    if (!r.hasLowerBound()) {
                         rangesAfterUpdate.add(Range.lessThan(newRange.lowerEndpoint()));
                     }else{
                         rangesAfterUpdate.add(Range.closedOpen(r.lowerEndpoint(),newRange.lowerEndpoint()));
@@ -142,12 +144,18 @@ public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
         return oldRange.isConnected(newRange) && !oldRange.intersection(newRange).isEmpty();
     }
 
-    private boolean hasStartOverlap(Range<Instant> oldRange, Range<Instant> newRange){
-        return newRange.hasUpperBound() && (oldRange.contains(newRange.upperEndpoint()) || (!oldRange.hasUpperBound() && oldRange.upperEndpoint().isAfter(newRange.upperEndpoint())));
+    private boolean hasStartOverlap(Range<Instant> oldRange, Range<Instant> newRange) {
+        return newRange.hasUpperBound()
+                && ((oldRange.contains(newRange.upperEndpoint()) && !oldRange.encloses(newRange))
+                || (oldRange.hasUpperBound() && newRange.upperEndpoint().isBefore(oldRange.upperEndpoint()) && oldRange.encloses(newRange))
+                || (!oldRange.hasUpperBound() && (!oldRange.hasLowerBound() || (oldRange.hasLowerBound() && oldRange.lowerEndpoint().isBefore(newRange.upperEndpoint())))));
     }
 
-    private boolean hasEndOverlap(Range<Instant> oldRange, Range<Instant> newRange){
-        return newRange.hasLowerBound() && (oldRange.contains(newRange.lowerEndpoint()) || (!oldRange.hasLowerBound() && oldRange.lowerEndpoint().isBefore(newRange.lowerEndpoint())));
+    private boolean hasEndOverlap(Range<Instant> oldRange, Range<Instant> newRange) {
+        return newRange.hasLowerBound()
+                && ((oldRange.contains(newRange.lowerEndpoint()) && !oldRange.encloses(newRange))
+                || (oldRange.hasLowerBound() && newRange.lowerEndpoint().isAfter(oldRange.lowerEndpoint()) && oldRange.encloses(newRange))
+                || (!oldRange.hasLowerBound() && (!oldRange.hasUpperBound() || (oldRange.hasUpperBound() && oldRange.upperEndpoint().isAfter(newRange.lowerEndpoint())))));
     }
 
     private Comparator<Range<Instant>> getRangeComparator(){

@@ -13,6 +13,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Iterators;
@@ -196,7 +198,7 @@ class ActiveCustomPropertySet {
                         where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
                                 .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet)),
                         additionalPrimaryKeyColumnValues);
-        return this.getMapper().select(condition);
+        return this.getMapper().select(condition, Order.ascending(HardCodedFieldNames.INTERVAL.javaName()));
     }
 
     <T extends PersistentDomainExtension<D>, D> void setNonVersionedValuesEntityFor(D businessObject, CustomPropertySetValues values, Object... additionalPrimaryKeyColumns) {
