@@ -67,6 +67,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
     private static final String SEPARATOR = ";";
+    private static final String SEPARATOR2 = ",";
 
     static {
         supportedMessages = new ArrayList<>();
@@ -150,11 +151,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
     }
 
+    /**
+     * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
+     */
+    private final Lock firmwareFileLock = new ReentrantLock();
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
-    
-    /** We lock the critical section where we write the firmware file, making sure that we don't corrupt it. */
-    private final Lock firmwareFileLock = new ReentrantLock();
 
     public Beacon3100Messaging(Beacon3100 protocol) {
         super(protocol);
@@ -187,10 +189,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 || propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds()); //Return value in seconds
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
-        	final UserFile userFile = (UserFile)messageAttribute;
-        	final File tempFile = this.writeToTempDirectory(userFile);
-        	
-        	return tempFile.getAbsolutePath();
+            final UserFile userFile = (UserFile) messageAttribute;
+            final File tempFile = this.writeToTempDirectory(userFile);
+
+            return tempFile.getAbsolutePath();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
@@ -207,6 +209,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                             macAddresses.append(SEPARATOR);
                         }
                         macAddresses.append(callHomeId);
+
+                        //Also add the java protocol class of the device, for the TRIGGER_PRELIMINARY_PROTOCOL message only
+                        if (offlineDeviceMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
+                            macAddresses.append(SEPARATOR2).append(device.getDeviceProtocolPluggableClass().getJavaClassName());
+                        }
                     }
                 } else {
                     //TODO throw proper exception
@@ -234,88 +241,87 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     /**
      * Writes the given {@link UserFile} to the temp directory.
-     * 
-     * @param 	userFile		The user file to write to the temp.
-     * 
-     * @return	The {@link File} that was written.
+     *
+     * @param userFile The user file to write to the temp.
+     * @return The {@link File} that was written.
      */
     private final File writeToTempDirectory(final UserFile userFile) {
-    	final File tempDirectory = new File(System.getProperty(TEMP_DIR));
-    	final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
-    	
-    	try {
-    		this.firmwareFileLock.lock();
-    		
-        	final File tempFile = new File(tempDirectory, fileName);
-        	
-        	if (tempFile.exists()) {
-        		if (this.getLogger().isLoggable(Level.INFO)) {
-        			this.getLogger().log(Level.INFO, "Already have a file called [" + tempFile + "], checking file size.");
-        		}
-        		
-        		if (tempFile.length() != userFile.getFileSize()) {
-	        		if (this.getLogger().isLoggable(Level.INFO)) {
-	        			this.getLogger().log(Level.INFO, "File size differs for file [" + tempFile + "], deleting.");
-	        		}
-	        		
-        			final boolean deleted = tempFile.delete();
-        			
-        			if (!deleted) {
-        				throw new IllegalStateException("Could not delete file : [" + tempFile + "] : delete() returns false !");
-        			}
-        		}
-        	}
-        	
-        	if (!tempFile.exists()) {
-        		if (this.getLogger().isLoggable(Level.INFO)) {
-        			this.getLogger().log(Level.INFO, "Copying user file to [" + tempFile + "].");
-        		}
-        		
-        		final boolean created = tempFile.createNewFile();
-        		
-        		if (!created) {
-        			throw new IllegalStateException("Could not create temporary file [" + tempFile + "] : create() returns false !");
-        		}
-        		
-        		try (final OutputStream outStream = new FileOutputStream(tempFile)){
-        			userFile.processFileAsStream(new Consumer<InputStream>() {
-						@Override
-						public final void accept(final InputStream inStream) {
-							final byte[] buffer = new byte[2048];
-							
-							try {
-								int bytesRead = inStream.read(buffer);
-								
-								while (bytesRead != -1) {
-									outStream.write(buffer, 0, bytesRead);
-									bytesRead = inStream.read(buffer);
-								}
-								
-								outStream.flush();
-							} catch (IOException e) {
-								if (getLogger().isLoggable(Level.WARNING)) {
-									getLogger().log(Level.WARNING, "IO error while writing temporary file : [" + e.getMessage() + "]", e);
-								}
-								
-								throw new IllegalStateException("IO error while writing temporary file : [" + e.getMessage() + "]", e);
-							}
-						}
-        			});
-        		}
-        	}
-        	
-        	return tempFile;
-    	} catch (SQLException | IOException e) {
-			if (getLogger().isLoggable(Level.WARNING)) {
-				getLogger().log(Level.WARNING, "Error while writing temporary file : [" + e.getMessage() + "]", e);
-			}
-			
-			throw new IllegalStateException("Error while writing temporary file : [" + e.getMessage() + "]", e);
-    	} finally {
-    		this.firmwareFileLock.unlock();
-    	}
+        final File tempDirectory = new File(System.getProperty(TEMP_DIR));
+        final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
+
+        try {
+            this.firmwareFileLock.lock();
+
+            final File tempFile = new File(tempDirectory, fileName);
+
+            if (tempFile.exists()) {
+                if (this.getLogger().isLoggable(Level.INFO)) {
+                    this.getLogger().log(Level.INFO, "Already have a file called [" + tempFile + "], checking file size.");
+                }
+
+                if (tempFile.length() != userFile.getFileSize()) {
+                    if (this.getLogger().isLoggable(Level.INFO)) {
+                        this.getLogger().log(Level.INFO, "File size differs for file [" + tempFile + "], deleting.");
+                    }
+
+                    final boolean deleted = tempFile.delete();
+
+                    if (!deleted) {
+                        throw new IllegalStateException("Could not delete file : [" + tempFile + "] : delete() returns false !");
+                    }
+                }
+            }
+
+            if (!tempFile.exists()) {
+                if (this.getLogger().isLoggable(Level.INFO)) {
+                    this.getLogger().log(Level.INFO, "Copying user file to [" + tempFile + "].");
+                }
+
+                final boolean created = tempFile.createNewFile();
+
+                if (!created) {
+                    throw new IllegalStateException("Could not create temporary file [" + tempFile + "] : create() returns false !");
+                }
+
+                try (final OutputStream outStream = new FileOutputStream(tempFile)) {
+                    userFile.processFileAsStream(new Consumer<InputStream>() {
+                        @Override
+                        public final void accept(final InputStream inStream) {
+                            final byte[] buffer = new byte[2048];
+
+                            try {
+                                int bytesRead = inStream.read(buffer);
+
+                                while (bytesRead != -1) {
+                                    outStream.write(buffer, 0, bytesRead);
+                                    bytesRead = inStream.read(buffer);
+                                }
+
+                                outStream.flush();
+                            } catch (IOException e) {
+                                if (getLogger().isLoggable(Level.WARNING)) {
+                                    getLogger().log(Level.WARNING, "IO error while writing temporary file : [" + e.getMessage() + "]", e);
+                                }
+
+                                throw new IllegalStateException("IO error while writing temporary file : [" + e.getMessage() + "]", e);
+                            }
+                        }
+                    });
+                }
+            }
+
+            return tempFile;
+        } catch (SQLException | IOException e) {
+            if (getLogger().isLoggable(Level.WARNING)) {
+                getLogger().log(Level.WARNING, "Error while writing temporary file : [" + e.getMessage() + "]", e);
+            }
+
+            throw new IllegalStateException("Error while writing temporary file : [" + e.getMessage() + "]", e);
+        } finally {
+            this.firmwareFileLock.unlock();
+        }
     }
-    
+
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
@@ -403,16 +409,26 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ConfigureFWWAN)) {
                         configureFWWAN(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
-                    	if (pendingMessage.getDeviceMessageAttributes().size() == 2) {
-                    		final String macAddressHex = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.macAddress).getDeviceMessageAttributeValue();
-                    		final String protocolName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.protocolName).getDeviceMessageAttributeValue();
 
-                    		this.triggerPreliminaryProtocol(macAddressHex, protocolName);
-                    	} else {
-                    		collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    		collectedMessage.setDeviceProtocolInformation("Expected message with 2 attributes, instead got [" + pendingMessage.getDeviceMessageAttributes().size() + "] attributes");
-                    		collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
-                    	}
+                        String[] macAddressesAndProtocols = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceGroupAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
+
+                        for (String macAddressAndProtocol : macAddressesAndProtocols) {
+                            String[] split = macAddressAndProtocol.split(SEPARATOR2);
+                            if (split.length == 2) {
+                                String macAddressHex = split[0];
+                                String protocolName = split[1];
+                                try {
+                                    this.triggerPreliminaryProtocol(macAddressHex, protocolName);
+                                } catch (DataAccessResultException e) {
+                                    //Log the error, but continue with the next meters
+                                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                                    String errorMsg = "Error while triggering action for meter '" + macAddressHex + "': " + e.getMessage();
+                                    collectedMessage.setDeviceProtocolInformation(errorMsg);
+                                    collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+                                }
+                            }
+                        }
+
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -436,28 +452,27 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         return result;
     }
-    
+
     /**
      * Trigger the preliminary protocol for a particular meter.
-     * 
-     * @param 	macAddress			MAC address of the meter (hex).
-     * @param 	protocolName		The name of the protocol to run.
-     * 
-     * @throws 	IOException			If an IO error occurs during the execution.
-     */	
-    private final void triggerPreliminaryProtocol(final String macAddress, final String protocolName) throws IOException  {
-    	if (getLogger().isLoggable(Level.INFO)) {
-			getLogger().log(Level.INFO, "Triggering preliminary protocol for meter [" + macAddress + "], using protocol [" + protocolName + "]");
-		}
-    	
-    	final byte[] mac = ParseUtils.hexStringToByteArray(macAddress);
-    	
-    	final ConcentratorSetup concentratorSetup = this.getCosemObjectFactory().getConcentratorSetup();
-    	concentratorSetup.triggerPreliminaryProtocol(mac, protocolName);
+     *
+     * @param macAddress   MAC address of the meter (hex).
+     * @param protocolName The name of the protocol to run.
+     * @throws IOException If an IO error occurs during the execution.
+     */
+    private final void triggerPreliminaryProtocol(final String macAddress, final String protocolName) throws IOException {
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().log(Level.INFO, "Triggering preliminary protocol for meter [" + macAddress + "], using protocol [" + protocolName + "]");
+        }
 
-    	if (getLogger().isLoggable(Level.INFO)) {
-			getLogger().log(Level.INFO, "Triggered preliminary protocol for meter [" + macAddress + "], using protocol [" + protocolName + "]");
-		}
+        final byte[] mac = ParseUtils.hexStringToByteArray(macAddress);
+
+        final ConcentratorSetup concentratorSetup = this.getCosemObjectFactory().getConcentratorSetup();
+        concentratorSetup.triggerPreliminaryProtocol(mac, protocolName);
+
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().log(Level.INFO, "Triggered preliminary protocol for meter [" + macAddress + "], using protocol [" + protocolName + "]");
+        }
     }
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
@@ -646,9 +661,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         it.setPollingDelay(10000);
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
-        
+
         try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
-        	it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
+            it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
             it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
             it.imageActivation();
         } catch (DataAccessResultException e) {
@@ -657,7 +672,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             } else {
                 throw e;
             }
-        } 
+        }
     }
 
     private boolean isTemporaryFailure(DataAccessResultException e) {
@@ -837,13 +852,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private int getSingleIntegerAttribute(OfflineDeviceMessage pendingMessage) {
         return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
     }
-    
+
     /**
      * Returns the {@link Logger} instance to be used.
-     * 
-     * @return	The logger instance to be used.
+     *
+     * @return The logger instance to be used.
      */
     private final Logger getLogger() {
-    	return this.getProtocol().getLogger();
+        return this.getProtocol().getLogger();
     }
 }

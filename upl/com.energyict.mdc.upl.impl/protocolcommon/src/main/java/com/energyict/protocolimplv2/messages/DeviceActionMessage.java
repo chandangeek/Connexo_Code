@@ -88,10 +88,9 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName, false)),
     SyncOneConfigurationForDC(47, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.deviceConfigurationIDAttributeName)),
     
-    /** Trigger the preliminary protocol (read out serial) for a particular meter. */
+    /** Trigger the preliminary protocol (read out serial) for a group of meters. */
 	TRIGGER_PRELIMINARY_PROTOCOL(48, 
-				PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.macAddress),
-				PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.protocolName));
+				PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
     private final int id;
