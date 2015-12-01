@@ -42,7 +42,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
@@ -114,9 +113,7 @@ import org.osgi.service.event.EventAdmin;
 
 import javax.validation.constraints.Size;
 import java.security.Principal;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
@@ -346,93 +343,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         // Asserts: see expected constraint violation rule
     }
 
-    /**
-     * Provides an implementation for the {@link ValueFactory} interface
-     * for {@link #MY_PROPERTY} property.
-     * Cannot use mocking because the dynamic relation type service
-     * is using Class.forName(String) on the generated mock class
-     * and combined with guice injection that returns a ValueFactory
-     * that apparently does not have a requiresIndex method.
-     */
-    public static class MyPropertyValueFactory implements ValueFactory {
-        @Override
-        public Object fromStringValue(String stringValue) {
-            if ("15".equals(stringValue)) {
-                return 15;
-            }
-            else if (VERY_LARGE_STRING.equals(stringValue)) {
-                return stringValue;
-            }
-            else {
-                return null;
-            }
-        }
-
-        @Override
-        public String toStringValue(Object object) {
-            if (Integer.valueOf(15).equals(object)) {
-                return "15";
-            }
-            else if (VERY_LARGE_STRING.equals(object)) {
-                return VERY_LARGE_STRING;
-            }
-            else {
-                return null;
-            }
-        }
-
-        @Override
-        public Class getValueType() {
-            return null;
-        }
-
-        @Override
-        public boolean isReference() {
-            return false;
-        }
-
-        @Override
-        public String getDatabaseTypeName() {
-            return "varchar2(4000)";
-        }
-
-        @Override
-        public int getJdbcType() {
-            return Types.VARCHAR;
-        }
-
-        @Override
-        public Object valueFromDatabase(Object object) {
-            return null;
-        }
-
-        @Override
-        public Object valueToDatabase(Object object) {
-            return null;
-        }
-
-        @Override
-        public void bind(PreparedStatement statement, int offset, Object value) throws SQLException {
-
-        }
-
-        @Override
-        public void bind(SqlBuilder builder, Object value) {
-
-        }
-
-        @Override
-        public int getObjectFactoryId() {
-            return 0;
-        }
-
-        @Override
-        public boolean isPersistent(Object value) {
-            return false;
-        }
-
-    }
-
     private static class Whatever implements DeviceProtocolDialectPropertyProvider {
         private long id;
         @Override
@@ -493,7 +403,11 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                         return valueFactory;
                     }
                 };
-                valueFactory = new MyPropertyValueFactory();
+                valueFactory = mock(ValueFactory.class);
+                when(valueFactory.fromStringValue("15")).thenReturn(15);
+                when(valueFactory.fromStringValue(VERY_LARGE_STRING)).thenReturn(VERY_LARGE_STRING);
+                when(valueFactory.toStringValue(15)).thenReturn("15");
+                when(valueFactory.toStringValue(VERY_LARGE_STRING)).thenReturn(VERY_LARGE_STRING);
                 propertySpec = mock(PropertySpec.class);
                 when(propertySpec.getName()).thenReturn(MY_PROPERTY);
                 persistenceSupport = mock(PersistenceSupport.class);
