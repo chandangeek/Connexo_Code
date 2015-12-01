@@ -37,7 +37,7 @@ class Installer {
     private void createTask() {
         if (!taskService.getRecurrentTask(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_TASK).isPresent()) {
             taskService.newBuilder()
-                    .setApplication("Pulse")
+                    .setApplication("Facts")
                     .setName(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_TASK)
                     .setScheduleExpressionString(CRON_STRING) //
                     .setDestination(getDestination())
