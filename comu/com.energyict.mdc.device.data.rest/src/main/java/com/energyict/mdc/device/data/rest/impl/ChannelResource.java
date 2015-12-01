@@ -215,7 +215,7 @@ public class ChannelResource {
         return device.getLoadProfiles().stream()
                 .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(l -> l.getChannels().stream())
-                .filter(c -> filterByChannelName.test(channelHelper.get().getChannelName(c)))
+                .filter(c -> filterByChannelName.test(c.getReadingType().getFullAliasName()))
                 .collect(Collectors.toList());
     }
 

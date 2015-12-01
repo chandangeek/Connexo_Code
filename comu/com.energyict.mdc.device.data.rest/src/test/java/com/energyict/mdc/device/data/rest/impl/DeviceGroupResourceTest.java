@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
@@ -7,7 +8,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.search.SearchDomain;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -45,18 +45,14 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         when(meteringGroupService.getQueryEndDeviceGroupQuery()).thenReturn(queryEndDeviceGroupQuery);
         Query<EndDeviceGroup> endDeviceGroupQuery = mock(Query.class);
         when(meteringGroupService.getEndDeviceGroupQuery()).thenReturn(endDeviceGroupQuery);
-        RestQuery<EndDeviceGroup> restQuery = mock(RestQuery.class);
-        when(restQueryService.wrap(queryEndDeviceGroupQuery)).thenReturn(restQuery);
-        RestQuery<EndDeviceGroup> restQuery2 = mock(RestQuery.class);
-        when(restQueryService.wrap(endDeviceGroupQuery)).thenReturn(restQuery2);
         EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn(13L);
         when(endDeviceGroup.getName()).thenReturn("South region");
         when(endDeviceGroup.getMRID()).thenReturn("LAPOPKLQKS");
         when(endDeviceGroup.isDynamic()).thenReturn(false);
         List<EndDeviceGroup> endDeviceGroups = Arrays.asList(endDeviceGroup);
-        when(restQuery.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
-        when(restQuery2.select(anyObject(), anyObject())).thenReturn(Collections.emptyList());
+        when(queryEndDeviceGroupQuery.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
+        when(endDeviceGroupQuery.select(anyObject(), anyObject())).thenReturn(Collections.emptyList());
 
         String response = target("/devicegroups").queryParam("type", "QueryEndDeviceGroup").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
@@ -67,11 +63,27 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     }
 
     @Test
+    public void testGetEndDeviceGroupQueryWithFilter() throws Exception {
+        Query<EndDeviceGroup> groupQuery = mock(Query.class);
+        when(meteringGroupService.getEndDeviceGroupQuery()).thenReturn(groupQuery);
+        EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
+        when(endDeviceGroup.getId()).thenReturn(13L);
+        when(endDeviceGroup.getName()).thenReturn("South region");
+        List<EndDeviceGroup> endDeviceGroups = Arrays.asList(endDeviceGroup);
+        when(groupQuery.select(any(), eq(1), eq(11), any())).thenReturn(endDeviceGroups);
+
+        String response = target("/devicegroups").queryParam("filter", ExtjsFilter.filter("name", "South region"))
+                .queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.devicegroups[0].name")).isEqualTo("South region");
+    }
+
+    @Test
     public void testGetEndDeviceGroup() throws Exception {
         Query<EndDeviceGroup> endDeviceGroupQuery = mock(Query.class);
         when(meteringGroupService.getEndDeviceGroupQuery()).thenReturn(endDeviceGroupQuery);
-        RestQuery<EndDeviceGroup> restQuery2 = mock(RestQuery.class);
-        when(restQueryService.wrap(endDeviceGroupQuery)).thenReturn(restQuery2);
         EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn(13L);
         when(endDeviceGroup.getName()).thenReturn("south region");
@@ -79,7 +91,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         when(endDeviceGroup.getType()).thenReturn("EndDeviceGroup");
         when(endDeviceGroup.isDynamic()).thenReturn(false);
         List<EndDeviceGroup> endDeviceGroups = Arrays.asList(endDeviceGroup);
-        when(restQuery2.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
+        when(endDeviceGroupQuery.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
 
         String response = target("/devicegroups").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
