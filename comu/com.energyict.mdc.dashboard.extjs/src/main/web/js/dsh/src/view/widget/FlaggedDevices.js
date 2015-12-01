@@ -48,15 +48,22 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             '<tpl for=".">',
                 '<tr id="{mRID}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
                     '<td width="100%"><a href="{href}">{[Ext.htmlEncode(values.mRID)]}</a></td>',
+                    '<tpl if="this.showButton()">',
                     '<td>',
                     '<a data-qtip="'+
                     Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices') +
                     '" class="flag-toggle x-btn x-btn-plain-small">',
                         '<span style="width: 16px; height: 16px; font-size: 16px" class="x-btn-button"><span class="x-btn-icon-el icon-star6"></span></span></a>',
                     '</td>',
+                    '</tpl>',
                 '</tr>',
             '</tpl>',
-            '</table>'
+            '</table>',
+            {
+                showButton: function () {
+                    return Mdc.privileges.Device.canFlagDevice();
+                }
+            }
         ),
 
         listeners: {
