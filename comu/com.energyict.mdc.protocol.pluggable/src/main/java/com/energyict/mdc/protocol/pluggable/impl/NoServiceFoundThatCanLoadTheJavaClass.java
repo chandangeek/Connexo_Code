@@ -11,7 +11,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 class NoServiceFoundThatCanLoadTheJavaClass extends RuntimeException {
 
     NoServiceFoundThatCanLoadTheJavaClass(String javaClassname) {
-        super("No deviceprotocol service found that can load the '" + javaClassname + "'");
+        super("No deviceprotocol service found that can load '" + javaClassname + "'");
     }
 
 }
