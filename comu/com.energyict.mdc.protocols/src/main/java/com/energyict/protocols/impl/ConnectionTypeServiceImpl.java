@@ -53,6 +53,7 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     public static final String SERIAL_PAKNET_GUICE_INJECTION_NAME = "serialio-paknet";
     public static final String SERIAL_PEMP_GUICE_INJECTION_NAME = "serialio-pemp";
 
+    private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
     private volatile SocketService socketService;
     private volatile Map<String, SerialComponentService> serialComponentServices = new HashMap<>();
@@ -65,8 +66,9 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     }
 
     @Inject
-    public ConnectionTypeServiceImpl(PropertySpecService propertySpecService, SocketService socketService, NlsService nlsService) {
+    public ConnectionTypeServiceImpl(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, SocketService socketService, NlsService nlsService) {
         this();
+        this.setJupiterPropertySpecService(jupiterPropertySpecService);
         this.setPropertySpecService(propertySpecService);
         this.setSocketService(socketService);
         this.setNlsService(nlsService);
@@ -77,6 +79,7 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
         return new AbstractModule() {
             @Override
             public void configure() {
+                this.bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
                 this.bind(PropertySpecService.class).toInstance(propertySpecService);
                 this.bind(SocketService.class).toInstance(socketService);
                 this.bind(Thesaurus.class).toInstance(thesaurus);
@@ -97,6 +100,11 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    @Reference
+    public void setJupiterPropertySpecService(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
+        this.jupiterPropertySpecService = jupiterPropertySpecService;
     }
 
     @Reference

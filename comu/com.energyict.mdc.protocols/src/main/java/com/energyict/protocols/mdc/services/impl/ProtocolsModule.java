@@ -1,5 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
@@ -10,10 +12,8 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.OrmService;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -33,6 +33,7 @@ public class ProtocolsModule extends AbstractModule {
         requireBinding(IssueService.class);
         requireBinding(Clock.class);
         requireBinding(NlsService.class);
+        requireBinding(com.elster.jupiter.properties.PropertySpecService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(SocketService.class);
 

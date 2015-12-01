@@ -78,6 +78,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile MeteringService meteringService;
     private volatile IssueService issueService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
@@ -102,7 +103,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setMeteringService(meteringService);
         this.setTransactionService(transactionService);
@@ -110,6 +111,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setNlsService(nlsService);
         this.setIssueService(issueService);
         this.setClock(clock);
+        this.setJupiterPropertySpecService(jupiterPropertySpecService);
         this.setPropertySpecService(propertySpecService);
         this.setTopologyService(topologyService);
         this.setSocketService(socketService);
@@ -142,6 +144,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(IssueService.class).toInstance(issueService);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(SocketService.class).toInstance(socketService);
                 bind(SerialComponentService.class).toInstance(serialComponentService);
@@ -223,6 +226,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Reference
     public void setReadingTypeUtilService(MdcReadingTypeUtilService readingTypeUtilService) {
         this.readingTypeUtilService = readingTypeUtilService;
+    }
+
+    @Reference
+    public void setJupiterPropertySpecService(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
+        this.jupiterPropertySpecService = jupiterPropertySpecService;
     }
 
     @Reference

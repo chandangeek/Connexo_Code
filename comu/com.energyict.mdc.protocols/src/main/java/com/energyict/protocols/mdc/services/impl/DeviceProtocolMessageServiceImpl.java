@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -14,7 +15,6 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -45,6 +45,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
     private volatile MeteringService meteringService;
     private volatile IssueService issueService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
@@ -53,8 +54,8 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
     private volatile IdentificationService identificationService;
     private volatile CollectedDataFactory collectedDataFactory;
     private volatile CodeFactory codeFactory;
-    private volatile UserFileFactory userFileFactory;
 
+    private volatile UserFileFactory userFileFactory;
     private Injector injector;
 
     // For OSGi purpose
@@ -64,11 +65,12 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
 
     // For testing purposes
     @Inject
-    public DeviceProtocolMessageServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolMessageServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setMeteringService(meteringService);
         this.setIssueService(issueService);
         this.setClock(clock);
+        this.setJupiterPropertySpecService(jupiterPropertySpecService);
         this.setPropertySpecService(propertySpecService);
         this.setTopologyService(topologyService);
         this.setSocketService(socketService);
@@ -95,6 +97,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
                 bind(IssueService.class).toInstance(issueService);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(SocketService.class).toInstance(socketService);
                 bind(SerialComponentService.class).toInstance(serialComponentService);
@@ -138,6 +141,11 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setJupiterPropertySpecService(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
+        this.jupiterPropertySpecService = jupiterPropertySpecService;
     }
 
     @Reference
