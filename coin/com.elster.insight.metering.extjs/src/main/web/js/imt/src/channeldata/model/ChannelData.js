@@ -5,7 +5,7 @@ Ext.define('Imt.channeldata.model.ChannelData', {
         {name: 'value', type: 'auto'},
         {name: 'interval', type: 'auto'},
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
-        'mainValidationInfo',
+        {name: 'mainValidationInfo', type: 'auto'},
         'readingQualities',
         {
             name: 'interval_start',
@@ -21,5 +21,25 @@ Ext.define('Imt.channeldata.model.ChannelData', {
             dateFormat: 'time',
             type: 'date'
         }
-    ]
+    ],
+    // Called to get more details regarding validation state, rules, etc.
+    refresh: function(mrid, channel, callback) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '/api/udr/usagepoints/{mrid}/channels/{channel}/data/{reading}/validation'
+                .replace('{mrid}', mrid)
+                .replace('{channel}', channel)
+                .replace('{reading}', me.get('interval').end),
+            success: function(response) {
+                var data = Ext.decode(response.responseText);
+                //Ext.apply(me.raw, data)
+                me.beginEdit();
+                me.set(data);
+                me.endEdit(true);
+
+                callback ? callback() : null;
+            }
+        })
+    }
 });
