@@ -3,7 +3,13 @@ package com.elster.jupiter.search;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.search.impl.MessageSeeds;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public enum SearchablePropertyOperator {
@@ -50,13 +56,28 @@ public enum SearchablePropertyOperator {
     EQUAL("==") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            if (String.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+            Class valueType = searchableProperty.getSpecification().getValueFactory().getValueType();
+            if (String.class.isAssignableFrom(valueType)) {
                 criterionBuilder.likeIgnoreCase((String) value);
-            } else if (Boolean.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+            } else if (Boolean.class.isAssignableFrom(valueType)) {
                 criterionBuilder.is((Boolean) value);
+            } else if (Instant.class.isAssignableFrom(valueType)) {
+                Instant lowerBound = roundToMinutes((Instant) value);
+                criterionBuilder.isBetween(lowerBound, lowerBound.plus(1, ChronoUnit.MINUTES));
+            } else if (Date.class.isAssignableFrom(valueType)){
+                Instant lowerBound = roundToMinutes(((Date) value).toInstant());
+                criterionBuilder.isBetween(Date.from(lowerBound), Date.from(lowerBound.plus(1, ChronoUnit.MINUTES)));
             } else {
                 criterionBuilder.isEqualTo(value);
             }
+        }
+
+        private Instant roundToMinutes(Instant original){
+            return ZonedDateTime.ofInstant(original, ZoneId.systemDefault())
+                    .withSecond(0)
+                    .withNano(0)
+                    .with(ChronoField.MILLI_OF_SECOND, 0)
+                    .toInstant();
         }
 
         @Override

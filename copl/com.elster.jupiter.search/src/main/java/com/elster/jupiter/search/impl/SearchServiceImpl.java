@@ -8,6 +8,7 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -18,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link SearchService} interface.
@@ -48,12 +50,24 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
     }
 
     @Override
+    public List<SearchDomain> getDomains(String application) {
+        return this.getDomains()
+                .stream()
+                .filter(targetApplicationMatchPredicate(application))
+                .collect(Collectors.toList());
+    }
+
+    protected Predicate<SearchDomain> targetApplicationMatchPredicate(String application) {
+        return searchDomain -> searchDomain.targetApplications().isEmpty() || searchDomain.targetApplications().contains(application);
+    }
+
+    @Override
     public Optional<SearchDomain> findDomain(String id) {
         return getDomains().stream().filter(isEqual(id)).findAny();
     }
 
     @Override
-    public Optional<SearchDomain> pollSearchDomain(String id, Duration timeout) throws InterruptedException {
+    public Optional<SearchDomain> pollDomain(String id, Duration timeout) throws InterruptedException {
         return searchProviders.get(isEqual(id), timeout);
     }
 

@@ -1,9 +1,15 @@
 package com.elster.jupiter.search.impl;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import org.osgi.service.device.Device;
 
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -126,6 +132,108 @@ public class SearchServiceImplTest {
         assertThat(domain).contains(searchDomain);
     }
 
+    @Test(timeout = 2000)
+    public void pollDomainByIdWithNoRegisteredDomains() throws InterruptedException {
+        SearchServiceImpl searchService = this.getTestInstance();
+
+        // Business method
+        Optional<SearchDomain> domain = searchService.pollDomain("DoesNotExists", Duration.ofSeconds(1));
+
+        // Asserts
+        assertThat(domain).isEmpty();
+    }
+
+    @Test(timeout = 2000)
+    public void pollDomainByIdThatDoesNotExist() throws InterruptedException {
+        SearchServiceImpl searchService = this.getTestInstance();
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchDomain.getId()).thenReturn("pollDomainByIdThatDoesNotExist");
+        searchService.register(searchDomain);
+
+        // Business method
+        Optional<SearchDomain> domain = searchService.pollDomain("DoesNotExists", Duration.ofSeconds(1));
+
+        // Asserts
+        assertThat(domain).isEmpty();
+    }
+
+    @Test(timeout = 500)
+    public void pollDomainById() throws InterruptedException {
+        String domainId = "pollDomainById";
+        SearchServiceImpl searchService = this.getTestInstance();
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchDomain.getId()).thenReturn(domainId);
+        searchService.register(searchDomain);
+
+        // Business method
+        Optional<SearchDomain> domain = searchService.pollDomain(domainId, Duration.ofSeconds(1));
+
+        // Asserts
+        assertThat(domain).contains(searchDomain);
+    }
+
+    @Test
+    public void findDomainByApplicationWithoutRegistrations() {
+        SearchServiceImpl searchService = this.getTestInstance();
+
+        // Business method
+        List<SearchDomain> domains = searchService.getDomains("APP");
+
+        // Asserts
+        assertThat(domains).isEmpty();
+    }
+
+    @Test
+    public void findDomainByApplicationWithoutMatchingRegistrations() {
+        SearchServiceImpl searchService = this.getTestInstance();
+        SearchDomain searchDomain1 = mock(SearchDomain.class);
+        when(searchDomain1.targetApplications()).thenReturn(Arrays.asList("APP-1", "APP-2"));
+        searchService.register(searchDomain1);
+        SearchDomain searchDomain2 = mock(SearchDomain.class);
+        when(searchDomain2.targetApplications()).thenReturn(Arrays.asList("APP-3", "APP-4"));
+        searchService.register(searchDomain2);
+
+        // Business method
+        List<SearchDomain> domains = searchService.getDomains("APP");
+
+        // Asserts
+        assertThat(domains).isEmpty();
+    }
+
+    @Test
+    public void findDomainByApplicationWithSingleMatchingRegistration() {
+        SearchServiceImpl searchService = this.getTestInstance();
+        SearchDomain searchDomain1 = mock(SearchDomain.class);
+        when(searchDomain1.targetApplications()).thenReturn(Arrays.asList("APP", "APP-2"));
+        searchService.register(searchDomain1);
+        SearchDomain searchDomain2 = mock(SearchDomain.class);
+        when(searchDomain2.targetApplications()).thenReturn(Arrays.asList("APP-3", "APP-4"));
+        searchService.register(searchDomain2);
+
+        // Business method
+        List<SearchDomain> domains = searchService.getDomains("APP");
+
+        // Asserts
+        assertThat(domains).containsOnly(searchDomain1);
+    }
+
+    @Test
+    public void findDomainByApplicationWithMatchAllRegistrations() {
+        SearchServiceImpl searchService = this.getTestInstance();
+        SearchDomain searchDomain1 = mock(SearchDomain.class);
+        when(searchDomain1.targetApplications()).thenReturn(Collections.emptyList());
+        searchService.register(searchDomain1);
+        SearchDomain searchDomain2 = mock(SearchDomain.class);
+        when(searchDomain2.targetApplications()).thenReturn(Arrays.asList("APP-1", "APP-2"));
+        searchService.register(searchDomain2);
+
+        // Business method
+        List<SearchDomain> domains = searchService.getDomains("APP");
+
+        // Asserts
+        assertThat(domains).containsOnly(searchDomain1);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void startSearchWithNoDomainsRegistered() {
         SearchServiceImpl searchService = this.getTestInstance();
@@ -175,6 +283,28 @@ public class SearchServiceImplTest {
 
         // Asserts
         assertThat(builder).isNotNull();
+    }
+
+    @Test
+    public void getLayerDoesNotReturnNull() {
+        SearchServiceImpl searchService = this.getTestInstance();
+
+        // Business method
+        Layer layer = searchService.getLayer();
+
+        // Asserts
+        assertThat(layer).isNotNull();
+    }
+
+    @Test
+    public void getSeedsDoesNotReturnNull() {
+        SearchServiceImpl searchService = this.getTestInstance();
+
+        // Business method
+        List<MessageSeed> seeds = searchService.getSeeds();
+
+        // Asserts
+        assertThat(seeds).isNotNull();
     }
 
     private SearchServiceImpl getTestInstance() {
