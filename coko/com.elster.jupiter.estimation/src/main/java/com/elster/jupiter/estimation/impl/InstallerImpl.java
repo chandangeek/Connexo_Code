@@ -1,32 +1,17 @@
 package com.elster.jupiter.estimation.impl;
 
-import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.*;
 
@@ -40,14 +25,16 @@ class InstallerImpl {
     private final MessageService messageService;
     private final TimeService timeService;
     private final EventService eventService;
+    private final UserService userService;
 
     private DestinationSpec destinationSpec;
 
-    InstallerImpl(DataModel dataModel, MessageService messageService, TimeService timeService, EventService eventService) {
+    InstallerImpl(DataModel dataModel, MessageService messageService, TimeService timeService, EventService eventService, UserService userService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.timeService = timeService;
         this.eventService = eventService;
+        this.userService = userService;
     }
 
     public DestinationSpec getDestinationSpec() {
@@ -60,7 +47,8 @@ class InstallerImpl {
                 this::createDestinationAndSubscriber,
                 this::createRelativePeriodCategory,
                 this::createRelativePeriods,
-                this::createEventTypes
+                this::createEventTypes,
+                this::createTaskExecutorUser
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
     }
@@ -100,5 +88,9 @@ class InstallerImpl {
         for (EventType eventType : EventType.values()) {
             eventType.install(eventService);
         }
+    }
+
+    private void createTaskExecutorUser() {
+        userService.createUser(EstimationServiceImpl.ESTIMATION_TASKS_USER, "task executor for estimation tasks");
     }
 }

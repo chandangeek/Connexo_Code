@@ -4,49 +4,54 @@ import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.Locale;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/05/2015
- * Time: 15:05
- */
 class EstimationTaskExecutor implements TaskExecutor {
 
     private final IEstimationService estimationService;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final TimeService timeService;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final User user;
 
-    public EstimationTaskExecutor(IEstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService) {
+    public EstimationTaskExecutor(IEstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService, ThreadPrincipalService threadPrincipalService, UserService userService, User user) {
         this.estimationService = estimationService;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
+        this.threadPrincipalService = threadPrincipalService;
+        this.user = user;
     }
 
     @Override
     public void execute(TaskOccurrence occurrence) {
-        try (LoggingContext loggingContext = LoggingContext.get()) {
-            Logger taskLogger = createTaskLogger(occurrence);
-            try {
-                tryExecute(occurrence, taskLogger);
-            } catch (Exception e) {
-                loggingContext.severe(taskLogger, e);
+        threadPrincipalService.runAs(user, () -> {
+            try (LoggingContext loggingContext = LoggingContext.get()) {
+                Logger taskLogger = createTaskLogger(occurrence);
+                try {
+                    tryExecute(occurrence, taskLogger);
+                } catch (Exception e) {
+                    loggingContext.severe(taskLogger, e);
+                }
             }
-        }
+        }, Locale.getDefault());
     }
 
     private void tryExecute(TaskOccurrence occurrence, Logger taskLogger) {
