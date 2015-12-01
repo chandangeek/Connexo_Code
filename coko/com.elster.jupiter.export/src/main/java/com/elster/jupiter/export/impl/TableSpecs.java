@@ -27,7 +27,7 @@ enum TableSpecs {
             table.map(ExportTaskImpl.class);
             table.setJournalTableName("DES_DATAEXPORTTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            //Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("DATAFORMATTER").varChar(NAME_LENGTH).notNull().map("dataFormatter").add();
             table.column("DATASELECTOR").varChar(NAME_LENGTH).notNull().map("dataSelector").add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
@@ -41,7 +41,7 @@ enum TableSpecs {
                     .map("recurrentTask")
                     .add();
             table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
-            table.unique("DES_UQ_TASK_NAME").on(nameColumn).add();
+            //table.unique("DES_UQ_TASK_NAME").on(nameColumn).add();
         }
     },
     DES_RTDATASELECTOR(IStandardDataSelector.class) {

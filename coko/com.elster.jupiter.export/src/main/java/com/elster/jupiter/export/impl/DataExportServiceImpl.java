@@ -41,6 +41,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableMap;
@@ -52,6 +53,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -73,6 +75,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.export",
@@ -179,6 +182,14 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public Query<? extends ExportTask> getReadingTypeDataExportTaskQuery() {
         return queryService.wrap(dataModel.query(IExportTask.class));
+    }
+
+    @Override
+    public  Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name) {
+        Query<IExportTask> query =
+                queryService.wrap(dataModel.query(IExportTask.class, RecurrentTask.class));
+        Condition condition = where("recurrentTask.name").isEqualTo(name);
+        return query.select(condition).stream().findFirst();
     }
 
     @Override

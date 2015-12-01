@@ -24,7 +24,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -49,15 +48,11 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_EXPORT_TASK + "}")
 final class ExportTaskImpl implements IExportTask {
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
     private final Thesaurus thesaurus;
-
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     protected String name;
     @NotNull
     @IsExistingFormatter
@@ -279,6 +274,7 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public void setName(String name) {
         this.name = (name != null ? name.trim() : "");
+        recurrentTaskDirty = true;
     }
 
     @Override
@@ -336,7 +332,7 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public String getName() {
-        return name;
+        return (recurrentTask.isPresent()) ? recurrentTask.get().getName() : name;
     }
 
     @Override
@@ -349,6 +345,9 @@ final class ExportTaskImpl implements IExportTask {
 
     private void doUpdate() {
         if (recurrentTaskDirty) {
+            if (!recurrentTask.get().getName().equals(this.name)) {
+                recurrentTask.get().setName(name);
+            }
             recurrentTask.get().save();
         }
         if (propertiesDirty) {
@@ -358,14 +357,15 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     private void persist() {
-        RecurrentTaskBuilder builder = taskService.newBuilder()
-                .setName(UUID.randomUUID().toString())
+        RecurrentTask task = taskService.newBuilder()
+                .setApplication("Pulse")
+                .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataExportService.getDestination())
                 .setPayLoad(getName())
                 .scheduleImmediately(scheduleImmediately)
-                .setFirstExecution(nextExecution);
-        RecurrentTask task = builder.build();
+                .setFirstExecution(nextExecution)
+                .build();
         recurrentTask.set(task);
         if (DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector)) {
             Save.CREATE.validate(dataModel, this, StandardDataSelector.class);
@@ -440,7 +440,7 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     private ExportTaskImpl init(String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
-        setName(name);
+        this.name = name;
         this.dataFormatter = dataFormatter;
         this.dataSelector = dataSelector;
         this.scheduleExpression = scheduleExpression;

@@ -471,6 +471,7 @@ public class ExportTaskImplIT {
     }
 
     @Test
+    @Ignore
     public void testHistory() throws InterruptedException {
 
         clock.setTicker(new Supplier<Instant>() {
@@ -610,7 +611,7 @@ public class ExportTaskImplIT {
         ExportTask exportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
-
+            exportTask.setName("test");
             context.commit();
         }
         return exportTask;
