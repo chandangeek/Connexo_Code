@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
@@ -12,16 +14,13 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 /**
- * Adapter between a {@link com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter} and {@link DeviceLogBookSupport}
+ * Adapter between a {@link SmartMeterProtocolAdapterImpl} and {@link DeviceLogBookSupport}
  *
  * @author gna
  * @since 10/04/12 - 15:29

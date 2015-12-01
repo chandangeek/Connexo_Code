@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
@@ -16,8 +17,6 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Adapter between a {@link com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter} and a {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport}
+ * Adapter between a {@link SmartMeterProtocolAdapterImpl} and a {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport}
  *
  * @author gna
  * @since 5/04/12 - 13:56

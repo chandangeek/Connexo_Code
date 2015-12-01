@@ -2,6 +2,7 @@
 -dsannotations: *
 Private-Package:  \
 	com.energyict.mdc.protocol.pluggable.impl,\
+	com.energyict.mdc.protocol.pluggable.impl.adapters,\
 	com.energyict.mdc.protocol.pluggable.impl.adapters.common,\
 	com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers,\
 	com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol,\
@@ -13,4 +14,4 @@ Export-Package:  \
 Include-Resource: \
 	capabilitymappings.properties\=src/main/resources/capabilitymappings.properties,\
 	messagemappings.properties\=src/main/resources/messagemappings.properties,\
-	securitymappings.properties\=src/main/resources/securitymappings.properties	
+	securitymappings.properties\=src/main/resources/securitymappings.properties

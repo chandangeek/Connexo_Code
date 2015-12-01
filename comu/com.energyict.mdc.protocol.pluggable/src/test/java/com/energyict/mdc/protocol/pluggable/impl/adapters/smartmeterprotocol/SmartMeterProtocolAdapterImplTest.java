@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.pluggable;
+package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
@@ -39,6 +39,8 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
@@ -50,8 +52,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecurityProperties;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledSmartMeterProtocol;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SimpleTestSmartMeterProtocol;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 
 import java.io.IOException;
@@ -82,13 +82,13 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 /**
- * Tests for the {@link SmartMeterProtocolAdapter}.
+ * Tests for the {@link SmartMeterProtocolAdapterImpl}.
  *
  * @author gna
  * @since 5/04/12 - 13:20
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SmartMeterProtocolAdapterTest {
+public class SmartMeterProtocolAdapterImplTest {
 
     private static final String PROPERTY_SPEC_NAME = "whatever";
 
@@ -226,7 +226,7 @@ public class SmartMeterProtocolAdapterTest {
     public void smartMeterProtocolAdaptersNotNull() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertThat(smartMeterProtocolAdapter.getSmartMeterProtocolClockAdapter()).isNotNull();
         assertThat(smartMeterProtocolAdapter.getSmartMeterProtocolLoadProfileAdapter()).isNotNull();
@@ -240,7 +240,7 @@ public class SmartMeterProtocolAdapterTest {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         doThrow(new IOException("Could not terminate/release the protocol")).when(smartMeterProtocol).release();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         smartMeterProtocolAdapter.terminate();
     }
@@ -251,7 +251,7 @@ public class SmartMeterProtocolAdapterTest {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         when(smartMeterProtocol.getMeterSerialNumber()).thenReturn(meterSerialNumber);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertThat(smartMeterProtocolAdapter.getSerialNumber()).isEqualTo(meterSerialNumber);
     }
@@ -261,7 +261,7 @@ public class SmartMeterProtocolAdapterTest {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         when(smartMeterProtocol.getMeterSerialNumber()).thenThrow(new IOException("Could not fetch the serialnumber"));
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         smartMeterProtocolAdapter.getSerialNumber();
     }
@@ -275,7 +275,7 @@ public class SmartMeterProtocolAdapterTest {
         requiredKeys.add(this.newStringPropertySpec("r3"));
         when(smartMeterProtocol.getRequiredProperties()).thenReturn(requiredKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertThat(getRequiredPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isEmpty(); // the optional properties are replaced by the hardcoded legacy values
         assertThat(getOptionalPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isNotEmpty(); // the optional properties are replaced by the hardcoded legacy values
@@ -294,7 +294,7 @@ public class SmartMeterProtocolAdapterTest {
         optionalKeys.add(this.newStringPropertySpec("o3"));
         when(smartMeterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertThat(getRequiredPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isEmpty();
         assertThat(getOptionalPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isNotEmpty();
@@ -311,7 +311,7 @@ public class SmartMeterProtocolAdapterTest {
         optionalKeys.add(this.newStringPropertySpec("o3"));
         when(smartMeterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         final List<DeviceProtocolDialect> deviceProtocolDialects = smartMeterProtocolAdapter.getDeviceProtocolDialects();
 
@@ -327,7 +327,7 @@ public class SmartMeterProtocolAdapterTest {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         when(smartMeterProtocol.getVersion()).thenReturn(version);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertThat(smartMeterProtocolAdapter.getVersion()).isEqualTo(version);
     }
@@ -337,7 +337,7 @@ public class SmartMeterProtocolAdapterTest {
         final Object cacheObject = new BigDecimal("1256.6987");
         final int deviceId = 123;
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         // Calling all business method on CachingProtocol
         smartMeterProtocolAdapter.setCache(cacheObject);
@@ -355,7 +355,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void logOnWithoutViolationsTest() throws IOException {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         // call the logOn business method
         smartMeterProtocolAdapter.logOn();
@@ -368,7 +368,7 @@ public class SmartMeterProtocolAdapterTest {
     public void logOnWithExceptionTest() throws IOException, CommunicationException {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         doThrow(new IOException("LogOn failed for a test reason")).when(smartMeterProtocol).connect();
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         try {
             // call the logOn business method
@@ -387,7 +387,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void logOffWithoutViolationsTest() throws IOException {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         // call the logOn business method
         smartMeterProtocolAdapter.logOff();
@@ -400,7 +400,7 @@ public class SmartMeterProtocolAdapterTest {
     public void logOffWithExceptionTest() throws IOException {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
         doThrow(new IOException("LogOff failed for a test reason")).when(smartMeterProtocol).disconnect();
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         try {
             // call the logOn business method
@@ -416,7 +416,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void enableHHUSignOnWithoutExceptionsTest() throws ConnectionException {
         HhuEnabledSmartMeterProtocol smartMeterProtocol = getMockedHHUEnabledSmartMeterProtocol();
-        SmartMeterProtocolAdapter meterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl meterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         // call the business method
         meterProtocolAdapter.enableHHUSignOn(any(SerialCommunicationChannel.class));
@@ -428,7 +428,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void enableHHUSignOnWithoutExceptionsWithDataReadOut() throws ConnectionException {
         HhuEnabledSmartMeterProtocol smartMeterProtocol = getMockedHHUEnabledSmartMeterProtocol();
-        SmartMeterProtocolAdapter meterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl meterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         // call the business method
         meterProtocolAdapter.enableHHUSignOn(any(SerialCommunicationChannel.class), anyBoolean());
@@ -440,7 +440,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void getHHUDataReadoutTest() {
         HhuEnabledSmartMeterProtocol smartMeterProtocol = getMockedHHUEnabledSmartMeterProtocol();
-        SmartMeterProtocolAdapter meterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl meterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         // call the business method
         meterProtocolAdapter.getHHUDataReadout();
@@ -456,7 +456,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void getHHUDataReadoutEmptyByteArray() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
-        SmartMeterProtocolAdapter meterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl meterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         // call the business method
         byte[] hhuDataReadout = meterProtocolAdapter.getHHUDataReadout();
@@ -469,7 +469,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void getCapabilitiesTest() throws ClassNotFoundException {
         SmartMeterProtocol meterProtocol = getMockedSmartMeterProtocol();
-        SmartMeterProtocolAdapter meterProtocolAdapter = spy(newSmartMeterProtocolAdapter(meterProtocol));
+        SmartMeterProtocolAdapterImpl meterProtocolAdapter = spy(newSmartMeterProtocolAdapter(meterProtocol));
         when(meterProtocolAdapter.getProtocolClass()).thenReturn(MockDeviceProtocol.class);
 
         // assert that the adapter provides all capabilities
@@ -480,7 +480,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void testGetSecurityPropertiesWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         SmartMeterProtocol adaptedProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolAdapter adapter =
+        SmartMeterProtocolAdapterImpl adapter =
                 new TestSmartMeterProtocolAdapter(
                     adaptedProtocol,
                     this.inMemoryPersistence.getPropertySpecService(),
@@ -502,7 +502,7 @@ public class SmartMeterProtocolAdapterTest {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
         when(adaptedProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
-        SmartMeterProtocolAdapter adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
+        SmartMeterProtocolAdapterImpl adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
 
         // Business method
         adapter.getSecurityPropertySpecs();
@@ -515,7 +515,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void testGetSecurityPropertySpecWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         SmartMeterProtocol adaptedProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolAdapter adapter =
+        SmartMeterProtocolAdapterImpl adapter =
                 new TestSmartMeterProtocolAdapter(
                         adaptedProtocol,
                         this.inMemoryPersistence.getPropertySpecService(),
@@ -538,7 +538,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void testGetSecurityPropertySpecWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        SmartMeterProtocolAdapter adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
+        SmartMeterProtocolAdapterImpl adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
 
         // Business method
         adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
@@ -550,7 +550,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void testGetAuthenticationAccessLevelsWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         SmartMeterProtocol adaptedProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolAdapter adapter =
+        SmartMeterProtocolAdapterImpl adapter =
                 new TestSmartMeterProtocolAdapter(
                         adaptedProtocol,
                         this.inMemoryPersistence.getPropertySpecService(),
@@ -571,7 +571,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void testGetAuthenticationAccessLevelsWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        SmartMeterProtocolAdapter adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
+        SmartMeterProtocolAdapterImpl adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
 
         // Business method
         adapter.getAuthenticationAccessLevels();
@@ -583,7 +583,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void testGetEncryptionAccessLevelsWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         SmartMeterProtocol adaptedProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolAdapter adapter =
+        SmartMeterProtocolAdapterImpl adapter =
                 new TestSmartMeterProtocolAdapter(
                         adaptedProtocol,
                         this.inMemoryPersistence.getPropertySpecService(),
@@ -604,7 +604,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void testGetEncryptionAccessLevelsWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        SmartMeterProtocolAdapter adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
+        SmartMeterProtocolAdapterImpl adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
 
         // Business method
         adapter.getEncryptionAccessLevels();
@@ -621,7 +621,7 @@ public class SmartMeterProtocolAdapterTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
 
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class);
@@ -639,7 +639,7 @@ public class SmartMeterProtocolAdapterTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
 
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class);
@@ -656,9 +656,9 @@ public class SmartMeterProtocolAdapterTest {
         return new IOException("MyExpectedIoException");
     }
 
-    protected SmartMeterProtocolAdapter newSmartMeterProtocolAdapter(SmartMeterProtocol smartMeterProtocol) {
+    protected SmartMeterProtocolAdapterImpl newSmartMeterProtocolAdapter(SmartMeterProtocol smartMeterProtocol) {
         DataModel dataModel = this.protocolPluggableService.getDataModel();
-        return new SmartMeterProtocolAdapter(
+        return new SmartMeterProtocolAdapterImpl(
                 smartMeterProtocol,
                 this.inMemoryPersistence.getPropertySpecService(),
                 this.protocolPluggableService,
@@ -674,7 +674,7 @@ public class SmartMeterProtocolAdapterTest {
     private interface MeterProtocolWithDeviceSecuritySupport extends SmartMeterProtocol, DeviceSecuritySupport {
     }
 
-    private class TestSmartMeterProtocolAdapter extends SmartMeterProtocolAdapter {
+    private class TestSmartMeterProtocolAdapter extends SmartMeterProtocolAdapterImpl {
 
         private TestSmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, CollectedDataFactory collectedDataFactory) {
             super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, capabilityAdapterMappingFactory, messageAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), collectedDataFactory, meteringService, thesaurus);

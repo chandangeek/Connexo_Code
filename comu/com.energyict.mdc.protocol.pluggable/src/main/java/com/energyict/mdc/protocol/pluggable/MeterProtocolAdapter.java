@@ -7,6 +7,8 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -17,12 +19,13 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-17 (17:41)
  */
+@ProviderType
 public interface MeterProtocolAdapter extends DeviceProtocol, DeviceProtocolAdapter {
 
-    public List<CollectedData> getLoadProfileLogBooksData(List<LoadProfileReader> loadProfiles, List<LogBookReader> logBookReaders);
+    List<CollectedData> getLoadProfileLogBooksData(List<LoadProfileReader> loadProfiles, List<LogBookReader> logBookReaders);
 
-    public DeviceProtocolCache getDeviceCache();
+    DeviceProtocolCache getDeviceCache();
 
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache);
+    void setDeviceCache(DeviceProtocolCache deviceProtocolCache);
 
 }

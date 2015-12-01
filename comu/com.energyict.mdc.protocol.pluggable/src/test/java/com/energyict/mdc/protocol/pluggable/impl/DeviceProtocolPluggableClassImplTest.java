@@ -51,8 +51,8 @@ import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestPropertySpecs;
@@ -354,7 +354,7 @@ public class DeviceProtocolPluggableClassImplTest {
         assertThat(deviceProtocolPluggableClass.getJavaClassName()).isEqualTo(MOCK_SMART_METER_PROTOCOL);
         DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
         assertThat(deviceProtocol).isNotNull();
-        assertThat(deviceProtocol).isInstanceOf(SmartMeterProtocolAdapter.class);
+        assertThat(deviceProtocol).isInstanceOf(SmartMeterProtocolAdapterImpl.class);
     }
 
     @Test
