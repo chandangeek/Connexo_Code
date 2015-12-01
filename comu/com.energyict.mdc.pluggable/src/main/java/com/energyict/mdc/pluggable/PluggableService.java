@@ -1,8 +1,9 @@
 package com.energyict.mdc.pluggable;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.properties.PropertySpec;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,7 @@ import java.util.Optional;
 @ProviderType
 public interface PluggableService {
 
-    public static String COMPONENTNAME = "CPC";
+    String COMPONENTNAME = "CPC";
 
     /**
      * Returns a new {@link PluggableClass} who's properties can be completed
@@ -31,16 +32,16 @@ public interface PluggableService {
      * @see PluggableClass#setProperty(PropertySpec, Object)
      * @see PluggableClass#save()
      */
-    public PluggableClass newPluggableClass (PluggableClassType type,  String name, String javaClassName);
+    PluggableClass newPluggableClass(PluggableClassType type, String name, String javaClassName);
 
-    public List<PluggableClass> findByTypeAndClassName (PluggableClassType type, String javaClassName);
+    List<PluggableClass> findByTypeAndClassName(PluggableClassType type, String javaClassName);
 
-    public Optional<PluggableClass> findByTypeAndName (PluggableClassType type, String name);
+    Optional<PluggableClass> findByTypeAndName(PluggableClassType type, String name);
 
     Optional<PluggableClass> findByTypeAndId (PluggableClassType type, long id);
 
     Optional<PluggableClass> findAndLockPluggableClassByIdAndVersion(PluggableClassType type, long id, long version);
 
-    public Finder<PluggableClass> findAllByType(PluggableClassType type);
+    Finder<PluggableClass> findAllByType(PluggableClassType type);
 
 }
