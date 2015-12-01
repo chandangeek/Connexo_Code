@@ -12,6 +12,8 @@ public interface EstimationTaskBuilder {
 
     EstimationTaskBuilder setNextExecution(Instant nextExecution);
 
+    EstimationTaskBuilder setApplication(String application);
+
     EstimationTaskBuilder scheduleImmediately();
 
     EstimationTask build();
