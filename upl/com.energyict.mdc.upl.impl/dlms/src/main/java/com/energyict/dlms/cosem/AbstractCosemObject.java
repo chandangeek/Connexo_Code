@@ -18,6 +18,7 @@ import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1481,10 +1482,7 @@ public abstract class AbstractCosemObject {
                     }
 
                     default: {
-                        throw new ProtocolException("Unknown COSEM PDU, " + " 0x" + Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET])) + " 0x"
-                                + Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1])) + " 0x"
-                                + Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2])) + " 0x"
-                                + Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3])));
+                        throw new ProtocolException("Unknown COSEM PDU, " + ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(responseData, 3), ""));
                     } // !!! break !!! default
 
                 } // switch(responseData[i])
