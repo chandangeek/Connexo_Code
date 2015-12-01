@@ -5,6 +5,7 @@ Export-Package: com.energyict.mdc.common,\
                 com.energyict.mdc.common.coordinates,\
                 com.energyict.mdc.common.comserver.logging,\
                 com.energyict.mdc.common.rest,\
+                com.energyict.mdc.common.search,\
                 com.energyict.mdc.common.services,\
                 com.energyict.mdc.common.ean,\
                 com.energyict.mdc.common.exceptions,\
