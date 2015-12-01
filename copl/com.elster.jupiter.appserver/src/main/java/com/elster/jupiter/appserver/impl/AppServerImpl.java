@@ -21,7 +21,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -311,18 +310,12 @@ public class AppServerImpl implements AppServer {
         public ImportScheduleOnAppServerImpl addImportScheduleOnAppServer(ImportSchedule importSchedule) {
             ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel, AppServerImpl.this.fileImportService, importSchedule, AppServerImpl.this);
             getImportScheduleOnAppServerFactory().persist(importScheduleOnAppServer);
-            if(active){
-                fileImportService.schedule(importSchedule);
-            }
             return importScheduleOnAppServer;
         }
 
         @Override
         public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
             ImportScheduleOnAppServerImpl found = getImportScheduleOnAppServer(importScheduleOnAppServer);
-            if(active) {
-                found.getImportSchedule().ifPresent(s -> fileImportService.unschedule(s));
-            }
             getImportScheduleOnAppServerFactory().remove(found);
             importSchedulesOnAppServer.remove(found);
         }
@@ -358,9 +351,6 @@ public class AppServerImpl implements AppServer {
         public void activate() {
             if (!active) {
                 active = true;
-                for(ImportScheduleOnAppServer importScheduleOnAppServer: getImportSchedulesOnAppServer()){
-                    importScheduleOnAppServer.getImportSchedule().ifPresent(s -> fileImportService.schedule(s));
-                }
             }
         }
 
@@ -368,9 +358,6 @@ public class AppServerImpl implements AppServer {
         public void deactivate() {
             if (active) {
                 active = false;
-                for(ImportScheduleOnAppServer importScheduleOnAppServer: getImportSchedulesOnAppServer()){
-                    importScheduleOnAppServer.getImportSchedule().ifPresent(s -> fileImportService.unschedule(s));
-                }
             }
         }
 
