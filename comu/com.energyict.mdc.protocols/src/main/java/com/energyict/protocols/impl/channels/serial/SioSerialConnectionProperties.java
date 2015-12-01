@@ -66,7 +66,7 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
     private FlowControl flowControl;
     private NrOfStopBits numberOfStopBits;
     private NrOfDataBits numberOfDataBits;
-    private BaudrateValue baudrate;
+    private BaudrateValue baudRate;
 
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
@@ -75,7 +75,7 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
         this.flowControl = (FlowControl) propertyValues.getProperty(SerialPortConfiguration.FLOW_CONTROL_NAME);
         this.numberOfStopBits = (NrOfStopBits) propertyValues.getProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME);
         this.numberOfDataBits = (NrOfDataBits) propertyValues.getProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME);
-        this.baudrate = (BaudrateValue) propertyValues.getProperty(SerialPortConfiguration.BAUDRATE_NAME);
+        this.baudRate = (BaudrateValue) propertyValues.getProperty(SerialPortConfiguration.BAUDRATE_NAME);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
         this.copyTo(propertySetValues, SerialPortConfiguration.FLOW_CONTROL_NAME, this.flowControl);
         this.copyTo(propertySetValues, SerialPortConfiguration.NR_OF_STOP_BITS_NAME, this.numberOfStopBits);
         this.copyTo(propertySetValues, SerialPortConfiguration.NR_OF_DATA_BITS_NAME, this.numberOfDataBits);
-        this.copyTo(propertySetValues, SerialPortConfiguration.BAUDRATE_NAME, this.baudrate);
+        this.copyTo(propertySetValues, SerialPortConfiguration.BAUDRATE_NAME, this.baudRate);
     }
 
     private void copyTo(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
