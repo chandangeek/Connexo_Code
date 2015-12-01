@@ -4,7 +4,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TypedProperties;
@@ -143,14 +142,7 @@ public class PluggableClassImpl implements PluggableClass {
     public void delete() {
         this.properties.clear();
         this.notifyDependents();
-        try {
-            this.getDataMapper().remove(this);
-        }
-        catch (UnexpectedNumberOfUpdatesException e) {
-            System.err.println("Pluggable class: " + this.getName() + " implemented by " + this.getJavaClassName() + " produced the error below");
-            e.printStackTrace(System.err);
-            throw e;
-        }
+        this.getDataMapper().remove(this);
     }
 
     @Override
