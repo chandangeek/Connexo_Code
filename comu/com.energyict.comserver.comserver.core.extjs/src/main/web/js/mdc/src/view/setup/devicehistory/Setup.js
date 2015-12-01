@@ -31,13 +31,14 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
             items: [
                 {
                     xtype: 'tabpanel',
-                    margin: '20 0 0 20',
+                    margin: '20 0 0 0',
                     itemId: 'device-history-tab-panel',
                     activeTab: 0,
                     width: '100%',
                     items: [
                         {
                             title: Uni.I18n.translate('general.deviceLifeCycle', 'MDC', 'Device life cycle'),
+                            padding: '8 16 16 0',
                             itemId: 'device-history-life-cycle-tab'
                         }
                     ]

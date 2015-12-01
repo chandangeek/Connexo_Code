@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.devicehistory.LifeCycle', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.device-history-life-cycle-panel',
-    margin: '20 0 0 20',
     items: [
         {
             xtype: 'dataview',
