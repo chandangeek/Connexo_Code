@@ -74,6 +74,11 @@ public class UsagePointDataInfoFactory {
         return channelIntervalInfo;
     }
     
+    public VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, UsagePointValidation upv, BaseReadingRecord realReading) {
+        return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus, upv, (IntervalReadingRecord)realReading);
+        
+    }
+    
     
     
 //    public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
@@ -135,5 +140,5 @@ public class UsagePointDataInfoFactory {
         }
         return flags;
     }
-    
+
 }

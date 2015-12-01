@@ -2,7 +2,8 @@ package com.elster.insight.usagepoint.data.rest.impl;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -12,6 +13,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -21,10 +23,10 @@ import javax.ws.rs.core.Response;
 
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.insight.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -34,14 +36,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import com.sun.javafx.collections.MappingChange.Map;
 
 public class ChannelResource {
 
@@ -130,6 +135,80 @@ public class ChannelResource {
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+    
+    @GET @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{rt_mrid}/data/{epochMillis}/validation")
+    public Response getValidationData(
+            @PathParam("mrid") String mrid,
+            @PathParam("rt_mrid") String rt_mrid,
+            @PathParam("epochMillis") long epochMillis) {
+        UsagePoint usagepoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        ReadingType readingType = resourceHelper.findReadingTypeByMrIdOrThrowException(rt_mrid);
+        Channel channel = channelHelper.get().findCurrentChannelOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        
+        UsagePointValidation upv = channelHelper.get().getUsagePointValidation(usagepoint);
+        
+//        DeviceValidation deviceValidation = channel.getDevice().forValidation();
+        Instant to = Instant.ofEpochMilli(epochMillis);
+//        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channel.getDevice().getZone());
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, clock.getZone());
+        Instant from = zonedDateTime.minus(channel.getIntervalLength().get()).toInstant();
+        Optional<? extends BaseReadingRecord> reading = usagepoint.getReadings(Range.closedOpen(from, to), readingType).stream().findAny();
+        
+
+        Optional<VeeReadingInfo> veeReadingInfo = Optional.empty();
+        
+        if (reading.isPresent()) {
+            IntervalReadingRecord realReading = (IntervalReadingRecord) reading.get();
+            Optional<DataValidationStatus> tatuses = upv.getValidationStatus(channel, Arrays.asList(realReading), Range.closedOpen(from, to)).stream().findFirst();
+            if (tatuses.isPresent()) {
+            veeReadingInfo = Optional.of(usagePointDataInfoFactory.createVeeReadingInfoWithModificationFlags(channel, tatuses.get(), upv, realReading));
+            }
+        }
+        
+//        reading.ifPresent(r -> upv.getValidationStatus(channel, Arrays.asList(r), Range.openClosed(from, to)).stream().findFirst().flatMap(status -> usagePointDataInfoFactory.createVeeReadingInfoWithModificationFlags(channel, statuses.get(0), upv, realReading)));
+       
+        
+//        validationStatus.ifPresent(status -> {
+//            channelIntervalInfo.mainValidationInfo = validationInfoFactory.createMainVeeReadingInfo(status, upv, irr);
+//            channelIntervalInfo.bulkValidationInfo = validationInfoFactory.createBulkVeeReadingInfo(channel, status, upv, irr);
+//            channelIntervalInfo.dataValidated = true;
+//        });
+//        
+//        reading.flatMap(lpread -> upv.getValidationStatus(channel, Arrays.asList(lpread), Range.openClosed(from, to)));
+//        
+//       // Optional<DataValidationStatus> dataValidationStatus = reading.flatMap(reading -> upv.getValidationStatus(channel, Arrays.asList(reading), Range.openClosed(from, to)).stream().flatMap(d -> d.getReadingQualities().stream()).findFirst();//   stream().map(Map.Entry::getValue).findFirst());
+//
+//        Optional<VeeReadingInfo> veeReadingInfo = dataValidationStatus.map(status -> {
+//            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst()).orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+//            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading);
+//        });
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+////        
+//        Optional<DataValidationStatus> dataValidationStatus = reading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst());
+//
+//        Optional<VeeReadingInfo> veeReadingInfo = dataValidationStatus.map(status -> {
+//            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst()).orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+//            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading);
+//        });
+        return Response.ok(veeReadingInfo.orElseGet(VeeReadingInfo::new)).build();
     }
 
     private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {

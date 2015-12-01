@@ -221,8 +221,8 @@ public class ValidationInfoFactory {
         return veeReadingInfo;
     }
 
-    VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, UsagePointValidation deviceValidation, IntervalReadingRecord reading) {
-        VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
+    VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, UsagePointValidation usagePointValidation, IntervalReadingRecord reading) {
+        VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, usagePointValidation);
         veeReadingInfo.mainValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.mainValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.readingQualities = getReadingQualities(reading);
