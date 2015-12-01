@@ -4,6 +4,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
         {name: 'id', type: 'number', useNull: true},
         {name: 'active', type: 'boolean'},
         {name: 'name', type: 'string'},
+        {name: 'application', type: 'string'},
         {name: 'schedule', type: 'auto', defaultValue: null},
         {name: 'period', type: 'auto', defaultValue: null},
         {name: 'deviceGroup', type: 'auto', defaultValue: null},

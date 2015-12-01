@@ -67,6 +67,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             newEstimationTask.beginEdit();
 
             newEstimationTask.set('name', newEstimationTaskDto.name);
+            newEstimationTask.set('application', 'Multisense');
             newEstimationTask.set('active', true);
             newEstimationTask.set('lastEstimationOccurrence', null);
             newEstimationTask.set('deviceGroup', {
