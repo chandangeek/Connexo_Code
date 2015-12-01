@@ -63,7 +63,7 @@ public abstract class AbstractDateSearchableProperty<T> extends AbstractSearchab
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService.basicPropertySpec(
-                ChannelLastReadingSearchableProperty.PROPERTY_NAME,
+                getName(),
                 false,
                 new InstantFactory()
         );
