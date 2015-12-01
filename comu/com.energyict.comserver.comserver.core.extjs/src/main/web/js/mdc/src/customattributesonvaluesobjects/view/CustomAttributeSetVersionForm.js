@@ -184,8 +184,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
         me.savedStartDate = startDate;
         me.savedEndDate = endDate;
         me.down('uni-form-error-message').hide();
-        startDateField.enable();
-        endDateField.enable();
+        startDateField.enableWithText();
+        endDateField.enableWithText();
         startDateField.clearInvalid();
         endDateField.clearInvalid();
         propertyForm.updateRecord();
@@ -222,8 +222,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 } else {
                     Ext.suspendLayouts();
                     overlapContainer.show();
-                    startDateField.disable();
-                    endDateField.disable();
+                    startDateField.disableWithText();
+                    endDateField.disableWithText();
                     me.isForcedSave = true;
                     me.suspendCheckVersion = false;
                     Ext.resumeLayouts(true);
@@ -257,8 +257,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                         Ext.suspendLayouts();
                         overlapContainer.hide();
                         me.down('uni-form-error-message').hide();
-                        startDateField.enable();
-                        endDateField.enable();
+                        startDateField.enableWithText();
+                        endDateField.enableWithText();
                         me.isForcedSave = false;
                         me.suspendCheckVersion = true;
                         Ext.resumeLayouts(true);

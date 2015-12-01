@@ -6,6 +6,9 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.VersionDateField', {
     width: 800,
     labelWidth: 250,
 
+    dateTimeSeparator: Uni.I18n.translate('general.lovercase.at', 'MDC', 'at'),
+    hoursMinutesSeparator: ':',
+
     requires: [
         'Uni.form.field.DateTime'
     ],
@@ -79,8 +82,11 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.VersionDateField', {
                         minutesConfig: {
                             width: 60
                         },
+                        separatorConfig: {
+                            html: '<span style="color: #686868;">' + this.hoursMinutesSeparator + '</span>'
+                        },
                         dateTimeSeparatorConfig: {
-                            html: '<span style="color: #686868;">' + Uni.I18n.translate('general.lovercase.at', 'MDC', 'at') + '</span>'
+                            html: '<span style="color: #686868;">' + this.dateTimeSeparator + '</span>'
                         }
                     }
                 ]
@@ -102,6 +108,18 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.VersionDateField', {
                 me.fireEvent('change');
             }
         });
+    },
+
+    disableWithText: function () {
+        this.disable();
+        this.down('#date-time-separator').update('<span style="color: #686868; opacity: 0.3;">' + this.dateTimeSeparator + '</span>');
+        this.down('#hours-minutes-separator').update('<span style="color: #686868; opacity: 0.3;">' + this.hoursMinutesSeparator + '</span>');
+    },
+
+    enableWithText: function () {
+        this.enable();
+        this.down('#date-time-separator').update('<span style="color: #686868;">' + this.dateTimeSeparator + '</span>');
+        this.down('#hours-minutes-separator').update('<span style="color: #686868;">' + this.hoursMinutesSeparator + '</span>');
     },
 
     getValue: function () {
