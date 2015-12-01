@@ -41,7 +41,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
 
     @Override
     public Optional<ExportTask> find() {
-        Optional<? extends ExportTask> task = dataExportService.getReadingTypeDataExportTaskQuery().select(where("name").isEqualTo(getName())).stream().findFirst();
+        Optional<? extends ExportTask> task = dataExportService.getReadingTypeDataExportTaskByName(getName());
         return Optional.ofNullable((ExportTask) task.orElse(null));
     }
 
