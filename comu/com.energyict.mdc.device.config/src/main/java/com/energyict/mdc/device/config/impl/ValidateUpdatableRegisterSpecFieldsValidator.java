@@ -32,14 +32,42 @@ public class ValidateUpdatableRegisterSpecFieldsValidator implements ConstraintV
     public boolean isValid(NumericalRegisterSpecImpl numericalRegisterSpec, ConstraintValidatorContext constraintValidatorContext) {
         if(numericalRegisterSpec.getDeviceConfiguration().isActive()){
             Optional<RegisterSpec> oldRegisterSpecOptional = deviceConfigurationService.findRegisterSpec(numericalRegisterSpec.getId());
-            if(oldRegisterSpecOptional.isPresent() && oldRegisterSpecOptional.get() instanceof NumericalRegisterSpec){
+            if(oldRegisterSpecOptional.isPresent()){
                 NumericalRegisterSpec oldNumericalRegisterSpec = (NumericalRegisterSpec) oldRegisterSpecOptional.get();
                 if (validateSameUsageOfMultiplier(numericalRegisterSpec, constraintValidatorContext, oldNumericalRegisterSpec)){
+                    return false;
+                }
+                if (validateOverFlowAndFractionDigitsUpdate(numericalRegisterSpec, constraintValidatorContext, oldNumericalRegisterSpec)){
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    private boolean validateOverFlowAndFractionDigitsUpdate(NumericalRegisterSpecImpl numericalRegisterSpec, ConstraintValidatorContext constraintValidatorContext, NumericalRegisterSpec oldNumericalRegisterSpec) {
+        if (oldNumericalRegisterSpec.getOverflowValue().compareTo(numericalRegisterSpec.getOverflowValue()) > 0) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_DECREASED +"}").
+                    addPropertyNode(RegisterSpecFields.OVERFLOW_VALUE.fieldName()).
+                    addConstraintViolation();
+            return true;
+        }
+        if (oldNumericalRegisterSpec.getNumberOfFractionDigits()>numericalRegisterSpec.getNumberOfFractionDigits()) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}").
+                    addPropertyNode(RegisterSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).
+                    addConstraintViolation();
+            return true;
+        }
+        if (oldNumericalRegisterSpec.getRegisterType().getId()!=numericalRegisterSpec.getRegisterType().getId()) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG +"}").
+                    addPropertyNode(RegisterSpecFields.REGISTER_TYPE.fieldName()).
+                    addConstraintViolation();
+            return true;
+        }
+        return false;
     }
 
     private boolean validateSameUsageOfMultiplier(NumericalRegisterSpecImpl numericalRegisterSpec, ConstraintValidatorContext constraintValidatorContext, NumericalRegisterSpec oldNumericalRegisterSpec) {

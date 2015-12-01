@@ -36,10 +36,32 @@ public class ValidateUpdatableChannelSpecFieldsValidator implements ConstraintVa
                 if (validateSameUsageOfMultiplier(channelSpec, constraintValidatorContext, oldChannelSpec)) {
                     return false;
                 }
+                if (validateOverFlowAndFractionDigitsUpdate(channelSpec, constraintValidatorContext, oldChannelSpec)) {
+                    return false;
+                }
             }
         }
         return true;
     }
+
+    private boolean validateOverFlowAndFractionDigitsUpdate(ChannelSpecImpl channelSpec, ConstraintValidatorContext constraintValidatorContext, ChannelSpec oldChannelSpec) {
+        if (oldChannelSpec.getOverflow().compareTo(channelSpec.getOverflow()) > 0) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CHANNEL_SPEC_OVERFLOW_DECREASED + "}").
+                    addPropertyNode(ChannelSpecImpl.ChannelSpecFields.OVERFLOW_VALUE.fieldName()).
+                    addConstraintViolation();
+            return true;
+        }
+        if (oldChannelSpec.getNbrOfFractionDigits() > channelSpec.getNbrOfFractionDigits()) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED + "}").
+                    addPropertyNode(ChannelSpecImpl.ChannelSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).
+                    addConstraintViolation();
+            return true;
+        }
+        return false;
+    }
+
 
     private boolean validateSameUsageOfMultiplier(ChannelSpecImpl channelSpec, ConstraintValidatorContext constraintValidatorContext, ChannelSpec oldChannelSpec) {
         if (oldChannelSpec.isUseMultiplier() == channelSpec.isUseMultiplier()) {

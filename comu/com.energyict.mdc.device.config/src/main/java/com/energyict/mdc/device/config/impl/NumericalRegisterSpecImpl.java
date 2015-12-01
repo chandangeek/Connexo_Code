@@ -23,7 +23,6 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 @ValidOverFlowAndNumberOfFractionDigits(groups = {Save.Create.class, Save.Update.class})
-@ValidNumericalRegisterSpec(groups = {Save.Update.class})
 @ValidRegisterSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
 @ValidateUpdatableRegisterSpecFields(groups = {Save.Update.class})
 public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegisterSpec> implements NumericalRegisterSpec {

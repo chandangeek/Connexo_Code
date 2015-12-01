@@ -105,7 +105,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
-        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).overflow(BigDecimal.valueOf(999999)).nbrOfFractionDigits(3);
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder2 = configurationBuilder.newLoadProfileSpec(loadProfileType2);
 
         // Business method

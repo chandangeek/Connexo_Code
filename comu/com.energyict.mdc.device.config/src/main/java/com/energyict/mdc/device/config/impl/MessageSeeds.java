@@ -83,6 +83,9 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(11020, "channelSpec.change.configuration", "You can not change the device configuration of an existing channel configuration"),
     CHANNEL_SPEC_CANNOT_CHANGE_CHANNEL_TYPE(11023, "channelSpec.change.measurementType", "You can not change the register type of an existing channel configuration"),
     CHANNEL_SPEC_CANNOT_CHANGE_LOAD_PROFILE_SPEC(11024, "channelSpec.change.loadProfileSpec", "You can not change the load profile configuration of an existing channel configuration"),
+    CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(11025, Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits."),
+    CHANNEL_SPEC_OVERFLOW_LARGER_THAN_ONE(11026, Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be above 0"),
+    CHANNEL_SPEC_OVERFLOW_REQUIRED(11027, Keys.CHANNEL_SPEC_OVERFLOW_IS_REQUIRED, "Overflow value is required"),
     DEVICE_CONFIGURATION_NAME_IS_REQUIRED(12001, "deviceConfig.name.required", "The name of the device configuration is required"),
     DEVICE_CONFIGURATION_DEVICE_TYPE_IS_REQUIRED(12002, "deviceConfig.deviceType.required", "The device type of the device configuration is required"),
     DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_DELETE(12003, "deviceConfig.active", "You can not remove an active device configuration"),
@@ -210,7 +213,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED = "deviceConfig.directAddress.notAllowed";
         public static final String DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE = "deviceConfig.isnot.directAddressable";
         public static final String REGISTER_SPEC_OVERFLOW_DECREASED = "registerSpec.overFlow.decreased";
+        public static final String CHANNEL_SPEC_OVERFLOW_DECREASED = "channel.overFlow.decreased";
         public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "registerSpec.numberOfFractionDigits.decreased";
+        public static final String CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "channelSpec.numberOfFractionDigits.decreased";
         public static final String REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG = "registerSpec.measurementType.activeDeviceConfig";
         public static final String PROTOCOLDIALECT_REQUIRED = "protocolDialectConfigurationProperties.dialectName.required";
         public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE = "protocolDialectConfigurationProperties.duplicate";
@@ -226,6 +231,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "registerSpec.invalidNumberOfFractionDigits";
         public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "registerSpec.invalidOverflow";
         public static final String REGISTER_SPEC_OVERFLOW_IS_REQUIRED = "registerSpec.required";
+        public static final String CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "channelSpec.invalidNumberOfFractionDigits";
+        public static final String CHANNEL_SPEC_INVALID_OVERFLOW_VALUE = "channelSpec.invalidOverflow";
+        public static final String CHANNEL_SPEC_OVERFLOW_IS_REQUIRED = "channelSpec.required";
         public static final String UNSUPPORTED_SECURITY_LEVEL = "securityPropertySet.unsupportedSecurityLevel";
         public static final String SECURITY_PROPERTY_SET_IN_USE = "securityPropertySet.inUse";
         public static final String COM_TASK_ENABLEMENT_COM_TASK_REQUIRED = "comTaskEnablement.comTask.required";

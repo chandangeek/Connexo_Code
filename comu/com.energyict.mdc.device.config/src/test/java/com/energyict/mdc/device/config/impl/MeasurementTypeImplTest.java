@@ -131,7 +131,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).overflow(BigDecimal.valueOf(999999L)).nbrOfFractionDigits(3);
         configurationBuilder.add();
 
         // Business method

@@ -325,7 +325,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType)
                 .overflowValue(overflowValue).numberOfFractionDigits(3).add();
         this.getReloadedDeviceConfiguration().activate();
-        registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec).numberOfFractionDigits(1).update();
+        registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(((NumericalRegisterSpec) inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(registerSpec.getId()).get())).numberOfFractionDigits(1).update();
     }
 
     @Test
@@ -434,7 +434,8 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) ((NumericalRegisterSpecImpl) numericalRegisterSpec).cloneForDeviceConfig(cloneConfig);
         assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(cloneConfig.getId());
         assertThat(registerSpec.isUseMultiplier()).isTrue();
-        assertThat(registerSpec.getCalculatedReadingType().get().getMRID()).isEqualTo(readingType3.getMRID());
+        assertThat(registerSpec.getCalculatedReadingType().get().getMRID()).isEqualTo(readingType3.getMRID()
+        );
     }
 
     @Test
