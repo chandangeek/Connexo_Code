@@ -90,18 +90,19 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
     public void deprecate() {
         setFirmwareStatus(FirmwareStatus.DEPRECATED);
         setFirmwareFile(null);
-        save();
+        update();
     }
 
     @Override
     public long getVersion() {
         return this.version;
     }
-    
+
+    @Override
     public void update() {
-        doUpdate();
+        Save.UPDATE.save(dataModel, this);
+        this.notifyUpdated();
     }
-    
 
     private FirmwareVersionImpl init(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
         this.deviceType.set(deviceType);
@@ -119,11 +120,6 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
     private void doPersist() {
         Save.CREATE.save(dataModel, this);
         this.notifyCreated();
-    }
-
-    private void doUpdate() {
-        Save.UPDATE.save(dataModel, this);
-        this.notifyUpdated();
     }
 
     private void notifyCreated() {
