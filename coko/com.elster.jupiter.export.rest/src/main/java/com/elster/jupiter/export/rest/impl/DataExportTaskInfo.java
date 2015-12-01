@@ -37,6 +37,7 @@ public class DataExportTaskInfo {
     public StandardDataSelectorInfo standardDataSelector;
     public List<DestinationInfo> destinations = new ArrayList<>();
     public long version;
+    public String application;
 
 
     public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {

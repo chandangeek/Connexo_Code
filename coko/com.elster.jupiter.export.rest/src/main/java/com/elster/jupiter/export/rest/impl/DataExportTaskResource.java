@@ -128,6 +128,7 @@ public class DataExportTaskResource {
     public Response addExportTask(DataExportTaskInfo info) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
+                .setApplication(info.application)
                 .setDataFormatterName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
