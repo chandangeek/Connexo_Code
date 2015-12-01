@@ -1,5 +1,7 @@
 package com.energyict.mdc.app.impl;
 
+import com.elster.jupiter.metering.security.Privileges;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -123,6 +125,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_OWN,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
 
                 //mdc.scheduling.security
                 com.energyict.mdc.scheduling.security.Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE,
