@@ -146,7 +146,6 @@ Ext.define('Uni.service.Search', {
             && Ext.isDefined(domain)
             && Ext.getClassName(domain) == "Uni.model.search.Domain"
         ) {
-            //todo: how to set domain from state && manually at same time?
             me.searchDomain = domain;
 
             searchProperties.removeAll();
@@ -157,6 +156,7 @@ Ext.define('Uni.service.Search', {
             searchFields.getProxy().url     = domain.get('describedByHref');
             searchResults.getProxy().url    = domain.get('selfHref');
 
+            searchProperties.clearFilter(true);
             searchProperties.load(function(){
                 me.init();
                 searchFields.load();
