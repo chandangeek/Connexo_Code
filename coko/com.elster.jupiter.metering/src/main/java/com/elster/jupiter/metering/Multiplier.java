@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering;
 
+import java.util.Optional;
+
 public interface Multiplier {
     ReadingType getMeasured();
 
-    ReadingType getCalculated();
+    Optional<ReadingType> getCalculated();
 
     MultiplierType getMultiplierType();
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Optional;
 
 public class UsagePointReadingTypeConfigurationImpl implements UsagePointReadingTypeConfiguration {
     private Reference<UsagePointConfigurationImpl> usagePointConfiguration = ValueReference.absent();
@@ -42,8 +43,8 @@ public class UsagePointReadingTypeConfigurationImpl implements UsagePointReading
     }
 
     @Override
-    public ReadingType getCalculated() {
-        return calculated.get();
+    public Optional<ReadingType> getCalculated() {
+        return calculated.getOptional().map(ReadingType.class::cast);
     }
 
     @Override

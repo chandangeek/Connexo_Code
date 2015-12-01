@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -47,8 +48,8 @@ class MeterReadingTypeConfigurationImpl implements MeterReadingTypeConfiguration
     }
 
     @Override
-    public ReadingType getCalculated() {
-        return calculated.get();
+    public Optional<ReadingType> getCalculated() {
+        return calculated.getOptional().map(ReadingType.class::cast);
     }
 
     @Override
