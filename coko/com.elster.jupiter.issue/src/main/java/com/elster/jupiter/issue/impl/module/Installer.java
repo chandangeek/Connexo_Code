@@ -12,7 +12,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 
 import java.util.logging.Logger;
@@ -63,13 +62,14 @@ public class Installer {
         destination.activate();
         destination.subscribe(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER);
 
-        RecurrentTaskBuilder taskBuilder = taskService.newBuilder();
-        taskBuilder.setName(ISSUE_OVERDUE_TASK_NAME);
-        taskBuilder.setScheduleExpressionString(ISSUE_OVERDUE_TASK_SCHEDULE);
-        taskBuilder.setDestination(destination);
-        taskBuilder.setPayLoad("payload");
-        taskBuilder.scheduleImmediately(true);
-        RecurrentTask task = taskBuilder.build();
+        RecurrentTask task = taskService.newBuilder()
+                .setApplication("Pulse")
+                .setName(ISSUE_OVERDUE_TASK_NAME)
+                .setScheduleExpressionString(ISSUE_OVERDUE_TASK_SCHEDULE)
+                .setDestination(destination)
+                .setPayLoad("payload")
+                .scheduleImmediately(true)
+                .build();
     }
 
     private void createActionTypes() {
