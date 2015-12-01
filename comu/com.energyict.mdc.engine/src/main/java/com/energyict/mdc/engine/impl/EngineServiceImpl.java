@@ -93,6 +93,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
         immediate = true)
 public class EngineServiceImpl implements EngineService, InstallService, TranslationKeyProvider, MessageSeedProvider {
 
+    public static final String COMSERVER_USER = "comserver";
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -414,7 +415,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService).install(true);
+        new Installer(this.dataModel, this.eventService, userService).install(true);
     }
 
     @Override
