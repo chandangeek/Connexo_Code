@@ -186,8 +186,9 @@ public class LoadProfileResource {
     }
 
     private boolean hasSuspects(LoadProfileDataInfo info) {
-        return info.channelValidationData.values().stream().anyMatch(v -> ValidationStatus.SUSPECT.equals(v.mainValidationInfo.validationResult) ||
-                ValidationStatus.SUSPECT.equals(v.bulkValidationInfo.validationResult));
+        return info.channelValidationData.values().stream()
+                .anyMatch(v -> ValidationStatus.SUSPECT.equals(v.mainValidationInfo.validationResult) ||
+                    (v.bulkValidationInfo != null && ValidationStatus.SUSPECT.equals(v.bulkValidationInfo.validationResult)));
     }
 
     private boolean hasMissingData(LoadProfileDataInfo info) {
