@@ -19,7 +19,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
@@ -35,7 +34,6 @@ import com.google.inject.Inject;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -358,7 +355,7 @@ final class ExportTaskImpl implements IExportTask {
 
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication("Pulse")
+                .setApplication("MultiSense")
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataExportService.getDestination())
