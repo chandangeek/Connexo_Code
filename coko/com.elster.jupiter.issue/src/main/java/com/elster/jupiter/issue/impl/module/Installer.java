@@ -63,7 +63,7 @@ public class Installer {
         destination.subscribe(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER);
 
         RecurrentTask task = taskService.newBuilder()
-                .setApplication("Pulse")
+                .setApplication("Admin")
                 .setName(ISSUE_OVERDUE_TASK_NAME)
                 .setScheduleExpressionString(ISSUE_OVERDUE_TASK_SCHEDULE)
                 .setDestination(destination)
