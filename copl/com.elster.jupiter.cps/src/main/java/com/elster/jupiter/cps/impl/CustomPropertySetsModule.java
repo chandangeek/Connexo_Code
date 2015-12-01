@@ -3,6 +3,9 @@ package com.elster.jupiter.cps.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -18,6 +21,8 @@ public class CustomPropertySetsModule extends AbstractModule {
     protected void configure() {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
+        requireBinding(TransactionService.class);
+        requireBinding(UserService.class);
 
         bind(CustomPropertySetService.class).to(CustomPropertySetServiceImpl.class).in(Scopes.SINGLETON);
     }
