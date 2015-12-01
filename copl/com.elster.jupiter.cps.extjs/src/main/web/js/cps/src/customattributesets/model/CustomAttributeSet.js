@@ -1,5 +1,5 @@
 Ext.define('Cps.customattributesets.model.CustomAttributeSet', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
 
     requires: [
         'Uni.util.LevelMap'

@@ -59,6 +59,7 @@ Ext.define('Cps.customattributesets.controller.AttributeSets', {
         setupPage.setLoading(true);
 
         record.save({
+            isNotEdit: true,
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('customattributesets.editlevels.acknowledge', 'CPS', 'New levels saved'));
                 attributeSetsGrid.getStore().load();
