@@ -127,16 +127,16 @@ Ext.define('Uni.view.search.field.Numeric', {
                             },
                             handler: me.reset,
                             scope : me
-                        },
-                        {
-                            xtype: 'button',
-                            ui: 'action',
-                            text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
-                            action: 'addcriteria',
-                            handler: me.addCriteria,
-                            disabled: true,
-                            scope : me
                         }
+                        //{
+                        //    xtype: 'button',
+                        //    ui: 'action',
+                        //    text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
+                        //    action: 'addcriteria',
+                        //    handler: me.addCriteria,
+                        //    disabled: true,
+                        //    scope : me
+                        //}
                     ]
                 }
             ]

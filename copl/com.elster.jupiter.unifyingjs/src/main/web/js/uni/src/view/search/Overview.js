@@ -150,9 +150,6 @@ Ext.define('Uni.view.search.Overview', {
                                 xtype: 'toolbar',
                                 itemId: 'search-sorting',
                                 margin: 0,
-                                defaults: {
-                                    disabled: true
-                                },
                                 items: [
                                     {
                                         xtype: 'label',
@@ -164,19 +161,18 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'mRID-sorting-button',
                                         ui: 'tag',
                                         iconCls: 'x-btn-sort-item-desc',
-                                        text: Uni.I18n.translate('general.mRID', 'UNI', 'MRID'),
-                                        disabled: false
-                                    },
-                                    {
-                                        itemId: 'add-sort-button',
-                                        text: Uni.I18n.translate('general.addSort', 'UNI', 'Add sort')
-                                    },
-                                    '->',
-                                    {
-                                        itemId: 'clear-sorting-button',
-                                        text: Uni.I18n.translate('general.clearSorting', 'UNI', 'Clear all'),
-                                        action: 'clearSorting'
+                                        text: Uni.I18n.translate('general.mRID', 'UNI', 'MRID')
                                     }
+                                    //{
+                                    //    itemId: 'add-sort-button',
+                                    //    text: Uni.I18n.translate('general.addSort', 'UNI', 'Add sort')
+                                    //},
+                                    //'->',
+                                    //{
+                                    //    itemId: 'clear-sorting-button',
+                                    //    text: Uni.I18n.translate('general.clearSorting', 'UNI', 'Clear all'),
+                                    //    action: 'clearSorting'
+                                    //}
                                 ]
                             }
                         ]
