@@ -73,6 +73,8 @@ final class ExportTaskImpl implements IExportTask {
     @Valid
     private List<IDataExportDestination> destinations = new ArrayList<>();
 
+    private String application;
+
     @Inject
     ExportTaskImpl(DataModel dataModel, IDataExportService dataExportService, TaskService taskService, Thesaurus thesaurus) {
         this.dataExportService = dataExportService;
@@ -81,8 +83,8 @@ final class ExportTaskImpl implements IExportTask {
         this.thesaurus = thesaurus;
     }
 
-    static ExportTaskImpl from(DataModel dataModel, String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
-        return dataModel.getInstance(ExportTaskImpl.class).init(name, dataFormatter, dataSelector, scheduleExpression, nextExecution);
+    static ExportTaskImpl from(DataModel dataModel, String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution, String application) {
+        return dataModel.getInstance(ExportTaskImpl.class).init(name, dataFormatter, dataSelector, scheduleExpression, nextExecution, application);
     }
 
     @Override
@@ -355,7 +357,7 @@ final class ExportTaskImpl implements IExportTask {
 
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication("MultiSense")
+                .setApplication(application)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataExportService.getDestination())
@@ -436,12 +438,13 @@ final class ExportTaskImpl implements IExportTask {
         return dataModel;
     }
 
-    private ExportTaskImpl init(String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
+    private ExportTaskImpl init(String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution, String application) {
         this.name = name;
         this.dataFormatter = dataFormatter;
         this.dataSelector = dataSelector;
         this.scheduleExpression = scheduleExpression;
         this.nextExecution = nextExecution;
+        this.application = application;
         return this;
     }
 
