@@ -1818,6 +1818,8 @@ Ext.define('Dxp.controller.Tasks', {
             record.destinationsStore.removeAll();
             record.destinationsStore.add(page.down('#task-destinations-grid').getStore().data.items);
 
+            record.set('application', 'MultiSense');
+
             record.endEdit();
             record.save({
                 backUrl: button.action === 'editTask' && me.fromDetails
