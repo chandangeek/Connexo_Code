@@ -111,6 +111,8 @@ public enum MessageSeeds implements MessageSeed {
     LAST_CHECKED_CANNOT_BE_NULL(2079, Keys.LAST_CHECKED_CANNOT_BE_NULL, "The new last checked timestamp cannot be null"),
     LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
     DUPLICATE_COMTASK(2081, Keys.DUPLICATE_COMTASK, "One or more communication tasks in the communication schedule are already scheduled on the device"),
+    MULTIPLIER_SHOULD_BE_LARGER_THAN_ZERO(2082, Keys.MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED, "The multiplier should be larger than zero"),
+    MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE(2083, Keys.MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE, "The multiplier exceeds the max value " + Integer.MAX_VALUE),
     ;
 
     private final int number;
@@ -251,5 +253,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED = "lastChecked.after.currentLastChecked";
         public static final String CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS = "cannot.configure.device.multiplier.in.past.when.data.exists";
         public static final String CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION = "cannot.configure.device.multiplier.start.out.current.meteractivation";
+        public static final String MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED = "multiplier.zero.not.allowed";
+        public static final String MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE = "multiplier.exceeds.max.value";
     }
 }

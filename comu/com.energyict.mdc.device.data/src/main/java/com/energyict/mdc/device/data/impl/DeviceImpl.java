@@ -320,32 +320,42 @@ public class DeviceImpl implements Device, CanLock {
 
     private void createMeterConfiguration(Meter meter) {
         Instant now = clock.instant();
-        MultiplierType defaultMultiplierType = getDefaultMultiplierType();
-        createMeterConfigurationsForRegisterSpecs(meter, now, defaultMultiplierType);
-        createMeterConfigurationsForChannelSpecs(meter, now, defaultMultiplierType);
+        if (getDeviceConfiguration().getChannelSpecs().size() > 0 || getDeviceConfiguration().getRegisterSpecs().size() > 0) {
+            MultiplierType defaultMultiplierType = getDefaultMultiplierType();
+            Meter.MeterConfigurationBuilder meterConfigurationBuilder = meter.startingConfigurationOn(now);
+            createMeterConfigurationsForChannelSpecs(defaultMultiplierType, meterConfigurationBuilder);
+            createMeterConfigurationsForRegisterSpecs(defaultMultiplierType, meterConfigurationBuilder);
+            meterConfigurationBuilder.create();
+        }
     }
 
-    private void createMeterConfigurationsForChannelSpecs(Meter meter, Instant now, MultiplierType defaultMultiplierType) {
-        getDeviceConfiguration().getChannelSpecs().stream().filter(ChannelSpec::isUseMultiplier)
-                .forEach(channelSpec -> meter.startingConfigurationOn(now)
-                        .configureReadingType(channelSpec.getReadingType())
-                        .withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits())
-                        .withOverflowValue(channelSpec.getOverflow().longValue())
+    private void createMeterConfigurationsForChannelSpecs(MultiplierType defaultMultiplierType, Meter.MeterConfigurationBuilder meterConfigurationBuilder) {
+        getDeviceConfiguration().getChannelSpecs().forEach(channelSpec -> {
+            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
+                    .configureReadingType(channelSpec.getReadingType())
+                    .withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits())
+                    .withOverflowValue(channelSpec.getOverflow().longValue());
+            if (channelSpec.isUseMultiplier()) {
+                meterReadingTypeConfigurationBuilder
                         .withMultiplierOfType(defaultMultiplierType)
-                        .calculating(getMultipliedReadingTypeForChannelSpec(channelSpec))
-                        .create());
+                        .calculating(getMultipliedReadingTypeForChannelSpec(channelSpec));
+            }
+        });
     }
 
-    private void createMeterConfigurationsForRegisterSpecs(Meter meter, Instant now, MultiplierType defaultMultiplierType) {
+    private void createMeterConfigurationsForRegisterSpecs(MultiplierType defaultMultiplierType, Meter.MeterConfigurationBuilder meterConfigurationBuilder) {
         getDeviceConfiguration().getRegisterSpecs().stream().filter(registerSpec -> !registerSpec.isTextual())
-                .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1)).filter(NumericalRegisterSpec::isUseMultiplier)
-                .forEach(numericalRegisterSpec -> meter.startingConfigurationOn(now)
-                        .configureReadingType(numericalRegisterSpec.getReadingType())
-                        .withNumberOfFractionDigits(numericalRegisterSpec.getNumberOfFractionDigits())
-                        .withOverflowValue(numericalRegisterSpec.getOverflowValue().longValue())
+                .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1)).forEach(registerSpec -> {
+            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
+                    .configureReadingType(registerSpec.getReadingType())
+                    .withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits())
+                    .withOverflowValue(registerSpec.getOverflowValue().longValue());
+            if (registerSpec.isUseMultiplier()) {
+                meterReadingTypeConfigurationBuilder
                         .withMultiplierOfType(defaultMultiplierType)
-                        .calculating(numericalRegisterSpec.getCalculatedReadingType().get())
-                        .create());
+                        .calculating(registerSpec.getCalculatedReadingType().get());
+            }
+        });
     }
 
     private ReadingType getMultipliedReadingTypeForChannelSpec(ChannelSpec channelSpec) {
@@ -358,7 +368,6 @@ public class DeviceImpl implements Device, CanLock {
             return calculatedReadingType;
         }
     }
-
 
     private void saveNewAndDirtyDialectProperties() {
         this.saveNewDialectProperties();
@@ -627,7 +636,7 @@ public class DeviceImpl implements Device, CanLock {
 
     private MultiplierType getDefaultMultiplierType() {
         Optional<MultiplierType> multiplierType = meteringService.getMultiplierType(MULTIPLIER_TYPE);
-        if(multiplierType.isPresent()){
+        if (multiplierType.isPresent()) {
             return multiplierType.get();
         } else {
             return createDefaultMultiplierType();
@@ -645,18 +654,29 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void setMultiplier(BigDecimal multiplier, Instant from) {
-        if (multiplier.compareTo(getMultiplier()) == 0 || (multiplier.compareTo(BigDecimal.ONE) != 0)) {
+        if (multiplier.compareTo(getMultiplier()) != 0) {
+            validateMultiplierValue(multiplier);
             Instant now = clock.instant();
             Optional<Instant> startDateMultiplier = Optional.ofNullable(from);
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
             MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now));
-            newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
+            if(multiplier.intValue() != 1){
+                newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
+            }
+        }
+    }
+
+    private void validateMultiplierValue(BigDecimal multiplier) {
+        if(multiplier.longValue() <= 0){
+            throw MultiplierConfigurationException.multiplierShouldBeLargerThanZero(thesaurus);
+        } else if (multiplier.longValue() > Integer.MAX_VALUE){
+            throw MultiplierConfigurationException.multiplierValueExceedsMax(thesaurus);
         }
     }
 
     private void validateStartDateOfNewMultiplier(Instant now, Optional<Instant> startDateMultiplier) {
-        Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
         if (startDateMultiplier.isPresent()) {
+            Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
             if (meter.hasData() && startDateMultiplier.get().isBefore(now)) {
                 throw MultiplierConfigurationException.canNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
             }
@@ -1398,7 +1418,6 @@ public class DeviceImpl implements Device, CanLock {
         } else {
             newMeterActivation = meter.activate(start);
         }
-        meterActivation.getMultipliers().entrySet().forEach(multiplierTypeBigDecimalEntry -> newMeterActivation.setMultiplier(multiplierTypeBigDecimalEntry.getKey(), multiplierTypeBigDecimalEntry.getValue()));
         return newMeterActivation;
     }
 

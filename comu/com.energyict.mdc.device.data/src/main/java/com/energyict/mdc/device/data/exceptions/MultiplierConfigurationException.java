@@ -35,4 +35,24 @@ public class MultiplierConfigurationException extends LocalizedException {
     public static MultiplierConfigurationException canNotConfigureMultiplierWithStartDateOutOfCurrentMeterActivation(Thesaurus thesaurus) {
         return new MultiplierConfigurationException(thesaurus, MessageSeeds.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION);
     }
+
+    /**
+     * Models an exception for the situation where you define a multiplier value of zero
+     *
+     * @param thesaurus the Thesaurus ...
+     * @return the newly created exception
+     */
+    public static MultiplierConfigurationException multiplierShouldBeLargerThanZero(Thesaurus thesaurus) {
+        return new MultiplierConfigurationException(thesaurus, MessageSeeds.MULTIPLIER_SHOULD_BE_LARGER_THAN_ZERO);
+    }
+
+    /**
+     * Models an exception for the situation where you define a multiplier value larger than Integer.MAX_VALUE
+     *
+     * @param thesaurus the Thesaurus ...
+     * @return the newly created exception
+     */
+    public static MultiplierConfigurationException multiplierValueExceedsMax(Thesaurus thesaurus) {
+        return new MultiplierConfigurationException(thesaurus, MessageSeeds.MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE);
+    }
 }

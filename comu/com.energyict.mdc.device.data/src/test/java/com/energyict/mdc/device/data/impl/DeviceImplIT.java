@@ -13,13 +13,9 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -30,11 +26,7 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -42,6 +34,7 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
+import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -50,6 +43,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Range;
+import org.assertj.core.api.Condition;
 import org.joda.time.DateTimeConstants;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -64,13 +58,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -91,9 +79,13 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     private final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
     private final TimeDuration interval = TimeDuration.minutes(15);
     private final BigDecimal overflowValue = BigDecimal.valueOf(1234567);
+    private final int numberOfFractionDigits = 2;
 
-    private ReadingType forwardEnergyReadingType;
-    private ReadingType reverseEnergyReadingType;
+    private ReadingType forwardBulkSecondaryEnergyReadingType;
+    private ReadingType forwardBulkPrimaryEnergyReadingType;
+    private ReadingType forwardDeltaPrimaryMonthlyEnergyReadingType;
+    private ReadingType reverseBulkSecondaryEnergyReadingType;
+    private ReadingType reverseBulkPrimaryEnergyReadingType;
     private String averageForwardEnergyReadingTypeMRID;
     private ObisCode averageForwardEnergyObisCode;
     private ObisCode forwardEnergyObisCode;
@@ -138,17 +130,21 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     }
 
     private void setupReadingTypes() {
-        String code = getForwardEnergyReadingTypeCodeBuilder().code();
-        this.forwardEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.forwardEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(forwardEnergyReadingType).getObisCode();
-        String code2 = ReadingTypeCodeBuilder
-                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().code();
+        this.forwardBulkSecondaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+        this.forwardBulkPrimaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(getForwardBulkPrimaryEnergyReadingType().code()).get();
+        this.forwardDeltaPrimaryMonthlyEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(getForwardDeltaPrimaryMonthlyEnergyReadingType().period(MacroPeriod.MONTHLY).code()).get();
+        this.forwardEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(forwardBulkSecondaryEnergyReadingType).getObisCode();
+        String reverseBulkSecondaryCode = getReverseSecondaryBulkReadingTypeCodeBuilder().code();
+        this.reverseBulkSecondaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(reverseBulkSecondaryCode).get();
+        String reverseBulkPrimaryCode = ReadingTypeCodeBuilder
+                .of(Commodity.ELECTRICITY_PRIMARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
                 .flow(FlowDirection.REVERSE)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
-        this.reverseEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
-        this.reverseEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(reverseEnergyReadingType).getObisCode();
+        this.reverseBulkPrimaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(reverseBulkPrimaryCode).get();
+        this.reverseEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(reverseBulkSecondaryEnergyReadingType).getObisCode();
         this.averageForwardEnergyReadingTypeMRID = ReadingTypeCodeBuilder
                 .of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
@@ -411,7 +407,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void getRegisterReadingsShouldReturnResultsTest() {
         BigDecimal readingValue = new BigDecimal(5432.32);
         Instant readingTimeStamp = Instant.ofEpochMilli(123456789);
-        com.elster.jupiter.metering.readings.Reading reading = com.elster.jupiter.metering.readings.beans.ReadingImpl.of(forwardEnergyReadingType.getMRID(), readingValue, readingTimeStamp);
+        com.elster.jupiter.metering.readings.Reading reading = com.elster.jupiter.metering.readings.beans.ReadingImpl.of(forwardBulkSecondaryEnergyReadingType.getMRID(), readingValue, readingTimeStamp);
         MeterReadingImpl meterReading = MeterReadingImpl.of(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
@@ -424,7 +420,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0)).isInstanceOf(NumericalReading.class);
         NumericalReading numericalReading = (NumericalReading) readings.get(0);
-        assertThat(numericalReading.getType().getMRID()).isEqualTo(forwardEnergyReadingType.getMRID());
+        assertThat(numericalReading.getType().getMRID()).isEqualTo(forwardBulkSecondaryEnergyReadingType.getMRID());
         assertThat(numericalReading.getTimeStamp()).isEqualTo(readingTimeStamp);
         assertThat(numericalReading.getValue()).isEqualTo(readingValue);
     }
@@ -454,7 +450,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0)).isInstanceOf(BillingReading.class);
         BillingReading billingReading = (BillingReading) readings.get(0);
-        assertThat(billingReading.getType().getMRID()).isEqualTo(forwardEnergyReadingType.getMRID());
+        assertThat(billingReading.getType().getMRID()).isEqualTo(forwardBulkSecondaryEnergyReadingType.getMRID());
         assertThat(billingReading.getTimeStamp()).isEqualTo(readingTimeStamp);
         assertThat(billingReading.getRange().isPresent()).isTrue();
         assertThat(billingReading.getRange().get()).isEqualTo(Ranges.openClosed(eventStart, eventEnd));
@@ -591,7 +587,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
@@ -631,7 +627,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
@@ -667,7 +663,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
@@ -703,7 +699,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
@@ -739,7 +735,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
@@ -774,7 +770,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
@@ -823,7 +819,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Optional<Meter> meter = amrSystem.get().findMeter("" + device.getId());
         meter.get().activate(Instant.ofEpochMilli(1385841600000L));//Sat, 30 Nov 2013 20:00:00 GMT
 
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(MacroPeriod.MONTHLY)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
@@ -862,7 +858,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Optional<Meter> meter = amrSystem.get().findMeter("" + device.getId());
         meter.get().activate(Instant.ofEpochMilli(1385851500000L));//Sat, 30 Nov 2013 22:45:00 GMT
 
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(MacroPeriod.MONTHLY)
                 .code();
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
@@ -895,7 +891,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Optional<Meter> meter = amrSystem.get().findMeter("" + device.getId());
         meter.get().activate(Instant.ofEpochMilli(1420801085000L));// 9/1/2015 10:58
 
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
@@ -927,7 +923,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
@@ -966,7 +962,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
-        String code = getForwardEnergyReadingTypeCodeBuilder()
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
@@ -1012,8 +1008,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.activate(dayStart.plus(10, ChronoUnit.MINUTES));
         device.save();
 
-        String bulkReadingTypeCode = getForwardEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).accumulate(Accumulation.BULKQUANTITY).code();
-        String deltaReadingTypeCode = getForwardEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        String bulkReadingTypeCode = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).accumulate(Accumulation.BULKQUANTITY).code();
+        String deltaReadingTypeCode = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingTypeCode);
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(dayStart.plus(30, ChronoUnit.MINUTES), BigDecimal.valueOf(100)));
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(dayStart.plus(45, ChronoUnit.MINUTES), BigDecimal.valueOf(200)));
@@ -1087,7 +1083,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant readingTimeStamp = Instant.ofEpochMilli(1396138500000L); // 3/30/2014, 01:15:00 AM
         Instant dayStart = Instant.ofEpochMilli(1396137600000L); // 3/30/2014, 1:00:00 AM
         Instant dayEnd = Instant.ofEpochMilli(1396159200000L); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
-        String code = getForwardEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).code();
+        String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).code();
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
@@ -1206,20 +1202,16 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(endDevice.getLifecycleDates().getRemovedDate()).contains(expectedRemovedDate);
     }
 
-    @Test
-    @Transactional
-    public void createMeterConfigurationForMultipliedRegisterSpecTest() {
-        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardEnergyReadingType);
-        RegisterType registerType2 = this.createRegisterTypeIfMissing(reverseEnergyObisCode, reverseEnergyReadingType);
+    private DeviceConfiguration createSetupWithMultiplierRegisterSpec() {
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
+        RegisterType registerType2 = this.createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
         deviceType.addRegisterType(registerType1);
         deviceType.addRegisterType(registerType2);
         DeviceType.DeviceConfigurationBuilder configurationWithRegisterTypes = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
         NumericalRegisterSpec.Builder registerSpecBuilder1 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType1);
         registerSpecBuilder1.numberOfFractionDigits(0);
         registerSpecBuilder1.overflowValue(overflowValue);
-
-        //TODO fix it!
-//        registerSpecBuilder1.useMultiplier(true);
+        registerSpecBuilder1.useMultiplierWithCalculatedReadingType(forwardBulkPrimaryEnergyReadingType);
 
         NumericalRegisterSpec.Builder registerSpecBuilder2 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType2);
         registerSpecBuilder2.numberOfFractionDigits(0);
@@ -1227,16 +1219,233 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
         deviceType.save();
         deviceConfiguration.activate();
+        return deviceConfiguration;
+    }
+
+    @Test
+    @Transactional
+    public void setMultiplierTest() {
+        DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest", "setMultiplierTest");
+        device.save();
+
+        assertThat(device.getMeterActivationsMostRecentFirst()).isEmpty();
+        BigDecimal multiplier = BigDecimal.TEN;
+        device.setMultiplier(multiplier);
+        assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
+        assertThat(device.getMultiplier()).isEqualTo(multiplier);
+    }
+
+    @Test
+    @Transactional
+    public void setSameMultiplierDoesNotCreateNewMeterActivationTest() {
+        DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest", "setMultiplierTest");
+        device.save();
+
+        assertThat(device.getMeterActivationsMostRecentFirst()).isEmpty();
+        BigDecimal multiplier = BigDecimal.TEN;
+        Instant initialStart = freezeClock(2015, 11, 25);
+        device.setMultiplier(multiplier);
+        freezeClock(2015,11,26);
+        device.setMultiplier(multiplier);
+        freezeClock(2015,11,30);
+        device.setMultiplier(multiplier);
+        assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
+        assertThat(device.getMultiplier()).isEqualTo(multiplier);
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(initialStart);
+    }
+
+    @Test
+    @Transactional
+    public void setMultiplierOfOneDoesNotCreateMeterActivationTest() {
+        DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierOfOneDoesNotCreateMeterActivationTest", "setMultiplierOfOneDoesNotCreateMeterActivationTest");
+        device.save();
+
+        assertThat(device.getMeterActivationsMostRecentFirst()).isEmpty();
+        BigDecimal multiplier = BigDecimal.ONE;
+        device.setMultiplier(multiplier);
+        assertThat(device.getMeterActivationsMostRecentFirst()).isEmpty();
+        assertThat(device.getMultiplier()).isEqualTo(multiplier);
+    }
+
+    @Test
+    @Transactional
+    public void settingMultiplierBackToOneShouldRemovePreviouslyDefinedMultiplierTest() {
+        DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "settingMultiplierBackToOneShouldRemovePreviouslyDefinedMultiplierTest", "settingMultiplierBackToOneShouldRemovePreviouslyDefinedMultiplierTest");
+        device.save();
+
+        assertThat(device.getMeterActivationsMostRecentFirst()).isEmpty();
+        device.setMultiplier(BigDecimal.TEN);
+        device.setMultiplier(BigDecimal.ONE);
+        assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
+        assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
+        assertThat(device.getCurrentMeterActivation().get().getMultipliers()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    @Expected(value = MultiplierConfigurationException.class, message = "The multiplier should be larger than zero")
+    public void settingMultiplierWithValueZeroShouldFailTest() {
+        DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "settingMultiplierWithValueZeroShouldFailTest", "settingMultiplierWithValueZeroShouldFailTest");
+        device.save();
+
+        device.setMultiplier(BigDecimal.ZERO);
+    }
+
+    @Test
+    @Transactional
+    @Expected(value = MultiplierConfigurationException.class, message = "The multiplier exceeds the max value " + Integer.MAX_VALUE)
+    public void settingMultiplierLargerThanMaxIntShouldFailTest() {
+        DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "settingMultiplierLargerThanMaxIntShouleFailTest", "settingMultiplierLargerThanMaxIntShouleFailTest");
+        device.save();
+
+        device.setMultiplier(BigDecimal.valueOf(Long.MAX_VALUE));
+    }
+
+
+    @Test
+    @Transactional
+    public void createMeterConfigurationForMultipliedRegisterSpecTest() {
+        DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", "DeviceWithMultiplierOnRegister");
         device.save();
 
-        //
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        assertThat(meterConfigurationOptional).isPresent();
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+            @Override
+            public boolean matches(MeterReadingTypeConfiguration value) {
+                return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
+                        value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID());
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void createMeterConfigurationForMultipliedRegisterSpecsInSameMeterConfigurationTest() {
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
+        RegisterType registerType2 = this.createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
+        deviceType.addRegisterType(registerType1);
+        deviceType.addRegisterType(registerType2);
+        DeviceType.DeviceConfigurationBuilder configurationWithRegisterTypes = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
+        NumericalRegisterSpec.Builder registerSpecBuilder1 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType1);
+        registerSpecBuilder1.numberOfFractionDigits(0);
+        registerSpecBuilder1.overflowValue(overflowValue);
+        registerSpecBuilder1.useMultiplierWithCalculatedReadingType(forwardBulkPrimaryEnergyReadingType);
+
+        NumericalRegisterSpec.Builder registerSpecBuilder2 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType2);
+        registerSpecBuilder2.numberOfFractionDigits(0);
+        registerSpecBuilder2.overflowValue(overflowValue);
+        registerSpecBuilder2.useMultiplierWithCalculatedReadingType(reverseBulkPrimaryEnergyReadingType);
+        DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
+        deviceType.save();
+        deviceConfiguration.activate();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", "DeviceWithMultiplierOnRegister");
+        device.save();
+
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        assertThat(meterConfigurationOptional).isPresent();
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+            @Override
+            public boolean matches(MeterReadingTypeConfiguration value) {
+                return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
+                        value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID());
+            }
+        });
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+            @Override
+            public boolean matches(MeterReadingTypeConfiguration value) {
+                return value.getMeasured().getMRID().equals(reverseBulkSecondaryEnergyReadingType.getMRID()) &&
+                        value.getCalculated().get().getMRID().equals(reverseBulkPrimaryEnergyReadingType.getMRID());
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void createSingleMeterConfigurationForChannelSpecsAndRegisterSpecsTest() {
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
+        RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("LoadProfileType", loadProfileObisCode, TimeDuration.months(1), Arrays.asList(registerType1, registerType2));
+        loadProfileType.save();
+        ChannelType channelTypeForRegisterType1 = loadProfileType.findChannelType(registerType1).get();
+        ChannelType channelTypeForRegisterType2 = loadProfileType.findChannelType(registerType2).get();
+        deviceType.addLoadProfileType(loadProfileType);
+        deviceType.addRegisterType(registerType1);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
+        NumericalRegisterSpec.Builder registerSpecBuilder1 = deviceConfigurationBuilder.newNumericalRegisterSpec(registerType1);
+        registerSpecBuilder1.numberOfFractionDigits(0);
+        registerSpecBuilder1.overflowValue(overflowValue);
+        registerSpecBuilder1.useMultiplierWithCalculatedReadingType(forwardBulkPrimaryEnergyReadingType);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
+        BigDecimal overflow = BigDecimal.valueOf(9999);
+        final int nbrOfFractionDigits = 3;
+        deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder)
+                .nbrOfFractionDigits(nbrOfFractionDigits)
+                .overflow(overflow)
+                .useMultiplierWithCalculatedReadingType(forwardDeltaPrimaryMonthlyEnergyReadingType);
+        deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder)
+                .nbrOfFractionDigits(nbrOfFractionDigits)
+                .overflow(overflow);
+
+
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        deviceType.save();
+        deviceConfiguration.activate();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers");
+        device.save();
+
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        assertThat(meterConfigurationOptional).isPresent();
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(3);
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+            @Override
+            public boolean matches(MeterReadingTypeConfiguration value) {
+                return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
+                        value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID());
+            }
+        });
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+            @Override
+            public boolean matches(MeterReadingTypeConfiguration value) {
+                return value.getMeasured().getMRID().equals(getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
+                        value.getCalculated().get().getMRID().equals(getForwardBulkPrimaryEnergyReadingType().period(MacroPeriod.MONTHLY).code()) &&
+                        value.getOverflowValue().getAsLong() == overflow.longValue() &&
+                        value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
+            }
+        });
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+            @Override
+            public boolean matches(MeterReadingTypeConfiguration value) {
+                return value.getMeasured().getMRID().equals(getReverseSecondaryBulkReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
+                        !value.getCalculated().isPresent() &&
+                        value.getOverflowValue().getAsLong() == overflow.longValue() &&
+                        value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
+            }
+        });
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
-        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardEnergyReadingType);
-        RegisterType registerType2 = this.createRegisterTypeIfMissing(reverseEnergyObisCode, reverseEnergyReadingType);
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
+        RegisterType registerType2 = this.createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
         deviceType.addRegisterType(registerType1);
         deviceType.addRegisterType(registerType2);
         DeviceType.DeviceConfigurationBuilder configurationWithRegisterTypes = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
@@ -1253,8 +1462,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs(TimeDuration myInterval) {
-        RegisterType registerType1 = createRegisterTypeIfMissing(forwardEnergyObisCode, forwardEnergyReadingType);
-        RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseEnergyReadingType);
+        RegisterType registerType1 = createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
+        RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
         LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService()
                 .newLoadProfileType("LoadProfileType", loadProfileObisCode, myInterval, Arrays.asList(registerType1, registerType2));
         loadProfileType.save();
@@ -1263,8 +1472,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflowValue).nbrOfFractionDigits(numberOfFractionDigits);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflowValue).nbrOfFractionDigits(numberOfFractionDigits);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
@@ -1284,11 +1493,28 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         return measurementType;
     }
 
-    private ReadingTypeCodeBuilder getForwardEnergyReadingTypeCodeBuilder() {
+    private ReadingTypeCodeBuilder getForwardBulkSecondaryEnergyReadingTypeCodeBuilder() {
         return ReadingTypeCodeBuilder
                 .of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
                 .flow(FlowDirection.FORWARD)
+                .measure(MeasurementKind.ENERGY)
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+    }
+
+    private ReadingTypeCodeBuilder getForwardBulkPrimaryEnergyReadingType(){
+        return getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().commodity(Commodity.ELECTRICITY_PRIMARY_METERED);
+    }
+
+    private ReadingTypeCodeBuilder getForwardDeltaPrimaryMonthlyEnergyReadingType(){
+        return getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().commodity(Commodity.ELECTRICITY_PRIMARY_METERED).accumulate(Accumulation.DELTADELTA);
+    }
+
+    private ReadingTypeCodeBuilder getReverseSecondaryBulkReadingTypeCodeBuilder() {
+        return ReadingTypeCodeBuilder
+                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.REVERSE)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
     }

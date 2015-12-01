@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.EventService;
@@ -163,6 +164,18 @@ public class DeviceMultiplierTest {
         doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
 
         assertThat(mockedDevice.getMultiplier()).isEqualTo(BigDecimal.ONE);
+    }
+
+    @Test
+    public void dontCreateNewMeterActivationWhenMultiplierIsOneTest() {
+        Device mockedDevice = createMockedDevice();
+
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+
+        mockedDevice.setMultiplier(BigDecimal.ONE);
+
+        verify(meterActivation, never()).endAt(any(Instant.class));
     }
 
     @Test
