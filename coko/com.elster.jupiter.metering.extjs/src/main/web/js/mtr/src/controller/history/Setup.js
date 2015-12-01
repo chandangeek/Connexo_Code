@@ -18,7 +18,7 @@ Ext.define('Mtr.controller.history.Setup', {
                     action: 'showOverview',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('general.add', 'MTR', 'Add'),
+                            title: Uni.I18n.translate('readingtypes.add', 'MTR', 'Add reading types'),
                             route: 'add',
                             controller: 'Mtr.readingtypes.controller.AddReadingTypes',
                             privileges : Mtr.privileges.ReadingTypes.admin,
