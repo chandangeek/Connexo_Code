@@ -131,10 +131,13 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                             name: 'Favorites'
                                         });
                                         flag.save({
-                                            callback: function () {
+                                            callback: function (rec, operation) {
+                                                var json = Ext.decode(operation.response.responseText);
                                                 flag.setId(flag.get('category').id);
+                                                flag.set('parent', json.parent);
                                                 button.flag = flag;
                                                 button.toggle(true, false);
+                                                me.router.getRoute().forward();
                                             }
                                         });
                                         button.window.close();
