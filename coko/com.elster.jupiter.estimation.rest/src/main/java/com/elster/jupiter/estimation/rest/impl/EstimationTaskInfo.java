@@ -24,6 +24,7 @@ public class EstimationTaskInfo {
     public Long nextRun;
     public Long lastRun;
     public long version;
+    public String application;
 
     public EstimationTaskInfo() {
     }

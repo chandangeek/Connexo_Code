@@ -408,6 +408,7 @@ public class EstimationResource {
     public Response addEstimationTask(EstimationTaskInfo info) {
         EstimationTask dataExportTask = estimationService.newBuilder()
                 .setName(info.name)
+                .setApplication(info.application)
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
                 .setPeriod(getRelativePeriod(info.period))
