@@ -57,7 +57,7 @@ class Installer {
     private void createTask() {
         if (!taskService.getRecurrentTask(DATA_LIFECYCLE_RECCURENT_TASK_NAME).isPresent()) {
             taskService.newBuilder()
-                    .setApplication("Pulse")
+                    .setApplication("Admin")
                     .setName(DATA_LIFECYCLE_RECCURENT_TASK_NAME)
                     .setScheduleExpressionString("0 0 18 ? * 1L") // last sunday of the month at 18:00
                     .setDestination(getDestination())
