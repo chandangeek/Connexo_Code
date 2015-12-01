@@ -404,14 +404,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         configureFWWAN(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
                     	if (pendingMessage.getDeviceMessageAttributes().size() == 2) {
-                    		final String macAddressHex = pendingMessage.getDeviceMessageAttributes()
-                    												   .get(0)
-                    												   .getDeviceMessageAttributeValue();
-                    		
-                    		final String protocolName = pendingMessage.getDeviceMessageAttributes()
-                    												  .get(1)
-                    												  .getDeviceMessageAttributeValue();
-                    		
+                    		final String macAddressHex = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.macAddress).getDeviceMessageAttributeValue();
+                    		final String protocolName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.protocolName).getDeviceMessageAttributeValue();
+
                     		this.triggerPreliminaryProtocol(macAddressHex, protocolName);
                     	} else {
                     		collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
