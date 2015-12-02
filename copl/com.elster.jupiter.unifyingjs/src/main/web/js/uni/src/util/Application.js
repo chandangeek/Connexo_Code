@@ -16,5 +16,21 @@ Ext.define('Uni.util.Application', {
         }
 
         return undefined;
+    },
+
+    getAppName: function () {
+        var appNamespace = this.getAppNamespace();
+        if (appNamespace == 'MdcApp') {
+            return 'MultiSense';
+        }
+        if (appNamespace == 'SystemApp') {
+            return 'Admin';
+        }
+        if (appNamespace == 'InsightApp') {
+            return 'Insight';
+        }
+        return appNamespace;
     }
+
+
 });
