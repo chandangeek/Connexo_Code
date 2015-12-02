@@ -22,6 +22,7 @@ Ext.define('Dxp.view.tasks.Setup', {
             items: [
                 {
                     xtype: 'preview-container',
+                    margin: '0 1 0 0',
                     grid: {
                         xtype: 'dxp-tasks-grid',
                         itemId: 'grd-data-export-tasks',
