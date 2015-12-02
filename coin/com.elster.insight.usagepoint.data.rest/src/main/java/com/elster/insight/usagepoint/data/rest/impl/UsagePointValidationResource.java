@@ -18,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -77,7 +78,6 @@ public class UsagePointValidationResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
         List<UsagePointValidationRuleSetInfo> result = new ArrayList<>();
         Optional<? extends MeterActivation> activation = usagePoint.getCurrentMeterActivation();
-//        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         Optional<MetrologyConfiguration> OPTconfig = usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(usagePoint);
         MetrologyConfiguration config = OPTconfig.get();
         
@@ -98,33 +98,32 @@ public class UsagePointValidationResource {
         }
     }
 
-//    @Path("/{validationRuleSetId}/status")
-//    @PUT
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-//    @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
-//    public Response setValidationRuleSetStatusOnDevice(@PathParam("mrid") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, DeviceValidationRuleSetInfo info) {
-//        info.device.mRID = mRID;
-//        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
-//        ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
-//        Optional<? extends MeterActivation> activation = device.getCurrentMeterActivation();
-//        if (activation.isPresent()) {
-//            setValidationRuleSetActivationStatus(activation.get(), ruleSet, info.isActive);
-//        } else {
-//            throw exceptionFactory.newException(MessageSeeds.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, ruleSet.getName());
-//        }
-//        device.save();
-//        return Response.status(Response.Status.OK).build();
-//    }
-//
-//    private void setValidationRuleSetActivationStatus(MeterActivation activation, ValidationRuleSet ruleSet, boolean status) {
-//      if (status) {
-//    	  validationService.activate(activation, ruleSet);
-//      } else {
-//    	  validationService.deactivate(activation, ruleSet);
-//      }
-//    }
-//
+    @Path("/{validationRuleSetId}/status")
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response setValidationRuleSetStatusOnDevice(@PathParam("mrid") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, UsagePointValidationRuleSetInfo info) {
+        info.usagePoint.mRID = mrid;
+        UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info.usagePoint);
+        ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
+        Optional<? extends MeterActivation> activation = usagePoint.getCurrentMeterActivation();
+        if (activation.isPresent()) {
+            setValidationRuleSetActivationStatus(activation.get(), ruleSet, info.isActive);
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, ruleSet.getName());
+        }
+        usagePoint.update();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private void setValidationRuleSetActivationStatus(MeterActivation activation, ValidationRuleSet ruleSet, boolean status) {
+      if (status) {
+    	  validationService.activate(activation, ruleSet);
+      } else {
+    	  validationService.deactivate(activation, ruleSet);
+      }
+    }
+
     @Path("/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -267,7 +266,7 @@ public class UsagePointValidationResource {
     public UsagePointValidation getUsagePointValidation(UsagePoint usagePoint) {
         return new UsagePointValidationImpl(validationService, clock, thesaurus, usagePoint, usagePointConfigurationService);
     }
-//
+
     private UsagePointValidationStatusInfo determineStatus(UsagePoint usagePoint) {
         UsagePointValidation usagePointValidation = getUsagePointValidation(usagePoint);
         UsagePointValidationStatusInfo usagePointValidationStatusInfo =
@@ -378,23 +377,23 @@ public class UsagePointValidationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-//    @Path("/validate")
-//    @PUT
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
-//    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
-//    public Response validateDeviceData(@PathParam("mRID") String mRID, DeviceInfo info) {
-//        info.mRID = mRID;
-//        Device device = resourceHelper.lockDeviceOrThrowException(info);
-//        device.forValidation().validateData();
-//        device.save();
-//        return Response.status(Response.Status.OK).build();
-//    }
-//
-//    private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
-//        Optional<? extends ValidationRuleSet> ruleSet = validationService.getValidationRuleSet(validationRuleSetId);
-//        return ruleSet.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-//    }
+    @Path("/validate")
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
+    public Response validateDeviceData(@PathParam("mrid") String mrid, UsagePointInfo info) {
+        info.mRID = mrid;
+        UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
+        UsagePointValidation upv = getUsagePointValidation(usagePoint);
+        upv.validateData();
+        usagePoint.update();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
+        Optional<? extends ValidationRuleSet> ruleSet = validationService.getValidationRuleSet(validationRuleSetId);
+        return ruleSet.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
 //
 //    private boolean isAllDataValidated(Device device) {
 //        boolean result = true;
