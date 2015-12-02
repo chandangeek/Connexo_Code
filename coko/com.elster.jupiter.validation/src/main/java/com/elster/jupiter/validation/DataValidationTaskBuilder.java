@@ -12,6 +12,8 @@ public interface DataValidationTaskBuilder {
 
     public DataValidationTaskBuilder setName(String name);
 
+    public DataValidationTaskBuilder setApplication(String application);
+
     public DataValidationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
     public DataValidationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup);

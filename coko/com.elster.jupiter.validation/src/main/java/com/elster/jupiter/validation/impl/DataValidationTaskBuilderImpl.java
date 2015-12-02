@@ -21,6 +21,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     private EndDeviceGroup endDeviceGroup;
     private UsagePointGroup usagePointGroup;
     private ValidationService dataValidationService;
+    private String application;
 
     public DataValidationTaskBuilderImpl(DataModel dataModel, ValidationService dataValidationService) {
         this.dataModel = dataModel;
@@ -31,6 +32,12 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     @Override
     public DataValidationTaskBuilder setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    @Override
+    public DataValidationTaskBuilder setApplication(String application) {
+        this.application = application;
         return this;
     }
 
@@ -67,7 +74,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
 
     @Override
     public DataValidationTask build() {
-        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, dataValidationService);
+        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, dataValidationService, application);
         task.setScheduleImmediately(scheduleImmediately);
         task.setScheduleExpression(scheduleExpression);
         task.setEndDeviceGroup(endDeviceGroup);

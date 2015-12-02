@@ -75,6 +75,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private boolean scheduleImmediately;
     private ScheduleExpression scheduleExpression;
 
+    private String application;
+
     @Inject
     DataValidationTaskImpl(DataModel dataModel, TaskService taskService, ValidationService dataValidationService, Thesaurus thesaurus) {
         this.taskService = taskService;
@@ -83,14 +85,15 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         this.thesaurus = thesaurus;
     }
 
-    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, ValidationService dataValidationService) {
-        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, dataValidationService);
+    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, ValidationService dataValidationService, String application) {
+        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, dataValidationService, application);
     }
 
-    DataValidationTaskImpl init(String name, Instant nextExecution, ValidationService dataValidationService) {
+    DataValidationTaskImpl init(String name, Instant nextExecution, ValidationService dataValidationService, String application) {
         this.nextExecution = nextExecution;
         this.name = name.trim();
         this.dataValidationService = dataValidationService;
+        this.application = application;
         return this;
     }
 
@@ -295,7 +298,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     private void persistRecurrentTask() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication("Pulse")
+                .setApplication(application)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataValidationService.getDestination())

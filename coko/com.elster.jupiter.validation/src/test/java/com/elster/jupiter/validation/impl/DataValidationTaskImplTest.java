@@ -87,14 +87,14 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationTask == null) {
-            validationTask = setId(newTask().init("taskname", Instant.now() ,dataValidationService), ID);
+            validationTask = setId(newTask().init("taskname", Instant.now() ,dataValidationService, "MultiSense"), ID);
         }
         return validationTask;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return setId(newTask().init("taskname", Instant.now(), dataValidationService), ID);
+        return setId(newTask().init("taskname", Instant.now(), dataValidationService,"MultiSense"), ID);
     }
 
     @Override
