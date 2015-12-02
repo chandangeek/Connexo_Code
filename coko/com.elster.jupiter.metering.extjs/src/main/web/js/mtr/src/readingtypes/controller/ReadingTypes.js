@@ -30,7 +30,7 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
         },
         {
             ref: 'readingTypesGrid',
-            selector: '#reading-types-grid'
+            selector: '#metering-reading-types-grid'
         },
         {
             ref: 'readingTypesPreviewMenu',
@@ -48,7 +48,7 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
 
     init: function () {
         this.control({
-            'reading-types-grid': {
+            'metering-reading-types-grid': {
                 select: this.showPreview
             },
             'reading-types-action-menu': {

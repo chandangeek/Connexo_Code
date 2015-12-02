@@ -1,7 +1,7 @@
 Ext.define('Mtr.readingtypes.view.Grid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.reading-types-grid',
-    itemId: 'reading-types-grid',
+    alias: 'widget.metering-reading-types-grid',
+    itemId: 'metering-reading-types-grid',
     store: 'Mtr.readingtypes.store.ReadingTypes',
     router: null,
     requires: [

@@ -23,7 +23,7 @@ Ext.define('Mtr.readingtypes.controller.OverviewSorting', {
         },
         {
             ref: 'readingTypesGrid',
-            selector: '#reading-types-grid'
+            selector: '#metering-reading-types-grid'
         }
     ],
 
