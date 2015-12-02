@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -68,7 +69,7 @@ public class DeviceLifeCycleActionResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public Response getAvailableActionsForCurrentDevice(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
@@ -81,7 +82,7 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(PagedInfoList.fromCompleteList("transitions", availableActions, queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -92,7 +93,7 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(info).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})

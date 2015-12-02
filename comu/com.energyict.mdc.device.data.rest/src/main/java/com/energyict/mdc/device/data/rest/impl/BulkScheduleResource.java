@@ -7,8 +7,9 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ItemizeComScheduleQueueMessage;
@@ -43,7 +44,7 @@ public class BulkScheduleResource {
         this.searchService = searchService;
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response addOrRemoveComScheduleToDeviceSet(BulkRequestInfo request) {
@@ -62,14 +63,10 @@ public class BulkScheduleResource {
             Optional<SearchDomain> deviceSearchDomain = searchService.findDomain(Device.class.getName());
             if (filter.hasFilters() && deviceSearchDomain.isPresent()) {
                 message.filter = new ComScheduleOnDevicesFilterSpecification();
-                deviceSearchDomain.get().getProperties().stream().
-                        filter(p -> filter.hasProperty(p.getName())).
-                        forEach(searchableProperty -> {
-                            if (searchableProperty.getSelectionMode() == SearchableProperty.SelectionMode.MULTI) {
-                                message.filter.listProperties.put(searchableProperty.getName(), filter.getStringList(searchableProperty.getName()));
-                            } else {
-                                message.filter.singleProperties.put(searchableProperty.getName(), filter.getString(searchableProperty.getName()));
-                            }
+                deviceSearchDomain.get().getPropertiesValues(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, filter))
+                        .stream()
+                        .forEach(propertyValue -> {
+                            message.filter.properties.put(propertyValue.getProperty().getName(), propertyValue.getValueBean());
                         });
             }
         }
