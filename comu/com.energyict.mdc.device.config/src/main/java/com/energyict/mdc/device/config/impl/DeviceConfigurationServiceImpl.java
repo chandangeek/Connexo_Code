@@ -799,11 +799,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<ResourceDefinition> getModuleResources() {
         return Arrays.asList(
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "masterData.masterData", "masterData.masterData.description", Arrays.asList(Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA)),
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceType.deviceTypes", "deviceType.deviceTypes.description", Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE)),
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", Arrays.asList(DeviceSecurityUserAction
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_MASTER_DATA.getKey(), Privileges.RESOURCE_MASTER_DATA_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA)),
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_DEVICE_TYPES.getKey(), Privileges.RESOURCE_DEVICE_TYPES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE)),
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_DEVICE_SECURITY.getKey(), Privileges.RESOURCE_DEVICE_SECURITY_DESCRIPTION.getKey(), Arrays.asList(DeviceSecurityUserAction
                         .values()).stream().map(DeviceSecurityUserAction::getPrivilege).collect(toList())),
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceCommand.deviceCommands", "deviceCommand.deviceCommands.description", Arrays.asList(DeviceMessageUserAction
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_DEVICE_COMMANDS.getKey(), Privileges.RESOURCE_DEVICE_COMMANDS_DESCRIPTION.getKey(), Arrays.asList(DeviceMessageUserAction
                         .values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList()))
         );
     }
