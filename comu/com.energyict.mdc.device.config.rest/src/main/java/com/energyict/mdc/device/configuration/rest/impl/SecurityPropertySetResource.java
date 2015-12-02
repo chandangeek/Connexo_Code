@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -54,7 +55,7 @@ public class SecurityPropertySetResource {
         this.executionLevelResourceProvider = executionLevelResourceProvider;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySets(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
@@ -71,7 +72,7 @@ public class SecurityPropertySetResource {
         return PagedInfoList.fromPagedList("data", securityPropertySetInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{securityPropertySetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -82,7 +83,7 @@ public class SecurityPropertySetResource {
         return Response.status(Response.Status.OK).entity(securityPropertySetInfoFactory.from(securityPropertySet, groups)).build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -115,7 +116,7 @@ public class SecurityPropertySetResource {
             .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{securityPropertySetId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -130,7 +131,7 @@ public class SecurityPropertySetResource {
         return Response.status(Response.Status.OK).entity(securityPropertySetInfoFactory.from(securityPropertySet, groups)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{securityPropertySetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -142,7 +143,7 @@ public class SecurityPropertySetResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/authlevels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -156,7 +157,7 @@ public class SecurityPropertySetResource {
         return PagedInfoList.fromPagedList("data", securityLevelInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/enclevels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})

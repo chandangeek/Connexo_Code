@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.collections.KPermutation;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
@@ -44,7 +45,7 @@ public class EstimationRuleSetResource {
         this.deviceConfigurationService = deviceConfigurationService;
     }
     
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public PagedInfoList getEstimationRuleSets(
@@ -57,7 +58,7 @@ public class EstimationRuleSetResource {
         return PagedInfoList.fromCompleteList("estimationRuleSets", infos, queryParameters);
     }
     
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
@@ -79,7 +80,7 @@ public class EstimationRuleSetResource {
         return Response.status(Status.CREATED).build();
     }
     
-    @DELETE
+    @DELETE @Transactional
     @Path("/{estimationRuleSetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -95,7 +96,7 @@ public class EstimationRuleSetResource {
         return Response.status(Status.NO_CONTENT).build();
     }
     
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})

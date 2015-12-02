@@ -10,19 +10,21 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -85,7 +87,7 @@ public class DeviceTypeResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getAllDeviceTypes(@BeanParam JsonQueryParameters queryParameters) {
@@ -95,7 +97,7 @@ public class DeviceTypeResource {
         return PagedInfoList.fromPagedList("deviceTypes", deviceTypeInfos, queryParameters);
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -106,7 +108,7 @@ public class DeviceTypeResource {
 
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -120,7 +122,7 @@ public class DeviceTypeResource {
         return DeviceTypeInfo.from(deviceType);
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -161,7 +163,7 @@ public class DeviceTypeResource {
         return info;
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}/devicelifecycle")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -182,7 +184,7 @@ public class DeviceTypeResource {
         return Response.ok(DeviceTypeInfo.from(deviceType)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -191,7 +193,7 @@ public class DeviceTypeResource {
         return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -200,17 +202,17 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<RegisteredCustomPropertySet> registeredCustomPropertySets;
         if (!isLinked) {
-            registeredCustomPropertySets = resourceHelper.findCustomPropertySets(DeviceType.class.getName())
+            registeredCustomPropertySets = resourceHelper.findAllCustomPropertySetsByDomain(Device.class)
                     .stream()
-                    .filter(f -> !deviceType.getDeviceTypeCustomPropertySetUsage().stream().map(m -> m.getId()).collect(Collectors.toList()).contains(f.getId()))
-            .collect(Collectors.toList());
+                    .filter(f -> !deviceType.getDeviceTypeCustomPropertySetUsage().stream().map(RegisteredCustomPropertySet::getId).collect(Collectors.toList()).contains(f.getId()))
+                    .collect(Collectors.toList());
         } else {
             registeredCustomPropertySets = deviceType.getDeviceTypeCustomPropertySetUsage();
         }
         return PagedInfoList.fromPagedList("deviceTypeCustomPropertySets", DeviceTypeCustomPropertySetInfo.from(registeredCustomPropertySets), queryParameters);
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -218,17 +220,17 @@ public class DeviceTypeResource {
     public Response addDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, List<DeviceTypeCustomPropertySetInfo> infos) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         infos.stream().forEach(deviceTypeCustomPropertySetInfo ->
-                deviceType.addDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id)));
+                deviceType.addDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id, Device.class)));
         return Response.ok().build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{deviceTypeId}/custompropertysets/{customPropertySetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceTypeCustomPropertySetUsage(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("customPropertySetId") long customPropertySetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        deviceType.removeDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId));
+        deviceType.removeDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class));
         return Response.ok().build();
     }
 
@@ -237,7 +239,7 @@ public class DeviceTypeResource {
         return loadProfileTypeResourceProvider.get();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -262,7 +264,7 @@ public class DeviceTypeResource {
         }
     }
 
-    @POST
+    @POST @Transactional
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -284,7 +286,7 @@ public class DeviceTypeResource {
         return Response.ok(LogBookTypeInfo.from(logBookTypes, deviceType)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}/logbooktypes/{lbid}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -320,7 +322,7 @@ public class DeviceTypeResource {
         return deviceConflictMappingResourceProvider.get();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -360,7 +362,7 @@ public class DeviceTypeResource {
         return deviceType.getRegisterTypes().stream().filter(rt->!unavailableRegisterTypeIds.contains(rt.getId())).collect(toList());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/registertypes/{registerTypeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -371,7 +373,7 @@ public class DeviceTypeResource {
         return new RegisterTypeOnDeviceTypeInfo(registerType, false, false, false, deviceType.getRegisterTypeTypeCustomPropertySet(registerType));
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}/registertypes/{registerTypeId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -382,19 +384,19 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
         deviceType.addRegisterTypeCustomPropertySet(registerType, registerTypeOnDeviceTypeInfo.customPropertySet.id > 0 ?
-                resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(registerTypeOnDeviceTypeInfo.customPropertySet.id) : null);
+                resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(registerTypeOnDeviceTypeInfo.customPropertySet.id, RegisterSpec.class) : null);
         return Response.ok().build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/registertypes/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getRegisterCustomPropertySets() {
-        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findCustomPropertySets(MeasurementType.class.getName()))).build();
+        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findAllCustomPropertySetsByDomain(RegisterSpec.class))).build();
     }
 
-    @POST
+    @POST @Transactional
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -409,7 +411,7 @@ public class DeviceTypeResource {
         return asInfoList(deviceType, deviceType.getRegisterTypes());
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

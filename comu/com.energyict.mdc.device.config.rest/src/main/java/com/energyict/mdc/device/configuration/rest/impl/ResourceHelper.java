@@ -105,18 +105,18 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public RegisteredCustomPropertySet findDeviceTypeCustomPropertySetByIdOrThrowException(long id) {
-        return customPropertySetService.findActiveCustomPropertySets()
+    public RegisteredCustomPropertySet findDeviceTypeCustomPropertySetByIdOrThrowException(long id, Class domain) {
+        return findAllCustomPropertySetsByDomain(domain)
                 .stream()
                 .filter(f -> f.getId() == id)
                 .findAny()
                 .orElseThrow(() -> new WebApplicationException("No custom property set with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public List<RegisteredCustomPropertySet> findCustomPropertySets(String domainExtensionName) {
+    public List<RegisteredCustomPropertySet> findAllCustomPropertySetsByDomain(Class domain) {
         return customPropertySetService.findActiveCustomPropertySets()
                 .stream()
-                .filter(f -> f.getCustomPropertySet().getDomainClass().getName().equals(domainExtensionName))
+                .filter(f -> f.getCustomPropertySet().getDomainClass().getName().equals(domain.getName()))
                 .collect(Collectors.toList());
     }
 

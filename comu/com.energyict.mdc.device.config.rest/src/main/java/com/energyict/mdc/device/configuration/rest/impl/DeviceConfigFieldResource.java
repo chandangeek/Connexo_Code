@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.FieldResource;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -31,7 +32,7 @@ public class DeviceConfigFieldResource extends FieldResource {
         super(thesaurus);
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/timeOfUse")
     public Object getTimeOfUseValues() {
@@ -47,7 +48,7 @@ public class DeviceConfigFieldResource extends FieldResource {
         return map;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/connectionStrategy")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
