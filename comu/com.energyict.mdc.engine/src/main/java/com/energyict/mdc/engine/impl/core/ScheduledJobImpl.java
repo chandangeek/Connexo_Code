@@ -156,14 +156,9 @@ public abstract class ScheduledJobImpl extends JobExecution {
         this.setExecutionContext(this.newExecutionContext(this.getConnectionTask(), comPort, logConnectionProperties));
     }
 
-    void completeConnection () {
+    protected void completeConnection () throws ConnectionException{
         if (getExecutionContext() != null) {
-            try {
-                this.getConnectionTask().disconnect(getExecutionContext().getComPortRelatedComChannel());
-            }
-            catch (ConnectionException e) {
-                throw new ConnectionFailureException(MessageSeeds.CONNECTION_FAILURE, e);
-            }
+            this.getConnectionTask().disconnect(getExecutionContext().getComPortRelatedComChannel());
         }
     }
 
