@@ -268,6 +268,7 @@ Ext.define('Uni.view.search.field.Selection', {
                     }
                     this.select(selection.getRange(), true, true);
                     this.updateHeaderState();
+                    me.onChange();
                 },
                 onStoreRefresh: function () {
                     this.superclass.onStoreRefresh.apply(this);
