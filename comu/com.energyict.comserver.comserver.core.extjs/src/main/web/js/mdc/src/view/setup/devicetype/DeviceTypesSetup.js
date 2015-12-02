@@ -18,6 +18,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
             items: [
                 {
                     xtype: 'preview-container',
+                    margin: '0 1 0 0',
                     grid: {
                         xtype: 'deviceTypesGrid',
                         itemId: 'devicetypegrid'
