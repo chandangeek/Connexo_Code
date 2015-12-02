@@ -127,8 +127,8 @@ Ext.define('Imt.view.setup.devicechannels.TabbedDeviceChannelsView', {
                             {
                                 xtype: 'usage-point-management-side-menu',
                                 itemId: 'stepsMenu',
-                                device: me.device,
-                                channelId: me.channelId,
+                                mRID: me.device.get('mRID'),
+                                channelId: me.channel.getId(),
                                 toggleId: 'channelsLink',
                                 router: me.router
                             }

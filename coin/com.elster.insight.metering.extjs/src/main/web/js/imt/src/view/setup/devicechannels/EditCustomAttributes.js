@@ -17,7 +17,7 @@ Ext.define('Imt.view.setup.devicechannels.EditCustomAttributes', {
                     {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'stepsMenu',
-                        device: me.device,
+                        mRID: me.device,
                         toggleId: 'registersLink'
                     }
                 ]

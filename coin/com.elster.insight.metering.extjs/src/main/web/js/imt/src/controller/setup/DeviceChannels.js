@@ -43,8 +43,11 @@ Ext.define('Imt.controller.setup.DeviceChannels', {
         {
             ref: 'deviceLoadProfileChannelsOverviewForm',
             selector: '#deviceLoadProfileChannelsOverviewForm'
+        },
+        {
+            ref: 'overviewLink', 
+            selector: '#usage-point-overview-link'
         }
-
     ],
 
     init: function () {
@@ -71,7 +74,7 @@ Ext.define('Imt.controller.setup.DeviceChannels', {
             showPage = function () {
                 deviceModel.load(mRID, {
                     success: function (record) {
-                        me.getApplication().fireEvent('loadDevice', record);
+                        me.getApplication().fireEvent('usagePointLoaded', record);
                         widget = Ext.widget('deviceLoadProfileChannelsSetup', {
                             mRID: mRID,
                             router: router,
@@ -79,6 +82,7 @@ Ext.define('Imt.controller.setup.DeviceChannels', {
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);
                         channelsOfLoadProfilesOfDeviceStore.load();
+                        me.getOverviewLink().setText(mRID);
                     }
                 });
             };

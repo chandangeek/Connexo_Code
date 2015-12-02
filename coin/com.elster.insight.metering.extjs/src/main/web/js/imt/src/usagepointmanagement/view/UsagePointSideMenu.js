@@ -8,7 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
         var me = this;
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.label.overview', 'IMT', 'Overview'),
+                text: me.mRID,
                 itemId: 'usage-point-overview-link',
                 href: me.router.getRoute('usagepoints/view').buildUrl({mRID: me.mRID})
             },
