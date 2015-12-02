@@ -24,6 +24,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +48,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     private final TimeDuration interval = TimeDuration.minutes(15);
     private final Unit unit1 = Unit.get("kWh");
     private final Unit unit2 = Unit.get("MWh");
+    private final BigDecimal overflow = BigDecimal.TEN;
 
     private ReadingType readingType1;
     private ReadingType readingType2;
@@ -92,8 +94,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
