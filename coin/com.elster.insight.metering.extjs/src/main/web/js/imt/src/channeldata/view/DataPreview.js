@@ -15,17 +15,21 @@ Ext.define('Imt.channeldata.view.DataPreview', {
             router = me.router
         ;
         
-        Ext.suspendLayouts();
-        me.down('#general-panel').setTitle(title);
-        me.down('#values-panel').setTitle(title);
-        me.down('#general-panel').loadRecord(record);
-        me.down('#values-panel').loadRecord(record);
+        me.setLoading();
+        record.refresh(router.arguments.mRID, router.arguments.channelId, function(){
+            Ext.suspendLayouts();
+            me.down('#general-panel').setTitle(title);
+            me.down('#values-panel').setTitle(title);
+            me.down('#general-panel').loadRecord(record);
+            me.down('#values-panel').loadRecord(record);
+            
+            me.setReadingQualities(me.down('#mainReadingQualities'), record.get('mainValidationInfo'));
+            me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
+            me.down('#readingDataValidated').setValue(record.get('dataValidated'));
 
-        me.setReadingQualities(me.down('#mainReadingQualities'), record.get('mainValidationInfo'));
-        me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
-        me.down('#readingDataValidated').setValue(record.get('dataValidated'));
-
-        Ext.resumeLayouts(true);
+            Ext.resumeLayouts(true);
+            me.setLoading(false);
+        });
     },
 
     setReadingQualities: function (field, info) {
