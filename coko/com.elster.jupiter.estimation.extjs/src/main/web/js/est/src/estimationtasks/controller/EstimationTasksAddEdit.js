@@ -1,7 +1,7 @@
 Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     extend: 'Ext.app.Controller',
 
-    requires: [],
+    requires: ['Uni.util.Application'],
 
     stores: [
         'Est.estimationtasks.store.DeviceGroups',
@@ -67,7 +67,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             newEstimationTask.beginEdit();
 
             newEstimationTask.set('name', newEstimationTaskDto.name);
-            newEstimationTask.set('application', 'Multisense');
+            newEstimationTask.set('application', Uni.util.Application.getAppName());
             newEstimationTask.set('active', true);
             newEstimationTask.set('lastEstimationOccurrence', null);
             newEstimationTask.set('deviceGroup', {
