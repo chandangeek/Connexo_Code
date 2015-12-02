@@ -99,7 +99,7 @@ public class UsagePointValidationResource {
     }
 
     @Path("/{validationRuleSetId}/status")
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response setValidationRuleSetStatusOnDevice(@PathParam("mrid") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, UsagePointValidationRuleSetInfo info) {
@@ -378,7 +378,7 @@ public class UsagePointValidationResource {
     }
 
     @Path("/validate")
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
     public Response validateDeviceData(@PathParam("mrid") String mrid, UsagePointInfo info) {
