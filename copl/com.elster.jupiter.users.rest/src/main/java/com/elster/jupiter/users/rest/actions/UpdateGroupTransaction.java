@@ -21,6 +21,7 @@ public class UpdateGroupTransaction extends UpdateMembership implements Transact
         final Group group = findAndLockGroupByIdAndVersion(info);
         if(info.privileges.isEmpty()){
             Group groupNoRights = doUpdateEmpty(group);
+            info.update(group);
             groupNoRights.update();
             return groupNoRights;
         }else {
