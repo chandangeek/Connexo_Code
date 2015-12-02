@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -364,7 +365,18 @@ public class DeviceResource {
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }
-        resourceHelper.addDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo, forced);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos =
+                resourceHelper.getOverlapsWhenCreate(lockedDevice, cpsId, customPropertySetInfo.startTime, customPropertySetInfo.endTime)
+                        .stream()
+                        .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
+                        .filter(resourceHelper.filterGaps(forced))
+                        .collect(Collectors.toList());
+        if (!forced && !overlapInfos.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
+                    .build();
+        }
+        resourceHelper.addDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo);
         return Response.ok().build();
     }
 
@@ -378,7 +390,18 @@ public class DeviceResource {
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }
-        resourceHelper.setDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo, Instant.ofEpochMilli(timeStamp), forced);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos =
+                resourceHelper.getOverlapsWhenUpdate(lockedDevice, cpsId, customPropertySetInfo.startTime, customPropertySetInfo.endTime, Instant.ofEpochMilli(timeStamp))
+                        .stream()
+                        .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
+                        .filter(resourceHelper.filterGaps(forced))
+                        .collect(Collectors.toList());
+        if (!forced && !overlapInfos.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
+                    .build();
+        }
+        resourceHelper.setDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo, Instant.ofEpochMilli(timeStamp));
         return Response.ok().build();
     }
 

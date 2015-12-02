@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -35,13 +36,29 @@ import com.google.common.collect.Range;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -190,7 +207,18 @@ public class ChannelResource {
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }
-        resourceHelper.addChannelCustomPropertySetVersioned(channel, cpsId, customPropertySetInfo, forced);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos =
+                resourceHelper.getOverlapsWhenCreate(channel, cpsId, customPropertySetInfo.startTime, customPropertySetInfo.endTime)
+                        .stream()
+                        .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
+                        .filter(resourceHelper.filterGaps(forced))
+                        .collect(Collectors.toList());
+        if (!forced && !overlapInfos.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
+                    .build();
+        }
+        resourceHelper.addChannelCustomPropertySetVersioned(channel, cpsId, customPropertySetInfo);
         return Response.ok().build();
     }
 
@@ -205,7 +233,18 @@ public class ChannelResource {
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }
-        resourceHelper.setChannelCustomPropertySetVersioned(channel, cpsId, customPropertySetInfo, Instant.ofEpochMilli(timeStamp), forced);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos =
+                resourceHelper.getOverlapsWhenUpdate(channel, cpsId, customPropertySetInfo.startTime, customPropertySetInfo.endTime, Instant.ofEpochMilli(timeStamp))
+                        .stream()
+                        .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
+                        .filter(resourceHelper.filterGaps(forced))
+                        .collect(Collectors.toList());
+        if (!forced && !overlapInfos.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
+                    .build();
+        }
+        resourceHelper.setChannelCustomPropertySetVersioned(channel, cpsId, customPropertySetInfo, Instant.ofEpochMilli(timeStamp));
         return Response.ok().build();
     }
 
