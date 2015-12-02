@@ -12,7 +12,7 @@ Ext.define('InsightApp.controller.Main', {
 
     applicationTitle: 'Connexo Insight',
     applicationKey: 'INS',
-    defaultToken: '/usagepoints',
+    defaultToken: '/search',
     searchEnabled: true,
     onlineHelpEnabled: false,
 
