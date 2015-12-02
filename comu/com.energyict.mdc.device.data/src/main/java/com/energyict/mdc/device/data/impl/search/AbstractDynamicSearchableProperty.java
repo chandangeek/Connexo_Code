@@ -1,42 +1,32 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.sql.SqlFragment;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Exposes the properties of a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
- * of a {@link Device} as a {@link SearchableProperty}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-06-03 (14:02)
- */
-public class ConnectionTypeSearchableProperty extends AbstractSearchableDeviceProperty {
+public abstract class AbstractDynamicSearchableProperty<T> extends AbstractSearchableDeviceProperty {
 
-    private final DeviceSearchDomain domain;
-    private final ConnectionTypeSearchablePropertyGroup group;
-    private final ConnectionTypePluggableClass pluggableClass;
-    private final PropertySpec propertySpec;
+    private final Class<T> implClass;
+    private SearchDomain domain;
+    private SearchablePropertyGroup group;
+    private PropertySpec propertySpec;
 
-    public ConnectionTypeSearchableProperty(DeviceSearchDomain domain, ConnectionTypeSearchablePropertyGroup group, ConnectionTypePluggableClass pluggableClass, PropertySpec propertySpec) {
-        super();
+    public AbstractDynamicSearchableProperty(Class<T> implClass) {
+        this.implClass = implClass;
+    }
+
+    public T init(SearchDomain domain, SearchablePropertyGroup group, PropertySpec propertySpec) {
         this.domain = domain;
         this.group = group;
-        this.pluggableClass = pluggableClass;
         this.propertySpec = propertySpec;
+        return this.implClass.cast(this);
     }
 
     @Override
@@ -51,6 +41,12 @@ public class ConnectionTypeSearchableProperty extends AbstractSearchableDevicePr
 
     @Override
     public SelectionMode getSelectionMode() {
+        if (this.propertySpec.getPossibleValues() != null){
+            List allValues = propertySpec.getPossibleValues().getAllValues();
+            if (allValues != null && !allValues.isEmpty()){
+                return SelectionMode.MULTI;
+            }
+        }
         return SelectionMode.SINGLE;
     }
 
@@ -62,6 +58,11 @@ public class ConnectionTypeSearchableProperty extends AbstractSearchableDevicePr
     @Override
     public boolean affectsAvailableDomainProperties() {
         return false;
+    }
+
+    @Override
+    public String getName() {
+        return this.group.getId() + "." + this.propertySpec.getName();
     }
 
     @Override
@@ -89,8 +90,7 @@ public class ConnectionTypeSearchableProperty extends AbstractSearchableDevicePr
         try {
             this.propertySpec.validateValueIgnoreRequired(value);
             return true;
-        }
-        catch (InvalidValueException e) {
+        } catch (InvalidValueException e) {
             return false;
         }
     }
@@ -101,14 +101,7 @@ public class ConnectionTypeSearchableProperty extends AbstractSearchableDevicePr
         return this.propertySpec.getValueFactory().toStringValue(value);
     }
 
-    @Override
-    public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addConnectionTaskProperties(this.pluggableClass);
+    public PropertySpec getPropertySpec() {
+        return propertySpec;
     }
-
-    @Override
-    public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return this.toSqlFragment("props." + this.propertySpec.getName(), condition, now);
-    }
-
 }

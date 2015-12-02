@@ -2,14 +2,24 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuilder;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link Finder} interface
@@ -20,19 +30,28 @@ import java.util.List;
  */
 public class DeviceFinder implements Finder<Device> {
 
+    private static Logger LOGGER = Logger.getLogger(DeviceFinder.class.getName());
+
     private final DataModel dataModel;
     private final DeviceSearchSqlBuilder sqlBuilder;
     private Pager pager = new NoPaging();
+    private List<Order> orders;
 
     public DeviceFinder(DeviceSearchSqlBuilder sqlBuilder, DataModel dataModel) {
         super();
         this.sqlBuilder = sqlBuilder;
         this.dataModel = dataModel;
+        this.orders = new ArrayList<>();
+        this.orders.add(Order.ascending("mRID"));
     }
 
     @Override
     public List<Device> find() {
-        SqlBuilder sqlBuilder = this.pager.addPaging(this.sqlBuilder.toSqlBuilder());
+        SqlBuilder sqlBuilder = this.sqlBuilder.toSqlBuilder();
+        sqlBuilder.append(" ORDER BY " + this.orders.stream()
+                .map(order -> order.getClause(order.getName()))
+                .collect(Collectors.joining(", ")));
+        sqlBuilder = this.pager.addPaging(sqlBuilder);
         try (Fetcher<Device> fetcher = this.dataModel.mapper(Device.class).fetcher(sqlBuilder)) {
             List<Device> matchingDevices = new ArrayList<>();
             Iterator<Device> deviceIterator = fetcher.iterator();
@@ -51,17 +70,35 @@ public class DeviceFinder implements Finder<Device> {
 
     @Override
     public Finder<Device> sorted(String s, boolean b) {
-        throw new UnsupportedOperationException("Sorting is not implemented yet");
+        orders.add(b ? Order.ascending(s) : Order.descending(s));
+        return this;
     }
 
     @Override
     public Subquery asSubQuery(String... strings) {
-        throw new UnsupportedOperationException("Too hard for now, maybe in a future release");
+        return () -> asFragment(strings);
     }
 
     @Override
-    public SqlFragment asFragment(String... strings) {
-        throw new UnsupportedOperationException("Too hard for now, maybe in a future release");
+    public SqlBuilder asFragment(String... strings) {
+        SqlBuilder sqlBuilder = new SqlBuilder("select " + Stream.of(strings).collect(Collectors.joining(", ")) + " from ");
+        sqlBuilder.openBracket();
+        sqlBuilder.add(this.sqlBuilder.toSqlBuilder());
+        sqlBuilder.closeBracket();
+        return sqlBuilder;
+    }
+
+    @Override
+    public int count() {
+        try (Connection conn = dataModel.getConnection(false)) {
+            PreparedStatement statement = asFragment("count(*)").prepare(conn);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                resultSet.next();
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     private interface Pager {
@@ -94,7 +131,7 @@ public class DeviceFinder implements Finder<Device> {
 
         @Override
         public SqlBuilder addPaging(SqlBuilder sqlBuilder) {
-            return sqlBuilder.asPageBuilder(this.from, this.to+1);
+            return sqlBuilder.asPageBuilder(this.from + 1, this.to + 1);
         }
     }
 }

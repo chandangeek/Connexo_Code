@@ -10,7 +10,6 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.impl.tasks.*;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -404,32 +403,22 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
         deviceConfigurationWithConnectionType.activate();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID);
-        device.save();
+
         ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
 
+        ScheduledConnectionTask reloaded = inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(scheduledConnectionTask.getId()).get();
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.removeConnectionTask(scheduledConnectionTask);
+        reloadedDevice.removeConnectionTask(reloaded);
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
 
         Device deviceWithoutConnectionTasks = getReloadedDevice(reloadedDevice);
 
         assertThat(deviceWithoutConnectionTasks.getConnectionTasks()).isEmpty();
-        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
-        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
-        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
-    }
-
-    @Test(expected = CannotDeleteConnectionTaskWhichIsNotFromThisDevice.class)
-    @Transactional
-    public void deleteAConnectionTaskWhichIsNotFromThatDeviceTest() {
-        DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID);
-        device.save();
-        ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
-
-        Device otherDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "OtherDevice", MRID);
-
-        // should throw exception
-        otherDevice.removeConnectionTask(scheduledConnectionTask);
+        assertThat(deviceWithoutConnectionTasks.getInboundConnectionTasks()).isEmpty();
+        assertThat(deviceWithoutConnectionTasks.getScheduledConnectionTasks()).isEmpty();
+        assertThat(deviceWithoutConnectionTasks.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test
@@ -444,8 +433,11 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
                 .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                 .setNextExecutionSpecsFrom(newTemporalExpression).add();
 
+        List<ConnectionTask<?, ?>> connectionTasks = device.getConnectionTasks();
+        assertThat(((ScheduledConnectionTask) connectionTasks.get(0)).getNextExecutionSpecs()).isNotNull();
+
         Device reloadedDevice = getReloadedDevice(device);
-        List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();
+        connectionTasks = reloadedDevice.getConnectionTasks();
         assertThat(connectionTasks).hasSize(1);
         ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTasks.get(0);
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
@@ -517,7 +509,6 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         scheduledConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
         scheduledConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
         scheduledConnectionTaskBuilder.add();
-        device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice.getConnectionTasks().get(0).getProperties()).has(new Condition<List<? extends ConnectionTaskProperty>>() {
@@ -548,13 +539,13 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         BigDecimal portNumber = new BigDecimal("4059");
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpOutboundConnectionTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
+
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
         scheduledConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
 
         // Business method
         scheduledConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
         scheduledConnectionTaskBuilder.add();
-        device.save();
 
         // Asserts: see expected exception rule
     }

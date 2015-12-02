@@ -1,17 +1,16 @@
-package com.energyict.mdc.device.data.impl.search;
-
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames;
+package com.energyict.mdc.device.data.impl.search.sqlbuilder;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.search.JoinClauseBuilder;
+import com.energyict.mdc.device.data.impl.search.SearchableDeviceProperty;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.time.Instant;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +24,7 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
 
     private final List<SearchablePropertyCondition> conditions;
     private final SqlBuilder underConstruction;
-    private final Set<JoinType> joins = new HashSet<>();
+    private final Set<JoinType> joins = new LinkedHashSet<>();
     private final Instant effectiveDate;
     private SqlBuilder complete;
 
@@ -110,85 +109,63 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addUsagePoint() {
+        this.joins.add(Joins.EndDevice);
+        this.joins.add(Joins.MeterActivation);
+        this.joins.add(Joins.UsagePoint);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addServiceCategory() {
+        addUsagePoint();
+        this.joins.add(Joins.ServiceCategory);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addTopologyForSlaves() {
+        this.joins.add(Joins.TopologyForSlaves);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addTopologyForMasters() {
+        this.joins.add(Joins.TopologyForMasters);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addMeterValidation() {
+        this.addEndDevice();
+        this.joins.add(Joins.MeterValidation);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addDeviceEstimation() {
+        this.joins.add(Joins.DeviceEstimation);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addDeviceType() {
+        this.joins.add(Joins.DeviceType);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
+        this.joins.add(Joins.ConnectionTask);
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
     }
 
-    private interface JoinType {
-        public void appendTo(SqlBuilder sqlBuilder);
-    }
-
-    private enum Joins implements JoinType {
-        EndDevice {
-            @Override
-            public void appendTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(" join MTR_ENDDEVICE ed on ed.AMRID = dev.id ");
-            }
-        },
-
-        EndDeviceStatus {
-            @Override
-            public void appendTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(" join MTR_ENDDEVICESTATUS eds on eds.ENDDEVICE = ed.id ");
-            }
-        },
-
-        FiniteState {
-            @Override
-            public void appendTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(" join FSM_STATE fs on eds.STATE = fs.id ");
-            }
-        },
-
-        Batch {
-            @Override
-            public void appendTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(" join DDC_DEVICEINBATCH dib on dib.DEVICEID = dev.id ");
-                sqlBuilder.append(" join DDC_BATCH bch on bch.ID = dib.BATCHID ");
-            }
-        }
-    }
-
-    private static class ConnectionTypePropertyJoinType implements JoinType {
-        private final ConnectionTypePluggableClass pluggableClass;
-
-        private ConnectionTypePropertyJoinType(ConnectionTypePluggableClass pluggableClass) {
-            super();
-            this.pluggableClass = pluggableClass;
-        }
-
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join ");
-            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-            sqlBuilder.append(" ct on ct.device = dev.id and ct.connectiontypepluggableclass =");
-            sqlBuilder.addLong(this.pluggableClass.getId());
-            sqlBuilder.append(" join ");
-            sqlBuilder.append(this.pluggableClass.findRelationType().getDynamicAttributeTableName());
-            sqlBuilder.append(" props on props.");
-            sqlBuilder.append(ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_TASK_ATTRIBUTE_NAME);
-            sqlBuilder.append(" = ct.id");
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            ConnectionTypePropertyJoinType that = (ConnectionTypePropertyJoinType) o;
-            return pluggableClass.getId() == that.pluggableClass.getId();
-
-        }
-
-        @Override
-        public int hashCode() {
-            return Long.hashCode(pluggableClass.getId());
-        }
-
+    @Override
+    public JoinClauseBuilder addProtocolDialectProperties(long deviceProtocolId, String relationTableName) {
+        this.joins.add(new ProtocolDialectPropertyJoinType(deviceProtocolId));
+        this.joins.add(new ProtocolDialectDynamicPropertyJoinType(deviceProtocolId, relationTableName));
+        return this;
     }
 
     private class FragmentBuilder {
@@ -204,7 +181,5 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
         private SqlFragment build() {
             return this.property.toSqlFragment(this.spec.getCondition(), effectiveDate);
         }
-
     }
-
 }

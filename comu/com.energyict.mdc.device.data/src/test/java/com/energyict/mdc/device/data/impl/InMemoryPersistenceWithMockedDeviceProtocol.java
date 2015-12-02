@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -162,6 +163,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                         "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.6.72.0"),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new DataVaultModule(),

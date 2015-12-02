@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -13,14 +20,6 @@ import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Provider;
 import java.math.BigDecimal;
@@ -164,9 +163,9 @@ public class DeviceImplSecurityPropertiesTest {
     private DeviceImpl getTestInstance() {
         DeviceImpl device = new DeviceImpl(
                 this.dataModel, this.eventService, this.issueService, this.thesaurus, this.clock, this.meteringService,
-                this.validationService, this.connectionTaskService, this.communicationTaskService, this.securityPropertyService,
+                this.validationService, this.securityPropertyService,
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
-                this.scheduledComTaskExecutionProvider, this.protocolPluggableService, this.manuallyScheduledComTaskExecutionProvider,
+                this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider, this.meteringGroupsService);
         device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services");
         return device;

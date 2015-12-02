@@ -1,12 +1,16 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.ModemConnectionType;
@@ -147,6 +151,7 @@ public class OracleIntegrationPersistence {
     private LicenseService licenseService;
     private UserService userService;
     private MeteringGroupsService meteringGroupsService;
+    private DeviceSearchDomain deviceSearchDomain;
 
     public void initializeDatabase(String testName) throws SQLException {
         this.initializeMocks(testName);
@@ -183,6 +188,7 @@ public class OracleIntegrationPersistence {
                 new IdsModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new DataVaultModule(),
@@ -238,6 +244,8 @@ public class OracleIntegrationPersistence {
             this.userService = injector.getInstance(UserService.class);
             injector.getInstance(ThreadPrincipalService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
+            this.deviceSearchDomain = injector.getInstance(DeviceSearchDomain.class);
+            injector.getInstance(SearchService.class).register(deviceSearchDomain);
             initializeFactoryProviders();
             ctx.commit();
         }
@@ -248,13 +256,14 @@ public class OracleIntegrationPersistence {
             List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
             finders.add(new ConnectionTaskFinder(dataModel));
             finders.add(new ProtocolDialectPropertiesFinder(dataModel));
+            finders.add(new DeviceTypeFinder(this.deviceConfigurationService));
             return finders;
         });
     }
 
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
-        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@vldb-scan:1521/eisvldb");
+        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@localhost:1521/XE");
         when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_EMPTY");
         when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("zorro");
         this.eventAdmin = mock(EventAdmin.class);
@@ -383,4 +392,7 @@ public class OracleIntegrationPersistence {
         return userService;
     }
 
+    public DeviceSearchDomain getDeviceSearchDomain() {
+        return deviceSearchDomain;
+    }
 }

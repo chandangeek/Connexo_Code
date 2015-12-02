@@ -578,7 +578,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "The value \"This should have been a BigDecimal\" is not compatible with the attribute specification ContactorDeviceMessage.digitalOutput.", property = "properties." + DeviceMessageConstants.digitalOutputAttributeName)
+    @ExpectedConstraintViolation(messageId = "The value \"This should have been a BigDecimal\" is not compatible with the attribute specification ContactorDeviceMessage.digitalOutput.", property = "deviceMessageAttributes." + DeviceMessageConstants.digitalOutputAttributeName)
     public void invalidDeviceMessageAttributeTest() {
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 

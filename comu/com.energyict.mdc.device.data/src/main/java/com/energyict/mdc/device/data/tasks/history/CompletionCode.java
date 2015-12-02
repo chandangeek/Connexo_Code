@@ -24,7 +24,7 @@ public enum CompletionCode {
     ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch)),
     ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible)),
     TimeError(EnumSet.noneOf(ResultType.class)),
-    ConfigurationError(EnumSet.noneOf(ResultType.class)),
+    ConfigurationError(EnumSet.of(ResultType.ConfigurationError)),
     IOError(EnumSet.noneOf(ResultType.class)),
     UnexpectedError(EnumSet.of(ResultType.Other)),
     ConnectionError(EnumSet.noneOf(ResultType.class));

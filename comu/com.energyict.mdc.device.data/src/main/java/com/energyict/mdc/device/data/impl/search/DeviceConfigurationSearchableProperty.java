@@ -63,7 +63,7 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return true;
+        return false;
     }
 
     @Override
@@ -174,7 +174,7 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
         WITH_DEVICE_TYPE {
             @Override
             public String toDisplay(DeviceConfiguration deviceConfiguration) {
-                return deviceConfiguration.getName() + "(" + deviceConfiguration.getDeviceType().getName() + ")";
+                return deviceConfiguration.getName() + " (" + deviceConfiguration.getDeviceType().getName() + ")";
             }
         };
 
