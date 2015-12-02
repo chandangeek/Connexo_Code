@@ -41,6 +41,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.nio.file.FileSystem;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -129,9 +130,9 @@ public class AppServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response addAppServer(AppServerInfo info) {
-        checkPath(info.exportDirectory, "exportDirectory");
-        checkPath(info.importDirectory, "importDirectory");
-        AppServer appServer = null;
+        validatePath(info.exportDirectory, "exportDirectory");
+        validatePath(info.importDirectory, "importDirectory");
+        AppServer appServer;
         try (TransactionContext context = transactionService.getContext()) {
             AppServer underConstruction = appService.createAppServer(info.name, cronExpressionParser.parse("0 0 * * * ? *").get());
             try (AppServer.BatchUpdate batchUpdate = underConstruction.forBatchUpdate()) {
@@ -177,8 +178,8 @@ public class AppServerResource {
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
-        checkPath(info.exportDirectory, "exportDirectory");
-        checkPath(info.importDirectory, "importDirectory");
+        validatePath(info.exportDirectory, "exportDirectory");
+        validatePath(info.importDirectory, "importDirectory");
         AppServer appServer = null;
         try (TransactionContext context = transactionService.getContext()) {
             appServer = fetchAndLockAppServer(appServerName, info);
@@ -427,11 +428,16 @@ public class AppServerResource {
                 .collect(Collectors.toList());
     }
 
-    private void checkPath(String path, String field) {
+    private void validatePath(String path, String field) {
         Pattern p = Pattern.compile("[#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=@\\s]");
         Matcher m = p.matcher(path);
         if (m.find()) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS_EXCEPTION, field, "#<>$+%!`&*'|?{@}\"=");
+        }
+        try {
+            fileSystem.getPath(path);
+        } catch (InvalidPathException e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_PATH, field);
         }
     }
 }

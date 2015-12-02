@@ -14,7 +14,6 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpression;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
@@ -23,6 +22,7 @@ import org.mockito.stubbing.Answer;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -33,11 +33,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class AppServerResourceTest extends AppServerApplicationTest {
-
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-    }
 
     @Test
     public void testGetAppServers() {
@@ -89,7 +84,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testCreateAppServer() {
         AppServer newAppServer = mock(AppServer.class);
-        AppServer.BatchUpdate batchUpdate = mock (AppServer.BatchUpdate.class);
+        AppServer.BatchUpdate batchUpdate = mock(AppServer.BatchUpdate.class);
         when(newAppServer.getName()).thenReturn("NEW-APP-SERVER");
         when(newAppServer.isActive()).thenReturn(false);
         when(newAppServer.forBatchUpdate()).thenReturn(batchUpdate);
@@ -323,5 +318,29 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         Response response = target("appserver/appserverName").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testCreateAppServerInvalidExportDir() {
+        when(fileSystem.getPath("invalid")).thenThrow(new InvalidPathException("", ""));
+        AppServerInfo info = new AppServerInfo();
+        info.exportDirectory = "invalid";
+        info.importDirectory = "valid";
+
+        Response response = target("/appserver").request().post(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testCreateAppServerInvalidImportDir() {
+        when(fileSystem.getPath("invalid")).thenThrow(new InvalidPathException("", ""));
+        AppServerInfo info = new AppServerInfo();
+        info.exportDirectory = "valid";
+        info.importDirectory = "invalid";
+
+        Response response = target("/appserver").request().post(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }
