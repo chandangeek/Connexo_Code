@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.deviceattributes.CustomAttributesEdit', {
             dockedItems: {
                 xtype: 'container',
                 dock: 'bottom',
-                margin: '20 0 0 160',
+                margin: '20 0 0 265',
                 layout: {
                     type: 'hbox',
                     align: 'stretch'

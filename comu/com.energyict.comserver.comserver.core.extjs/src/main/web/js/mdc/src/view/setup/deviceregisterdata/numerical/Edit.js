@@ -83,7 +83,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                                 itemId: 'timeStampEditField',
                                 name: 'timeStamp',
                                 layout: 'hbox',
-                                getRawValue: true
+                                valueInMilliseconds: true
                             }
                         ]
                     },

@@ -17,7 +17,8 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
             layout: 'column',
             defaults: {
                 xtype: 'form',
-                columnWidth: 0.5
+                columnWidth: 0.5,
+                minWidth: 450
             },
             items: [
                 {
@@ -84,7 +85,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                             device;
                                         if (value instanceof Mdc.model.LoadProfileOfDevice) {
                                             var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({
-                                                mRID: encodeURIComponent(me.mRID),
+                                                mRID: encodeURIComponent(me.device.get('mRID')),
                                                 loadProfileId: value.get('id')
                                             });
                                             res = '<a href="' + url + '">' + Ext.String.htmlEncode(value.get('name')) + '</a>';

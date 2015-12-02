@@ -136,7 +136,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             labelAlign: 'right',
                             fieldLabel: '&nbsp',
                             emptyText: Uni.I18n.translate('deviceAdd.config.value', 'MDC', 'Select a device configuration...'),
-                            afterSubTpl: '<div class="x-form-display-field"><i>'
+                            afterSubTpl: '<div style="color: #686868; margin-top: 6px"><i>'
                                          + Uni.I18n.translate('deviceAdd.firstSelectDeviceType', 'MDC', 'First select a device type.')
                                          + '</i></div>',
                             displayField: 'name',

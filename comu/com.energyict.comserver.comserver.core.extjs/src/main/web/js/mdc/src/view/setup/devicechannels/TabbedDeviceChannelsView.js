@@ -256,7 +256,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
 
             if (mainValidationInfo.valueModificationFlag == 'EDITED') {
                 point.edited = true;
-            } else if (mainValidationInfo.estimatedByRule) {
+            }
+            if (mainValidationInfo.estimatedByRule) {
                 point.color = estimatedColor;
                 point.tooltipColor = tooltipEstimatedColor;
             } else if (properties.delta.notValidated) {

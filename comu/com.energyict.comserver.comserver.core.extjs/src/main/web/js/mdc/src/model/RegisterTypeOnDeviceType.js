@@ -11,7 +11,7 @@ Ext.define('Mdc.model.RegisterTypeOnDeviceType', {
         {name: 'isLinkedByInactiveRegisterConfig', type: 'boolean', useNull: true},
         'readingType',
         {name: 'name', type: 'string', persist: false, mapping: 'readingType.fullAliasName'},
-        {name: 'customPropertySet', type: 'auto'}
+        {name: 'customPropertySet', type: 'auto', defaultValue: null}
     ],
     associations: [
         {

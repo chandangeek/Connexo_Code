@@ -32,6 +32,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationOverview', {
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation.suspects', 'MDC', 'Suspects (last month)'),
                 name: 'validationInfo',
+                minWidth: 450,
                 renderer: function (value, field) {
                     var result = '',
                         url;
@@ -62,7 +63,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationOverview', {
                 renderer: function (value) {
                     var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The moment when the last interval was checked in the validation process.');
                     return value
-                        ? Ext.String.htmlEncode(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="icon-info-small" data-qtip="' + tooltip + '"></span>'
+                        ? Ext.String.htmlEncode(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="uni-icon-info-small" data-qtip="' + tooltip + '"></span>'
                         : '';
                 }
             }

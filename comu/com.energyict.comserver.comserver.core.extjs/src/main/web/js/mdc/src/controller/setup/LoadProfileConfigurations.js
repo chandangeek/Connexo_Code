@@ -79,7 +79,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     me.getStore('Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration').getProxy().setUrl(deviceTypeId, deviceConfigurationId);
                     models.loadProfileConfiguration.getProxy().setUrl(deviceTypeId, deviceConfigurationId);
                     widget = Ext.widget('loadProfileConfigurationSetup', {
-                        router: router
+                        router: router,
+                        deviceTypeId: deviceTypeId,
+                        deviceConfigurationId: deviceConfigurationId
                     });
                     me.getApplication().fireEvent('changecontentevent', widget);
                     widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
