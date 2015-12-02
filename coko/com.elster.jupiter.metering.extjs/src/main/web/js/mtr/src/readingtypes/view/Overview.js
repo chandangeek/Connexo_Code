@@ -52,7 +52,7 @@ Ext.define('Mtr.readingtypes.view.Overview', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'reading-types-grid',
+                        xtype: 'metering-reading-types-grid',
                         router: me.router
                     },
                     emptyComponent: {
