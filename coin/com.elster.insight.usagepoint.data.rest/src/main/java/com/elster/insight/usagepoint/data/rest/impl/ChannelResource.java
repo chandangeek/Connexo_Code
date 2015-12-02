@@ -245,8 +245,15 @@ public class ChannelResource {
     }
     
     private boolean hasSuspects(ChannelDataInfo info) {
-        return ValidationStatus.SUSPECT.equals(info.mainValidationInfo.validationResult) ||
-                ValidationStatus.SUSPECT.equals(info.bulkValidationInfo.validationResult);
+        boolean hasSuspect = false;
+        if (info.mainValidationInfo != null) {
+            hasSuspect = ValidationStatus.SUSPECT.equals(info.mainValidationInfo.validationResult);
+        }
+        if (!hasSuspect && info.bulkValidationInfo != null) {
+            hasSuspect = ValidationStatus.SUSPECT.equals(info.bulkValidationInfo.validationResult);
+        }
+        
+        return hasSuspect;
     }
 
     private boolean hasMissingData(ChannelDataInfo info) {
