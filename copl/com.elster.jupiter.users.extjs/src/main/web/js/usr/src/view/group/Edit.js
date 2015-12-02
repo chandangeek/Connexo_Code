@@ -60,6 +60,7 @@ Ext.define('Usr.view.group.Edit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
+                                itemId: 'txt-name',
                                 fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
                                 maxWidth: 650,
                                 width: 750,
@@ -72,6 +73,7 @@ Ext.define('Usr.view.group.Edit', {
                             {
                                 xtype: 'textfield',
                                 name: 'description',
+                                itemId: 'txt-description',
                                 fieldLabel: Uni.I18n.translate('general.description', 'USR', 'Description'),
                                 maxWidth: 650,
                                 width: 750

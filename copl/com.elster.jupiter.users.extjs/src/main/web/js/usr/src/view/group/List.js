@@ -45,11 +45,13 @@ Ext.define('Usr.view.group.List', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('role.list.top', 'USR', '{0} - {1} of {2} roles'),
+                displayMsg: Uni.I18n.translate('role.list.displayMsg', 'USR', '{0} - {1} of {2} roles'),
+                displayMoreMsg: Uni.I18n.translate('role.list.displayMoreMsg', 'USR', '{0} - {1} of more than {2} roles'),
                 items: [
                     {
                         text: Uni.I18n.translate('role.create', 'USR', 'Add role'),
                         action: 'createGroup',
+                        itemId: 'createGroupButton',
                         href: '#/administration/roles/add',
                         privileges: Usr.privileges.Users.admin
                     }
