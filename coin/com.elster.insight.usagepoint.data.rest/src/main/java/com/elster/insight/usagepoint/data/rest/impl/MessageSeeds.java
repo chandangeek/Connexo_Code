@@ -13,8 +13,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID(104, Keys.NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID, "No current meter activation for usage point with MRID {0}"), 
     NO_REGISTER_FOR_USAGE_POINT_FOR_MRID(105, Keys.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, "No register for usage point with MRID {0} with reading type {1}"),
     NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID(106, Keys.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, "No channel for usage point with MRID {0} with reading type {1}"),
-    NULL_DATE(107, "NullDate", "Date must be filled in"),
-//    DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
+    NULL_DATE(107, Keys.NULL_DATE, "Date must be filled in"),
+    NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME(108, Keys.NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME, "No meter activation for usage point with MRID {0} at instant {1}"),
+    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(109, Keys.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, "Deactivate of validation rule set {0} is currently not possible."),
     ;
     private final int number;
     private final String key;
@@ -52,12 +53,16 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     }
 
     public static class Keys {
+        public static final String NULL_DATE = "NullDate";
+        public static final String DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE = "DeactivateValidationRuleSetNotPossible";
         public static final String NO_DEVICE_FOR_MRID = "NoDeviceForMRID";
         public static final String NO_USAGE_POINT_FOR_MRID = "NoUsagePointForMRID";
         public static final String NO_READING_TYPE_FOR_MRID = "NoReadingTypeForMRID";
         public static final String NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID="NoCurrentActivationForUsagePointForMRID";
         public static final String NO_REGISTER_FOR_USAGE_POINT_FOR_MRID = "NoRegisterForUsagePointForMRID";
         public static final String NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID = "NoChannelForUsagePointForMRID";
+        public static final String NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME="NoActivationForUsagePointForMRIDAtTime";
+        
     }
 
 }

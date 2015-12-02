@@ -1,6 +1,7 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -76,4 +77,9 @@ public class ChannelResourceHelper {
         return new UsagePointValidationImpl(validationService, clock, thesaurus, usagePoint, usagePointConfigurationService);
     }
 
+    public Optional<Channel> findChannel(UsagePoint usagepoint, Instant instant, String rt_mrid) {
+        MeterActivation meterActivation = usagepoint.getMeterActivation(instant).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME, usagepoint.getMRID(), instant));
+        return meterActivation.getChannels().stream()
+                .filter(channel->rt_mrid.equals(channel.getMainReadingType().getMRID())).findFirst();
+    }
 }

@@ -1,13 +1,19 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -15,6 +21,7 @@ import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -31,6 +38,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -39,6 +47,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -137,6 +146,68 @@ public class ChannelResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
     
+    @PUT @Transactional
+    @Path("/{rt_mrid}/data")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+//    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
+    public Response editChannelData(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
+        UsagePoint usagepoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        ReadingType readingType = resourceHelper.findReadingTypeByMrIdOrThrowException(rt_mrid);
+        Channel channel = channelHelper.get().findCurrentChannelOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        
+        List<BaseReading> editedReadings = new ArrayList<>();
+        List<BaseReading> editedBulkReadings = new ArrayList<>();
+        List<BaseReading> confirmedReadings = new ArrayList<>();
+        List<Instant> removeCandidates = new ArrayList<>();
+        channelDataInfos.forEach((channelDataInfo) -> {
+            if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
+                removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
+            } else {
+                if (channelDataInfo.value != null) {
+                    editedReadings.add(channelDataInfo.createNew());
+                }
+                if (channelDataInfo.collectedValue != null) {
+                    editedBulkReadings.add(channelDataInfo.createNewBulk());
+                }
+                if (isToBeConfirmed(channelDataInfo)) {
+                    confirmedReadings.add(channelDataInfo.createConfirm());
+                }
+            }
+        });
+        
+        
+        channel.editReadings(editedReadings);
+        channel.confirmReadings(confirmedReadings);
+        
+        removeCandidates.forEach(instant -> {
+            channelHelper.get().findChannel(usagepoint, instant, rt_mrid).ifPresent(koreChannel -> {
+                koreChannel.removeReadings(koreChannel.getReading(instant).map(Stream::of).orElseGet(Stream::empty).collect(toList()));
+            });
+        });
+        
+//        channel.startEditingData()
+//                .removeChannelData(removeCandidates)
+//                .editChannelData(editedReadings)
+//                .editBulkChannelData(editedBulkReadings)
+//                .confirmChannelData(confirmedReadings)
+//                .complete();
+
+        return Response.status(Response.Status.OK).build();
+    }
+    
+    private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
+        return ((channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.isConfirmed) ||
+                (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.isConfirmed));
+    }
+    
+//    private Map<Channel, List<BaseReading>> groupReadingsByKoreChannel(List<BaseReading> readings, String rt_mrid) {
+//        return readings.stream()
+//                .map(reading -> Pair.of(channelHelper.get().findChannel(usagepoint, reading.getTimeStamp(), rt_mrid), reading))
+//                .collect(Collectors.groupingBy(Pair::getFirst, HashMap::new, mapping(Pair::getLast, toList())));
+//    }
+    
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -157,14 +228,14 @@ public class ChannelResource {
 //        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channel.getDevice().getZone());
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, clock.getZone());
         Instant from = zonedDateTime.minus(channel.getIntervalLength().get()).toInstant();
-        Optional<? extends BaseReadingRecord> reading = usagepoint.getReadings(Range.closedOpen(from, to), readingType).stream().findAny();
+        Optional<? extends BaseReadingRecord> reading = usagepoint.getReadings(Range.openClosed(from, to), readingType).stream().findAny();
         
 
         Optional<VeeReadingInfo> veeReadingInfo = Optional.empty();
         
         if (reading.isPresent()) {
             IntervalReadingRecord realReading = (IntervalReadingRecord) reading.get();
-            Optional<DataValidationStatus> tatuses = upv.getValidationStatus(channel, Arrays.asList(realReading), Range.closedOpen(from, to)).stream().findFirst();
+            Optional<DataValidationStatus> tatuses = upv.getValidationStatus(channel, Arrays.asList(realReading), Range.openClosed(from, to)).stream().findFirst();
             if (tatuses.isPresent()) {
             veeReadingInfo = Optional.of(usagePointDataInfoFactory.createVeeReadingInfoWithModificationFlags(channel, tatuses.get(), upv, realReading));
             }
@@ -220,13 +291,13 @@ public class ChannelResource {
         ImmutableList.Builder<Predicate<ChannelDataInfo>> list = ImmutableList.builder();
         if (filter.hasProperty("suspect")) {
             List<String> suspectFilters = filter.getStringList("suspect");
-            //            if (suspectFilters.size() == 0) {
-            //                if ("suspect".equals(filter.getString("suspect"))) {
-            //                    list.add(this::hasSuspects);
-            //                } else {
-            //                    list.add(not(this::hasSuspects));
-            //                }
-            //            }
+//                        if (suspectFilters.size() == 0) {
+//                            if ("suspect".equals(filter.getString("suspect"))) {
+//                                list.add(this::hasSuspects);
+//                            } else {
+//                                list.add(not(this::hasSuspects));
+//                            }
+//                        }
         }
         if (filterActive(filter, "hideMissing")) {
             list.add(this::hasMissingData);

@@ -42,10 +42,11 @@ public class UsagePointDataInfoFactory {
     public ChannelDataInfo createChannelDataInfo(BaseReadingRecord brr, boolean validationEnabled, Channel channel, UsagePointValidation upv) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
 
-        Instant start = brr.getTimeStamp();
-        Instant end = brr.getTimeStamp().plus(Duration.ofMinutes(brr.getReadingType().getMeasuringPeriod().getMinutes()));
+        Instant start = brr.getTimeStamp().minus(Duration.ofMinutes(brr.getReadingType().getMeasuringPeriod().getMinutes()));
+        Instant end = brr.getTimeStamp();
         
-        Range<Instant> range = Ranges.closedOpen(start, end);
+        
+        Range<Instant> range = Ranges.openClosed(start, end);
         channelIntervalInfo.interval = IntervalInfo.from(range);
         channelIntervalInfo.readingTime = brr.getReportedDateTime();//.getReadingTime();
         channelIntervalInfo.intervalFlags = new ArrayList<>();
