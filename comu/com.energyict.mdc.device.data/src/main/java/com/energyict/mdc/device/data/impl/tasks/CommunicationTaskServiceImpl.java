@@ -765,7 +765,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort) {
-        List<OutboundComPortPool> comPortPools = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort(comPort);
+        List<OutboundComPortPool> comPortPools = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort(comPort).stream().filter(ComPortPool::isActive).collect(Collectors.toList());
         if (!comPortPools.isEmpty()) {
             long nowInSeconds = this.toSeconds(this.deviceDataModelService.clock().instant());
             DataMapper<ComTaskExecution> mapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
@@ -803,6 +803,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device) {
         if (comPort.isActive()) {
             InboundComPortPool inboundComPortPool = comPort.getComPortPool();
+            if (!inboundComPortPool.isActive()){
+                return Collections.emptyList();
+            }
             Instant now = this.deviceDataModelService.clock().instant();
             Condition condition =
                     where("connectionTask.comServer").isNull()

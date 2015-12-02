@@ -111,6 +111,20 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(inbound.getComPortPool()).isEqualTo(inboundTcpipComPortPool2);
     }
 
+    @Test
+    @Transactional
+    public void createTaskWithInactivePool() {
+        // Business method
+        InboundConnectionTask inbound = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask, inactiveInboundTcpipComPortPool);
+
+        // Asserts
+        assertThat(inbound).isNotNull();
+        assertThat(inbound.getDevice()).isEqualTo(this.device);
+        assertThat(inbound.getPartialConnectionTask()).isEqualTo(this.partialInboundConnectionTask);
+        assertThat(inbound.getComPortPool()).isEqualTo(inactiveInboundTcpipComPortPool);
+    }
+
+
     @Test(expected = DuplicateConnectionTaskException.class)
     @Transactional
     public void createTwoTasksAgainstTheSameDeviceBasedOnTheSamePartialConnectionTask() {

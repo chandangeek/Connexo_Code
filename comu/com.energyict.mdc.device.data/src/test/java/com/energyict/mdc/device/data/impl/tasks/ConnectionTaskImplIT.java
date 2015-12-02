@@ -69,7 +69,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static long PARTIAL_CONNECTION_INITIATION_TASK2_ID;
 
     protected static final long IP_COMPORT_POOL_ID = 1;
-    protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 1;
+    protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 2;
     protected static final long INBOUND_COMPORT_POOL1_ID = MODEM_COMPORT_POOL_ID + 1;
     protected static final long INBOUND_COMPORT_POOL2_ID = INBOUND_COMPORT_POOL1_ID + 1;
     protected static final String IP_ADDRESS_PROPERTY_VALUE = "192.168.2.100";
@@ -86,8 +86,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass;
     protected static OutboundComPortPool outboundTcpipComPortPool;
     protected static OutboundComPortPool outboundTcpipComPortPool2;
+    protected static OutboundComPortPool inactiveOutboundTcpipComportPool;
     protected static InboundComPortPool inboundTcpipComPortPool;
     protected static InboundComPortPool inboundTcpipComPortPool2;
+    protected static InboundComPortPool inactiveInboundTcpipComPortPool;
     protected static OutboundComPortPool outboundModemComPortPool;
 
     protected Device device;
@@ -218,9 +220,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             protected void doPerform() {
                 deleteComPortPool(outboundTcpipComPortPool);
                 deleteComPortPool(outboundTcpipComPortPool2);
+                deleteComPortPool(inactiveOutboundTcpipComportPool);
                 deleteComPortPool(inboundTcpipComPortPool);
                 deleteComPortPool(inboundTcpipComPortPool2);
                 deleteComPortPool(outboundModemComPortPool);
+                deleteComPortPool(inactiveInboundTcpipComPortPool);
             }
         });
     }
@@ -246,8 +250,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             protected void doPerform() {
                 outboundTcpipComPortPool = createOutboundIpComPortPool("TCP/IP out(1)");
                 outboundTcpipComPortPool2 = createOutboundIpComPortPool("TCP/IP out(2)");
+                inactiveOutboundTcpipComportPool = createInactiveOutboundIpComPortPool("TCP/IP out(3)");
                 inboundTcpipComPortPool = createInboundIpComPortPool("TCP/IP in(1)");
                 inboundTcpipComPortPool2 = createInboundIpComPortPool("TCP/IP in(2)");
+                inactiveInboundTcpipComPortPool = createInactiveInboundIpComPortPool("TCP/IP in(3)");
             }
         });
     }
@@ -262,10 +268,14 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private static OutboundComPortPool createOutboundIpComPortPool(String name) {
-        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        OutboundComPortPool ipComPortPool = createInactiveOutboundIpComPortPool(name);
         ipComPortPool.setActive(true);
         ipComPortPool.update();
         return ipComPortPool;
+    }
+
+    private static OutboundComPortPool createInactiveOutboundIpComPortPool(String name) {
+        return inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
     }
 
     private static OutboundComPortPool createOutboundModemComPortPool(String name) {
@@ -276,10 +286,14 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private static InboundComPortPool createInboundIpComPortPool(String name) {
-        InboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass);
+        InboundComPortPool ipComPortPool = createInactiveInboundIpComPortPool(name);
         ipComPortPool.setActive(true);
         ipComPortPool.update();
         return ipComPortPool;
+    }
+
+    private static InboundComPortPool createInactiveInboundIpComPortPool(String name) {
+        return inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass);
     }
 
     @Before
