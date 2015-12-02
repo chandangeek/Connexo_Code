@@ -8,7 +8,7 @@ Ext.define('Mtr.readingtypes.view.SortingMenu', {
         {
             itemId: 'reading-types-sorting-menu-item-by-name',
             text: Uni.I18n.translate('readingtypesmanagment.name','MTR','Name'),
-            name: 'aliasName'
+            name: 'fullAliasName'
         },
         {
             itemId: 'reading-types-sorting-menu-item-by-status',
