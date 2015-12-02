@@ -3,7 +3,8 @@ Ext.define('Dxp.controller.Tasks', {
 
     requires: [
         'Dxp.privileges.DataExport',
-        'Uni.form.field.Password'
+        'Uni.form.field.Password',
+        'Uni.util.Application'
     ],
 
     views: [
@@ -1818,7 +1819,7 @@ Ext.define('Dxp.controller.Tasks', {
             record.destinationsStore.removeAll();
             record.destinationsStore.add(page.down('#task-destinations-grid').getStore().data.items);
 
-            record.set('application', 'MultiSense');
+            record.set('application', Uni.util.Application.getAppName());
 
             record.endEdit();
             record.save({
