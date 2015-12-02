@@ -196,16 +196,16 @@ Ext.define('Imt.view.setup.devicechannels.TabbedDeviceChannelsView', {
         intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channelRecord.get('interval'));
         zoomLevels = intervalRecord.get('zoomLevels');
 
-        switch (channelRecord.get('flowUnit')) {
-            case 'flow':
-                seriesObject['type'] = 'line';
-                seriesObject['step'] = false;
-                break;
-            case 'volume':
+//        switch (channelRecord.get('flowUnit')) {
+//            case 'flow':
+//                seriesObject['type'] = 'line';
+//                seriesObject['step'] = false;
+//                break;
+//            case 'volume':
                 seriesObject['type'] = 'column';
                 seriesObject['step'] = true;
-                break;
-        }
+//                break;
+//        }
 
         Ext.suspendLayouts();
         if (dataStore.getTotalCount() > 0) {
