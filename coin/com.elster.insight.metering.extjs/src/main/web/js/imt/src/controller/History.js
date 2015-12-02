@@ -27,28 +27,150 @@ Ext.define('Imt.controller.History', {
                         return this;
                     },
            			items: {
-           			    channels: {
-                            title: Uni.I18n.translate('general.label.usagepoint.channels', 'IMT', 'Channels'),
+                        channels: {
+                            title: Uni.I18n.translate('general.channels', 'IMT', 'Channels'),
                             route: 'channels',
-                            controller: 'Imt.channeldata.controller.View',
-                            action: 'showUsagePointChannels',
+                            controller: 'Imt.controller.setup.DeviceChannels',
+//                            privileges: Imt.privileges.Device.viewDevice,
+                            action: 'showOverview',
+                            filter: 'Imt.model.filter.DeviceChannelsFilter',
+//                            dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
                             items: {
                                 channel: {
-                                    title: Uni.I18n.translate('general.label.usagepoint.channel', 'IMT', 'Channel'),
+                                    title: Uni.I18n.translate('routing.channel', 'IMT', 'Channel'),
                                     route: '{channelId}',
-                                    controller: 'Imt.channeldata.controller.View',
-                                    action: 'showUsagePointChannelData',
+                                    controller: 'Imt.controller.setup.DeviceChannelData',
+//                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
+                                    action: 'showSpecifications',
                                     callback: function (route) {
-                                        this.getApplication().on('channelDataLoaded', function (record) {
-                                            route.setTitle(record.get('readingType').fullAliasName);
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
                                             return true;
                                         }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        editcustomattributes: {
+                                            route: 'customattributes/{customAttributeSetId}/edit',
+                                            controller: 'Imt.controller.setup.DeviceChannelData',
+//                                            privileges: Imt.privileges.Device.administrateDeviceData,
+                                            action: 'showEditChannelOfLoadProfileCustomAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('channelOfLoadProfileCustomAttributes', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('deviceChannelOfLoadProfile.editCustomAttributes', 'IMT', "Edit '{0}'", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
 
+                                                return this;
+                                            }
+                                        },
+                                        customattributesversions: {
+                                            title: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                                            route: 'customattributes/{customAttributeSetId}/versions',
+                                            controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
+//                                            privileges: Imt.privileges.Device.viewDeviceData,
+                                            action: 'loadCustomAttributeVersions',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadCustomAttributeSetOnChannel', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('deviceChannelOfLoadProfile.historyCustomAttributes', 'IMT', "'{0}' history", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            },
+                                            items: {
+                                                edit: {
+                                                    title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                                    route: '{versionId}/edit',
+                                                    controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
+//                                                    privileges: Imt.privileges.Device.administrateDeviceData,
+                                                    action: 'editCustomAttributeVersion',
+                                                    callback: function (route) {
+                                                        this.getApplication().on('loadCustomAttributeSetVersionOnChannel', function (record) {
+                                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')]));
+                                                            return true;
+                                                        }, {single: true});
+
+                                                        return this;
+                                                    }
+                                                },
+                                                add: {
+                                                    title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
+                                                    route: 'add',
+                                                    controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
+//                                                    privileges: Imt.privileges.Device.administrateDeviceData,
+                                                    action: 'addCustomAttributeVersion',
+                                                    callback: function (route) {
+                                                        this.getApplication().on('loadCustomAttributeSetOnChannelAdd', function (record) {
+                                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')]));
+                                                            return true;
+                                                        }, {single: true});
+
+                                                        return this;
+                                                    }
+                                                },
+                                                clone: {
+                                                    title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
+                                                    route: '{versionId}/clone',
+                                                    controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
+//                                                    privileges: Imt.privileges.Device.administrateDeviceData,
+                                                    action: 'cloneCustomAttributeVersion',
+                                                    callback: function (route) {
+                                                        this.getApplication().on('loadCustomAttributeSetVersionOnChannelClone', function (record) {
+                                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", [record.get('period')]));
+                                                            return true;
+                                                        }, {single: true});
+
+                                                        return this;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                channeldata: {
+                                    title: Uni.I18n.translate('routing.channelData', 'IMT', 'Channel data'),
+                                    route: '{channelId}/data',
+                                    controller: 'Imt.controller.setup.DeviceChannelData',
+//                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
+                                    action: 'showData',
+//                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                channelvalidationblocks: {
+                                    title: Uni.I18n.translate('routing.channelData', 'IMT', 'Channel data'),
+                                    route: '{channelId}/validationblocks/{issueId}',
+                                    controller: 'Imt.controller.setup.DeviceChannelData',
+//                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
+//                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
+                                    action: 'showValidationBlocks',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                channelvalidation: {
+                                    title: Uni.I18n.translate('routing.channelValidation', 'IMT', 'Channel validation'),
+                                    route: '{channelId}/validation',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
                                         return this;
                                     }
                                 }
                             }
-           			    },
+                        },
            			    registers: {
                             title: Uni.I18n.translate('general.label.usagepoint.registers', 'IMT', 'Registers'),
                             route: 'registers',

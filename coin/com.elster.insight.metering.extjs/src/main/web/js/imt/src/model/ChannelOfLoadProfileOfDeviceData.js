@@ -1,4 +1,4 @@
-Ext.define('Imt.channeldata.model.ChannelData', {
+Ext.define('Imt.model.ChannelOfLoadProfileOfDeviceData', {
     extend: 'Ext.data.Model',
     idProperty: 'interval_end',
     fields: [
@@ -106,13 +106,13 @@ Ext.define('Imt.channeldata.model.ChannelData', {
             }
         }
     ],
-    // Called to get more details regarding validation state, rules, etc.
-    refresh: function(mrid, channel, callback) {
+
+    refresh: function(device, channel, callback) {
         var me = this;
 
         Ext.Ajax.request({
-            url: '/api/udr/usagepoints/{mrid}/channels/{channel}/data/{reading}/validation'
-                .replace('{mrid}', mrid)
+            url: '/api/udr/usagepoints/{device}/channels/{channel}/data/{reading}/validation'
+                .replace('{device}', device)
                 .replace('{channel}', channel)
                 .replace('{reading}', me.get('interval').end),
             success: function(response) {
