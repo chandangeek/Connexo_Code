@@ -89,6 +89,7 @@ public class DataValidationTaskResource {
 
         DataValidationTaskBuilder builder = validationService.newTaskBuilder()
                 .setName(info.name)
+                .setApplication(info.application)
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         if (info.deviceGroup != null)

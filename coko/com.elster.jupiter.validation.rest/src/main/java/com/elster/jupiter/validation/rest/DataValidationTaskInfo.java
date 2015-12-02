@@ -26,6 +26,7 @@ public class DataValidationTaskInfo {
     public Long nextRun;
     public Long lastRun;
     public long version;
+    public String application;
 
     public DataValidationTaskInfo(DataValidationTask dataValidationTask, Thesaurus thesaurus, TimeService timeService) {
         populate(dataValidationTask);
