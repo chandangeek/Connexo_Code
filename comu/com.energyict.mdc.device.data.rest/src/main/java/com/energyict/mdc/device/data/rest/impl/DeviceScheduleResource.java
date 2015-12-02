@@ -59,10 +59,18 @@ public class DeviceScheduleResource {
         return Response.ok(PagedInfoList.fromPagedList("schedules", deviceSchedulesInfos, queryParameters)).build();
     }
 
+    private void checkForNoActionsAllowedOnSystemComTaskExecutions(long comTaskExecId) {
+        ComTaskExecution comTaskExecution = resourceHelper.findComTaskExecutionOrThrowException(comTaskExecId);
+        if (comTaskExecution.getComTasks().stream().anyMatch(ComTask::isSystemComTask)) {
+            throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK);
+        }
+    }
+
     private void checkForNoActionsAllowedOnSystemComTask(long comTaskId) {
         Optional<ComTask> comTask = taskService.findComTask(comTaskId).filter(ComTask::isSystemComTask);
-        if (comTask.isPresent())
+        if (comTask.isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK);
+        }
     }
 
     @POST @Transactional
@@ -70,6 +78,7 @@ public class DeviceScheduleResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response createComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo schedulingInfo) {
+        // In this method, id == id of comtask
         checkForNoActionsAllowedOnSystemComTask(schedulingInfo.id);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
@@ -115,7 +124,8 @@ public class DeviceScheduleResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo info) {
-        checkForNoActionsAllowedOnSystemComTask(info.id);
+        // In this method, id == id of comtaskexec
+        checkForNoActionsAllowedOnSystemComTaskExecutions(info.id);
         ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
         Device device = comTaskExecution.getDevice();
         if (info.schedule == null) {
@@ -132,7 +142,8 @@ public class DeviceScheduleResource {
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     @Path("/{comTaskExecutionId}")
     public Response deleteComTaskExecution(@PathParam("mRID") String mrid, @PathParam("comTaskExecutionId") long id, DeviceSchedulesInfo info) {
-        checkForNoActionsAllowedOnSystemComTask(id);
+        // In this method, id == id of comtaskexec
+        checkForNoActionsAllowedOnSystemComTaskExecutions(id);
         info.id = id;
         ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
         comTaskExecution.getDevice().removeComTaskExecution(comTaskExecution);
