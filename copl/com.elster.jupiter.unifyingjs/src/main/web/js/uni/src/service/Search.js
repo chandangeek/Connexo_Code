@@ -300,6 +300,10 @@ Ext.define('Uni.service.Search', {
                     var filter = me.filters.getByKey(item.property);
                     if (filter && item.value) {
                         var value = Ext.isArray(item.value) ? item.value : [item.value];
+                        if (filter.store) {
+                            filter.store.clearFilter(true);
+                            filter.store.addFilter(state.filters, false);
+                        }
                         filter.populateValue(value.map(function(rawValue) { return Ext.create('Uni.model.search.Value', rawValue)}));
                     }
                 });
@@ -429,7 +433,7 @@ Ext.define('Uni.service.Search', {
     },
 
     onCriteriaChange: function (widget, value) {
-        var me = this, store;
+        var me = this;
 
         if (widget.property.get('affectsAvailableDomainProperties')) {
             me.storeReload(me.getSearchPropertiesStore());
