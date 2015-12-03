@@ -78,6 +78,7 @@ import static org.mockito.Mockito.when;
 public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     static long firmwareComTaskId = 445632136865L;
+    static long firmwareComTaskExecutionId = 446532136865L;
 
     @Mock(extraInterfaces = ComTask.class)
     SystemComTask firmwareComTask;
