@@ -249,8 +249,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             when(deviceProtocolDialectFinderProvider.finders()).thenReturn(Collections.singletonList(deviceProtocolFinder));
             injector.getInstance(PropertySpecService.class).addFactoryProvider(deviceProtocolDialectFinderProvider);
             registerDeviceProtocolDialectPropertyProviderTable(injector.getInstance(OrmService.class));
-            DataModel dataModel = deviceConfigurationService.getDataModel();
-            OracleAliasCreator.createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
         }
     }
