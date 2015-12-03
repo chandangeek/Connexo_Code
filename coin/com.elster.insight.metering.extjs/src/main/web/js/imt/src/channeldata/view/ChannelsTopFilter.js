@@ -1,6 +1,6 @@
-Ext.define('Imt.view.setup.devicechannels.ChannelsTopFilter', {
+Ext.define('Imt.channeldata.view.ChannelsTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
-    xtype: 'mdc-view-setup-devicechannels-channelstopfilter',
+    xtype: 'channelsTopFilter',
 
     store: 'Imt.channeldata.store.Channels',
 

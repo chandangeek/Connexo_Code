@@ -1,7 +1,7 @@
-Ext.define('Imt.view.setup.devicechannels.EditCustomAttributes', {
+Ext.define('Imt.channeldata.view.EditCustomAttributes', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.deviceLoadProfileChannelsEditCustomAttributes',
-    itemId: 'deviceLoadProfileChannelsEditCustomAttributes',
+    alias: 'widget.channelsEditCustomAttributes',
+    itemId: 'channelsEditCustomAttributes',
     device: null,
 
     requires: [],

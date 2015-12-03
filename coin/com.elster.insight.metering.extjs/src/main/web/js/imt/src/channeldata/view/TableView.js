@@ -8,29 +8,29 @@ Ext.define('Imt.channeldata.view.TableView', {
         'Imt.channeldata.view.DataPreview'
     ],
 
-    channelRecord: null,
+    channel: null,
     router: null,
 
     emptyComponent: {
         xtype: 'no-items-found-panel',
         itemId: 'ctr-table-no-data',
-        title: Uni.I18n.translate('channel.data.empty.title', 'IMT', 'No readings found'),
+        title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'IMT', 'No readings found'),
         reasons: [
-            Uni.I18n.translate('channel.data.empty.list.item1', 'IMT', 'No readings have been defined yet.')
+            Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'IMT', 'No readings have been defined yet.')
         ]
     },
 
     initComponent: function () {
         var me = this;
         me.grid = {
-            xtype: 'channel-data-grid',
-            channelRecord: this.channelRecord,
+            xtype: 'channelDataGrid',
+            channelRecord: this.channel,
             router: me.router
         };
 
         me.previewComponent = {
             xtype: 'channelDataPreview',
-            channelRecord: this.channelRecord,
+            channelRecord: this.channel,
             router: me.router,
             hidden: true
         };

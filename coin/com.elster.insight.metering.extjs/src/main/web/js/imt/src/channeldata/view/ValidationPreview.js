@@ -1,7 +1,7 @@
-Ext.define('Imt.view.setup.devicechannels.ValidationPreview', {
+Ext.define('Imt.channeldata.view.ValidationPreview', {
     extend: 'Ext.form.FieldContainer',
-    alias: 'widget.deviceloadprofilechannelspreview-validation',
-    itemId: 'deviceloadprofilechannelspreviewvalidation',
+    alias: 'widget.channelsValidationPreview',
+    itemId: 'channelsValidationPreview',
 
     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation', 'IMT', 'Validation'),
     labelAlign: 'top',

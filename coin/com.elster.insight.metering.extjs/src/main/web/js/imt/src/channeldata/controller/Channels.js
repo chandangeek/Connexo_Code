@@ -6,7 +6,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
     ],
 
     views: [
-        'Imt.view.setup.devicechannels.Setup'
+        'Imt.channeldata.view.Setup'
     ],
 
     models: [
@@ -26,19 +26,19 @@ Ext.define('Imt.channeldata.controller.Channels', {
     refs: [
         {
             ref: 'page',
-            selector: 'deviceLoadProfileChannelsSetup'
+            selector: 'channelsSetup'
         },
         {
             ref: 'preview',
-            selector: 'deviceLoadProfileChannelsSetup #deviceLoadProfileChannelsPreview'
+            selector: 'channelsSetup #channelsPreview'
         },
         {
             ref: 'channelsFilterForm',
             selector: '#device-channels-filter nested-form'
         },
         {
-            ref: 'deviceLoadProfileChannelsPreviewForm',
-            selector: '#deviceLoadProfileChannelsPreviewForm'
+            ref: 'channelsPreviewForm',
+            selector: '#channelsPreviewForm'
         },
         {
             ref: 'deviceLoadProfileChannelsOverviewForm',
@@ -52,10 +52,10 @@ Ext.define('Imt.channeldata.controller.Channels', {
 
     init: function () {
         this.control({
-            'deviceLoadProfileChannelsSetup #deviceLoadProfileChannelsGrid': {
+            'channelsSetup #channelsGrid': {
                 select: this.showPreview
             },
-            '#deviceLoadProfileChannelsActionMenu': {
+            '#channelsActionMenu': {
                 click: this.chooseAction
             },
             '#channelActionMenu': {
@@ -75,7 +75,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
                 deviceModel.load(mRID, {
                     success: function (record) {
                         me.getApplication().fireEvent('usagePointLoaded', record);
-                        widget = Ext.widget('deviceLoadProfileChannelsSetup', {
+                        widget = Ext.widget('channelsSetup', {
                             mRID: mRID,
                             router: router,
                             device: record
@@ -114,8 +114,8 @@ Ext.define('Imt.channeldata.controller.Channels', {
             !!preview.down('#validateNowChannel') && preview.down('#validateNowChannel').show();
             !!Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0] && Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].show();
         }
-        preview.down('#deviceLoadProfileChannelsPreviewForm').loadRecord(record);
-        preview.down('#deviceLoadProfileChannelsActionMenu').record = record;
+        preview.down('#channelsPreviewForm').loadRecord(record);
+        preview.down('#channelsActionMenu').record = record;
 
         var calculatedReadingType = preview.down('#calculatedReadingType'),
             readingTypeLabel = preview.down('#readingType').labelEl;
@@ -300,7 +300,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
     updateValidationData: function(record)
     {
         var me = this,
-            form = me.getDeviceLoadProfileChannelsPreviewForm(),
+            form = me.getChannelsPreviewForm(),
             formRecord;
         if(form)
             formRecord = form.getRecord();

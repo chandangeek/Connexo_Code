@@ -1,8 +1,8 @@
-Ext.define('Imt.view.setup.devicechannels.GraphView', {
+Ext.define('Imt.channeldata.view.GraphView', {
     extend: 'Imt.view.GraphView',
 
-    alias: 'widget.deviceLoadProfileChannelGraphView',
-    itemId: 'deviceLoadProfileChannelGraphView',
+    alias: 'widget.channelGraphView',
+    itemId: 'channelGraphView',
 
     requires: [
         'Imt.view.GraphView'

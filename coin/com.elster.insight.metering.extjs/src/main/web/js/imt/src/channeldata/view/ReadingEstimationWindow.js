@@ -1,6 +1,6 @@
-Ext.define('Imt.view.setup.devicechannels.ReadingEstimationWindow', {
+Ext.define('Imt.channeldata.view.ReadingEstimationWindow', {
     extend: 'Ext.window.Window',
-    alias: 'widget.reading-estimation-window',
+    alias: 'widget.readingEstimationWindow',
     modal: true,
     title: Uni.I18n.translate('general.selectEstimationRule', 'IMT', 'Select estimation rule'),
     bothSuspected: false,
@@ -11,7 +11,7 @@ Ext.define('Imt.view.setup.devicechannels.ReadingEstimationWindow', {
 
         me.items = {
             xtype: 'form',
-            itemId: 'reading-estimation-window-form',
+            itemId: 'readingEstimationWindow-form',
             padding: 0,
             defaults: {
                 width: 503,

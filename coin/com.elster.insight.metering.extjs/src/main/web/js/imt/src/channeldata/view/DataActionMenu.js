@@ -1,6 +1,6 @@
-Ext.define('Imt.view.setup.devicechannels.DataActionMenu', {
+Ext.define('Imt.channeldata.view.DataActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.deviceLoadProfileChannelDataActionMenu',
+    alias: 'widget.channelDataActionMenu',
     plain: true,
     border: false,
     shadow: false,

@@ -1,13 +1,13 @@
-Ext.define('Imt.view.setup.devicechannels.PreviewForm', {
+Ext.define('Imt.channeldata.view.PreviewForm', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.deviceLoadProfileChannelsPreviewForm',
-    itemId: 'deviceLoadProfileChannelsPreviewForm',
+    alias: 'widget.channelsPreviewForm',
+    itemId: 'channelsPreviewForm',
     requires: [
         'Uni.form.field.ObisDisplay',
         'Uni.form.field.ReadingTypeDisplay',
-        'Imt.view.setup.devicechannels.ValidationOverview',
+        'Imt.channeldata.view.ValidationOverview',
         'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
-        'Imt.view.setup.devicechannels.ActionMenu'
+        'Imt.channeldata.view.ActionMenu'
     ],
     device: null,
     router: null,
@@ -109,7 +109,7 @@ Ext.define('Imt.view.setup.devicechannels.PreviewForm', {
                             ]
                         },
                         {
-                            xtype: 'deviceloadprofilechannelsoverview-validation',
+                            xtype: 'channelsValidationOverview',
                             router: me.router
                         }
                     ]
@@ -117,7 +117,7 @@ Ext.define('Imt.view.setup.devicechannels.PreviewForm', {
 //                {
 //                    xtype: 'custom-attribute-sets-placeholder-form',
 //                    itemId: 'custom-attribute-sets-placeholder-form-id',
-//                    actionMenuXtype: 'deviceLoadProfileChannelsActionMenu',
+//                    actionMenuXtype: 'channelsActionMenu',
 //                    attributeSetType: 'channel',
 //                    router: me.router
 //                }

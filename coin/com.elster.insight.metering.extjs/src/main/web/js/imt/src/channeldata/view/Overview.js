@@ -1,12 +1,12 @@
-Ext.define('Imt.view.setup.devicechannels.Overview', {
+Ext.define('Imt.channeldata.view.Overview', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.deviceLoadProfileChannelOverview',
-    itemId: 'deviceLoadProfileChannelOverview',
+    alias: 'widget.channelOverview',
+    itemId: 'channelOverview',
 
     requires: [
-        'Imt.view.setup.devicechannels.PreviewForm',
-        'Imt.view.setup.devicechannels.ValidationOverview',
-        'Imt.view.setup.devicechannels.ActionMenu'
+        'Imt.channeldata.view.PreviewForm',
+        'Imt.channeldata.view.ValidationOverview',
+        'Imt.channeldata.view.ActionMenu'
     ],
 
     router: null,
@@ -22,7 +22,7 @@ Ext.define('Imt.view.setup.devicechannels.Overview', {
                         ui: 'large',
                         flex: 1,
                         items: {
-                            xtype: 'deviceLoadProfileChannelsPreviewForm',
+                            xtype: 'channelsPreviewForm',
                             device: me.device,
                             router: me.router,
                             margin: '0 0 0 0',
@@ -35,7 +35,7 @@ Ext.define('Imt.view.setup.devicechannels.Overview', {
                         iconCls: 'x-uni-action-iconD',
                         margin: '20 0 0 0',
                         menu: {
-                            xtype: 'deviceLoadProfileChannelsActionMenu'
+                            xtype: 'channelsActionMenu'
                         }
                     }
                 ]

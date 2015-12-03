@@ -1,6 +1,6 @@
-Ext.define('Imt.view.setup.devicechannels.DataBulkActionMenu', {
+Ext.define('Imt.channeldata.view.DataBulkActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.channel-data-bulk-action-menu',
+    alias: 'widget.channelDataBulkActionMenu',
     plain: true,
     border: false,
     shadow: false,

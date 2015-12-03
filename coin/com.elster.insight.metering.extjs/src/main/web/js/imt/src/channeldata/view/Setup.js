@@ -1,11 +1,18 @@
 Ext.define('Imt.channeldata.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.channel-list-setup',
-    itemId: 'channel-list-setup',
-    requires: [
-        'Imt.channeldata.view.ChannelList'
-    ],
+    alias: 'widget.channelsSetup',
+    itemId: 'channelsSetup',
+    mRID: null,
     router: null,
+    device: null,
+
+    requires: [
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Imt.channeldata.view.Grid',
+        'Imt.channeldata.view.Preview',
+//        'Imt.channeldata.view.ChannelsTopFilter'
+    ],
+
     initComponent: function () {
         var me = this;
 
@@ -16,53 +23,53 @@ Ext.define('Imt.channeldata.view.Setup', {
                 items: [
                     {
                         xtype: 'usage-point-management-side-menu',
-                        itemId: 'usage-point-management-side-menu',
+                        itemId: 'stepsMenu',
+//                        device: me.device,
+                        toggleId: 'channelsLink',
                         router: me.router,
                         mRID: me.mRID
                     }
                 ]
             }
         ];
-        
-        me.content = [
-            {
-                xtype: 'panel',
-                ui: 'large',
-                itemId: 'channelListSetupPanel',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    }
-                },
-                items: [{
-                    xtype: 'preview-container',    
+
+        me.content = {
+            xtype: 'panel',
+            ui: 'large',
+            layout: 'fit',
+            title: Uni.I18n.translate('general.channels', 'IMT', 'Channels'),
+            items: [
+                {
+                    xtype: 'preview-container',
                     grid: {
-                        xtype: 'channel-list',
+                        xtype: 'channelsGrid',
                         mRID: me.mRID,
                         router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        itemId: 'ctr-no-usagepoint-channel-config',
-                        title: Uni.I18n.translate('channeldata.channel.list.empty', 'IMT', 'No channels found'),
+                        title: Uni.I18n.translate('devicechannels.empty.title', 'IMT', 'No channels found'),
                         reasons: [
-                            Uni.I18n.translate('channeldata.device.usagepoint.notlinked', 'IMT', 'No device is associated with usage point.'),
-                            Uni.I18n.translate('channeldata.channel.list.undefined', 'IMT', 'No channels have been defined yet.')
-                        ]
+                            Uni.I18n.translate('devicechannels.empty.list.item1', 'IMT', 'No channels have been defined yet.'),
+                            Uni.I18n.translate('devicechannels.empty.list.item2', 'IMT', 'No channels comply to the filter.')
+                        ],
+                        margins: '16 0 0 0'
                     },
                     previewComponent: {
-                        xtype: 'container',
-                        itemId: 'previewComponentContainer'
+                        xtype: 'channelsPreview',
+                        router: me.router,
+                        device: me.device
                     }
-                }]
-            }
-        ];
+                }
+            ],
+//            dockedItems: [
+//                {
+//                    dock: 'top',
+//                    xtype: 'channelsTopFilter'
+//                }
+//            ]
+        };
+
         me.callParent(arguments);
-        me.down('#channelList').setTitle(me.mRID);
     }
 });

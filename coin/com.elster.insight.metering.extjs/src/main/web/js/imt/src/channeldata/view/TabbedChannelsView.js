@@ -1,11 +1,11 @@
-Ext.define('Imt.view.setup.devicechannels.TabbedDeviceChannelsView', {
+Ext.define('Imt.channeldata.view.TabbedChannelsView', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.tabbedDeviceChannelsView',
-    itemId: 'tabbedDeviceChannelsView',
+    alias: 'widget.tabbedChannelsView',
+    itemId: 'tabbedChannelsView',
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation',
-        'Imt.view.setup.devicechannels.TableView',
-        'Imt.view.setup.devicechannels.GraphView',
+        'Imt.channeldata.view.TableView',
+        'Imt.channeldata.view.GraphView',
         'Uni.grid.FilterPanelTop'
     ],
 
@@ -42,7 +42,7 @@ Ext.define('Imt.view.setup.devicechannels.TabbedDeviceChannelsView', {
                         title: Uni.I18n.translate('deviceloadprofiles.specifications', 'IMT', 'Specifications'),
                         itemId: 'channel-specifications',
                         items: {
-                            xtype: 'deviceLoadProfileChannelOverview',
+                            xtype: 'channelOverview',
                             router: me.router,
                             device: me.device
                         }
@@ -80,10 +80,10 @@ Ext.define('Imt.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 ]
                             },
                             {
-                                xtype: 'deviceLoadProfileChannelGraphView'
+                                xtype: 'channelGraphView'
                             },
                             {
-                                xtype: 'deviceLoadProfileChannelTableView',
+                                xtype: 'channelTableView',
                                 channel: me.channel,
                                 router: me.router
                             }
@@ -167,7 +167,7 @@ Ext.define('Imt.view.setup.devicechannels.TabbedDeviceChannelsView', {
         var me = this,
             dataStore = me.store,
             channelRecord = me.channel,
-            container = me.down('deviceLoadProfileChannelGraphView'),
+            container = me.down('channelGraphView'),
             zoomLevelsStore = Ext.getStore('Imt.store.DataIntervalAndZoomLevels'),
             channelName = channelRecord.get('name'),
             unitOfMeasure = channelRecord.get('unitOfMeasure').unit,

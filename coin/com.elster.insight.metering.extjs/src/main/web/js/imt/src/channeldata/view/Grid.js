@@ -1,7 +1,7 @@
-Ext.define('Imt.view.setup.devicechannels.Grid', {
+Ext.define('Imt.channeldata.view.Grid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.deviceLoadProfileChannelsGrid',
-    itemId: 'deviceLoadProfileChannelsGrid',
+    alias: 'widget.channelsGrid',
+    itemId: 'channelsGrid',
     store: 'Imt.channeldata.store.Channels',
 
     requires: [
@@ -9,7 +9,7 @@ Ext.define('Imt.view.setup.devicechannels.Grid', {
         'Uni.grid.column.Obis',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Imt.view.setup.devicechannels.ActionMenu'
+        'Imt.channeldata.view.ActionMenu'
     ],
 
     mRID: null,
@@ -51,7 +51,7 @@ Ext.define('Imt.view.setup.devicechannels.Grid', {
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    xtype: 'deviceLoadProfileChannelsActionMenu',
+                    xtype: 'channelsActionMenu',
                     itemId: 'channelActionMenu'
                 }
             }
