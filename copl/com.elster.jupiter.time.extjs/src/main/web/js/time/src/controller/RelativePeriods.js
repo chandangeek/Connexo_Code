@@ -54,56 +54,52 @@ Ext.define('Tme.controller.RelativePeriods', {
 
         var record = Ext.create('Tme.model.RelativePeriod');
         var categories = this.getCategoriesTextFields();
-        if (form.isValid()) {
-            formErrorsPanel.hide();
-            record.beginEdit();
-            record.set('name', nameFieldValue);
 
-            Ext.Array.each(categories.getValue(), function (item) {
-                record.categories().add(Ext.create(Tme.model.Categories, {id: item}));
-            });
+        record.beginEdit();
+        record.set('name', nameFieldValue);
 
-            record.set('categories', arrCategories);
+        Ext.Array.each(categories.getValue(), function (item) {
+            record.categories().add(Ext.create(Tme.model.Categories, {id: item}));
+        });
 
-            var startPeriodValue = form.down('#relative-date-start').getValue(),
-                startDateModel = me.createModelFromRelativePeriodValue(startPeriodValue);
+        record.set('categories', arrCategories);
 
-            record.set('from', startDateModel.data);
+        var startPeriodValue = form.down('#relative-date-start').getValue(),
+            startDateModel = me.createModelFromRelativePeriodValue(startPeriodValue);
 
-            var endPeriodValue = form.down('#relative-date-end').getValue(),
-                endDateModel = me.createModelFromRelativePeriodValue(endPeriodValue);
+        record.set('from', startDateModel.data);
 
-            record.set('to', endDateModel.data);
-            record.endEdit();
-            record.save({
-                success: function (record, operation) {
-                    var messageText;
-                    if (button.action === 'editRuleAction') {
-                        messageText = Uni.I18n.translate('relativeperiod.editSuccess.msg', 'TME', 'Relative period saved');
-                    } else {
-                        messageText = Uni.I18n.translate('relativeperiod.addSuccess.msg', 'TME', 'Relative period added');
-                    }
-                    if (me.fromAddTask) {
-                        location.href = '#/administration/dataexporttasks/add';
-                    } else if (me.fromEditTask) {
-                        location.href = '#/administration/dataexporttasks/' + me.taskId + '/edit';
-                    } else {
-                        location.href = '#/administration/relativeperiods';
-                    }
+        var endPeriodValue = form.down('#relative-date-end').getValue(),
+            endDateModel = me.createModelFromRelativePeriodValue(endPeriodValue);
 
-                    me.getApplication().fireEvent('acknowledge', messageText);
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        form.getForm().markInvalid(json.errors);
-                        formErrorsPanel.show();
-                    }
+        record.set('to', endDateModel.data);
+        record.endEdit();
+        record.save({
+            success: function (record, operation) {
+                var messageText;
+                if (button.action === 'editRuleAction') {
+                    messageText = Uni.I18n.translate('relativeperiod.editSuccess.msg', 'TME', 'Relative period saved');
+                } else {
+                    messageText = Uni.I18n.translate('relativeperiod.addSuccess.msg', 'TME', 'Relative period added');
                 }
-            });
-        } else {
-            formErrorsPanel.show();
-        }
+                if (me.fromAddTask) {
+                    location.href = '#/administration/dataexporttasks/add';
+                } else if (me.fromEditTask) {
+                    location.href = '#/administration/dataexporttasks/' + me.taskId + '/edit';
+                } else {
+                    location.href = '#/administration/relativeperiods';
+                }
+
+                me.getApplication().fireEvent('acknowledge', messageText);
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    form.getForm().markInvalid(json.errors);
+                    formErrorsPanel.show();
+                }
+            }
+        });
     },
 
     createModelFromRelativePeriodValue: function (value) {
