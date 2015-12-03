@@ -199,7 +199,7 @@ public class LoadProfileConfigurationResource {
         channelBuilder.overflow(info.overflowValue);
         channelBuilder.overruledObisCode(info.overruledObisCode);
         channelBuilder.nbrOfFractionDigits(info.nbrOfFractionDigits);
-        if(info.useMultiplier){
+        if(info.useMultiplier != null && info.useMultiplier){
             channelBuilder.useMultiplierWithCalculatedReadingType(findCalculatedReadingType(info).orElse(null));
         } else {
             channelBuilder.noMultiplier();
