@@ -41,8 +41,8 @@ Ext.define('Imt.channeldata.controller.Channels', {
             selector: '#channelsPreviewForm'
         },
         {
-            ref: 'deviceLoadProfileChannelsOverviewForm',
-            selector: '#deviceLoadProfileChannelsOverviewForm'
+            ref: 'channelsOverviewForm',
+            selector: '#channelsOverviewForm'
         },
         {
             ref: 'overviewLink', 
@@ -305,7 +305,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
         if(form)
             formRecord = form.getRecord();
         else{
-            form = me.getDeviceLoadProfileChannelsOverviewForm();
+            form = me.getChannelsOverviewForm();
             formRecord = form.getRecord();
         }
         formRecord.set('validationInfo_dataValidated',

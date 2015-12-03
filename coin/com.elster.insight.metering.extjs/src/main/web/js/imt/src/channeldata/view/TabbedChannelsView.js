@@ -49,11 +49,11 @@ Ext.define('Imt.channeldata.view.TabbedChannelsView', {
                     },
                     {
                         title: Uni.I18n.translate('deviceloadprofiles.readings', 'IMT', 'Readings'),
-                        itemId: 'deviceLoadProfileChannelData',
+                        itemId: 'channelData',
                         items: [
                             {
                                 xtype: 'uni-grid-filterpaneltop',
-                                itemId: 'mdc-device-channels-topfilter',
+                                itemId: 'channelsTopFilter',
                                 store: 'Imt.channeldata.store.ChannelData',
                                 hasDefaultFilters: true,
                                 filters: [

@@ -26,7 +26,7 @@ Ext.define('Imt.channeldata.view.Overview', {
                             device: me.device,
                             router: me.router,
                             margin: '0 0 0 0',
-                            itemId: 'deviceLoadProfileChannelsOverviewForm'
+                            itemId: 'channelsOverviewForm'
                         }
                     },
                     {

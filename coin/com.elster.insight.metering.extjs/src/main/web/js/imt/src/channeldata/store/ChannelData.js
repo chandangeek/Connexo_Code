@@ -4,7 +4,7 @@ Ext.define('Imt.channeldata.store.ChannelData', {
         'Imt.channeldata.store.ChannelDataDurations'
     ],
     model: 'Imt.channeldata.model.ChannelData',
-    storeId: 'ChannelOfLoadProfileOfDeviceData',
+    storeId: 'channelData',
     autoLoad: false,
     proxy: {
         type: 'rest',

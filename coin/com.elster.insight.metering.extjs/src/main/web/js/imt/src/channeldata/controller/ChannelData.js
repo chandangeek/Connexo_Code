@@ -37,11 +37,11 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
         },
         {
             ref: 'page',
-            selector: '#deviceLoadProfileChannelData'
+            selector: '#channelData'
         },
         {
             ref: 'sideFilter',
-            selector: '#deviceLoadProfileChannelDataSideFilter'
+            selector: '#channelDataSideFilter'
         },
         {
             ref: 'channelDataPreview',
@@ -49,11 +49,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
         },
         {
             ref: 'sideFilterForm',
-            selector: '#deviceLoadProfileChannelDataFilterForm'
-        },
-        {
-            ref: 'filterPanel',
-            selector: '#deviceLoadProfileChannelData #deviceloadprofileschanneldatafilterpanel'
+            selector: '#channelDataFilterForm'
         },
         {
             ref: 'readingEstimationWindow',
@@ -78,14 +74,14 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 
     init: function () {
         this.control({
-            '#deviceLoadProfileChannelData #channelDataGrid': {
+            '#channelData #channelDataGrid': {
                 select: this.showPreview,
                 beforeedit: this.beforeEditRecord,
                 edit: this.resumeEditorFieldValidation,
                 canceledit: this.resumeEditorFieldValidation,
                 selectionchange: this.onDataGridSelectionChange
             },
-            '#deviceLoadProfileChannelData #channelGraphView': {
+            '#channelData #channelGraphView': {
                 resize: this.onGraphResize
             },
             '#tabbedChannelsView #channelTabPanel': {
@@ -95,10 +91,10 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
                 beforeshow: this.checkSuspect,
                 click: this.chooseAction
             },
-            '#deviceLoadProfileChannelData #save-changes-button': {
+            '#channelData #save-changes-button': {
                 click: this.saveChannelDataChanges
             },
-            '#deviceLoadProfileChannelData #undo-button': {
+            '#channelData #undo-button': {
                 click: this.undoChannelDataChanges
             },
             '#estimate-reading-button': {
@@ -201,7 +197,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
     setupSpecificationsTab: function (device, channel, widget) {
 //        var customAttributesStore = this.getStore('Imt.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
 //        customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
-        widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
+        widget.down('#channelsOverviewForm').loadRecord(channel);
 //        customAttributesStore.load(function () {
 //            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
 //        });
@@ -269,7 +265,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
             routeParams = router.arguments,
             route,
             filterParams = {};
-        if (newTab.itemId === 'deviceLoadProfileChannelData') {
+        if (newTab.itemId === 'channelData') {
 
             filterParams.onlySuspect = false;
             route = 'usagepoints/view/channels/channeldata';
