@@ -176,6 +176,25 @@ public class ReadingStorerImplIT {
             assertThat(baseReadingRecord.getTimeStamp()).isEqualTo(BASE.plusMinutes(15 * i).toInstant());
         }
 
+        transactionService.run(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
+
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+
+            meterReading.addIntervalBlock(intervalBlock);
+
+            channel.getMeterActivation().getMeter().get().store(meterReading);
+
+        });
+
+        readings = channel.getReadings(Range.atLeast(BASE.plusMinutes(15 * 9).toInstant()));
+
+        assertThat(readings).hasSize(1);
+
+        assertThat(readings.get(0).getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(1000, 2), 3, "Wh"));
+        assertThat(readings.get(0).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(19000, 2), 3, "Wh"));
+        assertThat(readings.get(0).getTimeStamp()).isEqualTo(BASE.plusMinutes(15 * 9).toInstant());
     }
 
 }
