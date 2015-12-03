@@ -3,17 +3,16 @@ package com.energyict.protocols.impl.channels.ip;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
@@ -24,7 +23,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:53)
  */
-public class OutboundIpConnectionProperties implements PersistentDomainExtension<ConnectionProvider> {
+public class OutboundIpConnectionProperties implements PersistentDomainExtension<ConnectionProvider>, PersistenceAware {
 
     public enum Fields {
         CONNECTION_PROVIDER {
@@ -148,10 +147,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
-    @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
     private String host;
-    @NotNull
     private BigDecimal portNumber;
     private TimeDuration connectionTimeout;
     private BigDecimal bufferSize;
@@ -161,6 +158,16 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     private BigDecimal postDialCommandAttempts;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String postDialCommand;
+
+    @Override
+    public void postLoad() {
+        if (this.connectionTimeout != null && this.connectionTimeout.getTimeUnitCode() == 0) {
+            /* ORM layer is configured with access paths to convert two database columns to one field
+             * and will have created a TimeDuration to be able to inject the values from both columns
+             * into the TimeDuration. If the time unit code is zero then it was actually a null value. */
+            this.connectionTimeout = null;
+        }
+    }
 
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {

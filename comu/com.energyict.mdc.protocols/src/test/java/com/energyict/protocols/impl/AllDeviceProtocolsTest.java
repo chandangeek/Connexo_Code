@@ -142,7 +142,7 @@ public class AllDeviceProtocolsTest {
     @Test
     public void testAllOutboundProtocols() {
         Stream.of(LicensedProtocolRule.values()).forEach(this::testProtocolCreation);
-        System.out.println("Successfully created " + LicensedProtocolRule.values().length + " outbound protocol(s)");
+        System.out.println("Successfully tested the creation of " + LicensedProtocolRule.values().length + " outbound protocol(s)");
     }
 
     private void testProtocolCreation(LicensedProtocolRule rule) {
@@ -162,7 +162,7 @@ public class AllDeviceProtocolsTest {
     @Test
     public void testAllInbboundProtocols() {
         Stream.of(InboundDeviceProtocolRule.values()).forEach(this::testProtocolCreation);
-        System.out.println("Successfully created " + InboundDeviceProtocolRule.values().length + " inbound protocol(s)");
+        System.out.println("Successfully tested the creation of " + InboundDeviceProtocolRule.values().length + " inbound protocol(s)");
     }
 
     private void testProtocolCreation(InboundDeviceProtocolRule rule) {

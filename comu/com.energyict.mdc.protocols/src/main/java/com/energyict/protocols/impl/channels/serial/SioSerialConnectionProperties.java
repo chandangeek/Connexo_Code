@@ -13,6 +13,8 @@ import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
+import java.math.BigDecimal;
+
 /**
  * Provides an implementation for the {@link PersistentDomainExtension} interface
  * for all serial connection types. Ideally, this class should be in the mdc.io
@@ -70,20 +72,87 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
         this.connectionProvider.set(connectionProvider);
-        this.parity = (Parities) propertyValues.getProperty(SerialPortConfiguration.PARITY_NAME);
-        this.flowControl = (FlowControl) propertyValues.getProperty(SerialPortConfiguration.FLOW_CONTROL_NAME);
-        this.numberOfStopBits = (NrOfStopBits) propertyValues.getProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME);
-        this.numberOfDataBits = (NrOfDataBits) propertyValues.getProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME);
-        this.baudRate = (BaudrateValue) propertyValues.getProperty(SerialPortConfiguration.BAUDRATE_NAME);
+        this.copyParityFrom(propertyValues);
+        this.copyFromControlFrom(propertyValues);
+        this.copyNumberOfStopBitsFrom(propertyValues);
+        this.copyNumberOfDataBitsFrom(propertyValues);
+        this.copyBaudRateFrom(propertyValues);
+    }
+
+    protected void copyParityFrom(CustomPropertySetValues propertyValues) {
+        Object propertyValue = propertyValues.getProperty(SerialPortConfiguration.PARITY_NAME);
+        // The PropertySpec is actually using StringFactory so generic clients will use String values
+        if (propertyValue instanceof String) {
+            this.parity = Parities.valueFor((String) propertyValue);
+        }
+        else {
+            this.parity = (Parities) propertyValue;
+        }
+    }
+
+    protected void copyFromControlFrom(CustomPropertySetValues propertyValues) {
+        Object propertyValue = propertyValues.getProperty(SerialPortConfiguration.FLOW_CONTROL_NAME);
+        // The PropertySpec is actually using StringFactory so generic clients will use String values
+        if (propertyValue instanceof String) {
+            this.flowControl = FlowControl.valueFor((String) propertyValue);
+        }
+        else {
+            this.flowControl = (FlowControl) propertyValue;
+        }
+    }
+
+    protected void copyNumberOfStopBitsFrom(CustomPropertySetValues propertyValues) {
+        Object propertyValue = propertyValues.getProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME);
+        // The PropertySpec is actually using BigDecimalFactory so generic clients will use BigDecimal values
+        if (propertyValue instanceof BigDecimal) {
+            this.numberOfStopBits = NrOfStopBits.values()[((BigDecimal) propertyValue).intValue()];
+        }
+        else {
+            this.numberOfStopBits = (NrOfStopBits) propertyValue;
+        }
+    }
+
+    protected void copyNumberOfDataBitsFrom(CustomPropertySetValues propertyValues) {
+        Object propertyValue = propertyValues.getProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME);
+        // The PropertySpec is actually using BigDecimalFactory so generic clients will use BigDecimal values
+        if (propertyValue instanceof BigDecimal) {
+            this.numberOfDataBits = NrOfDataBits.valueFor((BigDecimal) propertyValue);
+        }
+        else {
+            this.numberOfDataBits = (NrOfDataBits) propertyValue;
+        }
+    }
+
+    protected void copyBaudRateFrom(CustomPropertySetValues propertyValues) {
+        Object propertyValue = propertyValues.getProperty(SerialPortConfiguration.BAUDRATE_NAME);
+        // The PropertySpec is actually using BigDecimalFactory so generic clients will use BigDecimal values
+        if (propertyValue instanceof BigDecimal) {
+            this.baudRate = BaudrateValue.valueFor((BigDecimal) propertyValue);
+        }
+        else {
+            this.baudRate = (BaudrateValue) propertyValue;
+        }
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
-        this.copyTo(propertySetValues, SerialPortConfiguration.PARITY_NAME, this.parity);
-        this.copyTo(propertySetValues, SerialPortConfiguration.FLOW_CONTROL_NAME, this.flowControl);
-        this.copyTo(propertySetValues, SerialPortConfiguration.NR_OF_STOP_BITS_NAME, this.numberOfStopBits);
-        this.copyTo(propertySetValues, SerialPortConfiguration.NR_OF_DATA_BITS_NAME, this.numberOfDataBits);
-        this.copyTo(propertySetValues, SerialPortConfiguration.BAUDRATE_NAME, this.baudRate);
+        // The PropertySpec of the following properties are actually using StringFactory so generic clients will expect String values
+        if (this.parity != null) {
+            this.copyTo(propertySetValues, SerialPortConfiguration.PARITY_NAME, this.parity.name());
+        }
+        if (this.flowControl != null) {
+            this.copyTo(propertySetValues, SerialPortConfiguration.FLOW_CONTROL_NAME, this.flowControl.name());
+        }
+        // The PropertySpec of the following properties are actually using BigDecimalFactory so generic clients will expect BigDecimal values
+        if (this.numberOfStopBits != null) {
+            this.copyTo(propertySetValues, SerialPortConfiguration.NR_OF_STOP_BITS_NAME, this.numberOfStopBits.value());
+        }
+        if (this.numberOfDataBits != null) {
+            this.copyTo(propertySetValues, SerialPortConfiguration.NR_OF_DATA_BITS_NAME, this.numberOfDataBits.value());
+        }
+        if (this.baudRate != null) {
+            this.copyTo(propertySetValues, SerialPortConfiguration.BAUDRATE_NAME, this.baudRate.value());
+        }
     }
 
     private void copyTo(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
