@@ -50,5 +50,22 @@ public enum Currying {
         return new ConsumerBuilder<>(biConsumer);
     }
 
+    public static class RunnableBuilder<A> {
+
+        private final Consumer<A> consumer;
+
+        private RunnableBuilder(Consumer<A> consumer) {
+            this.consumer = consumer;
+        }
+
+        public Runnable on(A a) {
+            return () -> consumer.accept(a);
+        }
+
+    }
+
+    public static <A> RunnableBuilder<A> perform(Consumer<A> consumer) {
+        return new RunnableBuilder<>(consumer);
+    }
 
 }

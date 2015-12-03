@@ -13,7 +13,7 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Comparator.naturalOrder;
 
-class PartitionWhenSpliterator<E> extends Spliterators.AbstractSpliterator<List<E>> {
+final class PartitionWhenSpliterator<E> extends Spliterators.AbstractSpliterator<List<E>> {
     private final Spliterator<E> spliterator;
     private final BiPredicate<? super E, ? super E> partitionPredicate;
     private HoldingConsumer<E> holder;

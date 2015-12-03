@@ -1,5 +1,7 @@
 package com.elster.jupiter.util.streams;
 
+import com.elster.jupiter.util.Pair;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -278,5 +280,9 @@ public class DecoratedStream<T> implements Stream<T> {
 
     public DecoratedStream<List<T>> partitionWhen(BiPredicate<? super T, ? super T> startNewPartition) {
         return new DecoratedStream<>(StreamSupport.stream(new PartitionWhenSpliterator<T>(decorated.spliterator(), startNewPartition), decorated.isParallel()));
+    }
+
+    public DecoratedStream<Pair<T, Long>> zipWithIndex() {
+        return new DecoratedStream<>(StreamSupport.stream(new ZipWithIndexSpliterator<T>(decorated.spliterator()), isParallel()));
     }
 }

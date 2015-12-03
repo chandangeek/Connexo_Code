@@ -9,7 +9,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
 
-class GroupPerSpliterator<E> extends Spliterators.AbstractSpliterator<List<E>> {
+final class GroupPerSpliterator<E> extends Spliterators.AbstractSpliterator<List<E>> {
 
     private final Spliterator<E> spliterator;
     private final int produceSize;

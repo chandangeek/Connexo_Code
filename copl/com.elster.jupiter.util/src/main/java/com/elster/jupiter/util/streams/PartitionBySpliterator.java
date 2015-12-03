@@ -14,7 +14,7 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Comparator.naturalOrder;
 
-class PartitionBySpliterator<E> extends Spliterators.AbstractSpliterator<List<E>> {
+final class PartitionBySpliterator<E> extends Spliterators.AbstractSpliterator<List<E>> {
   private final Spliterator<E> spliterator;
   private final Function<? super E, ?> partitionBy;
   private HoldingConsumer<E> holder;

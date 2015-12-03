@@ -6,7 +6,7 @@ import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-class ConditionedLimitSpliterator<E> extends Spliterators.AbstractSpliterator<E> {
+final class ConditionedLimitSpliterator<E> extends Spliterators.AbstractSpliterator<E> {
 
     private final Spliterator<E> spliterator;
     private final Predicate<? super E> predicate;

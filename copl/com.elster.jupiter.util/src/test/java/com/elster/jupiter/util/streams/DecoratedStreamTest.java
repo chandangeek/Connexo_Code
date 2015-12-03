@@ -1,5 +1,6 @@
 package com.elster.jupiter.util.streams;
 
+import com.elster.jupiter.util.Pair;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -128,6 +129,19 @@ public class DecoratedStreamTest {
 
         assertThat(collect.get(0).getName()).isEqualTo("B");
         assertThat(collect.get(1).getName()).isEqualTo("H");
+    }
+
+    @Test
+    public void testZipWithIndex() {
+        List<String> strings = Arrays.asList("B", "C", "E", "G", "H", "I", "K");
+
+        String string = decorate(strings.stream())
+                .zipWithIndex()
+                .filter(pair -> pair.getLast() % 2 == 0)
+                .map(Pair::getFirst)
+                .collect(Collectors.joining());
+
+        assertThat(string).isEqualTo("BEHK");
     }
 
 }

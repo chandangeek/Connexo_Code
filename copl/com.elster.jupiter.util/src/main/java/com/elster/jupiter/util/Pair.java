@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -35,8 +36,12 @@ public final class Pair<F, L> {
         return first;
     }
 
-    public Pair<F, L> withFirst(F newFirst) {
+    public <N> Pair<N, L> withFirst(N newFirst) {
         return new Pair<>(newFirst, last);
+    }
+
+    public <N> Pair<N, L> withFirst(Function<F, N> function) {
+        return new Pair<>(function.apply(first), last);
     }
 
     public <N> Pair<N, L> withFirst(BiFunction<? super F, ? super L, N> function) {
@@ -47,8 +52,12 @@ public final class Pair<F, L> {
         return last;
     }
 
-    public Pair<F, L> withLast(L newLast) {
+    public <N> Pair<F, N> withLast(N newLast) {
         return new Pair<>(first, newLast);
+    }
+
+    public <N> Pair<F, N> withLast(Function<L, N> function) {
+        return new Pair<>(first, function.apply(last));
     }
 
     public <N> Pair<F, N> withLast(BiFunction<? super F, ? super L, N> function) {
