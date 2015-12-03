@@ -155,8 +155,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1555,13 +1554,13 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
-        return comTaskExecutions.stream().filter(x -> !x.isObsolete()).collect(Collectors.toList());
+        return comTaskExecutions.stream().filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate()).collect(Collectors.toList());
     }
 
     private ComTaskExecution add(ComTaskExecutionImpl comTaskExecution) {
         Save.CREATE.validate(DeviceImpl.this.dataModel, comTaskExecution, Save.Create.class, Save.Update.class);
-        this.comTaskExecutions.add(comTaskExecution);
         Save.UPDATE.validate(DeviceImpl.this.dataModel, this, Save.Create.class, Save.Update.class);
+        this.comTaskExecutions.add(comTaskExecution);
         if (this.id != 0) {
             comTaskExecution.notifyCreated();
             dataModel.touch(DeviceImpl.this);
