@@ -49,34 +49,39 @@ Ext.define('Imt.view.setup.devicechannels.PreviewForm', {
                                 },
                                 {
                                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'IMT', 'Interval'),
-                                    name: 'interval_formatted'
+                                    name: 'interval',
+                                    renderer: function (value) {
+                                        var res = '';
+                                        value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
+                                        return res
+                                    }
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.lastReading', 'IMT', 'Last reading'),
-                                    name: 'lastReading',
+                                    fieldLabel: Uni.I18n.translate('device.channels.timestampLastValue', 'IMT', 'Timestamp last value'),
+                                    name: 'lastValueTimestamp',
                                     renderer: function (value) {
-                                        var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastreading', 'IMT', 'The moment when the data was read out for the last time.');
+                                        var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastvaluetime', 'IMT', 'The timestamp from the latest reading.');
                                         return value
                                             ? Uni.DateTime.formatDateTimeLong(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="uni-icon-info-small" data-qtip="' + tooltip + '"></span>'
                                             : '';
                                     }
                                 },
-                                {
-                                    fieldLabel: Uni.I18n.translate('device.channels.timestampLastValue', 'IMT', 'Timestamp last value'),
-                                    name: 'lastValueTimestamp_formatted'
-                                },
-                                {
-                                    xtype: 'obis-displayfield',
-                                    name: 'obisCode'
-                                },
-                                {
-                                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.overflowValue', 'IMT', 'Overflow value'),
-                                    name: 'overflowValue'
-                                },
-                                {
-                                    fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'IMT', 'Number of fraction digits'),
-                                    name: 'nbrOfFractionDigits'
-                                },
+//                                {
+//                                    fieldLabel: Uni.I18n.translate('device.channels.timestampLastValue', 'IMT', 'Timestamp last value'),
+//                                    name: 'lastValueTimestamp_formatted'
+//                                },
+//                                {
+//                                    xtype: 'obis-displayfield',
+//                                    name: 'obisCode'
+//                                },
+//                                {
+//                                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.overflowValue', 'IMT', 'Overflow value'),
+//                                    name: 'overflowValue'
+//                                },
+//                                {
+//                                    fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'IMT', 'Number of fraction digits'),
+//                                    name: 'nbrOfFractionDigits'
+//                                },
 //                                {
 //                                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'IMT', 'Load profile'),
 //                                    name: 'loadProfileId',
@@ -109,13 +114,13 @@ Ext.define('Imt.view.setup.devicechannels.PreviewForm', {
                         }
                     ]
                 },
-                {
-                    xtype: 'custom-attribute-sets-placeholder-form',
-                    itemId: 'custom-attribute-sets-placeholder-form-id',
-                    actionMenuXtype: 'deviceLoadProfileChannelsActionMenu',
-                    attributeSetType: 'channel',
-                    router: me.router
-                }
+//                {
+//                    xtype: 'custom-attribute-sets-placeholder-form',
+//                    itemId: 'custom-attribute-sets-placeholder-form-id',
+//                    actionMenuXtype: 'deviceLoadProfileChannelsActionMenu',
+//                    attributeSetType: 'channel',
+//                    router: me.router
+//                }
             ]
         };
 

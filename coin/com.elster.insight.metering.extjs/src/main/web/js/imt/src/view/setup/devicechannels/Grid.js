@@ -41,7 +41,7 @@ Ext.define('Imt.view.setup.devicechannels.Grid', {
                 }
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.lastReading', 'IMT', 'Last reading'),
+                header: Uni.I18n.translate('device.channels.timestampLastValue', 'IMT', 'Timestamp last value'),
                 dataIndex: 'lastValueTimestamp',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';

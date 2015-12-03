@@ -134,6 +134,7 @@ Ext.define('Imt.controller.setup.DeviceChannels', {
 //            preview.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
 //            preview.setLoading(false);
 //        });
+        preview.setLoading(false);
         var router = me.getController('Uni.controller.history.Router'),
             routeParams = router.arguments;
         routeParams.channelId = record.getId();
