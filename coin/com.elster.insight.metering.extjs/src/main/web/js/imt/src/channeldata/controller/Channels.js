@@ -11,9 +11,9 @@ Ext.define('Imt.channeldata.controller.Channels', {
 
     models: [
         'Imt.usagepointmanagement.model.UsagePoint',
-        'Imt.model.ChannelOfLoadProfilesOfDevice',
-        'Imt.model.filter.DeviceChannelsFilter',
-        'Imt.model.ChannelValidationPreview'
+        'Imt.channeldata.model.Channel',
+        'Imt.channeldata.model.ChannelsFilter',
+        'Imt.channeldata.model.ChannelValidationPreview'
     ],
 
     stores: [
@@ -288,7 +288,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
         viewport.setLoading();
-        var model = me.getModel('Imt.model.ChannelValidationPreview');
+        var model = me.getModel('Imt.channeldata.model.ChannelValidationPreview');
         model.getProxy().setUrl(mRID, channelId);
         model.load('', {
             success: function (record) {

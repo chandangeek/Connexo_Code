@@ -1,4 +1,4 @@
 Ext.define('Imt.store.ChannelDataDurations', {
     extend: 'Ext.data.Store',
-    model: 'Imt.model.ChannelDataDuration'
+    model: 'Imt.channeldata.model.ChannelDataDuration'
 });

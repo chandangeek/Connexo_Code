@@ -1,4 +1,4 @@
-Ext.define('Imt.model.DeviceChannelDataEstimate', {
+Ext.define('Imt.channeldata.model.ChannelDataEstimate', {
     extend: 'Ext.data.Model',
     requires: [
         'Uni.property.model.Property'

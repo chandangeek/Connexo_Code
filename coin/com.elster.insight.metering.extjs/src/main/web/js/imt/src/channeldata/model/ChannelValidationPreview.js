@@ -1,4 +1,4 @@
-Ext.define('Imt.model.ChannelValidationPreview', {
+Ext.define('Imt.channeldata.model.ChannelValidationPreview', {
     extend: 'Ext.data.Model',
     fields: [
         {

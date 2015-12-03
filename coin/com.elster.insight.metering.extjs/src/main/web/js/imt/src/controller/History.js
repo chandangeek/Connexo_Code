@@ -33,7 +33,7 @@ Ext.define('Imt.controller.History', {
                             controller: 'Imt.channeldata.controller.Channels',
 //                            privileges: Imt.privileges.Device.viewDevice,
                             action: 'showOverview',
-                            filter: 'Imt.model.filter.DeviceChannelsFilter',
+                            filter: 'Imt.channeldata.model.ChannelsFilter',
 //                            dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
                             items: {
                                 channel: {

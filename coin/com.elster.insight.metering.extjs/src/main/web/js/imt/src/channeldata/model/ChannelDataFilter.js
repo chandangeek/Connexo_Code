@@ -1,4 +1,4 @@
-Ext.define('Imt.model.ChannelOfLoadProfilesOfDeviceDataFilter', {
+Ext.define('Imt.channeldata.model.ChannelDataFilter', {
     extend: 'Ext.data.Model',
     requires: [
         'Uni.data.proxy.QueryStringProxy'

@@ -1,6 +1,6 @@
 Ext.define('Imt.store.ChannelsOfLoadProfilesOfDevice', {
     extend: 'Uni.data.store.Filterable',
-    model: 'Imt.model.ChannelOfLoadProfilesOfDevice',
+    model: 'Imt.channeldata.model.Channel',
     storeId: 'LoadProfilesOfDevice',
     autoLoad: false,
     proxy: {

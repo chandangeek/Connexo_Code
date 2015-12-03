@@ -10,9 +10,9 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 
     models: [
         'Imt.usagepointmanagement.model.UsagePoint',
-        'Imt.model.ChannelOfLoadProfilesOfDevice',
-        'Imt.model.ChannelOfLoadProfilesOfDeviceDataFilter',
-        'Imt.model.DeviceChannelDataEstimate',
+        'Imt.channeldata.model.Channel',
+        'Imt.channeldata.model.ChannelDataFilter',
+        'Imt.channeldata.model.ChannelDataEstimate',
 //        'Imt.customattributesonvaluesobjects.model.AttributeSetOnChannel'
     ],
 
@@ -151,7 +151,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
             issueId = params['issueId'],
             device = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            channel = me.getModel('Imt.model.ChannelOfLoadProfilesOfDevice'),
+            channel = me.getModel('Imt.channeldata.model.Channel'),
             router = me.getController('Uni.controller.history.Router'),
             prevNextstore = contentName == 'block' ? 'Imt.store.ValidationBlocks' : 'Imt.store.ChannelsOfLoadProfilesOfDevice',
             prevNextListLink = contentName == 'block' ? me.makeLinkToIssue(router, issueId) : me.makeLinkToChannels(router),
@@ -520,7 +520,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
     estimateReading: function () {
         var me = this,
             propertyForm = me.getReadingEstimationWindow().down('#property-form'),
-            model = Ext.create('Imt.model.DeviceChannelDataEstimate'),
+            model = Ext.create('Imt.channeldata.model.ChannelDataEstimate'),
             estimateBulk = false,
             record = me.getReadingEstimationWindow().record,
             intervalsArray = [];
@@ -785,7 +785,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 //        viewport.setLoading(true);
 //        Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
 //            success: function (device) {
-//                var model = Ext.ModelManager.getModel('Imt.model.ChannelOfLoadProfilesOfDevice');
+//                var model = Ext.ModelManager.getModel('Imt.channeldata.model.Channel');
 //                model.getProxy().setUrl({
 //                    mRID: mRID
 //                });
