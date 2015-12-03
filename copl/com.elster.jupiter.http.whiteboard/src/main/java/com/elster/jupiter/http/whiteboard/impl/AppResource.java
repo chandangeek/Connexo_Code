@@ -89,8 +89,8 @@ public class AppResource {
         //invalidate
         Optional<Cookie> tokenCookie = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         if(tokenCookie.isPresent()){
-            SecurityToken.removeCookie(request,response);
-            SecurityToken.invalidateSession(request);
+            SecurityToken.getInstance().removeCookie(request,response);
+            SecurityToken.getInstance().invalidateSession(request);
         }
     }
 

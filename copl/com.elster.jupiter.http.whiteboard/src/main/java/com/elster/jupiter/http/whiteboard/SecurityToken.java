@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -30,15 +31,21 @@ import java.security.KeyPairGenerator;
 
 public class SecurityToken {
 
-    private final  static long MAX_COUNT = WhiteBoard.getTokenRefreshMaxCnt();
-    private final static int TIMEOUT = WhiteBoard.getTimeout();
-    private final static int TOKEN_EXPTIME = WhiteBoard.getTokenExpTime();
-    private static long COUNT = 0;
+    private final long MAX_COUNT = WhiteBoard.getTokenRefreshMaxCnt();
+    private final int TIMEOUT = WhiteBoard.getTimeout();
+    private final int TOKEN_EXPTIME = WhiteBoard.getTokenExpTime();
 
-    public SecurityToken() {
+    private static SecurityToken instance = new SecurityToken();
+
+
+    public static SecurityToken getInstance(){
+        return instance;
     }
 
-    public static String createToken(User user) {
+    private SecurityToken() {
+    }
+
+    public String createToken(User user, long count) {
         try {
             KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
             keyGenerator.initialize(1024);
@@ -61,10 +68,10 @@ public class SecurityToken {
             claimsSet.setSubject(Long.toString(user.getId()));
             claimsSet.setCustomClaim("roles", roles);
             claimsSet.setIssuer("Elster Connexo");
-            claimsSet.setJWTID("token" + (++COUNT));
+            claimsSet.setCustomClaim("cnt", count);
+            claimsSet.setJWTID("token" + count);
             claimsSet.setIssueTime(new Date());
             claimsSet.setExpirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPTIME * 1000));
-            claimsSet.setCustomClaim("cnt", COUNT);
             claimsSet.setCustomClaim("publicKey", pk);
 
             SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
@@ -82,9 +89,58 @@ public class SecurityToken {
 
     }
 
-    public static Optional<User> verifyToken(String token, HttpServletRequest request, HttpServletResponse response, UserService userService) {
+    public Optional<User> verifyToken(String token, HttpServletRequest request, HttpServletResponse response, UserService userService) {
         try {
 
+            SignedJWT signedJWT = checkTokenIntegrity(token);
+            Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+            long count = (Long)signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
+
+                if (signedJWT!=null && count < MAX_COUNT) {
+                    long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
+                    if (new Date().before(new Date(expirationTime.getTime()))) {
+                        return userService.getLoggedInUser(userId);
+                    } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT*1000))) {
+                        String newToken = createToken(userService.getLoggedInUser(userId).get(),++count);
+                        response.setHeader("X-AUTH-TOKEN", newToken);
+                        response.setHeader("Authorization", "Bearer " + newToken);
+                        createCookie("X-CONNEXO-TOKEN",newToken,"/",-1,true,response);
+                        return userService.getLoggedInUser(userId);
+                    }
+                }
+            removeCookie(request, response);
+            invalidateSession(request);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+    }
+
+    public boolean doComparison(Cookie cookie, String token){
+        SignedJWT jwtCookie = checkTokenIntegrity(cookie.getValue());
+        SignedJWT jwtToken = checkTokenIntegrity(token);
+
+        try {
+            if(jwtCookie !=null && jwtToken !=null){
+                if(new String(jwtCookie.getSigningInput(), StandardCharsets.UTF_8).equals(new String(jwtToken.getSigningInput(),StandardCharsets.UTF_8))) return true;
+                else if( jwtCookie.getJWTClaimsSet().getSubject().equals(jwtToken.getJWTClaimsSet().getSubject())
+                        && jwtCookie.getJWTClaimsSet().getIssueTime().after(jwtToken.getJWTClaimsSet().getIssueTime())
+                        && jwtCookie.getJWTClaimsSet().getExpirationTime().after(jwtToken.getJWTClaimsSet().getExpirationTime())
+                        && (Long)jwtCookie.getJWTClaimsSet().getCustomClaim("cnt") > (Long)jwtToken.getJWTClaimsSet().getCustomClaim("cnt")) return true;
+            }else{
+                return false;
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    private SignedJWT checkTokenIntegrity(String token){
+        try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             String publicKey = String.valueOf(signedJWT.getJWTClaimsSet().getCustomClaim("publicKey"));
             String issuer = signedJWT.getJWTClaimsSet().getIssuer();
@@ -101,22 +157,7 @@ public class SecurityToken {
             JWSVerifier verifier = new RSASSAVerifier(pubKey);
 
             if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
-                    issueTime.before(expirationTime) && count == tokenNumericTermination) {
-                if (count < MAX_COUNT) {
-                    long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
-                    if (new Date().before(new Date(expirationTime.getTime()))) {
-                        return userService.getLoggedInUser(userId);
-                    } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT*1000))) {
-                        String newToken = createToken(userService.getLoggedInUser(userId).get());
-                        response.setHeader("X-AUTH-TOKEN", newToken);
-                        response.setHeader("Authorization", "Bearer " + newToken);
-                        createCookie("X-CONNEXO-TOKEN",newToken,"/",TOKEN_EXPTIME+TIMEOUT,true,response);
-                        return userService.getLoggedInUser(userId);
-                    }
-                }
-            }
-            removeCookie(request, response);
-            invalidateSession(request);
+                    issueTime.before(expirationTime) && count == tokenNumericTermination) {return signedJWT;}
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (JOSEException e) {
@@ -126,12 +167,12 @@ public class SecurityToken {
         } catch (InvalidKeySpecException e) {
             e.printStackTrace();
         }
-
-        return Optional.empty();
+        return null;
     }
 
 
-    public static void removeCookie(HttpServletRequest request, HttpServletResponse response) {
+
+    public void removeCookie(HttpServletRequest request, HttpServletResponse response) {
         Optional<Cookie> tokenCookie = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         if (tokenCookie.isPresent()) {
             response.setHeader("Authorization", null);
@@ -139,21 +180,16 @@ public class SecurityToken {
             createCookie("X-CONNEXO-TOKEN", null, "/", 0, true, response);
         }
     }
-    public static void invalidateSession(HttpServletRequest request){
+    public void invalidateSession(HttpServletRequest request){
         HttpSession session = request.getSession(false);
         if (session != null) session.invalidate();
-        resetCount();
     }
 
-    public static void createCookie(String cookieName, String cookieValue, String cookiePath, int maxAge, boolean isHTTPOnly, HttpServletResponse response ){
+    public void createCookie(String cookieName, String cookieValue, String cookiePath, int maxAge, boolean isHTTPOnly, HttpServletResponse response ){
         Cookie tokenCookie = new Cookie(cookieName, cookieValue);
         tokenCookie.setPath(cookiePath);
         tokenCookie.setMaxAge(maxAge); //seconds
         tokenCookie.setHttpOnly(isHTTPOnly);
         response.addCookie(tokenCookie);
-    }
-
-    private static void resetCount(){
-        COUNT=0;
     }
 }
