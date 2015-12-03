@@ -49,9 +49,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -83,7 +81,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
      * registered if that was not the case yet and then wrapping it in an {@link ActiveCustomPropertySet}.
      * Registereing a CustomPropertySet involves creating a DataModel and a Table for it.
      */
-    private List<ActiveCustomPropertySet> activePropertySets = new CopyOnWriteArrayList<>();
+    private ConcurrentMap<String, ActiveCustomPropertySet> activePropertySets = new ConcurrentHashMap<>();
 
     // For OSGi purposes
     public CustomPropertySetServiceImpl() {
@@ -261,13 +259,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private boolean isActive(CustomPropertySet customPropertySet) {
-        return this.activePropertySets
-                    .stream()
-                    .anyMatch(this.equalCustomPropertySetIdPredicate(customPropertySet));
-    }
-
-    private Predicate<ActiveCustomPropertySet> equalCustomPropertySetIdPredicate(CustomPropertySet customPropertySet) {
-        return each -> each.getCustomPropertySet().getId().equals(customPropertySet.getId());
+        return this.activePropertySets.containsKey(customPropertySet.getId());
     }
 
     private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined, boolean inTransaction) {
@@ -288,44 +280,54 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private void registerCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
-        DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet);
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet =
                 this.dataModel
                     .mapper(RegisteredCustomPropertySet.class)
                     .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId());
         if (registeredCustomPropertySet.isPresent()) {
-            /* Pluggable Classes can be registered multiple times
-             * with different properties but they will obviously
-             * have the same CustomPropertySet. */
-            if (!systemDefined) {
-                throw new DuplicateCustomPropertySetException(this.thesaurus);
-            }
+            // Registered in a previous platform session, likely the system was restarted
+            DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet, false);
+            this.activePropertySets.put(
+                    customPropertySet.getId(),
+                    new ActiveCustomPropertySet(
+                            customPropertySet,
+                            this.thesaurus,
+                            dataModel,
+                            registeredCustomPropertySet.get()));
         }
         else {
+            // First time registration
+            DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet, true);
             RegisteredCustomPropertySetImpl newRegisteredCustomPropertySet = this.createRegisteredCustomPropertySet(customPropertySet, systemDefined);
-            this.activePropertySets.add(new ActiveCustomPropertySet(customPropertySet, this.thesaurus, dataModel, newRegisteredCustomPropertySet));
+            this.activePropertySets.put(
+                    customPropertySet.getId(),
+                    new ActiveCustomPropertySet(
+                            customPropertySet,
+                            this.thesaurus,
+                            dataModel,
+                            newRegisteredCustomPropertySet));
         }
     }
 
-    private DataModel registerAndInstallOrReuseDataModel(CustomPropertySet customPropertySet) {
+    private DataModel registerAndInstallOrReuseDataModel(CustomPropertySet customPropertySet, boolean executeDdl) {
         return this.ormService
                 .getDataModels()
                 .stream()
-                .filter(dataModel -> this.dataModelHasMatchingTable(dataModel, customPropertySet))
+                .filter(dataModel -> dataModel.getName().equals(customPropertySet.getPersistenceSupport().componentName()))
                 .findAny()
-                .orElseGet(() -> this.registerAndInstallDataModel(customPropertySet));
+                .orElseGet(() -> this.registerAndInstallDataModel(customPropertySet, executeDdl));
     }
 
-    private boolean dataModelHasMatchingTable(DataModel dataModel, CustomPropertySet customPropertySet) {
-        return dataModel.getTables().stream().anyMatch(table -> table.getName().equals(customPropertySet.getPersistenceSupport().tableName()));
-    }
-
-    private DataModel registerAndInstallDataModel(CustomPropertySet customPropertySet) {
-        DataModel dataModel = this.ormService.newDataModel(customPropertySet.getPersistenceSupport().componentName(), customPropertySet.getName());
+    private DataModel registerAndInstallDataModel(CustomPropertySet customPropertySet, boolean executeDdl) {
+        DataModel dataModel = this.newDataModelFor(customPropertySet);
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
-        dataModel.install(true, false);
+        dataModel.install(executeDdl, false);
         return dataModel;
+    }
+
+    private DataModel newDataModelFor(CustomPropertySet customPropertySet) {
+        return this.ormService.newDataModel(customPropertySet.getPersistenceSupport().componentName(), customPropertySet.getName());
     }
 
     private void addTableFor(CustomPropertySet customPropertySet, DataModel dataModel) {
@@ -351,7 +353,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     @Override
     public void removeCustomPropertySet(CustomPropertySet customPropertySet) {
-        this.activePropertySets.removeIf(this.equalCustomPropertySetIdPredicate(customPropertySet));
+        this.activePropertySets.remove(customPropertySet.getId());
     }
 
     @Override
@@ -379,11 +381,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     @Override
     public Optional<CustomPropertySet> findRegisteredCustomPropertySet(String id) {
-        return this.activePropertySets
-                .stream()
-                .filter(acps -> acps.getCustomPropertySet().getId().equals(id))
-                .map(ActiveCustomPropertySet::getCustomPropertySet)
-                .findAny();
+        return Optional
+                    .ofNullable(this.activePropertySets.get(id))
+                    .map(ActiveCustomPropertySet::getCustomPropertySet);
     }
 
     @Override
@@ -589,11 +589,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private <D, T extends PersistentDomainExtension<D>> ActiveCustomPropertySet findActiveCustomPropertySetOrThrowException(CustomPropertySet<D, T> customPropertySet) {
-        return this.activePropertySets
-                .stream()
-                .filter(this.equalCustomPropertySetIdPredicate(customPropertySet))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("Custom property set " + customPropertySet.getId() + " is not active or not active any longer"));
+        return Optional
+                    .ofNullable(this.activePropertySets.get(customPropertySet.getId()))
+                    .map(Function.identity())
+                    .orElseThrow(() -> new IllegalArgumentException("Custom property set " + customPropertySet.getId() + " is not active or not active any longer"));
     }
 
     @Override

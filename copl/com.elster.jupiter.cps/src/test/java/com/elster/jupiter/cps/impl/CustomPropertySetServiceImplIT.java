@@ -175,19 +175,26 @@ public class CustomPropertySetServiceImplIT {
         assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
     }
 
-    @Test(expected = DuplicateCustomPropertySetException.class)
-    public void addNonVersionedCustomPropertySetSecondTime() {
+    @Test
+    public void addNonVersionedCustomPropertySetAfterServerRestart() {
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
         }
         this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Simulate server restart by recreating the CustomPropertySetService instance
+        this.testInstance = injector.getInstance(CustomPropertySetService.class);
 
         // Business method
         this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
 
-        // Asserts: see expected exception rule
+        // Asserts
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
+        assertThat(dataModelsAfterAdd).hasSameSizeAs(dataModelsBeforeAdd);
     }
 
     @Test
@@ -248,20 +255,26 @@ public class CustomPropertySetServiceImplIT {
         assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
     }
 
-    @Test(expected = DuplicateCustomPropertySetException.class)
-    public void addVersionedCustomPropertySetSecondTime() {
+    @Test
+    public void addVersionedCustomPropertySetAfterServerRestart() {
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
         }
-
         this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Simulate server restart by recreating the CustomPropertySetService instance
+        this.testInstance = injector.getInstance(CustomPropertySetService.class);
 
         // Business method
         this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
 
-        // Asserts: see expected exception rule
+        // Asserts
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
+        assertThat(dataModelsAfterAdd).hasSameSizeAs(dataModelsBeforeAdd);
     }
 
     @Test

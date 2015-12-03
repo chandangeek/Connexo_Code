@@ -101,7 +101,7 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
     private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, DomainExtensionForTestingPurposes> {
         @Override
         public String componentName() {
-            return "T02";
+            return "T06";
         }
 
         @Override

@@ -14,7 +14,6 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Iterators;
