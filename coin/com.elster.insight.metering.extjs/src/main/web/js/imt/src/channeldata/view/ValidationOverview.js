@@ -3,7 +3,7 @@ Ext.define('Imt.channeldata.view.ValidationOverview', {
     alias: 'widget.channelsValidationOverview',
     itemId: 'channelsValidationOverview',
     router: null,
-    fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation', 'IMT', 'Validation'),
+    fieldLabel: Uni.I18n.translate('channels.validation', 'IMT', 'Validation'),
 
     labelAlign: 'top',
     layout: 'vbox',
@@ -21,16 +21,16 @@ Ext.define('Imt.channeldata.view.ValidationOverview', {
 
         me.items = [
             {
-                fieldLabel: Uni.I18n.translate('device.registerData.validationStatus', 'IMT', 'Validation status'),
+                fieldLabel: Uni.I18n.translate('channels.validationStatus', 'IMT', 'Validation status'),
                 name: 'validationInfo_validationActive'
             },
             {
-                fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'IMT', 'All data validated'),
+                fieldLabel: Uni.I18n.translate('channels.allDataValidated', 'IMT', 'All data validated'),
                 name: 'validationInfo_dataValidated',
                 htmlEncode: false
             },
             {
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation.suspects', 'IMT', 'Suspects (last month)'),
+                fieldLabel: Uni.I18n.translate('channels.validation.suspects', 'IMT', 'Suspects (last month)'),
                 name: 'validationInfo',
                 minWidth: 450,
                 renderer: function (value, field) {
@@ -57,11 +57,11 @@ Ext.define('Imt.channeldata.view.ValidationOverview', {
                 }
             },
             {
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation.lastChecked', 'IMT', 'Last checked'),
+                fieldLabel: Uni.I18n.translate('channels.validation.lastChecked', 'IMT', 'Last checked'),
                 name: 'lastChecked_formatted',
                 itemId: 'lastCheckedCont',
                 renderer: function (value) {
-                    var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'IMT', 'The moment when the last interval was checked in the validation process.');
+                    var tooltip = Uni.I18n.translate('channels.tooltip.lastChecked', 'IMT', 'The moment when the last interval was checked in the validation process.');
                     return value
                         ? Ext.String.htmlEncode(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="uni-icon-info-small" data-qtip="' + tooltip + '"></span>'
                         : '';

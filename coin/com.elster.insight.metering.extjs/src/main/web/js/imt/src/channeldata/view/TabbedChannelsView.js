@@ -39,7 +39,7 @@ Ext.define('Imt.channeldata.view.TabbedChannelsView', {
                 activeTab: me.activeTab,
                 items: [
                     {
-                        title: Uni.I18n.translate('deviceloadprofiles.specifications', 'IMT', 'Specifications'),
+                        title: Uni.I18n.translate('channels.specifications', 'IMT', 'Specifications'),
                         itemId: 'channel-specifications',
                         items: {
                             xtype: 'channelOverview',
@@ -48,7 +48,7 @@ Ext.define('Imt.channeldata.view.TabbedChannelsView', {
                         }
                     },
                     {
-                        title: Uni.I18n.translate('deviceloadprofiles.readings', 'IMT', 'Readings'),
+                        title: Uni.I18n.translate('channels.readings', 'IMT', 'Readings'),
                         itemId: 'channelData',
                         items: [
                             {

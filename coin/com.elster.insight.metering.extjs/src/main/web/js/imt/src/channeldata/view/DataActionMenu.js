@@ -8,13 +8,13 @@ Ext.define('Imt.channeldata.view.DataActionMenu', {
     items: [
         {
             itemId: 'viewHistory',
-            text: Uni.I18n.translate('deviceloadprofiles.viewHistory', 'IMT', 'View history'),
+            text: Uni.I18n.translate('channels.viewHistory', 'IMT', 'View history'),
             action: 'viewHistory',
             hidden: true
         },
         {
             itemId: 'edit-value',
-            text: Uni.I18n.translate('devicechannels.editReadings.editValue', 'IMT', 'Edit value'),
+            text: Uni.I18n.translate('channels.editReadings.editValue', 'IMT', 'Edit value'),
             action: 'editValue',
 //            dynamicPrivilege: Imt.dynamicprivileges.DeviceState.deviceDataEditActions
         },
@@ -32,7 +32,7 @@ Ext.define('Imt.channeldata.view.DataActionMenu', {
         },
         {
             itemId: 'remove-reading',
-            text: Uni.I18n.translate('devicechannels.editReadings.removeReading', 'IMT', 'Remove reading'),
+            text: Uni.I18n.translate('channels.editReadings.removeReading', 'IMT', 'Remove reading'),
             action: 'removeReading',
 //            dynamicPrivilege: Imt.dynamicprivileges.DeviceState.deviceDataEditActions
         }       

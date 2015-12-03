@@ -3,7 +3,7 @@ Ext.define('Imt.channeldata.view.ValidationPreview', {
     alias: 'widget.channelsValidationPreview',
     itemId: 'channelsValidationPreview',
 
-    fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation', 'IMT', 'Validation'),
+    fieldLabel: Uni.I18n.translate('channels.validation', 'IMT', 'Validation'),
     labelAlign: 'top',
     layout: 'vbox',
     defaults: {
@@ -12,14 +12,14 @@ Ext.define('Imt.channeldata.view.ValidationPreview', {
     },
     items: [
         {
-            fieldLabel: Uni.I18n.translate('device.channelData.validationStatus', 'IMT', 'Validation status'),
+            fieldLabel: Uni.I18n.translate('channels.validationStatus', 'IMT', 'Validation status'),
             name: 'validationStatus',
             renderer: function (value) {
                 return value ? Uni.I18n.translate('general.active', 'IMT', 'Active') : Uni.I18n.translate('general.inactive', 'IMT', 'Inactive');
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'IMT', 'Data validated'),
+            fieldLabel: Uni.I18n.translate('channels.dataValidated', 'IMT', 'Data validated'),
             name: 'dataValidated',
             htmlEncode: false,
             renderer: function (value) {
@@ -28,7 +28,7 @@ Ext.define('Imt.channeldata.view.ValidationPreview', {
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'IMT', 'Validation result'),
+            fieldLabel: Uni.I18n.translate('channels.dataValidation.validationResult', 'IMT', 'Validation result'),
             name: 'validationResult',
             renderer: function (value, field) {
                 if (!Ext.isEmpty(value)) {
@@ -53,7 +53,7 @@ Ext.define('Imt.channeldata.view.ValidationPreview', {
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('device.channelData.failedValidationRules', 'IMT', 'Failed validation rules'),
+            fieldLabel: Uni.I18n.translate('channels.failedValidationRules', 'IMT', 'Failed validation rules'),
             name: 'suspectReason',
             renderer: function (value, field) {
                 if (!Ext.isEmpty(value)) {
@@ -87,7 +87,7 @@ Ext.define('Imt.channeldata.view.ValidationPreview', {
                                         });
                                     });
                                     intervalFlagsValue = intervalFlagsValue.slice(0, -2);
-                                    prop = ' - ' + Uni.I18n.translate('deviceloadprofiles.intervalFlags', 'IMT', 'Interval flags') + ': ' + intervalFlagsValue;
+                                    prop = ' - ' + Uni.I18n.translate('channels.intervalFlags', 'IMT', 'Interval flags') + ': ' + intervalFlagsValue;
                                     break;
                                 default:
                                     prop = '';

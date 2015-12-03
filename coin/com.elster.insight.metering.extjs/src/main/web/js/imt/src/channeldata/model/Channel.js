@@ -24,7 +24,6 @@ Ext.define('Imt.channeldata.model.Channel', {
         {name: 'lastValueTimestamp', dateFormat: 'time', type: 'date'},
         {name: 'lastChecked', dateFormat: 'time', type: 'date'},
         {name: 'validationInfo', type: 'auto'},
-        {name: 'loadProfileId', type: 'auto'},
         {
             name: 'validationInfo_validationActive',
             persist: false,

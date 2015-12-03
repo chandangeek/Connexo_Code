@@ -67,8 +67,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
     showOverview: function (mRID) {
         var me = this,
             deviceModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
-            channelsOfLoadProfilesOfDeviceStore = me.getStore('Imt.channeldata.store.Channels'),
-//            loadProfilesStore = me.getStore('Imt.store.LoadProfilesOfDevice'),
+            channelsStore = me.getStore('Imt.channeldata.store.Channels'),
             router = me.getController('Uni.controller.history.Router'),
             widget,
             showPage = function () {
@@ -81,7 +80,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
                             device: record
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        channelsOfLoadProfilesOfDeviceStore.load();
+                        channelsStore.load();
                         me.getOverviewLink().setText(mRID);
                     }
                 });
@@ -89,11 +88,9 @@ Ext.define('Imt.channeldata.controller.Channels', {
 
         me.getController('Imt.channeldata.controller.ChannelData').fromSpecification = false;
         me.mRID = mRID;
-//        loadProfilesStore.getProxy().setUrl(mRID);
-        channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl(mRID);
+        channelsStore.getProxy().setUrl(mRID);
 
         Uni.util.Common.loadNecessaryStores([
-//            'Imt.store.LoadProfilesOfDevice',
             'Imt.store.TimeUnits'
         ], function () {
             showPage();
@@ -121,10 +118,10 @@ Ext.define('Imt.channeldata.controller.Channels', {
             readingTypeLabel = preview.down('#readingType').labelEl;
 
         if (record.data.calculatedReadingType) {
-            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingTypeForBulk', 'IMT', 'Collected reading type'));
+            readingTypeLabel.update(Uni.I18n.translate('channels.readingTypeForBulk', 'IMT', 'Collected reading type'));
             calculatedReadingType.show();
         } else {
-            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'IMT', 'Reading type'));
+            readingTypeLabel.update(Uni.I18n.translate('channels.readingType', 'IMT', 'Reading type'));
             calculatedReadingType.hide();
         }
 
@@ -188,12 +185,12 @@ Ext.define('Imt.channeldata.controller.Channels', {
                     }
                     confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'IMT', 'Validate data of channel {0}?', [record.get('name')]),
+                        title: Uni.I18n.translate('channels.validateNow', 'IMT', 'Validate data of channel {0}?', [record.get('name')]),
                         msg: ''
                     });
                 } else {
-                    var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.error', 'IMT', 'Failed to validate data of channel {0}', [record.get('name')]),
-                        message = Uni.I18n.translate('deviceloadprofiles.channels.noData', 'IMT', 'There is currently no data for this channel'),
+                    var title = Uni.I18n.translate('channels.validateNow.error', 'IMT', 'Failed to validate data of channel {0}', [record.get('name')]),
+                        message = Uni.I18n.translate('channels.noData', 'IMT', 'There is currently no data for this channel'),
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
@@ -237,7 +234,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
                 {
                     xtype: 'displayfield',
                     value: '',
-                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item2', 'IMT', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
+                    fieldLabel: Uni.I18n.translate('validateNow.item2', 'IMT', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
                     labelWidth: 500
                 }
             ]
@@ -253,7 +250,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
             timeout;
 
         if (confWindow.down('#validateChannelFromDate').getValue() > me.dataValidationLastChecked) {
-            confWindow.down('#validateChannelDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'IMT', 'The date should be before or equal to the default date.'));
+            confWindow.down('#validateChannelDateErrors').update(Uni.I18n.translate('activation.error', 'IMT', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateChannelDateErrors').setVisible(true);
         } else {
             confWindow.removeAll(true);
@@ -270,7 +267,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
                 success: function () {
                     clearTimeout(timeout);
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('deviceloadprofiles.channels.activation.completed', 'IMT', 'Data validation completed'));
+                        Uni.I18n.translate('channels.activation.completed', 'IMT', 'Data validation completed'));
                     router.getRoute().forward();
                 },
                 callback: function () {
@@ -280,7 +277,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
             timeout = setTimeout(function () {
                 viewport.setLoading(false);
                 me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translate('deviceloadprofiles.channels.activation.putToBackground', 'IMT', 'The data validation takes longer as expected and will continue in the background.'));
+                    Uni.I18n.translate('channels.activation.putToBackground', 'IMT', 'The data validation takes longer as expected and will continue in the background.'));
             }, 180000);
         }
     },

@@ -104,10 +104,10 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
                 click: this.chooseBulkAction
             },
 //            '#channelsEditCustomAttributes #channelCustomAttributesSaveBtn': {
-//                click: this.saveChannelOfLoadProfileCustomAttributes
+//                click: this.saveChannelCustomAttributes
 //            },
 //            '#channelsEditCustomAttributes #channelCustomAttributesRestoreBtn': {
-//                click: this.restoreChannelOfLoadProfileCustomAttributes
+//                click: this.restoreChannelCustomAttributes
 //            },
 //            '#channelsEditCustomAttributes #channelCustomAttributesCancelBtn': {
 //                click: this.toPreviousPage
@@ -165,7 +165,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
                 });
                 channel.load(channelId, {
                     success: function (channel) {
-                        me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
+                        me.getApplication().fireEvent('channelLoaded', channel);
                         var widget = Ext.widget('tabbedChannelsView', {
                             title: channel.get('name'),
                             router: router,
@@ -774,7 +774,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
         Ext.resumeLayouts();
     },
 
-//    showEditChannelOfLoadProfileCustomAttributes: function (mRID, channelId, customAttributeSetId) {
+//    showEditChannelCustomAttributes: function (mRID, channelId, customAttributeSetId) {
 //        var me = this,
 //            viewport = Ext.ComponentQuery.query('viewport')[0];
 //
@@ -790,8 +790,8 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 //
 //                        var widget = Ext.widget('channelsEditCustomAttributes', {device: device});
 //                        me.getApplication().fireEvent('loadDevice', device);
-//                        me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
-//                        me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', device);
+//                        me.getApplication().fireEvent('channelLoaded', channel);
+//                        me.getApplication().fireEvent('channelCustomAttributesLoaded', device);
 //                        me.getApplication().fireEvent('changecontentevent', widget);
 //                        me.loadPropertiesRecord(widget, mRID, channelId, customAttributeSetId);
 //                    },
@@ -815,7 +815,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 //        model.load(customAttributeSetId, {
 //            success: function (record) {
 //                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('devicechannels.EditCustomAttributeSet', 'IMT', "Edit '{0}'", [record.get('name')]));
-//                me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', record);
+//                me.getApplication().fireEvent('channelCustomAttributesLoaded', record);
 //                form.loadRecord(record);
 //            },
 //            callback: function () {
@@ -824,7 +824,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 //        });
 //    },
 
-//    restoreChannelOfLoadProfileCustomAttributes: function () {
+//    restoreChannelCustomAttributes: function () {
 //        this.getEditPropertyForm().restoreAll();
 //    },
 
@@ -844,7 +844,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
         }
     },
 
-//    saveChannelOfLoadProfileCustomAttributes: function () {
+//    saveChannelCustomAttributes: function () {
 //        var me = this,
 //            form = me.getEditPropertyForm(),
 //            editView = me.getEditCustomAttributesPanel();

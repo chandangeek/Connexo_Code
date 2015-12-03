@@ -14,9 +14,9 @@ Ext.define('Imt.channeldata.view.TableView', {
     emptyComponent: {
         xtype: 'no-items-found-panel',
         itemId: 'ctr-table-no-data',
-        title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'IMT', 'No readings found'),
+        title: Uni.I18n.translate('channels.data.empty.title', 'IMT', 'No readings found'),
         reasons: [
-            Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'IMT', 'No readings have been defined yet.')
+            Uni.I18n.translate('channels.data.empty.list.item1', 'IMT', 'No readings have been defined yet.')
         ]
     },
 

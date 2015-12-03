@@ -43,7 +43,7 @@ Ext.define('Imt.controller.History', {
 //                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
                                     action: 'showSpecifications',
                                     callback: function (route) {
-                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                        this.getApplication().on('channelLoaded', function (record) {
                                             route.setTitle(record.get('name'));
                                             return true;
                                         }, {single: true});
@@ -54,10 +54,10 @@ Ext.define('Imt.controller.History', {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Imt.channeldata.controller.ChannelData',
 //                                            privileges: Imt.privileges.Device.administrateDeviceData,
-                                            action: 'showEditChannelOfLoadProfileCustomAttributes',
+                                            action: 'showEditChannelCustomAttributes',
                                             callback: function (route) {
-                                                this.getApplication().on('channelOfLoadProfileCustomAttributes', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('deviceChannelOfLoadProfile.editCustomAttributes', 'IMT', "Edit '{0}'", [record.get('name')]));
+                                                this.getApplication().on('channelCustomAttributesLoaded', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('channels.editCustomAttributes', 'IMT', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
 
@@ -72,7 +72,7 @@ Ext.define('Imt.controller.History', {
                                             action: 'loadCustomAttributeVersions',
                                             callback: function (route) {
                                                 this.getApplication().on('loadCustomAttributeSetOnChannel', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('deviceChannelOfLoadProfile.historyCustomAttributes', 'IMT', "'{0}' history", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('channels.historyCustomAttributes', 'IMT', "'{0}' history", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
 
@@ -136,7 +136,7 @@ Ext.define('Imt.controller.History', {
                                     action: 'showData',
 //                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
                                     callback: function (route) {
-                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                        this.getApplication().on('channelLoaded', function (record) {
                                             route.setTitle(record.get('name'));
                                             return true;
                                         }, {single: true});
@@ -151,7 +151,7 @@ Ext.define('Imt.controller.History', {
 //                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
                                     action: 'showValidationBlocks',
                                     callback: function (route) {
-                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                        this.getApplication().on('channelLoaded', function (record) {
                                             route.setTitle(record.get('name'));
                                             return true;
                                         }, {single: true});
@@ -162,7 +162,7 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('routing.channelValidation', 'IMT', 'Channel validation'),
                                     route: '{channelId}/validation',
                                     callback: function (route) {
-                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                        this.getApplication().on('channelLoaded', function (record) {
                                             route.setTitle(record.get('name'));
                                             return true;
                                         }, {single: true});

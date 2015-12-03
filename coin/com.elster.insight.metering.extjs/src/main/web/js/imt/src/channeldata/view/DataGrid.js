@@ -41,7 +41,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
+                header: Uni.I18n.translate('channels.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval_end',
                 renderer: function (value) {
                     return  value ? Uni.I18n.translate('general.dateattime', 'IMT', '{0} at {1}',[
@@ -52,7 +52,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'IMT', 'Value') + ' (' + measurementType + ')',
+                header: Uni.I18n.translate('channels.value', 'IMT', 'Value') + ' (' + measurementType + ')',
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
@@ -69,7 +69,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                 width: 200
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'IMT', 'Value') + ' (' + measurementType + ')',
+                header: Uni.I18n.translate('channels.value', 'IMT', 'Value') + ' (' + measurementType + ')',
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
@@ -86,7 +86,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                 emptyText: ' '
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'IMT', 'Bulk value') + ' (' + measurementType + ')',
+                header: Uni.I18n.translate('channels.bulkValue', 'IMT', 'Bulk value') + ' (' + measurementType + ')',
                 dataIndex: 'collectedValue',
                 flex: 1,
                 align: 'right',
