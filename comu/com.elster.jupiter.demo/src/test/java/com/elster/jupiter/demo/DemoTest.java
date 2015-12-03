@@ -50,9 +50,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -73,7 +71,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -187,8 +184,6 @@ import org.osgi.service.log.LogService;
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
@@ -751,7 +746,6 @@ public class DemoTest {
 
     protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            createOracleTablesSubstitutes();
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
             injector.getInstance(FiniteStateMachineService.class);
@@ -762,20 +756,6 @@ public class DemoTest {
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();
-    }
-
-    private void createOracleTablesSubstitutes() {
-        OrmServiceImpl ormService = (OrmServiceImpl) injector.getInstance(OrmService.class);
-        try (Connection connection = ormService.getConnection(true)) {
-            SqlBuilder sqlBuilder = new SqlBuilder("CREATE VIEW USER_TABLES AS (select * from INFORMATION_SCHEMA.TABLES)");
-            sqlBuilder.prepare(connection).execute();
-            sqlBuilder = new SqlBuilder("CREATE VIEW USER_SEQUENCES AS (select * from INFORMATION_SCHEMA.SEQUENCES)");
-            sqlBuilder.prepare(connection).execute();
-            sqlBuilder = new SqlBuilder("CREATE VIEW USER_IND_COLUMNS AS (select INDEX_NAME, TABLE_NAME, COLUMN_NAME, '1' COLUMN_POSITION from INFORMATION_SCHEMA.INDEXES AS ind)");
-            sqlBuilder.prepare(connection).execute();
-        } catch (SQLException e) {
-            LOG.severe("Errors during creating substitutes for ORACLE tables. It may cause unpredictable work.");
-        }
     }
 
     private void createRequiredProtocols() {
