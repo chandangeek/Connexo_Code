@@ -76,7 +76,7 @@ public enum MessageSeeds implements MessageSeed {
     INTERVAL_END_BENEATH_START(258, "intervalEndBeneathStart", "End time beneath start time"),
     NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER(259, "noSuchCPSforRegister", "No custom property set with ID {0} for Register with ID {1}"),
     NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL(260, "noSuchCPSforChannel", "No custom property set with ID {0} for Channel with ID {1}"),
-    ;
+    VERSION_MISSING(261, "VersionInfoMissing", "Versioning information is missing in the request");
     private final int number;
     private final String key;
     private final String format;
