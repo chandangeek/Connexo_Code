@@ -171,7 +171,7 @@ Ext.define('Mtr.readingtypes.controller.OverviewSorting', {
         if (sorting === undefined || sorting === '[]') { // set default filters
             sorting = [];
             sorting.push({
-                property: 'aliasName',
+                property: 'fullAliasName',
                 direction: Uni.component.sort.model.Sort.ASC
             });
             store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
