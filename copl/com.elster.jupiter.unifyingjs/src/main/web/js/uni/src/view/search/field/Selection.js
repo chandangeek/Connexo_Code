@@ -68,7 +68,25 @@ Ext.define('Uni.view.search.field.Selection', {
     },
 
     populateValue: function (value) {
-        this.setValue(value);
+        var me = this,
+            store = me.getStore(),
+            selection = me.selection;
+
+        store.load(function () {
+            if (value && value[0]) {
+                var records = _.filter(_.map(value[0].get('criteria'), function (id) {
+                    return store.getById(id);
+                }), function (r) {
+                    return r !== null
+                });
+
+                selection.suspendEvents();
+                selection.removeAll();
+                selection.add(records);
+                selection.resumeEvents();
+                me.onChange();
+            }
+        });
     },
 
     onChange: function () {
@@ -307,30 +325,25 @@ Ext.define('Uni.view.search.field.Selection', {
             model = me.grid.getSelectionModel();
 
         model.deselectAll(true);
-        model.select(
-            _.filter(me.getStore().getRange(), function(i) {
-                return _.indexOf(_.map(me.selection.getRange(), function(i) {return i.getId()}), i.getId()) >=0
-            }), true, true
-        );
+        model.select(me.getStoreRecords(), true, true);
+    },
+
+    getStoreRecords: function() {
+        var me = this;
+        return _.filter(me.getStore().getRange(), function(i) {
+            return _.indexOf(_.map(me.selection.getRange(), function(i) {return i.getId()}), i.getId()) >=0
+        })
     },
 
     storeSync: function () {
         var me = this,
-            store = this.getStore(),
-            selection = me.selection;
+            selection = me.selection,
+            records = me.getStoreRecords();
 
-        if (me.value && me.value[0]) {
-            var records = _.filter(_.map(me.value[0].get('criteria'), function (id) {
-                return store.getById(id);
-            }), function (r) {
-                return r !== null
-            });
-
-            selection.suspendEvents();
-            selection.removeAll();
-            selection.add(records);
-            selection.resumeEvents();
-            me.onChange();
-        }
+        selection.suspendEvents();
+        selection.removeAll();
+        selection.add(records);
+        selection.resumeEvents();
+        me.onChange();
     }
 });
