@@ -18,7 +18,6 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 
 import com.google.common.collect.Range;
 
-import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -185,7 +184,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertTrue("Should be obsolete", inboundConnectionTask.isObsolete());
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
     @Transactional
     public void testUpdateAfterObsolete() {
         InboundConnectionTaskImpl inboundConnectionTask = createSimpleInboundConnectionTask();
@@ -194,8 +193,18 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         inboundConnectionTask.setComPortPool(inboundTcpipComPortPool2);
         device.save();
+    }
 
-        // Asserts: see expected exception rule
+    @Test
+    @Transactional
+    public void testUpdateDeviceWithObsoleteConnectionTask() {
+        InboundConnectionTaskImpl connectionTask = createSimpleInboundConnectionTask();
+        device.removeConnectionTask(connectionTask);
+
+        device = getReloadedDevice(device);
+        // Business method
+        device.setName("AnotherName");
+        device.save();
     }
 
     @Test(expected = BusinessException.class)

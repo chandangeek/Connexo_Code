@@ -80,7 +80,6 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 @XmlRootElement
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
-@NotObsolete(groups = {Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE + "}")
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
     implements
         ServerConnectionTask<CPPT, PCTT>,
