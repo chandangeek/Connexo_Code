@@ -153,7 +153,7 @@ Ext.define('Imt.controller.setup.DeviceChannels', {
                 break;
             case 'viewSuspects':
                 filterParams.suspect = 'suspect';
-                route = 'devices/device/channels/channeldata';
+                route = 'usagepoints/view/channels/channeldata';
                 break;
         }
 

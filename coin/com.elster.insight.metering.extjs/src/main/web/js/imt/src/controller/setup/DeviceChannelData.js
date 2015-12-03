@@ -201,7 +201,7 @@ Ext.define('Imt.controller.setup.DeviceChannelData', {
     setupSpecificationsTab: function (device, channel, widget) {
 //        var customAttributesStore = this.getStore('Imt.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
 //        customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
-//        widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
+        widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
 //        customAttributesStore.load(function () {
 //            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
 //        });
