@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * JSON representation of a channel
@@ -33,6 +35,7 @@ public class ChannelInfo {
     public long loadProfileId;
     public long version;
     public VersionInfo<String> parent;
+    public BigDecimal multiplier;
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
@@ -45,9 +48,9 @@ public class ChannelInfo {
         info.lastReading = channel.getLastReading().orElse(null);
         info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
-        if (channel.getReadingType().isCumulative()) {
-            channel.getReadingType().getCalculatedReadingType().ifPresent(
-                    rt -> info.calculatedReadingType = new ReadingTypeInfo(rt));
+        Optional<ReadingType> calculatedReadingType = channel.getCalculatedReadingType();
+        if(calculatedReadingType.isPresent()){
+            info.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType.get());
         }
         info.overflowValue = channel.getOverflow();
         info.obisCode = channel.getObisCode();
@@ -55,6 +58,10 @@ public class ChannelInfo {
         info.loadProfileId = channel.getLoadProfile().getId();
         info.version = channel.getLoadProfile().getVersion();
         Device device = channel.getDevice();
+        BigDecimal multiplier = device.getMultiplier();
+        if (multiplier.compareTo(BigDecimal.ONE) == 1) {
+            info.multiplier = multiplier;
+        }
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return info;
     }

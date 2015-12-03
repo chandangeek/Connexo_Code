@@ -43,6 +43,8 @@ public class ChannelDataInfo {
     @JsonProperty("bulkValidationInfo")
     public MinimalVeeReadingValueInfo bulkValidationInfo;
 
+    public BigDecimal multiplier;
+
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);
     }

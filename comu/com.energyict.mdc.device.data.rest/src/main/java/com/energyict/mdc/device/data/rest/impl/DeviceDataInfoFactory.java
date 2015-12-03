@@ -64,7 +64,10 @@ public class DeviceDataInfoFactory {
         channelIntervalInfo.validationStatus = isValidationActive;
         channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
-
+        BigDecimal multiplier = channel.getDevice().getMultiplier();
+        if(multiplier.compareTo(BigDecimal.ONE) == 1){
+            channelIntervalInfo.multiplier = multiplier;
+        }
         channelReading.ifPresent(reading -> {
             channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
             channel.getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> {
