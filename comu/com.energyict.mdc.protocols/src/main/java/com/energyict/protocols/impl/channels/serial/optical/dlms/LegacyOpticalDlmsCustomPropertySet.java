@@ -45,6 +45,11 @@ public class LegacyOpticalDlmsCustomPropertySet implements CustomPropertySet<Con
     }
 
     @Override
+    public String getId() {
+        return LegacyOpticalDlmsConnectionType.class.getSimpleName();
+    }
+
+    @Override
     public String getName() {
         return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.LEGACY_OPTICAL_DLMS_CUSTOM_PROPERTY_SET_NAME).format();
     }

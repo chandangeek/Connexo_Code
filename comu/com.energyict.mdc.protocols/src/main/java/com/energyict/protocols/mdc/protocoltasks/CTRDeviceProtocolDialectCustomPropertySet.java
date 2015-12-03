@@ -36,7 +36,7 @@ public class CTRDeviceProtocolDialectCustomPropertySet implements CustomProperty
 
     @Override
     public String getId() {
-        return CTRDeviceProtocolDialect.class.getName();
+        return CTRDeviceProtocolDialect.class.getSimpleName();
     }
 
     @Override

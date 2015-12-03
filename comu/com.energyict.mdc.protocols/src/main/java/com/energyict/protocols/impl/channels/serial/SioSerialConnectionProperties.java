@@ -31,15 +31,14 @@ import com.energyict.mdc.protocol.api.ConnectionProvider;
  */
 public class SioSerialConnectionProperties implements PersistentDomainExtension<ConnectionProvider> {
 
-    public enum FieldNames {
-        CONNECTION_PROVIDER("connectionProvider", "CONNECTIONPROVIDER"),
+    public enum Fields {
         PARITY("parity", "PARITIES"),
         FLOW_CONTROL("flowControl", "FLOWCONTROL"),
         NUMBER_OF_STOP_BITS("numberOfStopBits", "NRSTOPBITS"),
         NUMBER_OF_DATA_BITS("numberOfDataBits", "NRDATABITS"),
         BAUD_RATE("baudRate", "BAUDRATE");
 
-        FieldNames(String javaName, String databaseName) {
+        Fields(String javaName, String databaseName) {
             this.javaName = javaName;
             this.databaseName = databaseName;
         }

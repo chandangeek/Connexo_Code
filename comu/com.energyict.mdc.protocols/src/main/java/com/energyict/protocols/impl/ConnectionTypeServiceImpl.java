@@ -3,6 +3,8 @@ package com.energyict.protocols.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemType;
@@ -14,7 +16,7 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
-import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
+import com.energyict.protocols.impl.channels.ServerConnectionType;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -56,6 +58,7 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
     private volatile SocketService socketService;
+    private volatile TransactionService transactionService;
     private volatile Map<String, SerialComponentService> serialComponentServices = new HashMap<>();
     private Injector injector;
     private volatile Thesaurus thesaurus;
@@ -66,13 +69,38 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     }
 
     @Inject
-    public ConnectionTypeServiceImpl(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, SocketService socketService, NlsService nlsService) {
+    public ConnectionTypeServiceImpl(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, SocketService socketService, NlsService nlsService, TransactionService transactionService) {
         this();
         this.setJupiterPropertySpecService(jupiterPropertySpecService);
         this.setPropertySpecService(propertySpecService);
         this.setSocketService(socketService);
         this.setNlsService(nlsService);
+        this.setTransactionService(transactionService);
         this.activate();
+    }
+
+    public static ConnectionTypeServiceImpl withAllSerialComponentServices(
+            com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
+            PropertySpecService propertySpecService,
+            SocketService socketService,
+            NlsService nlsService,
+            TransactionService transactionService,
+            SerialComponentService serialComponentService) {
+        ConnectionTypeServiceImpl service = new ConnectionTypeServiceImpl();
+        service.setJupiterPropertySpecService(jupiterPropertySpecService);
+        service.setPropertySpecService(propertySpecService);
+        service.setSocketService(socketService);
+        service.setNlsService(nlsService);
+        service.setTransactionService(transactionService);
+        service.setRxTxPlainComponentService(serialComponentService);
+        service.setRxTxAtComponentService(serialComponentService);
+        service.setSioPlainComponentService(serialComponentService);
+        service.setSioAtComponentService(serialComponentService);
+        service.setSioCaseComponentService(serialComponentService);
+        service.setSioPaknetComponentService(serialComponentService);
+        service.setSioPempComponentService(serialComponentService);
+        service.activate();
+        return service;
     }
 
     private Module getModule() {
@@ -84,6 +112,7 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
                 this.bind(SocketService.class).toInstance(socketService);
                 this.bind(Thesaurus.class).toInstance(thesaurus);
                 this.bind(MessageInterpolator.class).toInstance(thesaurus);
+                this.bind(TransactionService.class).toInstance(transactionService);
                 serialComponentServices
                     .forEach((k, v) -> this
                             .bind(SerialComponentService.class)
@@ -100,6 +129,12 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        // Just making sure that this bundle activates after the bundle that provides connections (see com.energyict.mdc.protocol.api.ConnectionProvider)
     }
 
     @Reference
@@ -122,37 +157,49 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
         this.thesaurus = nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setTransactionService(TransactionService transationService) {
+        this.transactionService = transationService;
+    }
+
     @Reference(target = "(&(library=" + LibraryType.Target.RXTX + ")(modem-type=" + ModemType.Target.NONE + "))")
+    @SuppressWarnings("unused")
     public void setRxTxPlainComponentService(SerialComponentService serialComponentService) {
         this.serialComponentServices.put(RXTX_PLAIN_GUICE_INJECTION_NAME, serialComponentService);
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.RXTX + ")(modem-type=" + ModemType.Target.AT + "))")
+    @SuppressWarnings("unused")
     public void setRxTxAtComponentService(SerialComponentService serialComponentService) {
         this.serialComponentServices.put(RXTX_AT_GUICE_INJECTION_NAME, serialComponentService);
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.NONE + "))")
+    @SuppressWarnings("unused")
     public void setSioPlainComponentService(SerialComponentService serialComponentService) {
         this.serialComponentServices.put(SERIAL_PLAIN_GUICE_INJECTION_NAME, serialComponentService);
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.AT + "))")
+    @SuppressWarnings("unused")
     public void setSioAtComponentService(SerialComponentService serialComponentService) {
         this.serialComponentServices.put(SERIAL_AT_GUICE_INJECTION_NAME, serialComponentService);
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.CASE + "))")
+    @SuppressWarnings("unused")
     public void setSioCaseComponentService(SerialComponentService serialComponentService) {
         this.serialComponentServices.put(SERIAL_CASE_GUICE_INJECTION_NAME, serialComponentService);
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.PAKNET + "))")
+    @SuppressWarnings("unused")
     public void setSioPaknetComponentService(SerialComponentService serialComponentService) {
         this.serialComponentServices.put(SERIAL_PAKNET_GUICE_INJECTION_NAME, serialComponentService);
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.PEMP + "))")
+    @SuppressWarnings("unused")
     public void setSioPempComponentService(SerialComponentService serialComponentService) {
         this.serialComponentServices.put(SERIAL_PEMP_GUICE_INJECTION_NAME, serialComponentService);
     }
@@ -173,5 +220,4 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     public Collection<PluggableClassDefinition> getExistingConnectionTypePluggableClasses() {
         return Arrays.asList((PluggableClassDefinition[]) ConnectionTypeRule.values());
     }
-
 }

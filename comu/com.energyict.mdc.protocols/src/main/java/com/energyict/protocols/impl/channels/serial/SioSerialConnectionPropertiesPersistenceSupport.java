@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.protocols.naming.CustomPropertySetComponentName;
 
 import com.google.inject.Module;
 
@@ -25,22 +26,22 @@ public class SioSerialConnectionPropertiesPersistenceSupport implements Persiste
 
     @Override
     public String componentName() {
-        return DeviceProtocolService.COMPONENT_NAME;
+        return CustomPropertySetComponentName.P15.name();
     }
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_SIOSERIAL_CONNECTIONTYPE";
+        return DeviceProtocolService.COMPONENT_NAME + "_SIOSERIAL_CONNTASK";
     }
 
     @Override
     public String domainFieldName() {
-        return SioSerialConnectionProperties.FieldNames.CONNECTION_PROVIDER.javaName();
+        return "connectionProvider";
     }
 
     @Override
     public String domainColumnName() {
-        return SioSerialConnectionProperties.FieldNames.CONNECTION_PROVIDER.databaseName();
+        return "CONNECTIONPROVIDER";
     }
 
     @Override
@@ -67,11 +68,11 @@ public class SioSerialConnectionPropertiesPersistenceSupport implements Persiste
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(SioSerialConnectionProperties.FieldNames.values())
+            .of(SioSerialConnectionProperties.Fields.values())
             .forEach(fieldName -> this.addCustomPropertyColumnTo(table, fieldName));
     }
 
-    private void addCustomPropertyColumnTo(Table table, SioSerialConnectionProperties.FieldNames fieldName) {
+    private void addCustomPropertyColumnTo(Table table, SioSerialConnectionProperties.Fields fieldName) {
         table
             .column(fieldName.databaseName())
             .number()

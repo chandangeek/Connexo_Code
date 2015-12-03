@@ -3,7 +3,7 @@ package com.energyict.protocols.impl.channels.ip;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
+import com.energyict.protocols.impl.channels.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
 

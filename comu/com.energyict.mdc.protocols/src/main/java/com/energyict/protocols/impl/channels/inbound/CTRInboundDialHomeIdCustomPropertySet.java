@@ -41,7 +41,7 @@ public class CTRInboundDialHomeIdCustomPropertySet implements CustomPropertySet<
 
     @Override
     public String getId() {
-        return this.getClass().getName();
+        return CTRInboundDialHomeIdConnectionType.class.getSimpleName();
     }
 
     @Override

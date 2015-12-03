@@ -9,8 +9,8 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.protocols.impl.channels.ServerConnectionType;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -27,7 +27,7 @@ import java.util.Set;
  * Time: 15:46
  */
 @XmlRootElement
-public class EIWebPlusConnectionType implements ConnectionType {
+public class EIWebPlusConnectionType implements ServerConnectionType {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;

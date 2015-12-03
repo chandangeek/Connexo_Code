@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.protocols.naming.CustomPropertySetComponentName;
 
 import com.google.inject.Module;
 
@@ -23,7 +24,7 @@ public class CTRInboundDialHomeIdConnectionPropertiesPersistenceSupport implemen
 
     @Override
     public String componentName() {
-        return DeviceProtocolService.COMPONENT_NAME;
+        return CustomPropertySetComponentName.P04.name();
     }
 
     @Override

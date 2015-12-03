@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.protocols.naming.CustomPropertySetComponentName;
 
 import com.google.inject.Module;
 
@@ -34,17 +35,17 @@ class SDKLoadProfileDialectPropertyPersistenceSupport implements PersistenceSupp
 
     @Override
     public String tableName() {
-        return componentName() + "_SDKLOADPROFILE_DIALECT";
+        return DeviceProtocolService.COMPONENT_NAME + "_SDKLOADPROFILE_DIALECT";
     }
 
     @Override
     public String domainForeignKeyName() {
-        return "FK_SDKLOADPROFILE_DIALECT_PROPS";
+        return "FK_SDKLOADPRFLE_DIALECT_PROPS";
     }
 
     @Override
     public String componentName() {
-        return DeviceProtocolService.COMPONENT_NAME;
+        return CustomPropertySetComponentName.P05.name();
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.protocols.naming.CustomPropertySetComponentName;
 
 import com.google.inject.Module;
 
@@ -34,7 +35,7 @@ public class EDPDeviceProtocolDialectPropertyPersistenceSupport implements Persi
 
     @Override
     public String tableName() {
-        return componentName() + "_EDP_DIALECT";
+        return DeviceProtocolService.COMPONENT_NAME + "_EDP_DIALECT";
     }
 
     @Override
@@ -44,7 +45,7 @@ public class EDPDeviceProtocolDialectPropertyPersistenceSupport implements Persi
 
     @Override
     public String componentName() {
-        return DeviceProtocolService.COMPONENT_NAME;
+        return CustomPropertySetComponentName.P07.name();
     }
 
     @Override

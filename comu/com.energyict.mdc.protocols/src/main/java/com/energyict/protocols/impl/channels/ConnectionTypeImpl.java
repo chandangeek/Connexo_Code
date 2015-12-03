@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc.protocoltasks;
+package com.energyict.protocols.impl.channels;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;

@@ -8,6 +8,7 @@ import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Collections;
@@ -34,6 +35,7 @@ public class EIMeterFlexSlaveModule extends Modbus {
         return null;
     }
 
+    @Inject
     public EIMeterFlexSlaveModule(PropertySpecService propertySpecService, Clock clock) {
         super(propertySpecService);
         this.clock = clock;

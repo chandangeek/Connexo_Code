@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.protocols.naming.CustomPropertySetComponentName;
 
 import com.google.inject.Module;
 
@@ -23,12 +24,12 @@ public class DlmsSecurityPerClientPersistenceSupport extends CommonBaseDeviceSec
 
     @Override
     public String componentName() {
-        return DeviceProtocolService.COMPONENT_NAME;
+        return CustomPropertySetComponentName.P23.name();
     }
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_DLMS_SECURITY_PER_CLIENT";
+        return DeviceProtocolService.COMPONENT_NAME + "_DLMSSECURITYPERCLIENT";
     }
 
     @Override
@@ -38,12 +39,12 @@ public class DlmsSecurityPerClientPersistenceSupport extends CommonBaseDeviceSec
 
     @Override
     public String domainForeignKeyName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_FK_DLMSSEC_PERCLIENT_DEV";
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_DLMSSECPERCLIENT_DEV";
     }
 
     @Override
     protected String propertySpecProviderForeignKeyName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_FK_DLMSSECPERCLIENT_SECPROV";
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_DLMSSECPCLIENT_SECPROV";
     }
 
     @Override

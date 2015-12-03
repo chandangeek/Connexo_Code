@@ -1,17 +1,27 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 
 import com.google.inject.AbstractModule;
@@ -36,6 +46,16 @@ public class ProtocolsModule extends AbstractModule {
         requireBinding(com.elster.jupiter.properties.PropertySpecService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(SocketService.class);
+        requireBinding(MeteringService.class);
+        requireBinding(TopologyService.class);
+        requireBinding(SerialComponentService.class);
+        requireBinding(MdcReadingTypeUtilService.class);
+        requireBinding(IdentificationService.class);
+        requireBinding(CollectedDataFactory.class);
+        requireBinding(CodeFactory.class);
+        requireBinding(UserFileFactory.class);
+        requireBinding(TransactionService.class);
+        requireBinding(ProtocolPluggableService.class);
 
         bind(ConnectionTypeService.class).to(ConnectionTypeServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceProtocolMessageService.class).to(DeviceProtocolMessageServiceImpl.class).in(Scopes.SINGLETON);

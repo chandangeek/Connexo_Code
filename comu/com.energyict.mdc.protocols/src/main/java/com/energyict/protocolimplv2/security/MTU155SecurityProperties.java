@@ -87,7 +87,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             return name();
         }
 
-        private String propertySpecName() {
+        public String propertySpecName() {
             return propertySpecName;
         }
 

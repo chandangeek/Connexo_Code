@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.protocols.naming.CustomPropertySetComponentName;
 
 import com.google.inject.Module;
 
@@ -23,7 +24,7 @@ public class AnsiC12PersistenceSupport extends CommonBaseDeviceSecuritySupport<A
 
     @Override
     public String componentName() {
-        return DeviceProtocolService.COMPONENT_NAME;
+        return CustomPropertySetComponentName.P21.name();
     }
 
     @Override

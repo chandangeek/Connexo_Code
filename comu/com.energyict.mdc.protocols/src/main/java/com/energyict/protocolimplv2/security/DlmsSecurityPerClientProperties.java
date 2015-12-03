@@ -155,6 +155,11 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
         },
         PUBLIC_AUTHENTICATION_KEY("publicAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC) {
             @Override
+            public String databaseName() {
+                return "PUBLIC_AUTH_KEY";
+            }
+
+            @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.publicAuthenticationKey;
             }
@@ -165,6 +170,11 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
             }
         },
         DATA_AUTHENTICATION_KEY("dataAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_DATA) {
+            @Override
+            public String databaseName() {
+                return "DATA_AUTH_KEY";
+            }
+
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.dataAuthenticationKey;
@@ -177,6 +187,11 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
         },
         EXTRA_DATA_AUTHENTICATION_KEY("extraDataAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA) {
             @Override
+            public String databaseName() {
+                return "EXTRA_DATA_AUTH_KEY";
+            }
+
+            @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.extraDataAuthenticationKey;
             }
@@ -187,6 +202,11 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
             }
         },
         MANAGEMENT_AUTHENTICATION_KEY("managementAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT) {
+            @Override
+            public String databaseName() {
+                return "MANAGEMENT_AUTH_KEY";
+            }
+
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.managementAuthenticationKey;
@@ -199,6 +219,11 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
         },
         FIRMWARE_AUTHENTICATION_KEY("firmwareAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE) {
             @Override
+            public String databaseName() {
+                return "FIRMWARE_AUTH_KEY";
+            }
+
+            @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.firmwareAuthenticationKey;
             }
@@ -209,6 +234,11 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
             }
         },
         MANUFACTURER_AUTHENTICATION_KEY("manufacturerAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER) {
+            @Override
+            public String databaseName() {
+                return "MANUFACTURER_AUTH_KEY";
+            }
+
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.manufacturerAuthenticationKey;
@@ -236,7 +266,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
             return name();
         }
 
-        private SecurityPropertySpecName propertySpecName() {
+        public SecurityPropertySpecName propertySpecName() {
             return propertySpecName;
         }
 

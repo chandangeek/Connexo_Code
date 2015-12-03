@@ -10,7 +10,7 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
+import com.energyict.protocols.impl.channels.ConnectionTypeImpl;
 
 import javax.inject.Inject;
 import java.util.EnumSet;

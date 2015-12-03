@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -103,7 +104,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setMeteringService(meteringService);
         this.setTransactionService(transactionService);
@@ -266,6 +267,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        // Just making sure that this bundle activates after the bundle that provides connections (see com.energyict.mdc.protocol.api.ConnectionProvider)
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

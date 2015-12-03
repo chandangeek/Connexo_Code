@@ -15,6 +15,7 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,69 +30,69 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-public class Opus extends AbstractProtocol{
-	/**
-	 * ---------------------------------------------------------------------------------<p>
-	 * Protocol description:<p>
-	 * The protocol consists out of layers<p>
-	 * 1) Parsers object is the deepest layer handling serialization
-	 * 		and deserialization of matrixes and primitive types to byte arrays
-	 * <p>
-	 * 2) OpusBuildPacket inherits the Parsers object, this object is
-	 * 		responsible for the correct building and unpacking of the frames
-	 * 		it is both used for putting data in the right frame as feeding
-	 * 		it with a received frame as byte array to put it back into
-	 * 		a OpusBuildPacket object.  Deserializing the byte array allows
-	 * 		the user to get the data array from the object.<p>
-	 * <p>
-	 * 3) OpusCommandFactory deals with the commands.  The previously described
-	 * 		OpusBuildPacket is only called from here. The factory has 3 internal
-	 * 		layers: command selection, command building, command executing.
-	 * 		Basically this factory is an interface called each time the same way.
-	 * 		A number of globals should be set in the factory, some should be
-	 * 		passed with the command method.  Settings to be passed to the factory,
-	 * 		that don't have the property to change frequently are set by setters. Settings
-	 * 		that might change frequently are: type of command, number of attempts to
-	 * 		execute the command, timeout and a calendar object containing data on the
-	 * 		time frame to retrieve data from.
-	 * 		The command executing is done using 4 state machines, handling a total
-	 * 		of almost 70 commands.  Commands not yet implemented either because
-	 * 		they must not be used (setting special function registers in the meter) or
-	 * 		because they are related to other types of meters but were described in
-	 * 		the datasheet are all commands ranging from 121 to 999<p>
-	 *
-	 * <p>
-	 *  4) Opus: this is the meter protocol, in the connect method some meter props are
-	 *  	read.
-	 *  <p>
-	 *  Initial version:<p>
-	 *  ----------------<p>
-	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-	 *  Version: 1.0 <p>
-	 *  First edit date: 9/07/2008 PST<p>
-	 *  Last edit date: 31/07/2008  PST<p>
-	 *  Comments: Beta ready for testing<p>
-	 *  Released for testing: 31/07/2008<p>
-	 *  <p>
-	 *  Revisions<p>
-	 *  ----------------<p>
-	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-	 *  @Version:1.01<p>
-	 *  First edit date:13/08/2008 <p>
-	 *  Last edit date:13/08/2008 <p>
-	 *  Comments:changes in command factory: empty matrix handling and offset calculation <p>
-	 *  	debug, firmware problem solved with error throw<p>
-	 *  released for testing:13/08/2008
-	 *
-	 *  Author: <p>
-	 *  Version:<p>
-	 *  First edit date: <p>
-	 *  Last edit date: <p>
-	 *  Comments:<p>
-	 *  released for testing:<p>
-	 * ---------------------------------------------------------------------------------<p>
-	 *
-	 */
+/**
+ * ---------------------------------------------------------------------------------<p>
+ * Protocol description:<p>
+ * The protocol consists out of layers<p>
+ * 1) Parsers object is the deepest layer handling serialization
+ * 		and deserialization of matrixes and primitive types to byte arrays
+ * <p>
+ * 2) OpusBuildPacket inherits the Parsers object, this object is
+ * 		responsible for the correct building and unpacking of the frames
+ * 		it is both used for putting data in the right frame as feeding
+ * 		it with a received frame as byte array to put it back into
+ * 		a OpusBuildPacket object.  Deserializing the byte array allows
+ * 		the user to get the data array from the object.<p>
+ * <p>
+ * 3) OpusCommandFactory deals with the commands.  The previously described
+ * 		OpusBuildPacket is only called from here. The factory has 3 internal
+ * 		layers: command selection, command building, command executing.
+ * 		Basically this factory is an interface called each time the same way.
+ * 		A number of globals should be set in the factory, some should be
+ * 		passed with the command method.  Settings to be passed to the factory,
+ * 		that don't have the property to change frequently are set by setters. Settings
+ * 		that might change frequently are: type of command, number of attempts to
+ * 		execute the command, timeout and a calendar object containing data on the
+ * 		time frame to retrieve data from.
+ * 		The command executing is done using 4 state machines, handling a total
+ * 		of almost 70 commands.  Commands not yet implemented either because
+ * 		they must not be used (setting special function registers in the meter) or
+ * 		because they are related to other types of meters but were described in
+ * 		the datasheet are all commands ranging from 121 to 999<p>
+ *
+ * <p>
+ *  4) Opus: this is the meter protocol, in the connect method some meter props are
+ *  	read.
+ *  <p>
+ *  Initial version:<p>
+ *  ----------------<p>
+ *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ *  Version: 1.0 <p>
+ *  First edit date: 9/07/2008 PST<p>
+ *  Last edit date: 31/07/2008  PST<p>
+ *  Comments: Beta ready for testing<p>
+ *  Released for testing: 31/07/2008<p>
+ *  <p>
+ *  Revisions<p>
+ *  ----------------<p>
+ *  @author Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ *  @version 1.01<p>
+ *  First edit date:13/08/2008 <p>
+ *  Last edit date:13/08/2008 <p>
+ *  Comments:changes in command factory: empty matrix handling and offset calculation <p>
+ *  	debug, firmware problem solved with error throw<p>
+ *  released for testing:13/08/2008
+ *
+ *  Author: <p>
+ *  Version:<p>
+ *  First edit date: <p>
+ *  Last edit date: <p>
+ *  Comments:<p>
+ *  released for testing:<p>
+ * ---------------------------------------------------------------------------------<p>
+ *
+ */
+public class Opus extends AbstractProtocol {
 
 	private ProtocolChannelMap channelMap=null;
 
@@ -113,6 +114,7 @@ public class Opus extends AbstractProtocol{
 
 	private TimeZone timezone;
 
+	@Inject
 	public Opus(PropertySpecService propertySpecService) {
 		super(propertySpecService);
 	}

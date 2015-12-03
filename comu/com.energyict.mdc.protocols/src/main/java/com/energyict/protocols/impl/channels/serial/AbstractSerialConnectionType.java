@@ -16,7 +16,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
+import com.energyict.protocols.impl.channels.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
