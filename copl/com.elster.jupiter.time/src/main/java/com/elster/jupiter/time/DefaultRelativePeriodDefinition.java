@@ -32,7 +32,7 @@ public enum DefaultRelativePeriodDefinition {
     }
 
     public RelativePeriod create(TimeService timeService, List<RelativePeriodCategory> categories) {
-        return timeService.createRelativePeriod(name, from, to, categories);
+        return timeService.createDefaultRelativePeriod(name, from, to, categories);
     }
 
     private static RelativeDate onFirstDayOfWeek(RelativeDate relativeDate) {

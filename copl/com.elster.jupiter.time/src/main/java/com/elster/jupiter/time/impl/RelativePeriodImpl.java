@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Unique(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
+@ValidateCategoryUsage(fields = "category", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
 public final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
@@ -32,6 +33,7 @@ public final class RelativePeriodImpl extends EntityImpl implements RelativePeri
     @NotNull
     private RelativeDate to;
     private List<RelativePeriodCategoryUsage> relativePeriodCategoryUsages = new ArrayList<>();
+    private transient boolean isCreatedByInstaller = false;
 
     @Inject
     public RelativePeriodImpl(DataModel dataModel, EventService eventService) {
@@ -119,6 +121,14 @@ public final class RelativePeriodImpl extends EntityImpl implements RelativePeri
 
     public void setTo(String to) {
         this.to = new RelativeDate(to);
+    }
+
+    public void setIsCreatedByInstaller(boolean isCreatedByInstaller) {
+        this.isCreatedByInstaller = isCreatedByInstaller;
+    }
+
+    public boolean isCreatedByInstaller() {
+        return this.isCreatedByInstaller;
     }
 
     public void setRelativePeriodCategoryUsages(List<RelativePeriodCategory> categories) {
