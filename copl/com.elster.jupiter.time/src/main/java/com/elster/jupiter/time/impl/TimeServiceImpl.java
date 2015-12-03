@@ -96,6 +96,19 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     }
 
     @Override
+    public RelativePeriod createDefaultRelativePeriod(String name, RelativeDate from, RelativeDate to, List<RelativePeriodCategory> categories) {
+        RelativePeriodImpl relativePeriod = dataModel.getInstance(RelativePeriodImpl.class);
+        relativePeriod.setName(name);
+        relativePeriod.setRelativeDateFrom(from);
+        relativePeriod.setRelativeDateTo(to);
+        relativePeriod.setIsCreatedByInstaller(true);
+        categories.stream().forEach(relativePeriod::addRelativePeriodCategory);
+        relativePeriod.save();
+        return relativePeriod;
+    }
+
+
+    @Override
     public RelativePeriod createRelativePeriod(String name, RelativeDate from, RelativeDate to, List<RelativePeriodCategory> categories) {
         RelativePeriodImpl relativePeriod = dataModel.getInstance(RelativePeriodImpl.class);
         relativePeriod.setName(name);
