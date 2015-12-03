@@ -24,7 +24,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
@@ -556,7 +555,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     public static class ProtocolDialectPropertiesPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, PersistentProtocolDialectProperties> {
         @Override
         public String componentName() {
-            return DeviceDataServices.COMPONENT_NAME;
+            return "T01";
         }
 
         @Override

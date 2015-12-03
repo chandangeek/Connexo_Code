@@ -21,7 +21,7 @@ public class ModemConnectionPersistenceSupport implements PersistenceSupport<Con
 
     @Override
     public String componentName() {
-        return "TST";
+        return "T08";
     }
 
     @Override

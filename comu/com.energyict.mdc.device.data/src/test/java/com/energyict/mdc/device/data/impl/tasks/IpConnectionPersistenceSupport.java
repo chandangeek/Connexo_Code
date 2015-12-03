@@ -21,7 +21,7 @@ public class IpConnectionPersistenceSupport implements PersistenceSupport<Connec
 
     @Override
     public String componentName() {
-        return "TST";
+        return "T07";
     }
 
     @Override
