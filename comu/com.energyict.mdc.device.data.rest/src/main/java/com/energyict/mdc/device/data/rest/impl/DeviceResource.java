@@ -330,7 +330,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(device, cpsId, startTime, endTime);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(device, cpsId, resourceHelper.getTimeRange(startTime, endTime));
         Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
@@ -340,7 +340,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(device, cpsId, startTime, endTime, Instant.ofEpochMilli(timeStamp));
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(device, cpsId, resourceHelper.getTimeRange(startTime, endTime), Instant.ofEpochMilli(timeStamp));
         Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
@@ -366,12 +366,12 @@ public class DeviceResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }
         List<CustomPropertySetIntervalConflictInfo> overlapInfos =
-                resourceHelper.getOverlapsWhenCreate(lockedDevice, cpsId, customPropertySetInfo.startTime, customPropertySetInfo.endTime)
+                resourceHelper.getOverlapsWhenCreate(lockedDevice, cpsId, resourceHelper.getTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime))
                         .stream()
                         .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
                         .filter(resourceHelper.filterGaps(forced))
                         .collect(Collectors.toList());
-        if (!forced && !overlapInfos.isEmpty()) {
+        if (!overlapInfos.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
                     .build();
@@ -391,12 +391,12 @@ public class DeviceResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }
         List<CustomPropertySetIntervalConflictInfo> overlapInfos =
-                resourceHelper.getOverlapsWhenUpdate(lockedDevice, cpsId, customPropertySetInfo.startTime, customPropertySetInfo.endTime, Instant.ofEpochMilli(timeStamp))
+                resourceHelper.getOverlapsWhenUpdate(lockedDevice, cpsId, resourceHelper.getTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime), Instant.ofEpochMilli(timeStamp))
                         .stream()
                         .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
                         .filter(resourceHelper.filterGaps(forced))
                         .collect(Collectors.toList());
-        if (!forced && !overlapInfos.isEmpty()) {
+        if (!overlapInfos.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
                     .build();

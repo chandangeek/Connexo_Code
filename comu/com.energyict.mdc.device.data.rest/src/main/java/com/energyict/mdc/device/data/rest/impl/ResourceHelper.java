@@ -668,33 +668,27 @@ public class ResourceHelper {
         register.getRegisterSpec().save();
     }
 
-    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Device device, long cpsId, long startTime, long endTime, Instant effectiveTimestamp) {
-        Range<Instant> range = getTimeRange(startTime, endTime);
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Device device, long cpsId, Range<Instant> range, Instant effectiveTimestamp) {
         return getOverlaps(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, range, effectiveTimestamp);
     }
 
-    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Device device, long cpsId, long startTime, long endTime) {
-        Range<Instant> range = getTimeRange(startTime, endTime);
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Device device, long cpsId, Range<Instant> range) {
         return getOverlaps(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, range);
     }
 
-    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Channel channel, long cpsId, long startTime, long endTime, Instant effectiveTimestamp) {
-        Range<Instant> range = getTimeRange(startTime, endTime);
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Channel channel, long cpsId, Range<Instant> range, Instant effectiveTimestamp) {
         return getOverlaps(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId, range, effectiveTimestamp);
     }
 
-    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Channel channel, long cpsId, long startTime, long endTime) {
-        Range<Instant> range = getTimeRange(startTime, endTime);
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Channel channel, long cpsId, Range<Instant> range) {
         return getOverlaps(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId, range);
     }
 
-    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Register register, long cpsId, long startTime, long endTime, Instant effectiveTimestamp) {
-        Range<Instant> range = getTimeRange(startTime, endTime);
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Register register, long cpsId, Range<Instant> range, Instant effectiveTimestamp) {
         return getOverlaps(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId, range, effectiveTimestamp);
     }
 
-    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Register register, long cpsId, long startTime, long endTime) {
-        Range<Instant> range = getTimeRange(startTime, endTime);
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Register register, long cpsId, Range<Instant> range) {
         return getOverlaps(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId, range);
     }
 
