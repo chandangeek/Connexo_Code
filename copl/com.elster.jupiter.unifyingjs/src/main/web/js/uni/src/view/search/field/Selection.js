@@ -326,6 +326,11 @@ Ext.define('Uni.view.search.field.Selection', {
 
         model.deselectAll(true);
         model.select(me.getStoreRecords(), true, true);
+        model.updateHeaderState();
+        me.down('#filter-selected').setValue(
+                me.store.getCount() === model.getCount()
+            &&  me.store.getCount() === me.selection.getCount()
+        );
     },
 
     getStoreRecords: function() {
