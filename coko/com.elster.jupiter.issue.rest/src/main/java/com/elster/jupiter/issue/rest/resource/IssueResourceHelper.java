@@ -8,12 +8,15 @@ import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
@@ -85,12 +88,7 @@ public class IssueResourceHelper {
                 properties.put(propertySpec.getName(), value);
             }
         }
-        IssueActionResult actionResult;
-        try (TransactionContext context = transactionService.getContext()) {
-            actionResult = issueActionService.executeAction(action, issue, properties);
-            context.commit();
-        }
-        return actionResult;
+        return issueActionService.executeAction(action, issue, properties);
     }
 
     public List<IssueCommentInfo> getIssueComments(Issue issue) {
