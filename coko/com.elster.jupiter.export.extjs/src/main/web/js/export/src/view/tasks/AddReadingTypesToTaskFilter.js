@@ -70,6 +70,9 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
         var noUiComponent = this.getFilterByItemId('selectedReadingsFilterComponent');
         noUiComponent.setInitialValue(selectedReadings);
         noUiComponent.setFilterValue(selectedReadings);
+    },
+
+    setActive: function() {
         this.getFilterByItemId('activeFilter').setInitialValue(true);
         this.getFilterByItemId('activeFilter').setFilterValue(true);
     }

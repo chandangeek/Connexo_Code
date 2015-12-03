@@ -1884,6 +1884,7 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             readingTypeStore = me.getStore('Dxp.store.LoadedReadingTypes');
 
+        Ext.ComponentQuery.query('viewport')[0].down('dxp-view-tasks-addreadingtypestotaskfilter').setActive();
         // Tell the REST side what readingTypes to exclude (because they're already assigned)
         if (Ext.isArray(me.readingTypesArray) && !Ext.isEmpty(me.readingTypesArray)) {
             var mRIDs = [];
