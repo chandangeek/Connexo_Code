@@ -43,6 +43,16 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         return scheduledConnectionTask;
     }
 
+    private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolationsUsingNonActiveComportPool(String name) {
+        this.partialScheduledConnectionTask.setName(name);
+        this.partialScheduledConnectionTask.save();
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(inactiveOutboundTcpipComportPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+        return scheduledConnectionTask;
+    }
+
 
     private OutboundComPort createOutboundComPort() {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
@@ -139,6 +149,22 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
         device.removeComTaskExecution(comTaskExecution);
+        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void scheduleQueryTestNoTaskWhenComPortPoolIsInactiveTest() {
+        // we will make sure the ComServer field is filled in
+        Instant pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolationsUsingNonActiveComportPool("scheduleQueryTestNoTaskWhenConnectionTaskIsPaused");
+
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
+        final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+
         Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();

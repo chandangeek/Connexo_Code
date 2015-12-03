@@ -44,35 +44,54 @@ public class GeneralAttributeDynamicSearchableProperty extends AbstractDynamicSe
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder builder = new SqlBuilder();
         builder.openBracket();
+        // search property value defined on device level
         builder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN (");
-        builder.add(selectDeviceProperties(condition, now));
-        builder.closeBracket();
+        builder.add(selectDevicesHavingPropertyValue());
+        builder.append(" AND ");
+        builder.add(toSqlFragment("DDC_DEVICEPROTOCOLPROPERTY.INFOVALUE", condition, now));
+        builder.append(")");
+        // if not found on device level then search on device configuration level
         builder.append(" OR ");
         builder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID NOT IN (");
-        builder.append("select DEVICEID from DDC_DEVICEPROTOCOLPROPERTY where DDC_DEVICEPROTOCOLPROPERTY.PROPERTYSPEC = '");
-        builder.append(getPropertySpec().getName());
-        builder.append("') AND " + JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
-        builder.add(selectDeviceConfigurationProperties(condition, now));
-        builder.closeBracket();
-        builder.closeBracket();
-        return builder;
-    }
-
-    private SqlFragment selectDeviceProperties(Condition condition, Instant now) {
-        SqlBuilder builder = new SqlBuilder();
-        builder.append("select DEVICEID from DDC_DEVICEPROTOCOLPROPERTY where DDC_DEVICEPROTOCOLPROPERTY.PROPERTYSPEC = '");
-        builder.append(getPropertySpec().getName());
-        builder.append("' AND ");
-        builder.add(toSqlFragment("DDC_DEVICEPROTOCOLPROPERTY.INFOVALUE", condition, now));
-        return builder;
-    }
-
-    private SqlFragment selectDeviceConfigurationProperties(Condition condition, Instant now) {
-        SqlBuilder builder = new SqlBuilder();
-        builder.append("select DEVICECONFIGURATION from DTC_PROTOCOLCONFIGPROPSATTR where DTC_PROTOCOLCONFIGPROPSATTR.NAME = '");
-        builder.append(getPropertySpec().getName());
-        builder.append("' AND ");
+        builder.add(selectDevicesHavingPropertyValue());
+        builder.append(") AND " + JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
+        builder.add(selectDeviceConfigurationsHavingPropertyValue());
+        builder.append(" AND ");
         builder.add(toSqlFragment("DTC_PROTOCOLCONFIGPROPSATTR.VALUE", condition, now));
+        builder.append(")");
+        PropertySpec propertySpec = getPropertySpec();
+        if (hasDefaultValue(propertySpec)) {
+            // if not found on device level and device configuration level and property has default value
+            // then check this default value according to condition
+            builder.append(" OR ");
+            builder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID NOT IN (");
+            builder.add(selectDevicesHavingPropertyValue());
+            builder.append(") AND ");
+            builder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID NOT IN (");
+            builder.add(selectDeviceConfigurationsHavingPropertyValue());
+            builder.append(") AND ");
+            Object defaultValue = propertySpec.getPossibleValues().getDefault();
+            builder.add(toSqlFragment("'" + propertySpec.getValueFactory().valueToDatabase(defaultValue) + "'", condition, now));
+        }
+        builder.closeBracket();
+        return builder;
+    }
+
+    private boolean hasDefaultValue(PropertySpec propertySpec) {
+        return propertySpec.getPossibleValues() != null && propertySpec.getPossibleValues().getDefault() != null;
+    }
+
+    private SqlFragment selectDevicesHavingPropertyValue() {
+        SqlBuilder builder = new SqlBuilder();
+        builder.append("select DEVICEID from DDC_DEVICEPROTOCOLPROPERTY where DDC_DEVICEPROTOCOLPROPERTY.PROPERTYSPEC = ");
+        builder.addObject(getPropertySpec().getName());
+        return builder;
+    }
+
+    private SqlFragment selectDeviceConfigurationsHavingPropertyValue() {
+        SqlBuilder builder = new SqlBuilder();
+        builder.append("select DEVICECONFIGURATION from DTC_PROTOCOLCONFIGPROPSATTR where DTC_PROTOCOLCONFIGPROPSATTR.NAME = ");
+        builder.addObject(getPropertySpec().getName());
         return builder;
     }
 }

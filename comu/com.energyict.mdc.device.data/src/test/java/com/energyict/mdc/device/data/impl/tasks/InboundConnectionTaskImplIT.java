@@ -18,7 +18,6 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
-import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -112,6 +111,20 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(inbound.getComPortPool()).isEqualTo(inboundTcpipComPortPool2);
     }
 
+    @Test
+    @Transactional
+    public void createTaskWithInactivePool() {
+        // Business method
+        InboundConnectionTask inbound = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask, inactiveInboundTcpipComPortPool);
+
+        // Asserts
+        assertThat(inbound).isNotNull();
+        assertThat(inbound.getDevice()).isEqualTo(this.device);
+        assertThat(inbound.getPartialConnectionTask()).isEqualTo(this.partialInboundConnectionTask);
+        assertThat(inbound.getComPortPool()).isEqualTo(inactiveInboundTcpipComPortPool);
+    }
+
+
     @Test(expected = DuplicateConnectionTaskException.class)
     @Transactional
     public void createTwoTasksAgainstTheSameDeviceBasedOnTheSamePartialConnectionTask() {
@@ -172,7 +185,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(inboundConnectionTask.isObsolete()).isTrue();
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
     @Transactional
     public void testUpdateAfterObsolete() {
         InboundConnectionTaskImpl inboundConnectionTask = createSimpleInboundConnectionTask();
@@ -181,8 +194,18 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         inboundConnectionTask.setComPortPool(inboundTcpipComPortPool2);
         device.save();
+    }
 
-        // Asserts: see expected exception rule
+    @Test
+    @Transactional
+    public void testUpdateDeviceWithObsoleteConnectionTask() {
+        InboundConnectionTaskImpl connectionTask = createSimpleInboundConnectionTask();
+        device.removeConnectionTask(connectionTask);
+
+        device = getReloadedDevice(device);
+        // Business method
+        device.setName("AnotherName");
+        device.save();
     }
 
     @Test(expected = BusinessException.class)

@@ -1068,21 +1068,37 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(obsolete.getObsoleteDate()).isNotNull();
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
     @Transactional
-    public void testUpdateAfterMakeObsolete() {
+    public void testUpdateDeviceWithObsoleteConnectionTask() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testUpdateAfterMakeObsolete");
 
         device.removeConnectionTask(connectionTask);
 
+        device = getReloadedDevice(device);
         // Business method
-        connectionTask.setCommunicationWindow(FROM_TEN_PM_TO_TWO_AM);
-        connectionTask.update();
+        device.setName("AnotherName");
+        device.save();
 
-        // Asserts: see expected CannotUpdateObsoleteConnectionTaskException
+        // Make sure the device can be changed
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
+    @Transactional
+    public void testUpdateDeviceWithOtherDefaultConnectionTask() {
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testUpdateAfterMakeObsolete");
+
+        device.removeConnectionTask(connectionTask);
+
+        device = getReloadedDevice(device);
+        ScheduledConnectionTaskImpl replacement = this.createAsapWithNoPropertiesWithoutViolations("testNewDefault");
+        // Business method
+        device.save();
+
+        // Make sure the device can be changed
+    }
+
+    @Test
     @Transactional
     public void testMakeObsoleteTwice() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteTwice");
@@ -1091,8 +1107,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Business method
         device.removeConnectionTask(connectionTask);
-
-        // Asserts: see expected ConnectionTaskIsAlreadyObsoleteException
     }
 
     @Test(expected = OptimisticLockException.class)

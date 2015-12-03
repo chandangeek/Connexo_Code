@@ -393,22 +393,22 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
     @Transactional
-    public void testUpdateAfterMakeObsolete() {
+    public void testUpdateDeviceWithObsoleteConnectionTask() {
         ConnectionInitiationTaskImpl connectionTask = createSimpleConnectionInitiationTask();
 
         device.removeConnectionTask(connectionTask);
 
+        device = getReloadedDevice(device);
         // Business method
-        connectionTask.setComPortPool(outboundTcpipComPortPool2);
+        device.setName("AnotherName");
         device.save();
-      //  connectionTask.save();
 
-        // Asserts: see expected exception rule
+        // Make sure the device can be updated
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
     @Transactional
     public void testMakeObsoleteTwice() {
         ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
@@ -417,8 +417,6 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
         // Business method
         device.removeConnectionTask(connectionInitiationTask);
-
-        // Asserts: see expected exception rule
     }
 
     private ConnectionInitiationTaskImpl createWithAllPropertiesAndNoViolations(String name) {
