@@ -1,7 +1,7 @@
 /**
  * @class Uni.view.search.field.Selection
  *
-//{
+ //{
 //    xtype: 'search-combo',
 //    itemId: 'domain',
 //    store: Ext.create('Ext.data.Store', {
@@ -67,15 +67,13 @@ Ext.define('Uni.view.search.field.Selection', {
         maxHeight: 600
     },
 
-    populateValue: function(value) {
-        //var value = value[0];
+    populateValue: function (value) {
         this.setValue(value);
-        //this.setText(this.emptyText + '&nbsp;(' + value.length + ')');
     },
 
     onChange: function () {
         var me = this,
-            value = me.selection.getRange().map(function(item){
+            value = me.selection.getRange().map(function (item) {
                 return item.get(me.valueField)
             });
 
@@ -87,7 +85,7 @@ Ext.define('Uni.view.search.field.Selection', {
         me.down('#filter-selected').setDisabled(!me.selection.length);
     },
 
-    reset: function() {
+    reset: function () {
         this.selection.clear();
         this.down('#filter-input').reset();
         this.getStore().clearFilter(true);
@@ -248,32 +246,17 @@ Ext.define('Uni.view.search.field.Selection', {
                 store: me.store,
                 selType: 'checkboxmodel',
                 mode: me.multiSelect ? 'SIMPLE' : 'SINGLE',
-                toggleUiHeader: function(isChecked) {
+                toggleUiHeader: function (isChecked) {
                     me.grid.down('#select-all').setRawValue(isChecked);
                 },
-                onStoreAdd: function() {
-                    this.superclass.onStoreAdd.apply(this);
-                    this.select(_.intersection(this.getStore().getRange(), selection.getRange()), true, true);
-                    this.updateHeaderState();
+                onStoreAdd: function () {
+                    me.viewSync();
                 },
-                onStoreLoad: function (store) {
-                    this.superclass.onStoreLoad.apply(this);
-                    if (me.value && me.value[0]) {
-                        var records = _.map(me.value[0].get('criteria'), function(id) {
-                            return store.getById(id);
-                        });
-                        selection.suspendEvents();
-                        selection.add(_.filter(records, function(r){return r !== null}));
-                        selection.resumeEvents();
-                    }
-                    this.select(selection.getRange(), true, true);
-                    this.updateHeaderState();
-                    me.onChange();
+                onStoreLoad: function () {
+                    me.viewSync();
                 },
                 onStoreRefresh: function () {
-                    this.superclass.onStoreRefresh.apply(this);
-                    this.select(_.intersection(this.getStore().getRange(), selection.getRange()), true, true);
-                    this.updateHeaderState();
+                    me.viewSync();
                 },
                 listeners: {
                     beforeselect: function (s, record) {
@@ -313,8 +296,40 @@ Ext.define('Uni.view.search.field.Selection', {
         me.callParent(arguments);
         me.bindStore(me.store || 'ext-empty-store', true);
         me.grid = me.down('grid');
-        me.on('menushow', function(){
-            me.store.load();
-        })
+        me.on('menushow', me.viewSync, me);
+        me.store.load(function(){
+            me.storeSync();
+        });
+    },
+
+    viewSync: function() {
+        var me = this;
+        me.grid.getSelectionModel().select(
+            _.filter(me.getStore().getRange(), function(i) {
+                return _.indexOf(_.map(me.selection.getRange(), function(i) {return i.getId()}), i.getId()) >=0
+            })
+        );
+    },
+
+    storeSync: function () {
+        var me = this,
+            store = this.getStore(),
+            selection = me.selection;
+
+        if (me.value && me.value[0]) {
+            var records = _.filter(_.map(me.value[0].get('criteria'), function (id) {
+                return store.getById(id);
+            }), function (r) {
+                return r !== null
+            });
+
+            if (records.length) {
+                selection.suspendEvents();
+                selection.removeAll();
+                selection.add(records);
+                selection.resumeEvents();
+                me.onChange();
+            }
+        }
     }
 });
