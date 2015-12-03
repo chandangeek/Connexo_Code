@@ -25,7 +25,6 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -88,7 +87,7 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
 
     @Override
     public void install() {
-        new InstallerImpl(this, dataModel).install(true, true);
+        new InstallerImpl(dataModel, this, clock).install(true, true);
     }
 
     @Override
