@@ -244,6 +244,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             if (btn.action === 'Add') {
                 formValues.measurementType = {id: me.getRegisterTypeCombo().getValue()};
                 formValues.collectedReadingType = collectedReadingTypeField.getValue();
+                formValues.useMultiplier = useMultiplier;
 
                 if (useMultiplier) {
                     if (calculatedReadingTypeField.isVisible()) {
@@ -599,7 +600,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         registerTypeCombo.setDisabled(true);
 
                                         me.onMultiplierChange(multiplierRadioGroup); // (1) Keep this order
-                                        multiplierRadioGroup.setDisabled(deviceConfig.get('active')); // (2) Keep this order
+                                        if (deviceConfig.get('active')) { // (2) Keep this order
+                                            multiplierRadioGroup.setDisabled(false);
+                                        }
                                         calculatedReadingTypeCombo.setDisabled(deviceConfig.get('active'));
 
                                         me.registerTypesObisCode = channelConfiguration.getMeasurementType().get('obisCode');
