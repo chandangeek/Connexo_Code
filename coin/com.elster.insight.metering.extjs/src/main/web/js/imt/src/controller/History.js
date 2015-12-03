@@ -30,7 +30,7 @@ Ext.define('Imt.controller.History', {
                         channels: {
                             title: Uni.I18n.translate('general.channels', 'IMT', 'Channels'),
                             route: 'channels',
-                            controller: 'Imt.controller.setup.DeviceChannels',
+                            controller: 'Imt.channeldata.controller.Channels',
 //                            privileges: Imt.privileges.Device.viewDevice,
                             action: 'showOverview',
                             filter: 'Imt.model.filter.DeviceChannelsFilter',
@@ -39,7 +39,7 @@ Ext.define('Imt.controller.History', {
                                 channel: {
                                     title: Uni.I18n.translate('routing.channel', 'IMT', 'Channel'),
                                     route: '{channelId}',
-                                    controller: 'Imt.controller.setup.DeviceChannelData',
+                                    controller: 'Imt.channeldata.controller.ChannelData',
 //                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
                                     action: 'showSpecifications',
                                     callback: function (route) {
@@ -52,7 +52,7 @@ Ext.define('Imt.controller.History', {
                                     items: {
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
-                                            controller: 'Imt.controller.setup.DeviceChannelData',
+                                            controller: 'Imt.channeldata.controller.ChannelData',
 //                                            privileges: Imt.privileges.Device.administrateDeviceData,
                                             action: 'showEditChannelOfLoadProfileCustomAttributes',
                                             callback: function (route) {
@@ -131,7 +131,7 @@ Ext.define('Imt.controller.History', {
                                 channeldata: {
                                     title: Uni.I18n.translate('routing.channelData', 'IMT', 'Channel data'),
                                     route: '{channelId}/data',
-                                    controller: 'Imt.controller.setup.DeviceChannelData',
+                                    controller: 'Imt.channeldata.controller.ChannelData',
 //                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
                                     action: 'showData',
 //                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
@@ -146,7 +146,7 @@ Ext.define('Imt.controller.History', {
                                 channelvalidationblocks: {
                                     title: Uni.I18n.translate('routing.channelData', 'IMT', 'Channel data'),
                                     route: '{channelId}/validationblocks/{issueId}',
-                                    controller: 'Imt.controller.setup.DeviceChannelData',
+                                    controller: 'Imt.channeldata.controller.ChannelData',
 //                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
 //                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
                                     action: 'showValidationBlocks',

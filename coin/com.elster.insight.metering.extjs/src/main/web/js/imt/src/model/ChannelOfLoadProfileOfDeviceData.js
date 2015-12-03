@@ -29,10 +29,10 @@ Ext.define('Imt.model.ChannelOfLoadProfileOfDeviceData', {
                 var result = null,
                     mainValidationInfo = data.mainValidationInfo;
 
-                if (mainValidationInfo && mainValidationInfo.valueModificationFlag && data.reportedDateTime) {
+                if (mainValidationInfo && mainValidationInfo.valueModificationFlag && data.readingTime) {
                     result = {
                         flag: mainValidationInfo.valueModificationFlag,
-                        date: data.reportedDateTime
+                        date: data.readingTime
                     }
                 }
 

@@ -1,4 +1,4 @@
-Ext.define('Imt.controller.setup.DeviceChannels', {
+Ext.define('Imt.channeldata.controller.Channels', {
     extend: 'Ext.app.Controller',
     requires: [
         'Imt.store.TimeUnits',
@@ -87,7 +87,7 @@ Ext.define('Imt.controller.setup.DeviceChannels', {
                 });
             };
 
-        me.getController('Imt.controller.setup.DeviceChannelData').fromSpecification = false;
+        me.getController('Imt.channeldata.controller.ChannelData').fromSpecification = false;
         me.mRID = mRID;
 //        loadProfilesStore.getProxy().setUrl(mRID);
         channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl(mRID);

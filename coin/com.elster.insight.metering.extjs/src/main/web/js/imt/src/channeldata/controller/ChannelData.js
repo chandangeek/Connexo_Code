@@ -1,4 +1,4 @@
-Ext.define('Imt.controller.setup.DeviceChannelData', {
+Ext.define('Imt.channeldata.controller.ChannelData', {
     extend: 'Ext.app.Controller',
 
     views: [
