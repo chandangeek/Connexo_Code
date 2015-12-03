@@ -2,7 +2,8 @@ Ext.define('Cfg.controller.Tasks', {
     extend: 'Ext.app.Controller',
 
     requires: [,
-        'Cfg.privileges.Validation'
+        'Cfg.privileges.Validation',
+        'Uni.util.Application'
     ],
 
     views: [
@@ -634,6 +635,8 @@ Ext.define('Cfg.controller.Tasks', {
                 record.set('nextRun', null);
                 record.set('schedule', null);
             }
+
+            record.set('application', Uni.util.Application.getAppName());
 
             record.endEdit();
             record.save({
