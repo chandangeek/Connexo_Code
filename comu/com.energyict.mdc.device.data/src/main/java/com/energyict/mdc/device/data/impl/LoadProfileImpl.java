@@ -265,6 +265,11 @@ public class LoadProfileImpl implements LoadProfile {
         }
 
         @Override
+        public Optional<ReadingType> getCalculatedReadingType() {
+            return channelSpec.isUseMultiplier()?channelSpec.getCalculatedReadingType():channelSpec.getReadingType().getCalculatedReadingType();
+        }
+
+        @Override
         public List<LoadProfileReading> getChannelData(Range<Instant> interval) {
             return LoadProfileImpl.this.device.get().getChannelData(this, interval);
         }

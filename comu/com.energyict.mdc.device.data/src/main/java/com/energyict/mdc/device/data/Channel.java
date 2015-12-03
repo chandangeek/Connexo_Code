@@ -57,6 +57,16 @@ public interface Channel extends BaseChannel {
     ReadingType getReadingType();
 
     /**
+     * Returns the readingtype of the calculated value.
+     * <ul>
+     *     <li>Either the delta if the readingType was a bulk and no multiplier was provided</li>
+     *     <li>Or the multiplied readingType if a multiplier was provided</li>
+     * </ul>
+     * @return
+     */
+    Optional<ReadingType> getCalculatedReadingType();
+
+    /**
      * Returns the data of this Channel.
      *
      * @param interval The interval for which data will be returned
