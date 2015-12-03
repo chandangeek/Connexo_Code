@@ -166,15 +166,11 @@ Ext.define('Uni.view.search.field.Selection', {
                                         var store = me.grid.getStore();
                                         Ext.suspendLayouts();
                                         if (store.remoteFilter) {
-                                            if (Ext.isEmpty(value)) {
-                                                store.clearFilter();
-                                            } else {
-                                                store.filter({
-                                                    id: me.displayField,
-                                                    property: me.displayField,
-                                                    value: value
-                                                });
-                                            }
+                                            store.filter({
+                                                id: me.displayField,
+                                                property: me.displayField,
+                                                value: value
+                                            });
                                         } else {
                                             store.clearFilter(true);
                                             me.enableRegEx
@@ -272,6 +268,7 @@ Ext.define('Uni.view.search.field.Selection', {
                     }
                     this.select(selection.getRange(), true, true);
                     this.updateHeaderState();
+                    me.onChange();
                 },
                 onStoreRefresh: function () {
                     this.superclass.onStoreRefresh.apply(this);
