@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Comparison;
@@ -20,6 +21,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.ValueBinder;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -92,7 +94,34 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitComparison(Comparison comparison) {
-        this.underConstruction.add(new ComparisonFragment(this, this.columnName, comparison));
+        if (Operator.BETWEEN == comparison.getOperator() && comparison.getValues().length > 0 && comparison.getValues()[0] instanceof TimeDuration) {
+            visitBetweenComparisonWithTimeDuration((TimeDuration) comparison.getValues()[0], (TimeDuration) comparison.getValues()[1]);
+        } else {
+            this.underConstruction.add(new ComparisonFragment(this, this.columnName, comparison));
+        }
+    }
+
+    private void visitBetweenComparisonWithTimeDuration(TimeDuration from, TimeDuration to) {
+        //SUBSTR(column, instr(column, ':') + 1) = {unit} AND SUBSTR(column, 1, instr(column, ':') - 1) BETWEEN {from} AND {to}
+        this.underConstruction.append("substr(");
+        this.underConstruction.append(columnName);
+        this.underConstruction.append(", instr(");
+        this.underConstruction.append(columnName);
+        this.underConstruction.append(", '");
+        this.underConstruction.append(TimeDurationValueFactory.VALUE_UNIT_SEPARATOR);
+        this.underConstruction.append("') + 1 ) = ");
+        this.underConstruction.addInt(from.getTimeUnitCode());
+        this.underConstruction.append(" AND ");
+        this.underConstruction.append("substr(");
+        this.underConstruction.append(columnName);
+        this.underConstruction.append(", 1, instr(");
+        this.underConstruction.append(columnName);
+        this.underConstruction.append(", '");
+        this.underConstruction.append(TimeDurationValueFactory.VALUE_UNIT_SEPARATOR);
+        this.underConstruction.append("') - 1) between ");
+        this.underConstruction.addInt(from.getCount());
+        this.underConstruction.append(" AND ");
+        this.underConstruction.addInt(to.getCount());
     }
 
     @Override
