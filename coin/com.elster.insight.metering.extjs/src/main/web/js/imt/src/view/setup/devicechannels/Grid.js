@@ -2,7 +2,7 @@ Ext.define('Imt.view.setup.devicechannels.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLoadProfileChannelsGrid',
     itemId: 'deviceLoadProfileChannelsGrid',
-    store: 'Imt.store.ChannelsOfLoadProfilesOfDevice',
+    store: 'Imt.channeldata.store.Channels',
 
     requires: [
         'Uni.grid.column.Action',

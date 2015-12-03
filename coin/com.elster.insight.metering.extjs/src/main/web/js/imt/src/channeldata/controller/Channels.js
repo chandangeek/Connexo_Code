@@ -17,7 +17,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
     ],
 
     stores: [
-        'Imt.store.ChannelsOfLoadProfilesOfDevice',
+        'Imt.channeldata.store.Channels',
         'Imt.customattributesonvaluesobjects.store.ChannelCustomAttributeSets',
         'Imt.store.TimeUnits',
         'Imt.store.Clipboard'
@@ -67,7 +67,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
     showOverview: function (mRID) {
         var me = this,
             deviceModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
-            channelsOfLoadProfilesOfDeviceStore = me.getStore('Imt.store.ChannelsOfLoadProfilesOfDevice'),
+            channelsOfLoadProfilesOfDeviceStore = me.getStore('Imt.channeldata.store.Channels'),
 //            loadProfilesStore = me.getStore('Imt.store.LoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router'),
             widget,

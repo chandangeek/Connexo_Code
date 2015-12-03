@@ -2,7 +2,7 @@ Ext.define('Imt.view.setup.devicechannels.ChannelsTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mdc-view-setup-devicechannels-channelstopfilter',
 
-    store: 'Imt.store.ChannelsOfLoadProfilesOfDevice',
+    store: 'Imt.channeldata.store.Channels',
 
     filters: [
         {

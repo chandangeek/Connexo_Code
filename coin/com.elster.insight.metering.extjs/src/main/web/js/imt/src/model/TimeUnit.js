@@ -1,4 +1,4 @@
-Ext.define('Imt.model.field.TimeUnit', {
+Ext.define('Imt.model.TimeUnit', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'timeUnit', type: 'string' },

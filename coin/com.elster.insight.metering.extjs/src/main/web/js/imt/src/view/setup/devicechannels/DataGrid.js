@@ -2,7 +2,7 @@ Ext.define('Imt.view.setup.devicechannels.DataGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLoadProfileChannelDataGrid',
     itemId: 'deviceLoadProfileChannelDataGrid',
-    store: 'Imt.store.ChannelOfLoadProfileOfDeviceData',
+    store: 'Imt.channeldata.store.ChannelData',
     requires: [
         'Uni.grid.column.Action',
         'Imt.view.setup.devicechannels.DataActionMenu',

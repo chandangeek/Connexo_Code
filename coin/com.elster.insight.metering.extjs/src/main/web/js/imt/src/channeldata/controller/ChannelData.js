@@ -18,9 +18,9 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 
     stores: [
 //        'Imt.customattributesonvaluesobjects.store.ChannelCustomAttributeSets',
-        'Imt.store.ChannelOfLoadProfileOfDeviceData',
+        'Imt.channeldata.store.ChannelData',
         'Imt.store.DataIntervalAndZoomLevels',
-        'Imt.store.ChannelDataDurations',
+        'Imt.channeldata.store.ChannelDataDurations',
         'Imt.store.Clipboard',
         'Imt.store.Estimators',
         'Imt.store.ValidationBlocks'
@@ -153,7 +153,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             channel = me.getModel('Imt.channeldata.model.Channel'),
             router = me.getController('Uni.controller.history.Router'),
-            prevNextstore = contentName == 'block' ? 'Imt.store.ValidationBlocks' : 'Imt.store.ChannelsOfLoadProfilesOfDevice',
+            prevNextstore = contentName == 'block' ? 'Imt.store.ValidationBlocks' : 'Imt.channeldata.store.Channels',
             prevNextListLink = contentName == 'block' ? me.makeLinkToIssue(router, issueId) : me.makeLinkToChannels(router),
             indexLocation = contentName == 'block' ? 'queryParams' : 'arguments',
             routerIdArgument = contentName == 'block' ? 'validationBlock' : 'channelId',
@@ -211,7 +211,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 
     setupReadingsTab: function (device, channel) {
         var me = this,
-            dataStore = me.getStore('Imt.store.ChannelOfLoadProfileOfDeviceData');
+            dataStore = me.getStore('Imt.channeldata.store.ChannelData');
 
         dataStore.getProxy().setUrl({
             mRID: device.get('mRID'),
@@ -238,7 +238,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
             intervalStore = me.getStore('Imt.store.DataIntervalAndZoomLevels'),
             dataIntervalAndZoomLevels = intervalStore.getIntervalRecord(channel.get('interval')),
             all = dataIntervalAndZoomLevels.get('all'),
-            durationsStore = me.getStore('Imt.store.ChannelDataDurations'),
+            durationsStore = me.getStore('Imt.channeldata.store.ChannelDataDurations'),
             filter = {};
 
         durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
@@ -331,7 +331,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
     saveChannelDataChanges: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            changedData = me.getChangedData(me.getStore('Imt.store.ChannelOfLoadProfileOfDeviceData')),
+            changedData = me.getChangedData(me.getStore('Imt.channeldata.store.ChannelData')),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         viewport.setLoading();

@@ -1,9 +1,9 @@
 Ext.define('Imt.store.TimeUnits',{
     extend: 'Ext.data.Store',
     requires: [
-        'Imt.model.field.TimeUnit'
+        'Imt.model.TimeUnit'
     ],
-    model: 'Imt.model.field.TimeUnit',
+    model: 'Imt.model.TimeUnit',
     storeId: 'TimeUnits',
     proxy: {
         type: 'rest',

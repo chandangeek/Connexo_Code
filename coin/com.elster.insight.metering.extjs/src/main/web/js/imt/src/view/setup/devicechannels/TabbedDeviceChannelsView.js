@@ -9,7 +9,7 @@ Ext.define('Imt.view.setup.devicechannels.TabbedDeviceChannelsView', {
         'Uni.grid.FilterPanelTop'
     ],
 
-    store: 'Imt.store.ChannelOfLoadProfileOfDeviceData',
+    store: 'Imt.channeldata.store.ChannelData',
 
     mixins: {
         bindable: 'Ext.util.Bindable'
@@ -54,7 +54,7 @@ Ext.define('Imt.view.setup.devicechannels.TabbedDeviceChannelsView', {
                             {
                                 xtype: 'uni-grid-filterpaneltop',
                                 itemId: 'mdc-device-channels-topfilter',
-                                store: 'Imt.store.ChannelOfLoadProfileOfDeviceData',
+                                store: 'Imt.channeldata.store.ChannelData',
                                 hasDefaultFilters: true,
                                 filters: [
                                     {

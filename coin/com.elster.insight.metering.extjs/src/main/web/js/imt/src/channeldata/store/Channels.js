@@ -1,4 +1,4 @@
-Ext.define('Imt.store.ChannelsOfLoadProfilesOfDevice', {
+Ext.define('Imt.channeldata.store.Channels', {
     extend: 'Uni.data.store.Filterable',
     model: 'Imt.channeldata.model.Channel',
     storeId: 'LoadProfilesOfDevice',
