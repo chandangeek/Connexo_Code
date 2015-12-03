@@ -19,6 +19,7 @@ Ext.define('Est.estimationtasks.view.Overview', {
             items: [
                 {
                     xtype: 'preview-container',
+                    margin: '0 1 0 0',
                     grid: {
                         xtype: 'estimationtasks-grid',
                         itemId: 'estimationtasks-grid',
