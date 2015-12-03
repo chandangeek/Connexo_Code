@@ -71,6 +71,12 @@ Ext.define('Imt.controller.History', {
                                 }                                    
                             }
            			    },
+           			    datavalidation: {
+                            title: Uni.I18n.translate('general.label.usagepoint.registers', 'IMT', 'Registers'),
+                            route: 'datavalidation',
+                            controller: 'Imt.validation.controller.UsagePointDataValidation',
+                            action: 'showUsagePointDataValidationMainView',
+           			    },
            			},
            		},
    				edit: {
