@@ -44,7 +44,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval_end',
                 renderer: function (value) {
-                    return  value ? Uni.I18n.translate('general.dateattime', 'IMT', '{0} At {1}',[
+                    return  value ? Uni.I18n.translate('general.dateattime', 'IMT', '{0} at {1}',[
                         Uni.DateTime.formatDateShort(value),
                         Uni.DateTime.formatTimeShort(value)
                     ]).toLowerCase() : '';
