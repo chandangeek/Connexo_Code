@@ -80,6 +80,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
 
     removeFlag: function (button) {
         button.flag.destroy({
+            isNotEdit: true,
             callback: function () {
                 button.flag = null;
                 button.toggle(false, false);
@@ -126,18 +127,23 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                         var form = button.window.down('form');
                                         var flag = form.getRecord();
                                         form.updateRecord();
+                                        flag.set('parent', {
+                                            id: me.device.get('id'),
+                                            version: me.device.get('version')
+                                        });
                                         flag.set('category', {
                                             id: 'mdc.label.category.favorites',
                                             name: 'Favorites'
                                         });
                                         flag.save({
+                                            isNotEdit: true,
                                             callback: function (rec, operation) {
                                                 var json = Ext.decode(operation.response.responseText);
                                                 flag.setId(flag.get('category').id);
+                                                flag.set('creationDate', json.creationDate);
                                                 flag.set('parent', json.parent);
                                                 button.flag = flag;
                                                 button.toggle(true, false);
-                                                me.router.getRoute().forward();
                                             }
                                         });
                                         button.window.close();
