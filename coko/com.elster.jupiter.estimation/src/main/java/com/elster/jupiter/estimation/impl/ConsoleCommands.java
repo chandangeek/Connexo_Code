@@ -339,6 +339,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             EstimationTask estimationTask = estimationService.newBuilder()
                     .setName(name)
+                    .setApplication("Admin")
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setEndDeviceGroup(endDeviceGroup(groupId))
                     .setScheduleExpression(parse(scheduleExpression)).build();

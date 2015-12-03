@@ -50,6 +50,8 @@ public class EstimationTaskImpl implements IEstimationTask {
     private Instant modTime;
     private String userName;
 
+    public String application;
+
     @Inject
     public EstimationTaskImpl(DataModel dataModel, IEstimationService estimationService, TaskService taskService) {
         this.estimationService = estimationService;
@@ -57,15 +59,16 @@ public class EstimationTaskImpl implements IEstimationTask {
         this.dataModel = dataModel;
     }
 
-    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution) {
-        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, scheduleExpression, nextExecution);
+    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution, String application) {
+        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, scheduleExpression, nextExecution, application);
     }
 
-    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution) {
+    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution, String application) {
         this.name = name;
         this.endDeviceGroup.set(endDeviceGroup);
         this.scheduleExpression = scheduleExpression;
         this.nextExecution = nextExecution;
+        this.application = application;
         return this;
     }
 
@@ -101,7 +104,7 @@ public class EstimationTaskImpl implements IEstimationTask {
 
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication("Pulse")
+                .setApplication(application)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(estimationService.getDestination())
