@@ -4,7 +4,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.mocks.MockOutboundConnectionType;
 
 import java.util.Collections;
@@ -30,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class ConnectionTypePluggableClassRegistrarTest {
 
     @Mock
-    private ProtocolPluggableService protocolPluggableService;
+    private ServerProtocolPluggableService protocolPluggableService;
     @Mock
     private ConnectionTypeService connectionTypeService;
 
@@ -56,6 +55,7 @@ public class ConnectionTypePluggableClassRegistrarTest {
         // Asserts
         verify(this.connectionTypeService).getExistingConnectionTypePluggableClasses();
         verify(this.protocolPluggableService).newConnectionTypePluggableClass(expectedPluggableClassName, expectedConnectionTypeClassName);
+        verify(this.protocolPluggableService, never()).registerConnectionTypePluggableClassAsCustomPropertySet(expectedConnectionTypeClassName);
     }
 
     @Test
@@ -77,6 +77,7 @@ public class ConnectionTypePluggableClassRegistrarTest {
         // Asserts
         verify(this.connectionTypeService).getExistingConnectionTypePluggableClasses();
         verify(this.protocolPluggableService, never()).newConnectionTypePluggableClass(expectedPluggableClassName, expectedConnectionTypeClassName);
+        verify(this.protocolPluggableService).registerConnectionTypePluggableClassAsCustomPropertySet(expectedConnectionTypeClassName);
     }
 
     private ConnectionTypePluggableClassRegistrar testRegistrar() {

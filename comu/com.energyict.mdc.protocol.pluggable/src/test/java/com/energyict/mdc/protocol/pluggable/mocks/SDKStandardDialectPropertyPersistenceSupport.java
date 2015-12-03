@@ -5,7 +5,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.inject.Module;
 
@@ -44,7 +43,7 @@ class SDKStandardDialectPropertyPersistenceSupport implements PersistenceSupport
 
     @Override
     public String componentName() {
-        return ProtocolPluggableService.COMPONENTNAME;
+        return "P29";
     }
 
     @Override

@@ -41,6 +41,9 @@ public abstract class PluggableClassRegistrar {
         LOGGER.fine(() -> "Created pluggable class for " + definition.getProtocolTypeClass().getSimpleName());
     }
 
+    protected void completed (int count, String type) {
+        LOGGER.fine(() -> "Completed registration of " + count + " " + type + " pluggable classes");
+    }
     protected void creationFailed (LicensedProtocol licensedProtocol) {
         LOGGER.severe(() -> "Failure to register device protocol " + this.toLogMessage(licensedProtocol) + "see error message below:");
     }
@@ -58,7 +61,13 @@ public abstract class PluggableClassRegistrar {
     }
 
     protected void handleCreationException(String className, Throwable e) {
-        LOGGER.log(Level.SEVERE, e, () -> "Failed to create pluggable class for " + className + ": " + e.getMessage());
+        this.logError(() -> "Failed to create pluggable class for " + className + ", see stacktrace below ");
+        try {
+            LOGGER.log(Level.SEVERE, e, () -> "Failed to create pluggable class for " + className + ": " + e.getMessage());
+        }
+        catch (Exception ne) {
+            logError(() -> "Failed to print stacktrace: " + ne.getClass().getName());
+        }
     }
 
 }

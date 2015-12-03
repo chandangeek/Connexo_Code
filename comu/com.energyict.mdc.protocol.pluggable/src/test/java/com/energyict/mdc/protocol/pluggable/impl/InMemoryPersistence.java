@@ -171,7 +171,8 @@ public class InMemoryPersistence {
                         this.pluggableService,
                         this.customPropertySetService,
                         this.licenseService,
-                        this.dataVaultService);
+                        this.dataVaultService,
+                        this.transactionService);
         this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
         this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
         this.protocolPluggableService.addDeviceCacheMarshallingService(this.deviceCacheMarshallingService);

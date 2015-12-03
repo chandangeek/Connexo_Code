@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -84,6 +85,8 @@ public class ProtocolPluggableServiceImplTest {
     private MeteringService meteringService;
     @Mock
     private DataVaultService dataVaultService;
+    @Mock
+    private TransactionService transactionService;
 
     @Test(expected = NoServiceFoundThatCanLoadTheJavaClass.class)
     public void createProtocolWithoutDeviceProtocolService() {
@@ -758,7 +761,7 @@ public class ProtocolPluggableServiceImplTest {
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
-        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.customPropertySetService, this.licenseService, this.dataVaultService);
+        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.customPropertySetService, this.licenseService, this.dataVaultService, this.transactionService);
     }
 
 }

@@ -5,7 +5,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
 import com.google.inject.Module;
 
@@ -44,7 +43,7 @@ class SDKTopologyTaskDialectPropertyPersistenceSupport implements PersistenceSup
 
     @Override
     public String componentName() {
-        return DeviceProtocolService.COMPONENT_NAME;
+        return "T09";
     }
 
     @Override

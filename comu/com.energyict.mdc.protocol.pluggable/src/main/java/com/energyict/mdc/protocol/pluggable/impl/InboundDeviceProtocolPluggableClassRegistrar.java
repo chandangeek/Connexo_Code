@@ -1,13 +1,13 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.transaction.TransactionService;
-
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,7 +31,8 @@ public class InboundDeviceProtocolPluggableClassRegistrar extends PluggableClass
     public void registerAll(List<InboundDeviceProtocolService> inboundDeviceProtocolServices) {
         for (InboundDeviceProtocolService inboundDeviceProtocolService : inboundDeviceProtocolServices) {
             boolean registerNext = true;
-            Iterator<PluggableClassDefinition> pluggableClassDefinitionIterator = inboundDeviceProtocolService.getExistingInboundDeviceProtocolPluggableClasses().iterator();
+            Collection<PluggableClassDefinition> pluggableClasses = inboundDeviceProtocolService.getExistingInboundDeviceProtocolPluggableClasses();
+            Iterator<PluggableClassDefinition> pluggableClassDefinitionIterator = pluggableClasses.iterator();
             while (registerNext && pluggableClassDefinitionIterator.hasNext()) {
                 PluggableClassDefinition definition = pluggableClassDefinitionIterator.next();
                 try {
@@ -59,6 +60,7 @@ public class InboundDeviceProtocolPluggableClassRegistrar extends PluggableClass
                     this.handleCreationException(definition, e);
                 }
             }
+            this.completed(pluggableClasses.size(), "discovery protocol");
         }
     }
 

@@ -1,13 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 
-import com.elster.jupiter.transaction.TransactionService;
-
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.*;
@@ -31,7 +28,7 @@ import static org.mockito.Mockito.when;
 public class DeviceProtocolPluggableClassRegistrarTest {
 
     @Mock
-    private ProtocolPluggableService protocolPluggableService;
+    private ServerProtocolPluggableService protocolPluggableService;
     @Mock
     private LicensedProtocol licensedProtocol;
 
@@ -50,10 +47,11 @@ public class DeviceProtocolPluggableClassRegistrarTest {
         when(this.protocolPluggableService.newDeviceProtocolPluggableClass(anyString(), anyString())).thenReturn(expectedCreated);
 
         // Business method
-        registrar.registerAll(Arrays.asList(this.licensedProtocol));
+        registrar.registerAll(Collections.singletonList(this.licensedProtocol));
 
         // Asserts
         verify(this.protocolPluggableService).newDeviceProtocolPluggableClass(expectedDeviceProtocolClassName, expectedDeviceProtocolClassName);
+        verify(this.protocolPluggableService, never()).registerDeviceProtocolPluggableClassAsCustomPropertySet(expectedDeviceProtocolClassName);
     }
 
     @Test
@@ -65,13 +63,14 @@ public class DeviceProtocolPluggableClassRegistrarTest {
         when(this.licensedProtocol.getName()).thenReturn(expectedDeviceProtocolClassName);
         // Mock the existence of the DeviceProtocolPluggableClass
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(this.protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(expectedDeviceProtocolClassName)).thenReturn(Arrays.asList(deviceProtocolPluggableClass));
+        when(this.protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(expectedDeviceProtocolClassName)).thenReturn(Collections.singletonList(deviceProtocolPluggableClass));
 
         // Business method
-        registrar.registerAll(Arrays.asList(this.licensedProtocol));
+        registrar.registerAll(Collections.singletonList(this.licensedProtocol));
 
         // Asserts
         verify(this.protocolPluggableService, never()).newDeviceProtocolPluggableClass(expectedDeviceProtocolClassName, expectedDeviceProtocolClassName);
+        verify(this.protocolPluggableService).registerDeviceProtocolPluggableClassAsCustomPropertySet(expectedDeviceProtocolClassName);
     }
 
     private DeviceProtocolPluggableClassRegistrar testRegistrar() {

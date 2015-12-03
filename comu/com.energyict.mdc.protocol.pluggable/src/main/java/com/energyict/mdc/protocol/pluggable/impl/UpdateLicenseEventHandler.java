@@ -1,13 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -29,7 +28,7 @@ public class UpdateLicenseEventHandler implements TopicHandler {
 
     private static final String MDC_APPLICATION_KEY = "MDC";
 
-    private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile ServerProtocolPluggableService protocolPluggableService;
     private volatile TransactionService transactionService;
     private volatile List<InboundDeviceProtocolService> inboundDeviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<ConnectionTypeService> connectionTypeServices = new CopyOnWriteArrayList<>();
@@ -69,7 +68,7 @@ public class UpdateLicenseEventHandler implements TopicHandler {
 
     @Reference(name = "AProtocolPluggableService")
     @SuppressWarnings("unused")
-    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+    public void setProtocolPluggableService(ServerProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
     }
 

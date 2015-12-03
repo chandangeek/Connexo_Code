@@ -1,12 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.transaction.TransactionService;
-
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,10 +17,10 @@ import java.util.List;
  */
 public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistrar {
 
-    private final ProtocolPluggableService protocolPluggableService;
+    private final ServerProtocolPluggableService protocolPluggableService;
     private final TransactionService transactionService;
 
-    public DeviceProtocolPluggableClassRegistrar(ProtocolPluggableService protocolPluggableService, TransactionService transactionService) {
+    public DeviceProtocolPluggableClassRegistrar(ServerProtocolPluggableService protocolPluggableService, TransactionService transactionService) {
         super();
         this.protocolPluggableService = protocolPluggableService;
         this.transactionService = transactionService;
@@ -63,6 +62,7 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
                 handleCreationException(licensedProtocol.getClassName(), e);
             }
         }
+        this.completed(licensedProtocols.size(), "device protocol");
     }
 
     private boolean deviceProtocolDoesNotExist(LicensedProtocol licensedProtocolRule) {
@@ -71,6 +71,18 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
 
     private DeviceProtocolPluggableClass createDeviceProtocol(LicensedProtocol licensedProtocol) {
         return this.transactionService.execute(() -> this.protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocol.getName(), licensedProtocol.getClassName()));
+    }
+
+    @Override
+    protected void alreadyExists(LicensedProtocol licensedProtocol) {
+        super.alreadyExists(licensedProtocol);
+        long start = Instant.now().toEpochMilli();
+        this.protocolPluggableService.registerDeviceProtocolPluggableClassAsCustomPropertySet(licensedProtocol.getClassName());
+        long stop = Instant.now().toEpochMilli();
+        long registrationTime = stop - start;
+        if (registrationTime > 1000) {
+            this.logWarning(() -> "Registration of custom property set for device protocol " + licensedProtocol.getClassName() + " took excessively long: " +  registrationTime + " (ms)");
+        }
     }
 
 }

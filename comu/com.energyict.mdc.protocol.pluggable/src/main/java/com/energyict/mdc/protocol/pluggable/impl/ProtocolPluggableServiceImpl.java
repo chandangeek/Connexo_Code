@@ -98,7 +98,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -116,8 +115,8 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-23 (13:47)
  */
-@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
-public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService, MessageSeedProvider, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, ServerProtocolPluggableService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
+public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableService, InstallService, MessageSeedProvider, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(ProtocolPluggableServiceImpl.class.getName());
     private static final String MDC_APPLICATION_KEY = "MDC";
@@ -125,7 +124,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile EventService eventService;
-    private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile PluggableService pluggableService;
@@ -168,7 +166,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                     PluggableService pluggableService,
                     CustomPropertySetService customPropertySetService,
                     LicenseService licenseService,
-                    DataVaultService dataVaultService) {
+                    DataVaultService dataVaultService,
+                    TransactionService transactionService) {
         this();
         this.setOrmService(ormService);
         this.setThreadPrincipalService(threadPrincipalService);
@@ -182,6 +181,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setUserService(userService);
         this.setLicenseService(licenseService);
         this.setDataVaultService(dataVaultService);
+        this.setTransactionService(transactionService);
         this.activate();
         this.install();
     }
@@ -282,6 +282,14 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
+    public void registerDeviceProtocolPluggableClassAsCustomPropertySet(String javaClassName) {
+        List<PluggableClass> pluggableClasses = this.pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, javaClassName);
+        if (!pluggableClasses.isEmpty()) {
+            DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClasses.get(0)).registerCustomPropertySets();
+        }
+    }
+
+    @Override
     public List<LicensedProtocol> getAllLicensedProtocols() {
         Optional<License> mdcLicense = this.getMdcLicense();
         if (mdcLicense.isPresent()) {
@@ -318,11 +326,10 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         return new WrappingFinder<DeviceProtocolPluggableClass, PluggableClass>(this.pluggableService.findAllByType(PluggableClassType.DeviceProtocol)) {
             @Override
             public List<DeviceProtocolPluggableClass> convert(List<PluggableClass> pluggableClasses) {
-                List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = new ArrayList<>(pluggableClasses.size());
-                for (PluggableClass pluggableClass : pluggableClasses) {
-                    deviceProtocolPluggableClasses.add(DeviceProtocolPluggableClassImpl.from(ProtocolPluggableServiceImpl.this.dataModel, pluggableClass));
-                }
-                return deviceProtocolPluggableClasses;
+                return pluggableClasses
+                            .stream()
+                            .map(pluggableClass -> DeviceProtocolPluggableClassImpl.from(ProtocolPluggableServiceImpl.this.dataModel, pluggableClass))
+                            .collect(Collectors.toList());
             }
         };
     }
@@ -510,6 +517,14 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
+    public void registerConnectionTypePluggableClassAsCustomPropertySet(String javaClassName) {
+        List<PluggableClass> pluggableClasses = this.pluggableService.findByTypeAndClassName(PluggableClassType.ConnectionType, javaClassName);
+        if (!pluggableClasses.isEmpty()) {
+            ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClasses.get(0)).registerCustomPropertySet();
+        }
+    }
+
+    @Override
     public Optional<Object> unMarshallDeviceProtocolCache(String jsonCache) {
         try {
             for (DeviceCacheMarshallingService service : this.deviceCacheMarshallingServices) {
@@ -575,11 +590,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference
@@ -834,6 +844,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(TransactionService.class).toInstance(transactionService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PluggableService.class).toInstance(pluggableService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
@@ -847,6 +858,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class).in(Singleton.class);
                 bind(CapabilityAdapterMappingFactory.class).to(CapabilityAdapterMappingFactoryImpl.class).in(Singleton.class);
                 bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
+                bind(ServerProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
             }
         };
     }
@@ -894,7 +906,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             registrar.registerAll(Collections.unmodifiableList(this.inboundDeviceProtocolServices));
         }
         else {
-            LOGGER.fine("No inbound protocol services have registered yet, makes no sense to attempt to register all inboudn device protocol pluggable classes");
+            LOGGER.fine("No inbound protocol services have registered yet, makes no sense to attempt to register all inbound device protocol pluggable classes");
         }
     }
 

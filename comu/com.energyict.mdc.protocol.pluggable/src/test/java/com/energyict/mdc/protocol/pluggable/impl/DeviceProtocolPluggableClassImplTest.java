@@ -69,8 +69,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -164,7 +162,6 @@ public class DeviceProtocolPluggableClassImplTest {
             protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             dataModel = protocolPluggableService.getDataModel();
             propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
-            createOracleMetaDataTables(dataModel.getConnection(true));
             ctx.commit();
         }
         propertySpecService.addFactoryProvider(() -> {
@@ -173,19 +170,6 @@ public class DeviceProtocolPluggableClassImplTest {
             finders.add(new CodeFinder());
             return finders;
         });
-    }
-
-    private static void createOracleMetaDataTables(Connection connection) throws SQLException {
-        executeDDL(connection, "create table if not exists user_tables (table_name varchar2(30) not null)");
-        executeDDL(connection, "create table if not exists user_tab_columns (table_name varchar2(30) not null, column_name varchar2(30) not null)");
-        executeDDL(connection, "create table if not exists user_sequences (sequence_name varchar2(30) not null)");
-        executeDDL(connection, "create table if not exists user_ind_columns (index_name varchar2(30) not null, table_name varchar2(30), column_name varchar2(30), column_position number)");
-    }
-
-    private static void executeDDL(Connection connection, String ddl) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(ddl)) {
-            preparedStatement.execute();
-        }
     }
 
     @Before

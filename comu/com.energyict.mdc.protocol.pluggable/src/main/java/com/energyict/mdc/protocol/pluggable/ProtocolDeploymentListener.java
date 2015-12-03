@@ -19,41 +19,41 @@ public interface ProtocolDeploymentListener {
      *
      * @param service The DeviceProtocolService that was deployed
      */
-    public void deviceProtocolServiceDeployed(DeviceProtocolService service);
+    void deviceProtocolServiceDeployed(DeviceProtocolService service);
 
     /**
      * Notifies the receiver that a new {@link DeviceProtocolService} was undeployed.
      *
      * @param service The DeviceProtocolService that was undeployed
      */
-    public void deviceProtocolServiceUndeployed(DeviceProtocolService service);
+    void deviceProtocolServiceUndeployed(DeviceProtocolService service);
 
     /**
      * Notifies the receiver that a new {@link DeviceProtocolService} was deployed.
      *
      * @param service The InboundDeviceProtocolService that was deployed
      */
-    public void inboundDeviceProtocolServiceDeployed(InboundDeviceProtocolService service);
+    void inboundDeviceProtocolServiceDeployed(InboundDeviceProtocolService service);
 
     /**
      * Notifies the receiver that a new {@link DeviceProtocolService} was undeployed.
      *
      * @param service The InboundDeviceProtocolService that was undeployed
      */
-    public void inboundDeviceProtocolServiceUndeployed(InboundDeviceProtocolService service);
+    void inboundDeviceProtocolServiceUndeployed(InboundDeviceProtocolService service);
 
     /**
      * Notifies the receiver that a new {@link ConnectionTypeService} was deployed.
      *
      * @param service The ConnectionTypeService that was deployed
      */
-    public void connectionTypeServiceDeployed(ConnectionTypeService service);
+    void connectionTypeServiceDeployed(ConnectionTypeService service);
 
     /**
      * Notifies the receiver that a new {@link ConnectionTypeService} was undeployed.
      *
      * @param service The ConnectionTypeService that was undeployed
      */
-    public void connectionTypeServiceUndeployed(ConnectionTypeService service);
+    void connectionTypeServiceUndeployed(ConnectionTypeService service);
 
 }

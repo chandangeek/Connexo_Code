@@ -1,11 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+
 import org.osgi.service.event.Event;
 
 import java.util.HashMap;
@@ -34,7 +33,7 @@ public class UpdateLicenseEventHandlerTest {
     @Mock
     private TransactionService transactionService;
     @Mock
-    private ProtocolPluggableService protocolPluggableService;
+    private ServerProtocolPluggableService protocolPluggableService;
     @Mock
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock

@@ -5,8 +5,9 @@ import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import java.time.Instant;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,10 +19,10 @@ import java.util.List;
  */
 public class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistrar {
 
-    private final ProtocolPluggableService protocolPluggableService;
+    private final ServerProtocolPluggableService protocolPluggableService;
     private final TransactionService transactionService;
 
-    public ConnectionTypePluggableClassRegistrar(ProtocolPluggableService protocolPluggableService, TransactionService transactionService) {
+    public ConnectionTypePluggableClassRegistrar(ServerProtocolPluggableService protocolPluggableService, TransactionService transactionService) {
         super();
         this.protocolPluggableService = protocolPluggableService;
         this.transactionService = transactionService;
@@ -30,7 +31,8 @@ public class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistr
     public void registerAll(List<ConnectionTypeService> connectionTypeServices) {
         for (ConnectionTypeService connectionTypeService : connectionTypeServices) {
             boolean registerNext = true;
-            Iterator<PluggableClassDefinition> pluggableClassDefinitionIterator = connectionTypeService.getExistingConnectionTypePluggableClasses().iterator();
+            Collection<PluggableClassDefinition> pluggableClasses = connectionTypeService.getExistingConnectionTypePluggableClasses();
+            Iterator<PluggableClassDefinition> pluggableClassDefinitionIterator = pluggableClasses.iterator();
             while (registerNext && pluggableClassDefinitionIterator.hasNext()) {
                 PluggableClassDefinition definition = pluggableClassDefinitionIterator.next();
                 try {
@@ -58,6 +60,7 @@ public class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistr
                     this.handleCreationException(definition, e);
                 }
             }
+            this.completed(pluggableClasses.size(), "connection type");
         }
     }
 
@@ -73,6 +76,23 @@ public class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistr
 
     private boolean connectionTypeDoesNotExist(PluggableClassDefinition definition) {
         return this.protocolPluggableService.findConnectionTypePluggableClassByClassName(definition.getProtocolTypeClass().getName()).isEmpty();
+    }
+
+    @Override
+    protected void alreadyExists(final PluggableClassDefinition definition) {
+        super.alreadyExists(definition);
+        long start = Instant.now().toEpochMilli();
+        this.transactionService.execute(() -> this.registerConnectionTypePluggableClassAsCustomPropertySet(definition));
+        long stop = Instant.now().toEpochMilli();
+        long registrationTime = stop - start;
+        if (registrationTime > 1000) {
+            this.logWarning(() -> "Registration of custom property set for connection type " + definition.getProtocolTypeClass().getName() + " took excessively long: " + registrationTime + " (ms)");
+        }
+    }
+
+    private PluggableClassDefinition registerConnectionTypePluggableClassAsCustomPropertySet(PluggableClassDefinition definition) {
+        this.protocolPluggableService.registerConnectionTypePluggableClassAsCustomPropertySet(definition.getProtocolTypeClass().getName());
+        return definition;
     }
 
 }

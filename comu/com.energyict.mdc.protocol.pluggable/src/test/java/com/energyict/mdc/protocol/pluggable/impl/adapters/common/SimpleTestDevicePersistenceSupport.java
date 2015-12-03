@@ -24,7 +24,7 @@ public class SimpleTestDevicePersistenceSupport implements PersistenceSupport<Ba
 
     @Override
     public String componentName() {
-        return DeviceProtocolService.COMPONENT_NAME;
+        return "T12";
     }
 
     @Override

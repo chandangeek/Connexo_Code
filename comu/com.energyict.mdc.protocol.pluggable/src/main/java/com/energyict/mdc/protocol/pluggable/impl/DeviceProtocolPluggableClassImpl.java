@@ -17,7 +17,6 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -144,6 +143,10 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     public void save() {
         Save.action(this.getId()).validate(dataModel, this);
         super.save();
+        this.registerCustomPropertySets();
+    }
+
+    public void registerCustomPropertySets() {
         this.registerSecurityCustomPropertySet();
         this.registerDialectCustomPropertySets();
     }
@@ -160,7 +163,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.getDialectCustomPropertySets().forEach(this::registerDialect);
     }
 
-    private Stream<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getDialectCustomPropertySets() {
+    private Stream<CustomPropertySet> getDialectCustomPropertySets() {
         return this.newInstance()
                 .getDeviceProtocolDialects()
                 .stream()
@@ -168,7 +171,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
                 .flatMap(Functions.asStream());
     }
 
-    private void registerDialect(CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>> customPropertySet) {
+    private void registerDialect(CustomPropertySet customPropertySet) {
         this.customPropertySetService.addSystemCustomPropertySet(customPropertySet);
     }
 
@@ -191,7 +194,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.customPropertySetService.removeSystemCustomPropertySet(customPropertySet);
     }
 
-    private void unregisterDialect(CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>> customPropertySet) {
+    private void unregisterDialect(CustomPropertySet customPropertySet) {
         this.customPropertySetService.removeSystemCustomPropertySet(customPropertySet);
     }
 

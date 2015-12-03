@@ -107,7 +107,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         return PluggableClassType.ConnectionType;
     }
 
-    private void registerCustomPropertySet() {
+    public void registerCustomPropertySet() {
         this.newInstance().getCustomPropertySet().ifPresent(this::register);
     }
 
