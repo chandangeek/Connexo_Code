@@ -90,6 +90,9 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
         this.getFilterByItemId('selectedReadingsFilter').setFilterValue(readingArray);
         this.getFilterByItemId('equidistantFilter').setInitialValue(true);
         this.getFilterByItemId('equidistantFilter').setFilterValue(true);
+    },
+
+    setActive: function() {
         this.getFilterByItemId('activeFilter').setInitialValue(true);
         this.getFilterByItemId('activeFilter').setFilterValue(true);
     }

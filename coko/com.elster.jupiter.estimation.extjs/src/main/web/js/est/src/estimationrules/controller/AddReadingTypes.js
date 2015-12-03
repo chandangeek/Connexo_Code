@@ -57,7 +57,7 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
                     selectedReadings.push(item.get('mRID'));
                 });
                 viewport.down('est-main-view-readingtypetopfilter').setSelectedReadings(selectedReadings);
-
+                viewport.down('est-main-view-readingtypetopfilter').setActive();
                 readingTypesStore.data.clear();
                 readingTypesStore.load();
             },
