@@ -10,10 +10,11 @@ Ext.define('Apr.privileges.AppServer', {
     ],
     singleton: true,
     view: ['privilege.administrate.appServer',
-        'privilege.view.appServer',
-        'privilege.view.ViewTaskOverview'],
+        'privilege.view.appServer'],
 
     admin: ['privilege.administrate.appServer'],
+
+    taskOverview: ['privilege.view.ViewTaskOverview'],
 
     all: function () {
         return Ext.Array.merge(Apr.privileges.AppServer.view);
