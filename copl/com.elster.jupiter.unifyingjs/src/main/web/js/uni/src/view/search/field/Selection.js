@@ -303,11 +303,14 @@ Ext.define('Uni.view.search.field.Selection', {
     },
 
     viewSync: function() {
-        var me = this;
-        me.grid.getSelectionModel().select(
+        var me = this,
+            model = me.grid.getSelectionModel();
+
+        model.deselectAll(true);
+        model.select(
             _.filter(me.getStore().getRange(), function(i) {
                 return _.indexOf(_.map(me.selection.getRange(), function(i) {return i.getId()}), i.getId()) >=0
-            })
+            }), true, true
         );
     },
 
@@ -323,13 +326,11 @@ Ext.define('Uni.view.search.field.Selection', {
                 return r !== null
             });
 
-            if (records.length) {
-                selection.suspendEvents();
-                selection.removeAll();
-                selection.add(records);
-                selection.resumeEvents();
-                me.onChange();
-            }
+            selection.suspendEvents();
+            selection.removeAll();
+            selection.add(records);
+            selection.resumeEvents();
+            me.onChange();
         }
     }
 });

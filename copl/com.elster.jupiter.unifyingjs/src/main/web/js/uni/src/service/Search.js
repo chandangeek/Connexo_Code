@@ -445,23 +445,21 @@ Ext.define('Uni.service.Search', {
             deps.each(function(item) {
                 if (!Ext.isEmpty(value)) {
                     item.setDisabled(false);
-                    if (item.store && Ext.isFunction(item.getStore)) {
-                        item.menu.setLoading(true);
-                        me.storeReload(item.getStore(), function () {
-                            item.menu.setLoading(false);
-                            if (Ext.isFunction(item.storeSync)) {
-                                item.storeSync();
-                            }
-                        });
-                    }
                 } else {
                     item.setDisabled(true);
-                    if (item.store) {
-                        item.getStore().clearFilter(true);
-                    }
                     if (!item.property.get('sticky')) {
                         me.removeProperty(item.property);
                     }
+                }
+
+                if (item.store && Ext.isFunction(item.getStore)) {
+                    item.menu.setLoading(true);
+                    me.storeReload(item.getStore(), function () {
+                        item.menu.setLoading(false);
+                        if (Ext.isFunction(item.storeSync)) {
+                            item.storeSync();
+                        }
+                    });
                 }
             });
         }
