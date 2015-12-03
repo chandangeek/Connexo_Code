@@ -14,6 +14,7 @@ import com.elster.jupiter.util.collections.DiffList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -31,7 +32,8 @@ public final class RelativePeriodImpl extends EntityImpl implements RelativePeri
     private RelativeDate from;
     @NotNull
     private RelativeDate to;
-
+    @Valid
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private List<RelativePeriodCategoryUsage> relativePeriodCategoryUsages = new ArrayList<>();
 
     @Inject
