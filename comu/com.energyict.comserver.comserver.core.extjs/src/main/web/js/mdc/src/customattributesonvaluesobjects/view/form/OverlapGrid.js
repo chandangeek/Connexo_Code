@@ -33,6 +33,9 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     },
                     minutesConfig: {
                         width: 75
+                    },
+                    dateTimeSeparatorConfig: {
+                        html: '<span style="color: #686868;">' + Uni.I18n.translate('general.lovercase.at', 'MDC', 'at') + '</span>'
                     }
                 }
             },
@@ -155,11 +158,13 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGrid', {
                 if (me.getEl().down('#edit-column-icon-0')) {
                     me.getEl().down('#edit-column-icon-0').on('click', function () {
                         me.plugins[0].startEdit(me.recordToEdit, 0);
+                        me.down('date-time[dataIndex=startTime]').down('#date-time-field-minutes').focus();
                     });
                 }
                 if (me.getEl().down('#edit-column-icon-1')) {
                     me.getEl().down('#edit-column-icon-1').on('click', function () {
                         me.plugins[0].startEdit(me.recordToEdit, 1);
+                        me.down('date-time[dataIndex=endTime]').down('#date-time-field-minutes').focus();
                     });
                 }
                 if (me.getEl().down('.uni-actioncolumn-gear')) {

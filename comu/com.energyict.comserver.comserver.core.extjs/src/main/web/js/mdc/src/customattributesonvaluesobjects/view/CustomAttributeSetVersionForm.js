@@ -123,7 +123,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 itemId: 'overlap-grid-field-container',
                 margin: '40 0 0 0',
                 hidden: true,
-                width: 900,
+                width: 950,
                 items: [
                     {
                         xtype: 'custom-attribute-set-versions-overlap-grid',
