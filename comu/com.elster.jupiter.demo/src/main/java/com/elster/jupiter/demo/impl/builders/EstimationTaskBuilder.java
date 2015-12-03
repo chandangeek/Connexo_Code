@@ -50,6 +50,7 @@ public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, Estimati
         Log.write(this);
         com.elster.jupiter.estimation.EstimationTaskBuilder taskBuilder = estimationService.newBuilder();
         taskBuilder.setName(getName());
+        taskBuilder.setApplication("Admin");
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
 

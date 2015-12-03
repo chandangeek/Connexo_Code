@@ -46,6 +46,7 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
         Log.write(this);
         com.elster.jupiter.validation.DataValidationTaskBuilder taskBuilder = validationService.newTaskBuilder();
         taskBuilder.setName(getName());
+        taskBuilder.setApplication("Admin");
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
 
