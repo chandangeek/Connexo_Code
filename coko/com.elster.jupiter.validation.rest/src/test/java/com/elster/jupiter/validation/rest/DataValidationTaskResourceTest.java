@@ -17,6 +17,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -48,7 +49,6 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     @Mock
     protected UsagePointGroup usagePointGroup;
 
-    @Mock
     DataValidationTaskBuilder taskBuilder;
 
     @Mock
@@ -58,12 +58,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void setUp() throws Exception {
         super.setUp();
         dataValidationTask1 = mockDataValidationTask(TASK_ID);
-        when(taskBuilder.setName(Matchers.any())).thenReturn(taskBuilder);
-        when(taskBuilder.setEndDeviceGroup(Matchers.any())).thenReturn(taskBuilder);
-        when(taskBuilder.setUsagePointGroup(Matchers.any())).thenReturn(taskBuilder);
-        when(taskBuilder.setScheduleExpression(Matchers.any())).thenReturn(taskBuilder);
-        when(taskBuilder.setNextExecution(Matchers.any())).thenReturn(taskBuilder);
-        when(taskBuilder.build()).thenReturn(dataValidationTask1);
+        taskBuilder = FakeBuilder.initBuilderStub(dataValidationTask1, DataValidationTaskBuilder.class);
         when(validationService.newTaskBuilder()).thenReturn(taskBuilder);
         when(validationService.findValidationTask(anyLong())).thenReturn(Optional.of(dataValidationTask1));
     }
@@ -85,6 +80,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 1;
+        info.application = "Admin";
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
         Response response = target("/validationtasks").request().post(json);
@@ -98,6 +94,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         info.deviceGroup = null;
         info.usagePointGroup = new UsagePointGroupInfo();
         info.usagePointGroup.id = 1;
+        info.application = "Admin";
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
         Response response = target("/validationtasks").request().post(json);
