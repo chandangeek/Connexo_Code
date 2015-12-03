@@ -25,7 +25,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
         '</tr>',
         '<tr>',
         '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.creationDate', 'DSH', 'Flagged date') + '</td>',
-        '<td>{[Uni.DateTime.formatDateTimeLong(values.deviceLabelInfo.creationDate)]}</td>',
+        '<td>{[Uni.DateTime.formatDateTimeLong(new Date(values.deviceLabelInfo.creationDate))]}</td>',
         '</tr>',
         '<tr>',
         '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.comment', 'DSH', 'Comment') + '</td>',
@@ -74,7 +74,10 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
                 var flag = record.getLabel();
                 flag.proxy.setUrl(record.getId());
 
-                var callback = function() {
+                var callback = function(rec, operation) {
+                    if (operation && !Ext.isEmpty(operation.response.responseText)) {
+                        flag.set('creationDate', Ext.decode(operation.response.responseText).creationDate);
+                    }
                     icon.toggleCls('icon-star6');
                     icon.toggleCls('icon-star4');
                     elm.set({'data-qtip': pressed
@@ -91,11 +94,17 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             var clone = new record.self();
             var data = record.getWriteData(false, true);
             clone.set(data);
-            clone.save({callback: callback});
+            clone.save({
+                isNotEdit: true,
+                callback: callback
+            });
         },
 
         unflag: function(record, callback) {
-            record.destroy({callback: callback});
+            record.destroy({
+                isNotEdit: true,
+                callback: callback
+            })
         }
     },
 
