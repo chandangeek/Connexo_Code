@@ -422,6 +422,7 @@ Ext.define('Cfg.controller.Validation', {
             viewport = Ext.ComponentQuery.query('viewport')[0],
             widget = me.getAddReadingTypesSetup();
 
+        viewport.down('readingTypesToAddForRule').setActive();
         if (me.validationRuleRecord) {
             var readingTypes = me.validationRuleRecord.get('readingTypes');
             if (Ext.isArray(readingTypes) && !Ext.isEmpty(readingTypes)) {
