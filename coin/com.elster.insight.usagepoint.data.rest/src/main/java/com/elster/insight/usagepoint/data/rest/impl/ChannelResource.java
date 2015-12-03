@@ -29,7 +29,9 @@ import javax.ws.rs.core.Response;
 
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.UsagePointValidation;
+import com.elster.insight.usagepoint.data.UsagePointValidationImpl;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -44,7 +46,6 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -92,9 +93,10 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public Response getChannel(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
+        UsagePoint usagepoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
         Channel channel = channelHelper.get().findCurrentChannelOnUsagePoint(mrid, rt_mrid)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
-        return channelHelper.get().getChannel(() -> channel);
+        return channelHelper.get().getChannel(() -> channel, usagepoint);
     }
 
     @GET
@@ -183,6 +185,25 @@ public class ChannelResource {
                 (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.isConfirmed));
     }
     
+    @PUT @Transactional
+    @Path("{rt_mrid}/validate")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
+    public Response validateDeviceData(UsagePointTriggerValidationInfo info, @PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        Channel channel = channelHelper.get().findCurrentChannelOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        
+        UsagePointValidation upv = channelHelper.get().getUsagePointValidation(usagePoint);
+        
+        if (info.lastChecked != null) {
+            upv.setLastChecked(channel, Instant.ofEpochMilli(info.lastChecked));
+        }
+        usagePoint.update();
+        upv.validateChannel(channel);
+        return Response.ok().build();
+    }
+    
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -263,5 +284,5 @@ public class ChannelResource {
     private ValidationEvaluator getEvaluator(Meter meter) {
         return validationService.getEvaluator(meter, Range.atMost(clock.instant()));
     }
-
+    
 }

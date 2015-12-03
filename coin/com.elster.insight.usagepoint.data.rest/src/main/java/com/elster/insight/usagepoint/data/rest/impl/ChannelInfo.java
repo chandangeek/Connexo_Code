@@ -27,6 +27,9 @@ public class ChannelInfo {
     public Instant lastValueTimestamp;
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
+    
+    // optionally filled if requesting details
+    public DetailedValidationInfo validationInfo;
 
     public static ChannelInfo from(Channel channel) {
         ChannelInfo info = new ChannelInfo();

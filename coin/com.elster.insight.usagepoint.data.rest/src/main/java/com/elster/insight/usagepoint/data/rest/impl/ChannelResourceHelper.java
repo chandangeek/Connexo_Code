@@ -2,7 +2,11 @@ package com.elster.insight.usagepoint.data.rest.impl;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +27,9 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
+import com.google.common.collect.Range;
 
 public class ChannelResourceHelper {
 
@@ -35,15 +41,17 @@ public class ChannelResourceHelper {
     private final Thesaurus thesaurus;
     private final ValidationService validationService;
     private final UsagePointConfigurationService usagePointConfigurationService;
+    private final ValidationInfoFactory validationInfoFactory;
 
     @Inject
-    public ChannelResourceHelper(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Clock clock, Thesaurus thesaurus, ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService) {
+    public ChannelResourceHelper(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Clock clock, Thesaurus thesaurus, ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService, ValidationInfoFactory validationInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.usagePointConfigurationService = usagePointConfigurationService;
+        this.validationInfoFactory = validationInfoFactory;
     }
 
     public Response getChannels(String mrid, JsonQueryParameters queryParameters) {
@@ -56,7 +64,16 @@ public class ChannelResourceHelper {
             if (channel.isRegular())
                 regularChannels.add(channel);
         }
-        List<ChannelInfo> channelInfos = ListPager.of(regularChannels, CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).stream().map(ChannelInfo::from).collect(Collectors.toList());
+        List<Channel> channels = ListPager.of(regularChannels, CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
+        //.stream().map(ChannelInfo::from).collect(Collectors.toList());
+        
+        List<ChannelInfo> channelInfos = new ArrayList<>();
+        for (Channel channel : channels) {
+            ChannelInfo channelInfo = ChannelInfo.from(channel);
+            addValidationInfo(channel, channelInfo, usagepoint);
+            channelInfos.add(channelInfo);
+        }
+        
         return Response.ok(PagedInfoList.fromPagedList("channels", channelInfos, queryParameters)).build();
     }
 
@@ -67,10 +84,31 @@ public class ChannelResourceHelper {
                 .filter(channel->rt_mrid.equals(channel.getMainReadingType().getMRID())).findFirst();
     }
 
-    public Response getChannel(Supplier<Channel> channelSupplier) {
+    public Response getChannel(Supplier<Channel> channelSupplier, UsagePoint usagepoint) {
         Channel channel = channelSupplier.get();
         ChannelInfo channelInfo = ChannelInfo.from(channel);
+        addValidationInfo(channel, channelInfo, usagepoint);
         return Response.ok(channelInfo).build();
+    }
+    
+    public void addValidationInfo(Channel channel, ChannelInfo channelInfo, UsagePoint usagepoint) {
+        UsagePointValidation upv = getUsagePointValidation(usagepoint);
+        List<DataValidationStatus> states =
+                upv.getValidationStatus(channel, Collections.emptyList(), lastMonth());
+        channelInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(channel, upv), states, upv.getLastChecked(channel));
+        if (states.isEmpty()) {
+            channelInfo.validationInfo.dataValidated = upv.allDataValidated(channel, clock.instant());
+        }
+    }
+    
+    public boolean isValidationActive(Channel channel, UsagePointValidation upv) {
+        return upv.isValidationActive(channel, clock.instant());
+    }
+    
+    private Range<Instant> lastMonth() {
+        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime start = end.minusMonths(1);
+        return Range.openClosed(start.toInstant(), end.toInstant());
     }
     
     public UsagePointValidation getUsagePointValidation(UsagePoint usagePoint) {
@@ -82,4 +120,5 @@ public class ChannelResourceHelper {
         return meterActivation.getChannels().stream()
                 .filter(channel->rt_mrid.equals(channel.getMainReadingType().getMRID())).findFirst();
     }
+    
 }
