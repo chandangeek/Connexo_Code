@@ -13,6 +13,8 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder setNextExecution(Instant nextExecution);
 
+    DataExportTaskBuilder setApplication(String application);
+
     DataExportTaskBuilder scheduleImmediately();
 
     ExportTask create();

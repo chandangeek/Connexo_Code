@@ -43,6 +43,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private boolean exportUpdate;
     private boolean exportContinuousData;
     private boolean exportComplete;
+    private String application;
 
     private interface ReadingTypeDefinition {
         public void addTo(StandardDataSelector standardDataSelector);
@@ -93,6 +94,12 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
+    public DataExportTaskBuilderImpl setApplication(String application) {
+        this.application = application;
+        return this;
+    }
+
+    @Override
     public DataExportTaskBuilderImpl scheduleImmediately() {
         this.scheduleImmediately = true;
         return this;
@@ -100,7 +107,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
     @Override
     public ExportTask create() {
-        ExportTaskImpl exportTask = ExportTaskImpl.from(dataModel, name, dataFormatter, dataSelector, scheduleExpression, nextExecution);
+        ExportTaskImpl exportTask = ExportTaskImpl.from(dataModel, name, dataFormatter, dataSelector, scheduleExpression, nextExecution, application);
         exportTask.setScheduleImmediately(scheduleImmediately);
         switch (defaultSelector) {
             case READINGTYPES: {
