@@ -37,7 +37,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_MESSAGE(213, "NoSuchMessage", "No such device message exists on the device"),
     UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED(217, "UpdateSecurityPropertySetNotAllowed", "Update security property set not allowed"),
     NO_SUCH_LABEL_CATEGORY(219, "NoSuchLabelCategory", "No such label category"),
-    NO_SUCH_DEVICE_LABEL(220, "NoSuchDeviceLabel", "No such device label of category ''{0}'' on a device {1}"),
     NO_SUCH_CHANNEL_ON_DEVICE(221, "NoSuchChannelOnDevice", "Device {0} has no channel {1}"),
     RUN_CONNECTIONTASK_IMPOSSIBLE(224, "runConTaskImpossible", "Running of this connection task is impossible"),
     NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
@@ -76,6 +75,10 @@ public enum MessageSeeds implements MessageSeed {
     INTERVAL_END_BENEATH_START(258, "intervalEndBeneathStart", "End time beneath start time"),
     NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER(259, "noSuchCPSforRegister", "No custom property set with ID {0} for Register with ID {1}"),
     NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL(260, "noSuchCPSforChannel", "No custom property set with ID {0} for Channel with ID {1}"),
+    FLAG_DEVICE_CONCURRENT_TITLE(261, "FlagDeviceConcurrentTitle", "Failed to flag ''{0}''"),
+    REMOVE_FLAG_DEVICE_CONCURRENT_TITLE(262, "RemoveFlagDeviceConcurrentTitle", "Failed to remove ''{0}'' from the list of flagged devices"),
+    FLAG_DEVICE_CONCURRENT_BODY(263, "FlagDeviceConcurrentMessage", "{0} has changed since the page was last updated."),
+
     ;
     private final int number;
     private final String key;
