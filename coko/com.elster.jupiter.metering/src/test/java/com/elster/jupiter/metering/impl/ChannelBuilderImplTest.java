@@ -74,7 +74,7 @@ public class ChannelBuilderImplTest {
         when(meter.getConfiguration(any())).thenReturn(Optional.of(configuration));
         when(configuration.getReadingTypeConfigs()).thenReturn(Collections.singletonList(readingTypeConfig));
         when(readingTypeConfig.getMeasured()).thenReturn(rtSecondaryBulk);
-        when(readingTypeConfig.getCalculated()).thenReturn(rtPrimaryBulk);
+        when(readingTypeConfig.getCalculated()).thenReturn(Optional.of(rtPrimaryBulk));
 
         when(rtPrimaryBulk.isCumulative()).thenReturn(true);
         when(rtPrimaryBulk.isRegular()).thenReturn(true);

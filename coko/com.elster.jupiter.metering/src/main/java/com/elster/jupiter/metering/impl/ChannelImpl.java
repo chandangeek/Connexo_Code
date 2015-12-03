@@ -36,6 +36,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.streams.ExtraCollectors;
+import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -151,6 +152,7 @@ public final class ChannelImpl implements ChannelContract {
         if (multipliers
                 .stream()
                 .map(Multiplier::getCalculated)
+                .flatMap(Functions.asStream())
                 .map(use(ReadingType::isBulkQuantityReadingType).on(readingType))
                 .anyMatch(self())) {
             return DerivationRule.MULTIPLIED_DELTA;
@@ -281,15 +283,59 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
+    public Object[] toArray(BaseReadingRecord readingRecord) {
+        if (readingRecord instanceof BaseReadingRecordImpl) {
+            return ((BaseReadingRecordImpl) readingRecord).getEntry().getValues();
+        }
+        RecordSpecs recordSpecDefinition = getRecordSpecDefinition();
+        List<IReadingType> readingTypes = getReadingTypes();
+
+        return readingRecord.getReadingTypes()
+                .stream()
+                .map(readingType -> recordSpecDefinition.toArray(readingRecord.filter(readingType), readingTypes.indexOf(readingType), readingRecord.getProcesStatus()))
+                .reduce(null, this::merge);
+    }
+
+    private Object[] merge(Object[] first, Object[] second) {
+        if (first == null) {
+            return second;
+        }
+        if (second == null) {
+            return first;
+        }
+        Object[] longest = first.length > second.length ? first : second;
+        Object[] shortest = first.length > second.length ? second : first;
+        for (int i = 0; i < shortest.length; i++) {
+            longest[i] = mergeObject(longest[i], shortest[i]);
+        }
+        return longest;
+    }
+
+    private Object mergeObject(Object first, Object second) {
+        if (first == null) {
+            return second;
+        }
+        if (second == null) {
+            return first;
+        }
+        if (Objects.equals(first, second)) {
+            return first;
+        }
+        throw new IllegalArgumentException();
+    }
+
+    @Override
     public void validateValues(BaseReading reading, Object[] values) {
         getRecordSpecDefinition().validateValues(reading, values);
     }
 
+    @Override
     public Optional<Range<Instant>> getTimePeriod(BaseReading reading, Object[] values) {
         return getRecordSpecDefinition().getTimePeriod(reading, values);
     }
 
-    RecordSpecs getRecordSpecDefinition() {
+    @Override
+    public RecordSpecs getRecordSpecDefinition() {
         if (isRegular()) {
             return bulkQuantityReadingType.isPresent() ? RecordSpecs.BULKQUANTITYINTERVAL : RecordSpecs.SINGLEINTERVAL;
         } else {

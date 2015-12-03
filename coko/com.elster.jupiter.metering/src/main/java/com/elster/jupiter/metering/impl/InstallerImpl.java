@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
@@ -56,8 +57,9 @@ public class InstallerImpl {
     private final MessageService messageService;
     private final boolean createAllReadingTypes;
     private final String[] requiredReadingTypes;
+    private final Clock clock;
 
-    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, boolean createAllReadingTypes, String[] requiredReadingTypes) {
+    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, boolean createAllReadingTypes, String[] requiredReadingTypes, Clock clock) {
         this.meteringService = meteringService;
         this.idsService = idsService;
         this.partyService = partyService;
@@ -67,6 +69,7 @@ public class InstallerImpl {
         this.messageService = messageService;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes;
+        this.clock = clock;
     }
 
     public void install() {
@@ -172,7 +175,7 @@ public class InstallerImpl {
     }
 
     private void createPartitions(Vault vault) {
-    	Instant start = YearMonth.now().atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+    	Instant start = YearMonth.now(clock).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
     	vault.activate(start);
     	vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
     }

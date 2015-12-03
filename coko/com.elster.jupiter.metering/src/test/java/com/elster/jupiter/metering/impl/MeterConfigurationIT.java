@@ -162,7 +162,7 @@ public class MeterConfigurationIT {
         MeterReadingTypeConfiguration meterReadingTypeConfiguration = meterConfiguration.getReadingTypeConfigs().get(0);
 
         assertThat(meterReadingTypeConfiguration.getMeasured()).isEqualTo(secondaryMetered);
-        assertThat(meterReadingTypeConfiguration.getCalculated()).isEqualTo(primaryMetered);
+        assertThat(meterReadingTypeConfiguration.getCalculated()).contains(primaryMetered);
         assertThat(meterReadingTypeConfiguration.getMultiplierType()).isEqualTo(multiplierType);
         assertThat(meterReadingTypeConfiguration.getOverflowValue()).hasValue(15);
         assertThat(meterReadingTypeConfiguration.getNumberOfFractionDigits()).hasValue(3);

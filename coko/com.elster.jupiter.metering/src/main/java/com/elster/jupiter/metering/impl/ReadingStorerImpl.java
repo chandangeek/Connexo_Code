@@ -13,15 +13,24 @@ import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.util.Pair;
-import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static com.elster.jupiter.util.streams.Currying.perform;
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 class ReadingStorerImpl implements ReadingStorer {
     private static final ProcessStatus DEFAULTPROCESSSTATUS = ProcessStatus.of();
@@ -29,9 +38,35 @@ class ReadingStorerImpl implements ReadingStorer {
 
     private final Map<CimChannel, Range<Instant>> scope = new HashMap<>();
     private final EventService eventService;
-    private final Map<Pair<Channel, Instant>, Object[]> consolidatedValues = new HashMap<>();
-    private final Map<Pair<Channel, Instant>, BaseReading> readings = new HashMap<>();
+    private final Map<Pair<ChannelContract, Instant>, Object[]> consolidatedValues = new HashMap<>();
+    private final Map<Pair<ChannelContract, Instant>, BaseReading> readings = new HashMap<>();
     private final StorerProcess storerProcess;
+    private Map<ChannelContract, List<Derivation>> deltaDerivations = new HashMap<>();
+    private Map<Pair<ChannelContract, Instant>, Object[]> previous;
+
+    private static class Derivation {
+        private final IReadingType readingType;
+        private final DerivationRule derivationRule;
+        private final int index;
+
+        public Derivation(IReadingType readingType, DerivationRule derivationRule, int index) {
+            this.readingType = readingType;
+            this.derivationRule = derivationRule;
+            this.index = index;
+        }
+
+        public IReadingType getReadingType() {
+            return readingType;
+        }
+
+        public DerivationRule getDerivationRule() {
+            return derivationRule;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
 
     private ReadingStorerImpl(IdsService idsService, EventService eventService, UpdateBehaviour updateBehaviour, StorerProcess storerProcess) {
         this.eventService = eventService;
@@ -89,10 +124,10 @@ class ReadingStorerImpl implements ReadingStorer {
 
     @Override
     public void addReading(CimChannel channel, BaseReading reading, ProcessStatus status) {
-        Pair<Channel, Instant> key = Pair.of(channel.getChannel(), reading.getTimeStamp());
+        ChannelContract channelContract = (ChannelContract) channel.getChannel();
+        Pair<ChannelContract, Instant> key = Pair.of(channelContract, reading.getTimeStamp());
         int offset = channel.isRegular() ? 2 : 1;
 
-        ChannelContract channelContract = (ChannelContract) channel.getChannel();
         List<? extends FieldSpec> fieldSpecs = channelContract.getTimeSeries().getRecordSpec().getFieldSpecs();
 
         Object[] values = consolidatedValues.computeIfAbsent(key, k -> {
@@ -109,7 +144,7 @@ class ReadingStorerImpl implements ReadingStorer {
                 });
 
         ProcessStatus processStatus;
-        if (values[0] != null && !Objects.equal(storer.doNotUpdateMarker(), values[0])) {
+        if (values[0] != null && !Objects.equals(storer.doNotUpdateMarker(), values[0])) {
             processStatus = status.or(new ProcessStatus((Long) values[0]));
         } else {
             processStatus = status;
@@ -126,9 +161,26 @@ class ReadingStorerImpl implements ReadingStorer {
 
     @Override
     public void execute() {
+
+        /*
+TODO
+        We need to detect whether any columns have derivation rules that require delta calculation.
+        If any such column exists we'll need to determine which points in time we'll need to check for existing data,
+        since that existing data, if available will allow us to calculate delta values.
+        Likely some of the needed data are in the values we're about to write,
+        so we'll need to set data from both these sources up so its origin is transparent to the delta calculation itself.
+
+        Secondly we'll need to apply multipliers if any derivation rules are multiplied. So if any such fields exist
+        we should figure out which multipliers apply, taking into account multipliers may change over time.
+
+        All these additional calculations should be added to the consolidated values. However, whenever a value was already supplied no calculation is necessary.
+
+         */
+
+        doDerivations();
         consolidatedValues.entrySet().stream()
                 .forEach(entry -> {
-                    ChannelContract channel = (ChannelContract) entry.getKey().getFirst();
+                    ChannelContract channel = entry.getKey().getFirst();
                     Instant timestamp = entry.getKey().getLast();
                     Object[] values = entry.getValue();
                     channel.validateValues(readings.get(entry.getKey()), values);
@@ -136,6 +188,83 @@ class ReadingStorerImpl implements ReadingStorer {
                 });
         storer.execute();
         eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
+    }
+
+    private void doDerivations() {
+        previous = new HashMap<>();
+
+        Map<Pair<ChannelContract, Instant>, Object[]> valuesView = Maps.filterKeys(this.consolidatedValues, pair -> pair.getFirst().isRegular());
+        List<Pair<ChannelContract, Instant>> needed = valuesView.keySet()
+                .stream()
+                .filter(pair11 -> pair11.getFirst().isRegular())
+                .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
+                .collect(Collectors.toList());
+
+        previous.putAll(Maps.filterKeys(valuesView, needed::contains));
+        previous.putAll(readFromDb(needed));
+
+        // ok we've got all the previous readings that are available
+
+        deltaDerivations = valuesView.keySet()
+                .stream()
+                .map(Pair::getFirst)
+                .distinct()
+                .collect(Collectors
+                        .toMap(
+                                Function.identity(),
+                                channelContract -> decorate(channelContract.getReadingTypes().stream())
+                                        .zipWithIndex()
+                                        .map(pair -> new Derivation(pair.getFirst(), channelContract.getDerivationRule(pair.getFirst()), pair.getLast().intValue()))
+                                        .filter(derivation -> derivation.getDerivationRule().isDelta())
+                                        .collect(Collectors.toList())
+                        ));
+
+        valuesView.keySet()
+                .stream()
+                .map(Pair::getFirst)
+                .distinct()
+                .forEach(this::calculateDelta);
+    }
+
+    private void calculateDelta(ChannelContract channel) {
+        deltaDerivations.get(channel)
+                .stream()
+                .forEach(perform(this::applyDerivation).on(channel));
+    }
+
+    private void applyDerivation(ChannelContract channel, Derivation derivation) {
+        int slotOffset = channel.getRecordSpecDefinition().slotOffset();
+        consolidatedValues.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().getFirst().equals(channel))
+                .forEach(entry -> {
+                    if (Objects.equals(entry.getValue()[slotOffset + derivation.index], storer.doNotUpdateMarker())) {
+                        Object[] previousReading = previous.get(entry.getKey().withLast(Channel::getPreviousDateTime));
+                        if (previousReading != null) {
+                            int bulkIndex = slotOffset + derivation.index + 1;
+                            BigDecimal previous = (BigDecimal) previousReading[bulkIndex];
+                            BigDecimal current = (BigDecimal) entry.getValue()[bulkIndex];
+                            entry.getValue()[slotOffset + derivation.index] = delta(previous, current);
+                        }
+                    }
+                });
+    }
+
+    private BigDecimal delta(BigDecimal previous, BigDecimal current) {
+        if (previous == null || current == null) {
+            return null;
+        }
+        return current.subtract(previous);
+    }
+
+    private Map<Pair<ChannelContract, Instant>, Object[]> readFromDb(List<Pair<ChannelContract, Instant>> needed) {
+        return needed.stream()
+                .filter(not(consolidatedValues::containsKey))
+                .map(pair -> Pair.of(pair, pair.getFirst().getReading(pair.getLast())))
+                .filter(pair -> pair.getLast().isPresent())
+                .map(pair -> pair.withLast(Optional::get))
+                .map(pair -> pair.withLast(pair.getFirst().getFirst()::toArray))
+                .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
     }
 
     @Override

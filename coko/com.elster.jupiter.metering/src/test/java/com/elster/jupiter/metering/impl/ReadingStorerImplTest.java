@@ -8,7 +8,6 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.google.common.collect.Range;
@@ -48,7 +47,7 @@ public class ReadingStorerImplTest {
     @Mock
     private EventService eventService;
     @Mock
-    private ReadingType readingType1, readingType2;
+    private IReadingType readingType1, readingType2;
     @Mock
     private RecordSpec recordSpec;
     @Mock
@@ -103,6 +102,5 @@ public class ReadingStorerImplTest {
         Map<CimChannel, Range<Instant>> scope = readingStorer.getScope();
         assertThat(scope).contains(entry(cimChannel, Range.closed(instant, instant.plusSeconds(2 * 3600L))));
     }
-
 
 }

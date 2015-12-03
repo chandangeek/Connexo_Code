@@ -90,17 +90,17 @@ public class ChannelBuilderImpl implements ChannelBuilder {
                 .map(MeterConfiguration::getReadingTypeConfigs)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .filter(multiplier -> multiplier.getCalculated() != null)
+                .filter(multiplier -> multiplier.getCalculated().isPresent())
                 .filter(multiplier -> readingTypes.contains(multiplier.getMeasured()))
-                .map(multiplier -> Pair.of(multiplier.getMeasured(), multiplier.getCalculated()));
+                .map(multiplier -> Pair.of(multiplier.getMeasured(), multiplier.getCalculated().get()));
         Stream<Pair<ReadingType, ReadingType>> usagePointMultipliers = meterActivation.getUsagePoint()
                 .flatMap(usagePoint -> usagePoint.getConfiguration(meterActivation.getStart()))
                 .map(UsagePointConfiguration::getReadingTypeConfigs)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .filter(multiplier -> multiplier.getCalculated() != null)
+                .filter(multiplier -> multiplier.getCalculated().isPresent())
                 .filter(multiplier -> readingTypes.contains(multiplier.getMeasured()))
-                .map(multiplier -> Pair.of(multiplier.getMeasured(), multiplier.getCalculated()));
+                .map(multiplier -> Pair.of(multiplier.getMeasured(), multiplier.getCalculated().get()));
         Map<ReadingType, List<Pair<ReadingType, ReadingType>>> multipliers = Stream.of(meterMultipliers, usagePointMultipliers)
                 .flatMap(Function.identity())
                 .collect(Collectors.groupingBy(Pair::getFirst));

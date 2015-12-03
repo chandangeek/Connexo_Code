@@ -7,7 +7,7 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 
 public class IntervalReadingRecordImpl extends BaseReadingRecordImpl implements IntervalReadingRecord {
 	
-	IntervalReadingRecordImpl(ChannelImpl channel, TimeSeriesEntry entry) {
+	IntervalReadingRecordImpl(ChannelContract channel, TimeSeriesEntry entry) {
 		super(channel,entry);
 	}
 

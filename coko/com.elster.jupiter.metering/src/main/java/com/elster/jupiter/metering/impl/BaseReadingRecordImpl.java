@@ -18,10 +18,10 @@ import java.util.Optional;
 
 
 public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
-    private final ChannelImpl channel;
+    private final ChannelContract channel;
     private final TimeSeriesEntry entry;
 
-    BaseReadingRecordImpl(ChannelImpl channel, TimeSeriesEntry entry) {
+    BaseReadingRecordImpl(ChannelContract channel, TimeSeriesEntry entry) {
         this.channel = channel;
         this.entry = entry;
     }
@@ -68,7 +68,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     }
     
     private Quantity getQuantity(int offset, ReadingType readingType) {
-    	return ((ReadingTypeImpl) readingType).toQuantity(doGetValue(offset));
+    	return ((IReadingType) readingType).toQuantity(doGetValue(offset));
     }
 
     private BigDecimal doGetValue(int offset) {

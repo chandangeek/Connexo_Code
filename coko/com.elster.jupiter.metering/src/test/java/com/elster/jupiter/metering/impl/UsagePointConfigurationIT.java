@@ -162,7 +162,7 @@ public class UsagePointConfigurationIT {
         UsagePointReadingTypeConfiguration usagePointReadingTypeConfiguration = usagePointConfiguration.getReadingTypeConfigs().get(0);
 
         assertThat(usagePointReadingTypeConfiguration.getMeasured()).isEqualTo(secondaryMetered);
-        assertThat(usagePointReadingTypeConfiguration.getCalculated()).isEqualTo(primaryMetered);
+        assertThat(usagePointReadingTypeConfiguration.getCalculated()).contains(primaryMetered);
         assertThat(usagePointReadingTypeConfiguration.getMultiplierType()).isEqualTo(multiplierType);
     }
 

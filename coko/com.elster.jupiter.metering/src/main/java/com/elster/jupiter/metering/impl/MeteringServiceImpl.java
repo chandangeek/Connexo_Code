@@ -157,7 +157,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         } catch (Exception e) {
             e.printStackTrace();
         }
-        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes).install();
+        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes, clock).install();
     }
 
     @Override

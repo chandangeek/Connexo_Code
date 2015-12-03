@@ -454,7 +454,8 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 		}
 		return TimeAttribute.values()[Integer.parseInt(parts[2])];
 	}
-    
+
+	@Override
     public Quantity toQuantity(BigDecimal value) {
     	if (value == null) {
     		return null;
