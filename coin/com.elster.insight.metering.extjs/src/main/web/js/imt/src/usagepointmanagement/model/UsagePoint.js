@@ -12,7 +12,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'servicePriority', type: 'string'},
         {name: 'serviceCategory', type: 'string'},
         {name: 'serviceDeliveryRemark', type: 'string'},
-        {name: 'amiBillingReady', type: 'auto', useNull: true, defaultValue: null},
+        {name: 'amiBillingReady', type: 'auto', defaultValue: undefined},
         {name: 'connectionState', type: 'string', defaultValue: 'UNKNOWN'},
         {name: 'serviceLocationID', type: 'number', defaultValue: 0},
         {name: 'checkBilling', type: 'boolean'},
@@ -22,10 +22,10 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'version', type: 'number', useNull: true},
         {name: 'metrologyConfiguration', type: 'auto'},
         //For ELECTRICITY
-        {name: 'nominalServiceVoltage', type: 'auto', useNull: true, defaultValue: null},
-        {name: 'ratedCurrent', type: 'auto', useNull: true, defaultValue: null},
-        {name: 'ratedPower', type: 'auto', useNull: true, defaultValue: null},
-        {name: 'estimatedLoad', type: 'auto', useNull: true, defaultValue: null},
+        {name: 'nominalServiceVoltage', type: 'auto', defaultValue: undefined},
+        {name: 'ratedCurrent', type: 'auto', defaultValue: undefined},
+        {name: 'ratedPower', type: 'auto', defaultValue: undefined},
+        {name: 'estimatedLoad', type: 'auto', defaultValue: undefined},
         {name: 'grounded', type: 'boolean'},
         {name: 'phaseCode', type: 'string', defaultValue: 'UNKNOWN'},
         //For WATER
