@@ -1,5 +1,9 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
@@ -9,11 +13,7 @@ import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.ServerSerialPort;
-
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
 
 /**
  * Provides an implementation for the {@link SerialComponentService} interface
@@ -41,7 +41,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
 
     protected PropertySpec flowControlPropertySpec() {
         return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
-                .name(SerialPortConfiguration.FLOW_CONTROL_NAME)
+                .name(SerialPortConfigurationPropertySpecNames.FLOW_CONTROL)
                 .markExhaustive()
                 .setDefaultValue(FlowControl.NONE.value())
                 .addValues(FlowControl.RTSCTS.value(), FlowControl.XONXOFF.value())
@@ -51,7 +51,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     protected final PropertySpec nrOfDataBitsPropertySpec(boolean required) {
         PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
         builder.
-                name(SerialPortConfiguration.NR_OF_DATA_BITS_NAME).
+                name(SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS).
                 markExhaustive().
                 setDefaultValue(NrOfDataBits.EIGHT.value()).
                 addValues(NrOfDataBits.getTypedValues());
@@ -64,7 +64,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     protected final PropertySpec nrOfStopBitsPropertySpec(boolean required) {
         PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
         builder.
-                name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
+                name(SerialPortConfigurationPropertySpecNames.NR_OF_STOP_BITS).
                 markExhaustive().
                 setDefaultValue(NrOfStopBits.ONE.value()).
                 addValues(NrOfStopBits.getTypedValues());
@@ -77,7 +77,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     protected final PropertySpec parityPropertySpec(boolean required) {
         PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new StringFactory());
         builder.
-                name(SerialPortConfiguration.PARITY_NAME).
+                name(SerialPortConfigurationPropertySpecNames.PARITY).
                 markExhaustive().
                 setDefaultValue(Parities.NONE.value()).
                 addValues(Parities.getTypedValues());
@@ -90,7 +90,7 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     protected final PropertySpec baudRatePropertySpec(boolean required) {
         PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
         builder.
-                name(SerialPortConfiguration.BAUDRATE_NAME).
+                name(SerialPortConfigurationPropertySpecNames.BAUDRATE).
                 markExhaustive().
                 setDefaultValue(BaudrateValue.BAUDRATE_57600.value()).
                 addValues(BaudrateValue.getTypedValues());

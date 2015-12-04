@@ -8,6 +8,7 @@ import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.SerialPortException;
 import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.io.SignalController;
+import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
 
 import Serialio.SerInputStream;
 import Serialio.SerOutputStream;
@@ -89,7 +90,7 @@ public class SioSerialPort implements ServerSerialPort {
         } else if (FlowControl.XONXOFF.value().equals(flowControl)) {
             return SerialConfig.HS_XONXOFF;
         } else {
-            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.FLOW_CONTROL_NAME, flowControl);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfigurationPropertySpecNames.FLOW_CONTROL, flowControl);
         }
     }
 
@@ -105,7 +106,7 @@ public class SioSerialPort implements ServerSerialPort {
         } else if (Parities.SPACE.value().equals(parity)) {
             return SerialConfig.PY_SPACE;
         } else {
-            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.PARITY_NAME, parity);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfigurationPropertySpecNames.PARITY, parity);
         }
     }
 
@@ -116,7 +117,7 @@ public class SioSerialPort implements ServerSerialPort {
             case SERIAL_CONFIG_2_STOP_BITS_UNSCALED_VALUE:
                 return SerialConfig.ST_2BITS;
             default:
-                throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.NR_OF_STOP_BITS_NAME, nrOfStopBits.toString());
+                throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfigurationPropertySpecNames.NR_OF_STOP_BITS, nrOfStopBits.toString());
         }
     }
 
@@ -131,7 +132,7 @@ public class SioSerialPort implements ServerSerialPort {
             case SERIAL_CONFIG_8_DATA_BITS_MARKER:
                 return SerialConfig.LN_8BITS;
             default:
-                throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.NR_OF_DATA_BITS_NAME, nrOfDataBits.toString());
+                throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS, nrOfDataBits.toString());
         }
     }
 

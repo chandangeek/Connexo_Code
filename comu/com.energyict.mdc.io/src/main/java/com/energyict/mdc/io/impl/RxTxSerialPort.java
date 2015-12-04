@@ -2,10 +2,12 @@ package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.Parities;
-import com.energyict.mdc.io.SerialPortException;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.io.SerialPortException;
 import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.io.SignalController;
+import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
+
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -115,7 +117,7 @@ public class RxTxSerialPort implements ServerSerialPort {
             getSerialPortSignalController().setRTS(true);
             getSerialPortSignalController().setDTR(true);
         } else {
-            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.FLOW_CONTROL_NAME, flowControl);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfigurationPropertySpecNames.FLOW_CONTROL, flowControl);
         }
     }
 
@@ -131,7 +133,7 @@ public class RxTxSerialPort implements ServerSerialPort {
         } else if (Parities.SPACE.value().equals(configParity)) {
             return SerialPort.PARITY_SPACE;
         }
-        throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.PARITY_NAME, configParity);
+        throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfigurationPropertySpecNames.PARITY, configParity);
     }
 
     protected int getRxTxNrOfStopBits(BigDecimal stopBits) {
@@ -143,7 +145,7 @@ public class RxTxSerialPort implements ServerSerialPort {
             case STOPBITS_1_5_UNSCALED_VALUE:
                 return SerialPort.STOPBITS_1_5;
         }
-        throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.NR_OF_STOP_BITS_NAME, stopBits.toString());
+        throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfigurationPropertySpecNames.NR_OF_STOP_BITS, stopBits.toString());
     }
 
     protected int getRxTxNrOfDataBits(BigDecimal dataBits) {
@@ -151,7 +153,7 @@ public class RxTxSerialPort implements ServerSerialPort {
             return dataBits.intValue();
         }
         else {
-            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.NR_OF_DATA_BITS_NAME, dataBits.toString());
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS, dataBits.toString());
         }
     }
 

@@ -5,19 +5,13 @@ import com.elster.jupiter.time.TimeDuration;
 import java.math.BigDecimal;
 
 /**
- * Groups relevant serial port configuration options
- * <p/>
+ * Groups relevant serial port configuration options.
+ *
  * Copyrights EnergyICT
  * Date: 14/08/12
  * Time: 13:23
  */
 public class SerialPortConfiguration {
-
-    public static final String BAUDRATE_NAME = "serialconfig_baudrate";
-    public static final String NR_OF_DATA_BITS_NAME = "serialconfig_numberofdatabits";
-    public static final String NR_OF_STOP_BITS_NAME = "serialconfig_numberofstopbits";
-    public static final String PARITY_NAME = "serialconfig_parity";
-    public static final String FLOW_CONTROL_NAME = "serialconfig_flowcontrol";
 
     public static final TimeDuration DEFAULT_SERIAL_PORT_OPEN_TIMEOUT = new TimeDuration(2);
     public static final TimeDuration DEFAULT_SERIAL_PORT_READ_TIMEOUT = new TimeDuration(10);

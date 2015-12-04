@@ -1,5 +1,7 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -8,9 +10,7 @@ import com.energyict.mdc.io.PEMPModemConfiguration;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.ServerSerialPort;
-
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.io.naming.ModemPropertySpecNames;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
         List<AtPostDialCommand> postDialCommands = Collections.emptyList();
         for (String propertyName : properties.propertyNames()) {
             switch (propertyName) {
-                case TypedAtModemProperties.AT_MODEM_POST_DIAL_COMMANDS:
+                case ModemPropertySpecNames.POST_DIAL_COMMANDS:
                     postDialCommands = this.parseAndValidatePostDialCommands((String) properties.getProperty(propertyName));
                     break;
                 default:

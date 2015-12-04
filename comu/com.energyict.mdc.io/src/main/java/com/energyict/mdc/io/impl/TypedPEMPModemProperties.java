@@ -1,13 +1,14 @@
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.PEMPModemConfiguration;
-
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.PEMPModemConfiguration;
+import com.energyict.mdc.io.naming.ModemPropertySpecNames;
+import com.energyict.mdc.io.naming.PEMPModemPropertySpecNames;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,17 +23,6 @@ import java.util.Map;
  * @since 29/04/13 - 15:08
  */
 public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamicProperties {
-
-    public static final String MODEM_DIAL_PREFIX = "modem_dial_prefix";         // the prefix command to use when performing the actual dial to the modem of the device
-    public static final String CONNECT_TIMEOUT = "modem_connect_timeout";       // timeout for the connect command
-    public static final String DELAY_AFTER_CONNECT = "modem_delay_after_con";   // timeout to wait after a connect command has been received
-    public static final String DELAY_BEFORE_SEND = "modem_senddelay";           // delay to wait before we send a command
-    public static final String COMMAND_TIMEOUT = "modem_command_timeout";       // timeout for regular commands
-    public static final String COMMAND_TRIES = "modem_command_tries";           // the number of attempts a command should be send to the modem before
-    public static final String GLOBAL_MODEM_INIT_STRINGS = "modem_global_init_string";   // the initialization strings for this modem type (separated by a colon
-    public static final String MODEM_INIT_STRINGS = "modem_init_string";        // the initialization strings for this modem type modem
-    public static final String DTR_TOGGLE_DELAY = "disconnect_line_toggle_delay";// the delay between DTR line toggles, which are used to disconnect the active connection.
-    public static final String MODEM_CONFIGURATION_KEY = "modem_configuration_key";// the PEMPModemConfiguration to use
 
     static final String DEFAULT_GLOBAL_MODEM_INIT_STRINGS = "";
     static final String DEFAULT_MODEM_INIT_STRINGS = "1:0;2:0;3:0;4:10;5:0;6:5";
@@ -64,7 +54,7 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
         this.properties = TypedProperties.empty();
         for (String propertyName : properties.propertyNames()) {
             switch (propertyName) {
-                case MODEM_CONFIGURATION_KEY:
+                case PEMPModemPropertySpecNames.CONFIGURATION_KEY:
                     this.properties.setProperty(propertyName, PEMPModemConfiguration.getPEMPModemConfiguration((String) properties.getProperty(propertyName)));
                     break;
                 default:
@@ -89,17 +79,17 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
     }
 
     private void initializePropertySpecs(Map<String, PropertySpec> propertySpecs) {
-        propertySpecs.put(CONNECT_TIMEOUT, atConnectTimeoutSpec(this.propertySpecService));
-        propertySpecs.put(MODEM_DIAL_PREFIX, atCommandPrefixSpec(this.propertySpecService));
-        propertySpecs.put(GLOBAL_MODEM_INIT_STRINGS, atGlobalModemInitStringSpec(this.propertySpecService));
-        propertySpecs.put(MODEM_INIT_STRINGS, atModemInitStringSpec(this.propertySpecService));
-        propertySpecs.put(COMMAND_TRIES, atCommandTriesSpec(this.propertySpecService));
-        propertySpecs.put(COMMAND_TIMEOUT, atCommandTimeoutSpec(this.propertySpecService));
+        propertySpecs.put(ModemPropertySpecNames.CONNECT_TIMEOUT, atConnectTimeoutSpec(this.propertySpecService));
+        propertySpecs.put(ModemPropertySpecNames.DIAL_PREFIX, atCommandPrefixSpec(this.propertySpecService));
+        propertySpecs.put(ModemPropertySpecNames.GLOBAL_INIT_STRINGS, atGlobalModemInitStringSpec(this.propertySpecService));
+        propertySpecs.put(ModemPropertySpecNames.INIT_STRINGS, atModemInitStringSpec(this.propertySpecService));
+        propertySpecs.put(ModemPropertySpecNames.COMMAND_TRIES, atCommandTriesSpec(this.propertySpecService));
+        propertySpecs.put(ModemPropertySpecNames.COMMAND_TIMEOUT, atCommandTimeoutSpec(this.propertySpecService));
         propertySpecs.put(PHONE_NUMBER_PROPERTY_NAME, phoneNumberSpec(this.propertySpecService));
-        propertySpecs.put(DELAY_AFTER_CONNECT, delayAfterConnectSpec(this.propertySpecService));
-        propertySpecs.put(DELAY_BEFORE_SEND, delayBeforeSendSpec(this.propertySpecService));
-        propertySpecs.put(DTR_TOGGLE_DELAY, dtrToggleDelaySpec(this.propertySpecService));
-        propertySpecs.put(MODEM_CONFIGURATION_KEY, modemConfigurationKeySpec(this.propertySpecService));
+        propertySpecs.put(ModemPropertySpecNames.DELAY_AFTER_CONNECT, delayAfterConnectSpec(this.propertySpecService));
+        propertySpecs.put(ModemPropertySpecNames.DELAY_BEFORE_SEND, delayBeforeSendSpec(this.propertySpecService));
+        propertySpecs.put(ModemPropertySpecNames.DTR_TOGGLE_DELAY, dtrToggleDelaySpec(this.propertySpecService));
+        propertySpecs.put(PEMPModemPropertySpecNames.CONFIGURATION_KEY, modemConfigurationKeySpec(this.propertySpecService));
     }
 
     @Override
@@ -109,42 +99,42 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
 
     @Override
     public String getCommandPrefix() {
-        return (String) properties.getProperty(MODEM_DIAL_PREFIX, DEFAULT_MODEM_DIAL_PREFIX);
+        return (String) properties.getProperty(ModemPropertySpecNames.DIAL_PREFIX, DEFAULT_MODEM_DIAL_PREFIX);
     }
 
     @Override
     public TimeDuration getConnectTimeout() {
-        return (TimeDuration) properties.getProperty(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+        return (TimeDuration) properties.getProperty(ModemPropertySpecNames.CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
     }
 
     @Override
     public TimeDuration getDelayAfterConnect() {
-        return (TimeDuration) properties.getProperty(DELAY_AFTER_CONNECT, DEFAULT_DELAY_AFTER_CONNECT);
+        return (TimeDuration) properties.getProperty(ModemPropertySpecNames.DELAY_AFTER_CONNECT, DEFAULT_DELAY_AFTER_CONNECT);
     }
 
     @Override
     public TimeDuration getDelayBeforeSend() {
-        return (TimeDuration) properties.getProperty(DELAY_BEFORE_SEND, DEFAULT_DELAY_BEFORE_SEND);
+        return (TimeDuration) properties.getProperty(ModemPropertySpecNames.DELAY_BEFORE_SEND, DEFAULT_DELAY_BEFORE_SEND);
     }
 
     @Override
     public TimeDuration getCommandTimeOut() {
-        return (TimeDuration) properties.getProperty(COMMAND_TIMEOUT, DEFAULT_COMMAND_TIMEOUT);
+        return (TimeDuration) properties.getProperty(ModemPropertySpecNames.COMMAND_TIMEOUT, DEFAULT_COMMAND_TIMEOUT);
     }
 
     @Override
     public BigDecimal getCommandTry() {
-        return (BigDecimal) properties.getProperty(COMMAND_TRIES, DEFAULT_COMMAND_TRIES);
+        return (BigDecimal) properties.getProperty(ModemPropertySpecNames.COMMAND_TRIES, DEFAULT_COMMAND_TRIES);
     }
 
     @Override
     public List<String> getModemInitStrings() {
-        return Collections.singletonList((String) properties.getProperty(MODEM_INIT_STRINGS, DEFAULT_MODEM_INIT_STRINGS));
+        return Collections.singletonList((String) properties.getProperty(ModemPropertySpecNames.INIT_STRINGS, DEFAULT_MODEM_INIT_STRINGS));
     }
 
     @Override
     public List<String> getGlobalModemInitStrings() {
-        String globalInitStringSpecs = (String) properties.getProperty(GLOBAL_MODEM_INIT_STRINGS, DEFAULT_GLOBAL_MODEM_INIT_STRINGS );
+        String globalInitStringSpecs = (String) properties.getProperty(ModemPropertySpecNames.GLOBAL_INIT_STRINGS, DEFAULT_GLOBAL_MODEM_INIT_STRINGS );
         if (!globalInitStringSpecs.isEmpty()) {
             return Arrays.asList(globalInitStringSpecs.split(AtModemComponent.SEPARATOR));
         } else {
@@ -154,12 +144,12 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
 
     @Override
     public TimeDuration getLineToggleDelay() {
-        return (TimeDuration) properties.getProperty(DTR_TOGGLE_DELAY, DEFAULT_DTR_TOGGLE_DELAY);
+        return (TimeDuration) properties.getProperty(ModemPropertySpecNames.DTR_TOGGLE_DELAY, DEFAULT_DTR_TOGGLE_DELAY);
     }
 
     @Override
     public PEMPModemConfiguration getConfiguration() {
-        return (PEMPModemConfiguration) properties.getProperty(MODEM_CONFIGURATION_KEY);
+        return (PEMPModemConfiguration) properties.getProperty(PEMPModemPropertySpecNames.CONFIGURATION_KEY);
     }
 
     protected void setProperty(String propertyName, Object value) {
@@ -167,43 +157,43 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
     }
 
     public static PropertySpec atGlobalModemInitStringSpec(PropertySpecService propertySpecService) {
-        return propertySpecService.stringPropertySpec(GLOBAL_MODEM_INIT_STRINGS, false, DEFAULT_GLOBAL_MODEM_INIT_STRINGS);
+        return propertySpecService.stringPropertySpec(ModemPropertySpecNames.GLOBAL_INIT_STRINGS, false, DEFAULT_GLOBAL_MODEM_INIT_STRINGS);
     }
 
     public static PropertySpec atModemInitStringSpec(PropertySpecService propertySpecService) {
-        return propertySpecService.stringPropertySpec(MODEM_INIT_STRINGS, false, DEFAULT_MODEM_INIT_STRINGS);
+        return propertySpecService.stringPropertySpec(ModemPropertySpecNames.INIT_STRINGS, false, DEFAULT_MODEM_INIT_STRINGS);
     }
 
     public static PropertySpec atCommandTriesSpec(PropertySpecService propertySpecService) {
-        return propertySpecService.bigDecimalPropertySpec(COMMAND_TRIES, false, DEFAULT_COMMAND_TRIES);
+        return propertySpecService.bigDecimalPropertySpec(ModemPropertySpecNames.COMMAND_TRIES, false, DEFAULT_COMMAND_TRIES);
     }
 
     public static PropertySpec atCommandTimeoutSpec(PropertySpecService propertySpecService) {
-        return propertySpecService.timeDurationPropertySpec(COMMAND_TIMEOUT, false, DEFAULT_COMMAND_TIMEOUT);
+        return propertySpecService.timeDurationPropertySpec(ModemPropertySpecNames.COMMAND_TIMEOUT, false, DEFAULT_COMMAND_TIMEOUT);
     }
 
     public static PropertySpec delayBeforeSendSpec(PropertySpecService propertySpecService) {
-        return propertySpecService.timeDurationPropertySpec(DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
+        return propertySpecService.timeDurationPropertySpec(ModemPropertySpecNames.DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
     }
 
     public static PropertySpec delayAfterConnectSpec(PropertySpecService propertySpecService) {
-        return propertySpecService.timeDurationPropertySpec(DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
+        return propertySpecService.timeDurationPropertySpec(ModemPropertySpecNames.DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
     }
 
     public static PropertySpec atConnectTimeoutSpec(PropertySpecService propertySpecService) {
-        return propertySpecService.timeDurationPropertySpec(CONNECT_TIMEOUT, false, DEFAULT_CONNECT_TIMEOUT);
+        return propertySpecService.timeDurationPropertySpec(ModemPropertySpecNames.CONNECT_TIMEOUT, false, DEFAULT_CONNECT_TIMEOUT);
     }
 
     public static PropertySpec atCommandPrefixSpec(PropertySpecService propertySpecService) {
-        return propertySpecService.stringPropertySpec(MODEM_DIAL_PREFIX, false, DEFAULT_MODEM_DIAL_PREFIX);
+        return propertySpecService.stringPropertySpec(ModemPropertySpecNames.DIAL_PREFIX, false, DEFAULT_MODEM_DIAL_PREFIX);
     }
 
     public static PropertySpec dtrToggleDelaySpec(PropertySpecService propertySpecService) {
-        return propertySpecService.timeDurationPropertySpec(DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
+        return propertySpecService.timeDurationPropertySpec(ModemPropertySpecNames.DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
     }
 
     public static PropertySpec modemConfigurationKeySpec(PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(MODEM_CONFIGURATION_KEY, true, new StringFactory());
+        return propertySpecService.basicPropertySpec(PEMPModemPropertySpecNames.CONFIGURATION_KEY, true, new StringFactory());
     }
 
     public static PropertySpec phoneNumberSpec(PropertySpecService propertySpecService) {
