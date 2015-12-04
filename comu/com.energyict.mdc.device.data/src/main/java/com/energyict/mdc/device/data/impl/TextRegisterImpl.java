@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.TextReading;
-import com.energyict.mdc.device.data.TextRegister;
-
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.data.TextReading;
+import com.energyict.mdc.device.data.TextRegister;
 
 /**
  * Provides an implementation for the {@link TextRegister} interface.
@@ -13,9 +12,9 @@ import com.elster.jupiter.validation.DataValidationStatus;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-14 (13:50)
  */
-public class TextRegisterImpl extends RegisterImpl<TextReading> implements TextRegister {
+public class TextRegisterImpl extends RegisterImpl<TextReading, TextualRegisterSpec> implements TextRegister {
 
-    public TextRegisterImpl(DeviceImpl device, RegisterSpec registerSpec) {
+    public TextRegisterImpl(DeviceImpl device, TextualRegisterSpec registerSpec) {
         super(device, registerSpec);
     }
 

@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.FlagsReading;
-import com.energyict.mdc.device.data.FlagsRegister;
-
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.FlagsReading;
+import com.energyict.mdc.device.data.FlagsRegister;
 
 /**
  * Provides an implementation for the {@link FlagsRegister} interface.
@@ -13,9 +12,9 @@ import com.elster.jupiter.validation.DataValidationStatus;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-14 (13:50)
  */
-public class FlagsRegisterImpl extends RegisterImpl<FlagsReading> implements FlagsRegister {
+public class FlagsRegisterImpl extends RegisterImpl<FlagsReading, NumericalRegisterSpec> implements FlagsRegister {
 
-    public FlagsRegisterImpl(DeviceImpl device, RegisterSpec registerSpec) {
+    public FlagsRegisterImpl(DeviceImpl device, NumericalRegisterSpec registerSpec) {
         super(device, registerSpec);
     }
 

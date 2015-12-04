@@ -1,66 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.*;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exceptions.*;
-import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.relation.CanLock;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
-
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -77,6 +16,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -96,6 +36,31 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.*;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.device.data.exceptions.*;
+import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.dynamic.relation.CanLock;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -107,29 +72,12 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -1042,11 +990,11 @@ public class DeviceImpl implements Device, CanLock {
         return findMdcAmrSystem().orElseThrow(mdcAMRSystemDoesNotExist());
     }
 
-    List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval) {
+    List<ReadingRecord> getReadingsFor(Register<?, ?> register, Range<Instant> interval) {
         return this.getListMeterAspect(meter -> this.getReadingsFor(register, interval, meter));
     }
 
-    private List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval, Meter meter) {
+    private List<ReadingRecord> getReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
         List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
         return readings
                 .stream()
@@ -1352,7 +1300,7 @@ public class DeviceImpl implements Device, CanLock {
         return interval.upperEndpoint();
     }
 
-    Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
+    Optional<ReadingRecord> getLastReadingFor(Register<?, ?> register) {
         return this.getOptionalMeterAspect(meter -> this.getLastReadingsFor(register, meter));
     }
 
@@ -1387,7 +1335,7 @@ public class DeviceImpl implements Device, CanLock {
         return this.hasData(this.findKoreChannels(channel));
     }
 
-    boolean hasData(Register<?> register) {
+    boolean hasData(Register<?, ?> register) {
         return this.hasData(this.findKoreChannels(register));
     }
 
@@ -1518,7 +1466,7 @@ public class DeviceImpl implements Device, CanLock {
         return findKoreChannels(channel::getReadingType);
     }
 
-    List<com.elster.jupiter.metering.Channel> findKoreChannels(Register<?> register) {
+    List<com.elster.jupiter.metering.Channel> findKoreChannels(Register<?, ?> register) {
         return findKoreChannels(register::getReadingType);
     }
 
@@ -1526,7 +1474,7 @@ public class DeviceImpl implements Device, CanLock {
         return this.getListMeterAspect(meter -> this.findKoreChannels(readingTypeSupplier, meter));
     }
 
-    com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, Register<?> register) {
+    com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, Register<?, ?> register) {
         return findOrCreateKoreChannel(when, register.getReadingType());
     }
 
@@ -2221,7 +2169,7 @@ public class DeviceImpl implements Device, CanLock {
 
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new TextRegisterImpl(device, registerSpec);
+                return new TextRegisterImpl(device, (TextualRegisterSpec) registerSpec);
             }
         },
 
@@ -2234,7 +2182,7 @@ public class DeviceImpl implements Device, CanLock {
 
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new BillingRegisterImpl(device, registerSpec);
+                return new BillingRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
             }
         },
 
@@ -2246,7 +2194,7 @@ public class DeviceImpl implements Device, CanLock {
 
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new FlagsRegisterImpl(device, registerSpec);
+                return new FlagsRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
             }
         },
 
@@ -2259,7 +2207,7 @@ public class DeviceImpl implements Device, CanLock {
 
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new NumericalRegisterImpl(device, registerSpec);
+                return new NumericalRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
             }
         };
 

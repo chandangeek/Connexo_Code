@@ -32,7 +32,7 @@ import java.util.Optional;
  * Time: 10:32
  */
 @ProviderType
-public interface Register<R extends Reading> extends BaseRegister {
+public interface Register<R extends Reading, RS extends RegisterSpec> extends BaseRegister {
 
     public Device getDevice();
 
@@ -41,7 +41,7 @@ public interface Register<R extends Reading> extends BaseRegister {
      *
      * @return the spec
      */
-    public RegisterSpec getRegisterSpec();
+    public RS getRegisterSpec();
 
     /**
      * Gets the list of {@link Reading}s whose timestamp is within the given interval.

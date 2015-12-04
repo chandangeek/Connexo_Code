@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+
+import java.util.Optional;
 
 /**
  * Models a {@link Register} that stores numerical data that relates to
@@ -10,5 +14,6 @@ import aQute.bnd.annotation.ProviderType;
  * @since 2014-07-14 (12:05)
  */
 @ProviderType
-public interface BillingRegister extends Register<BillingReading> {
+public interface BillingRegister extends Register<BillingReading, NumericalRegisterSpec> {
+    Optional<ReadingType> getCalculatedReadingType();
 }

@@ -36,18 +36,18 @@ import java.util.stream.Collectors;
  * Date: 11/03/14
  * Time: 11:19
  */
-public abstract class RegisterImpl<R extends Reading> implements Register<R> {
+public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> implements Register<R, RS> {
 
     /**
      * The {@link RegisterSpec} for which this Register is serving.
      */
-    private final RegisterSpec registerSpec;
+    private final RS registerSpec;
     /**
      * The Device which <i>owns</i> this Register.
      */
     private final DeviceImpl device;
 
-    public RegisterImpl(DeviceImpl device, RegisterSpec registerSpec) {
+    public RegisterImpl(DeviceImpl device, RS registerSpec) {
         this.registerSpec = registerSpec;
         this.device = device;
     }
@@ -58,7 +58,7 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     @Override
-    public RegisterSpec getRegisterSpec() {
+    public RS getRegisterSpec() {
         return registerSpec;
     }
 
@@ -176,13 +176,13 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     private class RegisterDataUpdaterImpl implements RegisterDataUpdater {
-        private final RegisterImpl<R> register;
+        private final RegisterImpl<R, RS> register;
         private final List<BaseReading> edited = new ArrayList<>();
         private final List<BaseReading> confirmed = new ArrayList<>();
         private final Map<Channel, List<BaseReadingRecord>> obsolete = new HashMap<>();
         private Optional<Instant> activationDate = Optional.empty();
 
-        private RegisterDataUpdaterImpl(RegisterImpl<R> register) {
+        private RegisterDataUpdaterImpl(RegisterImpl<R, RS> register) {
             super();
             this.register = register;
         }

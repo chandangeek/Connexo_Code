@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.data.NumericalReading;
 
 import com.elster.jupiter.metering.ReadingRecord;
@@ -27,6 +28,11 @@ public class NumericalReadingImpl extends ReadingImpl implements NumericalReadin
     @Override
     public Quantity getQuantity() {
         return this.getActualReading().getQuantity(0);
+    }
+
+    @Override
+    public Quantity getQuantityFor(ReadingType readingType) {
+        return getActualReading().getQuantity(readingType);
     }
 
     @Override

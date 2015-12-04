@@ -140,7 +140,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
-    public boolean isValidationActive(Register<?> register, Instant when) {
+    public boolean isValidationActive(Register<?, ?> register, Instant when) {
         if (!isValidationActive()) {
             return false;
         }
@@ -155,7 +155,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
-    public boolean allDataValidated(Register<?> register, Instant when) {
+    public boolean allDataValidated(Register<?, ?> register, Instant when) {
         Optional<com.elster.jupiter.metering.Channel> found = findKoreChannel(register, when);
         return !found.isPresent() || getEvaluator().isAllDataValidated(found.get().getMeterActivation());
     }
@@ -171,7 +171,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
-    public Optional<Instant> getLastChecked(Register<?> register) {
+    public Optional<Instant> getLastChecked(Register<?, ?> register) {
         return getLastChecked(register.getReadingType());
     }
 
@@ -185,7 +185,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
-    public List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings, Range<Instant> interval) {
+    public List<DataValidationStatus> getValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, Range<Instant> interval) {
         return ((DeviceImpl) register.getDevice()).findKoreChannels(register).stream()
                 .filter(k -> does(k.getMeterActivation().getRange()).overlap(interval))
                 .flatMap(k -> getEvaluator().getValidationStatus(k, readings, k.getMeterActivation().getRange().intersection(interval)).stream())
@@ -217,7 +217,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
-    public void validateRegister(Register<?> register) {
+    public void validateRegister(Register<?, ?> register) {
         validate(register.getReadingType());
     }
 
@@ -230,7 +230,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
-    public void setLastChecked(Register<?> register, Instant start) {
+    public void setLastChecked(Register<?, ?> register, Instant start) {
         getDevice()
             .findKoreChannels(register)
             .stream()
@@ -241,7 +241,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         return hasActiveRules(channel.getReadingType());
     }
 
-    private boolean hasActiveRules(Register<?> register) {
+    private boolean hasActiveRules(Register<?, ?> register) {
         return hasActiveRules(register.getReadingType());
     }
 
@@ -255,7 +255,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         return findKoreChannel(channel.getReadingType(), when);
     }
 
-    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Instant when) {
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?, ?> register, Instant when) {
         ReadingType readingType = register.getReadingType();
         return findKoreChannel(readingType, when);
     }

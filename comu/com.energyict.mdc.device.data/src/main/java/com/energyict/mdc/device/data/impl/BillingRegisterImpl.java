@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.BillingRegister;
@@ -7,15 +9,17 @@ import com.energyict.mdc.device.data.BillingRegister;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
 
+import java.util.Optional;
+
 /**
  * Provides an implementation for the {@link BillingRegister} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-14 (13:50)
  */
-public class BillingRegisterImpl extends RegisterImpl<BillingReading> implements BillingRegister {
+public class BillingRegisterImpl extends RegisterImpl<BillingReading, NumericalRegisterSpec> implements BillingRegister {
 
-    public BillingRegisterImpl(DeviceImpl device, RegisterSpec registerSpec) {
+    public BillingRegisterImpl(DeviceImpl device, NumericalRegisterSpec registerSpec) {
         super(device, registerSpec);
     }
 
@@ -29,4 +33,8 @@ public class BillingRegisterImpl extends RegisterImpl<BillingReading> implements
         return new BillingReadingImpl(actualReading, validationStatus);
     }
 
+    @Override
+    public Optional<ReadingType> getCalculatedReadingType() {
+        return getRegisterSpec().getCalculatedReadingType();
+    }
 }
