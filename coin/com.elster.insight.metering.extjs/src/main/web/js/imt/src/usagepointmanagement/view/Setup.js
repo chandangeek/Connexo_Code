@@ -38,7 +38,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                            },
                            privileges: Imt.privileges.UsagePoint.admin,
                            text: Uni.I18n.translate('usagepoint.general.edit.attributes', 'IMT', 'Edit attributes'),
-                           href: me.router.getRoute('usagepoints/edit').buildUrl({mRID: me.mRID})
+                           href: me.router.getRoute('usagepoints/view/edit').buildUrl({mRID: me.mRID})
                        }, 
                  ]
            }

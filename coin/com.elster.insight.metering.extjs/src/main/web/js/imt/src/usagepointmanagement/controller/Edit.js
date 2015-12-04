@@ -34,20 +34,25 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
     },
     createUsagePoint: function() {
     	var me = this,
+    	    router = this.getController('Uni.controller.history.Router'),
     	    widget = Ext.widget('usagePointEdit');
+    	widget.setEdit(false, router.getRoute('usagepoints/add').buildUrl());
     	me.getApplication().fireEvent('changecontentevent', widget);
     },
     editUsagePoint: function(id) {
     	var me = this,
+    	    router = this.getController('Uni.controller.history.Router'),
     	    widget = Ext.widget('usagePointEdit'),
     	    model = me.getModel('Imt.usagepointmanagement.model.UsagePoint');
     	me.getApplication().fireEvent('changecontentevent', widget);
-    	widget.setEdit(true, '#');
+    	widget.setEdit(true, router.getRoute('usagepoints/view').buildUrl({'mRID': id}));
         widget.setLoading(true);
         model.load(id, {
             success: function (record) {
+                me.getApplication().fireEvent('usagePointLoaded', record);
                 var form = widget.down('form');
                 if (form) {
+                    form.setTitle("Edit '" + record.get('mRID') + "'");
                     me.modelToForm(record, form);
                 }
             },
@@ -75,7 +80,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 	                button.setDisabled(false);
 	
 	                if (success) {
-	                    me.onSuccessSaving(operation.action, model.get('usagePointType'));
+	                    me.onSuccessSaving(operation.action, model.get('mRID'));
 	                } else {
 	                    me.onFailureSaving(operation.response);
 	                }
@@ -143,7 +148,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
     	o.multiplier = mult;
     	return o;
     },
-    onSuccessSaving: function (action) {
+    onSuccessSaving: function (action, mRID) {
         var router = this.getController('Uni.controller.history.Router'),
             messageText;
 
@@ -156,7 +161,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 break;
         }
         this.getApplication().fireEvent('acknowledge', messageText);
-        router.getRoute().forward();
+        router.getRoute("usagepoints/view").forward({'mRID':mRID});
     },
     onFailureSaving: function (response) {
         var form = this.getUsagePointEditPage().down('form'),

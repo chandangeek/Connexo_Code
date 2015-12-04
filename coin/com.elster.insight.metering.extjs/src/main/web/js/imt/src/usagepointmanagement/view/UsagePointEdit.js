@@ -365,7 +365,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                             xtype: 'button',
                             ui: 'link',
                             itemId: 'cancelLink',
-                            href: '#'
+                            href: '#/usagepoints/add'
                         }
                     ]
                 }
@@ -395,6 +395,10 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
             this.down('checkbox[name="isSdp"]').setDisabled(false);
             this.down('checkbox[name="isVirtual"]').setDisabled(false);
         }
-        this.down('#cancelLink').href = returnLink;
+        if (this.rendered) {
+            this.down('#cancelLink').setHref(returnLink);
+        } else {
+            this.down('#cancelLink').href = returnLink;
+        }
     }
 });

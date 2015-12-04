@@ -27,6 +27,12 @@ Ext.define('Imt.controller.History', {
                         return this;
                     },
            			items: {
+                        edit: {
+                            title: Uni.I18n.translate('general.label.usagepoint.edit', 'IMT', 'Edit'),
+                            route: 'edit',
+                            controller: 'Imt.usagepointmanagement.controller.Edit',
+                            action: 'editUsagePoint'                        
+                        },
                         channels: {
                             title: Uni.I18n.translate('general.channels', 'IMT', 'Channels'),
                             route: 'channels',
@@ -201,12 +207,6 @@ Ext.define('Imt.controller.History', {
            			    },
            			},
            		},
-   				edit: {
-                	title: Uni.I18n.translate('general.label.usagepoint.edit', 'IMT', 'Edit usage point'),
-                    route: '{mRID}/edit',
-                    controller: 'Imt.usagepointmanagement.controller.Edit',
-                    action: 'editUsagePoint'               					
-   				},
                 device: {
                     title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
                     route: 'device/{mRID}',
