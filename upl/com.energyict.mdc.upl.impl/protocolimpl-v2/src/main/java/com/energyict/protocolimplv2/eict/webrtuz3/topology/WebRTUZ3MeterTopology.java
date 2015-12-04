@@ -135,7 +135,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      */
     protected void discoverEMeters() {
-        if(eMeterMap == null){
+        if(eMeterMap.isEmpty()){
             eMeterMap = new ArrayList<>();
             for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
                 try {

@@ -115,7 +115,7 @@ public class MeterTopology extends AbstractMeterTopology {
      */
     protected List<DeviceMapping> constructMbusMap() {
         String mbusSerial;
-        if(mbusMap == null){
+        if(mbusMap.isEmpty()){
             mbusMap = new ArrayList<>();
             for (int i = 1; i <= MaxMbusDevices; i++) {
                 ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
