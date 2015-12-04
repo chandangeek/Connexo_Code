@@ -6,28 +6,10 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.EZ7;
-import com.energyict.protocolimpl.emon.ez7.core.command.AllEnergy;
-import com.energyict.protocolimpl.emon.ez7.core.command.AllMaximumDemand;
-import com.energyict.protocolimpl.emon.ez7.core.command.EventGeneral;
-import com.energyict.protocolimpl.emon.ez7.core.command.EventGeneralGeneration2;
-import com.energyict.protocolimpl.emon.ez7.core.command.EventLoad;
-import com.energyict.protocolimpl.emon.ez7.core.command.FlagsStatus;
-import com.energyict.protocolimpl.emon.ez7.core.command.GenericValue;
-import com.energyict.protocolimpl.emon.ez7.core.command.HookUp;
-import com.energyict.protocolimpl.emon.ez7.core.command.IMONInformation;
-import com.energyict.protocolimpl.emon.ez7.core.command.MeterInformation;
-import com.energyict.protocolimpl.emon.ez7.core.command.PowerQuality;
-import com.energyict.protocolimpl.emon.ez7.core.command.ProfileDataCompressed;
-import com.energyict.protocolimpl.emon.ez7.core.command.ProfileHeader;
-import com.energyict.protocolimpl.emon.ez7.core.command.ProfileStatus;
-import com.energyict.protocolimpl.emon.ez7.core.command.RGLInfo;
-import com.energyict.protocolimpl.emon.ez7.core.command.RTC;
-import com.energyict.protocolimpl.emon.ez7.core.command.SetKey;
-import com.energyict.protocolimpl.emon.ez7.core.command.SlidingKWDemands;
-import com.energyict.protocolimpl.emon.ez7.core.command.VerifyKey;
-import com.energyict.protocolimpl.emon.ez7.core.command.Version;
+import com.energyict.protocolimpl.emon.ez7.core.command.*;
 
 import java.io.IOException;
 
@@ -120,7 +102,7 @@ public class EZ7CommandFactory {
         return version;
     }
     
-    public RGLInfo getRGLInfo() throws ConnectionException, IOException {
+    public RGLInfo getRGLInfo() throws ConnectionException, NestedIOException {
         if (rglInfo == null) {
            rglInfo = new RGLInfo(this);
            rglInfo.build();

@@ -4,11 +4,11 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -126,7 +126,7 @@ public class IDISStoredValues implements StoredValues {
         try {
             return (billingPoint >= 0) && (billingPoint < getBillingPointCounter());
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, am500.getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, am500.getDlmsSession().getProperties().getRetries()+1);
         }
     }
 }

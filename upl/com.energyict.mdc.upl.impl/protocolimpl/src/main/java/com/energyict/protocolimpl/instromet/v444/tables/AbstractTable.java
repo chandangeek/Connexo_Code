@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Command;
 import com.energyict.protocolimpl.instromet.connection.Response;
-import com.energyict.protocolimpl.instromet.connection.StatusCommand;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;
+
+import java.io.IOException;
 
 public abstract class AbstractTable {
 	
@@ -58,7 +58,7 @@ public abstract class AbstractTable {
     	tableFactory.getInstromet444().parseStatus(response);
     }
     
-    protected boolean initParseWrite(Response response) throws IOException {
+    protected boolean initParseWrite(Response response) throws ProtocolException {
     	byte[] data = response.getData();
     	if (data.length < 1)
     		return false;
@@ -66,7 +66,7 @@ public abstract class AbstractTable {
     	Command command = new Command(function);
     	if (command.isWriteCommand()) {
     		if (data.length < 4)
-    			throw new IOException("Invalid data write from corrector");
+    			throw new ProtocolException("Invalid data write from corrector");
     		return true;
     	}
     	return false;
@@ -81,7 +81,7 @@ public abstract class AbstractTable {
     	parse(ProtocolUtils.getSubArray2(data, 7, data.length-7));
     }
     
-    protected void parseHeaders(Response response) throws IOException {
+    protected void parseHeaders(Response response) throws ProtocolException {
     	boolean isWrite = initParseWrite(response);
     	if (!isWrite)
     		return;
@@ -94,10 +94,10 @@ public abstract class AbstractTable {
     	//System.out.println("tableLength =  " + tableLength);
     }
     
-    protected void checkTableType(int type) throws IOException {
+    protected void checkTableType(int type) throws ProtocolException {
     	int tableType = getTableTypeReturned();
     	if (type != tableType)
-    		throw new IOException(
+    		throw new ProtocolException(
     				"Unexpected table type: " + type 
     				+ ", should be " + tableType);
     	//System.out.println("tableType ok after table switch");

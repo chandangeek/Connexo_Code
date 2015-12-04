@@ -6,17 +6,13 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ExceptionResponseException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -34,6 +30,7 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3DeviceInfo;
 import com.energyict.protocolimplv2.MdcManager;
@@ -46,17 +43,12 @@ import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSuppor
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DProperties;
 import com.energyict.protocolimplv2.dlms.g3.registers.RegisterFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.AS330DSecuritySupport;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Protocol that reads out the G3 e-meter connected to an Beacon3100 gateway / concentrator (for the G3 international project).
@@ -66,7 +58,7 @@ import java.util.Random;
  * @author khe
  * @since 8/06/2015 - 16:05
  */
-public class AS330D extends AbstractDlmsProtocol {
+public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport {
 
     //TODO mirror logical device ID & real logical device ID  + switch between both when necessary
     //TODO Create 2 DlmsSessions, 1 to the mirror logical device, and 1 to the gateway transparent logical device.
@@ -129,7 +121,7 @@ public class AS330D extends AbstractDlmsProtocol {
         } catch (DataAccessResultException | ProtocolException e) {
             frameCounter = new Random().nextInt();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, publicDlmsSession);
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
 
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
@@ -155,7 +147,7 @@ public class AS330D extends AbstractDlmsProtocol {
         } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
             throw CommunicationException.unexpectedResponse(e);   //Received error code from the meter, instead of the expected value
         } catch (IOException e) {
-            throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsSessionProperties().getRetries() + 1);
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
         }
     }
 
@@ -364,6 +356,6 @@ public class AS330D extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: 2015-11-26 15:23:38 +0200 (Thu, 26 Nov 2015)$";
     }
 }

@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import java.io.IOException;
-
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.IOException;
 
 /**
  *
@@ -152,12 +153,12 @@ public class Datalink6205641 {
                                         state = MSEND;
                                     }
                                 } else {
-                                    throw new IOException("Datalink6205641, stateMachine, invalid state="+states[state]+", event="+events[event]);
+                                    throw new ProtocolException("Datalink6205641, stateMachine, invalid state="+states[state]+", event="+events[event]);
                                 }
                             } break; // PHY_INDICATE
                             
                             default:
-                                throw new IOException("Datalink6205641, stateMachine, invalid state="+states[state]+", event="+events[event]);
+                                throw new ProtocolException("Datalink6205641, stateMachine, invalid state="+states[state]+", event="+events[event]);
                             
                         } // switch(event)
                         
@@ -354,9 +355,9 @@ public class Datalink6205641 {
                 if (DEBUG>=1) {
 					System.out.println("KV_DEBUG> Datalink, ConnectionException, "+e.toString()+" at "+System.currentTimeMillis());
 				}
-                throw e;
+                throw new ProtocolConnectionException(e.getMessage(), e.getReason());
             } // catch(ConnectionException e)
-            
+
 //            if (checkTimer && (((long) (System.currentTimeMillis() - protocolTimeout)) > 0)) {
 //                event = T1_TIMEOUT;
 //            } // if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0)

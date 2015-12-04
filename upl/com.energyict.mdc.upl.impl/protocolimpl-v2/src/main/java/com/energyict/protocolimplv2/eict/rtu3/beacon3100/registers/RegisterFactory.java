@@ -13,6 +13,7 @@ import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.MemoryManagementAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -26,7 +27,6 @@ import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.*;
@@ -188,8 +188,8 @@ public class RegisterFactory {
 
                     result.add(createCollectedRegister(registerValue, offlineRegister));
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getDlmsSession())) {
-                        if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSession().getProperties().getRetries() + 1)) {
+                        if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
                         } else {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));

@@ -48,6 +48,9 @@ public class EventPushNotificationParserTest extends TestCase {
     private static final byte[] ENCRYPTED_FRAME_WITH_AUTHENTICATION2 = ProtocolTools.getBytesFromHexString("000100010001007EDB084443303539463433733000000003198C85F5D20BF3598D87E2913BAA1DB96B22A11D2EDCE20F5D96FA90C6B9F87504AA4922D58F93C4D954E097DE77725A3A6CA0392439CF475E905EBB58B134B894A103B0F8CFFC9A0115903A5C3DF2CABE523C67E1530976C68AA4C5F0EC5A5370CF12F02B388B5272964931339B", "");
     private static final byte[] AUTHENTICATED_NOT_ENCRYPTED = ProtocolTools.getBytesFromHexString("0001000100010050DB084443303539463433451000000001C2004E2C000080000CFF030205090F3636302D3035394634332D31343235090C07DF0319030D3717390000001200021200000900FF6382B1E98C8563E5618A06", "");
 
+    private static final byte[] BEACON_PLAIN_EVENT_SERIAL_NUMBER_READOUT = ProtocolTools.getBytesFromHexString("00010001000100A3C2004E2C000080000CFF03020509203031303534323530333730313030313632313334313537333030303239373831090C07DF0910030632243A000000120000120037095E7B224D657465724964656E746966696572223A22303230303A303046463A464530303A30313037222C22526573756C74223A22457865637574696F6E206F66207072656C696D696E6172792070726F746F636F6C206661696C65642E227D", "");
+    private static final byte[] BEACON_PLAIN_EVENT_METER_REGISTERED = ProtocolTools.getBytesFromHexString("0001000100010086C2004E2C000080000CFF03020509203031303534323530333730313030313632313334313537333030303236363435090C07DF0818010C260E310000001200001200C209414E6F6465205B303230303A303046463A464530303A303030305D205B3078303030315D206861732072656769737465726564206F6E20746865206E6574776F726B", "");
+
     private static final String AK = "B6C52294F40A30B9BDF9FE4270B03685";
     private static final String EK = "EFD82FCB93E5826ED805E38A6B2EC9F1";
 
@@ -107,6 +110,32 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getMessage(), "G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network");
         assertEquals(meterProtocolEvent.getEiCode(), 0);
         assertEquals(meterProtocolEvent.getProtocolCode(), 194);
+    }
+
+    @Test
+    public void testPlainFrameEventSerialNumberReadout() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(BEACON_PLAIN_EVENT_SERIAL_NUMBER_READOUT);
+        parser.parseInboundFrame();
+        assertEquals(new DeviceIdentifierBySerialNumber("01054250370100162134157300029781"), parser.getDeviceIdentifier());
+
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1442386236000L);
+        assertEquals("{\"MeterIdentifier\":\"0200:00FF:FE00:0107\",\"Result\":\"Execution of preliminary protocol failed.\"}", meterProtocolEvent.getMessage());
+        assertEquals(meterProtocolEvent.getEiCode(), 0);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 55);
+    }
+
+    @Test
+    public void testPlainFrameEventMeterRegistered() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(BEACON_PLAIN_EVENT_METER_REGISTERED);
+        parser.parseInboundFrame();
+        assertEquals(new DeviceIdentifierBySerialNumber("01054250370100162134157300026645"), parser.getDeviceIdentifier());
+
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1440419894000L);
+        assertEquals("Node [0200:00FF:FE00:0000] [0x0001] has registered on the network", meterProtocolEvent.getMessage());
+        assertEquals(0, meterProtocolEvent.getEiCode());
+        assertEquals(194, meterProtocolEvent.getProtocolCode());
     }
 
     @Test

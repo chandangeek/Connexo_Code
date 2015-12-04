@@ -3,26 +3,8 @@ package com.energyict.protocolimpl.dlms;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.CosemPDUConnection;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.LLCConnection;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
@@ -123,9 +105,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
 
     protected int maxRecPduSize;
-
-    @Override
-    public abstract void validateSerialNumber() throws IOException;
 
     @Override
     protected void doConnect() throws IOException {
@@ -444,7 +423,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                 getDLMSConnection().connectMAC();
                 this.aso.createAssociation();
-                validateSerialNumber();
                 checkCacheObjects();
             }
         } catch (DLMSConnectionException e) {

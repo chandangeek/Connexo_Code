@@ -7,6 +7,7 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -40,7 +41,6 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFacto
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
@@ -97,7 +97,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         } catch (DataAccessResultException | ProtocolException e) {
             frameCounter = new Random().nextInt();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, publicDlmsSession);
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
 
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
@@ -108,7 +108,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         try {
             return getDlmsSession().getCosemObjectFactory().getData(SERIAL_NUMBER_OBISCODE).getString();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 
@@ -216,7 +216,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
             sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
             nodeList = this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().getNodeList();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
         final List<G3Topology.G3Node> g3Nodes = G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone());
 
@@ -330,7 +330,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
+        return "$Date: 2015-11-26 15:23:38 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override

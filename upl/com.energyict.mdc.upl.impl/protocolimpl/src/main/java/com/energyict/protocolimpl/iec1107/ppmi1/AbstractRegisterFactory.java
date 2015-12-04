@@ -1,22 +1,18 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppmi1.parser.RegisterInformationParser;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.HistoricalDataSet;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.MainRegister;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.MaximumDemand;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.RegisterInformation;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.*;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Abstract RegisterFactory class, containing all the common code of the OPUS and IEC1107 protocol
@@ -94,10 +90,10 @@ public abstract class AbstractRegisterFactory implements RegisterFactory {
 	}
 
 	// search the map for the register info
-	public PPM1Register findRegister(String name) throws IOException {
+	public PPM1Register findRegister(String name) throws ProtocolException {
 		PPM1Register register = (PPM1Register) registers.get(name);
 		if (register == null) {
-			throw new IOException("RegisterFactory, findRegister, " + name + " does not exist!");
+			throw new ProtocolException("RegisterFactory, findRegister, " + name + " does not exist!");
 		} else {
 			return register;
 		}

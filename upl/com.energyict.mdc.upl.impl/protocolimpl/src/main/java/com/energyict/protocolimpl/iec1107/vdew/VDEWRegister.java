@@ -6,14 +6,15 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.StringTokenizer;
-
 import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -283,7 +284,7 @@ public class VDEWRegister extends VDEWRegisterDataParse {
             return regdata;
         }
         catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("VDEWRegister, doReadRawRegister, FlagIEC1107ConnectionException, "+e.getMessage());
+            throw new ProtocolConnectionException("VDEWRegister, doReadRawRegister, FlagIEC1107ConnectionException, "+e.getMessage(), e.getReason());
         }
     } // private byte[] doReadRawRegister()
 

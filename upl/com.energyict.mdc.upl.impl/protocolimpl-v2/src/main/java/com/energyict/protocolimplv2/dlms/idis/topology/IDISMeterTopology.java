@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.topology;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -11,11 +12,11 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,20 +44,22 @@ public class IDISMeterTopology extends AbstractMeterTopology {
 
     @Override
     public void searchForSlaveDevices() {
-        deviceMapping = new ArrayList<>();
-        ObisCode obisCode = MBUS_CLIENT_OBISCODE;
-        for (int i = 1; i <= getMaxMBusChannels(); i++) {
-            try {
-                obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
-                long serialNumberValue = protocol.getDlmsSession().getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
-                if (serialNumberValue != 0) {
-                    String serialNumber = String.valueOf(serialNumberValue);
-                    deviceMapping.add(new DeviceMapping(serialNumber, i, false));
+        if(deviceMapping == null || (deviceMapping != null && deviceMapping.isEmpty())){
+            deviceMapping = new ArrayList<>();
+            ObisCode obisCode = MBUS_CLIENT_OBISCODE;
+            for (int i = 1; i <= getMaxMBusChannels(); i++) {
+                try {
+                    obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
+                    long serialNumberValue = protocol.getDlmsSession().getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
+                    if (serialNumberValue != 0) {
+                        String serialNumber = String.valueOf(serialNumberValue);
+                        deviceMapping.add(new DeviceMapping(serialNumber, i, false));
+                    }
+                } catch (DataAccessResultException e) {
+                    // fetch next
+                } catch (IOException e) {
+                    throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries()+1);
                 }
-            } catch (DataAccessResultException e) {
-                // fetch next
-            } catch (IOException e) {
-                throw IOExceptionHandler.handle(e, protocol.getDlmsSession());
             }
         }
     }
@@ -83,13 +86,11 @@ public class IDISMeterTopology extends AbstractMeterTopology {
      * @return the next available physicalAddress or -1 if none is available.
      */
     public int searchNextFreePhysicalAddress(){
-        int availablePhysicalAddress = 0;
+        List<Integer> availablePhysicalAddresses = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
         for (DeviceMapping dm : this.deviceMapping) {
-            if(availablePhysicalAddress < dm.getPhysicalAddress()) {
-                availablePhysicalAddress = dm.getPhysicalAddress();
-            }
+            availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list
         }
-        return availablePhysicalAddress + 1;
+        return availablePhysicalAddresses.isEmpty() ? 0 : availablePhysicalAddresses.get(0);
     }
 
     @Override

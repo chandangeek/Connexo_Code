@@ -39,6 +39,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
     Commission_With_Channel(9, PropertySpecFactory.bigDecimalPropertySpecWithValues(
             BigDecimal.valueOf(1),
             DeviceMessageConstants.mbusChannel,
+            BigDecimal.valueOf(0),
             BigDecimal.valueOf(1),
             BigDecimal.valueOf(2),
             BigDecimal.valueOf(3),
@@ -59,6 +60,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
     ChangeMBusAttributes(13, PropertySpecFactory.bigDecimalPropertySpecWithValues(
                     BigDecimal.valueOf(1),
                     DeviceMessageConstants.mbusChannel,
+                    BigDecimal.valueOf(0),
                     BigDecimal.valueOf(1),
                     BigDecimal.valueOf(2),
                     BigDecimal.valueOf(3),
@@ -71,6 +73,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
     MBusClientRemoteCommission(14, PropertySpecFactory.bigDecimalPropertySpecWithValues(
             BigDecimal.valueOf(1),
             DeviceMessageConstants.mbusChannel,
+            BigDecimal.valueOf(0),
             BigDecimal.valueOf(1),
             BigDecimal.valueOf(2),
             BigDecimal.valueOf(3),

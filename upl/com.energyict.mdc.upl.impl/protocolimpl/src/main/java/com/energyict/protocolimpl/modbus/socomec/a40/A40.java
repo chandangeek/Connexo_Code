@@ -13,30 +13,24 @@ package com.energyict.protocolimpl.modbus.socomec.a40;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 /**
  *
  * @author Koen
  */
-public class A40 extends Modbus {
+public class A40 extends Modbus implements SerialNumberSupport {
     
     private MultiplierFactory multiplierFactory=null;
     private String socomecType;
@@ -87,10 +81,24 @@ public class A40 extends Modbus {
     }
 
     /**
+     * Returns the serial number
+     *
+     * @return String serial number
+     */
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getRegisterFactory().findRegister(RegisterFactory.SERIAL_NUMBER).value().toString();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
+    /**
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date: 2015-11-18 10:00:12 +0100 (Wed, 18 Nov 2015) $";
+        return "$Date: 2015-11-26 15:26:01 +0200 (Thu, 26 Nov 2015)$";
     }
     
     protected void initRegisterFactory() {

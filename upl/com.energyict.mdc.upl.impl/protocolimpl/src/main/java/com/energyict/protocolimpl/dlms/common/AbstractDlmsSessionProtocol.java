@@ -11,7 +11,9 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -31,21 +33,6 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     protected abstract String readSerialNumber() throws IOException;
 
-    protected void validateSerialNumber() throws IOException {
-        String eisSerial = getProperties().getSerialNumber().trim();
-        String meterSerialNumber = readSerialNumber().trim();
-        getLogger().info("Meter serial number [" + meterSerialNumber + "]");
-        if (eisSerial.length() != 0) {
-            if (!eisSerial.equalsIgnoreCase(meterSerialNumber)) {
-                String message = "Configured serial number [" + eisSerial + "] does not match with the meter serial number [" + meterSerialNumber + "]!";
-                getLogger().severe(message);
-                throw new IOException(message);
-            }
-        } else {
-            getLogger().info("Skipping validation of meter serial number: No serial number found in EIServer.");
-        }
-    }
-
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.session = new DlmsSession(inputStream, outputStream, logger, getProperties(), timeZone);
         doInit();
@@ -61,7 +48,6 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     public void connect() throws IOException {
         this.session.connect();
-        validateSerialNumber();
     }
 
     public void disconnect() throws IOException {

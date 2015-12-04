@@ -69,11 +69,11 @@ public class ModbusTCPConnection extends ModbusConnection {
                 return responseData;
             } catch (ConnectionException e) {
                 if (retry++ >= getMaxRetries()) {
-                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage());
+                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage(), MAX_RETRIES_ERROR);
                 }
             } catch (ModbusException e) {
                 if (retry++ >= getMaxRetries()) {
-                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage());
+                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage(), MAX_RETRIES_ERROR);
                 }
             }
         }
@@ -150,7 +150,7 @@ public class ModbusTCPConnection extends ModbusConnection {
             byte[] data = ProtocolUtils.concatByteArrays(header.getHeaderBytes(), requestData.getFrameData());
             sendRawData(data);
         } catch (NestedIOException e) {
-            throw new ProtocolConnectionException(e.getCause().getMessage());
+            throw new ProtocolConnectionException(e.getCause().getMessage(), PROTOCOL_ERROR);
         }
     }
 

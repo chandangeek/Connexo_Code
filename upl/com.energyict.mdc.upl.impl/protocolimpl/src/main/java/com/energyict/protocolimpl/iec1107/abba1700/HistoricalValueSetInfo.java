@@ -6,9 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -43,7 +43,7 @@ public class HistoricalValueSetInfo {
     /**
      * Creates a new instance of HistoricalValueSetInfo
      */
-    public HistoricalValueSetInfo(byte[] data, TimeZone timeZone) throws IOException {
+    public HistoricalValueSetInfo(byte[] data, TimeZone timeZone) throws ProtocolException {
         this.timeZone=timeZone;
         parse(data);
     }
@@ -63,7 +63,7 @@ public class HistoricalValueSetInfo {
         return getBillingCount()+", "+getBillingEndDateTime()+", "+getBillingResetDateTime()+", "+getBillingStartDateTime()+", "+getBillingTriggerSource()+getTriggerSourceDescription();
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
        setBillingCount(ProtocolUtils.getIntLE(data,0,2));
        long shift = (long)ProtocolUtils.getIntLE(data,2,4)&0xFFFFFFFFL;
        setBillingStartDateTime(ProtocolUtils.getCalendar(timeZone,shift).getTime());

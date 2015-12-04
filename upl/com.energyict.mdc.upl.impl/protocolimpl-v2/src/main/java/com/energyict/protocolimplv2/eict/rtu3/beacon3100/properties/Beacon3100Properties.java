@@ -16,4 +16,12 @@ public class Beacon3100Properties extends DlmsProperties {
     public boolean isReadCache() {
         return getProperties().<Boolean>getTypedProperty(Beacon3100ConfigurationSupport.READCACHE_PROPERTY, false);
     }
+
+    /**
+     * Optimize the reading of responses from the Beacon device
+     */
+    @Override
+    public boolean isUsePolling() {
+        return false;
+    }
 }

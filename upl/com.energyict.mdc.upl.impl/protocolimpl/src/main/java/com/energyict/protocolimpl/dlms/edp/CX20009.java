@@ -6,31 +6,20 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.edp.logbooks.LogbookReader;
 import com.energyict.protocolimpl.dlms.edp.registers.EDPStoredValues;
 import com.energyict.protocolimpl.dlms.edp.registers.RegisterReader;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -39,7 +28,7 @@ import java.util.logging.Level;
  * Time: 11:34
  * Author: khe
  */
-public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism {
+public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism, SerialNumberSupport {
 
     public static final ObisCode SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode CORE_FIRMWARE_VERSION = ObisCode.fromString("1.0.0.2.0.255");
@@ -68,7 +57,20 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2014-03-07 14:16:03 +0100 (vr, 07 mrt 2014) $";
+        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getSerialNumber()  {
+        try {
+            AbstractDataType valueAttr = getCosemObjectFactory().getData(SERIAL_NUMBER).getValueAttr();
+            if (valueAttr.getOctetString() == null) {
+                throw new ProtocolException("Could not verify serial number, expected an OctetString but received an " + valueAttr.getClass().getSimpleName());
+            }
+            return valueAttr.getOctetString().stringValue();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, retries + 1);
+        }
     }
 
     @Override
@@ -106,25 +108,11 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     }
 
     @Override
-    public void validateSerialNumber() throws IOException {
-        AbstractDataType valueAttr = getCosemObjectFactory().getData(SERIAL_NUMBER).getValueAttr();
-        if (valueAttr.getOctetString() == null) {
-            throw new IOException("Could not verify serial number, expected an OctetString but received an " + valueAttr.getClass().getSimpleName());
-        }
-
-        String meterSerialNumber = valueAttr.getOctetString().stringValue();
-        if (!meterSerialNumber.equals(getSerialNumberProperty())) {
-            throw new IOException("Configured serial number (" + getSerialNumberProperty() + ") did not match the meter serial number (" + meterSerialNumber + ")");
-        }
-    }
-
-    @Override
     public void connect() throws IOException {
         try {
             if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                 getDLMSConnection().connectMAC();
                 this.aso.createAssociation();
-                validateSerialNumber();
                 checkCacheObjects();
             }
         } catch (DLMSConnectionException e) {

@@ -6,6 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class VDEWTimeStamp {
         this.strDateFormat = strDateFormat;
     }
 
-    public void parse(String data) throws IOException {
+    public void parse(String data) throws ProtocolException {
 		parse(data.getBytes());
 	}
 
@@ -52,7 +53,7 @@ public class VDEWTimeStamp {
 		parse(datePart.getBytes(),timePart.getBytes());
 	}
 
-	public void parse(byte[] datePart, byte[] timePart) throws IOException {
+	public void parse(byte[] datePart, byte[] timePart) throws ProtocolException {
 		int offset=0;
 		TimeZone tz=getTimeZone();
 		if ((timePart.length == 4) || (timePart.length == 6)) {
@@ -105,7 +106,7 @@ public class VDEWTimeStamp {
 	}
 
 
-	public void parse(byte[] data) throws IOException {
+	public void parse(byte[] data) throws ProtocolException {
 		int offset=0;
 		TimeZone tz=getTimeZone();
 

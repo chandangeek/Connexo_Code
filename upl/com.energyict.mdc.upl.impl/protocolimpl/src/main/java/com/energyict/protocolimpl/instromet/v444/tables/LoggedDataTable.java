@@ -1,25 +1,19 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.CRCGenerator;
-import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;
 import com.energyict.protocolimpl.instromet.v444.Instromet444;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.logging.Logger;
 
 
 public class LoggedDataTable extends AbstractTable {
@@ -45,12 +39,12 @@ public class LoggedDataTable extends AbstractTable {
 		return intervalDatas;
 	}
 	
-	public void setNumberOfItemsLogged(int numberOfItemsLogged) throws IOException {
+	public void setNumberOfItemsLogged(int numberOfItemsLogged)  {
 		this.numberOfItemsLogged = numberOfItemsLogged;
 	}
 	
 	
-	protected void parse(byte[] data) throws IOException {
+	protected void parse(byte[] data) throws ProtocolException {
 		Calendar cal = null;
 		//System.out.println("pare logged data");
 		//System.out.println(ProtocolUtils.outputHexString(data));

@@ -4,19 +4,12 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.events.MT880EventProfile;
@@ -30,7 +23,7 @@ import java.util.List;
  * @author sva
  * @since 7/10/13 - 15:38
  */
-public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProtocol {
+public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProtocol, SerialNumberSupport {
 
     /** Contains all properties of the Iskra MT880 device **/
     private IskraMT880Properties properties;
@@ -165,15 +158,26 @@ public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProt
         return composedMeterInfo;
     }
 
-    public String getMeterSerialNumber() throws IOException {
-        return getComposedMeterInfo().getMeterSerialNumber();
+    public String getMeterSerialNumber()  {
+        try {
+            return getComposedMeterInfo().getMeterSerialNumber();
+        }
+        catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, dlmsSession.getProperties().getRetries() +1);
+        }
     }
+
 
     public String getFirmwareVersion() throws IOException {
         return getComposedMeterInfo().getFirmwareVersion();
     }
 
     public String getVersion() {
-        return "$Date: 2013-09-30 15:38:06 +0200 (ma, 30 sep 2013) $";
+        return "$Date: 2015-11-26 15:26:47 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return getMeterSerialNumber();
     }
 }

@@ -10,20 +10,23 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.connection;
 
-import java.io.*;
-import java.util.*;
-
-
 import com.energyict.cbo.NestedIOException;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.transdata.markv.core.commands.*;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.transdata.markv.core.commands.CommandDescription;
+import com.energyict.protocolimpl.transdata.markv.core.commands.CommandIdentification;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 /**
  *
  * @author koen
@@ -145,7 +148,7 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
         return sendCommand(ci, true);
     }
     
-    private byte[] assembleAndSendFrame(String command) throws IOException {
+    private byte[] assembleAndSendFrame(String command) throws ConnectionException, NestedIOException {
         waitForEmptyBuffer(500);
         byte[] frame = (command + "\r\n").getBytes();
         sendRawDataNoDelayTerminalMode(frame,true);
@@ -303,7 +306,7 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
                     throw new ProtocolConnectionException("sendCommand(), failed prompt "+rf.getPrompt()+" received for command "+CommandDescription.getDescriptionFor(ci.getCommand())+"!");
                 }
                 if (retry++>=getMaxRetries()) {
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+getMaxRetries()+"), "+e.getMessage());
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+getMaxRetries()+"), "+e.getMessage(), MAX_RETRIES_ERROR);
                 }
             }
         } // while(true)
@@ -311,7 +314,7 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
     
     
     
-    private byte[] receiveFrame(boolean prompt, byte[] frame) throws IOException {
+    private byte[] receiveFrame(boolean prompt, byte[] frame) throws ConnectionException, NestedIOException {
         
         
         int kar;

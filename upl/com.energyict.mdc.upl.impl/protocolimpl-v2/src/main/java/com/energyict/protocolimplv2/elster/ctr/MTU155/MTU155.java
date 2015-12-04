@@ -10,13 +10,7 @@ import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.ServerProximusSmsComChannel;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -38,6 +32,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -45,18 +40,14 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
  * @author: sva
  * @since: 16/10/12 (10:10)
  */
-public class MTU155 implements DeviceProtocol {
+public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     private final DeviceProtocolSecurityCapabilities securityCapabilities = new Mtu155SecuritySupport();
 
@@ -286,7 +277,7 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override
