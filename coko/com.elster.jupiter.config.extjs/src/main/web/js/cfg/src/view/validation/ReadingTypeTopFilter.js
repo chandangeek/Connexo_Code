@@ -85,6 +85,9 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
     setSelectedReadings: function(readingArray){
         this.getFilterByItemId('selectedReadingsFilter').setInitialValue(readingArray);
         this.getFilterByItemId('selectedReadingsFilter').setFilterValue(readingArray);
+    },
+
+    setActive: function() {
         this.getFilterByItemId('activeFilter').setInitialValue(true);
         this.getFilterByItemId('activeFilter').setFilterValue(true);
     }
