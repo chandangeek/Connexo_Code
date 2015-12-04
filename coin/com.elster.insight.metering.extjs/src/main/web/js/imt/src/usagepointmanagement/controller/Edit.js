@@ -36,7 +36,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
     	var me = this,
     	    router = this.getController('Uni.controller.history.Router'),
     	    widget = Ext.widget('usagePointEdit');
-    	widget.setEdit(false, router.getRoute('usagepoints/add').buildUrl());
+    	widget.setEdit(false, router.getRoute('usagepoints').buildUrl());
     	me.getApplication().fireEvent('changecontentevent', widget);
     },
     editUsagePoint: function(id) {
