@@ -26,6 +26,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -55,6 +56,7 @@ public class LoadProfileInTopologyTest extends PersistenceTestWithMockedDevicePr
     private RegisterType registerType1;
     private RegisterType registerType2;
     private LoadProfileType loadProfileType;
+    private BigDecimal overflow = BigDecimal.valueOf(999999999L);
 
     @Before
     public void initBefore() {
@@ -91,8 +93,8 @@ public class LoadProfileInTopologyTest extends PersistenceTestWithMockedDevicePr
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
@@ -137,8 +139,8 @@ public class LoadProfileInTopologyTest extends PersistenceTestWithMockedDevicePr
         ChannelType channelTypeForRegisterType2 = loadProfileType.getChannelTypes().get(1);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = slaveDeviceType.newConfiguration("SlaveConfig");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
         deviceConfiguration.activate();
@@ -175,7 +177,7 @@ public class LoadProfileInTopologyTest extends PersistenceTestWithMockedDevicePr
         slaveDeviceType.addLoadProfileType(slaveLoadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = slaveDeviceType.newConfiguration("SlaveConfig");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(slaveLoadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
         deviceConfiguration.activate();

@@ -29,6 +29,7 @@ import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +54,7 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
     private final TimeDuration interval = TimeDuration.minutes(15);
     private final Unit unit1 = Unit.get("kWh");
     private final Unit unit2 = Unit.get("MWh");
+    private final BigDecimal overflow = BigDecimal.valueOf(999999999L);
 
     private DeviceConfiguration deviceConfigurationWithLoadProfileAndChannels;
     private RegisterType registerType1;
@@ -99,8 +101,8 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
@@ -221,8 +223,8 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         ChannelType channelTypeForRegisterType2 = loadProfileType.getChannelTypes().get(1);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = slaveDeviceType.newConfiguration("SlaveConfig");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
         deviceConfiguration.activate();
