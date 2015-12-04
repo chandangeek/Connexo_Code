@@ -7,7 +7,6 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
         'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
-        'Imt.usagepointmanagement.view.UsagePointActionMenu',
     ],
     router: null,
     content: [
