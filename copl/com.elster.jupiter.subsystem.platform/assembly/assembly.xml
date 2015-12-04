@@ -84,6 +84,7 @@
         <dependencySet>
             <includes>
                 <include>com.elster.jupiter.thirdparty.apps.flow:*</include>
+                <include>com.elster.partners:jbpm.extension:jar</include>
             </includes>
             <scope>provided</scope>
             <outputFileNameMapping>
