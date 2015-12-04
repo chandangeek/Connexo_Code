@@ -1,6 +1,6 @@
 package com.energyict.protocols.naming;
 
-import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
 
 /**
  * List the name of the properties of all the {@link com.energyict.mdc.protocol.api.ConnectionType}s
@@ -24,11 +24,11 @@ public enum ConnectionTypePropertySpecName {
     OUTBOUND_IP_POST_DIAL_COMMAND_ATTEMPTS("postDialCommandAttempts"),
     OUTBOUND_IP_POST_DIAL_COMMAND("postDialCommand"),
 
-    SERIAL_BAUD_RATE(SerialPortConfiguration.BAUDRATE_NAME),
-    SERIAL_NR_OF_DATA_BITS(SerialPortConfiguration.NR_OF_DATA_BITS_NAME),
-    SERIAL_NR_OF_STOP_BITS(SerialPortConfiguration.NR_OF_STOP_BITS_NAME),
-    SERIAL_PARITY(SerialPortConfiguration.PARITY_NAME),
-    SERIAL_FLOW_CONTROL(SerialPortConfiguration.FLOW_CONTROL_NAME),
+    SERIAL_BAUD_RATE(SerialPortConfigurationPropertySpecNames.BAUDRATE),
+    SERIAL_NR_OF_DATA_BITS(SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS),
+    SERIAL_NR_OF_STOP_BITS(SerialPortConfigurationPropertySpecNames.NR_OF_STOP_BITS),
+    SERIAL_PARITY(SerialPortConfigurationPropertySpecNames.PARITY),
+    SERIAL_FLOW_CONTROL(SerialPortConfigurationPropertySpecNames.FLOW_CONTROL),
 
     INBOUND_PROXIMUS_PHONE_NUMBER("phoneNumber"),
     INBOUND_PROXIMUS_CALL_HOME_ID("callHomeId"),

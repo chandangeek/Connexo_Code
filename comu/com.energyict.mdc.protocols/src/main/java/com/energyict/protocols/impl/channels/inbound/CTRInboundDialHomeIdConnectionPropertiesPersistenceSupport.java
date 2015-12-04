@@ -72,7 +72,6 @@ public class CTRInboundDialHomeIdConnectionPropertiesPersistenceSupport implemen
         table
             .column(fieldName.databaseName())
             .varChar()
-            .notNull()
             .map(fieldName.javaName())
             .add();
     }

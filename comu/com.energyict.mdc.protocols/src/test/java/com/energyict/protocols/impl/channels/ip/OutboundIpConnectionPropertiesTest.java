@@ -1,5 +1,7 @@
 package com.energyict.protocols.impl.channels.ip;
 
+import com.energyict.CustomPropertiesPersistenceTest;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -13,9 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link OutboundIpConnectionProperties} component.
  */
-public class OutboundIpConnectionPropertiesTest {
-
-    public static final int MAX_COLUMN_NAME_LENGTH = 30;
+public class OutboundIpConnectionPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
@@ -51,12 +51,12 @@ public class OutboundIpConnectionPropertiesTest {
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        try {
-            return OutboundIpConnectionProperties.class.getField(fieldName) == null;
-        }
-        catch (NoSuchFieldException e) {
-            return false;
-        }
+        return this.fieldDoesNotExists(OutboundIpConnectionProperties.class, fieldName);
+    }
+
+    @Test
+    public void checkJavaxAnnotationsOnFields() {
+        this.checkJavaxAnnotationsOnFields(OutboundIpConnectionProperties.class);
     }
 
     @Test

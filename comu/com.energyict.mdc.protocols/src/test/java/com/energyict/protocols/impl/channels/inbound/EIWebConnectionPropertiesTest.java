@@ -1,5 +1,7 @@
 package com.energyict.protocols.impl.channels.inbound;
 
+import com.energyict.CustomPropertiesPersistenceTest;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -13,9 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link EIWebConnectionProperties} component.
  */
-public class EIWebConnectionPropertiesTest {
-
-    public static final int MAX_COLUMN_NAME_LENGTH = 30;
+public class EIWebConnectionPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
@@ -51,12 +51,12 @@ public class EIWebConnectionPropertiesTest {
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        try {
-            return EIWebConnectionProperties.class.getField(fieldName) == null;
-        }
-        catch (NoSuchFieldException e) {
-            return false;
-        }
+        return this.fieldDoesNotExists(EIWebConnectionProperties.class, fieldName);
+    }
+
+    @Test
+    public void checkJavaxAnnotationsOnFields() {
+        this.checkJavaxAnnotationsOnFields(EIWebConnectionProperties.class);
     }
 
     @Test

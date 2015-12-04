@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.CustomPropertiesPersistenceTest;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -11,9 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link SDKTopologyTaskDialectProperties} component.
  */
-public class SDKTopologyTaskDialectPropertiesTest {
-
-    public static final int MAX_COLUMN_NAME_LENGTH = 30;
+public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
@@ -52,12 +52,12 @@ public class SDKTopologyTaskDialectPropertiesTest {
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        try {
-            return SDKTopologyTaskDialectProperties.class.getField(fieldName) == null;
-        }
-        catch (NoSuchFieldException e) {
-            return false;
-        }
+        return this.fieldDoesNotExists(SDKTopologyTaskDialectProperties.class, fieldName);
+    }
+
+    @Test
+    public void checkJavaxAnnotationsOnFields() {
+        this.checkJavaxAnnotationsOnFields(SDKTopologyTaskDialectProperties.class);
     }
 
     @Test

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.CustomPropertiesPersistenceSupportTest;
+
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,10 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link IEC1107PersistenceSupport} component.
  */
-public class IEC1107PersistenceSupportTest {
-
-    public static final int MAX_TABLE_NAME_LENGTH = 26;
-    public static final int MAX_FOREIGN_KEY_NAME_LENGTH = 30;
+public class IEC1107PersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
 
     private IEC1107PersistenceSupport getInstance() {
         return new IEC1107PersistenceSupport();
@@ -74,6 +73,11 @@ public class IEC1107PersistenceSupportTest {
     @Test
     public void propertySpecProviderForeignKeyNameSize() {
         assertThat(getInstance().propertySpecProviderForeignKeyName().length()).isLessThanOrEqualTo(MAX_FOREIGN_KEY_NAME_LENGTH);
+    }
+
+    @Test
+    public void allColumnsAreNullable () {
+        this.allColumnsAreNullable(this.getInstance());
     }
 
 }

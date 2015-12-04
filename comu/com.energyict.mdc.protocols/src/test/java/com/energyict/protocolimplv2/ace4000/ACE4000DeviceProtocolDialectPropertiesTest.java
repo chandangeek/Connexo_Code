@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.CustomPropertiesPersistenceTest;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -11,9 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link ACE4000DeviceProtocolDialectProperties} component.
  */
-public class ACE4000DeviceProtocolDialectPropertiesTest {
-
-    public static final int MAX_COLUMN_NAME_LENGTH = 30;
+public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
@@ -52,12 +52,12 @@ public class ACE4000DeviceProtocolDialectPropertiesTest {
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        try {
-            return ACE4000DeviceProtocolDialectProperties.class.getField(fieldName) == null;
-        }
-        catch (NoSuchFieldException e) {
-            return false;
-        }
+        return this.fieldDoesNotExists(ACE4000DeviceProtocolDialectProperties.class, fieldName);
+    }
+
+    @Test
+    public void checkJavaxAnnotationsOnFields() {
+        this.checkJavaxAnnotationsOnFields(ACE4000DeviceProtocolDialectProperties.class);
     }
 
     @Test

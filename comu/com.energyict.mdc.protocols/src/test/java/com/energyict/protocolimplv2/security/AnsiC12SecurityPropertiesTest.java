@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.CustomPropertiesPersistenceTest;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -11,9 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link AnsiC12SecurityProperties} component.
  */
-public class AnsiC12SecurityPropertiesTest {
-
-    public static final int MAX_COLUMN_NAME_LENGTH = 30;
+public class AnsiC12SecurityPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
@@ -52,12 +52,12 @@ public class AnsiC12SecurityPropertiesTest {
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        try {
-            return AnsiC12SecurityProperties.class.getField(fieldName) == null;
-        }
-        catch (NoSuchFieldException e) {
-            return false;
-        }
+        return this.fieldDoesNotExists(AnsiC12SecurityProperties.class, fieldName);
+    }
+
+    @Test
+    public void checkJavaxAnnotationsOnFields() {
+        this.checkJavaxAnnotationsOnFields(AnsiC12SecurityProperties.class);
     }
 
     @Test

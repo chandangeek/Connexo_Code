@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.energyict.CustomPropertiesPersistenceTest;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -11,9 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link SerialDeviceProtocolDialectProperties} component.
  */
-public class SerialDeviceProtocolDialectPropertiesTest {
-
-    public static final int MAX_COLUMN_NAME_LENGTH = 30;
+public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
@@ -52,12 +52,12 @@ public class SerialDeviceProtocolDialectPropertiesTest {
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        try {
-            return SerialDeviceProtocolDialectProperties.class.getField(fieldName) == null;
-        }
-        catch (NoSuchFieldException e) {
-            return false;
-        }
+        return this.fieldDoesNotExists(SerialDeviceProtocolDialectProperties.class, fieldName);
+    }
+
+    @Test
+    public void checkJavaxAnnotationsOnFields() {
+        this.checkJavaxAnnotationsOnFields(SerialDeviceProtocolDialectProperties.class);
     }
 
     @Test

@@ -56,20 +56,20 @@ public class GarnetSecurityProperties extends CommonBaseDeviceSecurityProperties
     }
 
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String customerEencryptionKey;
+    private String customerEncryptionKey;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String manufacturerEencryptionKey;
+    private String manufacturerEncryptionKey;
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.customerEencryptionKey = (String) propertyValues.getProperty(DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.javaName());
-        this.manufacturerEencryptionKey = (String) propertyValues.getProperty(DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.javaName());
+        this.customerEncryptionKey = (String) propertyValues.getProperty(DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.javaName());
+        this.manufacturerEncryptionKey = (String) propertyValues.getProperty(DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.javaName());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.javaName(), this.customerEencryptionKey);
-        this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.javaName(), this.manufacturerEencryptionKey);
+        this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.javaName(), this.customerEncryptionKey);
+        this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.javaName(), this.manufacturerEncryptionKey);
     }
 
     private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {

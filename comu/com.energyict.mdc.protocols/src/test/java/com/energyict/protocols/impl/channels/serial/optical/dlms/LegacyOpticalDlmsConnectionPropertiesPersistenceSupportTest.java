@@ -1,5 +1,7 @@
 package com.energyict.protocols.impl.channels.serial.optical.dlms;
 
+import com.energyict.CustomPropertiesPersistenceSupportTest;
+
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,10 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link LegacyOpticalDlmsConnectionPropertiesPersistenceSupport} component.
  */
-public class LegacyOpticalDlmsConnectionPropertiesPersistenceSupportTest {
-
-    public static final int MAX_TABLE_NAME_LENGTH = 26;
-    public static final int MAX_FOREIGN_KEY_NAME_LENGTH = 30;
+public class LegacyOpticalDlmsConnectionPropertiesPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
 
     private LegacyOpticalDlmsConnectionPropertiesPersistenceSupport getInstance() {
         return new LegacyOpticalDlmsConnectionPropertiesPersistenceSupport();
@@ -59,6 +58,11 @@ public class LegacyOpticalDlmsConnectionPropertiesPersistenceSupportTest {
     @Test
     public void domainForeignKeyNameSize() {
         assertThat(getInstance().domainForeignKeyName().length()).isLessThanOrEqualTo(MAX_FOREIGN_KEY_NAME_LENGTH);
+    }
+
+    @Test
+    public void allColumnsAreNullable () {
+        this.allColumnsAreNullable(this.getInstance());
     }
 
 }

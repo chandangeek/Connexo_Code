@@ -1,5 +1,7 @@
 package com.energyict.protocols.impl.channels.sms;
 
+import com.energyict.CustomPropertiesPersistenceSupportTest;
+
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,10 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Test the {@link OutboundProximusConnectionPropertiesPersistenceSupport} component.
  */
-public class OutboundProximusConnectionPropertiesPersistenceSupportTest {
-
-    public static final int MAX_TABLE_NAME_LENGTH = 26;
-    public static final int MAX_FOREIGN_KEY_NAME_LENGTH = 30;
+public class OutboundProximusConnectionPropertiesPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
 
     private OutboundProximusConnectionPropertiesPersistenceSupport getInstance() {
         return new OutboundProximusConnectionPropertiesPersistenceSupport();
@@ -59,6 +58,11 @@ public class OutboundProximusConnectionPropertiesPersistenceSupportTest {
     @Test
     public void domainForeignKeyNameSize() {
         assertThat(getInstance().domainForeignKeyName().length()).isLessThanOrEqualTo(MAX_FOREIGN_KEY_NAME_LENGTH);
+    }
+
+    @Test
+    public void allColumnsAreNullable () {
+        this.allColumnsAreNullable(this.getInstance());
     }
 
 }

@@ -1,5 +1,7 @@
 package com.energyict.protocols.impl.channels.sms;
 
+import com.energyict.CustomPropertiesPersistenceTest;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -13,9 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link InboundProximusConnectionProperties} component.
  */
-public class InboundProximusConnectionPropertiesTest {
-
-    public static final int MAX_COLUMN_NAME_LENGTH = 30;
+public class InboundProximusConnectionPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
@@ -51,12 +51,12 @@ public class InboundProximusConnectionPropertiesTest {
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        try {
-            return InboundProximusConnectionProperties.class.getField(fieldName) == null;
-        }
-        catch (NoSuchFieldException e) {
-            return false;
-        }
+        return this.fieldDoesNotExists(InboundProximusConnectionProperties.class, fieldName);
+    }
+
+    @Test
+    public void checkJavaxAnnotationsOnFields() {
+        this.checkJavaxAnnotationsOnFields(InboundProximusConnectionProperties.class);
     }
 
     @Test

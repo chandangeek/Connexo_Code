@@ -3,7 +3,6 @@ package com.energyict.protocols.impl.channels.sms;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.properties.PropertySpec;
@@ -115,7 +114,6 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
             table
                 .column(this.databaseName())
                 .varChar()
-                .notNull()
                 .map(this.javaName())
                 .add();
         }
@@ -132,19 +130,14 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
-    @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
     private String phoneNumber;
-    @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
     private String connectionUrl;
-    @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
     private String source;
-    @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
     private String authentication;
-    @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
     private String serviceCode;
 

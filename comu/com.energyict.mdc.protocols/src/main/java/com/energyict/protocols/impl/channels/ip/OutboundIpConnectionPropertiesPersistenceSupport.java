@@ -70,13 +70,11 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
         table
             .column(OutboundIpConnectionProperties.Fields.HOST.databaseName())
             .varChar()
-            .notNull()
             .map(OutboundIpConnectionProperties.Fields.HOST.javaName())
             .add();
         table
             .column(OutboundIpConnectionProperties.Fields.PORT_NUMBER.databaseName())
             .number()
-            .notNull()
             .map(OutboundIpConnectionProperties.Fields.PORT_NUMBER.javaName())
             .add();
         table

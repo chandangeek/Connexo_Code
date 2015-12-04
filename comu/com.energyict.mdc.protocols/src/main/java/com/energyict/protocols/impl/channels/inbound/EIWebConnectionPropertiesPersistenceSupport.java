@@ -70,6 +70,11 @@ public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceS
             .varChar()
             .map(EIWebConnectionProperties.Fields.IP_ADDRESS.javaName())
             .add();
+        table
+            .column(EIWebConnectionProperties.Fields.MAC_ADDRESS.databaseName())
+            .varChar()
+            .map(EIWebConnectionProperties.Fields.MAC_ADDRESS.javaName())
+            .add();
     }
 
 }

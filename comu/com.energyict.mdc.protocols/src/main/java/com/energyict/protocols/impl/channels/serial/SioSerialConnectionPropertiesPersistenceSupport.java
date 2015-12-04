@@ -2,7 +2,6 @@ package com.energyict.protocols.impl.channels.serial;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -69,16 +68,7 @@ public class SioSerialConnectionPropertiesPersistenceSupport implements Persiste
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
             .of(SioSerialConnectionProperties.Fields.values())
-            .forEach(fieldName -> this.addCustomPropertyColumnTo(table, fieldName));
-    }
-
-    private void addCustomPropertyColumnTo(Table table, SioSerialConnectionProperties.Fields fieldName) {
-        table
-            .column(fieldName.databaseName())
-            .number()
-            .conversion(ColumnConversion.NUMBER2ENUM)
-            .map(fieldName.javaName())
-            .add();
+            .forEach(fieldName -> fieldName.addTo(table));
     }
 
 }

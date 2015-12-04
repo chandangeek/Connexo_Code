@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.CustomPropertiesPersistenceSupportTest;
+
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,10 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests the {@link ACE4000DeviceProtocolDialectPropertyPersistenceSupport} component.
  */
-public class ACE4000DeviceProtocolDialectPropertyPersistenceSupportTest {
-
-    public static final int MAX_TABLE_NAME_LENGTH = 26;
-    public static final int MAX_FOREIGN_KEY_NAME_LENGTH = 30;
+public class ACE4000DeviceProtocolDialectPropertyPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
 
     private ACE4000DeviceProtocolDialectPropertyPersistenceSupport getInstance() {
         return new ACE4000DeviceProtocolDialectPropertyPersistenceSupport();
@@ -59,6 +58,11 @@ public class ACE4000DeviceProtocolDialectPropertyPersistenceSupportTest {
     @Test
     public void domainForeignKeyNameSize() {
         assertThat(getInstance().domainForeignKeyName().length()).isLessThanOrEqualTo(MAX_FOREIGN_KEY_NAME_LENGTH);
+    }
+
+    @Test
+    public void allColumnsAreNullable () {
+        this.allColumnsAreNullable(this.getInstance());
     }
 
 }

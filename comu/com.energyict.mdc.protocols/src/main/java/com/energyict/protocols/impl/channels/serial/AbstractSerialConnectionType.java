@@ -12,6 +12,7 @@ import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
@@ -70,23 +71,23 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected Parities getParityValue() {
-        return Parities.valueFor((String) getProperty(SerialPortConfiguration.PARITY_NAME, Parities.NONE.value()));
+        return Parities.valueFor((String) getProperty(SerialPortConfigurationPropertySpecNames.PARITY, Parities.NONE.value()));
     }
 
     protected FlowControl getFlowControlValue() {
-        return FlowControl.valueFor((String) getProperty(SerialPortConfiguration.FLOW_CONTROL_NAME, FlowControl.NONE.value()));
+        return FlowControl.valueFor((String) getProperty(SerialPortConfigurationPropertySpecNames.FLOW_CONTROL, FlowControl.NONE.value()));
     }
 
     protected NrOfStopBits getNrOfStopBitsValue() {
-        return NrOfStopBits.valueFor((BigDecimal) getProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, BigDecimal.ONE));
+        return NrOfStopBits.valueFor((BigDecimal) getProperty(SerialPortConfigurationPropertySpecNames.NR_OF_STOP_BITS, BigDecimal.ONE));
     }
 
     protected NrOfDataBits getNrOfDataBitsValue() {
-        return NrOfDataBits.valueFor((BigDecimal) getProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, new BigDecimal(8)));
+        return NrOfDataBits.valueFor((BigDecimal) getProperty(SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS, new BigDecimal(8)));
     }
 
     protected BaudrateValue getBaudRateValue() {
-        return BaudrateValue.valueFor((BigDecimal)getProperty(SerialPortConfiguration.BAUDRATE_NAME, BaudrateValue.BAUDRATE_57600.value()));
+        return BaudrateValue.valueFor((BigDecimal)getProperty(SerialPortConfigurationPropertySpecNames.BAUDRATE, BaudrateValue.BAUDRATE_57600.value()));
     }
 
     protected BigDecimal getPortOpenTimeOutValue() {

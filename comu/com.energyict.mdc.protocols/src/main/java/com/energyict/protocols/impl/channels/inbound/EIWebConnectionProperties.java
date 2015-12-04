@@ -3,7 +3,6 @@ package com.energyict.protocols.impl.channels.inbound;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
@@ -79,10 +78,8 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
-    @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
     private String ipAddress;
-    @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
     private String macAddress;
 
