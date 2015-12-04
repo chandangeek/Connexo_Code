@@ -138,10 +138,10 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
     public void copyTo(CustomPropertySetValues propertySetValues) {
         // The PropertySpec of the following properties are actually using StringFactory so generic clients will expect String values
         if (this.parity != null) {
-            this.copyTo(propertySetValues, SerialPortConfiguration.PARITY_NAME, this.parity.name());
+            this.copyTo(propertySetValues, SerialPortConfiguration.PARITY_NAME, this.parity.value());
         }
         if (this.flowControl != null) {
-            this.copyTo(propertySetValues, SerialPortConfiguration.FLOW_CONTROL_NAME, this.flowControl.name());
+            this.copyTo(propertySetValues, SerialPortConfiguration.FLOW_CONTROL_NAME, this.flowControl.value());
         }
         // The PropertySpec of the following properties are actually using BigDecimalFactory so generic clients will expect BigDecimal values
         if (this.numberOfStopBits != null) {
