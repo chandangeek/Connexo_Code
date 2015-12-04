@@ -365,7 +365,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                             xtype: 'button',
                             ui: 'link',
                             itemId: 'cancelLink',
-                            href: '#/usagepoints/add'
+                            href: '#/usagepoints'
                         }
                     ]
                 }
