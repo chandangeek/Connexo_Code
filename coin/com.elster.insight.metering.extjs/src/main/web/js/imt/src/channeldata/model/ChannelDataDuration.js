@@ -1,4 +1,4 @@
-Ext.define('Imt.model.ChannelDataDuration', {
+Ext.define('Imt.channeldata.model.ChannelDataDuration', {
     extend: 'Ext.data.Model',
     fields: [
         'id',

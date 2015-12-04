@@ -27,28 +27,150 @@ Ext.define('Imt.controller.History', {
                         return this;
                     },
            			items: {
-           			    channels: {
-                            title: Uni.I18n.translate('general.label.usagepoint.channels', 'IMT', 'Channels'),
+                        channels: {
+                            title: Uni.I18n.translate('general.channels', 'IMT', 'Channels'),
                             route: 'channels',
-                            controller: 'Imt.channeldata.controller.View',
-                            action: 'showUsagePointChannels',
+                            controller: 'Imt.channeldata.controller.Channels',
+//                            privileges: Imt.privileges.UsagePoint.view,
+                            action: 'showOverview',
+                            filter: 'Imt.channeldata.model.ChannelsFilter',
+//                            dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStateStore,
                             items: {
                                 channel: {
-                                    title: Uni.I18n.translate('general.label.usagepoint.channel', 'IMT', 'Channel'),
+                                    title: Uni.I18n.translate('routing.channel', 'IMT', 'Channel'),
                                     route: '{channelId}',
-                                    controller: 'Imt.channeldata.controller.View',
-                                    action: 'showUsagePointChannelData',
+                                    controller: 'Imt.channeldata.controller.ChannelData',
+//                                    privileges: Imt.privileges.UsagePoint.view,
+                                    action: 'showSpecifications',
                                     callback: function (route) {
-                                        this.getApplication().on('channelDataLoaded', function (record) {
-                                            route.setTitle(record.get('readingType').fullAliasName);
+                                        this.getApplication().on('channelLoaded', function (record) {
+                                            route.setTitle(record.get('name'));
                                             return true;
                                         }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        editcustomattributes: {
+                                            route: 'customattributes/{customAttributeSetId}/edit',
+                                            controller: 'Imt.channeldata.controller.ChannelData',
+//                                            privileges: Imt.privileges.UsagePoint.admin,
+                                            action: 'showEditChannelCustomAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('channelCustomAttributesLoaded', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('channels.editCustomAttributes', 'IMT', "Edit '{0}'", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
 
+                                                return this;
+                                            }
+                                        },
+                                        customattributesversions: {
+                                            title: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                                            route: 'customattributes/{customAttributeSetId}/versions',
+                                            controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
+//                                            privileges: Imt.privileges.UsagePoint.view,
+                                            action: 'loadCustomAttributeVersions',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadCustomAttributeSetOnChannel', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('channels.historyCustomAttributes', 'IMT', "'{0}' history", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            },
+                                            items: {
+                                                edit: {
+                                                    title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                                    route: '{versionId}/edit',
+                                                    controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
+//                                                    privileges: Imt.privileges.UsagePoint.admin,
+                                                    action: 'editCustomAttributeVersion',
+                                                    callback: function (route) {
+                                                        this.getApplication().on('loadCustomAttributeSetVersionOnChannel', function (record) {
+                                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')]));
+                                                            return true;
+                                                        }, {single: true});
+
+                                                        return this;
+                                                    }
+                                                },
+                                                add: {
+                                                    title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
+                                                    route: 'add',
+                                                    controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
+//                                                    privileges: Imt.privileges.UsagePoint.admin,
+                                                    action: 'addCustomAttributeVersion',
+                                                    callback: function (route) {
+                                                        this.getApplication().on('loadCustomAttributeSetOnChannelAdd', function (record) {
+                                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')]));
+                                                            return true;
+                                                        }, {single: true});
+
+                                                        return this;
+                                                    }
+                                                },
+                                                clone: {
+                                                    title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
+                                                    route: '{versionId}/clone',
+                                                    controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
+//                                                    privileges: Imt.privileges.UsagePoint.admin,
+                                                    action: 'cloneCustomAttributeVersion',
+                                                    callback: function (route) {
+                                                        this.getApplication().on('loadCustomAttributeSetVersionOnChannelClone', function (record) {
+                                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", [record.get('period')]));
+                                                            return true;
+                                                        }, {single: true});
+
+                                                        return this;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                channeldata: {
+                                    title: Uni.I18n.translate('routing.channelData', 'IMT', 'Channel data'),
+                                    route: '{channelId}/data',
+                                    controller: 'Imt.channeldata.controller.ChannelData',
+//                                    privileges: Imt.privileges.UsagePoint.view,
+                                    action: 'showData',
+//                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStateStore,
+                                    callback: function (route) {
+                                        this.getApplication().on('channelLoaded', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                channelvalidationblocks: {
+                                    title: Uni.I18n.translate('routing.channelData', 'IMT', 'Channel data'),
+                                    route: '{channelId}/validationblocks/{issueId}',
+                                    controller: 'Imt.channeldata.controller.ChannelData',
+//                                    privileges: Imt.privileges.UsagePoint.view,
+//                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStateStore,
+                                    action: 'showValidationBlocks',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelLoaded', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                channelvalidation: {
+                                    title: Uni.I18n.translate('routing.channelValidation', 'IMT', 'Channel validation'),
+                                    route: '{channelId}/validation',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelLoaded', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
                                         return this;
                                     }
                                 }
                             }
-           			    },
+                        },
            			    registers: {
                             title: Uni.I18n.translate('general.label.usagepoint.registers', 'IMT', 'Registers'),
                             route: 'registers',

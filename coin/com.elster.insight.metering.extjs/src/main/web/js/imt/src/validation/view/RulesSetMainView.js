@@ -44,7 +44,7 @@ Ext.define('Imt.validation.view.RulesSetMainView', {
                                 itemId: 'dataValidationStatusPanel',
                                 ui: 'medium',
                                 layout: 'column',
-                                title: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                                title: Uni.I18n.translate('general.status', 'IMT', 'Status'),
                                 items: [
                                     {
                                         xtype: 'displayfield',

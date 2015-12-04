@@ -13,14 +13,14 @@ Ext.define('Imt.registerdata.controller.View', {
         'Imt.registerdata.model.Register',
         'Imt.registerdata.model.RegisterData',
         'Imt.model.DataIntervalAndZoomLevels',
-        'Imt.model.ChannelDataDuration'
+        'Imt.channeldata.model.ChannelDataDuration'
     ],
     stores: [
         'Imt.registerdata.store.Register',
         'Imt.registerdata.store.RegisterData',
         'Imt.registerdata.store.RegisterDataDurations',
         'Imt.store.DataIntervalAndZoomLevels',
-        'Imt.store.ChannelDataDurations'
+        'Imt.channeldata.store.ChannelDataDurations'
     ],
     views: [
         'Imt.registerdata.view.RegisterList',
