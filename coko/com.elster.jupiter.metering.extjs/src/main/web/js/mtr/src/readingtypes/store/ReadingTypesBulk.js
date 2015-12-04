@@ -6,5 +6,13 @@ Ext.define('Mtr.readingtypes.store.ReadingTypesBulk', {
     autoLoad: false,
     buffered: true,
     pageSize: 200,
-    remoteFilter: true
+    remoteFilter: true,
+    proxy: {
+                   type: 'rest',
+                   url: '../../api/mtr/readingtypes',
+                   reader: {
+                       type: 'json',
+                       root: 'readingTypes'
+                   }
+               }
 });
