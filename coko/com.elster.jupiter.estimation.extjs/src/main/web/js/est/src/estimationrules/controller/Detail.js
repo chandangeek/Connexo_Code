@@ -97,8 +97,13 @@ Ext.define('Est.estimationrules.controller.Detail', {
         page.setLoading(Uni.I18n.translate('general.removing', 'EST', 'Removing...'));
         record.destroy({
             success: function () {
+                page.setLoading(false);
                 router.getRoute('administration/estimationrulesets/estimationruleset/rules').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationrules.estimationRuleRemoved', 'EST', 'Estimation rule removed'));
+
+            },
+            callback: function () {
+                page.setLoading(false);
             }
         });
     },

@@ -145,9 +145,11 @@ Ext.define('Est.estimationrules.controller.Overview', {
         record.destroy({
             success: function () {
                 if (page.rendered) {
+                    page.setLoading(false);
                     router.getRoute().forward();
                 }
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationrules.estimationRuleRemoved', 'EST', 'Estimation rule removed'));
+
             },
             callback: function () {
                 page.setLoading(false);
