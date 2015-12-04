@@ -96,6 +96,7 @@ Ext.define('Mtr.readingtypes.controller.OverviewSorting', {
         sortContainer.removeAll();
         var sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
 
+
         if (Ext.isArray(sorting)) {
             Ext.Array.each(sorting, function (sortItem) {
 

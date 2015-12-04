@@ -3,6 +3,7 @@ Ext.define('Mtr.readingtypes.store.ReadingTypes', {
     requires: ['Mtr.readingtypes.model.ReadingType'],
     model: 'Mtr.readingtypes.model.ReadingType',
     storeId: 'ReadingTypes',
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '../../api/mtr/readingtypes',

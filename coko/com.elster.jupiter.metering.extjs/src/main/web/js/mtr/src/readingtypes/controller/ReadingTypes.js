@@ -79,17 +79,9 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
             store = me.getStore('Mtr.readingtypes.store.ReadingTypes'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
-        viewport.setLoading();
-
         widget = Ext.widget('reading-types-setup');
         me.getApplication().fireEvent('changecontentevent', widget);
-
         sorting.setCurrentSort();
-        store.load({
-            callback: function(){
-                viewport.setLoading(false);
-            }
-        });
     },
 
     showPreview: function (selectionModel, record) {
