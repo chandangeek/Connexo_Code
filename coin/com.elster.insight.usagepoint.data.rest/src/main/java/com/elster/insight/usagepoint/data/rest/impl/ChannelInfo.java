@@ -49,7 +49,7 @@ public class ChannelInfo {
                     rt -> info.calculatedReadingType = new ReadingTypeInfo(rt));
         }
         info.flowUnit = isFlowUnit(channel.getMainReadingType().getUnit()) ? "flow" : "volume";
-        info.version = channel.getVersion();
+        channel.getMeterActivation().getUsagePoint().ifPresent(up -> info.version = up.getVersion());
         return info;
     }
 
