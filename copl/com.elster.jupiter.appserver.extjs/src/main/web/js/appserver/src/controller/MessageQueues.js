@@ -35,7 +35,7 @@ Ext.define('Apr.controller.MessageQueues',{
             '#monitor-grid': {
                 select: this.showPreview
             },
-            'message-queues-action-menu': {
+            'monitor-action-menu': {
                 click: this.chooseAction
             },
             '#message-queues-grid': {
@@ -129,7 +129,8 @@ Ext.define('Apr.controller.MessageQueues',{
     clearErrorQueue: function(record){
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-
+        record.set('retryDelayInSeconds',record.get('retryDelayInMinutes')*60);
+        delete record.data.retryDelayInMinutes;
         Ext.Ajax.request({
             url: '/api/msg/destinationspec/' + record.get('name') + '?purgeErrors=true',
             method: 'PUT',
