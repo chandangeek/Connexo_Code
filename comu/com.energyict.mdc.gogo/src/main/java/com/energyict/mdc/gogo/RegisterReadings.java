@@ -11,6 +11,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.NumericalReading;
@@ -88,7 +89,7 @@ public class RegisterReadings {
     public void addReading(String deviceMRID, String readingTypeMRID, String... formattedDates) {
         Optional<Device> device = this.deviceService.findByUniqueMrid(deviceMRID);
         if (device.isPresent()) {
-            Optional<Register<Reading>> register = this.findRegister(device.get(), readingTypeMRID);
+            Optional<Register<Reading, RegisterSpec>> register = this.findRegister(device.get(), readingTypeMRID);
             if (register.isPresent()) {
                 List<Instant> readingTimestamps = this.toTimestamps(formattedDates);
                 try {
@@ -150,8 +151,8 @@ public class RegisterReadings {
                 .collect(Collectors.toMap(d -> d[0], d -> d[1]));
     }
 
-    private Optional<Register<Reading>> findRegister(Device device, String readingTypeMRID) {
-        for (Register<Reading> register : device.getRegisters()) {
+    private Optional<Register<Reading, RegisterSpec>> findRegister(Device device, String readingTypeMRID) {
+        for (Register<Reading, RegisterSpec> register : device.getRegisters()) {
             if (register.getRegisterSpec().getRegisterType().getReadingType().getMRID().equals(readingTypeMRID)) {
                 return Optional.of(register);
             }
@@ -230,7 +231,7 @@ public class RegisterReadings {
         System.out.println();
     }
 
-    private <R extends Reading> void printReadings(Register<R> register, Interval sinceEpoch) {
+    private <R extends Reading, RS extends RegisterSpec> void printReadings(Register<R, RS> register, Interval sinceEpoch) {
         List<R> readings = register.getReadings(sinceEpoch);
         if (readings.isEmpty()) {
             System.out.println("No readings for register " + register.getRegisterSpec().getRegisterType().getReadingType().getMRID());
