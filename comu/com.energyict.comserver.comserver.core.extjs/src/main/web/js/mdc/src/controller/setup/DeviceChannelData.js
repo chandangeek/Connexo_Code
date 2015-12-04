@@ -325,8 +325,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     showButtons: function () {
         var me = this;
 
-        me.getPage().down('#save-changes-button').show();
-        me.getPage().down('#undo-button').show();
+        me.getPage().down('#save-changes-button').enable();
+        me.getPage().down('#undo-button').enable();
     },
 
     saveChannelDataChanges: function () {
@@ -429,7 +429,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         if (event.record.isModified('value')) {
-            me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
+            me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
 
             if (!event.record.get('value')) {
                 point.update({y: null});
@@ -482,8 +482,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
         record.reject();
         if (!store.getUpdatedRecords().length) {
-            me.getPage().down('#save-changes-button').hide();
-            me.getPage().down('#undo-button').hide();
+            me.getPage().down('#save-changes-button').disable();
+            me.getPage().down('#undo-button').disable();
         }
     },
 
@@ -593,7 +593,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         });
                     }
                     me.getReadingEstimationWindow().destroy();
-                    me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
+                    me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
                 } else {
                     me.getReadingEstimationWindow().setLoading(false);
                     if (responseText.message) {
@@ -721,7 +721,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             func(record);
         }
 
-        me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
+        me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
     },
 
     removeReadings: function (records) {
