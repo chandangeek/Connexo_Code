@@ -199,7 +199,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     private void doModelStubbing() {
         when(device.getRegisters()).thenReturn(Arrays.asList(register1));
         when(register1.getReadingType()).thenReturn(regReadingType);
-        doReturn(registerSpec).when(register1.getRegisterSpec());
+        doReturn(registerSpec).when(register1).getRegisterSpec();
         when(registerSpec.getReadingType()).thenReturn(regReadingType);
         when(regReadingType.getMRID()).thenReturn("REG1");
         when(regReadingType.getAliasName()).thenReturn("Sum+");

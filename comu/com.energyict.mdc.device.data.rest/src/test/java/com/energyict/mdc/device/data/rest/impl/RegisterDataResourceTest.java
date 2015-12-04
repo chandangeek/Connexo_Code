@@ -174,7 +174,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     public void testGetRegisterData() {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
+        when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);
+        when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
 
         long intervalStart = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
         long intervalEnd = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
