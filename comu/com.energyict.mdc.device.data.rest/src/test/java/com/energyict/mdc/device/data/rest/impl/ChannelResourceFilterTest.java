@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
@@ -85,6 +86,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(device.forValidation()).thenReturn(deviceValidation);
         doReturn(false).when(deviceValidation).isValidationActive(any(Channel.class), eq(NOW));
         when(deviceValidation.getLastChecked(any(Channel.class))).thenReturn(Optional.<Instant>empty());
+        when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
     }
 
     private Channel mockChannel(long id, ReadingType readingType){
@@ -100,6 +102,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getLastDateTime()).thenReturn(Optional.<Instant>empty());
         when(channel.getUnit()).thenReturn(unit);
+        when(channel.getCalculatedReadingType()).thenReturn(Optional.empty());
         return channel;
     }
 

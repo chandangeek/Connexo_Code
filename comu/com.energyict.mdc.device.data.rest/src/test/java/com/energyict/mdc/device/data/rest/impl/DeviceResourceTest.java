@@ -65,6 +65,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import com.jayway.jsonpath.Option;
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -564,6 +565,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
+        when(device1.getMultiplier()).thenReturn(BigDecimal.ONE);
         when(loadProfile1.getDevice()).thenReturn(device1);
         when(loadProfile2.getDevice()).thenReturn(device1);
         when(loadProfile3.getDevice()).thenReturn(device1);
@@ -576,6 +578,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel2.getLastDateTime()).thenReturn(Optional.empty());
         when(channel1.getLoadProfile()).thenReturn(loadProfile1);
         when(channel2.getLoadProfile()).thenReturn(loadProfile1);
+        when(channel2.getCalculatedReadingType()).thenReturn(Optional.empty());
+        when(channel1.getCalculatedReadingType()).thenReturn(Optional.empty());
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(device1.forValidation()).thenReturn(deviceValidation);
         when(channel1.getReadingType()).thenReturn(readingType);
@@ -665,6 +669,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testLoadProfileChannelData() throws Exception {
         Device device1 = mock(Device.class);
+        when(device1.getMultiplier()).thenReturn(BigDecimal.ONE);
         long channel_id = 7L;
         Channel channel1 = mockChannel("channel1", "1.1", channel_id);
         when(channel1.getDevice()).thenReturn(device1);
@@ -1354,6 +1359,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(mock.getReadingType()).thenReturn(readingType);
         when(mock.getReadingType().getCalculatedReadingType()).thenReturn(Optional.of(readingType));
         when(mock.getInterval()).thenReturn(new TimeDuration("15 minutes"));
+        when(mock.getCalculatedReadingType()).thenReturn(Optional.empty());
         Unit unit = Unit.get("kWh");
         when(mock.getLastReading()).thenReturn(Optional.empty());
         when(mock.getUnit()).thenReturn(unit);

@@ -118,6 +118,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
         when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
+        when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
         when(loadProfile.getId()).thenReturn(1L);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel));
 
@@ -161,6 +162,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getDevice()).thenReturn(device);
         when(channel.getId()).thenReturn(CHANNEL_ID1);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
+        when(channel.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(channelSpec.getId()).thenReturn(CHANNEL_ID1);
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(channel, NOW)).thenReturn(true);
