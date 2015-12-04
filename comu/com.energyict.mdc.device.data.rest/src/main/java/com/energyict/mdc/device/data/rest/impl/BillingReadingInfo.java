@@ -15,25 +15,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Set;
 
-public class BillingReadingInfo extends ReadingInfo {
-    @JsonProperty("value")
-    public BigDecimal value;
-    public BigDecimal deltaValue;
+public class BillingReadingInfo extends NumericalReadingInfo {
+
     @JsonProperty("interval")
     public IntervalInfo interval;
-    @JsonProperty("validationStatus")
-    public Boolean validationStatus;
-    @JsonProperty("dataValidated")
-    public Boolean dataValidated;
-    @JsonProperty("validationResult")
-    @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
-    public ValidationStatus validationResult;
-    @JsonProperty("suspectReason")
-    public Set<ValidationRuleInfo> suspectReason;
-    @JsonProperty("estimatedByRule")
-    public EstimationRuleInfo estimatedByRule;
-    @JsonProperty("isConfirmed")
-    public Boolean isConfirmed;
 
     public BillingReadingInfo() {
     }

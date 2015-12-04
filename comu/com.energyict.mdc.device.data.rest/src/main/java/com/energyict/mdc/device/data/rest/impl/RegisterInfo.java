@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.math.BigDecimal;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -23,7 +24,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
         @JsonSubTypes.Type(value = TextRegisterInfo.class, name = "text"),
         @JsonSubTypes.Type(value = FlagsRegisterInfo.class, name = "flags")
 })
-public abstract class RegisterInfo<R extends Register, RE extends Reading> {
+public abstract class RegisterInfo {
     @JsonProperty("id")
     public Long id;
     @JsonProperty("readingType")

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -70,12 +71,7 @@ public class DeviceDataInfoFactory {
         }
         channelReading.ifPresent(reading -> {
             channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
-            channel.getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> {
-                channelIntervalInfo.isBulk = true;
-                channelIntervalInfo.collectedValue = channelIntervalInfo.value;
-                Quantity quantity = reading.getQuantity(calculatedReadingType);
-                channelIntervalInfo.value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
-            });
+            addCalculatedValueInfo(channel, channelIntervalInfo, reading);
             channelIntervalInfo.reportedDateTime = reading.getReportedDateTime();
         });
         if (!channelReading.isPresent() && loadProfileReading.getReadingTime() != null) {
@@ -98,6 +94,28 @@ public class DeviceDataInfoFactory {
             channelIntervalInfo.dataValidated = false;
         }
         return channelIntervalInfo;
+    }
+
+    private void addCalculatedValueInfo(Channel channel, ChannelDataInfo channelIntervalInfo, IntervalReadingRecord reading) {
+        if(channel.getReadingType().isCumulative()){
+            channelIntervalInfo.isBulk = true;
+        }
+        Optional<ReadingType> calculatedReadingType = getCalculatedReadingTypeFromChannel(channel);
+        calculatedReadingType.ifPresent(readingType -> {
+            channelIntervalInfo.collectedValue = channelIntervalInfo.value;
+            Quantity quantity = reading.getQuantity(readingType);
+            channelIntervalInfo.value = getRoundedBigDecimal(quantity != null? quantity.getValue(): null, channel);
+        });
+    }
+
+    private Optional<ReadingType> getCalculatedReadingTypeFromChannel(Channel channel) {
+        Optional<ReadingType> calculatedReadingType;
+        if (channel.getChannelSpec().isUseMultiplier()) {
+            calculatedReadingType = channel.getCalculatedReadingType();
+        } else {
+            calculatedReadingType = channel.getReadingType().getCalculatedReadingType();
+        }
+        return calculatedReadingType;
     }
 
     private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
@@ -155,18 +173,18 @@ public class DeviceDataInfoFactory {
         return channelIntervalInfo;
     }
 
-    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, RegisterSpec registerSpec, boolean isValidationStatusActive) {
+    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, RegisterSpec registerSpec, boolean isValidationStatusActive, Device device) {
         return readings
                 .stream()
-                .map(r -> createReadingInfo(r, registerSpec, isValidationStatusActive))
+                .map(r -> createReadingInfo(r, registerSpec, isValidationStatusActive, device))
                 .collect(Collectors.toList());
     }
 
-    public ReadingInfo createReadingInfo(Reading reading, RegisterSpec registerSpec, boolean isValidationStatusActive) {
+    public ReadingInfo createReadingInfo(Reading reading, RegisterSpec registerSpec, boolean isValidationStatusActive, Device device) {
         if (reading instanceof BillingReading) {
-            return createBillingReadingInfo((BillingReading) reading, (NumericalRegisterSpec) registerSpec, isValidationStatusActive);
+            return createBillingReadingInfo((BillingReading) reading, (NumericalRegisterSpec) registerSpec, device, isValidationStatusActive);
         } else if (reading instanceof NumericalReading) {
-            return createNumericalReadingInfo((NumericalReading) reading, (NumericalRegisterSpec) registerSpec, isValidationStatusActive);
+            return createNumericalReadingInfo((NumericalReading) reading, (NumericalRegisterSpec) registerSpec, device, isValidationStatusActive);
         } else if (reading instanceof TextReading) {
             return createTextReadingInfo((TextReading) reading);
         } else if (reading instanceof FlagsReading) {
@@ -183,50 +201,64 @@ public class DeviceDataInfoFactory {
         readingInfo.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
     }
 
-    public BillingReadingInfo createBillingReadingInfo(BillingReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive) {
+    private BillingReadingInfo createBillingReadingInfo(BillingReading reading, NumericalRegisterSpec registerSpec, Device device, boolean isValidationStatusActive) {
         BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
         setCommonReadingInfo(reading, billingReadingInfo);
+        setMultiplierIfApplicable(billingReadingInfo, device);
         if (reading.getQuantity() != null) {
             billingReadingInfo.value = reading.getQuantity().getValue();
+            setCalculatedValueIfApplicable(reading, registerSpec, billingReadingInfo, 0);
         }
         if (reading.getRange().isPresent()) {
             billingReadingInfo.interval = IntervalInfo.from(reading.getRange().get());
         }
-        billingReadingInfo.validationStatus = isValidationStatusActive;
-        reading.getValidationStatus().ifPresent(status -> {
-            billingReadingInfo.dataValidated = status.completelyValidated();
-            billingReadingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
-            billingReadingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
-            billingReadingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
-            billingReadingInfo.isConfirmed = validationInfoFactory.isConfirmedData(reading.getActualReading(), status.getReadingQualities());
-        });
+        addValidationInfo(reading, billingReadingInfo, isValidationStatusActive);
         return billingReadingInfo;
     }
 
-    public NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive) {
+    private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, NumericalRegisterSpec registerSpec, Device device, boolean isValidationStatusActive) {
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
         setCommonReadingInfo(reading, numericalReadingInfo);
-        if (reading.getQuantity() != null) {
-            numericalReadingInfo.value = reading.getQuantity().getValue();
-            numericalReadingInfo.rawValue = reading.getQuantity().getValue();
-        }
-        if (numericalReadingInfo.value != null) {
+        setMultiplierIfApplicable(numericalReadingInfo, device);
+
+        Quantity collectedValue = reading.getQuantityFor(registerSpec.getReadingType());
+        if(collectedValue != null){
             int numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
-            numericalReadingInfo.value = numericalReadingInfo.value.setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
+            numericalReadingInfo.value = collectedValue.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
             numericalReadingInfo.rawValue = numericalReadingInfo.value;
+            setCalculatedValueIfApplicable(reading, registerSpec, numericalReadingInfo, numberOfFractionDigits);
         }
-        numericalReadingInfo.validationStatus = isValidationStatusActive;
-        reading.getValidationStatus().ifPresent(status -> {
-            numericalReadingInfo.dataValidated = status.completelyValidated();
-            numericalReadingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
-            numericalReadingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
-            numericalReadingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
-            numericalReadingInfo.isConfirmed = validationInfoFactory.isConfirmedData(reading.getActualReading(), status.getReadingQualities());
-        });
+        addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
         return numericalReadingInfo;
     }
 
-    public TextReadingInfo createTextReadingInfo(TextReading reading) {
+    private void setCalculatedValueIfApplicable(NumericalReading reading, NumericalRegisterSpec registerSpec, NumericalReadingInfo numericalReadingInfo, int numberOfFractionDigits) {
+        if(registerSpec.getCalculatedReadingType().isPresent() ){
+            Quantity calculatedQuantity = reading.getQuantityFor(registerSpec.getCalculatedReadingType().get());
+            if(calculatedQuantity != null){
+                numericalReadingInfo.calculatedValue = calculatedQuantity.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
+            }
+        }
+    }
+
+    private void setMultiplierIfApplicable(NumericalReadingInfo readingInfo, Device device) {
+        if(!device.getMultiplier().equals(BigDecimal.ONE)){
+            readingInfo.multiplier = device.getMultiplier();
+        }
+    }
+
+    private void addValidationInfo(Reading reading, NumericalReadingInfo readingInfo, boolean isValidationStatusActive) {
+        readingInfo.validationStatus = isValidationStatusActive;
+        reading.getValidationStatus().ifPresent(status -> {
+            readingInfo.dataValidated = status.completelyValidated();
+            readingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
+            readingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
+            readingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
+            readingInfo.isConfirmed = validationInfoFactory.isConfirmedData(reading.getActualReading(), status.getReadingQualities());
+        });
+    }
+
+    private TextReadingInfo createTextReadingInfo(TextReading reading) {
         TextReadingInfo textReadingInfo = new TextReadingInfo();
         setCommonReadingInfo(reading, textReadingInfo);
         textReadingInfo.value = reading.getValue();
@@ -234,7 +266,7 @@ public class DeviceDataInfoFactory {
         return textReadingInfo;
     }
 
-    public FlagsReadingInfo createFlagsReadingInfo(FlagsReading reading) {
+    private FlagsReadingInfo createFlagsReadingInfo(FlagsReading reading) {
         FlagsReadingInfo flagsReadingInfo = new FlagsReadingInfo();
         setCommonReadingInfo(reading, flagsReadingInfo);
         flagsReadingInfo.value = reading.getFlags();
@@ -270,13 +302,19 @@ public class DeviceDataInfoFactory {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         Optional<? extends Reading> lastReading = register.getLastReading();
-        lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, registerSpec, false));
+        lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, registerSpec, false, device));
     }
 
-    public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register, DetailedValidationInfo registerValidationInfo) {
+    private BillingRegisterInfo createBillingRegisterInfo(BillingRegister register, DetailedValidationInfo registerValidationInfo) {
         BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
         addCommonRegisterInfo(register, billingRegisterInfo);
         billingRegisterInfo.detailedValidationInfo = registerValidationInfo;
+        if(register.getCalculatedReadingType().isPresent()){
+            billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(register.getCalculatedReadingType().get());
+        } else if(register.getReadingType().getCalculatedReadingType().isPresent()){
+            billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(register.getReadingType().getCalculatedReadingType().get());
+        }
+        addMultiplierIfApplicable(register, billingRegisterInfo);
         return billingRegisterInfo;
     }
 
@@ -286,19 +324,31 @@ public class DeviceDataInfoFactory {
         return flagsRegisterInfo;
     }
 
-    public TextRegisterInfo createTextRegisterInfo(TextRegister textRegister){
+    private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister){
         TextRegisterInfo textRegisterInfo = new TextRegisterInfo();
         addCommonRegisterInfo(textRegister, textRegisterInfo);
         return textRegisterInfo;
     }
 
-    public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister, DetailedValidationInfo registerValidationInfo){
+    private NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister, DetailedValidationInfo registerValidationInfo){
         NumericalRegisterInfo numericalRegisterInfo = new NumericalRegisterInfo();
         addCommonRegisterInfo(numericalRegister, numericalRegisterInfo);
-        NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)numericalRegister.getRegisterSpec();
+        NumericalRegisterSpec registerSpec = numericalRegister.getRegisterSpec();
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         numericalRegisterInfo.overflow = registerSpec.getOverflowValue();
         numericalRegisterInfo.detailedValidationInfo = registerValidationInfo;
+        if(numericalRegister.getCalculatedReadingType().isPresent()){
+            numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(numericalRegister.getCalculatedReadingType().get());
+        } else if(numericalRegister.getReadingType().getCalculatedReadingType().isPresent()){
+            numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(numericalRegister.getReadingType().getCalculatedReadingType().get());
+        }
+        addMultiplierIfApplicable(numericalRegister, numericalRegisterInfo);
         return numericalRegisterInfo;
+    }
+
+    private void addMultiplierIfApplicable(Register register, NumericalRegisterInfo registerInfo) {
+        if (!register.getDevice().getMultiplier().equals(BigDecimal.ONE)) {
+            registerInfo.multiplier = register.getDevice().getMultiplier();
+        }
     }
 }

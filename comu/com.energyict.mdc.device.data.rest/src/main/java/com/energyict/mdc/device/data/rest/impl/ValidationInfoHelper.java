@@ -27,14 +27,14 @@ public class ValidationInfoHelper {
         this.validationInfoFactory = validationInfoFactory;
     }
 
-    public DetailedValidationInfo getRegisterValidationInfo(Register<?> register) {
+    public DetailedValidationInfo getRegisterValidationInfo(Register<?,?> register) {
         boolean validationActive = validationActive(register.getDevice().forValidation());
 
         Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
         return validationInfoFactory.createDetailedValidationInfo(validationActive, statuses(register), lastChecked);
     }
 
-    private List<DataValidationStatus> statuses(Register<?> register) {
+    private List<DataValidationStatus> statuses(Register<?,?> register) {
         List<? extends Reading> readings = getReadingsForOneYear(register);
         return readings.stream().map(Reading::getValidationStatus).flatMap(Functions.asStream()).collect(Collectors.toList());
     }
@@ -43,7 +43,7 @@ public class ValidationInfoHelper {
         return deviceValidation.isValidationActive();
     }
 
-    private List<? extends Reading> getReadingsForOneYear(Register<?> register) {
+    private List<? extends Reading> getReadingsForOneYear(Register<?,?> register) {
         return register.getReadings(lastYear());
     }
 

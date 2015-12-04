@@ -66,7 +66,7 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public RegisterInfo getRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
-        Register<?> register = doGetRegister(mRID, registerId);
+        Register<?, ?> register = doGetRegister(mRID, registerId);
         return deviceDataInfoFactory.createRegisterInfo(register, validationInfoHelper.getRegisterValidationInfo(register));
     }
 
@@ -75,7 +75,7 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public PagedInfoList getDeviceCustomProperties(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam JsonQueryParameters queryParameters) {
-        Register<?> register = doGetRegister(mRID, registerId);
+        Register<?, ?> register = doGetRegister(mRID, registerId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register);
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
     }
@@ -85,7 +85,7 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public CustomPropertySetInfo getDeviceCustomProperties(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId) {
-        Register<?> register = doGetRegister(mRID, registerId);
+        Register<?, ?> register = doGetRegister(mRID, registerId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register);
         if (customPropertySetInfo.id != cpsId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
@@ -99,7 +99,7 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response changeRegisterCustomProperty(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
-        Register<?> register = doGetRegister(mRID, registerId);
+        Register<?, ?> register = doGetRegister(mRID, registerId);
         resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
         resourceHelper.setRegisterCustomPropertySet(register, customPropertySetInfo);
         return Response.ok().build();
@@ -112,7 +112,7 @@ public class RegisterResource {
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterTriggerValidationInfo validationInfo) {
         Device device = resourceHelper.lockDeviceOrThrowException(validationInfo);
-        Register<?> register = doGetRegister(mRID, registerId);
+        Register<?, ?> register = doGetRegister(mRID, registerId);
         if (validationInfo.lastChecked == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
         }
@@ -126,14 +126,14 @@ public class RegisterResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    private void validateRegister(Register<?> register, Instant start) {
+    private void validateRegister(Register<?, ?> register, Instant start) {
         if (start != null) {
             register.getDevice().forValidation().setLastChecked(register, start);
         }
         register.getDevice().forValidation().validateRegister(register);
     }
 
-    private Register<?> doGetRegister(String mRID, long registerId) {
+    private Register<?, ?> doGetRegister(String mRID, long registerId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         return resourceHelper.findRegisterOrThrowException(device, registerId);
     }
@@ -148,7 +148,7 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("registerId") long registerId) {
-        Register<?> register = doGetRegister(mrid, registerId);
+        Register<?, ?> register = doGetRegister(mrid, registerId);
         ValidationStatusInfo validationStatusInfo = determineStatus(register);
         return Response.status(Response.Status.OK).entity(validationStatusInfo).build();
     }
@@ -158,20 +158,20 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationStatusPreview(@PathParam("mRID") String mrid, @PathParam("registerId") long registerId) {
-        Register<?> register = doGetRegister(mrid, registerId);
+        Register<?, ?> register = doGetRegister(mrid, registerId);
         DetailedValidationInfo detailedValidationInfo = validationInfoHelper.getRegisterValidationInfo(register);
         return Response.status(Response.Status.OK).entity(detailedValidationInfo).build();
     }
 
-    private ValidationStatusInfo determineStatus(Register<?> register) {
+    private ValidationStatusInfo determineStatus(Register<?, ?> register) {
         return new ValidationStatusInfo(isValidationActive(register), register.getDevice().forValidation().getLastChecked(register), hasData(register));
     }
 
-    private boolean isValidationActive(Register<?> register) {
+    private boolean isValidationActive(Register<?, ?> register) {
         return register.getDevice().forValidation().isValidationActive(register, clock.instant());
     }
 
-    private boolean hasData(Register<?> register) {
+    private boolean hasData(Register<?, ?> register) {
         return register.hasData();
     }
 }

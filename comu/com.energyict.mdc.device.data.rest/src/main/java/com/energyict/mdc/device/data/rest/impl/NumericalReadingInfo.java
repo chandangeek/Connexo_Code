@@ -17,11 +17,15 @@ public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
+    @JsonProperty("deltaValue")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal deltaValue;
     @JsonProperty("rawValue")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal rawValue;
+    @JsonProperty("calculatedValue")
+    @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
+    public BigDecimal calculatedValue;
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
     @JsonProperty("dataValidated")
@@ -35,7 +39,8 @@ public class NumericalReadingInfo extends ReadingInfo {
     public EstimationRuleInfo estimatedByRule;
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;
-
+    @JsonProperty("multiplier")
+    public BigDecimal multiplier;
     public NumericalReadingInfo() {}
 
     @Override

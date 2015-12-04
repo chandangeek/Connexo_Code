@@ -69,7 +69,7 @@ public class RegisterDataResource {
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Register<?,?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
 
         Range<Instant> intervalReg = Range.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
 
@@ -78,7 +78,7 @@ public class RegisterDataResource {
                 deviceDataInfoFactory.asReadingsInfoList(
                         readings,
                         register.getRegisterSpec(),
-                        device.forValidation().isValidationActive(register, this.clock.instant()));
+                        device.forValidation().isValidationActive(register, this.clock.instant()), device);
         // sort the list of readings
         Collections.sort(readingInfos, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
         /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
@@ -122,12 +122,12 @@ public class RegisterDataResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public ReadingInfo getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Register<?,?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Reading reading = register.getReading(Instant.ofEpochMilli(timeStamp)).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp));
         return deviceDataInfoFactory.createReadingInfo(
                 reading,
                 register.getRegisterSpec(),
-                device.forValidation().isValidationActive(register, this.clock.instant()));
+                device.forValidation().isValidationActive(register, this.clock.instant()), device);
     }
 
     @PUT
@@ -137,7 +137,7 @@ public class RegisterDataResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Register<?,?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         if((readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) ||
                 (readingInfo instanceof BillingReadingInfo && BillingReadingInfo.class.cast(readingInfo).isConfirmed != null && BillingReadingInfo.class.cast(readingInfo).isConfirmed)) {
             register.startEditingData().confirmReading(readingInfo.createNew(register)).complete();
@@ -154,7 +154,7 @@ public class RegisterDataResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Register<?,?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         try {
             register.startEditingData().editReading(readingInfo.createNew(register)).complete();
         } catch (NoMeterActivationAt e) {
@@ -170,7 +170,7 @@ public class RegisterDataResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response deleteRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Register<?,?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         try {
             register.startEditingData().removeReading(Instant.ofEpochMilli(timeStamp)).complete();
         }
