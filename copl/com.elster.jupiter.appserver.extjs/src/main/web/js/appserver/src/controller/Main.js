@@ -31,7 +31,7 @@ Ext.define('Apr.controller.Main', {
     },
 
     initMenu: function () {
-        if (Apr.privileges.AppServer.canView()){
+        if (Apr.privileges.AppServer.canView() ){
 
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'APR', 'Administration'),
@@ -48,6 +48,7 @@ Ext.define('Apr.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.applicationServers', 'APR', 'Application servers'),
                         href: '#/administration/appservers',
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.appServer') &&  Uni.Auth.hasNoPrivilege('privilege.view.appServer'),
                         route: 'appservers'
                     },
                     {
@@ -59,6 +60,7 @@ Ext.define('Apr.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.messageQueues', 'APR', 'Message queues'),
                         href: '#/administration/messagequeues',
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.appServer') &&  Uni.Auth.hasNoPrivilege('privilege.view.appServer'),
                         route: 'messagequeues'
                     }
                 ]
