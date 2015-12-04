@@ -35,6 +35,7 @@ public class ChannelInfo {
     public static ChannelInfo from(Channel channel) {
         ChannelInfo info = new ChannelInfo();
         info.id = channel.getId();
+        info.name = channel.getMainReadingType().getAliasName();
         
         info.interval = new TimeDurationInfo(new TimeDuration(channel.getMainReadingType().getMeasuringPeriod().getMinutes(), TimeUnit.MINUTES));
         
