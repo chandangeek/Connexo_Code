@@ -28,7 +28,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * The Register which will go Offline
      */
-    private final Register<?> register;
+    private final Register<?,?> register;
     private IdentificationService identificationService;
 
     private final Device device;
@@ -83,7 +83,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
      */
     private boolean isText;
 
-    public OfflineRegisterImpl(final Register<?> register, IdentificationService identificationService) {
+    public OfflineRegisterImpl(final Register<?,?> register, IdentificationService identificationService) {
         this.register = register;
         this.identificationService = identificationService;
         this.device = register.getDevice();
