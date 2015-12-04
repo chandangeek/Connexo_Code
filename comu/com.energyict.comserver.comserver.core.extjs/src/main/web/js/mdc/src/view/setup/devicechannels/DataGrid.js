@@ -132,12 +132,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                         xtype: 'button',
                         itemId: 'save-changes-button',
                         text: Uni.I18n.translate('general.saveChanges', 'MDC', 'Save changes'),
+                        privileges: Mdc.privileges.Device.administrateDeviceData,
                         disabled: true
                     },
                     {
                         xtype: 'button',
                         itemId: 'undo-button',
                         text: Uni.I18n.translate('general.undo', 'MDC', 'Undo'),
+                        privileges: Mdc.privileges.Device.administrateDeviceData,
                         disabled: true
                     },
                     {
