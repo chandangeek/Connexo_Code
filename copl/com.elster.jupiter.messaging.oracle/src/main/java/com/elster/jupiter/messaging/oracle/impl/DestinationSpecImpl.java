@@ -65,7 +65,7 @@ class DestinationSpecImpl implements DestinationSpec {
     private boolean active;
     @Range(min = 0, max = Integer.MAX_VALUE, message = "{" + MessageSeeds.Keys.RETRY_DELAY_OUT_OF_RANGE_KEY + "}")
     private int retryDelay;
-    @Range(min = 1, max = Integer.MAX_VALUE, message = "{" + MessageSeeds.Keys.MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY + "}")
+    @Range(min = 0, max = Integer.MAX_VALUE, message = "{" + MessageSeeds.Keys.MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY + "}")
     private int retries;
     private boolean buffered;
 
