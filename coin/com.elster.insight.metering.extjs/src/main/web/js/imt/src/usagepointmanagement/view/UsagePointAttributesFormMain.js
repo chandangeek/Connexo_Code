@@ -24,11 +24,6 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                     labelWidth: 150
                 },
                 items: [
-//                    {
-//                        name: 'mRID',
-//                        itemId: 'fld-up-mRID',
-//                        fieldLabel: Uni.I18n.translate('general.label.mrid', 'IMT', 'mRID')
-//                    },
                     {
                         name: 'name',
                         itemId: 'fld-up-name',

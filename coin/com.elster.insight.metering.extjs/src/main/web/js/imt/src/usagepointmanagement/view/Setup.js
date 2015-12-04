@@ -7,6 +7,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
         'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
+        'Imt.usagepointmanagement.view.UsagePointActionMenu',
     ],
     router: null,
     content: [
@@ -17,7 +18,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
             layout: {
                 type: 'fit',
                 align: 'stretch'
-            }
+            },
         }
     ],
 
@@ -25,6 +26,27 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         var me = this,
             panel = me.content[0];
         panel.title = me.router.getRoute().getTitle();
+        panel.tools = [
+           {
+               xtype: 'toolbar',
+               margin: '0 100 0 0',
+               items: [
+                       {
+                           xtype: 'button',
+                           itemId: 'edit-attribute-btn',
+                           style: {
+                               'background-color': '#71adc7'
+                           },
+                           privileges: Imt.privileges.UsagePoint.admin,
+                           text: Uni.I18n.translate('usagepoint.general.edit.attributes', 'IMT', 'Edit attributes'),
+                           href: me.router.getRoute('usagepoints/edit').buildUrl({mRID: me.mRID})
+                       }, 
+                 ]
+           }
+        ];
+        
+        
+        
         me.side = [
             {
                 xtype: 'panel',
@@ -40,7 +62,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
             }
         ];
         this.callParent(arguments);
-
+ 
         me.down('#usagePointSetupPanel').add(
             {
                 xtype: 'panel',
@@ -80,14 +102,6 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                },
                           ]
                     },
-//                   {
-//                        xtype: 'panel',
-//                        title: Uni.I18n.translate('usagepoint.attributes', 'IMT', 'Usage Point Attributes'),
-//                        ui: 'tile',
-//                        itemId: 'usage-point-attributes-panel',
-//                        router: me.router
-//                    }
-                    
                     {
                     	  xtype: 'panel',
                           layout: {
@@ -98,19 +112,13 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                           },
                           items: [
                                {
-                            	   xtype: 'button',
-                            	   text: Uni.I18n.translate('usagepoint.general.edit', 'IMT', 'Edit usage point'),
-                            	   href: me.router.getRoute('usagepoints/edit').buildUrl({mcid: me.mcid}),
-                            	   router: me.router,
-                            	   margin: '0 0 0 220',
-                            	   aligh: 'right',
-                               },
-                               {
                             	   xtype: 'panel',
                             	   title: Uni.I18n.translate('usagepoint.attributes', 'IMT', 'Usage Point Attributes'),
                             	   ui: 'tile',
                             	   itemId: 'usage-point-attributes-panel',
-                            	   router: me.router
+                            	   router: me.router,
+                            	   width: 400,
+                            	   align: 'right',
                                },
                           ]
                     	
