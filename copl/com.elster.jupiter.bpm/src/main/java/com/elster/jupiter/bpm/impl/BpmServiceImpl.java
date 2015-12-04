@@ -21,6 +21,7 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
@@ -38,6 +39,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.bpm",
@@ -231,6 +234,11 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Override
     public List<BpmProcessDefinition> getBpmProcessDefinitions(){
         return dataModel.query(BpmProcessDefinition.class).select(Operator.NOTEQUAL.compare("status", "UNDEPLOYED"));
+    }
+
+    @Override
+    public List<BpmProcessDefinition> getActiveBpmProcessDefinitions(){
+        return dataModel.query(BpmProcessDefinition.class).select(Operator.EQUALIGNORECASE.compare("status", "ACTIVE"));
     }
 
     @Override
