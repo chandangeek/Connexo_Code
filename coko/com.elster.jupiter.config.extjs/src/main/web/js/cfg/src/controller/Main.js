@@ -54,7 +54,7 @@ Ext.define('Cfg.controller.Main', {
             Uni.store.MenuItems.add(menuItem);
 
             var portalItem1 = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.validation', 'CFG', 'Validation'),
+                title: Uni.I18n.translate('general.validation', 'CFG', ' Data Validation'),
                 portal: 'administration',
                 items: [
                     {
