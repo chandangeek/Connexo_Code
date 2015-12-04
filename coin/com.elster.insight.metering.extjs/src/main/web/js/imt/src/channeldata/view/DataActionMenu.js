@@ -16,7 +16,7 @@ Ext.define('Imt.channeldata.view.DataActionMenu', {
             itemId: 'edit-value',
             text: Uni.I18n.translate('channels.editReadings.editValue', 'IMT', 'Edit value'),
             action: 'editValue',
-//            dynamicPrivilege: Imt.dynamicprivileges.DeviceState.deviceDataEditActions
+//            dynamicPrivilege: Imt.dynamicprivileges.UsagePointState.usagePointDataEditActions
         },
         {
             itemId: 'confirm-value',
@@ -34,7 +34,7 @@ Ext.define('Imt.channeldata.view.DataActionMenu', {
             itemId: 'remove-reading',
             text: Uni.I18n.translate('channels.editReadings.removeReading', 'IMT', 'Remove reading'),
             action: 'removeReading',
-//            dynamicPrivilege: Imt.dynamicprivileges.DeviceState.deviceDataEditActions
+//            dynamicPrivilege: Imt.dynamicprivileges.UsagePointState.usagePointDataEditActions
         }       
     ]
 });

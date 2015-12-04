@@ -76,7 +76,7 @@ Ext.define('Imt.channeldata.view.ValidationPreview', {
                                     } else {
                                         failEqualDataValue = Uni.I18n.translate('general.no', 'IMT', 'No');
                                     }
-                                    prop = ' - ' + Uni.I18n.translate('device.registerData.failEqualData', 'IMT', 'Fail equal data') + ': ' + failEqualDataValue;
+                                    prop = ' - ' + Uni.I18n.translate('channels.failEqualData', 'IMT', 'Fail equal data') + ': ' + failEqualDataValue;
                                     break;
                                 case 'com.elster.jupiter.validators.impl.IntervalStateValidator':
                                     Ext.Array.each(rule.properties[0].propertyValueInfo.value, function (idValue) {
@@ -97,7 +97,7 @@ Ext.define('Imt.channeldata.view.ValidationPreview', {
                             prop = '';
                         }
                         if (rule.deleted) {
-                            str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'IMT', '(removed rule)') + prop + '</span>' + '<br>';
+                            str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('channels.removedRule', 'IMT', '(removed rule)') + prop + '</span>' + '<br>';
                         } else {
                             str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
                             if (Cfg.privileges.Validation.canViewOrAdministrate()) {

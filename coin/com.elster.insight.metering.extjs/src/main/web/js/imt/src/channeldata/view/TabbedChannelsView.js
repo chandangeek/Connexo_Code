@@ -21,7 +21,7 @@ Ext.define('Imt.channeldata.view.TabbedChannelsView', {
 
     router: null,
     channel: null,
-    device: null,
+    usagepoint: null,
     prevNextListLink: null,
     activeTab: null,
     indexLocation: null,
@@ -44,7 +44,7 @@ Ext.define('Imt.channeldata.view.TabbedChannelsView', {
                         items: {
                             xtype: 'channelOverview',
                             router: me.router,
-                            device: me.device
+                            usagepoint: me.usagepoint
                         }
                     },
                     {
@@ -99,7 +99,7 @@ Ext.define('Imt.channeldata.view.TabbedChannelsView', {
                             },
                             {
                                 xtype: 'previous-next-navigation-toolbar',
-                                itemId: 'tabbed-device-channels-view-previous-next-navigation-toolbar',
+                                itemId: 'tabbed-usagepoint-channels-view-previous-next-navigation-toolbar',
                                 store: me.prevNextstore,
                                 router: me.router,
                                 routerIdArgument: me.routerIdArgument,
@@ -127,7 +127,7 @@ Ext.define('Imt.channeldata.view.TabbedChannelsView', {
                             {
                                 xtype: 'usage-point-management-side-menu',
                                 itemId: 'stepsMenu',
-                                mRID: me.device.get('mRID'),
+                                mRID: me.usagepoint.get('mRID'),
                                 channelId: me.channel.getId(),
                                 toggleId: 'channelsLink',
                                 router: me.router

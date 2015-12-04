@@ -65,7 +65,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                     validateOnChange: true,
                     fieldStyle: 'text-align: right'
                 },
-//                dynamicPrivilege: Imt.dynamicprivileges.DeviceState.deviceDataEditActions,
+//                dynamicPrivilege: Imt.dynamicprivileges.UsagePointState.usagePointDataEditActions,
                 width: 200
             },
             {
@@ -75,7 +75,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                 renderer: function (v, metaData, record) {
                     return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
                 },
-//                hidden: Imt.dynamicprivileges.DeviceState.canEditData(),
+//                hidden: Imt.dynamicprivileges.UsagePointState.canEditData(),
                 width: 200
             },
             {
@@ -142,9 +142,9 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                     },
                     {
                         xtype: 'button',
-                        itemId: 'device-channel-data-bulk-action-button',
+                        itemId: 'usagepoint-channel-data-bulk-action-button',
                         text: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
-//                        privileges: Imt.privileges.Device.administrateDeviceData,
+                        privileges: Imt.privileges.UsagePoint.admin,
                         menu: {
                             xtype: 'channelDataBulkActionMenu',
                             itemId: 'channelDataBulkActionMenu'

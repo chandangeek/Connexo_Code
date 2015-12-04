@@ -31,16 +31,16 @@ Ext.define('Imt.controller.History', {
                             title: Uni.I18n.translate('general.channels', 'IMT', 'Channels'),
                             route: 'channels',
                             controller: 'Imt.channeldata.controller.Channels',
-//                            privileges: Imt.privileges.Device.viewDevice,
+//                            privileges: Imt.privileges.UsagePoint.view,
                             action: 'showOverview',
                             filter: 'Imt.channeldata.model.ChannelsFilter',
-//                            dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
+//                            dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStateStore,
                             items: {
                                 channel: {
                                     title: Uni.I18n.translate('routing.channel', 'IMT', 'Channel'),
                                     route: '{channelId}',
                                     controller: 'Imt.channeldata.controller.ChannelData',
-//                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
+//                                    privileges: Imt.privileges.UsagePoint.view,
                                     action: 'showSpecifications',
                                     callback: function (route) {
                                         this.getApplication().on('channelLoaded', function (record) {
@@ -53,7 +53,7 @@ Ext.define('Imt.controller.History', {
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Imt.channeldata.controller.ChannelData',
-//                                            privileges: Imt.privileges.Device.administrateDeviceData,
+//                                            privileges: Imt.privileges.UsagePoint.admin,
                                             action: 'showEditChannelCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('channelCustomAttributesLoaded', function (record) {
@@ -68,7 +68,7 @@ Ext.define('Imt.controller.History', {
                                             title: Uni.I18n.translate('general.history', 'IMT', 'History'),
                                             route: 'customattributes/{customAttributeSetId}/versions',
                                             controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
-//                                            privileges: Imt.privileges.Device.viewDeviceData,
+//                                            privileges: Imt.privileges.UsagePoint.view,
                                             action: 'loadCustomAttributeVersions',
                                             callback: function (route) {
                                                 this.getApplication().on('loadCustomAttributeSetOnChannel', function (record) {
@@ -83,7 +83,7 @@ Ext.define('Imt.controller.History', {
                                                     title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
                                                     route: '{versionId}/edit',
                                                     controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
-//                                                    privileges: Imt.privileges.Device.administrateDeviceData,
+//                                                    privileges: Imt.privileges.UsagePoint.admin,
                                                     action: 'editCustomAttributeVersion',
                                                     callback: function (route) {
                                                         this.getApplication().on('loadCustomAttributeSetVersionOnChannel', function (record) {
@@ -98,7 +98,7 @@ Ext.define('Imt.controller.History', {
                                                     title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                                                     route: 'add',
                                                     controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
-//                                                    privileges: Imt.privileges.Device.administrateDeviceData,
+//                                                    privileges: Imt.privileges.UsagePoint.admin,
                                                     action: 'addCustomAttributeVersion',
                                                     callback: function (route) {
                                                         this.getApplication().on('loadCustomAttributeSetOnChannelAdd', function (record) {
@@ -113,7 +113,7 @@ Ext.define('Imt.controller.History', {
                                                     title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
                                                     route: '{versionId}/clone',
                                                     controller: 'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
-//                                                    privileges: Imt.privileges.Device.administrateDeviceData,
+//                                                    privileges: Imt.privileges.UsagePoint.admin,
                                                     action: 'cloneCustomAttributeVersion',
                                                     callback: function (route) {
                                                         this.getApplication().on('loadCustomAttributeSetVersionOnChannelClone', function (record) {
@@ -132,9 +132,9 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('routing.channelData', 'IMT', 'Channel data'),
                                     route: '{channelId}/data',
                                     controller: 'Imt.channeldata.controller.ChannelData',
-//                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
+//                                    privileges: Imt.privileges.UsagePoint.view,
                                     action: 'showData',
-//                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
+//                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStateStore,
                                     callback: function (route) {
                                         this.getApplication().on('channelLoaded', function (record) {
                                             route.setTitle(record.get('name'));
@@ -147,8 +147,8 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('routing.channelData', 'IMT', 'Channel data'),
                                     route: '{channelId}/validationblocks/{issueId}',
                                     controller: 'Imt.channeldata.controller.ChannelData',
-//                                    privileges: Imt.privileges.Device.viewDeviceCommunication,
-//                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.deviceStateStore,
+//                                    privileges: Imt.privileges.UsagePoint.view,
+//                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStateStore,
                                     action: 'showValidationBlocks',
                                     callback: function (route) {
                                         this.getApplication().on('channelLoaded', function (record) {

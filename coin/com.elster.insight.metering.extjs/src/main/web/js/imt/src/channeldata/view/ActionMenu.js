@@ -9,14 +9,14 @@ Ext.define('Imt.channeldata.view.ActionMenu', {
     items: [
         {
             itemId: 'viewSuspects',
-            text: Uni.I18n.translate('deviceregisterconfiguration.menu.viewsuspects', 'IMT', 'View suspects'),
+            text: Uni.I18n.translate('channels.menu.viewsuspects', 'IMT', 'View suspects'),
             action: 'viewSuspects'
         },
         {
             itemId: 'validateNowChannel',
-            text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'IMT', 'Validate now'),
+            text: Uni.I18n.translate('channels.menu.validate', 'IMT', 'Validate now'),
 //            privileges:Cfg.privileges.Validation.validateManual,
-//            dynamicPrivilege: Imt.dynamicprivileges.DeviceState.validationActions,
+//            dynamicPrivilege: Imt.dynamicprivileges.UsagePointState.validationActions,
             action: 'validateNow'
         }
     ]

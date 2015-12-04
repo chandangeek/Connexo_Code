@@ -10,7 +10,7 @@ Ext.define('Imt.channeldata.view.Overview', {
     ],
 
     router: null,
-    device: null,
+    usagepoint: null,
     initComponent: function () {
         var me = this;
         me.content = [
@@ -23,7 +23,7 @@ Ext.define('Imt.channeldata.view.Overview', {
                         flex: 1,
                         items: {
                             xtype: 'channelsPreviewForm',
-                            device: me.device,
+                            usagepoint: me.usagepoint,
                             router: me.router,
                             margin: '0 0 0 0',
                             itemId: 'channelsOverviewForm'

@@ -145,7 +145,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
             mRID = params['mRID'],
             channelId = params['channelId'],
             issueId = params['issueId'],
-            device = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
+            usagepoint = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             channel = me.getModel('Imt.channeldata.model.Channel'),
             router = me.getController('Uni.controller.history.Router'),
@@ -157,9 +157,9 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
             activeTab = contentName == 'spec' ? 0 : 1;
 
         viewport.setLoading(true);
-        device.load(mRID, {
-            success: function (device) {
-                me.getApplication().fireEvent('loadDevice', device);
+        usagepoint.load(mRID, {
+            success: function (usagepoint) {
+                me.getApplication().fireEvent('loadUsagePoint', usagepoint);
                 channel.getProxy().setUrl({
                     mRID: mRID
                 });
@@ -170,7 +170,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
                             title: channel.get('name'),
                             router: router,
                             channel: channel,
-                            device: device,
+                            usagepoint: usagepoint,
                             contentName: contentName,
                             indexLocation: indexLocation,
                             prevNextListLink: prevNextListLink,
@@ -184,9 +184,9 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
                         me.getApplication().fireEvent('changecontentevent', widget);
                         viewport.setLoading(false);
                         if (activeTab == 1) {
-                            me.setupReadingsTab(device, channel, widget);
+                            me.setupReadingsTab(usagepoint, channel, widget);
                         } else if (activeTab == 0) {
-                            me.setupSpecificationsTab(device, channel, widget);
+                            me.setupSpecificationsTab(usagepoint, channel, widget);
                         }
                     }
                 })
@@ -194,9 +194,9 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
         })
     },
 
-    setupSpecificationsTab: function (device, channel, widget) {
+    setupSpecificationsTab: function (usagepoint, channel, widget) {
 //        var customAttributesStore = this.getStore('Imt.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
-//        customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
+//        customAttributesStore.getProxy().setUrl(usagepoint.get('mRID'), channel.get('id'));
         widget.down('#channelsOverviewForm').loadRecord(channel);
 //        customAttributesStore.load(function () {
 //            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
@@ -205,12 +205,12 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
         widget.down('#channelsActionMenu').record = channel;
     },
 
-    setupReadingsTab: function (device, channel) {
+    setupReadingsTab: function (usagepoint, channel) {
         var me = this,
             dataStore = me.getStore('Imt.channeldata.store.ChannelData');
 
         dataStore.getProxy().setUrl({
-            mRID: device.get('mRID'),
+            mRID: usagepoint.get('mRID'),
             channelId: channel.getId()
         });
         dataStore.loadData([], false);
@@ -219,13 +219,13 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 
     makeLinkToChannels: function (router) {
         var link = '<a href="{0}">' + Uni.I18n.translate('general.channels', 'IMT', 'Channels').toLowerCase() + '</a>',
-            filter = this.getStore('Imt.store.Clipboard').get('latest-device-channels-filter'),
+            filter = this.getStore('Imt.store.Clipboard').get('latest-usagepoint-channels-filter'),
             queryParams = filter ? {filter: filter} : null;
-        return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl(null, queryParams));
+        return Ext.String.format(link, router.getRoute('usagepoints/view/channels').buildUrl(null, queryParams));
     },
 
     makeLinkToIssue: function (router, issueId) {
-        var link = '<a href="{0}">' + Uni.I18n.translate('devicechannels.validationblocks', 'IMT', 'Validation blocks').toLowerCase() + '</a>';
+        var link = '<a href="{0}">' + Uni.I18n.translate('channels.validationblocks', 'IMT', 'Validation blocks').toLowerCase() + '</a>';
         return Ext.String.format(link, router.getRoute('workspace/datavalidationissues/view').buildUrl({issueId: issueId}));
     },
 
@@ -339,7 +339,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
                 timeout: 300000,
                 success: function () {
                     router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'IMT', 'Channel data have been saved'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('channels.successSavingMessage', 'IMT', 'Channel data have been saved'));
                 },
                 failure: function (response) {
                     viewport.setLoading(false);
@@ -601,7 +601,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
                             listOfFailedReadings.push(Uni.I18n.translate('general.dateattime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false).toLowerCase());
                         });
                         me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' +
-                            Uni.I18n.translate('devicechannels.estimationErrorMessage', 'IMT', 'Could not estimate {0} with {1}',
+                            Uni.I18n.translate('channels.estimationErrorMessage', 'IMT', 'Could not estimate {0} with {1}',
                                 [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
                     } else if (responseText.errors) {
                         me.getReadingEstimationWindow().down('#form-errors').show();
@@ -751,7 +751,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 
     onDataGridSelectionChange: function (selectionModel, selectedRecords) {
         var me = this,
-            button = me.getPage().down('#device-channel-data-bulk-action-button'),
+            button = me.getPage().down('#usagepoint-channel-data-bulk-action-button'),
             menu = button.down('menu');
 
         Ext.suspendLayouts();
@@ -780,7 +780,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 //
 //        viewport.setLoading(true);
 //        Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
-//            success: function (device) {
+//            success: function (usagepoint) {
 //                var model = Ext.ModelManager.getModel('Imt.channeldata.model.Channel');
 //                model.getProxy().setUrl({
 //                    mRID: mRID
@@ -788,10 +788,10 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 //                model.load(channelId, {
 //                    success: function (channel) {
 //
-//                        var widget = Ext.widget('channelsEditCustomAttributes', {device: device});
-//                        me.getApplication().fireEvent('loadDevice', device);
+//                        var widget = Ext.widget('channelsEditCustomAttributes', {usagepoint: usagepoint});
+//                        me.getApplication().fireEvent('loadUsagePoint', usagepoint);
 //                        me.getApplication().fireEvent('channelLoaded', channel);
-//                        me.getApplication().fireEvent('channelCustomAttributesLoaded', device);
+//                        me.getApplication().fireEvent('channelCustomAttributesLoaded', usagepoint);
 //                        me.getApplication().fireEvent('changecontentevent', widget);
 //                        me.loadPropertiesRecord(widget, mRID, channelId, customAttributeSetId);
 //                    },
@@ -814,7 +814,7 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 //
 //        model.load(customAttributeSetId, {
 //            success: function (record) {
-//                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('devicechannels.EditCustomAttributeSet', 'IMT', "Edit '{0}'", [record.get('name')]));
+//                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('channels.EditCustomAttributeSet', 'IMT', "Edit '{0}'", [record.get('name')]));
 //                me.getApplication().fireEvent('channelCustomAttributesLoaded', record);
 //                form.loadRecord(record);
 //            },
@@ -830,17 +830,17 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
 
     toPreviousPage: function () {
         if (this.fromSpecification == true) {
-            this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channel').forward();
+            this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/channels/channel').forward();
         } else {
-            this.getController('Uni.controller.history.Router').getRoute('devices/device/channels').forward();
+            this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/channels').forward();
         }
     },
 
     getPreviousPageUrl: function () {
         if (this.fromSpecification == true) {
-            return this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channel').buildUrl();
+            return this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/channels/channel').buildUrl();
         } else {
-            return this.getController('Uni.controller.history.Router').getRoute('devices/device/channels').buildUrl();
+            return this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/channels').buildUrl();
         }
     },
 

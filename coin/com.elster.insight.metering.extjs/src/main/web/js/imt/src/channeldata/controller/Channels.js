@@ -34,7 +34,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
         },
         {
             ref: 'channelsFilterForm',
-            selector: '#device-channels-filter nested-form'
+            selector: '#usagepoint-channels-filter nested-form'
         },
         {
             ref: 'channelsPreviewForm',
@@ -66,18 +66,18 @@ Ext.define('Imt.channeldata.controller.Channels', {
 
     showOverview: function (mRID) {
         var me = this,
-            deviceModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
+            usagepointModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
             channelsStore = me.getStore('Imt.channeldata.store.Channels'),
             router = me.getController('Uni.controller.history.Router'),
             widget,
             showPage = function () {
-                deviceModel.load(mRID, {
+                usagepointModel.load(mRID, {
                     success: function (record) {
                         me.getApplication().fireEvent('usagePointLoaded', record);
                         widget = Ext.widget('channelsSetup', {
                             mRID: mRID,
                             router: router,
-                            device: record
+                            usagepoint: record
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);
                         channelsStore.load();
@@ -217,7 +217,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
                     editable: false,
                     showToday: false,
                     value: me.dataValidationLastChecked,
-                    fieldLabel: Uni.I18n.translate('devicechannel.validateNow.item1', 'IMT', 'The data of the load profile will be validated starting from'),
+                    fieldLabel: Uni.I18n.translate('channel.validateNow.item1', 'IMT', 'The data of the load profile will be validated starting from'),
                     labelWidth: 375,
                     labelPad: 0.5
                 },
@@ -281,7 +281,7 @@ Ext.define('Imt.channeldata.controller.Channels', {
             }, 180000);
         }
     },
-    updateDeviceChannelDetails: function (mRID, channelId) {
+    updateUsagePointChannelDetails: function (mRID, channelId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
         viewport.setLoading();

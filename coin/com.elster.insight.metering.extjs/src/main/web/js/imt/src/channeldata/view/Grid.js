@@ -33,7 +33,7 @@ Ext.define('Imt.channeldata.view.Grid', {
             {
                 dataIndex: 'interval',
                 flex: 1,
-                header: Uni.I18n.translate('devicechannels.interval', 'IMT', 'Interval'),
+                header: Uni.I18n.translate('channels.interval', 'IMT', 'Interval'),
                 renderer: function (value) {
                     var res = '';
                     value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
@@ -41,7 +41,7 @@ Ext.define('Imt.channeldata.view.Grid', {
                 }
             },
             {
-                header: Uni.I18n.translate('device.channels.timestampLastValue', 'IMT', 'Timestamp last value'),
+                header: Uni.I18n.translate('channels.timestampLastValue', 'IMT', 'Timestamp last value'),
                 dataIndex: 'lastValueTimestamp',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
@@ -63,14 +63,14 @@ Ext.define('Imt.channeldata.view.Grid', {
                 usesExactCount: true,
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('devicechannels.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} channels'),
-                displayMoreMsg: Uni.I18n.translate('devicechannels.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} channels'),
-                emptyMsg: Uni.I18n.translate('devicechannels.pagingtoolbartop.emptyMsg', 'IMT', 'There are no channels to display')
+                displayMsg: Uni.I18n.translate('channels.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} channels'),
+                displayMoreMsg: Uni.I18n.translate('channels.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} channels'),
+                emptyMsg: Uni.I18n.translate('channels.pagingtoolbartop.emptyMsg', 'IMT', 'There are no channels to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('devicechannels.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Channels per page'),
+                itemsPerPageMsg: Uni.I18n.translate('channels.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Channels per page'),
                 dock: 'bottom',
                 deferLoading: true
             }

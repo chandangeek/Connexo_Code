@@ -75,9 +75,9 @@ Ext.define('Imt.channeldata.view.DataPreview', {
         } else if (info.estimatedByRule) {
             estimatedRule = info.estimatedByRule;
             url = me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: estimatedRule.ruleSetId, ruleId: estimatedRule.id});
-            estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'IMT', '(removed rule)') :
+            estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('channels.removedRule', 'IMT', '(removed rule)') :
                 '<a href="' + url + '">' + estimatedRule.name + '</a>';
-            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'IMT', 'Estimated according to {0}',[estimatedRuleName], false));
+            field.setValue(Uni.I18n.translate('ChannelData.estimatedAccordingTo', 'IMT', 'Estimated according to {0}',[estimatedRuleName], false));
         } else {
             field.hide();
         }
@@ -102,7 +102,7 @@ Ext.define('Imt.channeldata.view.DataPreview', {
                         } else {
                             failEqualDataValue = Uni.I18n.translate('general.no', 'IMT', 'No');
                         }
-                        prop = ' - ' + Uni.I18n.translate('device.registerData.failEqualData', 'IMT', 'Fail equal data') + ': ' + failEqualDataValue;
+                        prop = ' - ' + Uni.I18n.translate('channels.failEqualData', 'IMT', 'Fail equal data') + ': ' + failEqualDataValue;
                         break;
                     case 'com.elster.jupiter.validators.impl.IntervalStateValidator':
                         Ext.Array.each(rule.properties[0].propertyValueInfo.value, function (idValue) {
@@ -123,7 +123,7 @@ Ext.define('Imt.channeldata.view.DataPreview', {
                 prop = '';
             }
             if (rule.deleted) {
-                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'IMT', '(removed rule)') + prop + '</span>' + '<br>';
+                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('channels.removedRule', 'IMT', '(removed rule)') + prop + '</span>' + '<br>';
             } else {
                 str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
@@ -146,7 +146,7 @@ Ext.define('Imt.channeldata.view.DataPreview', {
             field.show();
             Ext.Array.each(value.suspectReason, function (rule) {
                 if (rule.key.deleted) {
-                    result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'IMT', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'IMT', 'suspects') + '<br>';
+                    result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('channels.removedRule', 'IMT', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'IMT', 'suspects') + '<br>';
                 } else {
                     if (Cfg.privileges.Validation.canViewOrAdministrate()) {
                         url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
@@ -196,15 +196,15 @@ Ext.define('Imt.channeldata.view.DataPreview', {
         if (validationInfo && validationInfo.validationResult) {
             switch (validationInfo.validationResult.split('.')[1]) {
                 case 'notValidated':
-                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'IMT', 'Not validated') + ')' +
+                    validationResultText = '(' + Uni.I18n.translate('channelsreadings.validationResult.notvalidated', 'IMT', 'Not validated') + ')' +
                         '<img style="vertical-align: top; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Not-validated.png"/>';
                     break;
                 case 'suspect':
-                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'IMT', 'Suspect') + ')' +
+                    validationResultText = '(' + Uni.I18n.translate('channelsreadings.validationResult.suspect', 'IMT', 'Suspect') + ')' +
                         '<img style="vertical-align: top; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Suspect.png"/>';
                     break;
                 case 'ok':
-                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'IMT', 'Not suspect') + ')';
+                    validationResultText = '(' + Uni.I18n.translate('channelsreadings.validationResult.notsuspect', 'IMT', 'Not suspect') + ')';
                     if (!me.channels && validationInfo.isConfirmed) {
                         validationResultText += '<span style="margin-left: 5px; vertical-align: top" class="icon-checkmark3"</span>';
                     }

@@ -8,7 +8,7 @@ Ext.define('Imt.channeldata.view.Preview', {
     ],
     layout: 'fit',
     frame: true,
-    device: null,
+    usagepoint: null,
     router: null,
 
     tools: [
@@ -30,7 +30,7 @@ Ext.define('Imt.channeldata.view.Preview', {
         me.items = {
             xtype: 'channelsPreviewForm',
             router: me.router,
-            device: me.device
+            usagepoint: me.usagepoint
         };
 
         me.callParent(arguments);

@@ -9,7 +9,7 @@ Ext.define('Imt.channeldata.view.PreviewForm', {
         'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
         'Imt.channeldata.view.ActionMenu'
     ],
-    device: null,
+    usagepoint: null,
     router: null,
     initComponent: function () {
         var me = this;
@@ -25,7 +25,7 @@ Ext.define('Imt.channeldata.view.PreviewForm', {
                     items: [
                         {
                             xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'IMT', 'General'),
+                            fieldLabel: Uni.I18n.translate('usagepointchannelconfiguration.general', 'IMT', 'General'),
                             labelAlign: 'top',
                             layout: 'vbox',
                             defaults: {

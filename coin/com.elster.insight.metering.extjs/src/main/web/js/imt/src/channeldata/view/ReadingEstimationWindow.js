@@ -58,7 +58,7 @@ Ext.define('Imt.channeldata.view.ReadingEstimationWindow', {
                     xtype: 'combobox',
                     itemId: 'estimator-field',
                     name: 'estimatorImpl',
-                    fieldLabel: Uni.I18n.translate('estimationDevice.estimator', 'IMT', 'Estimator'),
+                    fieldLabel: Uni.I18n.translate('estimation.estimator', 'IMT', 'Estimator'),
                     required: true,
                     editable: 'false',
                     store: 'Imt.store.Estimators',

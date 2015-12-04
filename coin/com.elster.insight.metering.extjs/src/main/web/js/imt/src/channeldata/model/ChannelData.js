@@ -107,12 +107,12 @@ Ext.define('Imt.channeldata.model.ChannelData', {
         }
     ],
 
-    refresh: function(device, channel, callback) {
+    refresh: function(usagepoint, channel, callback) {
         var me = this;
 
         Ext.Ajax.request({
-            url: '/api/udr/usagepoints/{device}/channels/{channel}/data/{reading}/validation'
-                .replace('{device}', device)
+            url: '/api/udr/usagepoints/{usagepoint}/channels/{channel}/data/{reading}/validation'
+                .replace('{usagepoint}', usagepoint)
                 .replace('{channel}', channel)
                 .replace('{reading}', me.get('interval').end),
             success: function(response) {

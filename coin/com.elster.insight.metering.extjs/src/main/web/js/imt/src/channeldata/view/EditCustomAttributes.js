@@ -2,7 +2,7 @@ Ext.define('Imt.channeldata.view.EditCustomAttributes', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.channelsEditCustomAttributes',
     itemId: 'channelsEditCustomAttributes',
-    device: null,
+    usagepoint: null,
 
     requires: [],
 
@@ -17,7 +17,7 @@ Ext.define('Imt.channeldata.view.EditCustomAttributes', {
                     {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'stepsMenu',
-                        mRID: me.device,
+                        mRID: me.usagepoint,
                         toggleId: 'registersLink'
                     }
                 ]

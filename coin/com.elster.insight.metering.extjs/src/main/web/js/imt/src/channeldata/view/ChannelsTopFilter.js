@@ -8,7 +8,7 @@ Ext.define('Imt.channeldata.view.ChannelsTopFilter', {
         {
             type: 'text',
             dataIndex: 'channelName',
-            emptyText: Uni.I18n.translate('devicechannels.channelstopfilter.channelname.emptytext', 'IMT', 'Channel name')
+            emptyText: Uni.I18n.translate('channels.channelstopfilter.channelname.emptytext', 'IMT', 'Channel name')
         }
     ]
 });

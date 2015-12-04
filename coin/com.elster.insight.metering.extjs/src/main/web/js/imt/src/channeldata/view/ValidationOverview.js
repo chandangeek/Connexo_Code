@@ -40,7 +40,7 @@ Ext.define('Imt.channeldata.view.ValidationOverview', {
                         field.show();
                         Ext.Array.each(value.suspectReason, function (rule) {
                             if (rule.key.deleted) {
-                                result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'IMT', '(removed rule)') + ' - ' + Uni.I18n.translate('general.xsuspects', 'IMT', '{0} suspects',[rule.value]) + '<br>';
+                                result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('channels.removedRule', 'IMT', '(removed rule)') + ' - ' + Uni.I18n.translate('general.xsuspects', 'IMT', '{0} suspects',[rule.value]) + '<br>';
                             } else {
                                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
                                     url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
