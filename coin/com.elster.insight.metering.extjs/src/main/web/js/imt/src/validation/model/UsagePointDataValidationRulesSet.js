@@ -33,7 +33,7 @@ Ext.define('Imt.validation.model.UsagePointDataValidationRulesSet', {
 //                    result = '-';
 //                } else if (startDate && endDate) {
 //                    result = Ext.String.format(Uni.I18n.translate('validationResults.version.fromx', 'IMT', 'From {0}',[Uni.DateTime.formatDateTimeLong(new Date(startDate))])+ ' - ' +
-//                    Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]));
+//                    Uni.I18n.translate('validationResults.version.untilx', 'IMT', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]));
 //                } else if (startDate) {
 //                    result = Ext.String.format(Uni.I18n.translate('validationResults.version.fromx', 'IMT', 'From {0}'), Uni.DateTime.formatDateTimeLong(new Date(startDate)));
 //                } else if (endDate) {

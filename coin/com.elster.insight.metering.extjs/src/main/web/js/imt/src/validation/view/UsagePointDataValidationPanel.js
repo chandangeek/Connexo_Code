@@ -39,7 +39,7 @@ Ext.define('Imt.validation.view.UsagePointDataValidationPanel', {
                                 fieldLabel: Uni.I18n.translate('general.status', 'IMT', 'Status'),
                                 name: 'isActive',
                                 renderer: function (value) {
-                                    return value ? Uni.I18n.translate('general.active', 'IMT', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
+                                    return value ? Uni.I18n.translate('general.active', 'IMT', 'Active') : Uni.I18n.translate('general.inactive', 'IMT', 'Inactive')
                                 }
                             },
                             {
