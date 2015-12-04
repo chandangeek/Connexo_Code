@@ -4,12 +4,11 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 //import com.energyict.mdc.common.ObisCode;
 //import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.elster.insight.common.rest.TimeDurationInfo;
-import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.time.TimeDuration;
@@ -27,7 +26,9 @@ public class ChannelInfo {
     public Instant lastValueTimestamp;
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
-    
+  
+    public String flowUnit;
+    public long version;
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
 
@@ -47,7 +48,34 @@ public class ChannelInfo {
             channel.getMainReadingType().getCalculatedReadingType().ifPresent(
                     rt -> info.calculatedReadingType = new ReadingTypeInfo(rt));
         }
+        info.flowUnit = isFlowUnit(channel.getMainReadingType().getUnit()) ? "flow" : "volume";
+        info.version = channel.getVersion();
         return info;
+    }
+
+    private static boolean isFlowUnit(ReadingTypeUnit unit) {
+        switch (unit) {
+            case WATTHOUR:
+            case AMPEREHOUR:
+            case CUBICFEET:
+            case VOLTAMPEREHOUR:
+            case VOLTAMPEREREACTIVEHOUR:
+            case IMPERIALGALLON:
+            case CUBICFEETCOMPENSATED:
+            case CUBICFEETUNCOMPENSATED:
+            case CUBICMETER:
+            case CUBICMETERCOMPENSATED:
+            case CUBICMETERUNCOMPENSATED:
+            case CUBICYARD:
+            case LITRE:
+            case LITRECOMPENSATED:
+            case LITREUNCOMPENSATED:
+            case USGALLON:
+            case VOLTHOUR:
+                return true;
+            default: 
+                return false;
+        }
     }
 
     public static List<ChannelInfo> from(List<Channel> channels) {
