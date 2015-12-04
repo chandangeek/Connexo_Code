@@ -73,9 +73,9 @@ public class ChannelInfo {
             case LITREUNCOMPENSATED:
             case USGALLON:
             case VOLTHOUR:
-                return true;
-            default: 
                 return false;
+            default: 
+                return true;
         }
     }
 
