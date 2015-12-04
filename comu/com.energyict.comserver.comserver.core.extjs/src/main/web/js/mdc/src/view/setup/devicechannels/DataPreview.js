@@ -14,11 +14,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            title =  Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(intervalEnd),Uni.DateTime.formatTimeLong(intervalEnd)], false).toLowerCase(),
+            title =  Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeLong(intervalEnd)],
+                false),
             mainValidationInfo,
             bulkValidationInfo,
-            router = me.router
-        ;
+            router = me.router;
 
         me.setLoading();
         record.refresh(router.arguments.mRID, router.arguments.channelId, function(){
@@ -27,6 +28,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             me.down('#values-panel').setTitle(title);
             me.down('#general-panel').loadRecord(record);
             me.down('#values-panel').loadRecord(record);
+
+            if (record.get('multiplier')) {
+                me.down('#general-panel #mdc-multiplier').show();
+                me.down('#values-panel #mdc-multiplier').show();
+            } else {
+                me.down('#general-panel #mdc-multiplier').hide();
+                me.down('#values-panel #mdc-multiplier').hide();
+            }
 
             if (me.channels) {
                 Ext.Array.each(me.channels, function (channel) {
@@ -278,14 +287,19 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 itemId: 'readingDataValidated',
                 htmlEncode: false,
                 renderer: function (value) {
-                    return value ? Uni.I18n.translate('validationResults.dataValidatedYes', 'MDC', 'Yes') :
-                        Uni.I18n.translate('validationResults.dataValidatedNo', 'MDC', 'No')
+                    return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
                 }
             },
             {
                 fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
                 itemId: 'generalReadingQualities',
                 htmlEncode: false
+            },
+            {
+                fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                name: 'multiplier',
+                itemId: 'mdc-multiplier',
+                hidden: true
             }
         );
 
@@ -305,7 +319,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                            fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
                             itemId: 'channelValue' + channel.id,
                             renderer: function (value) {
                                 return me.setValueWithResult(value, 'main', channel.id);
@@ -317,7 +331,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             htmlEncode: false
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
+                            fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                             itemId: 'channelBulkValue' + channel.id,
                             renderer: function (value) {
                                 return me.setValueWithResult(value, 'bulk', channel.id);
@@ -327,6 +341,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
                             itemId: 'bulkReadingQualities' + channel.id,
                             htmlEncode: false
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                            name: 'multiplier',
+                            itemId: 'mdc-multiplier',
+                            hidden: true
                         }
                     ]
                 });
@@ -336,7 +356,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 {
                     xtype: 'fieldcontainer',
                     labelWidth: 200,
-                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                    fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
                     layout: 'hbox',
                     items: [
                         {
@@ -363,7 +383,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 {
                     xtype: 'fieldcontainer',
                     labelWidth: 200,
-                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
+                    fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                     layout: 'hbox',
                     items: [
                         {
@@ -386,6 +406,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
                     itemId: 'bulkReadingQualities',
                     htmlEncode: false
+                },
+                {
+                    xtype: 'displayfield',
+                    labelWidth: 200,
+                    fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                    name: 'multiplier',
+                    itemId: 'mdc-multiplier',
+                    hidden: true
                 }
             );
         }
@@ -415,7 +443,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     layout: 'vbox'
                 }
             }
-            ];
+        ];
         me.callParent(arguments);
     }
 });

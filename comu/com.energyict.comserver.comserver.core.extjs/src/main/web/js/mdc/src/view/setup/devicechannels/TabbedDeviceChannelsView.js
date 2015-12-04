@@ -168,11 +168,13 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             channelRecord = me.channel,
             container = me.down('deviceLoadProfileChannelGraphView'),
             zoomLevelsStore = Ext.getStore('Mdc.store.DataIntervalAndZoomLevels'),
-            channelName = channelRecord.get('name'),
+            calculatedReadingType = channelRecord.get('calculatedReadingType'),
+            channelName = calculatedReadingType && calculatedReadingType.fullAliasName ? calculatedReadingType.fullAliasName : '',
             unitOfMeasure = channelRecord.get('unitOfMeasure').unit,
-            seriesObject = {marker: {
-                enabled: false
-            },
+            seriesObject = {
+                marker: {
+                    enabled: false
+                },
                 name: channelName
             },
             yAxis = {

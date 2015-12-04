@@ -172,7 +172,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     success: function (channel) {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         var widget = Ext.widget('tabbedDeviceChannelsView', {
-                            title: channel.get('name'),
+                            title: channel.get('readingType').fullAliasName,
                             router: router,
                             channel: channel,
                             device: device,
@@ -200,13 +200,28 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     setupSpecificationsTab: function (device, channel, widget) {
-        var customAttributesStore = this.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
+        var me = this,
+            customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets'),
+            calculatedReadingTypeField = widget.down('#calculatedReadingType'),
+            multiplierField = widget.down('#mdc-channel-preview-multiplier');
+
         customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
+        if (channel.get('calculatedReadingType')) {
+            calculatedReadingTypeField.show();
+        } else {
+            calculatedReadingTypeField.hide();
+        }
+        if (channel.get('multiplier')) {
+            multiplierField.show();
+        } else {
+            multiplierField.hide();
+        }
+
         customAttributesStore.load(function () {
             widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
         });
-        this.fromSpecification = true;
+        me.fromSpecification = true;
         widget.down('#deviceLoadProfileChannelsActionMenu').record = channel;
     },
 
