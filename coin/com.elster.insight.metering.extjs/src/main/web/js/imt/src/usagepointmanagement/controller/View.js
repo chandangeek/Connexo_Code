@@ -139,10 +139,18 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
+            linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             actualModel,
             actualForm;
 
+        linkedStore.getProxy().setUrl(id);
+    	linkedStore.load(function () {
+            if (this.getCount() === 0) {
+               this.add({id:'0', name:'-'});
+            }
+        });
+	
         pageMainContent.setLoading(true);
 
         metrologyConfigurationModel.load(id, {

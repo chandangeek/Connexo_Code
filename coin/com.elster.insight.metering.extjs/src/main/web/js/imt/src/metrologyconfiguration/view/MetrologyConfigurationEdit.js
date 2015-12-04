@@ -28,9 +28,9 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationEdit', {
                     xtype: 'textfield',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
-                    allowBlank: true,
+                    allowBlank: false,
                     maxLength: 75,
-                    required: false,
+                    required: true,
                     width: 600
                 },               
                 {
@@ -48,9 +48,9 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationEdit', {
                         {
                             text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Cancel'),
                             xtype: 'button',
-                            ui: 'action',
-                            action: 'cancelButton',
-                            itemId: 'cancelButton'
+                            ui: 'link',
+                            itemId: 'cancelLink',
+                            href: '#administration/metrologyconfiguration'
                         }
                     ]
                 }

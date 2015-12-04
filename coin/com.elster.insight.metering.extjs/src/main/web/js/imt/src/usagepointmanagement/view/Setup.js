@@ -24,7 +24,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
     initComponent: function () {
         var me = this,
             panel = me.content[0];
-//        panel.title = me.router.getRoute().getTitle();
+        panel.title = me.router.getRoute().getTitle();
         me.side = [
             {
                 xtype: 'panel',
@@ -80,12 +80,40 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                },
                           ]
                     },
-                   {
-                        xtype: 'panel',
-                        title: Uni.I18n.translate('usagepoint.attributes', 'IMT', 'Usage Point Attributes'),
-                        ui: 'tile',
-                        itemId: 'usage-point-attributes-panel',
-                        router: me.router
+//                   {
+//                        xtype: 'panel',
+//                        title: Uni.I18n.translate('usagepoint.attributes', 'IMT', 'Usage Point Attributes'),
+//                        ui: 'tile',
+//                        itemId: 'usage-point-attributes-panel',
+//                        router: me.router
+//                    }
+                    
+                    {
+                    	  xtype: 'panel',
+                          layout: {
+                              type: 'vbox'
+                          },
+                          defaults: {
+                              flex: 1
+                          },
+                          items: [
+                               {
+                            	   xtype: 'button',
+                            	   text: Uni.I18n.translate('usagepoint.general.edit', 'IMT', 'Edit usage point'),
+                            	   href: me.router.getRoute('usagepoints/edit').buildUrl({mcid: me.mcid}),
+                            	   router: me.router,
+                            	   margin: '0 0 0 220',
+                            	   aligh: 'right',
+                               },
+                               {
+                            	   xtype: 'panel',
+                            	   title: Uni.I18n.translate('usagepoint.attributes', 'IMT', 'Usage Point Attributes'),
+                            	   ui: 'tile',
+                            	   itemId: 'usage-point-attributes-panel',
+                            	   router: me.router
+                               },
+                          ]
+                    	
                     }
                 ]
             }

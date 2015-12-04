@@ -51,6 +51,28 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                             return '-';
                         }
                     }, 
+                    {
+               	 		fieldLabel: Uni.I18n.translate('general.label.lastUpdate', 'IMT', 'Validation rule sets'),
+                        xtype: 'multiselect',                            
+                        itemId: 'metrology-config-linked-val-rules-set',
+                        name: 'linkedValidationRulesSets',
+                        width: 500,
+                        store: 'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
+                        queryMode: 'local',
+                        valueField: 'id',
+                        displayField: 'name',
+                        maxHeight: 100,
+                        listConfig: { border: true }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'no-validation-rulesets',
+                        hidden: true,
+                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No validation rule ser assigned yet.') + '</div>',
+                        htmlEncode: false,
+                        labelwidth: 500,
+                        width: 235
+                    },
 //                    {
 //                        xtype: 'fieldcontainer',
 //                        ui: 'actions',
