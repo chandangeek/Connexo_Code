@@ -20,7 +20,8 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.Range;
 
 /**
@@ -31,12 +32,16 @@ public class UsagePointDataInfoFactory {
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final ValidationInfoFactory validationInfoFactory;
+    private final ValidationRuleInfoFactory validationRuleInfoFactory;
+    private final EstimationRuleInfoFactory estimationRuleInfoFactory;
 
     @Inject
-    public UsagePointDataInfoFactory(Thesaurus thesaurus, Clock clock, ValidationInfoFactory validationInfoFactory) {
+    public UsagePointDataInfoFactory(Thesaurus thesaurus, Clock clock, ValidationInfoFactory validationInfoFactory, ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory) {
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.validationInfoFactory = validationInfoFactory;
+        this.validationRuleInfoFactory = validationRuleInfoFactory;
+        this.estimationRuleInfoFactory = estimationRuleInfoFactory;
     }
 
     public ChannelDataInfo createChannelDataInfo(BaseReadingRecord brr, boolean validationEnabled, Channel channel, UsagePointValidation upv) {
@@ -56,7 +61,6 @@ public class UsagePointDataInfoFactory {
 
         channelIntervalInfo.value = brr.getValue();
         channelIntervalInfo.validationStatus = upv.isValidationActive();
-//        System.out.println(channelIntervalInfo.value);
 
         List<BaseReadingRecord> fakeList = Arrays.asList(brr);
       
@@ -79,54 +83,28 @@ public class UsagePointDataInfoFactory {
         return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus, upv, (IntervalReadingRecord)realReading);
         
     }
-    
-    
-    
-//    public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
-//        ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
-//        channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
-//        channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
-//        channelIntervalInfo.intervalFlags = new ArrayList<>();
-//        channelIntervalInfo.validationStatus = isValidationActive;
-//        channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
-//        Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
-//
-//        channelReading.ifPresent(reading -> {
-//            channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
-//            channel.getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> {
-//                channelIntervalInfo.isBulk = true;
-//                channelIntervalInfo.collectedValue = channelIntervalInfo.value;
-//                Quantity quantity = reading.getQuantity(calculatedReadingType);
-//                channelIntervalInfo.value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
-//            });
-//            channelIntervalInfo.reportedDateTime = reading.getReportedDateTime();
-//        });
-//        if (!channelReading.isPresent() && loadProfileReading.getReadingTime() != null) {
-//            channelIntervalInfo.reportedDateTime = loadProfileReading.getReadingTime();
-//        }
-//
-//        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst();
-//        dataValidationStatus.ifPresent(status -> {
-//            channelIntervalInfo.mainValidationInfo = validationInfoFactory.createMainVeeReadingInfo(status, deviceValidation, channelReading.orElse(null));
-//            channelIntervalInfo.bulkValidationInfo = validationInfoFactory.createBulkVeeReadingInfo(channel, status, deviceValidation, channelReading.orElse(null));
-//        });
-//        if (!channelReading.isPresent() && !dataValidationStatus.isPresent()) {
-//            // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
-//            channelIntervalInfo.mainValidationInfo = new MinimalVeeReadingValueInfo();
-//            channelIntervalInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
-//            if(channelIntervalInfo.isBulk) {
-//                channelIntervalInfo.bulkValidationInfo = new MinimalVeeReadingValueInfo();
-//                channelIntervalInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
-//            }
-//            channelIntervalInfo.dataValidated = false;
-//        }
-//        return channelIntervalInfo;
-//    }
 
-    public RegisterDataInfo createRegisterDataInfo(BaseReadingRecord brr) {
+    public RegisterDataInfo createRegisterDataInfo(BaseReadingRecord brr, boolean validationEnabled, Channel channel, UsagePointValidation upv) {
         RegisterDataInfo registerDataInfo = new RegisterDataInfo();
         registerDataInfo.readingTime = brr.getTimeStamp();
         registerDataInfo.value = brr.getValue();
+        
+        
+        registerDataInfo.validationStatus = upv.isValidationActive();
+        
+        List<BaseReadingRecord> fakeList = Arrays.asList(brr);
+        
+        Range<Instant> range = Ranges.closedOpen(brr.getTimeStamp(), brr.getTimeStamp().plusSeconds(1));
+        
+        Optional<DataValidationStatus> validationStatus = upv.getValidationStatus(channel, fakeList, range).stream().findFirst();
+        validationStatus.ifPresent(status -> {
+            registerDataInfo.dataValidated = status.completelyValidated();
+            registerDataInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
+            registerDataInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
+            registerDataInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
+            registerDataInfo.isConfirmed = validationInfoFactory.isConfirmedData(brr, status.getReadingQualities());
+        });
+        
         return registerDataInfo;
     }
 

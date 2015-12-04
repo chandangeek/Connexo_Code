@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
@@ -68,7 +69,7 @@ public class RegisterResource {
     public Response getRegister(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
         Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
-        return registerHelper.getRegister(() -> channel);
+        return registerHelper.getRegister(() -> channel, mrid);
     }
 
     @GET
@@ -82,12 +83,18 @@ public class RegisterResource {
             @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
         ReadingType readingType = resourceHelper.findReadingTypeByMrIdOrThrowException(rt_mrid);
+        
+        UsagePointValidation upv = registerHelper.getUsagePointValidation(usagePoint);
+        boolean validationEnabled = upv.isValidationActive();
+        Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
 
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
             List<? extends BaseReadingRecord> registerDataInfo = usagePoint.getReadings(range, readingType);
             List<RegisterDataInfo> infos = registerDataInfo.stream().map(
-                    readingRecord -> usagePointDataInfoFactory.createRegisterDataInfo(readingRecord)).collect(Collectors.toList());
+                    readingRecord -> usagePointDataInfoFactory.createRegisterDataInfo(readingRecord, validationEnabled, channel, upv)).collect(Collectors.toList());
 
             Collections.sort(infos, (ri1, ri2) -> ri2.readingTime.compareTo(ri1.readingTime));
             /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.

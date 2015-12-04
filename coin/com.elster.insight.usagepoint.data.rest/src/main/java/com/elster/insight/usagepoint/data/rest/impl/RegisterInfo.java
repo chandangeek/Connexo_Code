@@ -25,6 +25,7 @@ public class RegisterInfo {
     public Instant lastValueTimestamp;
     public BigDecimal lastReadingValue;
     public boolean isCumulative;
+    public DetailedValidationInfo validationInfo;
 
     public RegisterInfo() {}
 
