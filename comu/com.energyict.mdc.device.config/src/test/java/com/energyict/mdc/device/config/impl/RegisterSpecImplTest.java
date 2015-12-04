@@ -337,7 +337,8 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    public void testVeryBigOverflowValueOverflowsToNegativeInt() throws Exception {
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE +"}")
+    public void testMaxOverflowValue() throws Exception {
         RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().
                 createNumericalRegisterSpec(registerType).
                 numberOfFractionDigits(3).
