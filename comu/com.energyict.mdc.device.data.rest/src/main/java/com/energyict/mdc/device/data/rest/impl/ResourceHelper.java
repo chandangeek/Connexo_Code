@@ -46,7 +46,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Predicate;
@@ -182,6 +181,11 @@ public class ResourceHelper {
     public Optional<ComTaskExecution> getLockedComTaskExecution(long id, long version) {
         return communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)
                 .filter(candidate -> !candidate.isObsolete());
+    }
+
+    public ComTaskExecution findComTaskExecutionOrThrowException(long id) {
+        return communicationTaskService.findComTaskExecution(id)
+                .orElseThrow(() -> new WebApplicationException("No ComTaskExecution with id " + id, Response.Status.NOT_FOUND));
     }
 
     public ComTaskExecution lockComTaskExecutionOrThrowException(DeviceSchedulesInfo info) {
