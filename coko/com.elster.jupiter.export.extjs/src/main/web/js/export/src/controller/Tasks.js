@@ -3,7 +3,8 @@ Ext.define('Dxp.controller.Tasks', {
 
     requires: [
         'Dxp.privileges.DataExport',
-        'Uni.form.field.Password'
+        'Uni.form.field.Password',
+        'Uni.util.Application'
     ],
 
     views: [
@@ -1818,6 +1819,8 @@ Ext.define('Dxp.controller.Tasks', {
             record.destinationsStore.removeAll();
             record.destinationsStore.add(page.down('#task-destinations-grid').getStore().data.items);
 
+            record.set('application', Uni.util.Application.getAppName());
+
             record.endEdit();
             record.save({
                 backUrl: button.action === 'editTask' && me.fromDetails
@@ -1884,6 +1887,7 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             readingTypeStore = me.getStore('Dxp.store.LoadedReadingTypes');
 
+        Ext.ComponentQuery.query('viewport')[0].down('dxp-view-tasks-addreadingtypestotaskfilter').setActive();
         // Tell the REST side what readingTypes to exclude (because they're already assigned)
         if (Ext.isArray(me.readingTypesArray) && !Ext.isEmpty(me.readingTypesArray)) {
             var mRIDs = [];
