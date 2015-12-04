@@ -38,7 +38,7 @@ public class SecurityToken {
     private static SecurityToken instance = new SecurityToken();
 
 
-    public static SecurityToken getInstance(){
+    public static synchronized SecurityToken getInstance(){
         return instance;
     }
 
