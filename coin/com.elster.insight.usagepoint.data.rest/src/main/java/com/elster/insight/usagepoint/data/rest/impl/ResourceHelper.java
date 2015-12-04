@@ -39,11 +39,17 @@ public class ResourceHelper {
 
 
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {
-       return meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> meteringService.findUsagePoint(info.id).map(UsagePoint::getVersion).orElse(null))
-                        .supplier());
-    } 
+       return lockUsagePointOrThrowException(info.id, info.version, info.name);
+    }
+    
+    public UsagePoint lockUsagePointOrThrowException(long id, long version, String name) {
+        return meteringService.findAndLockUsagePointByIdAndVersion(id, version)
+                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                         .withActualVersion(() -> meteringService.findUsagePoint(id).map(UsagePoint::getVersion).orElse(null))
+                         .supplier());
+     }
+    
+    
 //    public Register findRegister(Meter meter, long registerSpecId) {
 //        
 //        

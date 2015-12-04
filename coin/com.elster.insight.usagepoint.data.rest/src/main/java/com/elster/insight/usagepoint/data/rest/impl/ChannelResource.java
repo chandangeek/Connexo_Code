@@ -195,7 +195,7 @@ public class ChannelResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
         
         UsagePointValidation upv = channelHelper.get().getUsagePointValidation(usagePoint);
-        
+        resourceHelper.lockUsagePointOrThrowException(usagePoint.getId(), info.version, usagePoint.getName());
         if (info.lastChecked != null) {
             upv.setLastChecked(channel, Instant.ofEpochMilli(info.lastChecked));
         }
