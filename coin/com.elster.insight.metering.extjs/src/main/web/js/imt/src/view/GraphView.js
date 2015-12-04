@@ -24,7 +24,7 @@ Ext.define('Imt.view.GraphView', {
 
             var series = this,
                 pointPlacement = series.options.pointPlacement,
-                dynamicallyPlaced = pointPlacement === 'between' || isNumber(pointPlacement);
+                dynamicallyPlaced = pointPlacement === 'between' || Ext.isNumber(pointPlacement);
 
             if (dynamicallyPlaced) {
                 var xAxis = series.xAxis,
