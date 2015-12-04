@@ -478,6 +478,11 @@ sub install_flow {
 		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar\" SendSomeoneToInspect.bpmn") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar\" SendSomeoneToInspect.bpmn failed: $?";
 		unlink("$CONNEXO_DIR/SendSomeoneToInspect.bpmn");
 
+		print "Copying extra jar files\n";
+		if (-e "$CONNEXO_DIR/partners/flow/jbpm.extension.jar") {
+            print "    $CONNEXO_DIR/partners/flow/jbpm.extension.jar -> $FLOW_DIR/WEB-INF/lib/jbpm.extension.jar\n";
+		    copy("$CONNEXO_DIR/partners/flow/jbpm.extension.jar","$FLOW_DIR/WEB-INF/lib/jbpm.extension.jar");
+        }
 		print "Connexo Flow successfully installed\n";
 	}
 }
