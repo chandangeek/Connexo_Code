@@ -15,6 +15,7 @@ import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTimeUtils;
 import org.json.JSONArray;
@@ -26,11 +27,8 @@ import sun.util.calendar.JulianCalendar;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
+import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -413,6 +411,41 @@ public class BpmResource {
     }
 
     @GET
+    @Path("/activeprocesses")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getActiveBpmProcessesDefinitions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+        MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
+        if(filterProperties.get("devicestateid") !=null && filterProperties.get("privileges") != null) {
+            String jsonContent;
+            List<String> privileges = getPropertyList(filterProperties.get("privileges").get(0), "privilege");
+            JSONArray arr = null;
+            try {
+                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+                if (!"".equals(jsonContent)) {
+                    JSONObject jsnobject = new JSONObject(jsonContent);
+                    arr = jsnobject.getJSONArray("processDefinitionList");
+                }
+            } catch (JSONException e) {
+            } catch (RuntimeException e) {
+            }
+            ProcessDefinitionInfos bpmProcessDefinition = new ProcessDefinitionInfos(arr);
+            long deviceStateId  = Long.valueOf(filterProperties.get("devicestateid").get(0));
+            List<String> privilegeNames = privileges.stream().collect(Collectors.toList());
+            List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
+            List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
+                    .filter(p -> p.getProcessDeviceStates().stream().anyMatch(s -> s.getDeviceStateId() == deviceStateId))
+                    .filter(p -> p.getPrivileges().stream().anyMatch(s -> privilegeNames.stream().anyMatch(z -> z.equals(s.getPrivilegeName()))))
+                    .collect(Collectors.toList());
+
+            List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
+                    .filter(s -> filtredConnexoProcesses.stream().anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion().equals(s.version)))
+                    .collect(Collectors.toList());
+            return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
+        }
+        return null;
+    }
+
+    @GET
     @Path("/allprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getBpmProcessesDefinitions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
@@ -575,11 +608,44 @@ public class BpmResource {
         return taskContentInfos;
     }
 
+    @GET
+    @Path("processcontent/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public TaskContentInfos getProcessContent(@PathParam("id") String id) {
+        String jsonContent;
+        JSONObject obj = null;
+        TaskContentInfos taskContentInfos = null;
+        try {
+            String rest = "/rest/tasks/process/" + id + "/content";
+            jsonContent = bpmService.getBpmServer().doGet(rest);
+            if (!"".equals(jsonContent)) {
+                obj = new JSONObject(jsonContent);
+            }
+
+        } catch (JSONException e) {
+        } catch (RuntimeException e) {
+        }
+        if(obj != null) {
+            taskContentInfos = new TaskContentInfos(obj);
+        }
+        return taskContentInfos;
+    }
+
+    @PUT
+    @Path("processcontent/{id}/{deploymentId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id,@PathParam("deploymentId") String deploymentId) {
+        Map<String, Object> expectedParams = new HashMap<>();
+        expectedParams =  getOutputContent(taskContentInfos, -1, id);
+        bpmService.startProcess(deploymentId, id, expectedParams);
+        return Response.ok().build();
+    }
+
     @PUT
     @Path("taskcontent/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response postTaskContent(TaskContentInfos taskContentInfos, @PathParam("id") long id, @Context SecurityContext securityContext) {
-        long postResult = 0;
+        long postResult = -1;
         String userName = securityContext.getUserPrincipal().getName();
         if(!taskContentInfos.action.equals("startTask")) {
             TaskContentInfos taskContents = getTaskContent(id);
@@ -612,42 +678,27 @@ public class BpmResource {
             postResult = bpmService.getBpmServer().doPost(rest, null);
         }
         if(taskContentInfos.action.equals("completeTask")){
-            String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
-            postResult = bpmService.getBpmServer().doPost(rest, null);
+            Map<String, Object> outputBindingContents = getOutputContent(taskContentInfos, id, null);
+            TaskOutputContentInfo taskOutputContentInfo = new TaskOutputContentInfo(outputBindingContents);
+            ObjectMapper mapper = new ObjectMapper();
+            String stringJson = null;
+            try {
+                stringJson = mapper.writeValueAsString(taskOutputContentInfo);
+                String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
+                postResult = bpmService.getBpmServer().doPost(rest, stringJson);
+            } catch (JsonProcessingException e) {
+            }
         }
         if(taskContentInfos.action.equals("saveTask")){
+            Map<String, Object> outputBindingContents = getOutputContent(taskContentInfos, id, null);
+            TaskOutputContentInfo taskOutputContentInfo = new TaskOutputContentInfo(outputBindingContents);
+            ObjectMapper mapper = new ObjectMapper();
+            String stringJson = null;
             try {
-                TaskContentInfos taskContents = getTaskContent(id);
-                Map<String, Object> outputBindingContents = new HashMap<>();
-                taskContents.properties.stream()
-                        .filter(pi -> pi.outputBinding != null)
-                        .forEach(s -> {
-
-                            Optional<TaskContentInfo> taskContentInfo = taskContentInfos.properties.stream()
-                                    .filter(p -> p.key.equals(s.key))
-                                    .findFirst();
-                            if(taskContentInfo.isPresent()){
-                                if(taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("TIMESTAMP")){
-                                    Date date = new Date();
-                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
-                                    outputBindingContents.put(s.outputBinding, date);
-                                }else if(taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("DATE")){
-                                    Date date = new Date();
-                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
-                                    outputBindingContents.put(s.outputBinding, date);
-                                }else{
-                                    outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
-                                }
-                            }
-                        });
-                TaskOutputContentInfo taskOutputContentInfo = new TaskOutputContentInfo(outputBindingContents);
-                ObjectMapper mapper = new ObjectMapper();
-                String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
+                stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentsave";
                 postResult = bpmService.getBpmServer().doPost(rest, stringJson);
-            } catch (RuntimeException e) {
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
             }
         }
         if(postResult == -1) {
@@ -655,6 +706,70 @@ public class BpmResource {
         }
         return Response.ok().build();
 
+    }
+
+    private Map<String, Object> getOutputContent(TaskContentInfos taskContentInfos, long taskId, String processId){
+        TaskContentInfos taskContents = null;
+        if(processId != null) {
+            taskContents = getProcessContent(processId);
+        }else{
+            taskContents = getTaskContent(taskId);
+        }
+        Map<String, Object> outputBindingContents = new HashMap<>();
+        try {
+            taskContents.properties.stream()
+                    .filter(pi -> pi.outputBinding != null)
+                    .forEach(s -> {
+
+                        Optional<TaskContentInfo> taskContentInfo = taskContentInfos.properties.stream()
+                                .filter(p -> p.key.equals(s.key))
+                                .findFirst();
+                        if (taskContentInfo.isPresent()) {
+                            if (taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("TIMESTAMP")) {
+                                Date date = new Date();
+                                date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
+                                outputBindingContents.put(s.outputBinding, date);
+                            } else if (taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("DATE")) {
+                                Date date = new Date();
+                                date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
+                                outputBindingContents.put(s.outputBinding, date);
+                            } else if(taskContentInfo.get().propertyTypeInfo.predefinedPropertyValuesInfo != null){
+                                if(taskContentInfo.get().propertyTypeInfo.predefinedPropertyValuesInfo.selectionMode.equals("COMBOBOX")) {
+                                    Iterator<String> it = s.propertyTypeInfo.predefinedPropertyValuesInfo.comboKeys.keySet().iterator();
+                                    while (it.hasNext()) {
+                                        String theKey = (String) it.next();
+                                        if (s.propertyTypeInfo.predefinedPropertyValuesInfo.comboKeys.get(theKey).equals(taskContentInfo.get().propertyValueInfo.value)) {
+                                            outputBindingContents.put(s.outputBinding, theKey);
+                                        }
+                                    }
+                                }
+                            }else {
+                                outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
+                            }
+                        }
+                    });
+        }catch (RuntimeException e) {
+        }
+        return outputBindingContents;
+    }
+
+    private List<String> getPropertyList(String source, String propertyValue){
+        List<String> privilegesList = new ArrayList<>();
+        try {
+            if (source != null) {
+                JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
+                if (node != null && node.isArray()) {
+                    for (JsonNode singleFilter : node) {
+                        JsonNode property = singleFilter.get(propertyValue);
+                        if (property != null && property.textValue() != null)
+                            privilegesList.add(property.textValue());
+                    }
+                }
+            }
+        }catch (Exception e){
+
+        }
+        return privilegesList;
     }
 
     private void doUpdatePrivileges(BpmProcessDefinition bpmProcessDefinition, ProcessDefinitionInfo info){

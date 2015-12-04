@@ -25,7 +25,7 @@ public class PropertyValueInfo {
             }
         }else{
             String[] keys = comboArray[0].split(",");
-            defaultValue = keys[1].replaceAll("}", "").replaceAll("\"", "").replaceAll("=", "");
+            defaultValue = keys[1].replaceAll("}", "").replaceAll("\"", "").replaceAll("=", "").trim();
         }
     }
 

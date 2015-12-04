@@ -12,6 +12,7 @@ public class TaskContentInfos {
     public String status;
     public String action;
     public String id;
+    public String mird;
     public List<TaskContentInfo> properties = new ArrayList<>();
     public Map<String, Object> outputContent = new HashMap<>();
 
@@ -35,7 +36,6 @@ public class TaskContentInfos {
                 setOutputContent(outputContent);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         if (contentProperties != null) {
@@ -45,7 +45,6 @@ public class TaskContentInfos {
                     TaskContentInfo result = new TaskContentInfo(prop, content, outputContent, status);
                     properties.add(result);
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
                 }
             }
         }

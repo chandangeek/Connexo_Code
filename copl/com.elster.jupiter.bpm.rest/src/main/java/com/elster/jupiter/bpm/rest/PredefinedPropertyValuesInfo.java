@@ -3,12 +3,12 @@ package com.elster.jupiter.bpm.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PredefinedPropertyValuesInfo<T> {
 
-//    public List<PossibleValues> possibleValues = new ArrayList<>();
-//    public List<String> possibleValues = new ArrayList<>();
     public T[] possibleValues;
+    public Map<String, Object> comboKeys;
     public String selectionMode;
     public boolean exhaustive;
 
@@ -16,18 +16,9 @@ public class PredefinedPropertyValuesInfo<T> {
 
     }
 
-//    public PredefinedPropertyValuesInfo(String comboValues){
-//        selectionMode = "COMBOBOX";
-//        exhaustive = true;
-//        String[] comboArray = comboValues.split(";");
-//        for(int i=0; i < comboArray.length; i++){
-//            possibleValues.add(new PossibleValues(comboArray[i].substring(comboArray[i].indexOf(",") + 1).trim().replace("}","")));
-//            possibleValues.add(comboArray[i].substring(comboArray[i].indexOf(",") + 1).trim().replace("}",""));
-//        }
-//    }
-
-    public PredefinedPropertyValuesInfo(T[] possibleValues){
+    public PredefinedPropertyValuesInfo(T[] possibleValues, Map<String, Object> comboKeys){
         this.possibleValues = possibleValues;
+        this.comboKeys = comboKeys;
         selectionMode = "COMBOBOX";
         exhaustive = true;
     }

@@ -5,6 +5,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -114,15 +116,28 @@ public class PropertyTypeInfo {
     private boolean checkAndCreateComboBox(JSONObject field){
         String combo = getComboBoxValues(field, "rangeFormula");
         if(combo !=null){
-            String comboDefault = getComboBoxValues(field, "defaultValueFormula");
-//            if(comboDefault != null){
-                taskContentInfo.propertyValueInfo = new PropertyValueInfo(combo, comboDefault);
-//            }
             String[] comboArray = combo.split(";");
+            Map<String, Object> comboKeys = new HashMap<>();
             for(int i=0; i < comboArray.length; i++){
+                comboKeys.put(comboArray[i].split(",")[0].replace("{",""), comboArray[i].substring(comboArray[i].indexOf(",") + 1).trim().replace("}",""));
                 comboArray[i] = comboArray[i].substring(comboArray[i].indexOf(",") + 1).trim().replace("}","");
             }
-            predefinedPropertyValuesInfo = new PredefinedPropertyValuesInfo(comboArray);
+            if(taskContentInfo.propertyValueInfo == null) {
+                String comboDefault = getComboBoxValues(field, "defaultValueFormula");
+                taskContentInfo.propertyValueInfo = new PropertyValueInfo(combo, comboDefault);
+            }else if(taskContentInfo.propertyValueInfo.defaultValue.isEmpty()){
+                String comboDefault = getComboBoxValues(field, "defaultValueFormula");
+                taskContentInfo.propertyValueInfo = new PropertyValueInfo(combo, comboDefault);
+            }else{
+                Iterator<String> it = comboKeys.keySet().iterator();
+                while(it.hasNext()){
+                    String theKey = (String)it.next();
+                    if(theKey.equals(taskContentInfo.propertyValueInfo.defaultValue)){
+                        taskContentInfo.propertyValueInfo = new PropertyValueInfo(comboKeys.get(theKey).toString());
+                    }
+                }
+            }
+            predefinedPropertyValuesInfo = new PredefinedPropertyValuesInfo(comboArray, comboKeys);
             return true;
         }
         return false;
