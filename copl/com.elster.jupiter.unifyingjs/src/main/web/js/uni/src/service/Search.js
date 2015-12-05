@@ -255,6 +255,8 @@ Ext.define('Uni.service.Search', {
         } else {
             searchResults.removeAll();
         }
+
+        me.fireEvent('applyFilters', me, filters);
     },
 
     clearFilters: function () {

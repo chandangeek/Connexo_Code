@@ -62,6 +62,11 @@ Ext.define('Uni.view.search.Results', {
             destroyable: true
         });
 
+        service.on('applyFilters', function() {
+            me.down('pagingtoolbartop').resetPaging();
+            me.down('pagingtoolbarbottom').resetPaging();
+        });
+
         me.callParent(arguments);
         me.on('destroy', function(){
             listeners.destroy();
