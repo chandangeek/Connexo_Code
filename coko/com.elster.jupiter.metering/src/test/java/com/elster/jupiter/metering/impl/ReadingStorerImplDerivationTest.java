@@ -62,7 +62,7 @@ public class ReadingStorerImplDerivationTest {
     @Mock
     private EventService eventService;
     @Mock
-    private IReadingType secondaryDeltaReadingType, secondaryBulkReadingType, primaryDeltaReadingType, primaryBulkReadingType;
+    private IReadingType secondaryDeltaReadingType, secondaryBulkReadingType, primaryDeltaReadingType, primaryBulkReadingType, pulseReadingType, calculatedOnPulseReadingType;
     @Mock
     private RecordSpec recordSpec;
     @Mock
@@ -181,6 +181,34 @@ public class ReadingStorerImplDerivationTest {
         verify(storer).add(timeSeries, BASE_TIME.toInstant(), 0L, 0L, null, BigDecimal.valueOf(314, 2));
         verify(storer).add(timeSeries, BASE_TIME.plusMinutes(15).toInstant(), 0L, 0L, BigDecimal.valueOf(1570, 2), BigDecimal.valueOf(628, 2));
         verify(storer).add(timeSeries, BASE_TIME.plusMinutes(30).toInstant(), 0L, 0L, BigDecimal.valueOf(1860, 2), BigDecimal.valueOf(1000, 2));
+    }
+
+    @Test
+    public void testUsingMultiplierForPulseStyleMultiplication() {
+        when(channel.getReadingTypes()).thenReturn(asList(calculatedOnPulseReadingType, pulseReadingType));
+        when(channel.getDerivationRule(calculatedOnPulseReadingType)).thenReturn(DerivationRule.MULTIPLIED);
+        when(channel.getDerivationRule(pulseReadingType)).thenReturn(DerivationRule.MEASURED);
+        when(channel.getMeterActivation()).thenReturn(meterActivation);
+        when(meterActivation.getMeter()).thenReturn(Optional.empty());
+        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getConfiguration(any())).thenReturn(Optional.of(usagePointConfiguration));
+        when(usagePointConfiguration.getReadingTypeConfigs()).thenReturn(Collections.singletonList(readingTypeConfiguration));
+        when(readingTypeConfiguration.getMeasured()).thenReturn(pulseReadingType);
+        when(readingTypeConfiguration.getCalculated()).thenReturn(Optional.of(calculatedOnPulseReadingType));
+        when(readingTypeConfiguration.getMultiplierType()).thenReturn(multiplierType);
+        when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.valueOf(5, 0)));
+        when(meterActivation.getMultiplierUsages(any())).thenReturn(Collections.singletonList(readingTypeConfiguration));
+        when(channel.getReading(any())).thenReturn(Optional.empty());
+
+        readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.toInstant(), BigDecimal.valueOf(314, 0)));
+        readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(628, 0)));
+        readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(30).toInstant(), BigDecimal.valueOf(1000, 0)));
+
+        readingStorer.execute();
+
+        verify(storer).add(timeSeries, BASE_TIME.toInstant(), 0L, 0L, BigDecimal.valueOf(1570, 0), BigDecimal.valueOf(314, 0));
+        verify(storer).add(timeSeries, BASE_TIME.plusMinutes(15).toInstant(), 0L, 0L, BigDecimal.valueOf(3140, 0), BigDecimal.valueOf(628, 0));
+        verify(storer).add(timeSeries, BASE_TIME.plusMinutes(30).toInstant(), 0L, 0L, BigDecimal.valueOf(5000, 0), BigDecimal.valueOf(1000, 0));
     }
 
 }
