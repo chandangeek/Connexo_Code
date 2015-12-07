@@ -7,8 +7,11 @@ import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -31,6 +34,7 @@ import java.util.stream.IntStream;
 import static com.elster.jupiter.util.streams.Currying.perform;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 import static com.elster.jupiter.util.streams.Predicates.not;
+import static com.elster.jupiter.util.streams.Predicates.on;
 
 class ReadingStorerImpl implements ReadingStorer {
     private static final ProcessStatus DEFAULTPROCESSSTATUS = ProcessStatus.of();
@@ -41,7 +45,6 @@ class ReadingStorerImpl implements ReadingStorer {
     private final Map<Pair<ChannelContract, Instant>, Object[]> consolidatedValues = new HashMap<>();
     private final Map<Pair<ChannelContract, Instant>, BaseReading> readings = new HashMap<>();
     private final StorerProcess storerProcess;
-    private Map<ChannelContract, List<Derivation>> deltaDerivations = new HashMap<>();
     private Map<Pair<ChannelContract, Instant>, Object[]> previous;
 
     private static class Derivation {
@@ -162,22 +165,8 @@ class ReadingStorerImpl implements ReadingStorer {
     @Override
     public void execute() {
 
-        /*
-TODO
-        We need to detect whether any columns have derivation rules that require delta calculation.
-        If any such column exists we'll need to determine which points in time we'll need to check for existing data,
-        since that existing data, if available will allow us to calculate delta values.
-        Likely some of the needed data are in the values we're about to write,
-        so we'll need to set data from both these sources up so its origin is transparent to the delta calculation itself.
-
-        Secondly we'll need to apply multipliers if any derivation rules are multiplied. So if any such fields exist
-        we should figure out which multipliers apply, taking into account multipliers may change over time.
-
-        All these additional calculations should be added to the consolidated values. However, whenever a value was already supplied no calculation is necessary.
-
-         */
-
         doDerivations();
+        doMultiplications();
         consolidatedValues.entrySet().stream()
                 .forEach(entry -> {
                     ChannelContract channel = entry.getKey().getFirst();
@@ -204,8 +193,7 @@ TODO
         previous.putAll(readFromDb(needed));
 
         // ok we've got all the previous readings that are available
-
-        deltaDerivations = valuesView.keySet()
+        Map<ChannelContract, List<Derivation>> deltaDerivations = valuesView.keySet()
                 .stream()
                 .map(Pair::getFirst)
                 .distinct()
@@ -223,10 +211,81 @@ TODO
                 .stream()
                 .map(Pair::getFirst)
                 .distinct()
-                .forEach(this::calculateDelta);
+                .forEach(perform(this::calculateDelta).with(deltaDerivations));
     }
 
-    private void calculateDelta(ChannelContract channel) {
+    private void doMultiplications() {
+        Map<ChannelContract, List<Derivation>> multipliedDerivations = this.consolidatedValues.keySet()
+                .stream()
+                .map(Pair::getFirst)
+                .distinct()
+                .collect(Collectors
+                        .toMap(
+                                Function.identity(),
+                                channelContract -> decorate(channelContract.getReadingTypes().stream())
+                                        .zipWithIndex()
+                                        .map(pair -> new Derivation(pair.getFirst(), channelContract.getDerivationRule(pair.getFirst()), pair.getLast().intValue()))
+                                        .filter(derivation -> derivation.getDerivationRule().isMultiplied())
+                                        .collect(Collectors.toList())
+                        ));
+        if (multipliedDerivations.isEmpty()) {
+            return;
+        }
+
+        multipliedDerivations.forEach((channelContract, derivations) -> {
+                    List<IReadingType> readingTypes = channelContract.getReadingTypes();
+                    derivations.forEach(derivation -> {
+                        consolidatedValues.entrySet()
+                                .stream()
+                                .filter(entry -> entry.getKey().getFirst().equals(channelContract))
+                                .forEach(entry -> {
+                                    int slotOffset = channelContract.getRecordSpecDefinition().slotOffset();
+                                    int index = derivation.getIndex();
+                                    Object[] values = entry.getValue();
+                                    if (DerivationRule.MULTIPLIED.equals(derivation.getDerivationRule())) {
+                                        if (values[index + slotOffset + 1] != storer.doNotUpdateMarker()) {
+                                            Instant instant = entry.getKey().getLast();
+                                            MultiplierType multiplierType = getMultiplierType(channelContract, readingTypes.get(index + 1), readingTypes.get(index), instant).get();
+                                            BigDecimal multiplier = channelContract.getMeterActivation().getMultiplier(multiplierType).get();
+                                            values[index + slotOffset] = ((BigDecimal) values[index + slotOffset + 1]).multiply(multiplier);
+                                        }
+                                    } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())){
+                                        if (values[index + slotOffset] != storer.doNotUpdateMarker()) {
+                                            Instant instant = entry.getKey().getLast();
+                                            IReadingType target = (IReadingType) readingTypes.get(index).getBulkReadingType().get();
+                                            MultiplierType multiplierType = getMultiplierType(channelContract, target, instant).get();
+                                            BigDecimal multiplier = channelContract.getMeterActivation().getMultiplier(multiplierType).get();
+                                            values[index + slotOffset] = ((BigDecimal) values[index + slotOffset]).multiply(multiplier);
+                                        }
+                                    }
+                                });
+                    });
+                }
+
+        );
+
+    }
+
+    private Optional<MultiplierType> getMultiplierType(ChannelContract channel, ReadingType source, ReadingType target, Instant instant) {
+        return channel.getMeterActivation()
+                .getMultiplierUsages(instant)
+                .stream()
+                .filter(on(MultiplierUsage::getMeasured).test(source::equals))
+                .filter(on(MultiplierUsage::getCalculated).test(optional -> optional.map(target::equals).orElse(false)))
+                .findAny()
+                .map(MultiplierUsage::getMultiplierType);
+    }
+
+    private Optional<MultiplierType> getMultiplierType(ChannelContract channel, ReadingType target, Instant instant) {
+        return channel.getMeterActivation()
+                .getMultiplierUsages(instant)
+                .stream()
+                .filter(on(MultiplierUsage::getCalculated).test(optional -> optional.map(target::equals).orElse(false)))
+                .findAny()
+                .map(MultiplierUsage::getMultiplierType);
+    }
+
+    private void calculateDelta(ChannelContract channel, Map<ChannelContract, List<Derivation>> deltaDerivations) {
         deltaDerivations.get(channel)
                 .stream()
                 .forEach(perform(this::applyDerivation).on(channel));

@@ -18,8 +18,9 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
+import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.Multiplier;
+import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -27,6 +28,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
@@ -57,6 +59,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -139,19 +142,21 @@ public final class ChannelImpl implements ChannelContract {
         if (readingType.isBulkQuantityReadingType(possibleBase)) {
             return DerivationRule.DELTA;
         }
-        List<Multiplier> multipliers = getMultipliers(possibleBase);
+        List<MultiplierUsage> multiplierUsages = getMultipliers(possibleBase);
 
-        if (multipliers
+        if (multiplierUsages
                 .stream()
-                .map(Multiplier::getCalculated)
+                .filter(on(MultiplierUsage::getMeasured).test(possibleBase::equals))
+                .map(MultiplierUsage::getCalculated)
+                .flatMap(Functions.asStream())
                 .map(use(ReadingType::equals).on(readingType))
                 .anyMatch(self())) {
             return DerivationRule.MULTIPLIED;
         }
 
-        if (multipliers
+        if (multiplierUsages
                 .stream()
-                .map(Multiplier::getCalculated)
+                .map(MultiplierUsage::getCalculated)
                 .flatMap(Functions.asStream())
                 .map(use(ReadingType::isBulkQuantityReadingType).on(readingType))
                 .anyMatch(self())) {
@@ -161,14 +166,14 @@ public final class ChannelImpl implements ChannelContract {
         return DerivationRule.MEASURED;
     }
 
-    private List<Multiplier> getMultipliers(ReadingType readingType) {
+    private List<MultiplierUsage> getMultipliers(ReadingType readingType) {
         return getMultipliers(clock.instant())
                 .stream()
-                .filter(on(Multiplier::getMeasured).test(readingType::equals))
+                .filter(on(MultiplierUsage::getMeasured).test(readingType::equals))
                 .collect(Collectors.toList());
     }
 
-    private List<? extends Multiplier> getMeterMultipliers(Instant instant) {
+    private List<? extends MultiplierUsage> getMeterMultipliers(Instant instant) {
         return getMeterActivation()
                 .getMeter()
                 .flatMap(use(Meter::getConfiguration).with(instant))
@@ -176,7 +181,7 @@ public final class ChannelImpl implements ChannelContract {
                 .orElseGet(Collections::emptyList);
     }
 
-    private List<? extends Multiplier> getUsagePointMultipliers(Instant instant) {
+    private List<? extends MultiplierUsage> getUsagePointMultipliers(Instant instant) {
         return getMeterActivation()
                 .getUsagePoint()
                 .flatMap(use(UsagePoint::getConfiguration).with(instant))
@@ -184,7 +189,7 @@ public final class ChannelImpl implements ChannelContract {
                 .orElseGet(Collections::emptyList);
     }
 
-    private List<? extends Multiplier> getMultipliers(Instant instant) {
+    private List<? extends MultiplierUsage> getMultipliers(Instant instant) {
         return Stream.of(getMeterMultipliers(instant), getUsagePointMultipliers(instant))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
@@ -196,8 +201,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public MeterActivation getMeterActivation() {
-        return meterActivation.get();
+    public IMeterActivation getMeterActivation() {
+        return (IMeterActivation) meterActivation.get();
     }
 
     public TimeSeries getTimeSeries() {
@@ -339,8 +344,41 @@ public final class ChannelImpl implements ChannelContract {
         if (isRegular()) {
             return bulkQuantityReadingType.isPresent() ? RecordSpecs.BULKQUANTITYINTERVAL : RecordSpecs.SINGLEINTERVAL;
         } else {
-            return hasMacroPeriod() ? RecordSpecs.BILLINGPERIOD : RecordSpecs.BASEREGISTER;
+            if (hasMacroPeriod()) {
+                return RecordSpecs.BILLINGPERIOD;
+            }
+            return hasMultiplier() ? RecordSpecs.BASEREGISTER_WITH_MULTIPLIED_REGISTER : RecordSpecs.BASEREGISTER;
         }
+    }
+
+    private boolean hasMultiplier() {
+        List<IReadingType> readingTypes = getReadingTypes();
+        if (readingTypes.size() == 1) {
+            return false;
+        }
+        Predicate<MultiplierUsage> matchesReadingTypes = config -> readingTypes.get(0).equals(config.getCalculated().get()) && readingTypes.get(1).equals(config.getMeasured());
+        boolean usagePointHasMultiplier = usagePointHasMultiplier(matchesReadingTypes);
+        return meterHasMultiplier(matchesReadingTypes) || usagePointHasMultiplier;
+    }
+
+    private boolean usagePointHasMultiplier(Predicate<MultiplierUsage> matchesReadingTypes) {
+        return getMeterActivation().getUsagePoint()
+                    .flatMap(use(UsagePoint::getConfiguration).with(getMeterActivation().getStart()))
+                    .map(UsagePointConfiguration::getReadingTypeConfigs)
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .filter(on(UsagePointReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
+                    .anyMatch(matchesReadingTypes);
+    }
+
+    private boolean meterHasMultiplier(Predicate<MultiplierUsage> matchesReadingTypes) {
+        return getMeterActivation().getMeter()
+                    .flatMap(use(Meter::getConfiguration).with(getMeterActivation().getStart()))
+                    .map(MeterConfiguration::getReadingTypeConfigs)
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .filter(on(MeterReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
+                    .anyMatch(matchesReadingTypes);
     }
 
     Optional<ReadingType> getDerivedReadingType(ReadingType readingType) {

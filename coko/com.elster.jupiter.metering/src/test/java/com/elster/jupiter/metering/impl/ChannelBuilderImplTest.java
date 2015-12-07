@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
@@ -10,7 +11,6 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
@@ -27,11 +27,10 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,15 +50,15 @@ public class ChannelBuilderImplTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private MeterActivation meterActivation;
+    private IMeterActivation meterActivation;
     @Mock
     private Meter meter;
     @Mock
     private MeterConfiguration configuration;
     @Mock
-    private MeterReadingTypeConfiguration readingTypeConfig;
+    private MeterReadingTypeConfiguration readingTypeConfigRegular, readingTypeConfigRegister;
     @Mock
-    private IReadingType rtSecondaryBulk, rtSecondaryDelta, rtPrimaryBulk, rtPrimaryDelta;
+    private IReadingType rtSecondaryBulk, rtSecondaryDelta, rtPrimaryBulk, rtPrimaryDelta, rtPrimaryRegister, rtSecondaryRegister;
     @Mock
     private Vault vault;
     @Mock
@@ -72,14 +71,20 @@ public class ChannelBuilderImplTest {
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         when(meterActivation.getUsagePoint()).thenReturn(Optional.empty());
         when(meter.getConfiguration(any())).thenReturn(Optional.of(configuration));
-        when(configuration.getReadingTypeConfigs()).thenReturn(Collections.singletonList(readingTypeConfig));
-        when(readingTypeConfig.getMeasured()).thenReturn(rtSecondaryBulk);
-        when(readingTypeConfig.getCalculated()).thenReturn(Optional.of(rtPrimaryBulk));
+        when(configuration.getReadingTypeConfigs()).thenReturn(Arrays.asList(readingTypeConfigRegular, readingTypeConfigRegister));
+        when(readingTypeConfigRegular.getMeasured()).thenReturn(rtSecondaryBulk);
+        when(readingTypeConfigRegular.getCalculated()).thenReturn(Optional.of(rtPrimaryBulk));
+        when(readingTypeConfigRegister.getMeasured()).thenReturn(rtSecondaryRegister);
+        when(readingTypeConfigRegister.getCalculated()).thenReturn(Optional.of(rtPrimaryRegister));
 
         when(rtPrimaryBulk.isCumulative()).thenReturn(true);
         when(rtPrimaryBulk.isRegular()).thenReturn(true);
         when(rtSecondaryBulk.isCumulative()).thenReturn(true);
         when(rtSecondaryBulk.isRegular()).thenReturn(true);
+        when(rtPrimaryRegister.isCumulative()).thenReturn(false);
+        when(rtPrimaryRegister.isRegular()).thenReturn(false);
+        when(rtSecondaryRegister.isCumulative()).thenReturn(false);
+        when(rtSecondaryRegister.isRegular()).thenReturn(false);
         when(rtPrimaryBulk.builder()).thenReturn(ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_PRIMARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
                 .period(TimeAttribute.MINUTE15)
@@ -88,18 +93,28 @@ public class ChannelBuilderImplTest {
                 .accumulate(Accumulation.BULKQUANTITY)
                 .period(TimeAttribute.MINUTE15)
         );
+        when(rtSecondaryRegister.builder()).thenReturn(ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .accumulate(Accumulation.INSTANTANEOUS)
+                .period(TimeAttribute.NOTAPPLICABLE)
+        );
         when(rtPrimaryDelta.isBulkQuantityReadingType(rtPrimaryBulk)).thenReturn(true);
         when(rtSecondaryDelta.isBulkQuantityReadingType(rtSecondaryBulk)).thenReturn(true);
         when(dataModel.mapper(IReadingType.class)).thenReturn(readingTypeMapper);
         when(readingTypeMapper.getOptional("0.0.2.4.0.2.0.0.0.0.0.0.0.0.0.0.0.0")).thenReturn(Optional.of(rtPrimaryDelta));
         when(readingTypeMapper.getOptional("0.0.2.4.0.1.0.0.0.0.0.0.0.0.0.0.0.0")).thenReturn(Optional.of(rtSecondaryDelta));
+        when(readingTypeMapper.getOptional("0.0.0.12.0.2.0.0.0.0.0.0.0.0.0.0.0.0")).thenReturn(Optional.of(rtSecondaryRegister));
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
         when(rtSecondaryBulk.getIntervalLength()).thenReturn(Optional.of(Duration.of(15, ChronoUnit.MINUTES)));
         when(rtPrimaryDelta.getIntervalLength()).thenReturn(Optional.of(Duration.of(15, ChronoUnit.MINUTES)));
         when(rtSecondaryDelta.getIntervalLength()).thenReturn(Optional.of(Duration.of(15, ChronoUnit.MINUTES)));
-        when(idsService.getVault(MeteringService.COMPONENTNAME, 1)).thenReturn(Optional.of(vault));
+        when(rtSecondaryRegister.getIntervalLength()).thenReturn(Optional.empty());
+        when(rtSecondaryRegister.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(rtPrimaryRegister.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(rtPrimaryRegister.getIntervalLength()).thenReturn(Optional.empty());
+        when(idsService.getVault(eq(MeteringService.COMPONENTNAME), anyInt())).thenReturn(Optional.of(vault));
         when(meterActivation.getZoneId()).thenReturn(TimeZoneNeutral.getMcMurdo());
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, RecordSpecs.BULKQUANTITYINTERVAL.ordinal() + 1)).thenReturn(Optional.of(recordSpec));
+        when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, RecordSpecs.BASEREGISTER_WITH_MULTIPLIED_REGISTER.ordinal() + 1)).thenReturn(Optional.of(recordSpec));
 
         this.channelBuilder = new ChannelBuilderImpl(dataModel, () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService));
     }
@@ -145,6 +160,18 @@ public class ChannelBuilderImplTest {
         assertThat(channel.getReadingTypes()).isEqualTo(Arrays.asList(rtSecondaryDelta, rtSecondaryBulk));
         assertThat(channel.getDerivationRule(rtSecondaryDelta)).isEqualTo(DerivationRule.MEASURED);
         assertThat(channel.getDerivationRule(rtSecondaryBulk)).isEqualTo(DerivationRule.MEASURED);
+    }
+
+    @Test
+    public void testBuildRegisterWithMultiplier() {
+        channelBuilder.meterActivation(meterActivation);
+
+        channelBuilder.readingTypes(rtSecondaryRegister);
+        ChannelImpl channel = channelBuilder.build();
+
+        assertThat(channel.getReadingTypes()).isEqualTo(Arrays.asList(rtPrimaryRegister, rtSecondaryRegister));
+        assertThat(channel.getDerivationRule(rtPrimaryRegister)).isEqualTo(DerivationRule.MULTIPLIED);
+        assertThat(channel.getDerivationRule(rtSecondaryRegister)).isEqualTo(DerivationRule.MEASURED);
     }
 
 }

@@ -63,6 +63,7 @@ public class ReadingStorerImplTest {
         doReturn(channel).when(cimChannel).getChannel();
         doReturn(readingType2).when(cimChannel).getReadingType();
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
+        doReturn(DerivationRule.MEASURED).when(channel).getDerivationRule(any());
 
         readingStorer = (ReadingStorerImpl) ReadingStorerImpl.createOverrulingStorer(idsService, eventService);
 

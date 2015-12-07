@@ -8,7 +8,6 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -71,7 +70,7 @@ public class ChannelImplTest extends EqualsContractTest {
     private ReadingTypeImpl readingType1, readingType2, readingType3, readingType4;
 
     @Mock
-    private MeterActivation meterActivation;
+    private IMeterActivation meterActivation;
     @Mock
     private IdsService idsService;
     @Mock

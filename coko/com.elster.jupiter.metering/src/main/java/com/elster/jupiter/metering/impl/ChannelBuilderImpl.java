@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Pair;
-import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -60,25 +59,6 @@ public class ChannelBuilderImpl implements ChannelBuilder {
             return channelFactory.get().init(meterActivation, readingTypes, (rt1, rt2) -> DerivationRule.MEASURED);
         }
         return channelFactory.get().init(meterActivation, buildReadingTypes());
-    }
-
-    private List<IReadingType> buildReadingTypesOld() {
-        if (readingTypes.size() != 1) {
-            return readingTypes;
-        }
-        IReadingType readingType = readingTypes.get(0);
-        if (!readingType.isRegular() || !readingType.isCumulative()) {
-            return readingTypes;
-        }
-        // special case of cumulative reading type in load profile, store delta's in first slot
-        ReadingTypeCodeBuilder builder = readingType.builder();
-        builder.accumulate(Accumulation.DELTADELTA);
-        Optional<ReadingTypeImpl> delta = dataModel.mapper(ReadingTypeImpl.class).getOptional(builder.code());
-        if (delta.isPresent()) {
-            return ImmutableList.of(delta.get(), readingType);
-        } else {
-            return readingTypes;
-        }
     }
 
     private List<IReadingType> buildReadingTypes() {

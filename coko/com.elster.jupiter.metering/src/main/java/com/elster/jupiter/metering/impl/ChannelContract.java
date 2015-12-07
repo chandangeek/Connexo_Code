@@ -14,6 +14,8 @@ import java.util.Optional;
 
 public interface ChannelContract extends Channel {
 
+	IMeterActivation getMeterActivation();
+
 	Object[] toArray(BaseReading reading, ReadingType readingType, ProcessStatus status);
 
 	Object[] toArray(BaseReadingRecord readingRecord);

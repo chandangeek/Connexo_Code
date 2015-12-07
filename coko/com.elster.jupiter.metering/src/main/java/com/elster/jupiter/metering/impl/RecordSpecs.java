@@ -138,7 +138,7 @@ public enum RecordSpecs {
 			recordSpec.addFieldSpec("Value", NUMBER);
 			recordSpec.addFieldSpec("Text", TEXT);
 		}
-		
+
 		private Object[] toArray(BaseReading reading, ProcessStatus status) {
 			Object[] result = new Object[3];
 			result[0] = status.getBits();
@@ -229,7 +229,39 @@ public enum RecordSpecs {
 		int slotOffset() {
 			return 1;
 		}
-	};
+	},
+	/*
+		0 : process status
+		1 : multiplied value
+		2 : reading value
+		3 : text
+	 */
+	BASEREGISTER_WITH_MULTIPLIED_REGISTER("Base Multiplied Register",false) {
+		@Override
+		void addFieldSpecs(RecordSpecBuilder recordSpec) {
+			recordSpec.addFieldSpec("MultipliedValue", NUMBER);
+			recordSpec.addFieldSpec("Value", NUMBER);
+			recordSpec.addFieldSpec("Text", TEXT);
+		}
+
+		@Override
+		Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+			if (!Range.closed(0, 1).contains(slotIndex)) {
+				throw new IllegalArgumentException();
+			}
+			Object[] result = new Object[3];
+			result[0] = status.getBits();
+			result[slotOffset() + slotIndex] = reading.getValue();
+			result[3] = ((Reading) reading).getText();
+			return result;
+		}
+
+		@Override
+		int slotOffset() {
+			return 1;
+		}
+	},
+	;
 	  
 	private final String specName;
 	private final boolean interval;

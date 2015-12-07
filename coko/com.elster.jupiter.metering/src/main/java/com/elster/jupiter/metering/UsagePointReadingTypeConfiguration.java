@@ -1,5 +1,5 @@
 package com.elster.jupiter.metering;
 
-public interface UsagePointReadingTypeConfiguration extends Multiplier {
+public interface UsagePointReadingTypeConfiguration extends MultiplierUsage {
 
 }

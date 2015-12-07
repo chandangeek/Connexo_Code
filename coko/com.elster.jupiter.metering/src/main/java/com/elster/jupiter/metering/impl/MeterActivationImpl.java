@@ -7,12 +7,15 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
+import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -40,11 +43,12 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.does;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-public final class MeterActivationImpl implements MeterActivation {
+public final class MeterActivationImpl implements IMeterActivation {
 	//persistent fields
 	private long id;
 	private Interval interval;
@@ -499,5 +503,27 @@ public final class MeterActivationImpl implements MeterActivation {
     public Map<MultiplierType, BigDecimal> getMultipliers() {
         return multipliers.stream()
                 .collect(Collectors.toMap(MultiplierValue::getType, MultiplierValue::getValue));
+    }
+
+    @Override
+    public List<MultiplierUsage> getMultiplierUsages(Instant instant) {
+        Stream<MultiplierUsage> meterMultipliers = getMeter()
+                .flatMap(meter -> meter.getConfiguration(instant))
+                .map(MeterConfiguration::getReadingTypeConfigs)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(MultiplierUsage.class::cast)
+                .filter(multiplier -> multiplier.getCalculated().isPresent());
+        Stream<MultiplierUsage> usagePointMultipliers = getUsagePoint()
+                .flatMap(usagePoint -> usagePoint.getConfiguration(instant))
+                .map(UsagePointConfiguration::getReadingTypeConfigs)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(MultiplierUsage.class::cast)
+                .filter(multiplier -> multiplier.getCalculated().isPresent());
+        return Stream.of(meterMultipliers, usagePointMultipliers)
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+
     }
 }
