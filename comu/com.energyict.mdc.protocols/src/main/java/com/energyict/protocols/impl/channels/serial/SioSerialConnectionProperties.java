@@ -11,6 +11,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
+import com.energyict.mdc.io.ModemProperties;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
@@ -63,6 +64,12 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
             @Override
             protected void addTo(Table table) {
                 this.addAsEnumColumnTo(table);
+            }
+        },
+        PHONE_NUMBER("phoneNumber", "PHONENUMBER") {
+            @Override
+            protected void addTo(Table table) {
+                this.addAsStringColumnTo(table);
             }
         },
         BAUD_RATE("baudRate", "BAUDRATE") {
@@ -234,6 +241,8 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
     private TimeDuration dtrToggleDelay;
     @Size(max=Table.MAX_STRING_LENGTH)
     private String pempConfigurationKey;
+    @Size(max=Table.MAX_STRING_LENGTH)
+    private String phoneNumber;
 
     @Override
     public void postLoad() {
@@ -276,6 +285,7 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
         this.postDialCommands = (String) propertyValues.getProperty(ModemPropertySpecNames.POST_DIAL_COMMANDS);
         this.dtrToggleDelay = (TimeDuration) propertyValues.getProperty(ModemPropertySpecNames.DTR_TOGGLE_DELAY);
         this.pempConfigurationKey = (String) propertyValues.getProperty(PEMPModemPropertySpecNames.CONFIGURATION_KEY);
+        this.phoneNumber = (String) propertyValues.getProperty(ModemProperties.PHONE_NUMBER_PROPERTY_NAME);
     }
 
     protected void copyParityFrom(CustomPropertySetValues propertyValues) {
@@ -363,6 +373,7 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
         this.copyTo(propertySetValues, ModemPropertySpecNames.ADDRESS_SELECTOR, this.addressSelector);
         this.copyTo(propertySetValues, ModemPropertySpecNames.POST_DIAL_COMMANDS, this.postDialCommands);
         this.copyTo(propertySetValues, PEMPModemPropertySpecNames.CONFIGURATION_KEY, this.pempConfigurationKey);
+        this.copyTo(propertySetValues, ModemProperties.PHONE_NUMBER_PROPERTY_NAME, this.phoneNumber);
     }
 
     private void copyTo(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
