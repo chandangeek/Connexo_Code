@@ -8,58 +8,47 @@ Ext.define('Sam.view.licensing.Upload', {
 
     content: [
         {
-            cls: 'content-wrapper',
+            xtype: 'form',
+            ui: 'large',
+            title: Uni.I18n.translate('licensing.uploadTitle', 'SAM', 'Upload licenses'),
+            autoEl: {
+                tag: 'form',
+                enctype: 'multipart/form-data'
+            },
+            defaults: {
+                labelWidth: 100
+            },
             items: [
                 {
-                    itemId: 'pageTitle',
-                    html: '<h1>Upload licenses</h1>',
-                    cls: 'license-overview-title'
+                    itemId: 'uploadfileField',
+                    xtype: 'filefield',
+                    name: 'uploadField',
+                    fieldLabel: Uni.I18n.translate('licensing.licenseFile', 'SAM', 'License file'),
+                    emptyText: Uni.I18n.translate('general.chooseLicense','SAM','Choose license file *.lic'),
+                    text: Uni.I18n.translate('general.browse','SAM','Browse...'),
+                    msgTarget: 'side',
+                    vtype: 'fileUpload',
+                    width: 450
                 },
                 {
-                    xtype: 'form',
-                    layout: 'hbox',
-                    autoEl: {
-                        tag: 'form',
-                        enctype: 'multipart/form-data'
-                    },
+                    xtype: 'fieldcontainer',
+                    ui: 'actions',
+                    fieldLabel: ' ',
+                    defaultType: 'button',
                     items: [
                         {
-                            itemId: 'uploadfileField',
-                            xtype: 'filefield',
-                            name: 'uploadField',
-                            fieldLabel: Uni.I18n.translate('licensing.licenseFile', 'SAM', 'License file'),
-                            emptyText: Uni.I18n.translate('general.chooseLicense','SAM','Choose license file *.lic'),
-                            text: Uni.I18n.translate('general.browse','SAM','Browse...'),
-                            msgTarget: 'side',
-                            vtype: 'fileUpload'
-                        }
-                    ],
-                    dockedItems: [
+                            itemId: 'upload',
+                            text: Uni.I18n.translate('general.upload','SAM','Upload'),
+                            name: 'upload',
+                            disabled: true,
+                            ui: 'action'
+                        },
                         {
-                            itemId: 'toolbarBot',
-                            xtype: 'toolbar',
-                            dock: 'bottom',
-                            border: false,
-                            cls: 'license-upload-tool',
-                            defaults: {
-                                xtype: 'button'
-                            },
-                            items: [
-                                {
-                                    itemId: 'upload',
-                                    text: Uni.I18n.translate('general.upload','SAM','Upload'),
-                                    name: 'upload',
-                                    disabled: true,
-                                    ui: 'action'
-                                },
-                                {
-                                    itemId: 'Cancel',
-                                    text: Uni.I18n.translate('general.cancel','SAM','Cancel'),
-                                    ui: 'link',
-                                    hrefTarget: '',
-                                    href: '#/administration/licenses'
-                                }
-                            ]
+                            itemId: 'Cancel',
+                            text: Uni.I18n.translate('general.cancel','SAM','Cancel'),
+                            ui: 'link',
+                            hrefTarget: '',
+                            href: '#/administration/licenses'
                         }
                     ]
                 }
