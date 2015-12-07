@@ -228,7 +228,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         var me = this,
             data = [],
             missedValues = [],
-            mesurementType = me.channel.get('unitOfMeasure'),
+            measurementType = me.channel.get('unitOfMeasure'),
             okColor = "#70BB51",
             estimatedColor = "#568343",
             suspectColor = 'rgba(235, 86, 66, 1)',
@@ -252,9 +252,10 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             point.y = parseFloat(record.get('value'));
             point.intervalEnd = interval.end;
             point.collectedValue = record.get('collectedValue');
-            point.mesurementType = mesurementType;
+            point.measurementType = measurementType;
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
+            point.multiplier = record.get('multiplier');
 
             if (mainValidationInfo.valueModificationFlag == 'EDITED') {
                 point.edited = true;
