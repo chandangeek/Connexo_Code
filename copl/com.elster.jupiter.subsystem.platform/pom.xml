@@ -129,6 +129,10 @@
             <artifactId>install</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.partners</groupId>
+            <artifactId>jbpm.extension</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>launcher</artifactId>
         </dependency>
@@ -349,7 +353,6 @@
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>
