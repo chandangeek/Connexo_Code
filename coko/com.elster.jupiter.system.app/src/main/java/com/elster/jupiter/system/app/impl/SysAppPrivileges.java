@@ -10,6 +10,8 @@ class SysAppPrivileges {
                 //appserver
                 com.elster.jupiter.appserver.security.Privileges.Constants.ADMINISTRATE_APPSEVER,
                 com.elster.jupiter.appserver.security.Privileges.Constants.VIEW_APPSEVER,
+                //tasks
+                com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
                 //license
                 com.elster.jupiter.license.security.Privileges.Constants.VIEW_LICENSE,
                 com.elster.jupiter.license.security.Privileges.Constants.UPLOAD_LICENSE,
@@ -29,6 +31,9 @@ class SysAppPrivileges {
                 com.elster.jupiter.cps.Privileges.Constants.ADMINISTER_PRIVILEGES,
                 com.elster.jupiter.cps.Privileges.Constants.VIEW_PRIVILEGES,
                 //deployment information
-                com.elster.jupiter.system.security.Privileges.Constants.VIEW_DEPLOYMENT_INFORMATION);
+                com.elster.jupiter.system.security.Privileges.Constants.VIEW_DEPLOYMENT_INFORMATION,
+                //metering
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_READINGTYPE);
     }
 }
