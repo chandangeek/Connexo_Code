@@ -7,18 +7,23 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.osgi.service.device.Device;
 
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
@@ -29,6 +34,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -142,26 +148,25 @@ public class RegisterResource {
         return Response.status(Response.Status.OK).entity(detailedValidationInfo).build();
     }
     
-//    @PUT @Transactional
-//    @Path("/{registerId}/validate")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-//    public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterTriggerValidationInfo validationInfo) {
-//        Device device = resourceHelper.lockDeviceOrThrowException(validationInfo);
-//        Register<?> register = doGetRegister(mRID, registerId);
-//        if (validationInfo.lastChecked == null) {
-//            throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
-//        }
-//        Instant newDate = Instant.ofEpochMilli(validationInfo.lastChecked);
-//        Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
-//        if (lastChecked.isPresent() && newDate.isAfter(lastChecked.get())) {
-//            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", lastChecked);
-//        }
-//        validateRegister(register, newDate);
-//        device.save();
-//        return Response.status(Response.Status.OK).build();
-//    }
+    @PUT @Transactional
+    @Path("/{rt_mrid}/validate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response validateNow(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid, RegisterTriggerValidationInfo info) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        
+        UsagePointValidation upv = registerHelper.getUsagePointValidation(usagePoint);
+        resourceHelper.lockUsagePointOrThrowException(usagePoint.getId(), info.version, usagePoint.getName());
+        if (info.lastChecked != null) {
+            upv.setLastChecked(channel, Instant.ofEpochMilli(info.lastChecked));
+        }
+        usagePoint.update();
+        upv.validateChannel(channel);
+        return Response.status(Response.Status.OK).build();
+    }
 
     private List<RegisterDataInfo> filter(List<RegisterDataInfo> infos, JsonQueryFilter filter) {
         Predicate<RegisterDataInfo> fromParams = getFilter(filter);
