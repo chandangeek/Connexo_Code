@@ -5,14 +5,13 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
+
+import org.junit.*;
+import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +36,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithOnlyFrequencyWithoutViolations() throws BusinessException, SQLException {
+    public void testCreateWithOnlyFrequencyWithoutViolations() throws SQLException {
         // Business method
         NextExecutionSpecs specs = this.createWithOnlyFrequencyWithoutViolations();
 
@@ -50,7 +49,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithFrequencyAndOffsetWithoutViolations() throws BusinessException, SQLException {
+    public void testCreateWithFrequencyAndOffsetWithoutViolations() throws SQLException {
         NextExecutionSpecs specs = this.createWithFrequencyAndOffsetWithoutViolations();
 
         // Asserts
@@ -61,7 +60,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testFindAfterCreate() throws BusinessException, SQLException {
+    public void testFindAfterCreate() throws SQLException {
         NextExecutionSpecs specs = this.createWithFrequencyAndOffsetWithoutViolations();
 
         // Business method
@@ -76,7 +75,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testUpdateFrequencyOnlyToFrequencyAndOffset() throws BusinessException, SQLException {
+    public void testUpdateFrequencyOnlyToFrequencyAndOffset() throws SQLException {
         NextExecutionSpecs specs = this.createWithOnlyFrequencyWithoutViolations();
 
         // Business method
@@ -93,7 +92,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testUpdateFrequencyAndOffsetToFrequencyOnly() throws BusinessException, SQLException {
+    public void testUpdateFrequencyAndOffsetToFrequencyOnly() throws SQLException {
         NextExecutionSpecs specs = this.createWithFrequencyAndOffsetWithoutViolations();
 
         // Business method
@@ -110,7 +109,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY + "}")
-    public void testCreateWithoutTemporalExpression() throws BusinessException, SQLException {
+    public void testCreateWithoutTemporalExpression() throws SQLException {
         // Business method
         PersistenceTest.inMemoryPersistence.getSchedulingService().newNextExecutionSpecs(null);
 
@@ -120,7 +119,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY + "}")
-    public void testRemoveTemporalExpression() throws BusinessException, SQLException {
+    public void testRemoveTemporalExpression() throws SQLException {
         NextExecutionSpecs specs = this.createWithOnlyFrequencyWithoutViolations();
 
         // Business method
@@ -133,7 +132,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}")
-    public void testCreateWithZeroFrequency() throws BusinessException, SQLException {
+    public void testCreateWithZeroFrequency() throws SQLException {
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
 
         // Business method
@@ -145,7 +144,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}", strict = false)
-    public void testCreateWithNegativeFrequency() throws BusinessException, SQLException {
+    public void testCreateWithNegativeFrequency() throws SQLException {
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
 
         // Business method
@@ -157,7 +156,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY + "}")
-    public void testCreateWithNegativeOffset() throws BusinessException, SQLException {
+    public void testCreateWithNegativeOffset() throws SQLException {
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
 
         // Business method
