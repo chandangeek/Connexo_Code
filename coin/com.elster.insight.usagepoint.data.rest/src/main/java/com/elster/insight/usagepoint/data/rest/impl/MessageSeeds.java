@@ -15,7 +15,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID(106, Keys.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, "No channel for usage point with MRID {0} with reading type {1}"),
     NULL_DATE(107, Keys.NULL_DATE, "Date must be filled in"),
     NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME(108, Keys.NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME, "No meter activation for usage point with MRID {0} at instant {1}"),
-    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(109, Keys.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, "Deactivate of validation rule set {0} is currently not possible."),
+    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(109, Keys.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, "Deactivate of validation rule set {0} is currently not possible."), 
+    NO_SUCH_READING_ON_REGISTER(110, Keys.NO_SUCH_READING_ON_REGISTER, "Register for reading type {0} has no reading with timestamp {1}"),
     ;
     private final int number;
     private final String key;
@@ -62,6 +63,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NO_REGISTER_FOR_USAGE_POINT_FOR_MRID = "NoRegisterForUsagePointForMRID";
         public static final String NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID = "NoChannelForUsagePointForMRID";
         public static final String NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME="NoActivationForUsagePointForMRIDAtTime";
+        public static final String NO_SUCH_READING_ON_REGISTER = "NoSuchReadingOnRegister";
         
     }
 

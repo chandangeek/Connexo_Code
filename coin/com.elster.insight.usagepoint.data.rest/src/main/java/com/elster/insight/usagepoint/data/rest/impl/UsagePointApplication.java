@@ -65,7 +65,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                         RegisterResource.class,
                         DeviceResource.class, 
                         UsagePointGroupResource.class,
-                        UsagePointValidationResource.class
+                        UsagePointValidationResource.class,
+                        RegisterDataResource.class
         );
     }
 
@@ -184,6 +185,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(estimationService).to(EstimationService.class);
+            bind(RegisterDataResource.class).to(RegisterDataResource.class);
         }
     }
 }
