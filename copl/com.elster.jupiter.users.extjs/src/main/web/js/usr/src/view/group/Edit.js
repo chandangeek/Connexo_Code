@@ -91,14 +91,14 @@ Ext.define('Usr.view.group.Edit', {
                                     {
                                         xtype: 'applicationList',
                                         itemId: 'applicationList',
-                                        maxHeight: 300,
+                                        maxHeight: 396,
                                         margin: '-8 0 0 0'
                                     },
                                     {
                                         xtype: 'featureList',
                                         itemId: 'featureList',
                                         margin: '0 0 0 0',
-                                        maxHeight: 300
+                                        maxHeight: 396
                                     }
                                 ]
                             },
