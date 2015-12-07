@@ -57,7 +57,7 @@ public class FirstLoadProfileOnDeviceTest {
         String toStringMessage = loadProfileIdentifier.toString();
 
         // Asserts
-        assertEquals("fist load profile on device having deviceIdentifier = id 1", toStringMessage);
+        assertEquals("first load profile on device having deviceIdentifier = id 1", toStringMessage);
     }
 
 
