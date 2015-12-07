@@ -59,7 +59,7 @@ public class ChannelInfo {
         info.version = channel.getLoadProfile().getVersion();
         Device device = channel.getDevice();
         BigDecimal multiplier = device.getMultiplier();
-        if (multiplier.compareTo(BigDecimal.ONE) == 1) {
+        if (channel.getChannelSpec().isUseMultiplier() && multiplier.compareTo(BigDecimal.ONE) == 1) {
             info.multiplier = multiplier;
         }
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());

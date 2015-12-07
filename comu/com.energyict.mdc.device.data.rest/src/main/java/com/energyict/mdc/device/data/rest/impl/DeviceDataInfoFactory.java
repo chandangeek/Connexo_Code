@@ -66,7 +66,7 @@ public class DeviceDataInfoFactory {
         channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
         BigDecimal multiplier = channel.getDevice().getMultiplier();
-        if(multiplier.compareTo(BigDecimal.ONE) == 1){
+        if(channel.getChannelSpec().isUseMultiplier() && multiplier.compareTo(BigDecimal.ONE) == 1){
             channelIntervalInfo.multiplier = multiplier;
         }
         channelReading.ifPresent(reading -> {
@@ -314,7 +314,9 @@ public class DeviceDataInfoFactory {
         } else if(register.getReadingType().getCalculatedReadingType().isPresent()){
             billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(register.getReadingType().getCalculatedReadingType().get());
         }
-        addMultiplierIfApplicable(register, billingRegisterInfo);
+        if (register.getRegisterSpec().isUseMultiplier() &&  !register.getDevice().getMultiplier().equals(BigDecimal.ONE)) {
+            billingRegisterInfo.multiplier = register.getDevice().getMultiplier();
+        }
         return billingRegisterInfo;
     }
 
@@ -342,13 +344,9 @@ public class DeviceDataInfoFactory {
         } else if(numericalRegister.getReadingType().getCalculatedReadingType().isPresent()){
             numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(numericalRegister.getReadingType().getCalculatedReadingType().get());
         }
-        addMultiplierIfApplicable(numericalRegister, numericalRegisterInfo);
-        return numericalRegisterInfo;
-    }
-
-    private void addMultiplierIfApplicable(Register register, NumericalRegisterInfo registerInfo) {
-        if (!register.getDevice().getMultiplier().equals(BigDecimal.ONE)) {
-            registerInfo.multiplier = register.getDevice().getMultiplier();
+        if (numericalRegister.getRegisterSpec().isUseMultiplier() &&  !numericalRegister.getDevice().getMultiplier().equals(BigDecimal.ONE)) {
+            numericalRegisterInfo.multiplier = numericalRegister.getDevice().getMultiplier();
         }
+        return numericalRegisterInfo;
     }
 }
