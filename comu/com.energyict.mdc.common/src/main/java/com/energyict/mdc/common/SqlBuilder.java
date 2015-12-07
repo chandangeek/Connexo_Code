@@ -14,9 +14,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -223,32 +221,6 @@ public class SqlBuilder {
                     throw new ApplicationException("Invalid type: " + bindType);
             }
         }
-    }
-
-    public void append(Collection inList, boolean integers) {
-        buffer.append("(");
-        Iterator it = inList.iterator();
-        boolean firstTime = true;
-        while (it.hasNext()) {
-            if (firstTime) {
-                buffer.append("?");
-                firstTime = false;
-            } else {
-                buffer.append(",?");
-            }
-            if (integers) {
-                bindInt((Integer) it.next());
-            } else {
-                bindInt(((IdBusinessObject) it.next()).getId());
-            }
-        }
-        buffer.append(")");
-    }
-
-    public void bindUtc(Instant bindVar) {
-        bindObjects.add(bindVar.getEpochSecond());
-        bindTypes.add(LONG);
-        bindTypeNames.add("");
     }
 
     public String expandedText() {

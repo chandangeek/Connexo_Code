@@ -1,6 +1,5 @@
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.Password;
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -38,16 +37,6 @@ public class PasswordTest {
         assertTrue(password1.equals(password2));
         password2.setValue("myPassword2");
         assertFalse(password1.equals(password2));
-    }
-
-    @Test
-    public void testNullable() {
-        Password password = new Password("");
-        assert(password.isNull());
-        password = new Password(null);
-        assert(password.isNull());
-        password = new Password("myPassword");
-        assert(!password.isNull());
     }
 
 }

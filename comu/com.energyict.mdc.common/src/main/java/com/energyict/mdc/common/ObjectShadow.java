@@ -1,21 +1,16 @@
 package com.energyict.mdc.common;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+import java.io.Serializable;
 
 /**
  * Represents a shadow object for a BusinessObject.
  * Shadow objects are used to take a temporary copy of the BusinessObject's state
  *
  * @author Karel
- * @see BusinessObject
  */
-public class ObjectShadow implements java.io.Serializable, Cloneable {
+public class ObjectShadow implements Serializable, Cloneable {
 
     private boolean dirty = false;
-    private Permission permission = ShadowPermission.NORMAL;
-
-    private transient PropertyChangeSupport propertyChangeSupport;
 
     /**
      * Creates a new instance of ShadowObject
@@ -23,19 +18,11 @@ public class ObjectShadow implements java.io.Serializable, Cloneable {
     public ObjectShadow() {
     }
 
-    protected PropertyChangeSupport getPropertyChangeSupport() {
-        if (propertyChangeSupport == null) {
-            propertyChangeSupport = new PropertyChangeSupport(this);
-        }
-        return propertyChangeSupport;
-    }
-
     /**
      * marks the receiver as modified.
      */
     public void markDirty() {
         dirty = true;
-        firePropertyChange();
     }
 
     /**
@@ -70,37 +57,8 @@ public class ObjectShadow implements java.io.Serializable, Cloneable {
      * @return a clone
      * @throws CloneNotSupportedException should not be thrown
      */
-    public Object clone() throws java.lang.CloneNotSupportedException {
+    public Object clone() throws CloneNotSupportedException {
         return super.clone();
-    }
-
-
-    /**
-     * Adds a property change listener.
-     *
-     * @param l the listener to add.
-     */
-    public void addPropertyChangeListener(PropertyChangeListener l) {
-        getPropertyChangeSupport().addPropertyChangeListener(l);
-    }
-
-    /**
-     * Removes the given property change listener.
-     *
-     * @param l the listener to remove.
-     */
-    public void removePropertyChangeListener(PropertyChangeListener l) {
-        getPropertyChangeSupport().removePropertyChangeListener(l);
-    }
-
-    protected void firePropertyChange() {
-        getPropertyChangeSupport().firePropertyChange(null, null, null);
-    }
-
-    /**
-     * initializes the receiver for multi edit
-     */
-    public void initializeForMultiEdit() {
     }
 
     /**
@@ -109,11 +67,4 @@ public class ObjectShadow implements java.io.Serializable, Cloneable {
     public void prepareCloning() {
     }
 
-    public Permission permission() {
-        return permission;
-    }
-
-    public void grantPermission(Permission permission) {
-        this.permission = permission;
-    }
 }

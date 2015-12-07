@@ -91,14 +91,4 @@ public class HexStringTest {
         assertTrue("equal Objects must have equal hashCodes", new HexString().hashCode() == new HexString().hashCode());
     }
 
-    @Test
-    public void testNullable() {
-        HexString hexString = new HexString("");
-        assert(hexString.isNull());
-        hexString = new HexString(null);
-        assert(hexString.isNull());
-        hexString = new HexString("0A7B");
-        assert(!hexString.isNull());
-    }
-
 }

@@ -9,7 +9,7 @@ import static com.elster.jupiter.util.Checks.is;
  * Time: 18:32:58
  * To change this template use File | Settings | File Templates.
  */
-public class Password implements Nullable {
+public class Password {
 
     private String value;
 
@@ -36,11 +36,6 @@ public class Password implements Nullable {
     @Override
     public boolean equals(Object o) {
         return (o instanceof Password) && is(((Password) o).getValue()).equalTo(value);
-    }
-
-    @Override
-    public boolean isNull() {
-        return is(getValue()).emptyOrOnlyWhiteSpace();
     }
 
 }

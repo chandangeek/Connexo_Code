@@ -1,7 +1,7 @@
 package com.energyict.mdc.common;
 
 /**
- * Defines the unique identifiers of commonly used {@link BusinessObjectFactory BusinessObjectFactories}.
+ * Defines the unique identifiers of commonly used factories.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (13:59)
@@ -40,15 +40,6 @@ public enum FactoryIds {
 
     public int id () {
         return this.id;
-    }
-
-    public static FactoryIds forId (int id) {
-        for (FactoryIds factoryId : values()) {
-            if (factoryId.id() == id) {
-                return factoryId;
-            }
-        }
-        throw new ApplicationException("No FactoryId found for " + id);
     }
 
     public static class Constants {

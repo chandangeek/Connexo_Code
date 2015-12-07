@@ -9,7 +9,7 @@ import static com.elster.jupiter.util.Checks.is;
  * User: gde
  * Date: 17/04/13
  */
-public class HexString implements Comparable, Serializable, Nullable {
+public class HexString implements Comparable, Serializable {
 
     private String content;
 
@@ -88,11 +88,6 @@ public class HexString implements Comparable, Serializable, Nullable {
     @Override
     public String toString () {
         return getContent();
-    }
-
-    @Override
-    public boolean isNull () {
-        return is(getContent()).emptyOrOnlyWhiteSpace();
     }
 
 }
