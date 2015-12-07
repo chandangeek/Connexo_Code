@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.nta.dsmr23.registers;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -328,17 +331,13 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
             return new RegisterValue(register, quantity, null, null, null, new Date(), 0, "State: " + state);
         } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_IDENTIFICATION_NUMBER)) {
-            Unsigned32 value = new Unsigned32(abstractDataType.longValue());
-            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, Long.toString(value.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(),  Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("Client identification number: " + Long.toString(abstractDataType.longValue())));
         } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_MANUFACTURER_ID)) {
-            Unsigned16 value = new Unsigned16(abstractDataType.intValue());
-            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, Integer.toString(value.intValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(),  Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("Manufacturer Id: " + Long.toString(abstractDataType.longValue())));
         } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_VERSION)) {
-            Unsigned8 value = new Unsigned8(abstractDataType.intValue());
-            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, Integer.toString(value.intValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(),  Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("Client version: " + Long.toString(abstractDataType.longValue())));
         } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_DEVICE_TYPE)) {
-            Unsigned8 value = new Unsigned8(abstractDataType.intValue());
-            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, Integer.toString(value.intValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(),  Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("Client device type: " + Long.toString(abstractDataType.longValue())));
         } else if (abstractDataType.isOctetString()) {
             String text;
             if (octetStringPrintableAsString((OctetString) abstractDataType)) {
