@@ -2,7 +2,6 @@ package com.elster.jupiter.time.impl.parser;
 
 import com.elster.jupiter.nls.Thesaurus;
 
-import java.text.MessageFormat;
 import java.time.DayOfWeek;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ final class Utils {
             secondsExpression = "0" + secondsExpression;
         }
         String result = hoursExpression + ":" + minutesExpression;
-        if (!secondsExpression.equals("")) {
+        if (!secondsExpression.isEmpty()) {
             result = result + ":" + secondsExpression;
         }
         return result;
