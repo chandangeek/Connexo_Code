@@ -25,7 +25,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 : me;
 
         if (base) {
-            item = base.menu.items.findBy(function(i){return i.criteria === property;});
+            item = base.menu.items.findBy(function(i){return i.criteria.getId() === property.getId();});
             if (item) {
                 item.setChecked(value, suppressEvents);
             }
