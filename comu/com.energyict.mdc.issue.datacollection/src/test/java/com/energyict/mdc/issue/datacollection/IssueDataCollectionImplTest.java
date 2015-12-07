@@ -10,7 +10,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 import org.junit.Test;
 
@@ -21,11 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssueDataCollectionImplTest extends BaseTest {
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "baseIssue", strict = true)
+    @ExpectedConstraintViolation(messageId = "{com.elster.jupiter.orm.associations.isPresent}", property = "baseIssue")
     public void testIDCCreationWithoutBaseIssue() {
         try (TransactionContext context = getContext()) {
             OpenIssueDataCollectionImpl dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-            dcIssue.setIssue(null);
             dcIssue.save();
         }
     }
