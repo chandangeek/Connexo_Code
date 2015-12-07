@@ -21,7 +21,7 @@ public class AtDelayCommand extends AbstractAtPostDialCommand {
     @Override
     public void initAndVerifyCommand() {
         try {
-            setDelay(getCommand().trim().equalsIgnoreCase("") ? DEFAULT_DELAY : Long.valueOf(getCommand()));
+            setDelay(getCommand().trim().isEmpty() ? DEFAULT_DELAY : Long.valueOf(getCommand()));
         } catch (NumberFormatException e) {
             throw new ApplicationException("The provided post dial commands string is not valid.");
         }
