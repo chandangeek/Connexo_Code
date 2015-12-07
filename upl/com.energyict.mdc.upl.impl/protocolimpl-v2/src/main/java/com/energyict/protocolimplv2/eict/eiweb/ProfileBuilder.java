@@ -226,7 +226,7 @@ public class ProfileBuilder {
     private void buildIntervalDataForRecordAndChannel(LittleEndianInputStream is, IntervalData intervalData) throws IOException {
         switch (packetBuilder.getVersion() & 0x0F) {
             case PacketBuilder.VERSION_32BITS_3:
-                intervalData.addValue(is.readLEInt());
+                intervalData.addValue(is.readLEUnsignedInt());  // As of COMMUNICATION-1357, switched to LE unsigned int
                 break;
 
             case PacketBuilder.VERSION_WITH_STATEBITS_2:
