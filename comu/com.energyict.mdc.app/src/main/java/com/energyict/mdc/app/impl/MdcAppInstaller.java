@@ -79,6 +79,7 @@ public class MdcAppInstaller implements InstallService {
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
+                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DATA_COLLECTION_KPI,
                 com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
                 com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.ASSIGN_ISSUE,

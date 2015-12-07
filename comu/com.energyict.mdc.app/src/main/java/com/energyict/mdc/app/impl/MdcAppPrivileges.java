@@ -1,5 +1,6 @@
 package com.energyict.mdc.app.impl;
 
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,8 +66,11 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.Constants.IMPORT_INVENTORY_MANAGEMENT,
                 com.energyict.mdc.device.data.security.Privileges.Constants.REVOKE_INVENTORY_MANAGEMENT,
 
-                //mdc.device.config
+                //mdc.device.data - Data collection kpi
+                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DATA_COLLECTION_KPI,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI,
 
+                //mdc.device.config
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
@@ -123,6 +127,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_OWN,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
 
                 //mdc.scheduling.security
                 com.energyict.mdc.scheduling.security.Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE,
