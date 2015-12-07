@@ -10,8 +10,6 @@ import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
@@ -129,8 +127,6 @@ public class MeterProtocolAdapterTest {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        IdBusinessObjectFactory timeZoneInUseFactory = mock(IdBusinessObjectFactory.class);
-        when(timeZoneInUseFactory.getInstanceType()).thenReturn(TimeZone.class);
         protocolPluggableService.addCollectedDataFactory(this.collectedDataFactory);
 
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol(PROTOCOL_CLASS)).
@@ -383,7 +379,7 @@ public class MeterProtocolAdapterTest {
     }
 
     @Test
-    public void cachingProtocolTests() throws BusinessException, SQLException {
+    public void cachingProtocolTests() throws SQLException {
         final Object cacheObject = new BigDecimal("1256.6987");
         final int deviceId = 123;
         MeterProtocol meterProtocol = getMockedMeterProtocol();

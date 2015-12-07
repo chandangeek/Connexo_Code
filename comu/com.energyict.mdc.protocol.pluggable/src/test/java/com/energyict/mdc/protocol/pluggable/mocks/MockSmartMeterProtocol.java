@@ -3,7 +3,6 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -165,13 +164,12 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
     }
 
     @Override
-    public Object fetchCache(int rtuId) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuId) throws SQLException {
         return null;
     }
 
     @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException, BusinessException {
-
+    public void updateCache(int rtuId, Object cacheObject) throws SQLException {
     }
 
     @Override

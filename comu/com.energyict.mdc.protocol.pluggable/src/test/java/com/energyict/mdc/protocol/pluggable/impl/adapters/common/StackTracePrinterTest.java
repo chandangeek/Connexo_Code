@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.StackTracePrinter;
-import org.junit.*;
 
 import java.io.IOError;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -30,7 +30,7 @@ public class StackTracePrinterTest {
 
     @Test
     public void testNestedException () {
-        assertThat(StackTracePrinter.print(new BusinessException(new Exception("For unit testing purposes only")))).contains("Caused by: java.lang.Exception: " + MESSAGE);
+        assertThat(StackTracePrinter.print(new IllegalArgumentException(new Exception("For unit testing purposes only")))).contains("Caused by: java.lang.Exception: " + MESSAGE);
     }
 
     @Test

@@ -27,7 +27,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.ObisCode;
@@ -189,7 +188,7 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
     @After
-    public void cleanUp() throws BusinessException, SQLException {
+    public void cleanUp() throws SQLException {
         for (final DeviceProtocolPluggableClass pluggableClass : protocolPluggableService.findAllDeviceProtocolPluggableClasses().find()) {
             transactionService.execute(() -> {
                 pluggableClass.delete();
@@ -200,7 +199,7 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
     @Test
-    public void newInstanceDeviceProtocolTest() throws BusinessException, SQLException {
+    public void newInstanceDeviceProtocolTest() throws SQLException {
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
                 transactionService.execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL));
@@ -314,7 +313,7 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
     @Test
-    public void newInstanceMeterProtocolTest() throws BusinessException, SQLException {
+    public void newInstanceMeterProtocolTest() throws SQLException {
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
                 transactionService.execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_METER_PROTOCOL));
@@ -328,7 +327,7 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
     @Test
-    public void newInstanceSmartMeterProtocolTest() throws BusinessException, SQLException {
+    public void newInstanceSmartMeterProtocolTest() throws SQLException {
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
                 transactionService.execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_SMART_METER_PROTOCOL));
@@ -343,7 +342,7 @@ public class DeviceProtocolPluggableClassImplTest {
 
     @Test
     @ExpectedConstraintViolation(messageId = "The value is not listed as a possible value for this property", property = "properties.SDKObisCodeProperty")
-    public void newInstanceSmartMeterProtocolIllegalPropertyTest() throws BusinessException, SQLException {
+    public void newInstanceSmartMeterProtocolIllegalPropertyTest() throws SQLException {
         transactionService.execute(() -> {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("SDKDeviceProtocolTestWithMandatoryProperty", SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY);
             PropertySpec deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty").get();
@@ -355,7 +354,7 @@ public class DeviceProtocolPluggableClassImplTest {
 
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE + "}")
-    public void newInstanceNotADeviceProtocolTest() throws BusinessException, SQLException {
+    public void newInstanceNotADeviceProtocolTest() throws SQLException {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
                 transactionService.execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_NOT_A_DEVICE_PROTOCOL));
 

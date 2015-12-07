@@ -5,7 +5,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -109,7 +108,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     @Override
-    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
+    public Object fetchCache(int deviceId) throws SQLException {
 
         /*
        This method will never get called. All cached objects will be fetched during initialization of the task
@@ -119,7 +118,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     @Override
-    public void updateCache(int deviceId, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int deviceId, Object cacheObject) throws SQLException {
 
         /*
        This method will never get called. All cached objects will be fetched during initialization of the task

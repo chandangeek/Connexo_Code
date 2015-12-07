@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.codetables.Code;
@@ -20,7 +21,6 @@ import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.impl.DataModelInitializer;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageResultExecutor;
@@ -28,8 +28,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleLegacyMes
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedMessage;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedMessageList;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
 import org.fest.assertions.core.Condition;
 
 import java.io.IOException;
@@ -67,8 +65,6 @@ public class SmartMeterProtocolMessageAdapterTest {
 
     @Mock
     private CollectedDataFactory collectedDataFactory;
-    @Mock
-    private IdBusinessObjectFactory codeFactory;
 
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
@@ -100,7 +96,6 @@ public class SmartMeterProtocolMessageAdapterTest {
         doThrow(DeviceProtocolAdapterCodingExceptions.class).when(deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
         when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(ThirdSimpleTestSmartMeterProtocol.class.getCanonicalName())).thenReturn(new ThirdSimpleTestSmartMeterProtocol());
 
-        when(this.codeFactory.getInstanceType()).thenReturn(Code.class);
         when(this.collectedDataFactory.createCollectedMessageList(anyList())).thenReturn(new MockCollectedMessageList());
         when(this.collectedDataFactory.createCollectedMessage(any(MessageIdentifier.class))).thenAnswer(
                 invocationOnMock -> new MockCollectedMessage((MessageIdentifier) invocationOnMock.getArguments()[0])

@@ -12,8 +12,6 @@ import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
@@ -154,8 +152,6 @@ public class SmartMeterProtocolAdapterImplTest {
         when(this.securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 (SimpleTestSmartMeterProtocol.class.getName())).thenReturn(SimpleTestDeviceSecuritySupport.class.getName());
 
-        IdBusinessObjectFactory timeZoneInUseFactory = mock(IdBusinessObjectFactory.class);
-        when(timeZoneInUseFactory.getInstanceType()).thenReturn(TimeZone.class);
         this.mockPropertySpecs();
     }
 
@@ -333,7 +329,7 @@ public class SmartMeterProtocolAdapterImplTest {
     }
 
     @Test
-    public void cachingProtocolTests() throws BusinessException, SQLException {
+    public void cachingProtocolTests() throws SQLException {
         final Object cacheObject = new BigDecimal("1256.6987");
         final int deviceId = 123;
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
