@@ -83,6 +83,13 @@ public class RegisterResourceHelper {
         }
     }
     
+    public DetailedValidationInfo getRegisterValidationInfo(UsagePoint usagePoint, Channel channel) {
+        UsagePointValidation upv = getUsagePointValidation(usagePoint);
+        List<DataValidationStatus> states =
+                upv.getValidationStatus(channel, Collections.emptyList(), lastYear());
+        return validationInfoFactory.createDetailedValidationInfo(isValidationActive(channel, upv), states, upv.getLastChecked(channel));
+    }
+    
     public boolean isValidationActive(Channel channel, UsagePointValidation upv) {
         return upv.isValidationActive(channel, clock.instant());
     }

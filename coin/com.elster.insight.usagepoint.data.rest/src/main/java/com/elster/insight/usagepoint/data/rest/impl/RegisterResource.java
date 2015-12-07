@@ -1,5 +1,7 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
+
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -10,7 +12,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -31,6 +32,7 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -55,14 +57,14 @@ public class RegisterResource {
         this.usagePointDataInfoFactory = usagePointDataInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public Response getRegisters(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         return registerHelper.getRegisters(mrid, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{rt_mrid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
@@ -72,7 +74,7 @@ public class RegisterResource {
         return registerHelper.getRegister(() -> channel, mrid);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{rt_mrid}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
@@ -112,6 +114,54 @@ public class RegisterResource {
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
+    
+    @Path("{rt_mrid}/validationstatus")
+    @GET @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("rt_mrid") String rt_mrid) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        UsagePointValidation upv = registerHelper.getUsagePointValidation(usagePoint);
+        Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        ValidationStatusInfo validationStatusInfo = new ValidationStatusInfo(upv.isValidationActive(channel, clock.instant()), upv.getLastChecked(channel), channel.hasData());
+        return Response.status(Response.Status.OK).entity(validationStatusInfo).build();
+    }
+    
+    @Path("{rt_mrid}/validationpreview")
+    @GET @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationStatusPreview(@PathParam("mRID") String mrid, @PathParam("rt_mrid") String rt_mrid) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        UsagePointValidation upv = registerHelper.getUsagePointValidation(usagePoint);
+        Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        
+        DetailedValidationInfo detailedValidationInfo = registerHelper.getRegisterValidationInfo(usagePoint, channel);
+        return Response.status(Response.Status.OK).entity(detailedValidationInfo).build();
+    }
+    
+//    @PUT @Transactional
+//    @Path("/{registerId}/validate")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+//    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+//    public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterTriggerValidationInfo validationInfo) {
+//        Device device = resourceHelper.lockDeviceOrThrowException(validationInfo);
+//        Register<?> register = doGetRegister(mRID, registerId);
+//        if (validationInfo.lastChecked == null) {
+//            throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
+//        }
+//        Instant newDate = Instant.ofEpochMilli(validationInfo.lastChecked);
+//        Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
+//        if (lastChecked.isPresent() && newDate.isAfter(lastChecked.get())) {
+//            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", lastChecked);
+//        }
+//        validateRegister(register, newDate);
+//        device.save();
+//        return Response.status(Response.Status.OK).build();
+//    }
 
     private List<RegisterDataInfo> filter(List<RegisterDataInfo> infos, JsonQueryFilter filter) {
         Predicate<RegisterDataInfo> fromParams = getFilter(filter);
@@ -122,15 +172,19 @@ public class RegisterResource {
         ImmutableList.Builder<Predicate<RegisterDataInfo>> list = ImmutableList.builder();
         if (filter.hasProperty("suspect")) {
             List<String> suspectFilters = filter.getStringList("suspect");
-            //            if (suspectFilters.size() == 0) {
-            //                if ("suspect".equals(filter.getString("suspect"))) {
-            //                    list.add(this::hasSuspects);
-            //                } else {
-            //                    list.add(not(this::hasSuspects));
-            //                }
-            //            }
+                        if (suspectFilters.size() == 0) {
+                            if ("suspect".equals(filter.getString("suspect"))) {
+                                list.add(this::hasSuspects);
+                            } else {
+                                list.add(not(this::hasSuspects));
+                            }
+                        }
         }
         return cdi -> list.build().stream().allMatch(p -> p.test(cdi));
+    }
+    
+    private boolean hasSuspects(RegisterDataInfo info) {
+        return ValidationStatus.SUSPECT.equals(info.validationResult);
     }
 
     private boolean filterActive(JsonQueryFilter filter, String key) {
