@@ -199,10 +199,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                     {
                         xtype: 'fieldcontainer',
                         ui: 'actions',
-                        margin: '20 0 0 0',
                         fieldLabel: '&nbsp',
-                        labelAlign: 'right',
-                        labelWidth: 260,
                         layout: 'hbox',
                         items: [
                             {
