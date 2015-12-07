@@ -19,7 +19,7 @@ public enum BundleTypeTranslationKeys implements TranslationKey {
 
     @Override
     public String getKey() {
-        return this.bundleType.name();
+        return "bundle.type." + this.bundleType.name();
     }
 
     @Override
@@ -28,6 +28,6 @@ public enum BundleTypeTranslationKeys implements TranslationKey {
     }
 
     public static BundleTypeTranslationKeys getTranslatedName(BundleType bundleType) {
-        return Arrays.stream(BundleTypeTranslationKeys.values()).filter(key -> key.bundleType.equals(bundleType)).findFirst().orElse(THIRD_PARTY);
+        return Arrays.stream(BundleTypeTranslationKeys.values()).filter(key -> key.bundleType == bundleType).findFirst().orElse(THIRD_PARTY);
     }
 }

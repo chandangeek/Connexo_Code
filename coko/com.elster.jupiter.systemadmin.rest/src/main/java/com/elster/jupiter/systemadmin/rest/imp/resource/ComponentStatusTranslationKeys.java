@@ -23,7 +23,7 @@ public enum ComponentStatusTranslationKeys implements TranslationKey {
 
     @Override
     public String getKey() {
-        return this.componentStatus.name();
+        return "component.status." + this.componentStatus.name();
     }
 
     @Override
@@ -32,6 +32,6 @@ public enum ComponentStatusTranslationKeys implements TranslationKey {
     }
 
     public static ComponentStatusTranslationKeys getTranslatedName(ComponentStatus componentStatus) {
-        return Arrays.stream(ComponentStatusTranslationKeys.values()).filter(key -> key.componentStatus.equals(componentStatus)).findFirst().orElse(ACTIVE);
+        return Arrays.stream(ComponentStatusTranslationKeys.values()).filter(key -> key.componentStatus == componentStatus).findFirst().orElse(ACTIVE);
     }
 }

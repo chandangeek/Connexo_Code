@@ -1,19 +1,27 @@
 package com.elster.jupiter.systemadmin.rest.imp.resource;
 
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.license.security.Privileges;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.systemadmin.rest.imp.response.ActionInfo;
-import com.elster.jupiter.systemadmin.rest.imp.response.LicenseInfo;
-import com.elster.jupiter.systemadmin.rest.imp.response.LicenseListInfo;
+import com.elster.jupiter.systemadmin.rest.imp.response.LicenseInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.LicenseShortInfo;
 import com.elster.jupiter.systemadmin.rest.imp.response.RootEntity;
-import com.elster.jupiter.systemadmin.rest.imp.transations.UploadLicenseTransaction;
+import com.elster.jupiter.util.json.JsonService;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -26,69 +34,91 @@ import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.security.SignedObject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Path("/license")
-public class LicenseResource extends BaseResource {
-    private Thesaurus thesaurus;
+public class LicenseResource {
 
-    public LicenseResource() {
-    }
+    public static int UNPROCESSIBLE_ENTITY = 422;
+
+    private final LicenseService licenseService;
+    private final LicenseInfoFactory licenseInfoFactory;
+    private final Thesaurus thesaurus;
+    private final JsonService jsonService;
+    private final NlsService nlsService;
 
     @Inject
-    public void setThesaurus(Thesaurus thesaurus) {
+    public LicenseResource(LicenseService licenseService, LicenseInfoFactory licenseInfoFactory, Thesaurus thesaurus, JsonService jsonService, NlsService nlsService) {
+        this.licenseService = licenseService;
+        this.licenseInfoFactory = licenseInfoFactory;
         this.thesaurus = thesaurus;
+        this.jsonService = jsonService;
+        this.nlsService = nlsService;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_LICENSE)
-    public LicenseListInfo getLicenseList() {
-        List<License> resultList = new ArrayList<>();
-        List<String> applKeyList = getLicenseService().getLicensedApplicationKeys();
-        for (String key : applKeyList) {
-            Optional<License> licRef = getLicenseService().getLicenseForApplication(key);
-            if (licRef.isPresent()) {
-                resultList.add(licRef.get());
-            }
-        }
-        return new LicenseListInfo(getNlsService(), resultList);
+    public PagedInfoList getLicenses(@BeanParam JsonQueryParameters queryParameters) {
+        List<LicenseShortInfo> infos = licenseService.getLicensedApplicationKeys().stream()
+                .map(licenseService::getLicenseForApplication)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(licenseInfoFactory::asShortInfo)
+                .sorted((l1, l2) -> l1.expires.compareTo(l2.expires))
+                .collect(Collectors.toList());
+        List<LicenseShortInfo> pagedInfos = ListPager.of(infos).paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null)).find();
+        return PagedInfoList.fromPagedList("data", pagedInfos, queryParameters);
     }
 
     @GET
     @Path("/{applicationkey}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_LICENSE)
-    public RootEntity getLicenseById(@PathParam("applicationkey") String tag) {
-        Optional<License> licenseRef = getLicenseService().getLicenseForApplication(tag);
-        LicenseInfo info = new LicenseInfo();
-        if (licenseRef.isPresent()) {
-            info = new LicenseInfo(getNlsService(), licenseRef.get());
-        } else {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
-        return new RootEntity<LicenseInfo>(info);
+    public RootEntity getLicense(@PathParam("applicationkey") String tag) {
+        License license = licenseService.getLicenseForApplication(tag).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return new RootEntity<>(licenseInfoFactory.asInfo(license));
     }
 
     @POST
+    @Transactional
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
     @RolesAllowed(Privileges.Constants.UPLOAD_LICENSE)
     public Response uploadLicense(@FormDataParam("uploadField") InputStream fileInputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
-        SignedObject signedObject = null;
+        SignedObject signedObject = readLicense(fileInputStream);
+        ActionInfo info = addLicense(signedObject);
+        return Response.ok().entity(jsonService.serialize(info)).build();
+    }
+
+    private SignedObject readLicense(@FormDataParam("uploadField") InputStream fileInputStream) {
+        SignedObject signedObject;
         try {
             ObjectInputStream serializedObject = new ObjectInputStream(fileInputStream);
             signedObject = (SignedObject) serializedObject.readObject();
             serializedObject.close();
         } catch (Exception ex) {
-            throw new WebApplicationException(Response.status(BaseResource.UNPROCESSIBLE_ENTITY).entity(getJsonService().serialize(new ConstraintViolationInfo(thesaurus).from(new InvalidLicenseFileException()))).build());
+            throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(
+                    jsonService.serialize(new ConstraintViolationInfo(thesaurus).from(new InvalidLicenseFileException()))).build());
         }
+        return signedObject;
+    }
 
-        ActionInfo info = getTransactionService().execute(new UploadLicenseTransaction(getLicenseService(), getNlsService(), getJsonService(), signedObject));
-        return Response.status(Response.Status.OK).entity(getJsonService().serialize(info)).build();
+    private ActionInfo addLicense(SignedObject signedObject) {
+        ActionInfo info = new ActionInfo();
+        try {
+            List<String> licensedApps = licenseService.addLicense(signedObject).stream()
+                    .map(appKey -> nlsService.getThesaurus(appKey, Layer.REST).getString(appKey, appKey))
+                    .collect(Collectors.toList());
+            info.setSuccess(licensedApps);
+            return info;
+        } catch (Exception ex) {
+            info.setFailure(ex.getMessage());
+            throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(jsonService.serialize(info)).build());
+        }
     }
 }

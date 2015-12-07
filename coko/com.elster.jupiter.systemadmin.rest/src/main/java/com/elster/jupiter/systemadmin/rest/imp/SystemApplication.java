@@ -17,12 +17,15 @@ import com.elster.jupiter.systemadmin.rest.imp.resource.ComponentResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.FieldResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.DataPurgeResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseResource;
+import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseStatusTranslationKeys;
+import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseTypeTranslationKeys;
 import com.elster.jupiter.systemadmin.rest.imp.resource.MessageSeeds;
 import com.elster.jupiter.systemadmin.rest.imp.resource.SystemInfoResource;
 import com.elster.jupiter.systemadmin.rest.imp.response.ApplicationInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.BundleTypeInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.ComponentInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.ComponentStatusInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.LicenseInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.SystemInfoFactory;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -70,7 +73,8 @@ public class SystemApplication extends Application implements MessageSeedProvide
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(LicenseResource.class,
+        return ImmutableSet.of(
+                LicenseResource.class,
                 DataPurgeResource.class,
                 MultiPartFeature.class,
                 SystemInfoResource.class,
@@ -153,6 +157,8 @@ public class SystemApplication extends Application implements MessageSeedProvide
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(BundleTypeTranslationKeys.values()));
         keys.addAll(Arrays.asList(ComponentStatusTranslationKeys.values()));
+        keys.addAll(Arrays.asList(LicenseTypeTranslationKeys.values()));
+        keys.addAll(Arrays.asList(LicenseStatusTranslationKeys.values()));
         return keys;
     }
 
@@ -183,6 +189,8 @@ public class SystemApplication extends Application implements MessageSeedProvide
             bind(subsystemService).to(SubsystemService.class);
             bind(bundleContext).to(BundleContext.class);
             bind(lastStartedTime).to(Long.class).named("LAST_STARTED_TIME");
+            bind(LicenseInfoFactory.class).to(LicenseInfoFactory.class);
+            bind(NlsService.class).to(NlsService.class);
         }
     }
 }
