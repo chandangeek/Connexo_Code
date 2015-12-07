@@ -10,6 +10,7 @@ Ext.define('Usr.view.userDirectory.Preview', {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'USR', 'Actions'),
             iconCls: 'x-uni-action-iconD',
+            itemId: 'btn-user-directory-preview-action-menu',
             menu: {
                 xtype: 'usr-user-directory-action-menu'
             }

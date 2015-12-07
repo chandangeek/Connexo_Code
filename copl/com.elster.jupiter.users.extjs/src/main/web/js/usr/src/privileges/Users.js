@@ -16,5 +16,8 @@ Ext.define('Usr.privileges.Users', {
     },
     canView:function(){
         return Uni.Auth.checkPrivileges(Usr.privileges.Users.view);
+    },
+    canAdministrate:function(){
+        return Uni.Auth.checkPrivileges(Usr.privileges.Users.admin);
     }
 });

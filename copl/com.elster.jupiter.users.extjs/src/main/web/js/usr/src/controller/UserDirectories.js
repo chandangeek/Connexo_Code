@@ -101,6 +101,7 @@ Ext.define('Usr.controller.UserDirectories', {
         previewForm.down('#ctn-user-directory-properties2').setVisible(record.get('name') != me.localDomainName);
         previewForm.loadRecord(record);
         preview.down('usr-user-directory-action-menu').record = record;
+        preview.down('#btn-user-directory-preview-action-menu').setVisible(!(record.get('id') === 0 && record.get('isDefault')));
         Ext.resumeLayouts();
     },
 
