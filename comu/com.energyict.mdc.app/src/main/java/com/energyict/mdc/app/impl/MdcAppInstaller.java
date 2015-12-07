@@ -73,24 +73,89 @@ public class MdcAppInstaller implements InstallService {
 
     private String[] getPrivilegesMeterOperator(){
         return new String[] {
+                //Assets inventory
+                com.energyict.mdc.device.data.security.Privileges.Constants.IMPORT_INVENTORY_MANAGEMENT,
+                com.energyict.mdc.device.data.security.Privileges.Constants.REVOKE_INVENTORY_MANAGEMENT,
+
+                //Business processes
+                com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
+
+                //Communication
+                com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+
+                //Data collection KPI
+                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DATA_COLLECTION_KPI,
+
+                //Device communications
+                com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
+
+                //Device data
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
+
+                //Device groups
+                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL,
+
+                //Device life cycle
+                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE,
+
+                //Device master data
+                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_MASTER_DATA,
+
+                //Device types
+                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
+
+                //Devices
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADD_DEVICE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.REMOVE_DEVICE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE,
+
+                //Estimation
+                com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+                com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
+
+                //Export
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
-                com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
-                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
-                com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
-                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DATA_COLLECTION_KPI,
-                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
+
+                //Firmware campaigns
+                com.energyict.mdc.firmware.security.Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN,
+
+                //Import
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+
+                //Issues
                 com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.ASSIGN_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
-                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_MASTER_DATA,
+
+                //Issues configuration
+                com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ASSIGNMENT_RULE,
+                com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE,
+
+                //Relative periods
+                com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
+
+                //Usage points
+                com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
+                com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
+
+                //User tasks
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.ASSIGN_TASK,
+
+                //Validation
+                com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL,
                 com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_1,
-                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_2,
-                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_3
+                com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
+
+                //Shared communication schedule
+                com.energyict.mdc.scheduling.security.Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE,
         };
     }
 }
