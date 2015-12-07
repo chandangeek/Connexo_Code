@@ -1,12 +1,14 @@
 package com.elster.jupiter.fileimport;
 
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.Pair;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -36,12 +38,6 @@ public abstract class FileImporterAbstractFactory  implements FileImporterFactor
         this.propertySpecService = propertySpecService;
         getRequiredProperties().forEach(propertyName -> checkRequiredProperty(propertyName, properties));
         this.properties = properties;
-    }
-
-    @Override
-    public final void init(Logger logger) {
-        this.logger = logger == null ? Logger.getLogger(this.getClass().getName()) : logger;
-        init();
     }
 
     protected abstract void init();

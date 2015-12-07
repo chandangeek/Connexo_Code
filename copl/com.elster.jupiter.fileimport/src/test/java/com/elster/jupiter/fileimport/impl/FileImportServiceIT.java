@@ -274,6 +274,7 @@ public class FileImportServiceIT {
         when(fileImporterFactory.getName()).thenReturn(IMPORTER_NAME);
         when(fileImporterFactory.getPropertySpecs()).thenReturn(Collections.EMPTY_LIST);
         when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
+        when(fileImporterFactory.requiresTransaction()).thenReturn(true);
 
 
         transactionService.execute(() -> {

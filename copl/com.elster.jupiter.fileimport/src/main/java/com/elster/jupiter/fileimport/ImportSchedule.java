@@ -7,7 +7,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.nio.file.Path;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -74,12 +73,6 @@ public interface ImportSchedule {
      * Updates this instance.
      */
     void update();
-
-    /**
-     * @param file
-     * @return creates a new FileImport instance for the given file.
-     */
-    FileImportOccurrence createFileImportOccurrence(Path file, Clock clock);
 
     /**
      * @return returns the type of the importer

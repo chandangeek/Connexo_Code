@@ -28,7 +28,7 @@ class ImportScheduleJob implements CronJob {
     private final Long importScheduleId;
 
     @Inject
-    public ImportScheduleJob(Predicate<Path> filter, FileUtils fileSystem, JsonService jsonService, FileImportService fileImportService,  Long importScheduleId, TransactionService transactionService, Thesaurus thesaurus, CronExpressionParser cronExpressionParser, Clock clock) {
+    public ImportScheduleJob(Predicate<Path> filter, FileUtils fileSystem, JsonService jsonService, FileImportService fileImportService, Long importScheduleId, TransactionService transactionService, Thesaurus thesaurus, CronExpressionParser cronExpressionParser, Clock clock) {
         this.filter = filter;
         this.fileSystem = fileSystem;
         this.jsonService = jsonService;
@@ -53,15 +53,16 @@ class ImportScheduleJob implements CronJob {
     @Override
     public void run() {
         fileImportService.getImportSchedule(importScheduleId)
-            .filter(ImportSchedule::isActive)
-            .ifPresent(importSchedule -> {
-                Path importFolder = fileImportService.getBasePath().resolve(importSchedule.getImportDirectory());
-                FolderScanningJob folderScanningJob = new FolderScanningJob(
-                        new PollingFolderScanner(filter, fileSystem, importFolder, importSchedule.getPathMatcher(), this.thesaurus),
-                        new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
-                folderScanningJob.run();
+                .filter(ImportSchedule::isActive)
+                .map(ServerImportSchedule.class::cast)
+                .ifPresent(importSchedule -> {
+                    Path importFolder = fileImportService.getBasePath().resolve(importSchedule.getImportDirectory());
+                    FolderScanningJob folderScanningJob = new FolderScanningJob(
+                            new PollingFolderScanner(filter, fileSystem, importFolder, importSchedule.getPathMatcher(), this.thesaurus),
+                            new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
+                    folderScanningJob.run();
 
-            });
+                });
 
     }
 }

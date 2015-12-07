@@ -9,7 +9,6 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
-import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.MissingRequiredProperty;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -45,7 +44,7 @@ import java.util.stream.Collectors;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_IMPORT_SCHEDULE + "}")
 @NotSamePath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
-final class ImportScheduleImpl implements ImportSchedule {
+final class ImportScheduleImpl implements ServerImportSchedule {
 
     private final JsonService jsonService;
     private static final Logger LOGGER = Logger.getLogger(ImportScheduleImpl.class.getName());
@@ -367,20 +366,13 @@ final class ImportScheduleImpl implements ImportSchedule {
 
 
     @Override
-    public FileImportOccurrence createFileImportOccurrence(Path file, Clock clock) {
+    public FileImportOccurrenceImpl createFileImportOccurrence(Path file, Clock clock) {
         if (!Files.exists(file)) {
             throw new IllegalArgumentException();
         }
         Path relativeFilePath = fileImportService.getBasePath().relativize(file);
         return FileImportOccurrenceImpl.create(fileImportService, fileSystem, fileUtils, dataModel, fileNameCollisionresolver, thesaurus, clock, this, relativeFilePath);
     }
-
-    public Logger getLogger(FileImportOccurrence occurrence) {
-        Logger logger = Logger.getAnonymousLogger();
-        logger.addHandler(occurrence.createFileImportLogHandler().asHandler());
-        return logger;
-    }
-
 
     private void checkRequiredProperty(String propertyName, Map<String, Object> properties) {
         if (!properties.containsKey(propertyName)) {

@@ -1,13 +1,10 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.json.JsonService;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.time.Clock;
 
@@ -16,12 +13,12 @@ import java.time.Clock;
  */
 class DefaultFileHandler implements FileHandler {
 
-    private final ImportSchedule importSchedule;
+    private final ServerImportSchedule importSchedule;
     private final JsonService jsonService;
     private final TransactionService transactionService;
     private final Clock clock;
 
-    public DefaultFileHandler(ImportSchedule importSchedule, JsonService jsonService, TransactionService transactionService, Clock clock) {
+    public DefaultFileHandler(ServerImportSchedule importSchedule, JsonService jsonService, TransactionService transactionService, Clock clock) {
         this.importSchedule = importSchedule;
         this.jsonService = jsonService;
         this.transactionService = transactionService;
@@ -39,7 +36,7 @@ class DefaultFileHandler implements FileHandler {
     }
 
     private void doHandle(Path file) {
-        FileImportOccurrence fileImportOccurrence = importSchedule.createFileImportOccurrence(file, clock);
+        ServerFileImportOccurrence fileImportOccurrence = importSchedule.createFileImportOccurrence(file, clock);
         fileImportOccurrence.prepareProcessing();
 
         DestinationSpec destination = importSchedule.getDestination();

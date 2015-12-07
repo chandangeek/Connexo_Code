@@ -1,9 +1,9 @@
 package com.elster.jupiter.fileimport;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 
 import java.io.InputStream;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +21,7 @@ import java.util.logging.Logger;
  * FileImport shields the actual file from the code that does the actual processing of its contents,
  * allowing the underlying file system to vary as needed.
  */
+@ProviderType
 public interface FileImportOccurrence {
 
     /**
@@ -63,13 +64,6 @@ public interface FileImportOccurrence {
      */
     long getId();
 
-    /**
-     * Marks the file as being processed.
-     * @throws IllegalStateException if the current state is not NEW
-     */
-    void prepareProcessing();
-
-
     ImportSchedule getImportSchedule();
 
     Optional<Instant> getStartDate();
@@ -78,17 +72,11 @@ public interface FileImportOccurrence {
 
     Instant getTriggerDate();
 
-    void setStartDate(Instant instant);
-    void setEndDate(Instant instant);
-
     List<ImportLogEntry> getLogs();
-
-    FileImportLogHandler createFileImportLogHandler();
 
     Logger getLogger();
 
     Finder<ImportLogEntry> getLogsFinder();
 
     String getMessage();
-
 }

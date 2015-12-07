@@ -1,7 +1,5 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.transaction.Transaction;
@@ -14,14 +12,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
-import java.io.File;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
 
@@ -36,9 +30,9 @@ public class DefaultFileHandlerTest {
     private DefaultFileHandler fileHandler;
 
     @Mock
-    private ImportSchedule importSchedule;
+    private ServerImportSchedule importSchedule;
     @Mock
-    private FileImportOccurrence fileImportOccurrence;
+    private ServerFileImportOccurrence fileImportOccurrence;
     @Mock
     private DestinationSpec destination;
     @Mock
