@@ -6,7 +6,6 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
@@ -221,7 +220,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
     @Test
     @Transactional
-    public void successfulStoreTest() throws SQLException, BusinessException {
+    public void successfulStoreTest() throws SQLException {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreTest").loadProfileTypes(this.loadProfileType).create();
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
@@ -362,7 +361,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
     @Test
     @Transactional
-    public void updateLastReadingTest() throws SQLException, BusinessException {
+    public void updateLastReadingTest() throws SQLException {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("updateLastReadingTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);

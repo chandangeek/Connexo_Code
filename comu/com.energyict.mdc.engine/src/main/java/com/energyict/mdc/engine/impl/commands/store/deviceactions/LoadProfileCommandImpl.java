@@ -215,7 +215,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      * @return the masterIdentifier
      */
     private String getMasterDeviceIdentifier(OfflineLoadProfileChannel lpChannel, OfflineLoadProfile offlineLoadProfile) {
-        return lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().equals("")? offlineLoadProfile.getDeviceIdentifier().getIdentifier() : lpChannel.getMasterSerialNumber();
+        return lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().isEmpty()? offlineLoadProfile.getDeviceIdentifier().getIdentifier() : lpChannel.getMasterSerialNumber();
     }
 
     /**

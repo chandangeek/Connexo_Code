@@ -2,23 +2,30 @@ package com.energyict.mdc.engine.impl.events.registration;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.OfflineComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
 
+import com.google.inject.Provider;
+
 import java.util.Optional;
 
-import com.google.inject.Provider;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -49,19 +56,19 @@ public class EventRegistrationRequestInitiatorImplTest {
     @Mock
     Thesaurus thesaurus;
 
-    @Test(expected = BusinessException.class)
-    public void testNonExistingComServer() throws BusinessException {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNonExistingComServer() {
         String comServerName = "Does not exist";
         when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.empty());
 
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServerName);
 
-        // Expected BusinessException because the ComServer does not exist
+        // Expected IllegalArgumentException because the ComServer does not exist
     }
 
-    @Test(expected = BusinessException.class)
-    public void testOfflineComServerByName() throws BusinessException {
+    @Test(expected = UnsupportedOperationException.class)
+    public void testOfflineComServerByName() {
         String comServerName = "Offline";
         OfflineComServer comServer = createOfflineComServer();
         when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));
@@ -69,17 +76,17 @@ public class EventRegistrationRequestInitiatorImplTest {
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServerName);
 
-        // Expected BusinessException because OfflineComServer does not support event registration
+        // Expected UnsupportedOperationException because OfflineComServer does not support event registration
     }
 
-    @Test(expected = BusinessException.class)
-    public void testOfflineComServer() throws BusinessException {
+    @Test(expected = UnsupportedOperationException.class)
+    public void testOfflineComServer() {
         OfflineComServer comServer = createOfflineComServer();
 
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
-        // Expected BusinessException because OfflineComServer does not support event registration
+        // Expected UnsupportedOperationException because OfflineComServer does not support event registration
     }
 
     private OfflineComServer createOfflineComServer() {
@@ -87,7 +94,7 @@ public class EventRegistrationRequestInitiatorImplTest {
     }
 
     @Test
-    public void testOnlineComServer() throws BusinessException {
+    public void testOnlineComServer() {
         OnlineComServer comServer = createOnlineComServer(EVENT_REGISTRATION_URI);
 
         // Business method
@@ -97,19 +104,19 @@ public class EventRegistrationRequestInitiatorImplTest {
         assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);
     }
 
-    @Test(expected = BusinessException.class)
-    public void testOnlineComServerWithoutEventRegistrationUri() throws BusinessException {
+    @Test(expected = UnsupportedOperationException.class)
+    public void testOnlineComServerWithoutEventRegistrationUri() {
         OnlineComServer comServer = createOnlineComServer(null);
         comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
-        // Expected BusinessException because the ComServer explicitly did not support event registration
+        // Expected UnsupportedOperationException because the ComServer explicitly did not support event registration
     }
 
     @Test
-    public void testOnlineComServerByName() throws BusinessException {
+    public void testOnlineComServerByName() {
         String comServerName = "Online";
         OnlineComServer comServer = createOnlineComServer(EVENT_REGISTRATION_URI);
         when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));
@@ -128,7 +135,7 @@ public class EventRegistrationRequestInitiatorImplTest {
     }
 
     @Test
-    public void testRemoteComServer() throws BusinessException {
+    public void testRemoteComServer() {
         RemoteComServer comServer = createRemoteComServerWithRegistrationUri(EVENT_REGISTRATION_URI);
 
         // Business method
@@ -138,19 +145,19 @@ public class EventRegistrationRequestInitiatorImplTest {
         assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);
     }
 
-    @Test(expected = BusinessException.class)
-    public void testRemoteComServerWithoutEventRegistrationUri() throws BusinessException {
+    @Test(expected = UnsupportedOperationException.class)
+    public void testRemoteComServerWithoutEventRegistrationUri() {
         RemoteComServer comServer = createRemoteComServerWithRegistrationUri(null);
         comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
-        // Expected BusinessException because the ComServer explicitly did not support event registration
+        // Expected UnsupportedOperationException because the ComServer explicitly did not support event registration
     }
 
     @Test
-    public void testRemoteComServerByName() throws BusinessException {
+    public void testRemoteComServerByName() {
         String comServerName = "Remote";
         RemoteComServer comServer = createRemoteComServerWithRegistrationUri(EVENT_REGISTRATION_URI);
         when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));

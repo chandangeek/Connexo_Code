@@ -1,6 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -31,7 +36,14 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateComSessionDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
@@ -55,17 +67,9 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,8 +83,6 @@ import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.MockSettings;
-import org.mockito.mock.MockCreationSettings;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -185,7 +187,7 @@ public class ScheduledJobImplTest {
     }
 
     @Before
-    public void initMocksAndFactories() throws BusinessException {
+    public void initMocksAndFactories() {
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
@@ -202,7 +204,7 @@ public class ScheduledJobImplTest {
     }
 
     @Test
-    public void prepareDeviceProtocolTest() throws BusinessException {
+    public void prepareDeviceProtocolTest() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);

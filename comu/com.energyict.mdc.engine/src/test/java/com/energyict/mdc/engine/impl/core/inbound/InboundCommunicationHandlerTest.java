@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -59,9 +60,6 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.RegistersTask;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -565,16 +563,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     @Test
-    public void testSuccessFulBinaryCommunicationWithHandOverToProtocol() throws BusinessException, ExecutionException, InterruptedException {
+    public void testSuccessFulBinaryCommunicationWithHandOverToProtocol() throws ExecutionException, InterruptedException {
         this.testSuccessFulCommunicationWithHandOverToProtocol(this.newBinaryInboundDiscoveryContext());
     }
 
     @Test
-    public void testSuccessFulServletCommunicationWithHandOverToProtocol() throws BusinessException, ExecutionException, InterruptedException {
+    public void testSuccessFulServletCommunicationWithHandOverToProtocol() throws ExecutionException, InterruptedException {
         this.testSuccessFulCommunicationWithHandOverToProtocol(this.newServletInboundDiscoveryContext());
     }
 
-    private void testSuccessFulCommunicationWithHandOverToProtocol(InboundDiscoveryContextImpl inboundDiscoveryContext) throws BusinessException, ExecutionException, InterruptedException {
+    private void testSuccessFulCommunicationWithHandOverToProtocol(InboundDiscoveryContextImpl inboundDiscoveryContext) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);

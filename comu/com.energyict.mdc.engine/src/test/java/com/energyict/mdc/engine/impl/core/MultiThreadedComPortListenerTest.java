@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.ComServer;
@@ -19,9 +20,6 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.time.TimeDuration;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -119,7 +117,7 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Test(timeout = 10000)
-    public void testStart() throws BusinessException, InterruptedException {
+    public void testStart() throws InterruptedException {
         MultiThreadedComPortListener multiThreadedComPortListener = null;
         try {
             ThreadFactory threadFactory = mock(ThreadFactory.class);
@@ -159,7 +157,7 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
-    public void testShutdown() throws BusinessException {
+    public void testShutdown() {
         MultiThreadedComPortListener comPortListener = null;
         try {
             ThreadFactory threadFactory = mock(ThreadFactory.class);
@@ -253,7 +251,7 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
-    public void testOverLoad() throws BusinessException, InterruptedException {
+    public void testOverLoad() throws InterruptedException {
         MultiThreadedComPortListener multiThreadedComPortListener = null;
         try {
             InboundCapableComServer comServer = mock(InboundCapableComServer.class);
@@ -308,7 +306,7 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
-    public void testWorkComplete() throws InterruptedException, BusinessException {
+    public void testWorkComplete() throws InterruptedException {
         LatchDrivenMultiThreadedComPortListener multiThreadedComPortListener = null;
         try {
             InboundCapableComServer comServer = mock(InboundCapableComServer.class);
@@ -362,7 +360,7 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Test(timeout = 10000)
-    public void testWorkFailed() throws BusinessException, InterruptedException {
+    public void testWorkFailed() throws InterruptedException {
         LatchDrivenMultiThreadedComPortListener multiThreadedComPortListener = null;
         try {
             InboundCapableComServer comServer = mock(InboundCapableComServer.class);

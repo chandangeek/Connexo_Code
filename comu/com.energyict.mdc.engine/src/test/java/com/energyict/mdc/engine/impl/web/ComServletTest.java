@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.web;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
@@ -96,7 +95,7 @@ public class ComServletTest {
     }
 
     @Test
-    public void testDoPostCallsDoDiscovery () throws IOException, ServletException, BusinessException {
+    public void testDoPostCallsDoDiscovery () throws IOException, ServletException {
         ServletBasedInboundDeviceProtocol inboundDeviceProtocol = mock(ServletBasedInboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);

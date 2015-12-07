@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 
@@ -10,7 +9,7 @@ import java.util.StringTokenizer;
 
 /**
  * Provides code reuse opportunities for {@link RequestType}s
- * that relate to an {@link IdBusinessObject}.
+ * that relate to a business object.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:50)

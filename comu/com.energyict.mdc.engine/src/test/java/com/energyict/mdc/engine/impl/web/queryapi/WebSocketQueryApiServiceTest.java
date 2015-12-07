@@ -1,7 +1,23 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -20,23 +36,6 @@ import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -130,7 +129,7 @@ public class WebSocketQueryApiServiceTest {
      * Executes the {@link ComServerDAO#getThisComServer()} method.
      */
     @Test
-    public void testGetThisComServer() throws SQLException, BusinessException, JSONException {
+    public void testGetThisComServer() throws SQLException, JSONException {
         OnlineComServer comServer = this.createComServerForThisMachine();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         when(comServerDAO.getThisComServer()).thenReturn(comServer);
@@ -157,7 +156,7 @@ public class WebSocketQueryApiServiceTest {
      * for an {@link OnlineComServer}.
      */
     @Test
-    public void testGetOnlineComServer() throws SQLException, BusinessException, JSONException {
+    public void testGetOnlineComServer() throws SQLException, JSONException {
         String hostName = "online.WebSocketQueryApiServiceTest";
         OnlineComServer comServer = this.createOnlineComServer(hostName);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
@@ -185,7 +184,7 @@ public class WebSocketQueryApiServiceTest {
      * for an {@link RemoteComServer}.
      */
     @Test
-    public void testGetRemoteComServer() throws SQLException, BusinessException, JSONException {
+    public void testGetRemoteComServer() throws SQLException, JSONException {
         String onlineHostName = "online.testGetRemoteComServer";
         OnlineComServer onlineComServer = this.createOnlineComServer(onlineHostName);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
@@ -215,7 +214,7 @@ public class WebSocketQueryApiServiceTest {
      * Executes the {@link ComServerDAO#getComServer(String)} method.
      */
     @Test
-    public void testGetComServerThatDoesNotExist() throws SQLException, BusinessException, JSONException {
+    public void testGetComServerThatDoesNotExist() throws SQLException, JSONException {
         OnlineComServer comServer = this.createOnlineComServer("testGetComServerThatDoesNotExist");
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
         when(runningComServer.getComServer()).thenReturn(comServer);

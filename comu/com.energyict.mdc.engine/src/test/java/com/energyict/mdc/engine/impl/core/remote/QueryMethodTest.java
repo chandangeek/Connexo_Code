@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -15,8 +16,6 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
 
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionService;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -25,7 +24,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,7 +181,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testComTaskExecutionStartedRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testComTaskExecutionStartedRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
@@ -226,7 +224,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testAttemptLockOfComTaskExecutionRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testAttemptLockOfComTaskExecutionRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
@@ -265,7 +263,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testUnlockOfComTaskExecutionRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testUnlockOfComTaskExecutionRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
@@ -304,7 +302,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testConnectionTaskExecutionStartedRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testConnectionTaskExecutionStartedRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
@@ -347,7 +345,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testAttemptLockOfConnectionTaskRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testAttemptLockOfConnectionTaskRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
@@ -386,7 +384,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testUnlockOfConnectionTaskRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testUnlockOfConnectionTaskRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
@@ -424,7 +422,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testComTaskExecutionCompletedRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testComTaskExecutionCompletedRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
@@ -459,7 +457,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testComTaskExecutionFailedRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testComTaskExecutionFailedRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
@@ -494,7 +492,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testConnectionTaskExecutionCompletedRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testConnectionTaskExecutionCompletedRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
@@ -529,7 +527,7 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testConnectionTaskExecutionFailedRunsInTransaction() throws IOException, SQLException, BusinessException {
+    public void testConnectionTaskExecutionFailedRunsInTransaction() throws IOException, SQLException {
         this.mockTransactionService();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);

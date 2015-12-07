@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.core.devices;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -17,9 +20,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
 import java.text.MessageFormat;
@@ -31,7 +31,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -485,7 +494,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
                     return true;
                 });
             } catch (Throwable t) {
-                /* Use Throwable rather than Exception or BusinessException and SQLException
+                /* Use Throwable rather than Exception and SQLException
                  * to make sure that the Semaphore#release method is called
                  * even in the worst of situations. */
                 causeOfFailure = t;

@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundCapableComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -12,8 +12,6 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
-
-import com.elster.jupiter.time.TimeDuration;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -78,7 +76,7 @@ public class SingleThreadedComPortListenerTest {
     }
 
     @Test
-    public void testStart() throws BusinessException, InterruptedException {
+    public void testStart() throws InterruptedException {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
@@ -105,7 +103,7 @@ public class SingleThreadedComPortListenerTest {
     }
 
     @Test
-    public void testShutdown() throws BusinessException {
+    public void testShutdown() {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
@@ -133,7 +131,7 @@ public class SingleThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
-    public void testAcceptedInboundCall() throws InterruptedException, BusinessException {
+    public void testAcceptedInboundCall() throws InterruptedException {
         InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getName()).thenReturn("testAcceptedInboundCall");
         ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
