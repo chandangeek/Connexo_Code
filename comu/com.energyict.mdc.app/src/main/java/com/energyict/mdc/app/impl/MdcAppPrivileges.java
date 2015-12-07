@@ -66,8 +66,11 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.Constants.IMPORT_INVENTORY_MANAGEMENT,
                 com.energyict.mdc.device.data.security.Privileges.Constants.REVOKE_INVENTORY_MANAGEMENT,
 
-                //mdc.device.config
+                //mdc.device.data - Data collection kpi
+                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DATA_COLLECTION_KPI,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI,
 
+                //mdc.device.config
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
