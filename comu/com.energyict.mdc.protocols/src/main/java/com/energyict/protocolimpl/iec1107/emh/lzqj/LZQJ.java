@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -506,14 +505,14 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     public ChannelMap getChannelMap() {
@@ -527,7 +526,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return logger;
     }
 
-    private static final Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> exceptionInfoMap = new HashMap<>();
 
     static {
         exceptionInfoMap.put("ERROR", "Request could not execute!");

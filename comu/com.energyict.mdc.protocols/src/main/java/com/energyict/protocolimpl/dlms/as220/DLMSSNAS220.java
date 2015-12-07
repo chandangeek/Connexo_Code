@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -167,10 +166,8 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
 
     /**
      * Do some extra connect settings
-     *
-     * @throws BusinessException if no correct MBus device is found
      */
-    protected abstract void doConnect() throws BusinessException;
+    protected abstract void doConnect();
 
     protected abstract String getRegistersInfo() throws IOException;
 
@@ -318,10 +315,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
             doConnect();
             validateSerialNumber();
         } catch (DLMSConnectionException e) {
-            IOException exception = new IOException(e.getMessage());
-            exception.initCause(e);
-            throw exception;
-        } catch (BusinessException e) {
             IOException exception = new IOException(e.getMessage());
             exception.initCause(e);
             throw exception;
@@ -675,7 +668,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
             RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
@@ -685,11 +678,11 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isDirty()) {
@@ -699,7 +692,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

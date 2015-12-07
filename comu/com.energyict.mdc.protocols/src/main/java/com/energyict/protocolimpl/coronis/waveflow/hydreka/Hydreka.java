@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.BubbleUpObject;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -122,7 +121,4 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
         return parameterFactory;
     }
 
-    public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
-        return BubbleUpFrameParser.parseFrame(data, this);
-    }
 }

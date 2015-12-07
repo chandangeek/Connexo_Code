@@ -27,7 +27,6 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -1512,7 +1511,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
             RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
@@ -1522,11 +1521,11 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isDirty()) {
@@ -1536,7 +1535,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

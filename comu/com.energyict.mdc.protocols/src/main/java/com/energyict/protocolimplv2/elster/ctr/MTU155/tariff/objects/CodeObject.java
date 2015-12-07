@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.codetables.CodeDayType;
@@ -106,31 +105,31 @@ public class CodeObject implements Serializable {
         return dayTypes;
     }
 
-    public CodeDayTypeObject getWeekday(int period) throws BusinessException {
+    public CodeDayTypeObject getWeekday(int period) throws IllegalStateException {
         for (CodeDayTypeObject dayType : dayTypes) {
             if (dayType.isWeekday() && dayType.isPeriod(period)) {
                 return dayType;
             }
         }
-        throw new BusinessException("No weekday found for period [" + period + "]!");
+        throw new IllegalStateException("No weekday found for period [" + period + "]!");
     }
 
-    public CodeDayTypeObject getSaturday(int period) throws BusinessException {
+    public CodeDayTypeObject getSaturday(int period) throws IllegalStateException {
         for (CodeDayTypeObject dayType : dayTypes) {
             if (dayType.isSaturday() && dayType.isPeriod(period)) {
                 return dayType;
             }
         }
-        throw new BusinessException("No saturday found for period [" + period + "]!");
+        throw new IllegalStateException("No saturday found for period [" + period + "]!");
     }
 
-    public CodeDayTypeObject getHoliday(int period) throws BusinessException {
+    public CodeDayTypeObject getHoliday(int period) throws IllegalStateException {
         for (CodeDayTypeObject dayType : dayTypes) {
             if (dayType.isHoliday() && dayType.isPeriod(period)) {
                 return dayType;
             }
         }
-        throw new BusinessException("No holiday found for period [" + period + "]!");
+        throw new IllegalStateException("No holiday found for period [" + period + "]!");
     }
 
     public void setDayTypes(List<CodeDayTypeObject> dayTypes) {
@@ -260,22 +259,23 @@ public class CodeObject implements Serializable {
         return sb.toString();
     }
 
-    public int getDefaultBand() throws BusinessException {
+    public int getDefaultBand() throws IllegalStateException {
         CodeDayTypeObject defaultDay = getDefaultDayType();
         List<CodeDayTypeDefObject> dayTypeDefs = defaultDay.getDayTypeDefs();
         if (!dayTypeDefs.isEmpty()) {
             CodeDayTypeDefObject defaultBand = dayTypeDefs.get(0);
             return defaultBand.getCodeValue();
         }
-        throw new BusinessException("No default tariff found!");
+        throw new IllegalStateException("No default tariff found!");
     }
 
-    private CodeDayTypeObject getDefaultDayType() throws BusinessException {
+    private CodeDayTypeObject getDefaultDayType() throws IllegalStateException {
         for (CodeDayTypeObject dayType : dayTypes) {
             if (dayType.isDefault()) {
                 return dayType;
             }
         }
-        throw new BusinessException("No default dayType found!");
+        throw new IllegalStateException("No default dayType found!");
     }
+
 }

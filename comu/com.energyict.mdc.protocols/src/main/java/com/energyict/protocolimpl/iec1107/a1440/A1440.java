@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.iec1107.a1440;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -53,7 +52,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -482,7 +480,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
@@ -491,7 +489,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     @Override

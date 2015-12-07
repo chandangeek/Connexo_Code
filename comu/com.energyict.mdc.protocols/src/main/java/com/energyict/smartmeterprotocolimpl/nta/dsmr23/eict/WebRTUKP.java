@@ -87,7 +87,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
     private String getProperDeviceId() {
         String deviceId = getProperties().getDeviceId();
-        if(deviceId != null && !deviceId.equalsIgnoreCase("")){
+        if(deviceId != null && !deviceId.isEmpty()){
             return deviceId;
         } else {
             return "!"; // the Kamstrup device requires a '!' sign in the IEC1107 signOn

@@ -2,8 +2,6 @@ package com.energyict.protocolimpl.coronis.amco.rtm;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.BubbleUp;
-import com.energyict.mdc.protocol.api.BubbleUpObject;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -24,7 +22,6 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe.AlarmFrameParser;
-import com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe.BubbleUpFrameParser;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.RadioCommandFactory;
 import com.energyict.protocolimpl.coronis.core.ProtocolLink;
@@ -37,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -44,7 +42,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 
-public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, BubbleUp, RTMFactory {
+public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, RTMFactory {
 
     private ObisCodeMapper obisCodeMapper;
     private WaveFlowConnect rtmConnect;
@@ -272,13 +270,12 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("EnableMultiFrameMode");
-        result.add("verifyProfileInterval");
-        result.add("InitialRFCommand");
-        result.add("RoundDownToNearestInterval");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "EnableMultiFrameMode",
+                    "verifyProfileInterval",
+                    "InitialRFCommand",
+                    "RoundDownToNearestInterval");
     }
 
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
@@ -296,10 +293,6 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         statusAndEvents.add(alarmFrame.getResponse());
         statusAndEvents.add(alarmFrame.getMeterEvents());
         return statusAndEvents;
-    }
-
-    public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
-        return BubbleUpFrameParser.parse(data, this);
     }
 
     @Override

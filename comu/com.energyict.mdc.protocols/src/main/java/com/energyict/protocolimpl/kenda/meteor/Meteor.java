@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -23,7 +22,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -275,7 +273,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     public void disconnect() throws IOException {
     }
 
-    public Object fetchCache(int arg0) throws SQLException, BusinessException {
+    public Object fetchCache(int arg0) {
         return null;
     }
 
@@ -385,8 +383,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     public void setRegister(String arg0, String arg1) throws IOException {
     }
 
-    public void updateCache(int arg0, Object arg1) throws SQLException,
-            BusinessException {
+    public void updateCache(int arg0, Object arg1) {
     }
 
     public List<String> getOptionalKeys() {

@@ -7,7 +7,6 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -44,7 +43,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -638,12 +636,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         return null;
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#fetchCache(int)
-      */
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
@@ -655,13 +648,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
     public void setCache(Object cacheObject) {
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#updateCache(int,
-      *      java.lang.Object)
-      */
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     /*

@@ -2,14 +2,12 @@ package com.energyict.protocolimpl.coronis.waveflow.waveflowV2;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.BubbleUpObject;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
-import com.energyict.protocolimpl.coronis.waveflow.core.BubbleUpFrameParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
@@ -61,10 +59,6 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
     @Override
     protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException {
         return profileDataReader.getProfileData(lastReading, toDate, includeEvents);
-    }
-
-    public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
-        return BubbleUpFrameParser.parse(data, this);
     }
 
     @Override

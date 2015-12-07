@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -135,7 +134,7 @@ public class AllDeviceProtocolsTest {
     }
 
     @After
-    public void cleanUpDatabase() throws BusinessException, SQLException {
+    public void cleanUpDatabase() throws SQLException {
         this.bootstrapModule.deactivate();
     }
 

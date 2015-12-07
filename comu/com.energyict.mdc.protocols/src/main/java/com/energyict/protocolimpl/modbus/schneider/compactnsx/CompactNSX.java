@@ -125,7 +125,7 @@ public class CompactNSX extends Modbus {
     	result[4] = (byte) ((destination>>8)&0xFF);
     	result[5] = (byte) (destination&0xFF);
     	result[6] = 0; result[7] = 0;
-    	if(passWord.equalsIgnoreCase("")){
+    	if(passWord.isEmpty()){
     		passWord = "0";
     	}
     	int pass = Integer.parseInt(passWord);

@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -588,12 +587,11 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         return null;
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException,
-            BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     /*

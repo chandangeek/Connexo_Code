@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
@@ -208,7 +207,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
 
             /* Use the RTUCache to get the blob from the database */
@@ -224,7 +223,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             /* Use the RTUCache to set the blob (cache) to the database */
             RTUCache rtu = new RTUCache(rtuid, ormClient);

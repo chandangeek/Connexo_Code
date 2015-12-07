@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -766,7 +765,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
             connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection
-            if (properties.getProperty("ChannelMap", "").equalsIgnoreCase("")) {
+            if (properties.getProperty("ChannelMap", "").isEmpty()) {
                 channelMap = null;
             } else {
                 channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
@@ -962,7 +961,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
             RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
@@ -972,11 +971,11 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isDirty()) {
@@ -987,7 +986,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

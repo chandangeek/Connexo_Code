@@ -69,9 +69,9 @@ public class EPM2200 extends Modbus {
         try {
             setProperties(discoverTools.getProperties());
             if (getInfoTypeHalfDuplex() != 0) {
-                setHalfDuplexController(discoverTools.getDialer().getHalfDuplexController());
+                setHalfDuplexController(null);
             }
-            init(discoverTools.getDialer().getInputStream(), discoverTools.getDialer().getOutputStream(), TimeZone.getTimeZone("ECT"), Logger.getLogger(EPM2200.class.toString()));
+            init(null, null, TimeZone.getTimeZone("ECT"), Logger.getLogger(EPM2200.class.toString()));
             connect();
 
             String meterName = (String) getRegisterFactory().findRegister("MeterName").value();

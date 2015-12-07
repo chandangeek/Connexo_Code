@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -31,7 +30,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -245,7 +243,7 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     }
 
     @Override
-    public Object fetchCache(int rtuId) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuId) {
         return null;  //nothing to fetch
     }
 

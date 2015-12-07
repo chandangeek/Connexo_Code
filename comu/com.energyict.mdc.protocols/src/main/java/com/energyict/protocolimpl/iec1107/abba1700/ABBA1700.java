@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -525,14 +524,14 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     public void release() throws IOException {

@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.common;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -164,11 +163,11 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
         return null;  // TODO: Implement this method
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         return null;  // TODO: Implement this method
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
         // TODO: Implement this method
     }
 
@@ -184,11 +183,11 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     public String writeTag(MessageTag tag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(tag.getName());
+        builder.append("<");
+        builder.append(tag.getName());
 
         // b. Attributes
         for (Iterator it = tag.getAttributes().iterator(); it.hasNext(); ) {
@@ -196,31 +195,31 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
             if ((att.getValue() == null) || (att.getValue().length() == 0)) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator it = tag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
                 if ((value == null) || (value.length() == 0)) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("\n\n</");
-        buf.append(tag.getName());
-        buf.append(">");
+        builder.append("\n\n</");
+        builder.append(tag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
 
     }
 

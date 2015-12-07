@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -80,7 +79,7 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
             RTUCache rtuCache = new RTUCache(rtuid, this.getOrmClient());
             try {
@@ -91,7 +90,7 @@ public class AM540 extends E350 {
                 return new AM540Cache();
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
@@ -118,13 +117,13 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             AM540Cache dc = (AM540Cache) cacheObject;
             new RTUCache(rtuid, this.getOrmClient()).setBlob(dc);
 
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

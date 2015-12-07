@@ -13,7 +13,7 @@ public class MessageReadBillingValues extends MessageContent {
 
 	private Date from = null;
 	private Date to = null;
-	
+
 	public MessageReadBillingValues() {
 		super();
 	}
@@ -21,17 +21,17 @@ public class MessageReadBillingValues extends MessageContent {
 	public MessageReadBillingValues(Date from, Date to) {
 		super();
 		this.from = from;
-		this.to = to; 
+		this.to = to;
 	}
 
 	public MessageReadBillingValues(Element element) {
 		super(element);
 		String fromString = element.getAttribute(FROMATTRIBUTE);
-		if (!fromString.equals("")) {
+		if (!fromString.isEmpty()) {
 			from = new Date(Long.parseLong(fromString));
 		}
 		String toString = element.getAttribute(TOATTRIBUTE);
-		if (!toString.equals("")) {
+		if (!toString.isEmpty()) {
 			to = new Date(Long.parseLong(toString));
 		}
 	}

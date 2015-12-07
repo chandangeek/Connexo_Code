@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -45,6 +44,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -452,14 +452,14 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
     }
 
     public ProtocolChannelMap getProtocolChannelMap() {

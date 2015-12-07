@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.BubbleUp;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
@@ -42,7 +41,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 
-public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink, EventMapper, BubbleUp, IncomingAlarmFrameParser {
+public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink, EventMapper, IncomingAlarmFrameParser {
 
     private static final String PROP_SCALE_A = "ScaleA";
     private static final String PROP_SCALE_B = "ScaleB";

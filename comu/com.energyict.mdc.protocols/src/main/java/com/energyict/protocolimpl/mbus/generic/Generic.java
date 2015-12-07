@@ -69,7 +69,7 @@ public class Generic extends MBus {
     		discoverResults = new ArrayList<>();
 	        try {
 	            setProperties(discoverTools.getProperties());
-	            init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
+	            init(null, null, TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
 
 	            getMBusConnection().setRTUAddress(253);
 	            getMBusConnection().setTimeout(3000);
@@ -175,7 +175,7 @@ public class Generic extends MBus {
         discoverResult.setProtocolMBUS();
         try {
             setProperties(discoverTools.getProperties());
-            init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
+            init(null, null, TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
             connect();
 
             getMBusConnection().setTimeout(3000);

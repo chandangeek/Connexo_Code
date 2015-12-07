@@ -1,19 +1,25 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.protocolimpl.generic.MessageParser;
-import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -127,11 +133,7 @@ public class EMeterMessageExecutor extends MessageParser {
                 success = false;
             }
 
-        } catch (BusinessException e) {
-            log(Level.INFO, "Messagehas failed. " + e.getMessage());
-        } catch (ConnectionException e) {
-            log(Level.INFO, "Messagehas failed. " + e.getMessage());
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             log(Level.INFO, "Messagehas failed. " + e.getMessage());
         }
         if (success) {

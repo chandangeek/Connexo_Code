@@ -1,22 +1,20 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -101,12 +99,12 @@ public abstract class AbstractSlaveMeter implements SmartMeterProtocol {
     }
 
     @Override
-    public Object fetchCache(int rtuId) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuId) {
         return null;  // nothing to do
     }
 
     @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuId, Object cacheObject) {
         // nothing to do
     }
 

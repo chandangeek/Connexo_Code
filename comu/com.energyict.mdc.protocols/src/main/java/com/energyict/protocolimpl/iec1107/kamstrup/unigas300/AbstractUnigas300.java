@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -236,37 +235,14 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
         return null;
     }
 
-    /**
-     * Not supported in the Unigas300 protocol
-     *
-     * @param rtuid
-     * @return
-     * @throws java.sql.SQLException
-     * @throws BusinessException
-     *
-     */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
-    /**
-     * Not supported in the Unigas300 protocol
-     *
-     * @param cacheObject
-     */
     public void setCache(Object cacheObject) {
     }
 
-    /**
-     * Not supported in the Unigas300 protocol
-     *
-     * @param rtuid
-     * @param cacheObject
-     * @throws java.sql.SQLException
-     * @throws BusinessException
-     *
-     */
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     /**

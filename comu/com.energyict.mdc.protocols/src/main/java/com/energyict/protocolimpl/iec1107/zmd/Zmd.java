@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.iec1107.zmd;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -40,7 +39,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -368,15 +366,14 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject)
-            throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 
 import org.xml.sax.Attributes;
@@ -113,15 +112,15 @@ public class CosemMethodMessageBuilder extends AbstractMessageBuilder {
     /**
      * {@inheritDoc}
      */
-    protected String getMessageContent() throws BusinessException {
+    protected String getMessageContent() {
         if (classId == 0) {
-            throw new BusinessException("<html>ClassId needed</html>");
+            throw new IllegalArgumentException("<html>ClassId needed</html>");
         }
         if (logicalName == null) {
-            throw new BusinessException("<html>LogicalName needed</html>");
+            throw new IllegalArgumentException("<html>LogicalName needed</html>");
         }
         if (methodId == 0) {
-            throw new BusinessException("<html>MessageId needed</html>");
+            throw new IllegalArgumentException("<html>MessageId needed</html>");
         }
         StringBuilder contentBuilder = new StringBuilder("<");
         contentBuilder.append(MESSAGETAG);
@@ -144,12 +143,10 @@ public class CosemMethodMessageBuilder extends AbstractMessageBuilder {
     }
 
     public String getDescription() {
-        StringBuilder descriptionBuilder = new StringBuilder(MESSAGETAG);
-        descriptionBuilder.append(" ");
-        descriptionBuilder.append("ClassId='").append(classId).append("', ");
-        descriptionBuilder.append("LogicalName='").append(logicalName).append("', ");
-        descriptionBuilder.append("MethodId='").append(methodId).append("', ");
-        return descriptionBuilder.toString();
+        return MESSAGETAG + " " +
+                "ClassId='" + classId + "', " +
+                "LogicalName='" + logicalName + "', " +
+                "MethodId='" + methodId + "', ";
     }
 
     // Parsing the message use SAX

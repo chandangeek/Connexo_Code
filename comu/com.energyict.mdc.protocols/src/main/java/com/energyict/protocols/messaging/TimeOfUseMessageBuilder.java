@@ -1,6 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.Code;
@@ -9,6 +8,8 @@ import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -197,9 +198,9 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     /**
      * {@inheritDoc}
      */
-    protected String getMessageContent() throws BusinessException {
+    protected String getMessageContent() throws ParserConfigurationException, IOException {
         if ((codeId == 0) && (userFileId == 0)) {
-            throw new BusinessException("codeOrUserFileNeeded", "Code or user file needed");
+            throw new IllegalArgumentException("Code or user file needed");
         }
         StringBuilder builder = new StringBuilder();
         builder.append("<");

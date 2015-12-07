@@ -7,7 +7,6 @@
 package com.energyict.protocolimpl.iec1107;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -297,14 +296,13 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     }
 
     // Cach mechanism of the MeterProtocol interface
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException,
-            BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 

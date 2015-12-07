@@ -1,6 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
@@ -153,15 +152,15 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
      * @return the xml String containing the content for the message.
      */
     @Override
-    protected String getMessageContent() throws BusinessException {
+    protected String getMessageContent() {
         if (this.loadProfileId == 0 || this.profileObisCode == null) {
-            throw new BusinessException("needLoadProfile", "LoadProfile needed.");
+            throw new IllegalArgumentException("LoadProfile needed.");
         } else if (this.startReadingTime == null) {
-            throw new BusinessException("emptyStartTime", "StartTime can not be empty.");
+            throw new IllegalArgumentException("StartTime can not be empty.");
         } else if (this.endReadingTime == null) {
-            throw new BusinessException("emptyEndTime", " EndTime can not be empty.");
+            throw new IllegalArgumentException("EndTime can not be empty.");
         } else if ("".equalsIgnoreCase(this.meterSerialNumber)) {
-            throw new BusinessException("noDeviceSerialNumber", "Device Serial Number must be filled in.");
+            throw new IllegalArgumentException("Device Serial Number must be filled in.");
         }
 
         StringBuilder builder = new StringBuilder();

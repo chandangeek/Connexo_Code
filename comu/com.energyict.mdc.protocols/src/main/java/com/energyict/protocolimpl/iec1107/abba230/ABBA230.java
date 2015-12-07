@@ -18,7 +18,6 @@ entries occur twice or more they need an SL flag.
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -753,8 +752,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* method not supported
       * @see com.energyict.protocol.MeterProtocol#fetchCache(int)
       */
-    public Object fetchCache(int rtuid)
-            throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
@@ -768,8 +766,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* method not supported
       * @see com.energyict.protocol.MeterProtocol#updateCache(int, java.lang.Object)
       */
-    public void updateCache(int rtuid, Object cacheObject)
-            throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     /* method not supported

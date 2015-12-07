@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.actarissevc;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -16,7 +15,6 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.dialer.core.StreamConnection;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
@@ -537,14 +535,14 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid){
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     public void release() throws IOException {
@@ -568,12 +566,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         return getSEVCIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
-    public void enableHHUSignOn(StreamConnection streamConnection) throws ConnectionException {
-    }
-
-    public void enableHHUSignOn(StreamConnection streamConnection, boolean enableDataReadout) throws ConnectionException {
-    }
-
     public int getForcedDelay() {
         return forcedDelay;
     }
@@ -582,5 +574,4 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         this.forcedDelay = forcedDelay;
     }
 
-
-} //public class SEVCDProtocol extends MeterProtocol
+}

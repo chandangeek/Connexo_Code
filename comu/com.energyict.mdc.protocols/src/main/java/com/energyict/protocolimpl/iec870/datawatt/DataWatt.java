@@ -7,7 +7,6 @@
 package com.energyict.protocolimpl.iec870.datawatt;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -270,14 +269,14 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     public void release() throws IOException {

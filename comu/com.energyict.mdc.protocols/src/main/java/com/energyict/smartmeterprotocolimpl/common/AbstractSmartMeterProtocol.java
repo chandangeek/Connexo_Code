@@ -1,7 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.common;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -74,11 +73,11 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

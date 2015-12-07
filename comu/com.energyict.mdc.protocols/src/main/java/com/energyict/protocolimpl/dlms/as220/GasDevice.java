@@ -3,7 +3,7 @@
  */
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -82,7 +82,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
     }
 
 	@Override
-	protected void doConnect() throws BusinessException {
+	protected void doConnect() {
 		// search for the channel of the Mbus Device
 		String tempSerial;
 		for (int i = 0; i < MAX_MBUS_CHANNELS; i++) {
@@ -97,8 +97,8 @@ public class GasDevice extends AS220 implements MessageProtocol{
 			}
 		}
 
-		if(getGasSlotId() == -1){
-			throw new BusinessException("No MBus device found with serialNumber " + gmeterSerialnumber + " on the E-meter.");
+		if (getGasSlotId() == -1) {
+			throw new NotFoundException("No MBus device found with serialNumber " + gmeterSerialnumber + " on the E-meter.");
 		}
 	}
 

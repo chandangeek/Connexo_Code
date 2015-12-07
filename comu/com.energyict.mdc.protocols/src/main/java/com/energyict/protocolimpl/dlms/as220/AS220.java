@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -357,8 +356,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doConnect() throws BusinessException {
-
+	protected void doConnect() {
 	}
 
     public FirmwareVersions getActiveFirmwareVersion() throws IOException {

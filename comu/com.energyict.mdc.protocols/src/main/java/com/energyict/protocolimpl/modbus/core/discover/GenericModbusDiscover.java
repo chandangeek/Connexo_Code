@@ -239,9 +239,9 @@ public class GenericModbusDiscover extends Modbus {
         try {
             setProperties(discoverTools.getProperties());
             if (getInfoTypeHalfDuplex() != 0) {
-                setHalfDuplexController(discoverTools.getDialer().getHalfDuplexController());
+                setHalfDuplexController(null);
             }
-            init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
+            init(null, null, TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
             connect();
 
             discoverResult = discoverSlaveId(discoverTools);

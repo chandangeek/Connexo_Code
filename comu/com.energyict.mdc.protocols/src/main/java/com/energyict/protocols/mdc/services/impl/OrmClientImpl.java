@@ -1,14 +1,13 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NotFoundException;
-
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.NotFoundException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 
@@ -149,7 +148,7 @@ public class OrmClientImpl implements OrmClient {
     }
 
     @Override
-    public int getConfProgChange(final int deviceId) throws SQLException, BusinessException {
+    public int getConfProgChange(final int deviceId) throws SQLException {
         int result;
         SqlBuilder sqlBuilder = new SqlBuilder("SELECT confprogchange FROM eisdlms WHERE rtuid =");
         sqlBuilder.addInt(deviceId);
@@ -161,7 +160,7 @@ public class OrmClientImpl implements OrmClient {
                 result = resultSet.getInt(1);
                 if (resultSet.next()) {
                     // There is another matching row found
-                    throw new BusinessException("", "ERROR: NR of records found > 1!");
+                    throw new NotFoundException("ERROR: NR of records found > 1!");
                 }
                 return result;
             }

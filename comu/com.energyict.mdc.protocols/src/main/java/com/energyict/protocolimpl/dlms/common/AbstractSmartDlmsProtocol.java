@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
@@ -234,11 +233,9 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      * @param rtuid - the RTU database id
      * @return a DLMS cache object
      * @throws java.sql.SQLException if a database access error occurs
-     * @throws BusinessException
-     *                               if multiple records were found
      */
     @Override
-    public Object fetchCache(final int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(final int rtuid) throws SQLException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, this.ormClient);
             RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
@@ -248,7 +245,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
@@ -258,18 +255,16 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      * @param rtuid       - the RTU database id
      * @param cacheObject - the DLMSCache
      * @throws java.sql.SQLException if a database access error occurs
-     * @throws BusinessException
-     *                               if multiple records were found
      */
     @Override
-    public void updateCache(final int rtuid, final Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isDirty()) {
                 new RtuDLMS(rtuid, ormClient).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

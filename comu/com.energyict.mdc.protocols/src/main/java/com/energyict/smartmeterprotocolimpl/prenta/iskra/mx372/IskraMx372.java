@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -447,7 +446,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     //    M e s s a g e P r o t o c o l  i n t e r f a c e
     //     * @throws IOException
     //     * @throws SQLException
-    //     * @throws BusinessException
     //*******************************************************************************************/
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
         return getMessageProtocol().getLoadProfileRegisterMessageBuilder();
@@ -508,7 +506,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return getMessageProtocol().getPartialLoadProfileMessageBuilder();
     }
 
-    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
+    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws IOException {
         return getMessageProtocol().executeWakeUp(communicationSchedulerId, link, logger);
     }
 

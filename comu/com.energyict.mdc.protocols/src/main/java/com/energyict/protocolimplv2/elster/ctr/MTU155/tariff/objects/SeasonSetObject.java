@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.codetables.Season;
 import com.energyict.mdc.protocol.api.codetables.SeasonSet;
 
@@ -28,7 +27,7 @@ public class SeasonSetObject implements Serializable {
         ss.setId(seasonSet.getId());
         ss.setName(seasonSet.getName());
         List<Season> eiserverSeasons = seasonSet.getSeasons();
-        ss.setSeasons(new ArrayList<SeasonObject>());
+        ss.setSeasons(new ArrayList<>());
         for (Season eis : eiserverSeasons) {
             ss.getSeasons().add(SeasonObject.fromSeason(eis));
         }
@@ -59,24 +58,22 @@ public class SeasonSetObject implements Serializable {
         this.seasons = seasons;
     }
 
-    public SeasonObject getSeason(int period) throws BusinessException {
+    public SeasonObject getSeason(int period) throws IllegalStateException {
         for (SeasonObject season : seasons) {
             if (season.isPeriod(period)) {
                 return season;
             }
         }
-        throw new BusinessException("No season found for period [" + period + "]");
+        throw new IllegalStateException("No season found for period [" + period + "]");
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("SeasonSetObject");
-        sb.append("{id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", seasons=").append(seasons);
-        sb.append('}');
-        return sb.toString();
+        return "SeasonSetObject" +
+                "{id=" + id +
+                ", name='" + name + '\'' +
+                ", seasons=" + seasons +
+                '}';
     }
 
 }

@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -250,7 +249,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return getMessageProtocol().writeValue(value);
     }
 
-    public boolean executeWakeUp(final int communicationSchedulerId, Link link, final Logger logger) throws BusinessException, IOException {
+    public boolean executeWakeUp(final int communicationSchedulerId, Link link, final Logger logger) throws IOException {
         init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
         if (getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5) {
             int backupClientId = getProperties().getClientMacAddress();

@@ -50,7 +50,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -212,18 +212,15 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         }
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-
-        result.add("C12User");
-        result.add("C12UserId");
-        result.add("PasswordBinary");
-        result.add("RetrieveExtraIntervals");
-        result.add(CALLED_AP_TITLE);
-        result.add(SECURITY_KEY);
-        result.add(SECURITY_MODE);
-
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "C12User",
+                    "C12UserId",
+                    "PasswordBinary",
+                    "RetrieveExtraIntervals",
+                    CALLED_AP_TITLE,
+                    SECURITY_KEY,
+                    SECURITY_MODE);
     }
 
     protected C1222Buffer checkForC1222() throws IOException {

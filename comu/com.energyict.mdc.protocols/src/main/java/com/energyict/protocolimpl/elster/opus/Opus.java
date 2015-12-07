@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.elster.opus;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -19,7 +18,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -144,7 +142,7 @@ public class Opus extends AbstractProtocol {
 	public void disconnect() throws IOException {
 	}
 
-	public Object fetchCache(int arg0) throws SQLException, BusinessException {
+	public Object fetchCache(int arg0) {
 		return null;
 	}
 
@@ -251,8 +249,7 @@ public class Opus extends AbstractProtocol {
 
 	}
 
-	public void updateCache(int arg0, Object arg1) throws SQLException,
-			BusinessException {
+	public void updateCache(int arg0, Object arg1) {
 	}
 
 	public List<String> getOptionalKeys() {

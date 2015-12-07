@@ -10,7 +10,6 @@
 
 package com.energyict.protocolimpl.sdksample;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -52,6 +51,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -427,7 +427,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     /**
      * {@inheritDoc}
      */
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             /* Use the RTUCache to set the blob (cache) to the database */
             RTUCache rtu = new RTUCache(rtuid, ormClient);
@@ -445,7 +445,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     /**
      * {@inheritDoc}
      */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         if (rtuid != 0) {
 
             /* Use the RTUCache to get the blob from the database */

@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -196,14 +195,14 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         }
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (this.profileInterval == -1) {
             this.profileInterval = (int) (getCosemObjectFactory().getData(EK2xxRegisters.PROFILE_INTERVAL).getValue() & 0xEFFFFFFF);
         }
         return this.profileInterval;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (this.numberOfChannels == -1) {
             this.numberOfChannels = getCapturedObjects().getNROfChannels();
         }
@@ -245,7 +244,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
 
     }
 
-    private void validateSerialNumber() throws IOException {
+    private void validateSerialNumber() {
     }
 
     private String getSerialNumber() throws IOException {
@@ -307,7 +306,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return strBuff.toString();
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, this.ormClient);
             RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
@@ -317,19 +316,19 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getCosemObjectFactory().getData(EK2xxRegisters.SOFTWARE_VERSION).getString();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException("getMeterReading(int channelId) is not suported!!!");
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException("getMeterReading(String name) is not suported!!!");
     }
 
@@ -344,7 +343,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return getProfileData(lastReading, calendar.getTime(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Date now = new Date();
         if (to.compareTo(now) >= 0) {
             to = now;
@@ -410,7 +409,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return profileData;
     }
 
-    private CapturedObjects getCapturedObjects() throws UnsupportedException, IOException {
+    private CapturedObjects getCapturedObjects() throws IOException {
         return getEk2xxProfile().getCapturedObjects();
     } // private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException
 
@@ -418,7 +417,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -451,14 +450,14 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
 
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException("initializeDevice() is not suported!!!");
     }
 
     public void release() throws IOException {
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException("setRegister() not suported!");
     }
 
@@ -479,15 +478,15 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         byteTimeBuffer[0] = 1;
         byteTimeBuffer[1] = AxdrType.OCTET_STRING.getTag();
         byteTimeBuffer[2] = 12; // length
-        byteTimeBuffer[3] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[4] = (byte) calendar.get(calendar.YEAR);
-        byteTimeBuffer[5] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteTimeBuffer[6] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) calendar.get(calendar.DAY_OF_WEEK);
+        byteTimeBuffer[3] = (byte) (calendar.get(Calendar.YEAR) >> 8);
+        byteTimeBuffer[4] = (byte) calendar.get(Calendar.YEAR);
+        byteTimeBuffer[5] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        byteTimeBuffer[6] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        byte bDOW = (byte) calendar.get(Calendar.DAY_OF_WEEK);
         byteTimeBuffer[7] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteTimeBuffer[8] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[9] = (byte) calendar.get(calendar.MINUTE);
-        byteTimeBuffer[10] = (byte) calendar.get(calendar.SECOND);
+        byteTimeBuffer[8] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        byteTimeBuffer[9] = (byte) calendar.get(Calendar.MINUTE);
+        byteTimeBuffer[10] = (byte) calendar.get(Calendar.SECOND);
         byteTimeBuffer[11] = (byte) 0xFF;
         byteTimeBuffer[12] = (byte) 0x80;
         byteTimeBuffer[13] = 0x00;
@@ -686,14 +685,13 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         String regType = getEk2xxRegisters().getObjectType(obisCode);
         String regName = getEk2xxRegisters().getObjectName(obisCode);
-        RegisterInfo regInfo = new RegisterInfo(regName + " - Type: " + regType);
-        return regInfo;
+        return new RegisterInfo(regName + " - Type: " + regType);
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject){
     }
 
     public Object getCache() {

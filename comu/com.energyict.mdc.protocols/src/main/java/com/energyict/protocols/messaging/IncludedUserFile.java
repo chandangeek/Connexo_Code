@@ -1,7 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.BusinessObject;
-import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileShadow;
 
@@ -117,12 +115,6 @@ final class IncludedUserFile implements UserFile {
     /**
      * {@inheritDoc}
      */
-    public final void rename(final String name) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public final int getId() {
         return 0;
     }
@@ -133,44 +125,10 @@ final class IncludedUserFile implements UserFile {
     public final void delete() {
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public final BusinessObjectFactory getFactory() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final String displayString() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final BusinessObject getBusinessObject() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public final String getType() {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public final boolean proxies(final BusinessObject obj) {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean isExecutable() {
         return false;
     }

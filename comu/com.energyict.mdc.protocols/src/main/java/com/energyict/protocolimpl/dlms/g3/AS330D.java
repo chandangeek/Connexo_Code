@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
@@ -245,7 +244,7 @@ public class AS330D extends AbstractDlmsSessionProtocol {
     }
 
     @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
             RTUCache rtuCache = new RTUCache(rtuid, ormClient);
             try {
@@ -256,12 +255,12 @@ public class AS330D extends AbstractDlmsSessionProtocol {
                 return new G3Cache();
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
     @Override
-    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             try {
                 this.ormClient.execute(new VoidTransaction() {
@@ -281,7 +280,7 @@ public class AS330D extends AbstractDlmsSessionProtocol {
                 throw e.getCause();
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

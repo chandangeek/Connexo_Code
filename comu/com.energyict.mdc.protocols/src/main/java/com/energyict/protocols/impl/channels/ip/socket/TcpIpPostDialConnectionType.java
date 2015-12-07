@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SocketService;
@@ -44,17 +43,12 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     @Override
     public ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
         this.copyProperties(properties);
-        try {
-            ComChannel comChannel = this.newTcpIpConnection(this.getSocketService(), this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
-            sendPostDialCommand(comChannel);
-            return comChannel;
-        }
-        catch (InvalidValueException e) {
-            throw new ConnectionException(e);
-        }
+        ComChannel comChannel = this.newTcpIpConnection(this.getSocketService(), this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+        sendPostDialCommand(comChannel);
+        return comChannel;
     }
 
-    protected void sendPostDialCommand(ComChannel comChannel) throws InvalidValueException {
+    protected void sendPostDialCommand(ComChannel comChannel) {
         if (getPostDialCommandPropertyValue() != null) {
             for (int i = 0; i < getPostDialTriesPropertyValue(); i++) {
                 delayBeforeSend(getPostDialDelayPropertyValue());
@@ -73,7 +67,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    protected int getPostDialDelayPropertyValue() throws InvalidValueException {
+    protected int getPostDialDelayPropertyValue() {
         BigDecimal postDialDelay = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.propertySpecName());
         int delay;
         if (postDialDelay == null) {
@@ -86,7 +80,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         return delay;
     }
 
-    protected int getPostDialTriesPropertyValue() throws InvalidValueException {
+    protected int getPostDialTriesPropertyValue() {
         BigDecimal postDialTries = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName());
         int tries;
         if (postDialTries == null) {

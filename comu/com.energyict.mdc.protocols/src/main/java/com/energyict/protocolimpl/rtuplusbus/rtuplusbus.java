@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.rtuplusbus;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -656,14 +655,14 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) {
     }
 
     public void release() throws IOException {

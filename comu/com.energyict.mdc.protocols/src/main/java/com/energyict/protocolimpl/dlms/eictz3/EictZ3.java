@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.dlms.eictz3;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -110,7 +109,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1155,7 +1153,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @throws IOException If an IO error occurs during the device communication.
      */
     private final boolean verifyMeterSerialNumber() throws IOException {
-        if ((this.serialNumber == null) || this.serialNumber.trim().equals("")) {
+        if ((this.serialNumber == null) || this.serialNumber.trim().isEmpty()) {
             logger.info("There was no serial number configured in EIServer, assuming the configuration is valid...");
 
             return true;
@@ -1191,7 +1189,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The node address as it is filled in in EIServer.
      */
     private final int getNodeAddress() {
-        if ((this.nodeAddress == null) || this.nodeAddress.trim().equals("")) {
+        if ((this.nodeAddress == null) || this.nodeAddress.trim().isEmpty()) {
             return -1;
         } else {
             try {
@@ -1596,7 +1594,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * As such this method is marked overridable (which translates to non-final in Java).
      * <p/>
      */
-    public Object fetchCache(final int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(final int rtuid) {
         throw new UnsupportedOperationException("Fetching caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
 
     }
@@ -1607,7 +1605,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * As such this method is marked overridable (which translates to non-final in Java).
      * <p/>
      */
-    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(final int rtuid, final Object cacheObject) {
         throw new UnsupportedOperationException("Updating caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
     }
 
@@ -1852,30 +1850,17 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         // Not implemented for this protocol.
     }
 
-    /**
-     * @param message
-     * @param handler
-     * @throws BusinessException
-     */
-    private final void importMessage(final String message, final DefaultHandler handler) throws BusinessException {
+    private void importMessage(final String message, final DefaultHandler handler) {
         try {
-
             final byte[] bai = message.getBytes();
             final InputStream i = new ByteArrayInputStream(bai);
 
             final SAXParserFactory factory = SAXParserFactory.newInstance();
             final SAXParser saxParser = factory.newSAXParser();
             saxParser.parse(i, handler);
-
-        } catch (final ParserConfigurationException thrown) {
+        } catch (final ParserConfigurationException | SAXException | IOException thrown) {
             thrown.printStackTrace();
-            throw new BusinessException(thrown);
-        } catch (final SAXException thrown) {
-            thrown.printStackTrace();
-            throw new BusinessException(thrown);
-        } catch (final IOException thrown) {
-            thrown.printStackTrace();
-            throw new BusinessException(thrown);
+            throw new IllegalArgumentException(thrown);
         }
     }
 
@@ -2022,7 +2007,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
                     getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Connect");
 
-                    if (!messageHandler.getConnectDate().equals("")) { // use the
+                    if (!messageHandler.getConnectDate().isEmpty()) { // use the
                         // disconnectControlScheduler
 
                         final Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
@@ -2051,7 +2036,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
                     getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Disconnect");
 
-                    if (!messageHandler.getDisconnectDate().equals("")) { // use the
+                    if (!messageHandler.getDisconnectDate().isEmpty()) { // use the
                         // disconnectControlScheduler
 
                         final Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
@@ -2144,8 +2129,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                 logger.log(Level.SEVERE, "Caught an IO error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
 
                 return MessageResult.createFailed(messageEntry);
-            } catch (final BusinessException e) {
-                logger.log(Level.SEVERE, "Caught an business error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
+            } catch (final IllegalArgumentException e) {
+                logger.log(Level.SEVERE, "Parse failure while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
 
                 return MessageResult.createFailed(messageEntry);
             }

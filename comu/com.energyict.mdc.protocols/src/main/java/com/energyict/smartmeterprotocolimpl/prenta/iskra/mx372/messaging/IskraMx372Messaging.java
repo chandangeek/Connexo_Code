@@ -1,7 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -31,6 +30,8 @@ import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.AxdrType;
@@ -51,8 +52,6 @@ import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMX372Properties;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice;
@@ -402,7 +401,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         }
     }
 
-    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
+    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws IOException {
         return true;
     }
 
@@ -493,7 +492,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         try {
             infoLog(description);
             String apn = getMessageValue(messageEntry.getContent(), RtuMessageConstant.GPRS_APN);
-            if (apn.equalsIgnoreCase("")) {
+            if (apn.isEmpty()) {
                 throw new ApplicationException("The APN value is required for message GPRS_modem_setup.");
             }
             String userName = getMessageValue(messageEntry.getContent(), RtuMessageConstant.GPRS_USERNAME);
@@ -620,11 +619,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         }
     }
 
-    private void applyLoadLimit(MessageEntry messageEntry) throws BusinessException, SQLException, IOException {
+    private void applyLoadLimit(MessageEntry messageEntry) throws IOException {
         infoLog("Setting threshold value for meter with serialnumber: " + messageEntry.getSerialNumber());
         String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_GROUPID);
-        if (groupID.equalsIgnoreCase("")) {
-            throw new BusinessException("No groupID was entered.");
+        if (groupID.isEmpty()) {
+            throw new IllegalArgumentException("No groupID was entered.");
         }
         int grID = 0;
 
@@ -633,7 +632,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             crGroupIDMsg[1] = (byte) (grID >> 8);
             crGroupIDMsg[2] = (byte) grID;
         } catch (NumberFormatException e) {
-            throw new BusinessException("Invalid groupID");
+            throw new IllegalArgumentException("Invalid groupID");
         }
 
         String startDate = "";
@@ -643,8 +642,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 
         startDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STARTDT);
         stopDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STOPDT);
-        startCal = (startDate.equalsIgnoreCase("")) ? Calendar.getInstance(protocol.getTimeZone()) : getCalendarFromString(startDate);
-        if (stopDate.equalsIgnoreCase("")) {
+        startCal = (startDate.isEmpty()) ? Calendar.getInstance(protocol.getTimeZone()) : getCalendarFromString(startDate);
+        if (stopDate.isEmpty()) {
             stopCal = Calendar.getInstance();
             stopCal.setTime(startCal.getTime());
             stopCal.add(Calendar.YEAR, 1);
@@ -686,15 +685,15 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 
         byteStartDateBuffer[0] = AxdrType.OCTET_STRING.getTag();
         byteStartDateBuffer[1] = 12; // length
-        byteStartDateBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteStartDateBuffer[3] = (byte) calendar.get(calendar.YEAR);
-        byteStartDateBuffer[4] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteStartDateBuffer[5] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) calendar.get(calendar.DAY_OF_WEEK);
+        byteStartDateBuffer[2] = (byte) (calendar.get(Calendar.YEAR) >> 8);
+        byteStartDateBuffer[3] = (byte) calendar.get(Calendar.YEAR);
+        byteStartDateBuffer[4] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        byteStartDateBuffer[5] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        byte bDOW = (byte) calendar.get(Calendar.DAY_OF_WEEK);
         byteStartDateBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteStartDateBuffer[7] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteStartDateBuffer[8] = (byte) calendar.get(calendar.MINUTE);
-        byteStartDateBuffer[9] = (byte) calendar.get(calendar.SECOND);
+        byteStartDateBuffer[7] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        byteStartDateBuffer[8] = (byte) calendar.get(Calendar.MINUTE);
+        byteStartDateBuffer[9] = (byte) calendar.get(Calendar.SECOND);
         byteStartDateBuffer[10] = (byte) 0x0; // hundreds of seconds
 
         byteStartDateBuffer[11] = (byte) (0x80);
@@ -709,11 +708,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         return byteStartDateBuffer;
     }
 
-    private void clearLoadLimit(MessageEntry messageEntry) throws BusinessException, SQLException, IOException {
+    private void clearLoadLimit(MessageEntry messageEntry) throws IOException {
         infoLog("Clear threshold for meter with serialnumber: " + messageEntry.getSerialNumber());
         String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.CLEAR_THRESHOLD);
-        if (groupID.equalsIgnoreCase("")) {
-            throw new BusinessException("No groupID was entered.");
+        if (groupID.isEmpty()) {
+            throw new IllegalArgumentException("No groupID was entered.");
         }
         int grID = 0;
 
@@ -723,7 +722,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             crGroupIDMsg[2] = (byte) grID;
 
         } catch (NumberFormatException e) {
-            throw new BusinessException("Invalid groupID");
+            throw new IllegalArgumentException("Invalid groupID");
         }
         Calendar startCal;
         startCal = Calendar.getInstance(protocol.getTimeZone());
@@ -740,17 +739,17 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         protocol.getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
     }
 
-    private void configureLoadLimit(MessageEntry messageEntry) throws BusinessException, SQLException, IOException {
+    private void configureLoadLimit(MessageEntry messageEntry) throws IOException {
         infoLog("Sending threshold configuration for meter with serialnumber: " + messageEntry.getSerialNumber());
         String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.PARAMETER_GROUPID);
-        if (groupID.equalsIgnoreCase("")) {
-            throw new BusinessException("No groupID was entered.");
+        if (groupID.isEmpty()) {
+            throw new IllegalArgumentException("No groupID was entered.");
         }
 
         String thresholdPL = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_POWERLIMIT);
         String contractPL = getMessageValue(messageEntry.getContent(), RtuMessageConstant.CONTRACT_POWERLIMIT);
-        if ((thresholdPL.equalsIgnoreCase("")) && (contractPL.equalsIgnoreCase(""))) {
-            throw new BusinessException("Neighter contractual nor threshold limit was given.");
+        if ((thresholdPL.isEmpty()) && (contractPL.isEmpty())) {
+            throw new IllegalArgumentException("Neighter contractual nor threshold limit was given.");
         }
 
         long conPL = 0;
@@ -761,14 +760,14 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             crMeterGroupIDMsg[1] = (byte) (grID >> 8);
             crMeterGroupIDMsg[2] = (byte) grID;
 
-            if (!contractPL.equalsIgnoreCase("")) {
+            if (!contractPL.isEmpty()) {
                 conPL = Integer.parseInt(contractPL);
                 contractPowerLimitMsg[1] = (byte) (conPL >> 24);
                 contractPowerLimitMsg[2] = (byte) (conPL >> 16);
                 contractPowerLimitMsg[3] = (byte) (conPL >> 8);
                 contractPowerLimitMsg[4] = (byte) conPL;
             }
-            if (!thresholdPL.equalsIgnoreCase("")) {
+            if (!thresholdPL.isEmpty()) {
                 limit = Integer.parseInt(thresholdPL);
                 crPowerLimitMsg[1] = (byte) (limit >> 24);
                 crPowerLimitMsg[2] = (byte) (limit >> 16);
@@ -776,13 +775,13 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
                 crPowerLimitMsg[4] = (byte) limit;
             }
         } catch (NumberFormatException e) {
-            throw new BusinessException("Invalid groupID");
+            throw new IllegalArgumentException("Invalid groupID");
         }
         protocol.getCosemObjectFactory().writeObject(crMeterGroupID, 1, 2, crMeterGroupIDMsg);
-        if (!contractPL.equalsIgnoreCase("")) {
+        if (!contractPL.isEmpty()) {
             protocol.getCosemObjectFactory().writeObject(contractPowerLimit, 3, 2, contractPowerLimitMsg);
         }
-        if (!thresholdPL.equalsIgnoreCase("")) {
+        if (!thresholdPL.isEmpty()) {
             protocol.getCosemObjectFactory().writeObject(crPowerLimit, 3, 2, crPowerLimitMsg);
         }
     }
@@ -916,7 +915,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         return mbusDevices;
     }
 
-    public void checkMbusDevices() throws IOException, SQLException, BusinessException {
+    public void checkMbusDevices() throws IOException, SQLException {
         // TODO don't do this anymore!
 //        String mSerial = "";
 //        Device rtu = getRtuFromDatabaseBySerialNumber();
@@ -925,7 +924,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 //                int mbusAddress = (int) protocol.getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
 //                if (mbusAddress > 0) {
 //                    mSerial = getMbusSerial(mbusCustomerID[i]);
-//                    if (!mSerial.equals("")) {
+//                    if (!mSerial.isEmpty()) {
 //                        Unit mUnit = getMbusUnit(mbusUnit[i]);
 //                        int mMedium = (int) protocol.getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
 //                        Device mbusRtu = findOrCreateNewMbusDevice(mSerial);
@@ -973,7 +972,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         }
     }
 
-    private BaseDevice findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
+    private BaseDevice findOrCreateNewMbusDevice(String customerID) {
         return null; // TODO Don't do this anymore!
 //        List mbusList = mw().getDeviceFactory().findBySerialNumber(customerID);
 //        ProtocolTools.closeConnection();
@@ -1001,7 +1000,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     }
 
     // we don't create any meters anymore!
-//    private Device createMeter(DeviceType type, String customerID) throws SQLException, BusinessException {
+//    private Device createMeter(DeviceType type, String customerID) throws SQLException {
 //        DeviceShadow shadow = type.getConfigurations().get(0).newDeviceShadow();
 //        Date lastReading = shadow.getLastReading();
 //
@@ -1026,7 +1025,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 //        return mw().getDeviceFactory().create(shadow);
 //    }
 
-    private void updateMbusDevices(List<BaseDevice> downstreamRtus) throws SQLException, BusinessException {
+    private void updateMbusDevices(List<BaseDevice> downstreamRtus) {
         Iterator<BaseDevice> it = downstreamRtus.iterator();
         boolean present;
         while (it.hasNext()) {
@@ -1047,13 +1046,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         }
     }
 
-    /**
-     * NOTE: Updating the gateway of an RTU with NULL is not compatible with EIServer 7.x!!
-     *
-     * @throws SQLException      if a database exception occurred
-     * @throws BusinessException if a business exception occurred
-     */
-    private void clearMbusGateWays() throws SQLException, BusinessException {
+    private void clearMbusGateWays() {
         // TODO don't do this anymore
 //        List slaves = getRtuFromDatabaseBySerialNumber().getDownstreamDevices();
 //        Iterator it = slaves.iterator();
@@ -1077,7 +1070,6 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
      * - 2 : GPRS
      *
      * @throws SQLException
-     * @throws BusinessException
      */
     private void activateWakeUp() throws IOException {
         try {
@@ -1105,7 +1097,6 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
      * These numbers are allowed to set up a telnet session
      *
      * @param messageEntry - the message containing the numbers
-     * @throws BusinessException if we failed to create an AMR journal entry
      * @throws SQLException      if we failed to create an AMR journal entry
      */
     private void addPhoneToManagedList(MessageEntry messageEntry) throws IOException {
@@ -1143,7 +1134,6 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
      * These numbers are allowed to make a CSD call to the meter
      *
      * @param messageEntry - the message containing the numbers
-     * @throws BusinessException if we failed to create an AMR journal entry
      * @throws SQLException      if we failed to create an AMR journal entry
      */
     protected void addPhoneToWhiteList(MessageEntry messageEntry) throws IOException {

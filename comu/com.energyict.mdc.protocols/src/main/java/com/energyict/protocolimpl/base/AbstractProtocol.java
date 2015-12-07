@@ -7,7 +7,6 @@
 package com.energyict.protocolimpl.base;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -489,15 +488,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     }
     // Cach mechanism of the MeterProtocol interface
 
-    /**
-     * Override this method to update the cache data in the database
-     *
-     * @param rtuid       database id of the meter
-     * @param cacheObject cache data to store
-     * @throws SQLException thrown when something goes wrong during updating
-     * @throws BusinessException thrown when something goes wrong in the caching businesslogic
-     */
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
     }
 
     /**
@@ -508,16 +499,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     public void setCache(Object cacheObject) {
     }
 
-    /**
-     * Override this method to fetch the cach data from the database
-     *
-     * @param rtuid meter database id
-     * @return cache data object
-     * @throws java.sql.SQLException thrown when something goes wrong during fetch
-     * @throws BusinessException
-     *                               thrown when something goes wrong in the caching businesslogic
-     */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         return null;
     }
 

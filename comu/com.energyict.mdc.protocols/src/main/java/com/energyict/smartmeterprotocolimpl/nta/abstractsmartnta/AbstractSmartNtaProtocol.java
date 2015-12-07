@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -431,7 +430,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return getMessageProtocol().writeValue(value);
     }
 
-    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
+    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws IOException {
         return true;
     }
 

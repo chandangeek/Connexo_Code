@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.common.BusinessException;
-
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.energyict.dlms.UniversalObject;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
+
+import com.energyict.dlms.UniversalObject;
 
 import java.sql.SQLException;
 
@@ -19,7 +18,7 @@ public class RtuDLMS {
         this.ormClient = ormClient;
     }
 
-    public int getConfProgChange() throws SQLException, BusinessException {
+    public int getConfProgChange() throws SQLException {
         return this.ormClient.getConfProgChange(this.deviceId);
     }
 
@@ -27,7 +26,7 @@ public class RtuDLMS {
         this.ormClient.setConfProgChange(this.deviceId, confprogchange);
     }
 
-    public void saveObjectList(final int confProgChange, final UniversalObject[] universalObject) throws BusinessException, SQLException {
+    public void saveObjectList(final int confProgChange, final UniversalObject[] universalObject) throws SQLException {
         try {
             this.ormClient.execute(new VoidTransaction() {
                 @Override

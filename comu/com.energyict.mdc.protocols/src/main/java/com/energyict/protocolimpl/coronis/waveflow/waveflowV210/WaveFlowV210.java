@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.coronis.waveflow.waveflowV210;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.BubbleUpObject;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -75,7 +74,4 @@ public class WaveFlowV210 extends WaveFlow implements MessageProtocol {
         return profileDataReader.getProfileData(lastReading, toDate, includeEvents);
     }
 
-    public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
-        throw new UnsupportedException("Waveflow V210 doesn't support the bubble up mechanism");
-    }
 }

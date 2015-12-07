@@ -5,9 +5,9 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.dialer.core.Link;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.SecureGprsConnection;
@@ -63,11 +63,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.VF;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.GasQuality;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.MeterInfo;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -102,7 +98,6 @@ public class GprsRequestFactory implements RequestFactory {
     private TimeZone timeZone;
     private int writeDataBlockID;
     private IdentificationResponseStructure identificationStructure = null;
-    private Link link;
 
     private static final int REF_DATE_DAYS_AHEAD = 0;
     public static final int LENGTH_CODE_PER_REQUEST_LONG_FRAMES = 1000;
@@ -1003,10 +998,6 @@ public class GprsRequestFactory implements RequestFactory {
             }
         }
         return identificationStructure;
-    }
-
-    private Link getLink() {
-        return link;
     }
 
     public String getIPAddress() {

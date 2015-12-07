@@ -1,8 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 
@@ -20,7 +18,9 @@ import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -205,11 +205,7 @@ public class MbusDeviceMessageExecutor extends MessageParser {
                 throw new IOException("Unknown message");
             }
 
-        } catch (BusinessException e) {
-            getLogger().log(Level.INFO, "Messagehas failed. " + e.getMessage());
-        } catch (ConnectionException e) {
-            getLogger().log(Level.INFO, "Messagehas failed. " + e.getMessage());
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             getLogger().log(Level.INFO, "Messagehas failed. " + e.getMessage());
         }
         if (success) {

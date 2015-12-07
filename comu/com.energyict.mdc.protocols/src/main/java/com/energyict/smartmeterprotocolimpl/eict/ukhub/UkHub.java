@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -134,7 +133,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        if(this.dlmsSession != null){
+        if (this.dlmsSession != null) {
             // We need to update the correct TimeZone!!
             this.dlmsSession.updateTimeZone(getTimeZone());
         }
@@ -173,7 +172,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
                 // TODO possible to add the ZigBee versions etc.
                 //            String rfFirmware = getRFFirmwareVersion();
-                //            if (!rfFirmware.equalsIgnoreCase("")) {
+                //            if (!rfFirmware.isEmpty()) {
                 //                firmware.append(" - RF-FirmwareVersion : ");
                 //                firmware.append(rfFirmware);
                 //            }
@@ -391,7 +390,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         return getDlmsSession().getCosemObjectFactory();
     }
 
-    public boolean executeWakeUp(final int communicationSchedulerId, Link link, final Logger logger) throws BusinessException, IOException {
+    public boolean executeWakeUp(final int communicationSchedulerId, Link link, final Logger logger) throws IOException {
         init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
         enableHHUSignOn(link.getSerialCommunicationChannel(), false);
         if (getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5) {

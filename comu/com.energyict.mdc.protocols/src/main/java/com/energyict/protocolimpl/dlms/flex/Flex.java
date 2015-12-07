@@ -15,7 +15,6 @@ SVA|16072012|Taken a local copy of all stuff reused from Iskra protocol - this i
 package com.energyict.protocolimpl.dlms.flex;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -1321,7 +1320,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, this.ormClient);
             RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
@@ -1331,11 +1330,11 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isDirty()) {
@@ -1345,7 +1344,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
