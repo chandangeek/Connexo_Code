@@ -75,7 +75,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                 renderer: function (v, metaData, record) {
                     return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
                 },
-//                hidden: Imt.dynamicprivileges.UsagePointState.canEditData(),
+                hidden: true, //Imt.dynamicprivileges.UsagePointState.canEditData(),
                 width: 200
             },
             {
