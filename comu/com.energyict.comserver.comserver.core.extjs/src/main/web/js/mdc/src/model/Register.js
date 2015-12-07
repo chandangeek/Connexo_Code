@@ -34,7 +34,7 @@ Ext.define('Mdc.model.Register', {
         {name: 'reportedDateTime', mapping: 'lastReading.reportedDateTime', useNull: true},
         {name: 'interval', mapping: 'lastReading.interval', useNull: true},
         {name: 'detailedValidationInfo', type: 'auto'},
-        {name: 'unitOfMeasure', useNull: true},
+        {name: 'multiplier', type: 'auto'},
         {
             name: 'validationInfo_validationActive',
             persist: false,

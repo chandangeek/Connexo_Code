@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         name: 'timeStamp',
                         renderer: function (value) {
                             if (!Ext.isEmpty(value)) {
-                                return Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]).toLowerCase();
+                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]);
                             }
                         }
                     },
@@ -53,9 +53,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                             if (!Ext.isEmpty(value)) {
                                 var startDate = new Date(value.start),
                                     endDate = new Date(value.end);
-                                return Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(startDate),Uni.DateTime.formatTimeLong(startDate)]).toLowerCase()
+                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(startDate),Uni.DateTime.formatTimeLong(startDate)])
                                     + ' - '
-                                    +Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(endDate),Uni.DateTime.formatTimeLong(endDate)]).toLowerCase()
+                                    + Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(endDate),Uni.DateTime.formatTimeLong(endDate)])
                             }
                         }
                     },

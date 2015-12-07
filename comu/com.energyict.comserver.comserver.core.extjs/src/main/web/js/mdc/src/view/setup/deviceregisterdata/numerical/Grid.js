@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 dataIndex: 'timeStamp',
                 renderer: function (value) {
                     return value
-                        ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateShort(new Date(value)),Uni.DateTime.formatTimeShort(new Date(value))]).toLowerCase()
+                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[ Uni.DateTime.formatDateShort(new Date(value)),Uni.DateTime.formatTimeShort(new Date(value))])
                         : '';
                 },
                 flex: 1

@@ -161,7 +161,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             type = record.get('type'),
             widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {router: me.getController('Uni.controller.history.Router')}),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
-            previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer');
+            previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer'),
+            multiplierField = widget.down('[name=multiplier]'),
+            calculatedReadingTypeField = widget.down('[name=calculatedReadingType]');
 
         me.registerId = record.get('id');
         me.registerName = record.get('name');
@@ -169,6 +171,20 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         Ext.suspendLayouts();
         form.loadRecord(record);
         widget.setTitle(record.get('readingType').fullAliasName);
+
+        if (multiplierField) {
+            if (record.get('multiplier')) {
+                multiplierField.show();
+            } else {
+                multiplierField.hide();
+            }
+        }
+        if (record.get('calculatedReadingType')) {
+            calculatedReadingTypeField.show();
+        } else {
+            calculatedReadingTypeField.hide();
+        }
+
         previewContainer.removeAll();
         previewContainer.add(widget);
         widget.on('render', function () {
@@ -195,33 +211,49 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
                 model.load(registerId, {
                     success: function (register) {
-                        var type = register.get('type');
-                        var widget = Ext.widget('tabbedDeviceRegisterView', {
-                            device: device,
-                            router: me.getController('Uni.controller.history.Router')
-                        });
-                        var func = function () {
-                            var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets');
-                            customAttributesStore.getProxy().setUrl(mRID, registerId);
-                            customAttributesStore.load(function () {
-                                widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
-                            });
-                            me.getApplication().fireEvent('changecontentevent', widget);
-                            widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
-                            var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {
-                                mRID: encodeURIComponent(mRID),
-                                registerId: registerId,
+                        var type = register.get('type'),
+                            widget = Ext.widget('tabbedDeviceRegisterView', {
+                                device: device,
                                 router: me.getController('Uni.controller.history.Router')
-                            });
-                            var form = config.down('#deviceRegisterConfigurationDetailForm');
-                            me.getApplication().fireEvent('loadRegisterConfiguration', register);
-                            form.loadRecord(register);
-                            if (!register.data.detailedValidationInfo.validationActive) {
-                                config.down('#validateNowRegister').hide();
-                            }
-                            config.down('#deviceRegisterConfigurationActionMenu').record = register;
-                            widget.down('#register-specifications').add(config);
-                        };
+                            }),
+                            func = function () {
+                                var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets'),
+                                    config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {
+                                        mRID: encodeURIComponent(mRID),
+                                        registerId: registerId,
+                                        router: me.getController('Uni.controller.history.Router')
+                                    }),
+                                    form = config.down('#deviceRegisterConfigurationDetailForm'),
+                                    multiplierField = form.down('[name=multiplier]'),
+                                    calculatedReadingTypeField = form.down('[name=calculatedReadingType]');
+
+                                customAttributesStore.getProxy().setUrl(mRID, registerId);
+                                customAttributesStore.load(function () {
+                                    widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+                                });
+                                me.getApplication().fireEvent('changecontentevent', widget);
+                                widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
+                                me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                                form.loadRecord(register);
+                                if (multiplierField) {
+                                    if (register.get('multiplier')) {
+                                        multiplierField.show();
+                                    } else {
+                                        multiplierField.hide();
+                                    }
+                                }
+                                if (register.get('calculatedReadingType')) {
+                                    calculatedReadingTypeField.show();
+                                } else {
+                                    calculatedReadingTypeField.hide();
+                                }
+                                if (!register.get('detailedValidationInfo').validationActive) {
+                                    config.down('#validateNowRegister').hide();
+                                }
+                                config.down('#deviceRegisterConfigurationActionMenu').record = register;
+                                widget.down('#register-specifications').add(config);
+                            };
+
                         if (registersOfDeviceStore.getTotalCount() === 0) {
                             registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', encodeURIComponent(mRID));
                             registersOfDeviceStore.load(function () {

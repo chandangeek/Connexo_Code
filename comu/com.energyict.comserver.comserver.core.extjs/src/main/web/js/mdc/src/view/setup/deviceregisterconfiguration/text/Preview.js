@@ -34,7 +34,14 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Preview', {
                         items: [
                             {
                                 xtype: 'reading-type-displayfield',
+                                fieldLabel: Uni.I18n.translate('general.collectedReadingType', 'MDC', 'Collected reading type'),
                                 name: 'readingType'
+                            },
+                            {
+                                xtype: 'reading-type-displayfield',
+                                fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
+                                name: 'calculatedReadingType',
+                                hidden: true
                             },
                             {
                                 xtype: 'obis-displayfield',
@@ -45,9 +52,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Preview', {
                                 name: 'reportedDateTime',
                                 renderer: function (value) {
                                     if (!Ext.isEmpty(value)) {
-                                        return Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]).toLowerCase();
+                                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]);
                                     }
-
                                     return '-';
                                 }
                             },
