@@ -26,7 +26,6 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -40,7 +39,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -86,8 +84,6 @@ import org.osgi.service.log.LogService;
 
 import java.security.Principal;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.*;
@@ -96,7 +92,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -227,9 +222,6 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     public void setUp() {
         when(this.principal.getName()).thenReturn(CountNumberOfCommunicationErrorsInGatewayTopologyTest.class.getSimpleName());
         this.initializeDatabase(false);
-        Translator translator = mock(Translator.class);
-        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);

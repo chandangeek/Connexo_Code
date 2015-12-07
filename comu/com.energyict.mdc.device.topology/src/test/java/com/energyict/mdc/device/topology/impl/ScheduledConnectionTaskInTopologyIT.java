@@ -10,7 +10,6 @@ import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -190,7 +189,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     @Test
     @Transactional
-    public void updateToAsapDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
+    public void updateToAsapDefaultTestNextExecutionTimeStamp() throws SQLException {
         Instant comTaskNextExecutionTimeStamp = freezeClock(2013, Calendar.FEBRUARY, 13);
 
         freezeClock(2013, Calendar.FEBRUARY, 13, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
@@ -210,7 +209,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     @Test
     @Transactional
-    public void updateToMinimizeDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
+    public void updateToMinimizeDefaultTestNextExecutionTimeStamp() throws SQLException {
         Instant comTaskNextExecutionTimeStamp = freezeClock(2013, Calendar.FEBRUARY, 13);
 
         freezeClock(2013, Calendar.FEBRUARY, 17, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
@@ -327,7 +326,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     @Test
     @Transactional
-    public void createWithComTaskUsingDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
+    public void createWithComTaskUsingDefaultTestNextExecutionTimeStamp() throws SQLException {
         Instant febFirst = freezeClock(2013, Calendar.FEBRUARY, 1);
         ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(febFirst);
 
@@ -388,7 +387,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     @Test
     @Transactional
-    public void testTriggerWithAsapStrategyAllComTaskStatusses() throws SQLException, BusinessException {
+    public void testTriggerWithAsapStrategyAllComTaskStatusses() throws SQLException {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAllComTaskStatusses");
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
         final Instant futureDate = freezeClock(2013, Calendar.JULY, 4);
