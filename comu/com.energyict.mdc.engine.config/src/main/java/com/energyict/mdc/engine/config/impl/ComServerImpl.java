@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.MinTimeDuration;
 import com.energyict.mdc.engine.config.ComPort;
@@ -19,6 +18,7 @@ import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ComPortType;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
@@ -476,13 +476,13 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public String getEventRegistrationUriIfSupported () throws BusinessException {
-        throw new BusinessException("ComServerXDoesNotSupportEventRegistration", "The comserver {0} does not support event registration", this.getName());
+    public String getEventRegistrationUriIfSupported () {
+        throw new UnsupportedOperationException("The comserver " + this.getName() + " does not support event registration");
     }
 
     @Override
-    public String getQueryApiPostUriIfSupported () throws BusinessException {
-        throw new BusinessException("ComServerXDoesNotSupportRemoteQueries", "The comserver {0} does not support remote queries", this.getName());
+    public String getQueryApiPostUriIfSupported () {
+        throw new UnsupportedOperationException("The comserver " + this.getName() + " does not support remote queries");
     }
 
     final void save() {

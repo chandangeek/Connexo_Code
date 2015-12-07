@@ -5,22 +5,19 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.PersistenceTest;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
-import org.junit.Test;
-import org.mockito.Mock;
+import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -28,8 +25,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.*;
+import org.mockito.Mock;
+
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -70,7 +72,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
      * Create a simple {@link ModemBasedInboundComPortImpl}
      *
      * @return a {@link ModemBasedInboundComPortImpl}
-     * @throws BusinessException if a logical Business Exception occurred
      * @throws SQLException      if a sql-related exception occurred
      */
 
@@ -115,7 +116,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithoutViolations() throws BusinessException, SQLException {
+    public void testCreateWithoutViolations() throws SQLException {
         ModemBasedInboundComPort comPort = this.createSimpleComPort();
 
         // Asserts
@@ -142,7 +143,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void createWithoutModemInitStrings() throws BusinessException, SQLException {
+    public void createWithoutModemInitStrings() throws SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
                 .description(DESCRIPTION)
@@ -166,7 +167,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}", property = "comPortPool")
-    public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
+    public void testCreateWithoutComPortPool() throws SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .description(DESCRIPTION)
@@ -179,7 +180,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateInActivePortWithoutComPortPool() throws BusinessException, SQLException {
+    public void testCreateInActivePortWithoutComPortPool() throws SQLException {
         ModemBasedInboundComPort modemBasedInboundComPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
                 .description(DESCRIPTION)
@@ -228,7 +229,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
-    public void testCreateWithoutName() throws BusinessException, SQLException {
+    public void testCreateWithoutName() throws SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(null, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
@@ -237,13 +238,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         .atCommandTry(AT_COMMAND_TRY)
         .add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}")
-    public void testCreateWithExistingName() throws BusinessException, SQLException {
+    public void testCreateWithExistingName() throws SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         createSimpleComPort(onlineComServer);
 
@@ -255,12 +256,12 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         .atCommandTry(AT_COMMAND_TRY)
         .add();
 
-        // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
-    public void testCreateWithExistingButDeletedName() throws BusinessException, SQLException {
+    public void testCreateWithExistingButDeletedName() throws SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         ModemBasedInboundComPort firstComPort = this.createSimpleComPort(onlineComServer);
         onlineComServer.removeComPort(firstComPort.getId());
@@ -272,13 +273,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
                 .atCommandTry(AT_COMMAND_TRY)
                 .comPortPool(createComPortPool()).add();
 
-        // No BusinessException expected, because a new ComPort can have the same name as a deleted one.
+        // No ConstraintViolation expected, because a new ComPort can have the same name as a deleted one.
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "ringCount")
-    public void testCreateWithZeroRingCount() throws BusinessException, SQLException {
+    public void testCreateWithZeroRingCount() throws SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, 0, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
@@ -287,13 +288,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         .atCommandTry(AT_COMMAND_TRY)
         .add();
 
-        // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "maximumDialErrors")
-    public void testCreateWithZeroMaximumNumberOfDialErrors() throws BusinessException, SQLException {
+    public void testCreateWithZeroMaximumNumberOfDialErrors() throws SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, 0,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
@@ -302,13 +303,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         .atCommandTry(AT_COMMAND_TRY)
         .add();
 
-        // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "connectTimeout")
-    public void testCreateWithoutConnectTimeout() throws BusinessException, SQLException {
+    public void testCreateWithoutConnectTimeout() throws SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 null, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
@@ -317,13 +318,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         .atCommandTry(AT_COMMAND_TRY)
         .add();
 
-        // Expecting a BusinessException to be thrown because the connect timeout is not specified
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
-    public void testCreateWithoutAtCommandTimeout() throws BusinessException, SQLException {
+    public void testCreateWithoutAtCommandTimeout() throws SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, null, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
@@ -332,13 +333,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         .atCommandTry(AT_COMMAND_TRY)
         .add();
 
-        // Expecting a BusinessException to be thrown because the at command timeout is not specified
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "atCommandTry")
-    public void testCreateWithoutAtCommandTry() throws BusinessException, SQLException {
+    public void testCreateWithoutAtCommandTry() throws SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
         .comPortPool(createComPortPool())
@@ -347,13 +348,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         .atCommandTry(null)
         .add();
 
-        // Expecting a BusinessException to be thrown because the at command try is not specified
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "serialPortConfiguration")
-    public void testCreateWithoutSerialPortConfiguration() throws BusinessException, SQLException {
+    public void testCreateWithoutSerialPortConfiguration() throws SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, null)
         .comPortPool(createComPortPool())
@@ -362,12 +363,12 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         .atCommandTry(AT_COMMAND_TRY)
         .add();
 
-        // Expecting a BusinessException to be thrown because the at command try is not specified
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
-    public void testLoad() throws SQLException, BusinessException {
+    public void testLoad() throws SQLException {
         ModemBasedInboundComPort comPort = this.createSimpleComPort();
 
         // Business method
@@ -397,7 +398,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void updateWithoutViolations() throws BusinessException, SQLException {
+    public void updateWithoutViolations() throws SQLException {
         final int newMaxNumOfDialErrors = 99;
         final int newRingCount = 512;
         final String newName = "NewComPortName";
@@ -472,14 +473,14 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
-    public void updateWithNullName() throws BusinessException, SQLException {
+    public void updateWithNullName() throws SQLException {
         ModemBasedInboundComPortImpl comPort = (ModemBasedInboundComPortImpl) this.createSimpleComPort();
 
         comPort.setName(null);
 
         comPort.update();
 
-        // was expecting a BusinessException because the name is set to null
+        // was See expected constraint violation rule
     }
 
     @Test

@@ -6,10 +6,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -85,7 +90,7 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
     }
 
     @Override
-    public String getEventRegistrationUriIfSupported() throws BusinessException {
+    public String getEventRegistrationUriIfSupported() {
         if (Checks.is(this.getEventRegistrationUri()).emptyOrOnlyWhiteSpace()) {
             return super.getEventRegistrationUriIfSupported();
         } else {
@@ -121,7 +126,7 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
     static class RemoteComServerBuilderImpl extends AbstractComServerBuilder<RemoteComServerImpl, RemoteComServerBuilder> implements RemoteComServerBuilder<RemoteComServerImpl> {
 
         @Inject
-        public RemoteComServerBuilderImpl(DataModel dataModel) {
+        RemoteComServerBuilderImpl(DataModel dataModel) {
             super(dataModel.getInstance(RemoteComServerImpl.class), RemoteComServerBuilder.class);
         }
 

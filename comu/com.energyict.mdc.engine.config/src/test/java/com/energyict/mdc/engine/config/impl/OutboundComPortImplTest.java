@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.config.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.ComPortPoolMember;
 import com.energyict.mdc.engine.config.ComServer;
@@ -11,9 +10,12 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
+
 import com.google.inject.Provider;
+
 import java.sql.SQLException;
-import org.junit.Test;
+
+import org.junit.*;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +48,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithoutViolations() throws BusinessException, SQLException {
+    public void testCreateWithoutViolations() throws SQLException {
         OutboundComPort comPort = this.createSimpleComPort();
 
         // Asserts
@@ -60,19 +62,19 @@ public class OutboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     @Transactional
-    public void testCreateWithoutName() throws BusinessException, SQLException {
+    public void testCreateWithoutName() throws SQLException {
         createOnlineComServer().newOutboundComPort(null, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .description(DESCRIPTION)
         .active(ACTIVE)
         .comPortType(COM_PORT_TYPE).add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "type")
     @Transactional
-    public void testCreateWithoutComPortType() throws BusinessException, SQLException {
+    public void testCreateWithoutComPortType() throws SQLException {
         createOnlineComServer().newOutboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .description(DESCRIPTION)
         .active(ACTIVE)
@@ -83,7 +85,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", property = "numberOfSimultaneousConnections")
-    public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
+    public void testCreateWithZeroSimultaneousConnections() throws SQLException {
         createOnlineComServer().newOutboundComPort(COMPORT_NAME, 0)
         .description(DESCRIPTION)
         .active(ACTIVE)
@@ -94,7 +96,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", property = "numberOfSimultaneousConnections")
-    public void testCreateWithTooManySimultaneousConnections() throws BusinessException, SQLException {
+    public void testCreateWithTooManySimultaneousConnections() throws SQLException {
         createOnlineComServer().newOutboundComPort(COMPORT_NAME, OutboundComPort.MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1)
         .description(DESCRIPTION)
         .active(ACTIVE)
@@ -105,7 +107,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}", property="name")
     @Transactional
-    public void testCreateWithExistingName() throws BusinessException, SQLException {
+    public void testCreateWithExistingName() throws SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         createSimpleComPort(onlineComServer);
 
@@ -114,12 +116,12 @@ public class OutboundComPortImplTest extends PersistenceTest {
         .active(ACTIVE)
         .comPortType(COM_PORT_TYPE).add();
 
-        // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
-    public void testLoad() throws SQLException, BusinessException {
+    public void testLoad() throws SQLException {
         OutboundComPort comPort = this.createSimpleComPort();
         OutboundComPort createdComPort = (OutboundComPort) getEngineModelService().findComPort(comPort.getId()).get();
 
@@ -133,7 +135,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void updateWithoutViolations() throws BusinessException, SQLException {
+    public void updateWithoutViolations() throws SQLException {
         final int newNumberOfSimultaneousConnections = 99;
         final ComPortType newType = ComPortType.UDP;
         final String newName = "NewComPortName";

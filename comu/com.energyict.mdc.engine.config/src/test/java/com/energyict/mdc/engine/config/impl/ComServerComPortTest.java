@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.config.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -22,10 +21,6 @@ import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ComPortType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -35,6 +30,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
@@ -302,7 +301,7 @@ public class ComServerComPortTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT_PER_COM_SERVER+"}", property = "portNumber")
-    public void duplicateComPortsTest() throws SQLException, BusinessException {
+    public void duplicateComPortsTest() throws SQLException {
         int duplicatePortNumber = 2222;
         OnlineComServer shadow = createOnlineComServer();
 

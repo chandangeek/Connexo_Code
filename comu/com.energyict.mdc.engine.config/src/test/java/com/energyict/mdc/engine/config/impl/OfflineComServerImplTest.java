@@ -5,7 +5,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.Expected;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -13,16 +12,17 @@ import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
+
 import com.google.inject.Provider;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.sql.SQLException;
 import java.util.List;
 
+import org.junit.*;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
 * Tests the {@link OfflineComServerImpl} component.
@@ -31,8 +31,6 @@ import static org.junit.Assert.assertTrue;
 * @since 2012-03-30 (08:41)
 */
 public class OfflineComServerImplTest extends PersistenceTest {
-
-    private static int nextComPortId = 1;
 
     private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
@@ -48,7 +46,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithoutComPortsWithoutViolations () throws BusinessException, SQLException {
+    public void testCreateWithoutComPortsWithoutViolations () throws SQLException {
         String name = NO_VIOLATIONS_NAME;
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name(name);
@@ -73,7 +71,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation( messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "changesInterPollDelay")
-    public void testTooSmallChangesInterPollDelay () throws BusinessException, SQLException {
+    public void testTooSmallChangesInterPollDelay () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name("testTooSmallChangesInterPollDelay");
         comServer.active(true);
@@ -88,7 +86,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation( messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "schedulingInterPollDelay")
-    public void testTooSmallSchedulingInterPollDelay () throws BusinessException, SQLException {
+    public void testTooSmallSchedulingInterPollDelay () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name("testTooSmallSchedulingInterPollDelay");
         comServer.active(true);
@@ -102,7 +100,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void loadTest() throws BusinessException, SQLException {
+    public void loadTest() throws SQLException {
         String name = NO_VIOLATIONS_NAME;
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name(name);
@@ -127,7 +125,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithComPortWithoutViolations () throws BusinessException, SQLException {
+    public void testCreateWithComPortWithoutViolations () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "With-ComPorts";
         offlineComServer.name(name);
@@ -146,7 +144,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
-    public void testCreateWithoutName () throws BusinessException, SQLException {
+    public void testCreateWithoutName () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         offlineComServer.active(true);
         offlineComServer.serverLogLevel(SERVER_LOG_LEVEL);
@@ -160,7 +158,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "serverLogLevel")
-    public void testCreateWithoutServerLogLevel () throws BusinessException, SQLException {
+    public void testCreateWithoutServerLogLevel () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "No-Server-LogLevel";
         offlineComServer.name(name);
@@ -176,7 +174,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "communicationLogLevel")
-    public void testCreateWithoutCommunicationLogLevel () throws BusinessException, SQLException {
+    public void testCreateWithoutCommunicationLogLevel () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "No-Communication-LogLevel";
         offlineComServer.name(name);
@@ -192,7 +190,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "changesInterPollDelay")
-    public void testCreateWithoutChangesInterPollDelay () throws BusinessException, SQLException {
+    public void testCreateWithoutChangesInterPollDelay () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "No-Changes-InterpollDelay";
         offlineComServer.name(name);
@@ -208,7 +206,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation( messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "schedulingInterPollDelay")
-    public void testCreateWithoutSchedulingInterPollDelay () throws BusinessException, SQLException {
+    public void testCreateWithoutSchedulingInterPollDelay () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "No-Scheduling-InterpollDelay";
         offlineComServer.name(name);
@@ -224,7 +222,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER+"}", property = "name")
-    public void testCreateWithExistingName () throws BusinessException, SQLException {
+    public void testCreateWithExistingName () throws SQLException {
         String serverName = "Candidate-for-duplicate";
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         offlineComServer.name(serverName);
@@ -248,7 +246,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithExistingButDeletedName () throws BusinessException, SQLException {
+    public void testCreateWithExistingButDeletedName () throws SQLException {
         String serverName = "Candidate-for-duplication";
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServerBuilder = getEngineModelService().newOfflineComServerBuilder();
         offlineComServerBuilder.name(serverName);
@@ -273,7 +271,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testUpdateWithoutComPort () throws BusinessException, SQLException {
+    public void testUpdateWithoutComPort () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "Update-Candidate";
         offlineComServer.name(name);
@@ -311,7 +309,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testUpdateWithUpdatesToComPort () throws BusinessException, SQLException {
+    public void testUpdateWithUpdatesToComPort () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> creationShadow = getEngineModelService().newOfflineComServerBuilder();
         String name = "Update-Candidate2";
         creationShadow.name(name);
@@ -352,7 +350,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testUpdateWithoutUpdatesToComPort () throws BusinessException, SQLException {
+    public void testUpdateWithoutUpdatesToComPort () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "Update-Candidate3";
         offlineComServer.name(name);
@@ -390,7 +388,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testMakeObsoleteWithComPortsWithoutViolations () throws BusinessException, SQLException {
+    public void testMakeObsoleteWithComPortsWithoutViolations () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "testMakeObsoleteWithComPortsWithoutViolations";
         comServer.name(name);
@@ -416,7 +414,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testMakeObsolete () throws BusinessException, SQLException {
+    public void testMakeObsolete () throws SQLException {
         String name = "testMakeObsolete";
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name(name);
@@ -444,7 +442,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
-    public void testUpdateAfterMakeObsolete() throws BusinessException, SQLException {
+    public void testUpdateAfterMakeObsolete() throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "testUpdateAfterMakeObsolete";
         comServer.name(name);
@@ -467,7 +465,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @Expected(expected = TranslatableApplicationException.class)
-    public void testMakeObsoleteTwice () throws BusinessException, SQLException {
+    public void testMakeObsoleteTwice () throws SQLException {
         ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "testMakeObsoleteTwice";
         comServer.name(name);

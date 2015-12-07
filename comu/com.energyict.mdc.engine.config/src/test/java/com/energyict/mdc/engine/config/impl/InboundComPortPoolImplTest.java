@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.Expected;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.Expected;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -12,17 +12,18 @@ import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.protocol.api.ComPortType;
+
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.*;
 
 import static junit.framework.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +59,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool(null, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.update();
-        // Expecting BusinessException because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
@@ -120,7 +121,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         notADuplicate.setDescription(DESCRIPTION);
         notADuplicate.update();
 
-        // No BusinessException expected, because a new ComPortPool can have the same name as a deleted one.
+        // No ConstraintViolation expected, because a new ComPortPool can have the same name as a deleted one.
         // Asserts
         assertThat(notADuplicate.getName()).isEqualTo(comPortPool.getName());
         assertThat(notADuplicate.isObsolete()).isFalse();
@@ -173,7 +174,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
         // Business method
         comPortPool.delete();
-        // Expected BusinessException because a ComPortPool cannot be made obsolete if ComPorts are still using it
+        // See expected constraint violation rule
     }
 
 //    @Test
@@ -188,7 +189,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 //        // Business method
 //        comPortPool.delete();
 //
-//        // Expected BusinessException because a ComPortPool cannot be made obsolete if ComPorts are still using it
+//        // See expected constraint violation rule
 //    }
 
     @Test
@@ -233,7 +234,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         // Business method
         comPortPool.makeObsolete();
 
-        // Expected BusinessException because a ComPortPool cannot be made obsolete if ComPorts are still using it
+        // See expected constraint violation rule
     }
 
     @Test
@@ -273,7 +274,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 //            throw e;
 //        }
 //
-//        // Expected BusinessException because a ComPortPool cannot be made obsolete if ComPorts are still using it
+//        // See expected constraint violation rule
 //    }
 
     @Test
@@ -285,7 +286,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
         comPortPool.update();
 
-        // Expected a BusinessException because an obsolete ComPortPool cannot be updated any longer
+        // See expected constraint violation rule
     }
 
     @Test
@@ -297,7 +298,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         // Business method
         comPortPool.delete();
 
-        // Expected a BusinessException because a ComPortPool cannot be made obsolete twice
+        // See expected constraint violation rule
     }
 
     @Test
@@ -334,7 +335,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
                 .add();
 
 
-        // Expecting BusinessException because one of the ComPorts is not of type TCP
+        // See expected constraint violation rule
     }
 
     private int comPortPoolIndex=1;

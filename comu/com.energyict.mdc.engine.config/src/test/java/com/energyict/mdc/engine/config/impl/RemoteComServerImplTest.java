@@ -4,16 +4,17 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.engine.config.RemoteComServer;
+
 import com.google.inject.Provider;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.sql.SQLException;
+
+import org.junit.*;
+import org.mockito.Mock;
 
 import static org.junit.Assert.*;
 
@@ -42,7 +43,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithoutViolations() throws BusinessException, SQLException {
+    public void testCreateWithoutViolations() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -71,7 +72,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testThatDefaultURIsAreApplied() throws BusinessException, SQLException {
+    public void testThatDefaultURIsAreApplied() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -96,7 +97,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.COMSERVER_NAME_INVALID_CHARS +"}", property = "name")
     @Transactional
-    public void testNameWithInvalidCharacters() throws BusinessException, SQLException {
+    public void testNameWithInvalidCharacters() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -114,7 +115,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "changesInterPollDelay")
-    public void testTooSmallChangesInterPollDelay() throws BusinessException, SQLException {
+    public void testTooSmallChangesInterPollDelay() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -132,7 +133,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "schedulingInterPollDelay")
-    public void testTooSmallSchedulingInterPollDelay() throws BusinessException, SQLException {
+    public void testTooSmallSchedulingInterPollDelay() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -149,7 +150,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithValidEventRegistrationURI() throws BusinessException, SQLException {
+    public void testCreateWithValidEventRegistrationURI() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -174,7 +175,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", property = "eventRegistrationUri")
-    public void testCreateWithInvalidEventRegistrationURI() throws BusinessException, SQLException {
+    public void testCreateWithInvalidEventRegistrationURI() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -190,12 +191,12 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.onlineComServer(createOnlineComServer());
         // Business method
         remoteComServer.create();
-        // Was expecting a BusinessException because the event registration URL is not valid
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
-    public void loadTest() throws BusinessException, SQLException {
+    public void loadTest() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServerBuilder = getEngineModelService().newRemoteComServerBuilder();
         String name = NO_VIOLATIONS_NAME;
@@ -226,7 +227,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "onlineComServer")
-    public void testCreateWithoutOnlineComServer() throws BusinessException, SQLException {
+    public void testCreateWithoutOnlineComServer() throws SQLException {
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "With-ComPort";
         remoteComServer.name(name);
@@ -242,7 +243,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
-    public void testCreateWithoutName() throws BusinessException, SQLException {
+    public void testCreateWithoutName() throws SQLException {
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         remoteComServer.active(true);
         remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
@@ -257,7 +258,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "serverLogLevel")
     @Transactional
-    public void testCreateWithoutServerLogLevel() throws BusinessException, SQLException {
+    public void testCreateWithoutServerLogLevel() throws SQLException {
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "No-Server-LogLevel";
         remoteComServer.name(name);
@@ -273,7 +274,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "communicationLogLevel")
-    public void testCreateWithoutCommunicationLogLevel() throws BusinessException, SQLException {
+    public void testCreateWithoutCommunicationLogLevel() throws SQLException {
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "No-Communication-LogLevel";
         remoteComServer.name(name);
@@ -289,7 +290,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "changesInterPollDelay")
-    public void testCreateWithoutChangesInterPollDelay() throws BusinessException, SQLException {
+    public void testCreateWithoutChangesInterPollDelay() throws SQLException {
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "No-Changes-InterpollDelay";
         remoteComServer.name(name);
@@ -305,7 +306,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "schedulingInterPollDelay")
     @Transactional
-    public void testCreateWithoutSchedulingInterPollDelay() throws BusinessException, SQLException {
+    public void testCreateWithoutSchedulingInterPollDelay() throws SQLException {
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "No-Scheduling-InterpollDelay";
         remoteComServer.name(name);
@@ -321,7 +322,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER+"}", property = "name")
     @Transactional
-    public void testCreateWithExistingName() throws BusinessException, SQLException {
+    public void testCreateWithExistingName() throws SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         remoteComServer.name(NO_VIOLATIONS_NAME);
@@ -348,7 +349,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testUpdate() throws BusinessException, SQLException {
+    public void testUpdate() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -390,7 +391,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testResetEventRegistrationAPIViaBooleanMethod() throws BusinessException, SQLException {
+    public void testResetEventRegistrationAPIViaBooleanMethod() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -419,7 +420,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testResetEventRegistrationAPIViaNullURI() throws BusinessException, SQLException {
+    public void testResetEventRegistrationAPIViaNullURI() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -449,7 +450,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "onlineComServer")
-    public void testUpdateWithoutOnlineComServer() throws BusinessException, SQLException {
+    public void testUpdateWithoutOnlineComServer() throws SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();

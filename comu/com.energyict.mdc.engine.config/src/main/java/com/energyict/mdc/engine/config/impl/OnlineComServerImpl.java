@@ -4,11 +4,18 @@ import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.IPBasedInboundComPort;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -114,7 +121,7 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     }
 
     @Override
-    public String getQueryApiPostUriIfSupported () throws BusinessException {
+    public String getQueryApiPostUriIfSupported () {
         if (Checks.is(this.getQueryApiPostUri()).emptyOrOnlyWhiteSpace()) {
             return super.getQueryApiPostUriIfSupported();
         }
@@ -143,7 +150,7 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     }
 
     @Override
-    public String getEventRegistrationUriIfSupported () throws BusinessException {
+    public String getEventRegistrationUriIfSupported () {
         if (Checks.is(this.getEventRegistrationUri()).emptyOrOnlyWhiteSpace()) {
             return super.getEventRegistrationUriIfSupported();
         }

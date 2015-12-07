@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -10,14 +9,13 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+
 import java.sql.SQLException;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link ServletBasedInboundComPortImpl} component.
@@ -82,7 +80,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithoutViolations() throws BusinessException, SQLException {
+    public void testCreateWithoutViolations() throws SQLException {
         ServletBasedInboundComPort comPort = this.createSimpleComPort();
 
         // Asserts
@@ -98,7 +96,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     @Transactional
-    public void testCreateWithoutName() throws BusinessException, SQLException {
+    public void testCreateWithoutName() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(null, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .https(true)
                 .description(DESCRIPTION)
@@ -109,13 +107,13 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
                 .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}", property = "comPortPool")
     @Transactional
-    public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
+    public void testCreateWithoutComPortPool() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .https(true)
                 .description(DESCRIPTION)
@@ -130,7 +128,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateInActivePortWithoutComPortPool() throws BusinessException, SQLException {
+    public void testCreateInActivePortWithoutComPortPool() throws SQLException {
         ServletBasedInboundComPort servletBasedInboundComPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .https(true)
                 .description(DESCRIPTION)
@@ -175,7 +173,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}", property = "name")
     @Transactional
-    public void testCreateWithExistingName() throws BusinessException, SQLException {
+    public void testCreateWithExistingName() throws SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         ServletBasedInboundComPort comPort = this.createSimpleComPort(onlineComServer);
 
@@ -189,13 +187,13 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
                 .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
-        // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
+        // See expected constraint violation rule
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "numberOfSimultaneousConnections")
     @Transactional
-    public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
+    public void testCreateWithZeroSimultaneousConnections() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, 0, PORT_NUMBER)
                 .https(true)
                 .description(DESCRIPTION)
@@ -206,13 +204,13 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
                 .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "portNumber")
     @Transactional
-    public void testCreateWithZeroPortNumber() throws BusinessException, SQLException {
+    public void testCreateWithZeroPortNumber() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, 0)
                 .https(true)
                 .description(DESCRIPTION)
@@ -223,13 +221,13 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
                 .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "contextPath")
     @Transactional
-    public void testCreateWithoutContextPath() throws BusinessException, SQLException {
+    public void testCreateWithoutContextPath() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, null, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .https(true)
                 .description(DESCRIPTION)
@@ -240,13 +238,13 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
                 .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "contextPath")
     @Transactional
-    public void testCreateWithEmptyContextPath() throws BusinessException, SQLException {
+    public void testCreateWithEmptyContextPath() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, "", NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .https(true)
                 .description(DESCRIPTION)
@@ -257,19 +255,18 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
                 .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     /**
      * Tests that any KeyStore that is specified is ignored
      * when the https flag is NOT set.
      *
-     * @throws BusinessException Indicates failure
      * @throws SQLException      Indicates failure
      */
     @Test
     @Transactional
-    public void testCreateWithKeyStoreSpecsButNoHTTPS() throws BusinessException, SQLException {
+    public void testCreateWithKeyStoreSpecsButNoHTTPS() throws SQLException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .https(false)
                 .description(DESCRIPTION)
@@ -287,7 +284,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "trustStoreSpecsFilePath", strict = false)
     @Transactional
-    public void testCreateWithOnlyKeyStore() throws BusinessException, SQLException {
+    public void testCreateWithOnlyKeyStore() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -302,7 +299,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsFilePath")
     @Transactional
-    public void testCreateWithoutKeyStoreFilePath() throws BusinessException, SQLException {
+    public void testCreateWithoutKeyStoreFilePath() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -317,7 +314,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsFilePath")
     @Transactional
-    public void testCreateWithEmptyKeyStoreFilePath() throws BusinessException, SQLException {
+    public void testCreateWithEmptyKeyStoreFilePath() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -332,7 +329,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsPassword")
     @Transactional
-    public void testCreateWithoutKeyStorePassword() throws BusinessException, SQLException {
+    public void testCreateWithoutKeyStorePassword() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -347,7 +344,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsPassword")
     @Transactional
-    public void testCreateWithEmptyKeyStorePassword() throws BusinessException, SQLException {
+    public void testCreateWithEmptyKeyStorePassword() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -362,7 +359,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "trustStoreSpecsFilePath")
     @Transactional
-    public void testCreateWithoutTrustStoreFilePath() throws BusinessException, SQLException {
+    public void testCreateWithoutTrustStoreFilePath() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -377,7 +374,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "trustStoreSpecsFilePath")
     @Transactional
-    public void testCreateWithEmptyTrustStoreFilePath() throws BusinessException, SQLException {
+    public void testCreateWithEmptyTrustStoreFilePath() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .https(true)
                 .description(DESCRIPTION)
@@ -392,7 +389,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "trustStoreSpecsPassword")
     @Transactional
-    public void testCreateWithoutTrustStorePassword() throws BusinessException, SQLException {
+    public void testCreateWithoutTrustStorePassword() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -407,7 +404,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "trustStoreSpecsPassword")
     @Transactional
-    public void testCreateWithEmptyTrustStorePassword() throws BusinessException, SQLException {
+    public void testCreateWithEmptyTrustStorePassword() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -422,7 +419,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsFilePath", strict = false)
     @Transactional
-    public void testCreateWithOnlyTrustStore() throws BusinessException, SQLException {
+    public void testCreateWithOnlyTrustStore() throws SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -436,7 +433,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testLoad() throws SQLException, BusinessException {
+    public void testLoad() throws SQLException {
         ServletBasedInboundComPort comPort = createSimpleComPort();
 
         ServletBasedInboundComPort reloaded = (ServletBasedInboundComPort) getEngineModelService().findComPort(comPort.getId()).get();
@@ -458,7 +455,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void updateWithoutViolations() throws BusinessException, SQLException {
+    public void updateWithoutViolations() throws SQLException {
         final int newNumberOfSimultaneousConnections = 99;
         final int newPortNumber = 512;
         final String newName = "NewComPortName";
@@ -490,7 +487,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     @Transactional
-    public void updateWithEmptyName() throws BusinessException, SQLException {
+    public void updateWithEmptyName() throws SQLException {
         ServletBasedInboundComPortImpl comPort = (ServletBasedInboundComPortImpl) this.createSimpleComPort();
 
         comPort.setName(null);
@@ -498,12 +495,12 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Business method
         comPort.update();
 
-        // Expected BusinessException because name is null
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
-    public void testKeyStoreSpecsAreRemovedWhenHttpsIsSwitchedOff() throws SQLException, BusinessException {
+    public void testKeyStoreSpecsAreRemovedWhenHttpsIsSwitchedOff() throws SQLException {
         ServletBasedInboundComPort comPort = createSimpleComPort();
         comPort.setHttps(false);
         // Business method
@@ -518,7 +515,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsFilePath", strict=false)
     @Transactional
-    public void testUpdateWithoutKeyStore() throws SQLException, BusinessException {
+    public void testUpdateWithoutKeyStore() throws SQLException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -538,7 +535,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsFilePath")
     @Transactional
-    public void testUpdateWithoutKeyStoreFilePath() throws SQLException, BusinessException {
+    public void testUpdateWithoutKeyStoreFilePath() throws SQLException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .https(true)
                 .description(DESCRIPTION)
@@ -557,7 +554,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsFilePath")
     @Transactional
-    public void testUpdateWithEmptyKeyStoreFilePath() throws SQLException, BusinessException {
+    public void testUpdateWithEmptyKeyStoreFilePath() throws SQLException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -576,7 +573,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsPassword")
     @Transactional
-    public void testUpdateWithoutKeyStorePassword() throws SQLException, BusinessException {
+    public void testUpdateWithoutKeyStorePassword() throws SQLException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -595,7 +592,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "keyStoreSpecsPassword")
     @Transactional
-    public void testUpdateWithEmptyKeyStorePassword() throws SQLException, BusinessException {
+    public void testUpdateWithEmptyKeyStorePassword() throws SQLException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -614,7 +611,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}", property = "trustStoreSpecsFilePath", strict = false)
     @Transactional
-    public void testUpdateWithoutTrustStore() throws SQLException, BusinessException {
+    public void testUpdateWithoutTrustStore() throws SQLException {
         ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)

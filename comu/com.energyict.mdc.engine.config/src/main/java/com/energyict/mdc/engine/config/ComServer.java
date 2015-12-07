@@ -1,9 +1,8 @@
 package com.energyict.mdc.engine.config;
 
-import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.BusinessException;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.io.SerialPortConfiguration;
 
 import java.time.Instant;
@@ -40,38 +39,38 @@ import java.util.List;
  * @since 2012-03-27 (16:42)
  */
 public interface ComServer extends HasId, HasName {
-    static final String CHANGES_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.changesInterPollDelay";
-    static final String SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.schedulingInterPollDelay";
+    String CHANGES_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.changesInterPollDelay";
+    String SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.schedulingInterPollDelay";
     /**
      * The minimum TimeDuration that can be used for changes and scheduling interpoll delay.
      */
-    static final TimeDuration MINIMUM_INTERPOLL_DELAY = new TimeDuration(60, TimeDuration.TimeUnit.SECONDS);
+    TimeDuration MINIMUM_INTERPOLL_DELAY = new TimeDuration(60, TimeDuration.TimeUnit.SECONDS);
     /**
      * The maximum value for the storeTaskQueueSize property.
      */
-    public static final int MAXIMUM_STORE_TASK_QUEUE_SIZE = 99999;
+    int MAXIMUM_STORE_TASK_QUEUE_SIZE = 99999;
     /**
      * The maximum value for the numberOfStoreTaskThreads property.
      */
-    public static final int MAXIMUM_NUMBER_OF_STORE_TASK_THREADS = 99;
+    int MAXIMUM_NUMBER_OF_STORE_TASK_THREADS = 99;
 
-    public static final int MINIMUM_NUMBER_OF_STORE_TASK_THREADS = 1;
+    int MINIMUM_NUMBER_OF_STORE_TASK_THREADS = 1;
     /**
      * The minimum value for the storeTaskThreadPriority property.
      */
-    public static final int MINIMUM_STORE_TASK_THREAD_PRIORITY = Thread.MIN_PRIORITY;
+    int MINIMUM_STORE_TASK_THREAD_PRIORITY = Thread.MIN_PRIORITY;
     /**
      * The maximum value for the storeTaskThreadPriority property.
      */
 
-    public static final int MINIMUM_STORE_TASK_QUEUE_SIZE = 1;
+    int MINIMUM_STORE_TASK_QUEUE_SIZE = 1;
 
 
-    public static final int MAXIMUM_STORE_TASK_THREAD_PRIORITY = Thread.MAX_PRIORITY;
+    int MAXIMUM_STORE_TASK_THREAD_PRIORITY = Thread.MAX_PRIORITY;
     int DEFAULT_EVENT_REGISTRATION_PORT_NUMBER = 8888;
     int DEFAULT_QUERY_API_PORT_NUMBER = 8889;
 
-    public enum LogLevel {
+    enum LogLevel {
         /**
          * Shows only error messages that are the result of serious problems
          * that have occured during the process. Typically, there is no
@@ -130,7 +129,7 @@ public interface ComServer extends HasId, HasName {
 
         private String nameKey;
 
-        private LogLevel(String nameKey) {
+        LogLevel(String nameKey) {
             this.nameKey = nameKey;
         }
 
@@ -139,37 +138,37 @@ public interface ComServer extends HasId, HasName {
         }
     }
 
-    public void setName(String name);
+    void setName(String name);
 
     /**
      * Gets the timestamp of the last modification applied to this ComServer.
      *
      * @return The timestamp of the last modification
      */
-    public Instant getModificationDate();
+    Instant getModificationDate();
 
-    public long getVersion();
+    long getVersion();
 
     /**
      * Returns <code>true</code> iff this ComServer is
      * actually an {@link OnlineComServer}.
      * @return <code>true</code> iff this ComServer is actually an OnlineComServer
      */
-    public boolean isOnline ();
+    boolean isOnline();
 
     /**
      * Returns <code>true</code> iff this ComServer is
      * actually an {@link RemoteComServer}.
      * @return <code>true</code> iff this ComServer is actually an RemoteComServer
      */
-    public boolean isRemote ();
+    boolean isRemote();
 
     /**
      * Returns <code>true</code> iff this ComServer is
      * actually an {@link OfflineComServer}.
      * @return <code>true</code> iff this ComServer is actually an OfflineComServer
      */
-    public boolean isOffline ();
+    boolean isOffline();
 
     /**
      * Tests if this ComServer is active.
@@ -177,16 +176,16 @@ public interface ComServer extends HasId, HasName {
      *
      * @return A flag that indicates if this ComServer is active (<code>true</code>) or inactive (<code>false</code>).
      */
-    public boolean isActive ();
+    boolean isActive();
 
     /**
      * Gets the LogLevel that is used for global server processes.
      *
      * @return The LogLevel that is used for global server processes.
      */
-    public LogLevel getServerLogLevel ();
+    LogLevel getServerLogLevel();
 
-    public void setServerLogLevel(LogLevel serverLogLevel);
+    void setServerLogLevel(LogLevel serverLogLevel);
 
     /**
      * Gets the LogLevel that is used for processes that focus
@@ -194,9 +193,9 @@ public interface ComServer extends HasId, HasName {
      *
      * @return The LogLevel that is used for communication.
      */
-    public LogLevel getCommunicationLogLevel ();
+    LogLevel getCommunicationLogLevel();
 
-    public void setCommunicationLogLevel(LogLevel communicationLogLevel);
+    void setCommunicationLogLevel(LogLevel communicationLogLevel);
 
     /**
      * Gets the {@link TimeDuration} between each poll for changes
@@ -204,9 +203,9 @@ public interface ComServer extends HasId, HasName {
      *
      * @return The TimeDuration between polls to detect changes
      */
-    public TimeDuration getChangesInterPollDelay ();
+    TimeDuration getChangesInterPollDelay();
 
-    public void setChangesInterPollDelay(TimeDuration changesInterPollDelay);
+    void setChangesInterPollDelay(TimeDuration changesInterPollDelay);
 
     /**
      * Gets the {@link TimeDuration} between each poll for communication
@@ -214,30 +213,30 @@ public interface ComServer extends HasId, HasName {
      *
      * @return The TimeDuration between polls to find communication tasks
      */
-    public TimeDuration getSchedulingInterPollDelay ();
+    TimeDuration getSchedulingInterPollDelay();
 
-    public void setSchedulingInterPollDelay(TimeDuration schedulingInterPollDelay);
+    void setSchedulingInterPollDelay(TimeDuration schedulingInterPollDelay);
 
     /**
      * Gets the list of {@link ComPort}s that are owned by this ComServer.
      *
      * @return The list of ComPorts
      */
-    public List<ComPort> getComPorts ();
+    List<ComPort> getComPorts();
 
     /**
      * Makes this ComServer obsolete, i.e. it will no longer execute
      * nor will it be returned by ComServerFactory finder methods.
      * This will also make all {@link ComPort}s obsolete.
      */
-    public void makeObsolete ();
+    void makeObsolete();
 
     /**
      * Indicates if this ComServer is obsolete.
      *
      * @return A flag that indicates if this ComServer is obsolete
      */
-    public boolean isObsolete ();
+    boolean isObsolete();
 
     /**
      * Gets the date on which this ComServer was made obsolete.
@@ -246,41 +245,39 @@ public interface ComServer extends HasId, HasName {
      *         or <code>null</code> when this ComServer is not obsolete at all.
      */
 
-    public Instant getObsoleteDate ();
+    Instant getObsoleteDate();
 
-    public void setActive(boolean active);
+    void setActive(boolean active);
 
-    public OutboundComPort.OutboundComPortBuilder newOutboundComPort(String name, int numberOfSimultaneousConnections);
-    public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber);
-    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport(
-           String name, int ringCount, int maximumDialErrors,
-           TimeDuration connectTimeout, TimeDuration atCommandTimeout,
-           SerialPortConfiguration serialPortConfiguration);
-    public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort(String name, int numberOfSimultaneousConnections, int portNumber);
-    public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort(String name, int numberOfSimultaneousConnections, int portNumber);
+    OutboundComPort.OutboundComPortBuilder newOutboundComPort(String name, int numberOfSimultaneousConnections);
+    ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber);
+    ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport(
+            String name, int ringCount, int maximumDialErrors,
+            TimeDuration connectTimeout, TimeDuration atCommandTimeout,
+            SerialPortConfiguration serialPortConfiguration);
+    TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort(String name, int numberOfSimultaneousConnections, int portNumber);
+    UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort(String name, int numberOfSimultaneousConnections, int portNumber);
 
-    public void removeComPort(long id);
+    void removeComPort(long id);
 
-    public void delete();
+    void delete();
 
-    public void update();
+    void update();
 
     /**
      * Gets the URI on which the event registration mechanism runs
      * if that mechanism is supported.
      *
      * @return The URI
-     * @throws com.energyict.mdc.common.BusinessException Thrown if this ComServer does not support event registration
      */
-    public String getEventRegistrationUriIfSupported () throws BusinessException;
+    String getEventRegistrationUriIfSupported();
 
     /**
      * Gets the URI on which the remote query api runs if that is supported.
      *
      * @return The URI
-     * @throws BusinessException Thrown if this ComServer does not support the remote query api
      */
-    public String getQueryApiPostUriIfSupported () throws BusinessException;
+    String getQueryApiPostUriIfSupported();
 
     interface ComServerBuilder<CS extends ComServer, CSB extends ComServerBuilder> {
         CSB name(String comServerName);

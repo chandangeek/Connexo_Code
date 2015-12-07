@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.config.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.ComPortPoolMember;
 import com.energyict.mdc.engine.config.ComServer;
@@ -12,11 +11,13 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+
 import com.google.inject.Provider;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.sql.SQLException;
+
+import org.junit.*;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -53,7 +54,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithoutViolations() throws BusinessException, SQLException {
+    public void testCreateWithoutViolations() throws SQLException {
         TCPBasedInboundComPort comPort = this.createSimpleComPort();
 
         // Asserts
@@ -67,20 +68,20 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
-    public void testCreateWithoutName() throws BusinessException, SQLException {
+    public void testCreateWithoutName() throws SQLException {
         createOnlineComServer().newTCPBasedInboundComPort(null, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
                 .comPortPool(createComPortPool())
                 .add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}", property = "comPortPool")
-    public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
+    public void testCreateWithoutComPortPool() throws SQLException {
         createOnlineComServer().newTCPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
@@ -91,7 +92,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateInActivePortWithoutComPortPool() throws BusinessException, SQLException {
+    public void testCreateInActivePortWithoutComPortPool() throws SQLException {
         TCPBasedInboundComPort tcpBasedInboundComPort = createOnlineComServer().newTCPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .active(false)
@@ -134,7 +135,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}", property = "name")
-    public void testCreateWithExistingName() throws BusinessException, SQLException {
+    public void testCreateWithExistingName() throws SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         TCPBasedInboundComPort comPort = this.createSimpleComPort(onlineComServer);
 
@@ -144,39 +145,39 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .comPortPool(createComPortPool())
                 .add();
 
-        // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "numberOfSimultaneousConnections")
-    public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
+    public void testCreateWithZeroSimultaneousConnections() throws SQLException {
         createOnlineComServer().newTCPBasedInboundComPort(COMPORT_NAME, 0, PORT_NUMBER)
                 .description(DESCRIPTION)
                 .comPortPool(createComPortPool())
                 .active(ACTIVE)
                 .add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "portNumber")
-    public void testCreateWithZeroPortNumber() throws BusinessException, SQLException {
+    public void testCreateWithZeroPortNumber() throws SQLException {
         createOnlineComServer().newTCPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, 0)
                 .description(DESCRIPTION)
                 .comPortPool(createComPortPool())
                 .active(ACTIVE)
                 .add();
 
-        // Expecting a BusinessException to be thrown because the name is not set
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT_PER_COM_SERVER+"}", property = "portNumber")
-    public void createWithExistingPortNumberTest() throws SQLException, BusinessException {
+    public void createWithExistingPortNumberTest() throws SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         onlineComServer.newTCPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
@@ -195,7 +196,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testLoad() throws SQLException, BusinessException {
+    public void testLoad() throws SQLException {
         TCPBasedInboundComPort comPort = this.createSimpleComPort();
         TCPBasedInboundComPort reloaded = (TCPBasedInboundComPort) getEngineModelService().findComPort(comPort.getId()).get();
 
@@ -210,7 +211,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void updateWithoutViolations() throws BusinessException, SQLException {
+    public void updateWithoutViolations() throws SQLException {
         final int newNumberOfSimultaneousConnections = 99;
         final int newPortNumber = 512;
         final String newName = "NewComPortName";
