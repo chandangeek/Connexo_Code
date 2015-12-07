@@ -70,7 +70,7 @@ public class DeviceDataInfoFactory {
             channelIntervalInfo.multiplier = multiplier;
         }
         channelReading.ifPresent(reading -> {
-            channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
+            channelIntervalInfo.collectedValue = getRoundedBigDecimal(reading.getValue(), channel);
             addCalculatedValueInfo(channel, channelIntervalInfo, reading);
             channelIntervalInfo.reportedDateTime = reading.getReportedDateTime();
         });
@@ -102,7 +102,6 @@ public class DeviceDataInfoFactory {
         }
         Optional<ReadingType> calculatedReadingType = channel.getCalculatedReadingType();
         calculatedReadingType.ifPresent(readingType -> {
-            channelIntervalInfo.collectedValue = channelIntervalInfo.value;
             Quantity quantity = reading.getQuantity(readingType);
             channelIntervalInfo.value = getRoundedBigDecimal(quantity != null? quantity.getValue(): null, channel);
         });

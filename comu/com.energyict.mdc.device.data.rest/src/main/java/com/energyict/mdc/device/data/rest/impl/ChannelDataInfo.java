@@ -25,9 +25,9 @@ public class ChannelDataInfo {
     public List<String> intervalFlags;
     @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
-    public BigDecimal value;
+    public BigDecimal value;                // is only present if a delta is calculated or a multiplier is applied
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
-    public BigDecimal collectedValue;
+    public BigDecimal collectedValue;     // should always be present, this is the value we collected from the device
     @JsonProperty("isBulk")
     public boolean isBulk;
 
@@ -45,11 +45,11 @@ public class ChannelDataInfo {
 
     public BigDecimal multiplier;
 
-    public BaseReading createNew() {
+    public BaseReading createNewCalculated() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);
     }
 
-    public BaseReading createNewBulk() {
+    public BaseReading createNewCollected() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.collectedValue);
     }
 

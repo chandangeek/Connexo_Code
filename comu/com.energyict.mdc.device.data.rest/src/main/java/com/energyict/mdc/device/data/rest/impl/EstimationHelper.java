@@ -127,7 +127,7 @@ public class EstimationHelper {
     private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable) {
         ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation);
         if (!channel.getReadingType().isCumulative()) {
-            channelDataInfo.value = estimatable.getEstimation();
+            channelDataInfo.collectedValue = estimatable.getEstimation();
             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
         } else {
             if (block.getReadingType().equals(channel.getReadingType())) {
