@@ -49,7 +49,6 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -164,9 +163,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Mock
     private DeviceProtocol deviceProtocol;
 
-    @Mock
-    private IdBusinessObjectFactory businessObjectFactory;
-
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -177,7 +173,7 @@ public class PartialOutboundConnectionTaskCrudIT {
     }
 
     @BeforeClass
-    public static void initializeDatabase() throws SQLException {
+    public static void initializeDatabase() {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn(PartialOutboundConnectionTaskCrudIT.class.getSimpleName());
