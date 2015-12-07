@@ -16,6 +16,8 @@ public enum Privileges implements TranslationKey {
     RESOURCE_DEVICE_GROUPS_DESCRIPTION("deviceGroup.deviceGroups.description", "Manage device groups"),
     RESOURCE_INVENTORY_MANAGEMENT("inventoryManagement.inventoryManagements", "Assets inventory"),
     RESOURCE_INVENTORY_MANAGEMENT_DESCRIPTION("inventoryManagement.inventoryManagements.description", "Manage assets inventory"),
+    RESOURCE_DATA_COLLECTION_KPI("dataCollectionKpi.dataCollectionKpis", "Data collection KPI"),
+    RESOURCE_DATA_COLLECTION_KPI_DESCRIPTION("dataCollectionKpi.dataCollectionKpis.description", "Manage data collection KPI"),
 
     //Privileges
     ADD_DEVICE(Constants.ADD_DEVICE, "Add"),
@@ -30,8 +32,11 @@ public enum Privileges implements TranslationKey {
     IMPORT_INVENTORY_MANAGEMENT(Constants.IMPORT_INVENTORY_MANAGEMENT, "Import"),
     REVOKE_INVENTORY_MANAGEMENT(Constants.REVOKE_INVENTORY_MANAGEMENT, "Revoke"),
     ADMINISTRATE_DEVICE_ATTRIBUTE(Constants.ADMINISTRATE_DEVICE_ATTRIBUTE, "Administrate attribute"),
-    ADMINISTER_DECOMMISSIONED_DEVICE_DATA(Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, "Administrate decomissioned device data");
+    ADMINISTER_DECOMMISSIONED_DEVICE_DATA(Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, "Administrate decomissioned device data"),
+    VIEW_DATA_COLLECTION_KPI(Constants.VIEW_DATA_COLLECTION_KPI, "View data collection KPI"),
+    ADMINISTER_DATA_COLLECTION_KPI(Constants.ADMINISTER_DATA_COLLECTION_KPI, "Administrate data collection KPI"),
 
+    ;
 
     private final String key;
     private final String description;
@@ -81,5 +86,8 @@ public enum Privileges implements TranslationKey {
 
         String ADMINISTRATE_DEVICE_ATTRIBUTE = "privilege.administrate.attribute.device";
         String ADMINISTER_DECOMMISSIONED_DEVICE_DATA = "privilege.administer.decommissioned.deviceData";
+
+        String VIEW_DATA_COLLECTION_KPI = "privilege.view.dataCollectionKpi";
+        String ADMINISTER_DATA_COLLECTION_KPI = "privilege.administer.dataCollectionKpi";
     }
 }
