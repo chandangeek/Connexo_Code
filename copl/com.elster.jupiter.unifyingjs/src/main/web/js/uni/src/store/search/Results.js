@@ -8,6 +8,7 @@ Ext.define('Uni.store.search.Results', {
     singleton: true,
     autoLoad: false,
     remoteFilter: true,
+    pageSize: 100,
 
     proxy: {
         timeout: 9999999,

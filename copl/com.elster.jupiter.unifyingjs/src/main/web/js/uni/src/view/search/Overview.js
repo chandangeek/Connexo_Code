@@ -6,6 +6,7 @@ Ext.define('Uni.view.search.Overview', {
     xtype: 'uni-view-search-overview',
     itemId: 'centerContainer', // added for test
     overflowY: 'auto',
+    //layout: 'fit',
 
     requires: [
         'Uni.view.container.PreviewContainer',
@@ -149,9 +150,6 @@ Ext.define('Uni.view.search.Overview', {
                                 xtype: 'toolbar',
                                 itemId: 'search-sorting',
                                 margin: 0,
-                                defaults: {
-                                    disabled: true
-                                },
                                 items: [
                                     {
                                         xtype: 'label',
@@ -163,19 +161,18 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'mRID-sorting-button',
                                         ui: 'tag',
                                         iconCls: 'x-btn-sort-item-desc',
-                                        text: Uni.I18n.translate('general.mRID', 'UNI', 'MRID'),
-                                        disabled: false
-                                    },
-                                    {
-                                        itemId: 'add-sort-button',
-                                        text: Uni.I18n.translate('general.addSort', 'UNI', 'Add sort')
-                                    },
-                                    '->',
-                                    {
-                                        itemId: 'clear-sorting-button',
-                                        text: Uni.I18n.translate('general.clearSorting', 'UNI', 'Clear all'),
-                                        action: 'clearSorting'
+                                        text: Uni.I18n.translate('general.mRID', 'UNI', 'MRID')
                                     }
+                                    //{
+                                    //    itemId: 'add-sort-button',
+                                    //    text: Uni.I18n.translate('general.addSort', 'UNI', 'Add sort')
+                                    //},
+                                    //'->',
+                                    //{
+                                    //    itemId: 'clear-sorting-button',
+                                    //    text: Uni.I18n.translate('general.clearSorting', 'UNI', 'Clear all'),
+                                    //    action: 'clearSorting'
+                                    //}
                                 ]
                             }
                         ]
@@ -202,7 +199,13 @@ Ext.define('Uni.view.search.Overview', {
                             hidden: true
                         }
                     }
-                ]
+                ]/*,
+                listeners: {
+                    resize: {
+                        fn: me.changeGridMinHeight,
+                        scope: me
+                    }
+                }*/
             }
         ];
 
@@ -219,9 +222,30 @@ Ext.define('Uni.view.search.Overview', {
             scope: me,
             destroyable: true
         });
+        var resultsListeners = me.service.getSearchResultsStore().on({
+            load: me.setGridMaxHeight,
+            scope: me,
+            destroyable: true
+        });
 
         me.on('destroy', function () {
             listeners.destroy();
+            resultsListeners.destroy();
         });
+    },
+
+    setGridMaxHeight: function () {
+        var me = this,
+            grid = me.down('uni-view-search-results'),
+            panel = me.down('panel'),
+            pageHeight = me.getHeight() - panel.getHeader().getHeight() - 40,
+            filterHeight = me.down('#search-main-container').getHeight();
+
+        if (pageHeight - filterHeight > 450) {
+            grid.maxHeight = pageHeight - filterHeight;
+        } else {
+            grid.maxHeight = 450;
+        }
+        grid.updateLayout();
     }
 });

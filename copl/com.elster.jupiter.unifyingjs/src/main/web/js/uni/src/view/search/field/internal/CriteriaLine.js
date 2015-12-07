@@ -55,6 +55,10 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
             });
 
             Ext.resumeLayouts(true);
+
+            if (me.rendered) {
+                me.fireEvent('change', me.getValue());
+            }
         }
     },
 

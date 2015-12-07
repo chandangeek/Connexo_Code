@@ -146,7 +146,6 @@ Ext.define('Uni.service.Search', {
             && Ext.isDefined(domain)
             && Ext.getClassName(domain) == "Uni.model.search.Domain"
         ) {
-            //todo: how to set domain from state && manually at same time?
             me.searchDomain = domain;
 
             searchProperties.removeAll();
@@ -157,6 +156,7 @@ Ext.define('Uni.service.Search', {
             searchFields.getProxy().url     = domain.get('describedByHref');
             searchResults.getProxy().url    = domain.get('selfHref');
 
+            searchProperties.clearFilter(true);
             searchProperties.load(function(){
                 me.init();
                 searchFields.load();
@@ -256,6 +256,7 @@ Ext.define('Uni.service.Search', {
             searchResults.removeAll();
         }
 
+        me.fireEvent('applyFilters', me, filters);
     },
 
     clearFilters: function () {
@@ -301,6 +302,10 @@ Ext.define('Uni.service.Search', {
                     var filter = me.filters.getByKey(item.property);
                     if (filter && item.value) {
                         var value = Ext.isArray(item.value) ? item.value : [item.value];
+                        if (filter.store) {
+                            filter.store.clearFilter(true);
+                            filter.store.addFilter(state.filters, false);
+                        }
                         filter.populateValue(value.map(function(rawValue) { return Ext.create('Uni.model.search.Value', rawValue)}));
                     }
                 });
@@ -346,7 +351,7 @@ Ext.define('Uni.service.Search', {
         var me = this;
 
         return !!property.get('constraints').filter(function (c) {
-            return !me.getFilters().find(function (f) {
+            return !_.find(me.getFilters(), function (f) {
                 return (f.id === c) && f.value
             })
         }).length
@@ -390,10 +395,8 @@ Ext.define('Uni.service.Search', {
                 var filters = _.filter(me.getFilters(), function (f) {
                     return property.get('constraints').indexOf(f.id >= 0);
                 });
-
                 store.addFilter(filters, false);
             }
-            store.load();
 
             Ext.apply(config, {
                 xtype: 'uni-search-criteria-selection',
@@ -432,13 +435,10 @@ Ext.define('Uni.service.Search', {
     },
 
     onCriteriaChange: function (widget, value) {
-        var me = this, store;
+        var me = this;
 
         if (widget.property.get('affectsAvailableDomainProperties')) {
-            store = me.getSearchPropertiesStore();
-            store.clearFilter(true);
-            store.addFilter(me.getFilters(), false);
-            store.load();
+            me.storeReload(me.getSearchPropertiesStore());
         }
 
         var deps = me.filters.filterBy(function(filter) {
@@ -451,34 +451,42 @@ Ext.define('Uni.service.Search', {
             deps.each(function(item) {
                 if (!Ext.isEmpty(value)) {
                     item.setDisabled(false);
-                    if (item.store && Ext.isFunction(item.getStore)) {
-                        store = item.getStore();
-                        //if (store.isLoading()) {
-                        //    Ext.Ajax.abort(store.lastRequest);
-                        //}
-                        store.clearFilter(true);
-                        store.addFilter(me.getFilters(), false);
-                        //item.menu.setLoading(true);
-                        //store.load({
-                        //    callback: function () {
-                        //        item.menu.setLoading(false);
-                        //    }
-                        //});
-                        //store.lastRequest = Ext.Ajax.getLatest();
-                    }
                 } else {
                     item.setDisabled(true);
-                    if (item.store) {
-                        item.getStore().clearFilter(true);
-                    }
                     if (!item.property.get('sticky')) {
                         me.removeProperty(item.property);
                     }
+                }
+
+                if (item.store && Ext.isFunction(item.getStore)) {
+                    item.menu.setLoading(true);
+                    me.storeReload(item.getStore(), function () {
+                        item.menu.setLoading(false);
+                        if (Ext.isFunction(item.storeSync)) {
+                            item.storeSync();
+                        }
+                    });
                 }
             });
         }
 
         me.saveState();
         me.fireEvent('change', widget, value);
+    },
+
+    storeReload: function (store, callback) {
+        var me = this;
+
+        if (store.isLoading() && store.lastRequest) {
+            Ext.Ajax.suspendEvent('requestexception');
+            Ext.Ajax.abort(store.lastRequest);
+            Ext.Ajax.resumeEvent('requestexception');
+        }
+        store.clearFilter(true);
+        store.addFilter(me.getFilters(), false);
+        store.load({
+            callback: callback
+        });
+        store.lastRequest = Ext.Ajax.getLatest();
     }
 });
