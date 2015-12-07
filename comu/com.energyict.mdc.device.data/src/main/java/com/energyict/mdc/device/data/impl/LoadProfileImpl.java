@@ -266,7 +266,7 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public Optional<ReadingType> getCalculatedReadingType() {
-            return channelSpec.isUseMultiplier()?channelSpec.getCalculatedReadingType():channelSpec.getReadingType().getCalculatedReadingType();
+            return channelSpec.isUseMultiplier() && (getDevice().getMultiplier().compareTo(BigDecimal.ONE) == 1) ?channelSpec.getCalculatedReadingType():channelSpec.getReadingType().getCalculatedReadingType();
         }
 
         @Override
