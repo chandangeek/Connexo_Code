@@ -21,9 +21,7 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
@@ -31,6 +29,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -67,6 +66,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -76,7 +76,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class, Subscriber.class, PrivilegesProvider.class, TopicHandler.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
-public class AppServiceImpl implements InstallService, IAppService, Subscriber, PrivilegesProvider, TopicHandler {
+public class AppServiceImpl implements InstallService, IAppService, Subscriber, PrivilegesProvider, TranslationKeyProvider, TopicHandler {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -590,6 +590,24 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
                 Privileges.RESOURCE_APPSERVER.getKey(), Privileges.RESOURCE_APPSERVER_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_APPSEVER, Privileges.Constants.VIEW_APPSEVER)));
         return resources;
+    }
+
+    @Override
+    public String getComponentName() {
+        return AppService.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+         return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Arrays.stream(com.elster.jupiter.tasks.security.Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
