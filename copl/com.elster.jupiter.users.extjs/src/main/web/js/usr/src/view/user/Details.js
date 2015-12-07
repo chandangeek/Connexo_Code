@@ -49,7 +49,7 @@ Ext.define('Usr.view.user.Details', {
                                 align: 'stretch'
                             },
                             defaults: {
-                                labelWidth: 150
+                                labelWidth: 250
                             },
                             items: [
                                 {
@@ -79,17 +79,24 @@ Ext.define('Usr.view.user.Details', {
                                     htmlEncode: false
                                 },
                                 {
-                                    xtype: 'component',
-                                    margin: '10 0 10 150',
-                                    html: '<h3>' + Uni.I18n.translate('user.preferences', 'USR', 'User preferences') + '</h3>'
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'language',
-                                    fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language'),
-                                    renderer: function (value) {
-                                        return value && value.displayValue ? Ext.String.htmlEncode(value.displayValue) : '';
-                                    }
+                                    xtype: 'fieldcontainer',
+                                    fieldLabel: '<h3>' + Uni.I18n.translate('user.preferences', 'USR', 'User preferences') + '</h3>',
+                                    labelAlign: 'top',
+                                    layout: 'vbox',
+                                    defaults: {
+                                        xtype: 'displayfield',
+                                        labelWidth: 250
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'displayfield',
+                                            name: 'language',
+                                            fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language'),
+                                            renderer: function (value) {
+                                                return value && value.displayValue ? Ext.String.htmlEncode(value.displayValue) : '';
+                                            }
+                                        }
+                                    ]
                                 }
                             ]
                         },
