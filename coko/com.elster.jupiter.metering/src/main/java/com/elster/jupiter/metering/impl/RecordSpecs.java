@@ -249,7 +249,7 @@ public enum RecordSpecs {
 			if (!Range.closed(0, 1).contains(slotIndex)) {
 				throw new IllegalArgumentException();
 			}
-			Object[] result = new Object[3];
+			Object[] result = new Object[4];
 			result[0] = status.getBits();
 			result[slotOffset() + slotIndex] = reading.getValue();
 			result[3] = ((Reading) reading).getText();
@@ -261,6 +261,40 @@ public enum RecordSpecs {
 			return 1;
 		}
 	},
+    /*
+        0 : process status
+        1 : profile status
+        2 : multiplied reading value
+        3 : measured reading value
+     */
+    VALUE_MULTIPLIED_INTERVAL("Multiplied Interval Data",true) {
+        @Override
+        void addFieldSpecs(RecordSpecBuilder recordSpec) {
+            recordSpec.addFieldSpec("Multiplied Value", NUMBER);
+            recordSpec.addFieldSpec("Value", NUMBER);
+        }
+
+        @Override
+        Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+            if (slotIndex != 0 && slotIndex != 1) {
+                throw new IllegalArgumentException();
+            }
+            Object[] result = new Object[4];
+            result[0] = status.getBits();
+            if (reading instanceof IntervalReading) {
+                result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
+            } else {
+                result[1] = 0L;
+            }
+            result[2 + slotIndex] = reading.getValue();
+            return result;
+        }
+
+        @Override
+        int slotOffset() {
+            return 2;
+        }
+    },
 	;
 	  
 	private final String specName;

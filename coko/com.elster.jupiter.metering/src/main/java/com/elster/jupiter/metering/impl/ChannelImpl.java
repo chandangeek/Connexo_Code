@@ -342,7 +342,10 @@ public final class ChannelImpl implements ChannelContract {
     @Override
     public RecordSpecs getRecordSpecDefinition() {
         if (isRegular()) {
-            return bulkQuantityReadingType.isPresent() ? RecordSpecs.BULKQUANTITYINTERVAL : RecordSpecs.SINGLEINTERVAL;
+            if (bulkQuantityReadingType.isPresent()) {
+                return RecordSpecs.BULKQUANTITYINTERVAL;
+            }
+            return mainDerivationRule.isMultiplied() ? RecordSpecs.VALUE_MULTIPLIED_INTERVAL : RecordSpecs.SINGLEINTERVAL;
         } else {
             if (hasMacroPeriod()) {
                 return RecordSpecs.BILLINGPERIOD;

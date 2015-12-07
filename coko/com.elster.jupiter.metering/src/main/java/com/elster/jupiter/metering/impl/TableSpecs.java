@@ -367,6 +367,7 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1")
                     .on(channelIdColumn)
                     .references(Channel.class)
+                    .composition()
                     .onDelete(CASCADE)
                     .map("channel")
                     .reverseMap("readingTypeInChannels")
