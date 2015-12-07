@@ -100,22 +100,12 @@ public class DeviceDataInfoFactory {
         if(channel.getReadingType().isCumulative()){
             channelIntervalInfo.isBulk = true;
         }
-        Optional<ReadingType> calculatedReadingType = getCalculatedReadingTypeFromChannel(channel);
+        Optional<ReadingType> calculatedReadingType = channel.getCalculatedReadingType();
         calculatedReadingType.ifPresent(readingType -> {
             channelIntervalInfo.collectedValue = channelIntervalInfo.value;
             Quantity quantity = reading.getQuantity(readingType);
             channelIntervalInfo.value = getRoundedBigDecimal(quantity != null? quantity.getValue(): null, channel);
         });
-    }
-
-    private Optional<ReadingType> getCalculatedReadingTypeFromChannel(Channel channel) {
-        Optional<ReadingType> calculatedReadingType;
-        if (channel.getChannelSpec().isUseMultiplier()) {
-            calculatedReadingType = channel.getCalculatedReadingType();
-        } else {
-            calculatedReadingType = channel.getReadingType().getCalculatedReadingType();
-        }
-        return calculatedReadingType;
     }
 
     private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
