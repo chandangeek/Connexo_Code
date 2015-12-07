@@ -12,12 +12,21 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
     layout: 'column',
 
     initComponent: function() {
-        var service = this.getService();
+        var me = this,
+            service = me.getService(),
+            listeners = service.on({
+                reset:  me.onReset,
+                add:    me.onCriteriaAdd,
+                remove: me.onCriteriaRemove,
+                scope:  me,
+                destroyable: true
+            });
 
-        service.on('reset', this.onReset, this);
-        service.on('add', this.onCriteriaAdd, this);
-        service.on('remove', this.onCriteriaRemove, this);
-        this.callParent(arguments);
+
+        me.callParent(arguments);
+        me.on('destroy', function () {
+            listeners.destroy();
+        });
     },
 
     onReset: function() {
@@ -78,7 +87,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
                 var group = property.get('group'),
                     panel = this.down('panel[group="'+ group.id+'"]');
 
-                if (!panel.items.length) {
+                if (panel && !panel.items.length) {
                     this.removeDocked(panel);
                 }
             }

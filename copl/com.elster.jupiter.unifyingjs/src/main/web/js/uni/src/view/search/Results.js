@@ -49,11 +49,7 @@ Ext.define('Uni.view.search.Results', {
             }
         ];
 
-        var listeners = searchFields.on('load', function (store, items) {
-            me.getStore().model.setFields(items.map(function (field) {
-                return service.createFieldDefinitionFromModel(field)
-            }));
-
+        var storeListeners = searchFields.on('load', function (store, items) {
             me.down('uni-search-column-picker').setColumns(items.map(function (field) {
                 return service.createColumnDefinitionFromModel(field)
             }));
@@ -61,14 +57,17 @@ Ext.define('Uni.view.search.Results', {
             destroyable: true
         });
 
-        service.on('applyFilters', function() {
+        var serviceListeners = service.on('applyFilters', function() {
             me.down('pagingtoolbartop').resetPaging();
             me.down('pagingtoolbarbottom').resetPaging();
+        }, me, {
+            destroyable: true
         });
 
         me.callParent(arguments);
         me.on('destroy', function(){
-            listeners.destroy();
+            storeListeners.destroy();
+            serviceListeners.destroy();
         });
     }
 });
