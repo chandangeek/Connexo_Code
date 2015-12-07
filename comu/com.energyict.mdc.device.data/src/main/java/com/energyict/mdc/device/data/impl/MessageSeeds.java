@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.DeviceDataServices;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.DeviceDataServices;
 
 import java.util.logging.Level;
 
@@ -15,7 +14,6 @@ import static java.util.logging.Level.SEVERE;
  * @since 2014-03-06 (14:41)
  */
 public enum MessageSeeds implements MessageSeed {
-    LEGACY(100, "legacy.exception", "Coding: BusinessException or SQLException from legacy code that has not been ported to the jupiter ORM framework"),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required"),
     CODING_RELATION_IS_ALREADY_OBSOLETE(1001, "relation.isAlreadyObsolete", "Cannot remove a property because the relation (of type ''{0}'') that holds it is already obsolete"),
     CODING_NO_PROPERTIES_EXPECTED(1002, "noAttributesExpected", "Was not expecting a value to be added for property ''{0}'' because the pluggable does not have any properties"),

@@ -17,7 +17,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -150,7 +149,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Test
     @Transactional
-    public void createWithoutViolationsTest() throws BusinessException, SQLException {
+    public void createWithoutViolationsTest() throws SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithoutViolationsTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
 
@@ -170,7 +169,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Test
     @Transactional
-    public void createAndReloadWithoutViolationsTest() throws BusinessException, SQLException {
+    public void createAndReloadWithoutViolationsTest() throws SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createAndReloadWithoutViolationsTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         device.save();
@@ -192,7 +191,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Test
     @Transactional
-    public void createWithoutViolationsWhenRequiredPropertySpecifiedByInheritedPropertyTest() throws BusinessException, SQLException {
+    public void createWithoutViolationsWhenRequiredPropertySpecifiedByInheritedPropertyTest() throws SQLException {
         // Add all required properties to the configuration level first
         protocolDialect1ConfigurationProperties.setProperty(REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.save();
@@ -216,7 +215,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Test
     @Transactional
-    public void findSingleDialectsForDeviceTest() throws BusinessException, SQLException {
+    public void findSingleDialectsForDeviceTest() throws SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "findSingleDialectsForDeviceTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         device.save();
@@ -237,7 +236,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Test
     @Transactional
-    public void findAllDialectsForDeviceTest() throws BusinessException, SQLException {
+    public void findAllDialectsForDeviceTest() throws SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "findAllDialectsForDeviceTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         device.setProtocolDialectProperty(DIALECT_2_NAME, REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
@@ -301,7 +300,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Test
     @Transactional
-    public void getPropertiesIncludingInheritedOnesTest() throws BusinessException, SQLException {
+    public void getPropertiesIncludingInheritedOnesTest() throws SQLException {
         // Add one optional property to the configuration level first
         protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.save();
@@ -326,7 +325,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Test
     @Transactional
-    public void testInheritedPropertiesAreOverriddenByLocalProperties() throws BusinessException, SQLException {
+    public void testInheritedPropertiesAreOverriddenByLocalProperties() throws SQLException {
         // Add properties to the configuration level first
         protocolDialect1ConfigurationProperties.setProperty(REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_VALUE);
         protocolDialect1ConfigurationProperties.setProperty(OPTIONAL_PROPERTY_NAME, INHERITED_OPTIONAL_PROPERTY_VALUE);
@@ -353,7 +352,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Test(expected = ProtocolDialectConfigurationPropertiesIsRequiredException.class)
     @Transactional
-    public void createWithNonExistingConfigurationPropertiesTest() throws SQLException, BusinessException {
+    public void createWithNonExistingConfigurationPropertiesTest() throws SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithNonExistingConfigurationPropertiesTest", MRID);
 
         // Business method
@@ -364,7 +363,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Test(expected = ConstraintViolationException.class)
     @Transactional
-    public void createWithVeryLargeProperty() throws SQLException, BusinessException {
+    public void createWithVeryLargeProperty() throws SQLException {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithNonExistingConfigurationPropertiesTest", MRID);
 
         // Business method

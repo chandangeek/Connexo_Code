@@ -4,7 +4,6 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
@@ -208,7 +207,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.save();
     }
 
-    @Test(expected = BusinessException.class)
+    //@Test(expected = WhateverExceptionMakeObsoleteIsThrowing.class)
     @Transactional
     @Ignore
     // Todo: Wait for ComTaskExecution to be moved to this bundle and then create one that explicitly uses the InboundConnectionTaskImpl
@@ -662,7 +661,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testSwitchFromOutboundDefault() throws SQLException, BusinessException {
+    public void testSwitchFromOutboundDefault() throws SQLException {
         this.grantAllViewAndEditPrivilegesToPrincipal();
         ScheduledConnectionTaskImpl outboundDefault = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testSwitchFromOutboundDefault");
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(outboundDefault);
@@ -681,7 +680,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testSetAsDefaultWithoutOtherDefault() throws SQLException, BusinessException {
+    public void testSetAsDefaultWithoutOtherDefault() throws SQLException {
         this.grantAllViewAndEditPrivilegesToPrincipal();
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations();
 
@@ -694,7 +693,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testUnsetAsDefaultWithOtherConnectionTasks() throws SQLException, BusinessException {
+    public void testUnsetAsDefaultWithOtherConnectionTasks() throws SQLException {
         this.grantAllViewAndEditPrivilegesToPrincipal();
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations(false);
         ScheduledConnectionTask outboundDefault = this.createOutboundWithIpPropertiesWithoutViolations("testUnsetAsDefaultWithOtherConnectionTasks");
@@ -713,7 +712,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testUnsetAsDefaultWithoutOtherDefaults() throws SQLException, BusinessException {
+    public void testUnsetAsDefaultWithoutOtherDefaults() throws SQLException {
         this.grantAllViewAndEditPrivilegesToPrincipal();
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations(false);
 

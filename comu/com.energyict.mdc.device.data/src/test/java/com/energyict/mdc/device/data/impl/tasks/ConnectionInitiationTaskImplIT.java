@@ -17,7 +17,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
-import javax.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.Calendar;
 
@@ -152,7 +151,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         createSimpleConnectionInitiationTask();
 
-        // Expected BusinessException because the ComPortType of the ComPortPool is not supported by the ConnectionType
+        // See expected constraint violation rule
     }
 
     @Test(expected = PartialConnectionTaskNotPartOfDeviceConfigurationException.class)

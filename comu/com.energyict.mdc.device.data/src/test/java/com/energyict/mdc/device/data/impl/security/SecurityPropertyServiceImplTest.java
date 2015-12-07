@@ -12,7 +12,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Ranges;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -384,7 +383,7 @@ public class SecurityPropertyServiceImplTest {
     }
 
     @Test
-    public void setSecurityProperties () throws SQLException, BusinessException {
+    public void setSecurityProperties () throws SQLException {
         Instant now = Instant.ofEpochSecond(97L);
         when(this.clock.instant()).thenReturn(now);
         when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
@@ -624,7 +623,7 @@ public class SecurityPropertyServiceImplTest {
     }
 
     @Test
-    public void deleteSecurityProperties() throws SQLException, BusinessException {
+    public void deleteSecurityProperties() throws SQLException {
         Instant now = Instant.ofEpochSecond(1430523600L);
         when(this.clock.instant()).thenReturn(now);
         SecurityPropertyService service = this.testService();

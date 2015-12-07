@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.common.CanLock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
@@ -73,7 +72,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     implements
         ServerConnectionTask<CPPT, PCTT>,
         ConnectionTaskPropertyProvider,
-        CanLock,
         PropertyFactory<ConnectionType, ConnectionTaskProperty>,
         HasLastComSession,
         PersistenceAware {
@@ -164,11 +162,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     public boolean hasDirtyProperties() {
         return cache.isDirty();
-    }
-
-    @Override
-    public void lock() {
-        this.getDataMapper().lock(this.getId());
     }
 
     private DataMapper<ConnectionTask> getDataMapper() {

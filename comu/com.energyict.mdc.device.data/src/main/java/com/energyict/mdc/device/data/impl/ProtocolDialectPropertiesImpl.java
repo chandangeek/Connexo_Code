@@ -14,7 +14,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.common.CanLock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -50,8 +49,7 @@ import java.util.stream.Collectors;
 public class ProtocolDialectPropertiesImpl
         extends PersistentNamedObject<ProtocolDialectProperties>
         implements
-            CanLock,
-            PropertyFactory<DeviceProtocolDialect, DeviceProtocolDialectProperty>,
+        PropertyFactory<DeviceProtocolDialect, DeviceProtocolDialectProperty>,
             ProtocolDialectProperties,
             PersistenceAware {
 
@@ -136,11 +134,6 @@ public class ProtocolDialectPropertiesImpl
     @Override
     protected DeleteEventType deleteEventType() {
         return DeleteEventType.PROTOCOLDIALECTPROPERTIES;
-    }
-
-    @Override
-    public void lock() {
-        this.getDataMapper().lock(this.getId());
     }
 
     @Override

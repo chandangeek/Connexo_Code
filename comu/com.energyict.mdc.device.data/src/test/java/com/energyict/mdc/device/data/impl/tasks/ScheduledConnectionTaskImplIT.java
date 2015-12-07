@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TypedProperties;
@@ -39,7 +38,6 @@ import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import org.joda.time.DateTimeConstants;
 
-import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -77,7 +75,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     @After
-    public void refreshAllConnectionTypePluggableClasses() throws BusinessException {
+    public void refreshAllConnectionTypePluggableClasses() {
         refreshConnectionTypePluggableClasses();
     }
 
@@ -468,8 +466,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         scheduledConnectionTask.update();
 
-        // Expected BusinessException because the ComPortType of the ComPortPool is not supported by the ConnectionType
-        //assertThat(e.getMessageId()).isEqualTo("comPortTypeXOfComPortPoolYIsNotSupportedByConnectionTypePluggableClassZ");
+        // See expected constraint violation rule
     }
 
     @Test
@@ -588,8 +585,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         device.save();
 
-        // Expecting a BusinessException because the offset is outside the communication window.
-        //assertThat(e.getMessageId()).isEqualTo("OffsetXIsNotWithinComWindowY");
+        // See expected constraint violation rule
     }
 
     @Test
@@ -607,8 +603,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         device.save();
 
-        // Expecting a BusinessException because the offset is outside the communication window.
-        // assertThat(e.getMessageId()).isEqualTo("OffsetXIsNotWithinComWindowY");
+        // See expected constraint violation rule
     }
 
     @Test
@@ -1007,7 +1002,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test(expected = ConnectionTaskIsExecutingAndCannotBecomeObsoleteException.class)
     @Transactional
-    public void makeObsoleteWhenComServerIsExecutingTest() throws SQLException, BusinessException {
+    public void makeObsoleteWhenComServerIsExecutingTest() throws SQLException {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("makeObsoleteWhenComServerIsExecutingTest");
 
         this.attemptLock(connectionTask);
@@ -1202,7 +1197,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testApplyComWindowWhenTaskDoesNotHaveAComWindow() throws SQLException, BusinessException {
+    public void testApplyComWindowWhenTaskDoesNotHaveAComWindow() throws SQLException {
         Instant nextExecutionTimestamp = inMemoryPersistence.getClock().instant();
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithoutNextExecutionSpecs", null);
 
@@ -1215,7 +1210,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testApplyComWindowWithNextExecutionTimeStampThatImmediatelyFallsWithinComWindow() throws SQLException, BusinessException {
+    public void testApplyComWindowWithNextExecutionTimeStampThatImmediatelyFallsWithinComWindow() throws SQLException {
         this.toRestore = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampThatImmediatelyFallsWithinComWindow", FROM_ONE_AM_TO_TWO_AM);
@@ -1231,7 +1226,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testApplyComWindowWithNextExecutionTimeStampBeforeComWindow() throws SQLException, BusinessException {
+    public void testApplyComWindowWithNextExecutionTimeStampBeforeComWindow() throws SQLException {
         this.toRestore = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampBeforeComWindow", FROM_ONE_AM_TO_TWO_AM);
@@ -1248,7 +1243,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testApplyComWindowWithNextExecutionTimeStampAfterComWindow() throws SQLException, BusinessException {
+    public void testApplyComWindowWithNextExecutionTimeStampAfterComWindow() throws SQLException {
         this.toRestore = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampAfterComWindow", FROM_ONE_AM_TO_TWO_AM);
@@ -1322,7 +1317,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void pauseIfNotPausedTest() throws SQLException, BusinessException {
+    public void pauseIfNotPausedTest() throws SQLException {
         String name = "pauseIfNotPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
 
@@ -1337,7 +1332,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void pauseWhenAlreadyPausedTest() throws SQLException, BusinessException {
+    public void pauseWhenAlreadyPausedTest() throws SQLException {
         String name = "pauseWhenAlreadyPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
 
@@ -1352,7 +1347,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void resumeWhenPausedTest() throws SQLException, BusinessException {
+    public void resumeWhenPausedTest() throws SQLException {
         String name = "resumeWhenPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
         connectionTask.deactivate();
@@ -1367,7 +1362,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void resumeWhenAlreadyResumedTest() throws SQLException, BusinessException {
+    public void resumeWhenAlreadyResumedTest() throws SQLException {
         String name = "resumeWhenAlreadyResumedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
 
@@ -1380,7 +1375,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test(expected = IllegalArgumentException.class)
     @Transactional
-    public void testConnectWithOtherProperties() throws SQLException, BusinessException, ConnectionException {
+    public void testConnectWithOtherProperties() throws SQLException, ConnectionException {
         String name = "testConnectWithOtherProperties";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
 
@@ -1395,105 +1390,105 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 /* Todo: Enable once communication session objects have been ported to this bundle
     @Test
     @Transactional
-    public void testGetLastComSessionWithoutComSessions() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithoutComSessions() throws SQLException {
         ConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithoutComSessions");
         this.doTestGetLastComSessionWithoutComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithoutComSessionsWithActiveLastComSessionCache() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithoutComSessionsWithActiveLastComSessionCache() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetComSessionsWithoutComSessionsWithActiveLastComSessionCache");
         this.doTestGetLastComSessionWithoutComSessionsWithActiveLastComSessionCache(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithoutComSessionsWithActiveComSessionCache() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithoutComSessionsWithActiveComSessionCache() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetComSessionsWithoutComSessionsWithActiveComSessionCache");
         this.doTestGetLastComSessionWithoutComSessionsWithActiveComSessionCache(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithComSessions() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithComSessions() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithComSessions");
         this.doTestGetLastComSessionWithComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithComSessionsWithActiveLastComSessionCache() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithComSessionsWithActiveLastComSessionCache() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetComSessionsWithComSessionsWithActiveLastComSessionCache");
         this.doTestGetLastComSessionWithComSessionsWithActiveLastComSessionCache(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithComSessionsWithActiveComSessionCache() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithComSessionsWithActiveComSessionCache() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetComSessionsWithComSessionsWithActiveComSessionCache");
         this.doTestGetLastComSessionWithComSessionsWithActiveComSessionCache(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetSuccessIndicatorWithoutComSessions() throws SQLException, BusinessException {
+    public void testGetSuccessIndicatorWithoutComSessions() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithoutComSessions");
         this.doTestGetSuccessIndicatorWithoutComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetSuccessIndicatorWithSuccessfulLastComSession() throws SQLException, BusinessException {
+    public void testGetSuccessIndicatorWithSuccessfulLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithSuccessfulLastComSession");
         this.doTestGetSuccessIndicatorWithComSessions(connectionTask, true);
     }
 
     @Test
     @Transactional
-    public void testGetSuccessIndicatorWithFailedLastComSession() throws SQLException, BusinessException {
+    public void testGetSuccessIndicatorWithFailedLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithFailedLastComSession");
         this.doTestGetSuccessIndicatorWithComSessions(connectionTask, false);
     }
 
     @Test
     @Transactional
-    public void testGetLastSuccessIndicatorWithoutComSessions() throws SQLException, BusinessException {
+    public void testGetLastSuccessIndicatorWithoutComSessions() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastSuccessIndicatorWithoutComSessions");
         this.doTestGetLastSuccessIndicatorWithoutComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastSuccessIndicatorWithSuccessfulLastComSession() throws SQLException, BusinessException {
+    public void testGetLastSuccessIndicatorWithSuccessfulLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastSuccessIndicatorWithSuccessfulLastComSession");
         this.doTestGetLastSuccessIndicatorWithComSessions(connectionTask, ComSession.SuccessIndicator.Success);
     }
 
     @Test
     @Transactional
-    public void testGetLastSuccessIndicatorWithSetupErrorLastComSession() throws SQLException, BusinessException {
+    public void testGetLastSuccessIndicatorWithSetupErrorLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastSuccessIndicatorWithSetupErrorLastComSession");
         this.doTestGetLastSuccessIndicatorWithComSessions(connectionTask, ComSession.SuccessIndicator.SetupError);
     }
 
     @Test
     @Transactional
-    public void testGetLastSuccessIndicatorWithBrokenLastComSession() throws SQLException, BusinessException {
+    public void testGetLastSuccessIndicatorWithBrokenLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastSuccessIndicatorWithBrokenLastComSession");
         this.doTestGetLastSuccessIndicatorWithComSessions(connectionTask, ComSession.SuccessIndicator.Broken);
     }
 
     @Test
     @Transactional
-    public void testGetLastTaskSummaryWithoutComSessions() throws SQLException, BusinessException {
+    public void testGetLastTaskSummaryWithoutComSessions() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastTaskSummaryWithoutComSessions");
         this.doTestGetLastTaskSummaryWithoutComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastTaskSummaryWithComSessions() throws SQLException, BusinessException {
+    public void testGetLastTaskSummaryWithComSessions() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastTaskSummaryWithoutComSessions");
         this.doTestGetLastTaskSummaryWithComSessions(connectionTask, 4, 1, 1);
     }
@@ -1520,7 +1515,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testSwitchFromInboundDefault() throws SQLException, BusinessException {
+    public void testSwitchFromInboundDefault() throws SQLException {
         InboundConnectionTaskImpl inboundConnectionTask = this.createSimpleInboundConnectionTask();
 
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(inboundConnectionTask);
@@ -1540,7 +1535,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testSetAsDefaultWithoutOtherDefaults() throws SQLException, BusinessException {
+    public void testSetAsDefaultWithoutOtherDefaults() throws SQLException {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testSetAsDefaultWithoutOtherDefaults");
 
         // Business method
