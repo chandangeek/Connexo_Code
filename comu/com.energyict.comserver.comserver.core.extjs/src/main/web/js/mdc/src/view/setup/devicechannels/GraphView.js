@@ -110,20 +110,20 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                         mainValue,
                         bulkValue;
 
-                    if (point.delta.suspect) {
+                    if (point.delta && point.delta.suspect) {
                         deltaIcon = 'icon-validation-red';
-                    } else if (point.delta.notValidated) {
+                    } else if (point.delta && point.delta.notValidated) {
                         deltaIcon = 'icon-validation-black';
                     }
 
-                    if (point.bulk.suspect)  {
+                    if (point.bulk && point.bulk.suspect)  {
                         bulkIcon = 'icon-validation-red';
-                    } else if (point.bulk.notValidated) {
+                    } else if (point.bulk && point.bulk.notValidated) {
                         bulkIcon = 'icon-validation-black';
                     }
 
-                    mainValue = point.y ? point.y + ' ' + point.measurementType : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
-                    bulkValue = point.collectedValue ? point.collectedValue + ' ' + point.measurementType : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                    mainValue = point.y ? point.y + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                    bulkValue = point.collectedValue ? point.collectedValue + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                     html += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';

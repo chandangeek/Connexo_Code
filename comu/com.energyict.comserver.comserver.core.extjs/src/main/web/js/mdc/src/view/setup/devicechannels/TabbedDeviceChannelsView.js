@@ -170,7 +170,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             zoomLevelsStore = Ext.getStore('Mdc.store.DataIntervalAndZoomLevels'),
             calculatedReadingType = channelRecord.get('calculatedReadingType'),
             channelName = calculatedReadingType && calculatedReadingType.fullAliasName ? calculatedReadingType.fullAliasName : '',
-            unitOfMeasure = channelRecord.get('unitOfMeasure').unit,
+            unitOfMeasure = channelRecord.get('readingType').unit,
             seriesObject = {
                 marker: {
                     enabled: false
@@ -228,7 +228,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         var me = this,
             data = [],
             missedValues = [],
-            measurementType = me.channel.get('unitOfMeasure'),
+            unitOfMeasure = me.channel.get('readingType').names.unitOfMeasure,
             okColor = "#70BB51",
             estimatedColor = "#568343",
             suspectColor = 'rgba(235, 86, 66, 1)',
@@ -252,7 +252,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             point.y = parseFloat(record.get('value'));
             point.intervalEnd = interval.end;
             point.collectedValue = record.get('collectedValue');
-            point.measurementType = measurementType;
+            point.unitOfMeasure = unitOfMeasure;
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
             point.multiplier = record.get('multiplier');
