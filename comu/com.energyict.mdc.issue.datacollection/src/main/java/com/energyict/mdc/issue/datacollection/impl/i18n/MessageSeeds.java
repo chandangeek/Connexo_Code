@@ -17,7 +17,7 @@ public enum MessageSeeds implements MessageSeed {
     EVENT_TITLE_CONNECTION_LOST(707, "EventTitleConnectionLost", "Connection lost", Level.INFO),
 
     // Validation 1101 - 1499
-    FIELD_CAN_NOT_BE_EMPTY (1101, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
+    FIELD_CAN_NOT_BE_EMPTY (1101, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
     ;
 
     private final int number;
