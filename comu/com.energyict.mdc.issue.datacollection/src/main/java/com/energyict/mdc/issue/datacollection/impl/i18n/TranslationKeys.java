@@ -5,12 +5,6 @@ import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
 
-/**
- * Insert your comments here.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-09-03 (15:36)
- */
 public enum TranslationKeys implements TranslationKey {
 
     BASIC_TEMPLATE_DATACOLLECTION_NAME("TemplateBasicDataCollectionName", "Create issue when specific event occurs"),
