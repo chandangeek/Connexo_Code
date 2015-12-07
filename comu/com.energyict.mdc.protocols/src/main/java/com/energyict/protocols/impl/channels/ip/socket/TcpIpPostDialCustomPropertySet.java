@@ -34,7 +34,7 @@ public class TcpIpPostDialCustomPropertySet extends OutboundTcpIpCustomPropertyS
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(this.postDialMillisPropertySpec());
+        propertySpecs.add(this.postDialDelayMillisPropertySpec());
         propertySpecs.add(this.postDialCommandAttempsPropertySpec());
         propertySpecs.add(this.postDialCommandPropertySpec());
         return propertySpecs;

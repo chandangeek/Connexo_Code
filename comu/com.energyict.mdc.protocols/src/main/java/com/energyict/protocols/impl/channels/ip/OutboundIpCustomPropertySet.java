@@ -101,12 +101,12 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec bufferSizePropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.propertySpecName(),
+                        OutboundIpConnectionProperties.Fields.BUFFER_SIZE.propertySpecName(),
                         true,
                         new BigDecimalFactory());
     }
 
-    protected PropertySpec postDialMillisPropertySpec() {
+    protected PropertySpec postDialDelayMillisPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
                         OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.propertySpecName(),
