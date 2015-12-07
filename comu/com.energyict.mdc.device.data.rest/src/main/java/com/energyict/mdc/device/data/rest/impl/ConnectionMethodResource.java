@@ -115,9 +115,9 @@ public class ConnectionMethodResource {
         boolean wasConnectionTaskDefault = task.isDefault();
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, info.name);
 
-        pauseOrResumeTask(info, task);
         info.writeTo(task, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         task.saveAllProperties();
+        pauseOrResumeTask(info, task);
         task.save();
         if (info.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
