@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.api.legacy;
 
-import com.energyict.mdc.common.BusinessException;
-
 import java.sql.SQLException;
 
 /**
@@ -19,14 +17,14 @@ public interface CachingProtocol {
      *
      * @param cacheObject a protocol specific cache object
      */
-    public void setCache(Object cacheObject);
+    void setCache(Object cacheObject);
 
     /**
      * Returns the protocol specific cache object from the meter protocol implementation.
      *
      * @return the protocol specific cache object
      */
-    public Object getCache();
+    Object getCache();
 
     /**
      * Fetch the protocol specific cache object from the database.
@@ -35,9 +33,8 @@ public interface CachingProtocol {
      * @param rtuId Database ID of the RTU
      * @return the protocol specific cache object
      * @throws SQLException Thrown in case of an SQLException
-     * @throws BusinessException Thrown in case of an BusinessException
      */
-    public Object fetchCache(int rtuId) throws SQLException, BusinessException;
+    Object fetchCache(int rtuId) throws SQLException;
 
     /**
      * Update the protocol specific cache object information in the database.
@@ -46,8 +43,7 @@ public interface CachingProtocol {
      * @param rtuId       Database ID of the RTU
      * @param cacheObject the protocol specific cach object
      * @throws SQLException Thrown in case of an SQLException
-     * @throws BusinessException Thrown in case of an BusinessException
      */
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException, BusinessException;
+    void updateCache(int rtuId, Object cacheObject) throws SQLException;
 
 }

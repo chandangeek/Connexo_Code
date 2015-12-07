@@ -6,9 +6,6 @@
 
 package com.energyict.mdc.protocol.api.codetables;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NamedBusinessObject;
-
 import java.util.Calendar;
 import java.util.List;
 
@@ -17,29 +14,34 @@ import java.util.List;
  *
  * @author pasquien
  */
-public interface CodeDayType extends NamedBusinessObject {
+public interface CodeDayType {
+
+    String getName();
+
+    String getExternalName();
+
+    int getId();
 
     /**
      * returns the code the receiver belongs to
      *
      * @return the code.
      */
-    public Code getCode();
+    Code getCode();
 
     /**
      * Returns the list of code values defined for this day type
      *
      * @return a List of CodeDayTypeDef objects.
      */
-    public List<CodeDayTypeDef> getDefinitions();
+    List<CodeDayTypeDef> getDefinitions();
 
     /**
      * Returns the code for a given time
      *
      * @param cal the date
      * @return the code.
-     * @throws BusinessException if no suitable rule is defined for the given date.
      */
-    public int getCodeValue(Calendar cal) throws BusinessException;
+    int getCodeValue(Calendar cal);
 
 }

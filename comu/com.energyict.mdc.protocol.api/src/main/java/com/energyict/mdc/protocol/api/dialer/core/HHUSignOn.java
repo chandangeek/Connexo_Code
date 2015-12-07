@@ -18,31 +18,31 @@ import java.io.IOException;
  */
 public interface HHUSignOn {
 
-    public static final int PROTOCOL_NORMAL = 0;
-    public static final int PROTOCOL_HDLC = 2;
-    public static final int MODE_READOUT = 0;
-    public static final int MODE_PROGRAMMING = 1;
-    public static final int MODE_BINARY_HDLC = 2;
-    public static final int MODE_MANUFACTURER_SPECIFIC_3 = 3;
-    public static final int MODE_MANUFACTURER_SPECIFIC_4 = 4;
-    public static final int MODE_MANUFACTURER_SPECIFIC_5 = 5;
-    public static final int MODE_MANUFACTURER_SPECIFIC_SEVCD = 6;
+    int PROTOCOL_NORMAL = 0;
+    int PROTOCOL_HDLC = 2;
+    int MODE_READOUT = 0;
+    int MODE_PROGRAMMING = 1;
+    int MODE_BINARY_HDLC = 2;
+    int MODE_MANUFACTURER_SPECIFIC_3 = 3;
+    int MODE_MANUFACTURER_SPECIFIC_4 = 4;
+    int MODE_MANUFACTURER_SPECIFIC_5 = 5;
+    int MODE_MANUFACTURER_SPECIFIC_SEVCD = 6;
 
-    public void sendBreak() throws NestedIOException, ConnectionException;
+    void sendBreak() throws NestedIOException, ConnectionException;
 
-    public MeterType signOn(String strIdent, String meterID) throws IOException, ConnectionException;
+    MeterType signOn(String strIdent, String meterID) throws IOException;
 
-    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException, ConnectionException;
+    MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException;
 
-    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException, ConnectionException;
+    MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException;
 
-    public void setProtocol(int protocol);
+    void setProtocol(int protocol);
 
-    public void setMode(int mode);
+    void setMode(int mode);
 
-    public void enableDataReadout(boolean enabled);
+    void enableDataReadout(boolean enabled);
 
-    public byte[] getDataReadout();
+    byte[] getDataReadout();
 
-    public String getReceivedIdent();
+    String getReceivedIdent();
 }

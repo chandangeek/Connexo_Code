@@ -6,20 +6,24 @@
 
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.common.NamedObjectShadow;
+import com.energyict.mdc.common.ObjectShadow;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 
+import static com.elster.jupiter.util.Checks.is;
+
 /**
  * User File Shadow
  *
  * @author Geert
  */
-public class UserFileShadow extends NamedObjectShadow {
+public class UserFileShadow extends ObjectShadow {
 
+    private int id = 0;
+    private String name;
     private String extension;
     private File file;
     private Instant modDate;
@@ -36,7 +40,9 @@ public class UserFileShadow extends NamedObjectShadow {
      * @param userFile object to shadow
      */
     public UserFileShadow(UserFile userFile) {
-        super(userFile.getId(), userFile.getName());
+        this();
+        this.id = userFile.getId();
+        this.name = userFile.getName();
         extension = userFile.getExtension();
         modDate = userFile.getModDate();
         try {
@@ -96,4 +102,92 @@ public class UserFileShadow extends NamedObjectShadow {
         return modDate;
     }
 
+    /**
+     * getter for property name
+     *
+     * @return value for property name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * setter for property name
+     *
+     * @param name new value for property name
+     */
+    public void setName(String name) {
+        this.name = (name == null ? null : name.trim());
+        markDirty();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        UserFileShadow otherNamedObjectShadow = (UserFileShadow)other;
+        if (otherNamedObjectShadow.getId() != 0 && getId() != 0) {
+            return otherNamedObjectShadow.getId() == getId();
+        }
+        else {
+            if (!is(otherNamedObjectShadow.getName()).emptyOrOnlyWhiteSpace() && !is(getName()).emptyOrOnlyWhiteSpace()) {
+                return otherNamedObjectShadow.getName().equals(getName())
+                    && otherNamedObjectShadow.getId() == this.getId();
+            }
+            else {
+                return is(otherNamedObjectShadow.getName()).emptyOrOnlyWhiteSpace()
+                    && is(getName()).emptyOrOnlyWhiteSpace()
+                    && super.equals(otherNamedObjectShadow);
+            }
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        if (getId() != 0) {
+            return getId();
+        }
+        else {
+            if (!is(getName()).emptyOrOnlyWhiteSpace()) {
+                return getName().hashCode();
+            }
+            else {
+                return super.hashCode();
+            }
+        }
+    }
+
+    /**
+     * Returns the id of the object shadowed by the receiver
+     *
+     * @return the shadowed object's id
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Setter for the property id.
+     * This method is reserved for internal use by business objects.
+     * Should not be used by external applications,
+     * since object ids are generated automatically by the system.
+     *
+     * @param id new value for the property id
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    /**
+     * prepares the receiver for cloning
+     */
+    public void prepareCloning() {
+        super.prepareCloning();
+        this.id = 0;
+    }
 }

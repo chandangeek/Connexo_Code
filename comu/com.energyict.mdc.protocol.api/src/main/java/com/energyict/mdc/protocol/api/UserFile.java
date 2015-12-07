@@ -1,8 +1,5 @@
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NamedBusinessObject;
-
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -12,7 +9,11 @@ import java.time.Instant;
  *
  * @author Geert
  */
-public interface UserFile extends NamedBusinessObject {
+public interface UserFile {
+
+    String getName();
+
+    int getId();
 
     /**
      * Returns the file extension
@@ -47,18 +48,16 @@ public interface UserFile extends NamedBusinessObject {
      *
      * @param shadow contains the new attributes values
      * @throws SQLException      if a database error occurred
-     * @throws BusinessException if a business exception occurred
      */
-    void update(UserFileShadow shadow) throws SQLException, BusinessException;
+    void update(UserFileShadow shadow) throws SQLException;
 
     /**
      * Updates the receiver's contents
      *
      * @param in contains the new contents
      * @throws SQLException      if a database error occurred
-     * @throws BusinessException if a business error occurred
      */
-    void updateContents(InputStream in) throws SQLException, BusinessException;
+    void updateContents(InputStream in) throws SQLException;
 
     /**
      * Tests if this file is a picture file (jpg, jpeg, png, gif)

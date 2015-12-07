@@ -10,10 +10,8 @@ package com.energyict.mdc.protocol.api.dialer.core;
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -37,23 +35,5 @@ public interface Link {
     void init(String connectionString, String strModemInitCommPort, String strModemInitExtra) throws LinkException;
 
     void init(String connectionString, String strModemInitCommPort, String strModemInitExtra, String strDialPrefix) throws LinkException;
-
-    /**
-     * This method disconnect the connection with the remote device.
-     * KV 03102005
-     *
-     * @throws LinkException When there is a specific dialer error.
-     * @throws IOException   All other exceptions
-     */
-    void disConnect() throws IOException, LinkException;
-
-    /**
-     * This method set up the connection with the remote device.
-     * KV 03102005
-     *
-     * @throws LinkException     When there is a specific dialer error.
-     * @throws NestedIOException All other exceptions
-     */
-    void connect() throws IOException, LinkException;
 
 }

@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.common.ApplicationException;
-
 public enum ComPortType {
 
     SERIAL {
@@ -34,15 +32,6 @@ public enum ComPortType {
 
     public int dbValue() {
         return this.ordinal();
-    }
-
-    public static ComPortType valueFromDb(int dbValue) {
-        for (ComPortType comPortType : values()) {
-            if (comPortType.dbValue() == dbValue) {
-                return comPortType;
-            }
-        }
-        throw new ApplicationException("unknown dbValue: " + dbValue);
     }
 
 }
