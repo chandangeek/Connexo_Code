@@ -110,25 +110,30 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     },
 
     createMenuItem: function (criteria) {
-        var menuitem = {
-            xtype: 'menucheckitem',
-            text: criteria.get('displayValue'),
-            value: criteria.get('name'),
-            criteria: criteria,
-            checked: this.service.filters.get(criteria.get('name'))
-        };
+        var me = this,
+            menuitem = {
+                xtype: 'menucheckitem',
+                text: criteria.get('displayValue'),
+                value: criteria.get('name'),
+                criteria: criteria,
+                checked: this.service.filters.get(criteria.get('name'))
+            };
 
         if (    criteria.get('constraints')
             &&  criteria.get('constraints').length
-            &&  this.service.checkConstraints(criteria)
+            &&  me.service.checkConstraints(criteria)
         ) {
+            var  constraints = criteria.get('constraints').map(function(c) {
+                return me.getStore().getById(c).get('displayValue')
+            });
+
             Ext.apply(menuitem, {
                 disabled: true,
                 tooltip: {
                     title: Uni.I18n.translate('search.criteriaselector.disabled.title', 'UNI', 'Enable {0}', [criteria.get('displayValue')]),
                     text: Uni.I18n.translate('search.criteriaselector.disabled.body', 'UNI',
-                        '{0} become available as soon as a search value has been specified for {1}',
-                        [criteria.get('displayValue'), criteria.get('constraints').join(', ')]),
+                        '{0} property becomes available as soon as a value has been specified for the search criterion {1}',
+                        [criteria.get('displayValue'), constraints.join(', ')]),
                     maxWidth: 150
                 }
             })
