@@ -1,7 +1,8 @@
 package com.energyict.mdc.io;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,56 +14,56 @@ import java.util.List;
 @ProviderType
 public interface ModemProperties {
 
-    public static final String PHONE_NUMBER_PROPERTY_NAME = "phone_number";     // the PhoneNumber of the device
+    String PHONE_NUMBER_PROPERTY_NAME = "phone_number";     // the PhoneNumber of the device
 
     /**
      * Gets the Network User Address of the device.
      *
      * @return the PhoneNumber of the device
      */
-    public String getPhoneNumber();
+    String getPhoneNumber();
 
     /**
      * Gets the prefix command to use when performing the actual dial to the modem of the device.
      *
      * @return the prefix command to be used when performing the actual dial to the modem of the device
      */
-    public String getCommandPrefix();
+    String getCommandPrefix();
 
     /**
      * Gets the timeout applicable for the connect command.
      *
      * @return the timeout for the connect command
      */
-    public TimeDuration getConnectTimeout();
+    TimeDuration getConnectTimeout();
 
     /**
      * Gets the delay to wait after a connect command has been received.
      *
      * @return the delay to wait after a connect command has been received
      */
-    public TimeDuration getDelayAfterConnect();
+    TimeDuration getDelayAfterConnect();
 
     /**
      * Gets the delay to wait before sending out the next command.
      *
      * @return the delay to wait before sending out the next command
      */
-    public TimeDuration getDelayBeforeSend();
+    TimeDuration getDelayBeforeSend();
 
     /**
      * Gets the timeout applicable for regular commands.
      *
      * @return the timeout for regular commands
      */
-    public TimeDuration getCommandTimeOut();
+    TimeDuration getCommandTimeOut();
 
     /**
      * Gets the number of attempts a command should be send to the modem.
      *
      * @return the number of attempts a command should be send to the modem
      */
-    public BigDecimal getCommandTry();
+    BigDecimal getCommandTry();
 
     /**
      * Gets the global initialization strings for this modem type.
@@ -72,7 +73,7 @@ public interface ModemProperties {
      *
      * @return the global initialization strings for this modem type
      */
-    public List<String> getGlobalModemInitStrings();
+    List<String> getGlobalModemInitStrings();
 
     /**
      * Gets the initialization strings for this modem type.
@@ -82,7 +83,7 @@ public interface ModemProperties {
      *
      * @return the initialization strings for this modem type
      */
-    public List<String> getModemInitStrings();
+    List<String> getModemInitStrings();
 
 
     /**
@@ -90,6 +91,6 @@ public interface ModemProperties {
      *
      * @return the delay between DTR line toggles
      */
-    public TimeDuration getLineToggleDelay();
+    TimeDuration getLineToggleDelay();
 
 }
