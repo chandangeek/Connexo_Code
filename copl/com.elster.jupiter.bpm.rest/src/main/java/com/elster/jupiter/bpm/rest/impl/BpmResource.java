@@ -34,6 +34,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -228,7 +229,7 @@ public class BpmResource {
         try{
             String rest = "/rest/tasks";
             String req  = getQueryParam(queryParameters);
-            if(!req.equals("")){
+            if(!req.isEmpty()){
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest);
@@ -237,9 +238,7 @@ public class BpmResource {
                 total = Integer.valueOf(obj.get("total").toString());
                 arr = obj.getJSONArray("tasks");
             }
-        } catch (JSONException e) {
-            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
-        } catch (RuntimeException e) {
+        } catch (JSONException | RuntimeException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
         TaskInfos infos = new TaskInfos(arr);
@@ -448,7 +447,7 @@ public class BpmResource {
         try {
             String rest = "/rest/tasks/runningprocesses";
             String req  = getQueryParam(queryParameters);
-            if(!req.equals("")){
+            if(!req.isEmpty()){
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest);
@@ -479,7 +478,7 @@ public class BpmResource {
         try {
             String rest = "/rest/tasks/process/history";
             String req  = getQueryParam(queryParameters);
-            if(!req.equals("")){
+            if(!req.isEmpty()){
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest);
