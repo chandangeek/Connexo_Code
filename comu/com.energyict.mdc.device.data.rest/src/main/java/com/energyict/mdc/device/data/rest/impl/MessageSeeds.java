@@ -78,8 +78,7 @@ public enum MessageSeeds implements MessageSeed {
     FLAG_DEVICE_CONCURRENT_TITLE(261, "FlagDeviceConcurrentTitle", "Failed to flag ''{0}''"),
     REMOVE_FLAG_DEVICE_CONCURRENT_TITLE(262, "RemoveFlagDeviceConcurrentTitle", "Failed to remove ''{0}'' from the list of flagged devices"),
     FLAG_DEVICE_CONCURRENT_BODY(263, "FlagDeviceConcurrentMessage", "{0} has changed since the page was last updated."),
-
-    ;
+    VERSION_MISSING(264, "VersionInfoMissing", "Versioning information is missing in the request");
     private final int number;
     private final String key;
     private final String format;

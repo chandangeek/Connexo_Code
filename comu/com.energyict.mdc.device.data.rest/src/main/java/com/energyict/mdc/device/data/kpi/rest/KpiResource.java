@@ -13,7 +13,9 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.rest.impl.ResourceHelper;
+import com.energyict.mdc.device.data.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -53,16 +55,18 @@ public class KpiResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/groups")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getAvailableDeviceGroups(@BeanParam JsonQueryParameters queryParameters){
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_COLLECTION_KPI, Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
+    public Response getAvailableDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<EndDeviceGroup> allGroups = meteringGroupsService.getEndDeviceGroupQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
         List<Long> usedGroupIds = dataCollectionKpiService.findAllDataCollectionKpis().stream().map(kpi -> kpi.getDeviceGroup().getId()).collect(Collectors.toList());
         Iterator<EndDeviceGroup> groupIterator = allGroups.iterator();
         while (groupIterator.hasNext()) {
-            EndDeviceGroup next =  groupIterator.next();
-            if (usedGroupIds.contains(next.getId())){
+            EndDeviceGroup next = groupIterator.next();
+            if (usedGroupIds.contains(next.getId())) {
                 groupIterator.remove();
             }
         }
@@ -70,9 +74,11 @@ public class KpiResource {
                 .map(gr -> new LongIdWithNameInfo(gr.getId(), gr.getName())).collect(Collectors.toList()), queryParameters)).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_COLLECTION_KPI, Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public PagedInfoList getAllKpis(@BeanParam JsonQueryParameters queryParameters) {
         List<DataCollectionKpiInfo> collection = dataCollectionKpiService.dataCollectionKpiFinder().
                 from(queryParameters).
@@ -83,44 +89,50 @@ public class KpiResource {
         return PagedInfoList.fromPagedList("kpis", collection, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_COLLECTION_KPI, Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public DataCollectionKpiInfo getKpiById(@PathParam("id") long id) {
         DataCollectionKpi dataCollectionKpi = resourceHelper.findDataCollectionKpiByIdOrThrowException(id);
         return dataCollectionKpiInfoFactory.from(dataCollectionKpi);
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public Response deleteKpi(@PathParam("id") long id, DataCollectionKpiInfo info) {
         info.id = id;
         resourceHelper.lockDataCollectionKpiOrThrowException(info).delete();
         return Response.ok().build();
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public Response createKpi(DataCollectionKpiInfo kpiInfo) {
-        EndDeviceGroup endDeviceGroup=null;
-        if (kpiInfo.deviceGroup != null && kpiInfo.deviceGroup.id!=null) {
+        EndDeviceGroup endDeviceGroup = null;
+        if (kpiInfo.deviceGroup != null && kpiInfo.deviceGroup.id != null) {
             endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
         }
         DataCollectionKpiService.DataCollectionKpiBuilder dataCollectionKpiBuilder = dataCollectionKpiService.newDataCollectionKpi(endDeviceGroup);
-        if (kpiInfo.frequency !=null && kpiInfo.frequency.every!=null && kpiInfo.frequency.every.asTimeDuration()!=null) {
+        if (kpiInfo.frequency != null && kpiInfo.frequency.every != null && kpiInfo.frequency.every.asTimeDuration() != null) {
             dataCollectionKpiBuilder.frequency(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount());
         }
-        if (kpiInfo.displayRange != null){
+        if (kpiInfo.displayRange != null) {
             dataCollectionKpiBuilder.displayPeriod(kpiInfo.displayRange.asTimeDuration());
         }
-        if (kpiInfo.communicationTarget!=null) {
+        if (kpiInfo.communicationTarget != null) {
             dataCollectionKpiBuilder.calculateComTaskExecutionKpi().expectingAsMaximum(kpiInfo.communicationTarget);
         }
-        if (kpiInfo.connectionTarget!=null) {
+        if (kpiInfo.connectionTarget != null) {
             dataCollectionKpiBuilder.calculateConnectionSetupKpi().expectingAsMaximum(kpiInfo.connectionTarget);
         }
 
@@ -128,16 +140,18 @@ public class KpiResource {
         return Response.status(Response.Status.CREATED).entity(dataCollectionKpiInfoFactory.from(dataCollectionKpi)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public Response updateKpi(@PathParam("id") long id, DataCollectionKpiInfo info) {
         info.id = id;
         DataCollectionKpi kpi = resourceHelper.lockDataCollectionKpiOrThrowException(info);
 
-        if (info.communicationTarget!=null) {
-            if (info.frequency !=null && info.frequency.every!=null) {
+        if (info.communicationTarget != null) {
+            if (info.frequency != null && info.frequency.every != null) {
                 if (!kpi.calculatesComTaskExecutionKpi() || (kpi.calculatesComTaskExecutionKpi() && (!info.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.comTaskExecutionKpiCalculationIntervalLength().get()) ||
                         !info.communicationTarget.equals(kpi.getStaticCommunicationKpiTarget().get())))) {
                     // something changed about communication KPI
@@ -145,8 +159,8 @@ public class KpiResource {
                 }
             }
         }
-        if (info.connectionTarget!=null) {
-            if (info.frequency !=null && info.frequency.every!=null) {
+        if (info.connectionTarget != null) {
+            if (info.frequency != null && info.frequency.every != null) {
                 if (!kpi.calculatesConnectionSetupKpi() || (kpi.calculatesConnectionSetupKpi() && (!info.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.connectionSetupKpiCalculationIntervalLength().get()) ||
                         !info.connectionTarget.equals(kpi.getStaticConnectionKpiTarget().get())))) {
                     // something changed about connection KPI
@@ -154,13 +168,13 @@ public class KpiResource {
                 }
             }
         }
-        if (info.connectionTarget==null) {
+        if (info.connectionTarget == null) {
             // drop connection kpi
             if (kpi.calculatesConnectionSetupKpi()) {
                 kpi.dropConnectionSetupKpi();
             }
         }
-        if (info.communicationTarget==null) {
+        if (info.communicationTarget == null) {
             // remove ComTaskExecutionKpi
             if (kpi.calculatesComTaskExecutionKpi()) {
                 kpi.dropComTaskExecutionKpi();
