@@ -55,7 +55,7 @@ Ext.define('Dbp.controller.Main', {
                 route: 'managementprocesses',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.managementprocesses.processes', 'BPM', 'Processes'),
+                        text: Uni.I18n.translate('general.managementprocesses.processes', 'DBP', 'Processes'),
                         itemId: 'processes',
                         href: router.getRoute('administration/managementprocesses').buildUrl()
                     }
