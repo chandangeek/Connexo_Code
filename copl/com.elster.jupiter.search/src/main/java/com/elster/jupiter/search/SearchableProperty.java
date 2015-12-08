@@ -1,7 +1,8 @@
 package com.elster.jupiter.search;
 
-import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.properties.PropertySpec;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 import java.util.Objects;
@@ -72,7 +73,7 @@ public interface SearchableProperty {
     /**
      * Models the visibility of a SearchableProperty.
      */
-    public enum Visibility {
+    enum Visibility {
         /**
          * The SearchableProperty sticks on the screen
          * and is therefor always visible.
@@ -90,7 +91,7 @@ public interface SearchableProperty {
     /**
      * Determines selection mode of the SearchableProperty.
      */
-    public enum SelectionMode {
+    enum SelectionMode {
         /**
          * Supports only a single value to be specified/selected at the same time.
          */
@@ -102,7 +103,7 @@ public interface SearchableProperty {
         MULTI;
     }
 
-    public SearchDomain getDomain();
+    SearchDomain getDomain();
 
     /**
      * Returns <code>true</code> if selecting values for this
@@ -115,21 +116,21 @@ public interface SearchableProperty {
      *         at the SearchDomain level
      * @see {@link SearchDomain#getPropertiesWithConstrictions(java.util.List)}
      */
-    public boolean affectsAvailableDomainProperties();
+    boolean affectsAvailableDomainProperties();
 
-    public Optional<SearchablePropertyGroup> getGroup();
+    Optional<SearchablePropertyGroup> getGroup();
 
-    public PropertySpec getSpecification();
+    PropertySpec getSpecification();
 
-    public Visibility getVisibility();
+    Visibility getVisibility();
 
-    public SelectionMode getSelectionMode();
+    SelectionMode getSelectionMode();
 
-    public default String getName() {
+    default String getName() {
         return getSpecification().getName();
     }
 
-    public String getDisplayName();
+    String getDisplayName();
 
     /**
      * Converts the specified value to an appropriate
@@ -141,7 +142,7 @@ public interface SearchableProperty {
      * @param value The value
      * @return The display value
      */
-    public String toDisplay(Object value);
+    String toDisplay(Object value);
 
     /**
      * Tests if the {@link PropertySpec specification}
@@ -150,7 +151,7 @@ public interface SearchableProperty {
      * @param name The name
      * @return <code>true</code> iff the name of the PropertySpec equals the specified name
      */
-    public default boolean hasName(String name) {
+    default boolean hasName(String name) {
         Objects.requireNonNull(name);
         return name.equals(getName());
     }
@@ -165,7 +166,7 @@ public interface SearchableProperty {
      *
      * @return The parent SearchDomain
      */
-    public List<SearchableProperty> getConstraints();
+    List<SearchableProperty> getConstraints();
 
     /**
      * Refreshes this SearchableProperty after the specified
@@ -185,6 +186,6 @@ public interface SearchableProperty {
      *
      * @param constrictions The List of SearchablePropertyConstriction
      */
-    public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions);
+    void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions);
 
 }
