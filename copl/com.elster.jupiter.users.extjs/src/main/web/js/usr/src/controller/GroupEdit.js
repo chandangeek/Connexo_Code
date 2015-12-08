@@ -335,6 +335,7 @@ Ext.define('Usr.controller.GroupEdit', {
             xtype: 'menucheckitem',
             text: Uni.I18n.translate('privilege.noAccess', 'USR', 'No access'),
             icon: '../sky/build/resources/images/grid/drop-no.png',
+            iconCls: 'x-menu-item-checkbox',
             checked: selected,
             listeners: {
                 checkchange: function (item, checked) {
@@ -354,6 +355,7 @@ Ext.define('Usr.controller.GroupEdit', {
             xtype: 'menucheckitem',
             text: Uni.I18n.translate('privilege.fullControl', 'USR', 'Full control'),
             icon: '../sky/build/resources/images/grid/drop-yes.png',
+            iconCls: 'x-menu-item-checkbox',
             checked: selected,
             listeners: {
                 checkchange: function (item, checked) {

@@ -24,8 +24,8 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                 {
                     header: Uni.I18n.translate('privilege.feature', 'USR', 'Resource'),
                     flex: 2,
+                    dataIndex: 'name',
                     renderer: function (value, metadata, record) {
-                        var name = Uni.I18n.translate(record.get('name'), 'USR', record.get('name'));
                         if (record.get('selected') == 0) {
                             metadata.tdCls = 'uni-icon-drop-no';
                         } else {
@@ -35,15 +35,13 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                                 metadata.tdCls = 'uni-no-icon';
                             }
                         }
-                        return name;
+                        return value;
                     }
                 },
                 {
                     header: Uni.I18n.translate('general.description', 'USR', 'Description'),
                     flex: 2,
-                    renderer: function (value, metadata, record) {
-                        return Uni.I18n.translate(record.get('description'), 'USR', record.get('description'));
-                    }
+                    dataIndex: 'description'
                 },
                 {
                     header: Uni.I18n.translate('privilege.permissions', 'USR', 'Privileges'),

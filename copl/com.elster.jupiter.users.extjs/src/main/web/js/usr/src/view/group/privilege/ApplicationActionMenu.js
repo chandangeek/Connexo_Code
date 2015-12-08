@@ -10,13 +10,15 @@ Ext.define('Usr.view.group.privilege.ApplicationActionMenu', {
             text: Uni.I18n.translate('privilege.noAccess', 'USR', 'No access'),
             icon: '../sky/build/resources/images/grid/drop-no.png',
             itemId: 'privilegeNoAccess',
-            action: 'privilegeNoAccess'
+            action: 'privilegeNoAccess',
+            iconCls: 'x-menu-item-checkbox'
         },
         {
             text: Uni.I18n.translate('privilege.fullControl', 'USR', 'Full control'),
             icon: '../sky/build/resources/images/grid/drop-yes.png',
             itemId: 'privilegeFullControl',
-            action: 'privilegeFullControl'
+            action: 'privilegeFullControl',
+            iconCls: 'x-menu-item-checkbox'
         }
     ]
 });
