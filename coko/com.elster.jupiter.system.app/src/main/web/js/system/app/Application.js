@@ -9,7 +9,7 @@ Ext.define('SystemApp.Application', {
         'Yfn.privileges.Yellowfin',
         'Tme.privileges.Period',
         'Fim.privileges.DataImport',
-        'Cps.privileges.CustomAttributeSets',
+        'Cps.privileges.customattributes',
         'Mtr.privileges.ReadingTypes'
     ],
 
