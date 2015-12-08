@@ -8,22 +8,22 @@ Ext.define('Bpm.view.task.bulk.Navigation', {
         {
             itemId: 'cmbn-select-tasks',
             action: 'select-task',
-            text: Uni.I18n.translate('task.bulk.selectTasks', 'BPM', 'Select task')
+            text: Uni.I18n.translate('bpm.task.bulk.selectTasks', 'BPM', 'Select task')
         },
         {
             itemId: 'cmbn-select-action',
             action: 'select-action',
-            text: Uni.I18n.translate('task.bulk.selectAction', 'BPM', 'Select action')
+            text: Uni.I18n.translate('bpm.task.bulk.selectAction', 'BPM', 'Select action')
         },
         {
             itemId: 'cmbn-action-details',
             action: 'select-action',
-            text: Uni.I18n.translate('task.bulk.actionDetails', 'BPM', 'Action details')
+            text: Uni.I18n.translate('bpm.task.bulk.actionDetails', 'BPM', 'Action details')
         },
         {
             itemId: 'cmbn-confirmation',
             action: 'confirmation',
-            text: Uni.I18n.translate('task.bulk.confirmation', 'BPM', 'Confirmation')
+            text: Uni.I18n.translate('bpm.task.bulk.confirmation', 'BPM', 'Confirmation')
         },
         {
             itemId: 'cmbn-status',

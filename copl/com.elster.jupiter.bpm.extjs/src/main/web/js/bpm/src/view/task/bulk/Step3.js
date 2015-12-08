@@ -5,16 +5,8 @@ Ext.define('Bpm.view.task.bulk.Step3', {
         'Bpm.view.task.ManageTaskForm'
     ],
     html: '',
-    margin: '0 0 15 0',
+    margin: '0 0 0 0',
     items: [
-        {
-            xtype: 'component',
-            itemId: 'bpm-text-message3',
-            width: '100%',
-            height: '20px',
-            margin: '5 0 15 0',
-            html: ''
-        },
         {
             xtype: 'uni-form-error-message',
             itemId: 'step3-error-message',
@@ -25,8 +17,6 @@ Ext.define('Bpm.view.task.bulk.Step3', {
             xtype: 'task-manage-form',
             itemId: 'bpm-tasks-bulk-attributes-form',
             isMultiEdit: true,
-            editButtonTooltip: Uni.I18n.translate('task.bulk.attribute.edit', 'BPM', 'Edit task attribute'),
-            removeButtonTooltip: Uni.I18n.translate('task.bulk.attribute.unchanged', 'BPM' ,'Leave task attribute unchanged'),
             width: '100%'
         }
     ],

@@ -13,7 +13,8 @@ Ext.define('Bpm.controller.Main', {
 
     controllers: [
         'Bpm.controller.history.BpmManagement',
-        'Bpm.controller.Task'
+        'Bpm.controller.Task',
+        'Bpm.controller.TaskBulk'
     ],
 
     refs: [

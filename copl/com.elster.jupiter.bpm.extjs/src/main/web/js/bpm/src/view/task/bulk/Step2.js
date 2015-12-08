@@ -21,8 +21,7 @@ Ext.define('Bpm.view.task.bulk.Step2', {
 
                 {
                     name: 'action',
-                    //itemId:'radio-taskmanagement',
-                    boxLabel: '<b>' + Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management') + '</b>',
+                    boxLabel: '<b>' + Uni.I18n.translate('task.bulk.taskManagement', 'BPM', 'Task management') + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">'
                     + Uni.I18n.translate('task.bulk.actionRadioGroup.taskManagementDescription', 'BPM', 'These actions allow you to manage selected tasks')
                     + '</span>',
@@ -42,19 +41,21 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     items: [
                         {
                             xtype: 'checkbox',
-                            boxLabel: 'Assign tasks',
+                            boxLabel: Uni.I18n.translate('bpm.task.bulk.assignTask', 'BPM', 'Assign tasks'),
                             name: 'rbTaskManagement',
-                            inputValue: 'assign' },
+                            inputValue: 'assign'
+                        },
                         {
                             xtype: 'checkbox',
-                            boxLabel: 'Set due date',
+                            boxLabel: Uni.I18n.translate('bpm.task.bulk.setDueDate', 'BPM', 'Set due date'),
                             name: 'rbTaskManagement',
                             inputValue: 'setDueDate' },
                         {
                             xtype: 'checkbox',
-                            boxLabel: 'Set priority',
+                            boxLabel: Uni.I18n.translate('bpm.task.bulk.setPriority', 'BPM', 'Set priority'),
                             name: 'rbTaskManagement',
-                            inputValue: 'setPriority' }
+                            inputValue: 'setPriority'
+                        }
                     ]
                 },
                 {
@@ -62,15 +63,14 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     itemId: 'action-selection-error',
                     cls: 'x-form-invalid-under',
                     margin: '0 0 0 40',
-                    html: Uni.I18n.translate('task.bulk.MgmtActionSelectionError', 'BPM', 'Select at least one action!'),
+                    html: Uni.I18n.translate('bpm.task.bulk.mgmtActionSelectionError', 'BPM', 'Select at least one action!'),
                     hidden: true
                 },
                 {
                     name: 'action',
-                    //itemId:'radio-taskexecute',
-                    boxLabel: '<b>' + Uni.I18n.translate('general.taskExecution', 'BPM', 'Task execution') + '</b>',
+                    boxLabel: '<b>' + Uni.I18n.translate('task.bulk.taskExecution', 'BPM', 'Task execution') + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">'
-                    + Uni.I18n.translate('task.bulk.actionRadioGroup.taskExecutionDescription', 'BPM', 'This action allows you to execute selected tasks')
+                    + Uni.I18n.translate('bpm.task.bulk.actionRadioGroup.taskExecutionDescription', 'BPM', 'This action allows you to execute selected tasks')
                     + '</span>',
                     privileges: Bpm.privileges.BpmManagement.execute,
                     inputValue: 'taskexecute'
@@ -109,9 +109,6 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                         if(this.down('#tasks-bulk-execute-radiogroup')) this.down('#tasks-bulk-execute-radiogroup').disable();
                     }
 
-                },
-                afterrender: function (radiogroup, radio) {
-                    //alert(!this.down('#radio-taskmanagement'))
                 }
             }
         }

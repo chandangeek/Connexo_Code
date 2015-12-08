@@ -8,16 +8,23 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
     padding: 0,
     alias: 'widget.task-manage-form',
     items: [
-
         {
+            xtype: 'form',
+            ui: 'large',
+            margin: '0 0 10 0',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
             defaults: {
-                width: 500
+                width: 800
             },
             items: [
                 {
                     xtype: 'fieldcontainer',
                     name:'assign',
                     hidden: true,
+                    margin: '0 10 0 0',
                     width: 800,
                     layout: 'vbox',
                     items: [
@@ -46,10 +53,10 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('tasks.bulk.dueDate', 'BPM', 'Due date'),
+                    fieldLabel: Uni.I18n.translate('bpm.task.bulk.dueDate', 'BPM', 'Due date'),
                     name:'setDueDate',
                     hidden: true,
-                    margin: '20 0 10 0',
+                    margin: '10 0 10 0',
                     layout: 'hbox',
                     items: [
                         {
@@ -82,7 +89,7 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
                     fieldLabel: Uni.I18n.translate('bpm.task.priority', 'BPM', 'Priority'),
                     name: 'setPriority',
                     hidden: true,
-                    margin: '20 0 10 0',
+                    margin: '0 0 10 0',
                     layout: 'hbox',
 
                     items: [
@@ -125,6 +132,7 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
 
                     ]
                 }
+
             ]
         }
     ],
@@ -142,7 +150,6 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
                 assigneeCombo.bindStore(userStore);
             }
         });
-
 
         me.down('fieldcontainer[name=assign]').setVisible(false);
         me.down('fieldcontainer[name=setPriority]').setVisible(false);

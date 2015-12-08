@@ -21,7 +21,7 @@ Ext.define('Bpm.view.task.bulk.Wizard', {
                 xtype: 'tasks-bulk-step1',
                 itemId: 'tskbw-step1',
                 title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'BPM', 'Bulk action - Step {0} of {1}:'), 1, 5)
-                + ' ' + Uni.I18n.translate('task.bulk.selectTasks', 'BPM', 'Select tasks'),
+                + ' ' + Uni.I18n.translate('bpm.task.bulk.selectTasks', 'BPM', 'Select tasks'),
                 router: me.router
             },
             {

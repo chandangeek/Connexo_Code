@@ -27,11 +27,11 @@ Ext.define('Bpm.view.task.bulk.Step1', {
                     );
                 },
 
-                allLabel: Uni.I18n.translate('task.bulk.allLabel', 'BPM', 'All tasks'),
-                allDescription: Uni.I18n.translate('task.bulk.allDescription', 'BPM', 'Select all tasks (related to filters and grouping on the tasks  screen)'),
+                allLabel: Uni.I18n.translate('bpm.task.bulk.allLabel', 'BPM', 'All tasks'),
+                allDescription: Uni.I18n.translate('bpm.task.bulk.allDescription', 'BPM', 'Select all tasks (related to filters and grouping on the tasks  screen)'),
 
-                selectedLabel: Uni.I18n.translate('task.bulk.selectedLabel', 'BPM', 'Selected tasks'),
-                selectedDescription: Uni.I18n.translate('task.bulk.selectedDescription', 'BPM', 'Select tasks in table'),
+                selectedLabel: Uni.I18n.translate('bpm.task.bulk.selectedLabel', 'BPM', 'Selected tasks'),
+                selectedDescription: Uni.I18n.translate('bpm.task.bulk.selectedDescription', 'BPM', 'Select tasks in table'),
 
                 bottomToolbarHidden: true,
 
@@ -92,7 +92,7 @@ Ext.define('Bpm.view.task.bulk.Step1', {
                 itemId: 'selection-grid-error',
                 cls: 'x-form-invalid-under',
                 margin: '-30 0 0 0',
-                html: Uni.I18n.translate('task.bulk.selectionGridError', 'BPM', 'Select at least one task'),
+                html: Uni.I18n.translate('bpm.task.bulk.selectionGridError', 'BPM', 'Select at least one task'),
                 hidden: true
             }
         ];

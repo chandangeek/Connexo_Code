@@ -62,7 +62,27 @@ Ext.define('Bpm.controller.TaskBulk', {
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             tasksRoute = router.getRoute('workspace/tasks'),
             sort,
-            tasks = [];
+            tasks = [],
+            queryParams = {};
+
+        sort = router.arguments.sort;
+        user = router.arguments.user;
+        dueDate = router.arguments.dueDate;
+        taskStatus = router.arguments.status;
+        process = router.arguments.process;
+
+        tasksRoute.params.sort = tasksRoute.params.user = tasksRoute.params.dueDate = tasksRoute.params.status =
+            tasksRoute.params.process = undefined;
+        tasksRoute.params.use = true;
+
+        sort && (sort != '') && (queryParams.sort = tasksRoute.params.sort = sort);
+        user && (user != '') && (queryParams.user = tasksRoute.params.user = user);
+        dueDate && (dueDate != '') && (queryParams.dueDate = tasksRoute.params.dueDate = dueDate);
+        taskStatus && (taskStatus != '') && (queryParams.status = tasksRoute.params.status = taskStatus);
+        process && (process != '') && (queryParams.process = tasksRoute.params.process = process);
+
+        queryString.sort = sort;
+        window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
 
         this.getApplication().fireEvent('changecontentevent', Ext.widget('tasks-bulk-browse', {
             router: me.getController('Uni.controller.history.Router')
