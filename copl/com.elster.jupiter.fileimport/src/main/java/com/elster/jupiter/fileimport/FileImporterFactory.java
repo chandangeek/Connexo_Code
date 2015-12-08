@@ -1,11 +1,8 @@
 package com.elster.jupiter.fileimport;
 
 import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.Pair;
 
 import java.util.List;
 import java.util.Map;
