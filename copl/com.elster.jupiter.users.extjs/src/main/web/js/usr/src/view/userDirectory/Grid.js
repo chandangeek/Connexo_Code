@@ -7,7 +7,8 @@ Ext.define('Usr.view.userDirectory.Grid', {
         'Uni.grid.column.Default',
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Usr.privileges.Users'
     ],
     initComponent: function () {
         var me = this;
@@ -29,7 +30,9 @@ Ext.define('Usr.view.userDirectory.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                privileges: Usr.privileges.Users.admin,
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return !Usr.privileges.Users.canAdministrate() || (record.get('id') === 0 && record.get('isDefault'));
+                },
                 menu: {
                     xtype: 'usr-user-directory-action-menu',
                     itemId: 'mnu-user-directory-action-menu'

@@ -110,7 +110,9 @@ Ext.define('Usr.controller.GroupEdit', {
                     panel.down('[itemId = applicationList]').columns[2].hidden = true;
                     panel.down('[itemId = featureList]').columns[3].hidden = true;
                 }
-
+                if(me.mode == 'edit'){
+                    panel.down('[name=name]').disable();
+                }
 
                 widget.down('form').loadRecord(record);
                 var allPrivileges, currentPrivileges = record.privileges(), index = 0;
