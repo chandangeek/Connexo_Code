@@ -222,7 +222,7 @@ Ext.define('Bpm.controller.OpenTask', {
                 task.load(taskRecord.get('id'), {
                         success: function (taskRec) {
                             button.taskRecord = taskRec;
-                            me.loadAboutTaskForm(taskRecord);
+                            me.loadAboutTaskForm(taskRec);
                         }
                     }
                 );
