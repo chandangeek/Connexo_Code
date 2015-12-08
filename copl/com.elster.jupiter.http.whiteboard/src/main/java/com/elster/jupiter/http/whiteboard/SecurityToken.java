@@ -29,6 +29,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 
 
+
 public class SecurityToken {
 
     private final long MAX_COUNT = WhiteBoard.getTokenRefreshMaxCnt();
@@ -48,7 +49,8 @@ public class SecurityToken {
     public String createToken(User user, long count) {
         try {
             KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
-            keyGenerator.initialize(1024);
+            SecureRandom random = new SecureRandom();
+            keyGenerator.initialize(1024,random);
             KeyPair keyPair = keyGenerator.genKeyPair();
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
             RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
@@ -98,14 +100,16 @@ public class SecurityToken {
 
                 if (signedJWT!=null && count < MAX_COUNT) {
                     long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
+                    Optional<User> user = userService.getLoggedInUser(userId);
                     if (new Date().before(new Date(expirationTime.getTime()))) {
-                        return userService.getLoggedInUser(userId);
+                        return user;
                     } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT*1000))) {
+                        if(!userService.findUser(user.get().getName(), user.get().getDomain()).isPresent()) return Optional.empty();
                         String newToken = createToken(userService.getLoggedInUser(userId).get(),++count);
                         response.setHeader("X-AUTH-TOKEN", newToken);
                         response.setHeader("Authorization", "Bearer " + newToken);
                         createCookie("X-CONNEXO-TOKEN",newToken,"/",-1,true,response);
-                        return userService.getLoggedInUser(userId);
+                        return user;
                     }
                 }
             removeCookie(request, response);
