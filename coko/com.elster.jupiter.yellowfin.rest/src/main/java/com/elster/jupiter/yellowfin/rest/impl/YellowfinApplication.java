@@ -1,6 +1,9 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.yellowfin.YellowfinService;
@@ -26,6 +29,7 @@ public class YellowfinApplication extends Application implements BinderProvider{
     private volatile YellowfinService yellowfinService;
     private volatile YellowfinGroupsService yellowfinGroupsService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile Thesaurus thesaurus;
 
     public YellowfinApplication() {
     }
@@ -57,6 +61,11 @@ public class YellowfinApplication extends Application implements BinderProvider{
         this.meteringGroupsService = meteringGroupsService;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+    }
+
     @Override
     public Binder getBinder() {
         return new AbstractBinder() {
@@ -66,6 +75,7 @@ public class YellowfinApplication extends Application implements BinderProvider{
                 bind(yellowfinGroupsService).to(YellowfinGroupsService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(meteringGroupsService).to(MeteringGroupsService.class);
+                bind(thesaurus).to(Thesaurus.class);
             }
         };
     }

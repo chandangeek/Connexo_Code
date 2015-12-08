@@ -1,5 +1,6 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.security.Privileges;
@@ -19,13 +20,14 @@ import javax.ws.rs.core.SecurityContext;
 @Path("/user")
 public class YellowfinResource {
 
-	private YellowfinService yellowfinService;
-
+	private final YellowfinService yellowfinService;
+	private final String errorMessage;
 
 
 	@Inject
-	private YellowfinResource(YellowfinService yellowfinService){
+	private YellowfinResource(YellowfinService yellowfinService, Thesaurus thesaurus){
 		this.yellowfinService = yellowfinService;
+		this.errorMessage = thesaurus.getString("error.facts.unavailable", "Connexo Facts is not available.");
 	}
 
 
@@ -36,15 +38,30 @@ public class YellowfinResource {
 	public YellowfinInfo login(HttpServletResponse response, @Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 
-        yellowfinService.logout(user.getName()).
-                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build()));
-        String webServiceLoginToken = yellowfinService.login(user.getName()).
-                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build()));
+		String found = yellowfinService.getUser(user.getName()).
+				orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
 
-		YellowfinInfo info = new YellowfinInfo();
-		info.token = webServiceLoginToken;
-		info.url = yellowfinService.getYellowfinUrl();
-		return info;
+		if(found.equals("NOT_FOUND")) {
+			found = yellowfinService.createUser(user.getName()).
+					orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+		}
+		else if(found.equals("SUCCESS")) {
+			yellowfinService.logout(user.getName()).
+					orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+		}
+
+		if(found.equals("SUCCESS")) {
+			String webServiceLoginToken = yellowfinService.login(user.getName()).
+					orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+
+			YellowfinInfo info = new YellowfinInfo();
+			info.token = webServiceLoginToken;
+			info.url = yellowfinService.getYellowfinUrl();
+			return info;
+		}
+		else {
+			throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build());
+		}
 	}
 	@POST
 	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -53,13 +70,26 @@ public class YellowfinResource {
 	public YellowfinInfo token(HttpServletResponse response, @Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 
-		String webServiceLoginToken = yellowfinService.login(user.getName()).
-                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build()));
+		String found = yellowfinService.getUser(user.getName()).
+				orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
 
-		YellowfinInfo info = new YellowfinInfo();
-		info.token = webServiceLoginToken;
-		info.url = yellowfinService.getYellowfinUrl();
-		return info;
+		if(found.equals("NOT_FOUND")) {
+			found = yellowfinService.createUser(user.getName()).
+					orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+		}
+
+		if(found.equals("SUCCESS")) {
+			String webServiceLoginToken = yellowfinService.login(user.getName()).
+					orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+
+			YellowfinInfo info = new YellowfinInfo();
+			info.token = webServiceLoginToken;
+			info.url = yellowfinService.getYellowfinUrl();
+			return info;
+		}
+		else {
+			throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build());
+		}
 	}
 
 }
