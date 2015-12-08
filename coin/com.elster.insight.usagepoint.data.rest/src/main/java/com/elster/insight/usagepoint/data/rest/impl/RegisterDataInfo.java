@@ -8,6 +8,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.elster.insight.common.rest.IntervalInfo;
 import com.elster.insight.usagepoint.data.rest.BigDecimalAsStringAdapter;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,12 +18,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Created by bvn on 8/1/14.
  */
 public class RegisterDataInfo {
+    @JsonProperty("id")
+    public Instant id;
     @JsonProperty("interval")
     public IntervalInfo interval;
     @JsonProperty("readingTime")
     public Instant readingTime;
-//    @JsonProperty("reportedDateTime")
-//    public Instant reportedDateTime;
+    @JsonProperty("reportedDateTime")
+    public Instant reportedDateTime;
     
     @JsonProperty("modificationFlag")
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
@@ -47,9 +52,11 @@ public class RegisterDataInfo {
     public EstimationRuleInfo estimatedByRule;
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;
-
-//    @JsonProperty("validationInfo")
-//    public VeeReadingInfo validationInfo;
+    
+    
+    protected BaseReading createNew(Channel register) {
+        return ReadingImpl.of(register.getMainReadingType().getMRID(), this.value, this.readingTime);
+    }
 
 //    public BaseReading createNew() {
 //        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);

@@ -5,7 +5,9 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -13,12 +15,17 @@ import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.osgi.service.device.Device;
 
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
@@ -27,6 +34,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.rest.impl.ReadingInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -67,7 +75,7 @@ public class RegisterDataResource {
         UsagePointValidation upv = registerHelper.getUsagePointValidation(usagePoint);
         boolean validationEnabled = upv.isValidationActive();
         Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
         
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
 
@@ -143,46 +151,45 @@ public class RegisterDataResource {
         UsagePointValidation upv = registerHelper.getUsagePointValidation(usagePoint);
         boolean validationEnabled = upv.isValidationActive();
         Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
         
         BaseReadingRecord reading = channel.getReading(Instant.ofEpochMilli(timeStamp)).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, rt_mrid, timeStamp));
         RegisterDataInfo readingInfo = usagePointDataInfoFactory.createRegisterDataInfo(reading, validationEnabled, channel, upv);
         return Response.ok(readingInfo).build();
     }
-//
-//    @PUT @Transactional
-//    @Path("/{timeStamp}")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+
+    @PUT @Transactional
+    @Path("/{timeStamp}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-//    public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-//        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-//        if((readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) ||
-//                (readingInfo instanceof BillingReadingInfo && BillingReadingInfo.class.cast(readingInfo).isConfirmed != null && BillingReadingInfo.class.cast(readingInfo).isConfirmed)) {
-//            register.startEditingData().confirmReading(readingInfo.createNew(register)).complete();
-//        } else {
-//            register.startEditingData().editReading(readingInfo.createNew(register)).complete();
-//        }
-//        return Response.status(Response.Status.OK).build();
-//    }
-//
-//
-//    @POST @Transactional
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response editRegisterData(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid, RegisterDataInfo readingInfo) {
+        UsagePoint usagepoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        ReadingType readingType = resourceHelper.findReadingTypeByMrIdOrThrowException(rt_mrid);
+        Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        BaseReadingRecord reading = channel.getReading(readingInfo.readingTime).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, rt_mrid, readingInfo.readingTime));
+        
+        if (readingInfo.isConfirmed != null && readingInfo.isConfirmed) {
+            channel.confirmReadings(Arrays.asList(reading));
+        } else {
+            channel.editReadings(Arrays.asList(readingInfo.createNew(channel)));
+        }
+        
+        return Response.status(Response.Status.OK).build();
+    }
+
+
+    @POST @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-//    public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-//        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-//        try {
-//            register.startEditingData().editReading(readingInfo.createNew(register)).complete();
-//        } catch (NoMeterActivationAt e) {
-//            Instant time = (Instant) e.get("time");
-//            throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.CANT_ADD_READINGS_FOR_STATE, Date.from(time)).get();
-//        }
-//        return Response.status(Response.Status.OK).build();
-//    }
+    public Response addRegisterData(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid, RegisterDataInfo readingInfo) {
+        Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        channel.editReadings(Arrays.asList(readingInfo.createNew(channel)));
+        return Response.status(Response.Status.OK).build();
+    }
 //
 //    @DELETE @Transactional
 //    @Path("/{timeStamp}")

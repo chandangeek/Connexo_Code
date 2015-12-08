@@ -16,6 +16,7 @@ import com.elster.insight.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Ranges;
@@ -86,7 +87,11 @@ public class UsagePointDataInfoFactory {
 
     public RegisterDataInfo createRegisterDataInfo(BaseReadingRecord brr, boolean validationEnabled, Channel channel, UsagePointValidation upv) {
         RegisterDataInfo registerDataInfo = new RegisterDataInfo();
+        registerDataInfo.id = brr.getTimeStamp();
         registerDataInfo.readingTime = brr.getTimeStamp();
+        registerDataInfo.reportedDateTime = brr.getReportedDateTime();
+        registerDataInfo.modificationFlag = ReadingModificationFlag.getModificationFlag((ReadingRecord) brr);
+        
         registerDataInfo.value = brr.getValue();
         
         
