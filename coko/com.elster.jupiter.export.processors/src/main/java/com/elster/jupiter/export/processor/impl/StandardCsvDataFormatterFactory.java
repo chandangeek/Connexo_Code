@@ -13,6 +13,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.validation.ValidationService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -80,9 +81,28 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.TAG.getKey(), true, null));
-        propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.UPDATE_TAG.getKey(), true, null));
-        propertySpecs.add(propertySpecService.stringPropertySpecWithValues(FormatterProperties.SEPARATOR.getKey(), true, "Comma (,)", "Semicolon (;)"));
+        propertySpecs.add(
+                propertySpecService
+                        .stringSpec()
+                        .named(FormatterProperties.TAG)
+                        .fromThesaurus(this.thesaurus)
+                        .markRequired()
+                        .finish());
+        propertySpecs.add(
+                propertySpecService
+                        .stringSpec()
+                        .named(FormatterProperties.UPDATE_TAG)
+                        .fromThesaurus(this.thesaurus)
+                        .markRequired()
+                        .finish());
+        propertySpecs.add(
+                propertySpecService
+                        .stringSpec()
+                        .named(FormatterProperties.SEPARATOR)
+                        .fromThesaurus(this.thesaurus)
+                        .markRequired()
+                        .setDefaultValue(this.thesaurus.getFormat(FormatterProperties.SEPARATOR_DEFAULT).format())
+                        .finish());
         return propertySpecs;
     }
 

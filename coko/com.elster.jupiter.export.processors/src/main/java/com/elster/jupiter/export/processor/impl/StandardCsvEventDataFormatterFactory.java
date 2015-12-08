@@ -4,7 +4,6 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -12,7 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.streams.FancyJoiner;
-import com.elster.jupiter.validation.ValidationService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -33,8 +32,6 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     private volatile PropertySpecService propertySpecService;
     private volatile DataExportService dataExportService;
-    private volatile ValidationService validationService;
-    private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
 
     //OSGI
@@ -43,11 +40,10 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     // Tests
     @Inject
-    public StandardCsvEventDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, NlsService nlsService, MeteringService meteringService) {
+    public StandardCsvEventDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, NlsService nlsService) {
+        this();
         setPropertySpecService(propertySpecService);
         setDataExportService(dataExportService);
-        setValidationService(validationService);
-        setMeteringService(meteringService);
         setThesaurus(nlsService);
     }
 
@@ -66,22 +62,24 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
         this.dataExportService = dataExportService;
     }
 
-    @Reference
-    public void setValidationService(ValidationService validationService) {
-        this.validationService = validationService;
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.TAG.getKey(), true, null));
-        propertySpecs.add(propertySpecService.stringPropertySpecWithValues(FormatterProperties.SEPARATOR.getKey(), true, "Comma (,)", "Semicolon (;)"));
+        propertySpecs.add(
+                propertySpecService
+                        .stringSpec()
+                        .named(FormatterProperties.TAG)
+                        .fromThesaurus(this.thesaurus)
+                        .markRequired()
+                        .finish());
+        propertySpecs.add(
+                propertySpecService
+                        .stringSpec()
+                        .named(FormatterProperties.SEPARATOR)
+                        .fromThesaurus(this.thesaurus)
+                        .markRequired()
+                        .setDefaultValue(this.thesaurus.getFormat(FormatterProperties.SEPARATOR_DEFAULT).format())
+                        .finish());
         return propertySpecs;
     }
 
