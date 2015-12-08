@@ -175,6 +175,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         }
         record.set("timeStamp", values.timeStamp);
 
+        record.get('isConfirmed') && record.set('isConfirmed', false);
         if (record.get("type") == 'billing') {
             record.set("interval", {start: values['interval.start'], end: values['interval.end']});
         }

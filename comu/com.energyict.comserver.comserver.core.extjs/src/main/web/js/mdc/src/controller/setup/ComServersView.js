@@ -152,6 +152,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         var itemPanel = this.getComServerPreview(),
             form = itemPanel.down('form'),
             model = this.getModel('Mdc.model.ComServer'),
+            menu =  form.up('panel').down('menu'),
             id = record.getId();
 
         itemPanel.setLoading(this.getModel('Mdc.model.ComServer'));
@@ -160,7 +161,9 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             success: function (record) {
                 if (!form.isDestroyed) {
                     form.loadRecord(record);
-                    form.up('panel').down('menu').record = record;
+                    if (menu) {
+                        menu.record = record;
+                    }
                     itemPanel.setLoading(false);
                     itemPanel.setTitle(record.get('name'));
                 }
