@@ -1,5 +1,6 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
@@ -13,8 +14,8 @@ import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -34,8 +35,8 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
     }
 
     // For guice injection purposes
-    protected SerialIOComponentServiceImpl(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    protected SerialIOComponentServiceImpl(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -64,8 +65,11 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
      */
     protected PropertySpec baudRatePropertySpec() {
         return
-            this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory())
-                .name(SerialPortConfigurationPropertySpecNames.BAUDRATE)
+            this.getPropertySpecService()
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.SERIAL_BAUDRATE)
+                .describedAs(TranslationKeys.SERIAL_BAUDRATE_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
                 .markExhaustive()
                 .markRequired()
                 .addValues(
@@ -86,22 +90,28 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
     }
 
     protected PropertySpec parityPropertySpec () {
-        return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
-            .name(SerialPortConfigurationPropertySpecNames.PARITY)
-            .markExhaustive()
-            .setDefaultValue(Parities.NONE.value())
-            .addValues(Parities.getTypedValues())
-            .markRequired()
-            .finish();
+        return this.getPropertySpecService()
+                .specForValuesOf(new StringFactory())
+                .named(TranslationKeys.SERIAL_PARITY)
+                .describedAs(TranslationKeys.SERIAL_PARITY_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .markExhaustive()
+                .setDefaultValue(Parities.NONE.value())
+                .addValues(Parities.getTypedValues())
+                .markRequired()
+                .finish();
     }
 
     protected PropertySpec nrOfStopBitsPropertySpec() {
-        PropertySpecBuilder builder =
-                this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory()).
-                        name(SerialPortConfigurationPropertySpecNames.NR_OF_STOP_BITS).
-                        markRequired().
-                        markExhaustive().
-                        setDefaultValue(NrOfStopBits.ONE.value());
+        PropertySpecBuilder<BigDecimal> builder =
+                this.getPropertySpecService()
+                        .specForValuesOf(new BigDecimalFactory())
+                        .named(TranslationKeys.SERIAL_NUMBEROFSTOPBITS)
+                        .describedAs(TranslationKeys.SERIAL_NUMBEROFSTOPBITS_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .markExhaustive()
+                        .setDefaultValue(NrOfStopBits.ONE.value());
         for (NrOfStopBits nrOfStopBits : EnumSet.complementOf(EnumSet.of(NrOfStopBits.ONE_AND_HALF))) {
             builder.addValues(nrOfStopBits.value());
         }
@@ -109,22 +119,28 @@ public abstract class SerialIOComponentServiceImpl extends AbstractSerialCompone
     }
 
     protected PropertySpec nrOfDataBitsPropertySpec () {
-        return this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory())
-            .name(SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS)
-            .markExhaustive()
-            .setDefaultValue(NrOfDataBits.EIGHT.value())
-            .addValues(NrOfDataBits.getTypedValues())
-            .markRequired()
-            .finish();
+        return this.getPropertySpecService()
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.SERIAL_NUMBEROFDATABITS)
+                .describedAs(TranslationKeys.SERIAL_NUMBEROFDATABITS_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .markExhaustive()
+                .setDefaultValue(NrOfDataBits.EIGHT.value())
+                .addValues(NrOfDataBits.getTypedValues())
+                .markRequired()
+                .finish();
     }
 
     protected PropertySpec flowControlPropertySpec () {
-        return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
-            .name(SerialPortConfigurationPropertySpecNames.FLOW_CONTROL)
-            .markExhaustive()
-            .setDefaultValue(FlowControl.NONE.value())
-            .addValues(FlowControl.getTypedValues())
-            .finish();
+        return this.getPropertySpecService()
+                .specForValuesOf(new StringFactory())
+                .named(TranslationKeys.SERIAL_FLOWCONTROL)
+                .describedAs(TranslationKeys.SERIAL_FLOWCONTROL_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .markExhaustive()
+                .setDefaultValue(FlowControl.NONE.value())
+                .addValues(FlowControl.getTypedValues())
+                .finish();
     }
 
 }

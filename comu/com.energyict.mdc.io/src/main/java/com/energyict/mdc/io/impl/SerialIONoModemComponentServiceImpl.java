@@ -1,5 +1,6 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -8,6 +9,7 @@ import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemType;
 import com.energyict.mdc.io.SerialComponentService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -33,8 +35,8 @@ public class SerialIONoModemComponentServiceImpl extends SerialIOComponentServic
 
     // For guice injection purposes
     @Inject
-    public SerialIONoModemComponentServiceImpl(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SerialIONoModemComponentServiceImpl(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Reference

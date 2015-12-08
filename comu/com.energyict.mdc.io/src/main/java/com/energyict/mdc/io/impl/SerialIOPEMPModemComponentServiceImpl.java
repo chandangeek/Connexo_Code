@@ -1,5 +1,8 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.LibraryType;
@@ -8,8 +11,6 @@ import com.energyict.mdc.io.ModemType;
 import com.energyict.mdc.io.PEMPModemConfiguration;
 import com.energyict.mdc.io.SerialComponentService;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,8 +36,8 @@ public class SerialIOPEMPModemComponentServiceImpl extends SerialIOComponentServ
 
     // For guice injection purposes
     @Inject
-    public SerialIOPEMPModemComponentServiceImpl(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SerialIOPEMPModemComponentServiceImpl(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Reference
@@ -70,7 +71,7 @@ public class SerialIOPEMPModemComponentServiceImpl extends SerialIOComponentServ
 
     @Override
     protected void addModemComponentProperties(List<PropertySpec> propertySpecs) {
-        propertySpecs.addAll(new TypedPEMPModemProperties(this.getPropertySpecService()).getPropertySpecs());
+        propertySpecs.addAll(new TypedPEMPModemProperties(this.getPropertySpecService(), thesaurus).getPropertySpecs());
     }
 
 }

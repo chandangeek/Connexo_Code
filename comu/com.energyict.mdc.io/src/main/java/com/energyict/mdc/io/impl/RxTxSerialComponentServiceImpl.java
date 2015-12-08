@@ -1,5 +1,6 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
@@ -13,7 +14,8 @@ import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
+
+import java.math.BigDecimal;
 
 /**
  * Provides an implementation for the {@link SerialComponentService} interface
@@ -30,8 +32,8 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     }
 
     // For guice injection purposes
-    protected RxTxSerialComponentServiceImpl(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    protected RxTxSerialComponentServiceImpl(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -40,8 +42,11 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     }
 
     protected PropertySpec flowControlPropertySpec() {
-        return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory())
-                .name(SerialPortConfigurationPropertySpecNames.FLOW_CONTROL)
+        return this.getPropertySpecService()
+                .specForValuesOf(new StringFactory())
+                .named(TranslationKeys.SERIAL_FLOWCONTROL)
+                .describedAs(TranslationKeys.SERIAL_FLOWCONTROL_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
                 .markExhaustive()
                 .setDefaultValue(FlowControl.NONE.value())
                 .addValues(FlowControl.RTSCTS.value(), FlowControl.XONXOFF.value())
@@ -49,12 +54,16 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     }
 
     protected final PropertySpec nrOfDataBitsPropertySpec(boolean required) {
-        PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
-        builder.
-                name(SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS).
-                markExhaustive().
-                setDefaultValue(NrOfDataBits.EIGHT.value()).
-                addValues(NrOfDataBits.getTypedValues());
+        PropertySpecBuilder<BigDecimal> builder =
+                this.getPropertySpecService()
+                        .specForValuesOf(new BigDecimalFactory())
+                        .named(TranslationKeys.SERIAL_NUMBEROFDATABITS)
+                        .describedAs(TranslationKeys.SERIAL_NUMBEROFDATABITS_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus());
+        builder
+            .markExhaustive()
+            .setDefaultValue(NrOfDataBits.EIGHT.value())
+            .addValues(NrOfDataBits.getTypedValues());
         if (required) {
             builder.markRequired();
         }
@@ -62,12 +71,16 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     }
 
     protected final PropertySpec nrOfStopBitsPropertySpec(boolean required) {
-        PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
-        builder.
-                name(SerialPortConfigurationPropertySpecNames.NR_OF_STOP_BITS).
-                markExhaustive().
-                setDefaultValue(NrOfStopBits.ONE.value()).
-                addValues(NrOfStopBits.getTypedValues());
+        PropertySpecBuilder<BigDecimal> builder =
+                this.getPropertySpecService()
+                        .specForValuesOf(new BigDecimalFactory())
+                        .named(TranslationKeys.SERIAL_NUMBEROFSTOPBITS)
+                        .describedAs(TranslationKeys.SERIAL_NUMBEROFSTOPBITS_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus());
+        builder
+            .markExhaustive()
+            .setDefaultValue(NrOfStopBits.ONE.value())
+            .addValues(NrOfStopBits.getTypedValues());
         if (required) {
             builder.markRequired();
         }
@@ -75,12 +88,16 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     }
 
     protected final PropertySpec parityPropertySpec(boolean required) {
-        PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new StringFactory());
-        builder.
-                name(SerialPortConfigurationPropertySpecNames.PARITY).
-                markExhaustive().
-                setDefaultValue(Parities.NONE.value()).
-                addValues(Parities.getTypedValues());
+        PropertySpecBuilder<String> builder =
+                this.getPropertySpecService()
+                        .specForValuesOf(new StringFactory())
+                        .named(TranslationKeys.SERIAL_PARITY)
+                        .describedAs(TranslationKeys.SERIAL_PARITY_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus());
+        builder
+            .markExhaustive()
+            .setDefaultValue(Parities.NONE.value())
+            .addValues(Parities.getTypedValues());
         if (required) {
             builder.markRequired();
         }
@@ -88,12 +105,16 @@ public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialCompo
     }
 
     protected final PropertySpec baudRatePropertySpec(boolean required) {
-        PropertySpecBuilder builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
-        builder.
-                name(SerialPortConfigurationPropertySpecNames.BAUDRATE).
-                markExhaustive().
-                setDefaultValue(BaudrateValue.BAUDRATE_57600.value()).
-                addValues(BaudrateValue.getTypedValues());
+        PropertySpecBuilder<BigDecimal> builder =
+                this.getPropertySpecService()
+                        .specForValuesOf(new BigDecimalFactory())
+                        .named(TranslationKeys.SERIAL_BAUDRATE)
+                        .describedAs(TranslationKeys.SERIAL_BAUDRATE_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus());
+        builder
+            .markExhaustive()
+            .setDefaultValue(BaudrateValue.BAUDRATE_57600.value())
+            .addValues(BaudrateValue.getTypedValues());
         if (required) {
             builder.markRequired();
         }

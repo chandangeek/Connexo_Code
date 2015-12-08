@@ -1,5 +1,6 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ApplicationException;
@@ -11,6 +12,8 @@ import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.io.naming.ModemPropertySpecNames;
+
+import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ import java.util.List;
 public abstract class AbstractSerialComponentServiceImpl implements SerialComponentService {
 
     private volatile PropertySpecService propertySpecService;
+    private volatile Thesaurus thesaurus;
 
     // For OSGi framework only
     protected AbstractSerialComponentServiceImpl() {
@@ -33,9 +37,10 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
     }
 
     // For guice injection purposes
-    protected AbstractSerialComponentServiceImpl(PropertySpecService propertySpecService) {
+    protected AbstractSerialComponentServiceImpl(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
-        this.propertySpecService = propertySpecService;
+        this.setPropertySpecService(propertySpecService);
+        this.setThesaurus(thesaurus);
     }
 
     @Override
@@ -61,7 +66,7 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
                     break;
             }
         }
-        return new TypedAtModemProperties(simpleProperties, postDialCommands, this.propertySpecService);
+        return new TypedAtModemProperties(simpleProperties, postDialCommands, this.propertySpecService, thesaurus);
     }
 
     protected AtModemProperties newAtModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, List<AtPostDialCommand> postDialCommands) {
@@ -69,7 +74,7 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
     }
 
     protected CaseModemProperties newCaseModemProperties(TypedProperties properties) {
-        return new TypedCaseModemProperties(TypedProperties.copyOf(properties), this.propertySpecService);
+        return new TypedCaseModemProperties(TypedProperties.copyOf(properties), this.propertySpecService, thesaurus);
     }
 
     protected CaseModemProperties newCaseModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay) {
@@ -77,7 +82,7 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
     }
 
     protected PaknetModemProperties newPaknetModemProperties(TypedProperties properties) {
-        return new TypedPaknetModemProperties(TypedProperties.copyOf(properties), this.propertySpecService);
+        return new TypedPaknetModemProperties(TypedProperties.copyOf(properties), this.propertySpecService, thesaurus);
     }
 
     protected PaknetModemProperties newPaknetModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, TimeDuration lineToggleDelay) {
@@ -85,7 +90,7 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
     }
 
     protected PEMPModemProperties newPEMPModemProperties(TypedProperties properties) {
-        return new TypedPEMPModemProperties(TypedProperties.copyOf(properties), this.propertySpecService);
+        return new TypedPEMPModemProperties(TypedProperties.copyOf(properties), this.propertySpecService, thesaurus);
     }
 
     protected PEMPModemProperties newPEMPModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, TimeDuration lineToggleDelay, PEMPModemConfiguration modemConfiguration) {
@@ -184,12 +189,22 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
         }
     }
 
-    protected void setPropertySpecService(PropertySpecService propertySpecService) {
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
-    protected PropertySpecService getPropertySpecService() {
-        return propertySpecService;
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    @Reference
+    public void setThesaurus(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
 }

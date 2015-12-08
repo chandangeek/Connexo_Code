@@ -1,5 +1,8 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.LibraryType;
@@ -7,8 +10,6 @@ import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemType;
 import com.energyict.mdc.io.SerialComponentService;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -34,8 +35,8 @@ public class RxTxCaseModemComponentServiceImpl extends RxTxSerialComponentServic
 
     // For guice injection purposes
     @Inject
-    public RxTxCaseModemComponentServiceImpl(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public RxTxCaseModemComponentServiceImpl(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Reference
@@ -69,7 +70,7 @@ public class RxTxCaseModemComponentServiceImpl extends RxTxSerialComponentServic
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return new TypedCaseModemProperties(this.getPropertySpecService()).getPropertySpecs();
+        return new TypedCaseModemProperties(this.getPropertySpecService(), thesaurus).getPropertySpecs();
     }
 
 }

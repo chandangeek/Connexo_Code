@@ -1,8 +1,8 @@
 package com.energyict.mdc.io.impl;
 
-import org.junit.Test;
-
 import java.util.Collections;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TypedPEMPModemPropertiesTest extends TypedPEMPModemProperties {
 
     public TypedPEMPModemPropertiesTest() {
-        super(null);
+        super(null, thesaurus);
     }
 
     @Test
