@@ -21,6 +21,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -55,9 +56,7 @@ public class AssignIssueAction extends AbstractIssueAction {
         IssueAssignee assignee = getAssigneeFromParameters(properties).get();
         issue.assignTo(assignee);
         issue.update();
-        getCommentFromParameters(properties).ifPresent(comment -> {
-            issue.addComment(comment, (User)threadPrincipalService.getPrincipal());
-        });
+        getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User)threadPrincipalService.getPrincipal()));
         result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED).format(assignee.getName()));
         return result;
     }
@@ -86,7 +85,12 @@ public class AssignIssueAction extends AbstractIssueAction {
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getPropertySpecService().stringReferencePropertySpec(ASSIGNEE, true, assignees, assignees.getPossibleAssignees()));
-        builder.add(getPropertySpecService().stringPropertySpec(COMMENT, false, null));
+        builder.add(
+            getPropertySpecService()
+                .stringSpec()
+                .named(COMMENT, COMMENT)
+                .describedAs(COMMENT)
+                .finish());
         return builder.build();
     }
 
@@ -104,7 +108,7 @@ public class AssignIssueAction extends AbstractIssueAction {
 
         @Override
         public Optional<Assignee> find(String key) {
-            return userService.getUser(Long.valueOf(key).longValue()).map(user -> new Assignee(user));
+            return userService.getUser(Long.valueOf(key).longValue()).map(Assignee::new);
         }
 
         public Assignee[] getPossibleAssignees() {
@@ -122,7 +126,7 @@ public class AssignIssueAction extends AbstractIssueAction {
 
         private User user;
 
-        public Assignee(User user) {
+        Assignee(User user) {
             this.user = user;
         }
 

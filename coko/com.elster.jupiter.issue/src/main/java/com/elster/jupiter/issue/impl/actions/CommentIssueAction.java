@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -54,7 +55,7 @@ public class CommentIssueAction extends AbstractIssueAction {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().stringPropertySpec(ISSUE_COMMENT, true, null));
+        builder.add(getPropertySpecService().stringSpec().named(ISSUE_COMMENT, ISSUE_COMMENT).describedAs(ISSUE_COMMENT).markRequired().finish());
         return builder.build();
     }
 
