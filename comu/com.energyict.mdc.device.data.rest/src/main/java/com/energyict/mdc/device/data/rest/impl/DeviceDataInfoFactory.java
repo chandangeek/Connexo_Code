@@ -65,10 +65,7 @@ public class DeviceDataInfoFactory {
         channelIntervalInfo.validationStatus = isValidationActive;
         channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
-        BigDecimal multiplier = channel.getDevice().getMultiplier();
-        if(channel.getChannelSpec().isUseMultiplier() && multiplier.compareTo(BigDecimal.ONE) == 1){
-            channelIntervalInfo.multiplier = multiplier;
-        }
+        channelIntervalInfo.multiplier = channel.getMultiplier().orElseGet(() -> null);
         channelReading.ifPresent(reading -> {
             channelIntervalInfo.collectedValue = getRoundedBigDecimal(reading.getValue(), channel);
             addCalculatedValueInfo(channel, channelIntervalInfo, reading);
@@ -97,11 +94,8 @@ public class DeviceDataInfoFactory {
     }
 
     private void addCalculatedValueInfo(Channel channel, ChannelDataInfo channelIntervalInfo, IntervalReadingRecord reading) {
-        if(channel.getReadingType().isCumulative()){
-            channelIntervalInfo.isBulk = true;
-        }
-        Optional<ReadingType> calculatedReadingType = channel.getCalculatedReadingType();
-        calculatedReadingType.ifPresent(readingType -> {
+        channelIntervalInfo.isBulk = channel.getReadingType().isCumulative();
+        channel.getCalculatedReadingType().ifPresent(readingType -> {
             Quantity quantity = reading.getQuantity(readingType);
             channelIntervalInfo.value = getRoundedBigDecimal(quantity != null? quantity.getValue(): null, channel);
         });
@@ -328,14 +322,8 @@ public class DeviceDataInfoFactory {
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         numericalRegisterInfo.overflow = registerSpec.getOverflowValue();
         numericalRegisterInfo.detailedValidationInfo = registerValidationInfo;
-        if(numericalRegister.getCalculatedReadingType().isPresent()){
-            numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(numericalRegister.getCalculatedReadingType().get());
-        } else if(numericalRegister.getReadingType().getCalculatedReadingType().isPresent()){
-            numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(numericalRegister.getReadingType().getCalculatedReadingType().get());
-        }
-        if (numericalRegister.getRegisterSpec().isUseMultiplier() &&  !numericalRegister.getDevice().getMultiplier().equals(BigDecimal.ONE)) {
-            numericalRegisterInfo.multiplier = numericalRegister.getDevice().getMultiplier();
-        }
+        numericalRegister.getCalculatedReadingType().ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
+        numericalRegisterInfo.multiplier = numericalRegister.getMultiplier().orElseGet(() -> null);
         return numericalRegisterInfo;
     }
 }

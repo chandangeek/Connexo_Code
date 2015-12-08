@@ -583,7 +583,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(device1.forValidation()).thenReturn(deviceValidation);
         when(channel1.getReadingType()).thenReturn(readingType);
+        when(channel1.getMultiplier()).thenReturn(Optional.empty());
         when(channel2.getReadingType()).thenReturn(readingType);
+        when(channel2.getMultiplier()).thenReturn(Optional.empty());
 
         Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
         assertThat(response)
@@ -681,6 +683,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1);
         when(channel1.getLoadProfile()).thenReturn(loadProfile3);
         when(channel1.getReadingType()).thenReturn(readingType);
+        when(channel1.getMultiplier()).thenReturn(Optional.empty());
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
         when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device1));

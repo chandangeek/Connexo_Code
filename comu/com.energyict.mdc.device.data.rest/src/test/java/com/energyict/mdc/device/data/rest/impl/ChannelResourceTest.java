@@ -217,6 +217,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getLoadProfile()).thenReturn(loadProfile);
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
         when(channel.getUnit()).thenReturn(unit);
+        when(channel.getMultiplier()).thenReturn(Optional.empty());
         when(deviceValidation.getLastChecked(channel)).thenReturn(Optional.of(NOW));
 
         when(deviceConfiguration.getId()).thenReturn(1L);

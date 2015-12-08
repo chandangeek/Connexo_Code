@@ -87,6 +87,10 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         doReturn(false).when(deviceValidation).isValidationActive(any(Channel.class), eq(NOW));
         when(deviceValidation.getLastChecked(any(Channel.class))).thenReturn(Optional.<Instant>empty());
         when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
+        when(channel1.getMultiplier()).thenReturn(Optional.empty());
+        when(channel2.getMultiplier()).thenReturn(Optional.empty());
+        when(channel3.getMultiplier()).thenReturn(Optional.empty());
+        when(channel4.getMultiplier()).thenReturn(Optional.empty());
     }
 
     private Channel mockChannel(long id, ReadingType readingType){

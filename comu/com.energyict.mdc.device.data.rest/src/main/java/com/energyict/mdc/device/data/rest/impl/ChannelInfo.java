@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
@@ -12,9 +11,8 @@ import com.energyict.mdc.device.data.Device;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * JSON representation of a channel
@@ -31,6 +29,7 @@ public class ChannelInfo {
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
     public BigDecimal overflowValue;
+    public String flowUnit;
     public Integer nbrOfFractionDigits;
     public long loadProfileId;
     public long version;
@@ -48,41 +47,30 @@ public class ChannelInfo {
         info.lastReading = channel.getLastReading().orElse(null);
         info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
-        Optional<ReadingType> calculatedReadingType = channel.getCalculatedReadingType();
-        if(calculatedReadingType.isPresent()){
-            info.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType.get());
-        }
+        channel.getCalculatedReadingType().ifPresent(readingType1 -> info.calculatedReadingType = new ReadingTypeInfo(readingType1));
         info.overflowValue = channel.getOverflow();
+        info.flowUnit = channel.getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
         info.loadProfileId = channel.getLoadProfile().getId();
         info.version = channel.getLoadProfile().getVersion();
         Device device = channel.getDevice();
-        BigDecimal multiplier = device.getMultiplier();
-        if (channel.getChannelSpec().isUseMultiplier() && multiplier.compareTo(BigDecimal.ONE) == 1) {
-            info.multiplier = multiplier;
-        }
+        info.multiplier = channel.getMultiplier().orElseGet(() -> null);
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return info;
     }
 
     public static List<ChannelInfo> from(List<Channel> channels) {
-        List<ChannelInfo> channelInfo = new ArrayList<>(channels.size());
-        for (Channel channel : channels) {
-            channelInfo.add(ChannelInfo.from(channel));
-        }
-        return channelInfo;
+        return  channels.stream().map(ChannelInfo::from).collect(Collectors.toList());
     }
 
     public static List<ChannelInfo> asSimpleInfoFrom(List<Channel> channels) {
-        List<ChannelInfo> channelInfo = new ArrayList<>(channels.size());
-        for (Channel channel : channels) {
+        return channels.stream().map(simpleChannel -> {
             ChannelInfo info = new ChannelInfo();
-            info.id = channel.getId();
-            info.name = channel.getName();
-            info.readingType = new ReadingTypeInfo(channel.getReadingType());
-            channelInfo.add(info);
-        }
-        return channelInfo;
+            info.id = simpleChannel.getId();
+            info.name = simpleChannel.getName();
+            info.readingType = new ReadingTypeInfo(simpleChannel.getReadingType());
+            return info;
+        }).collect(Collectors.toList());
     }
 }
