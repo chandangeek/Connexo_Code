@@ -130,15 +130,11 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private void goOffline(OfflineDeviceContext context) {
         setId(this.device.getId());
         setSerialNumber(this.device.getSerialNumber());
-        this.allProperties = TypedProperties.empty();
+        addProperties(this.device.getDeviceProtocolProperties());
 
         if (this.device.getDeviceProtocolPluggableClass() != null) {
             setDeviceProtocolPluggableClass(this.device.getDeviceProtocolPluggableClass());
         }
-
-        addProperties(TypedProperties.empty());
-        addProperties(this.device.getDeviceProtocolProperties());
-
         if (context.needsSlaveDevices()) {
             List<Device> downstreamDevices = serviceProvider.topologyService().findPhysicalConnectedDevices(this.device);
             List<Device> downStreamEndDevices = new ArrayList<>(downstreamDevices.size());
@@ -333,15 +329,16 @@ public class OfflineDeviceImpl implements OfflineDevice {
      *
      * @param properties the Properties to add
      */
-    void addProperties(TypedProperties... properties) {
+    void addProperties(TypedProperties properties) {
         if (this.allProperties == null) {
             this.allProperties = TypedProperties.empty();
         }
-        for (TypedProperties props : properties) {
-            this.allProperties.setAllProperties(props);
-        }
         // adding the SerialNumber as a property value because legacy protocols check the serialNumber based on the property value
         this.allProperties.setProperty(MeterProtocol.SERIALNUMBER, getSerialNumber());
+        this.allProperties.setAllProperties(properties);
+        if(properties.getInheritedProperties() != null) {
+            this.allProperties.setAllProperties(properties.getInheritedProperties());
+        }
     }
 
     /**
