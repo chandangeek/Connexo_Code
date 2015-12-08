@@ -2,13 +2,25 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public interface Estimator extends HasDynamicProperties {
+
+    @Override
+    List<PropertySpec> getPropertySpecs();
+
+    @Override
+    default Optional<PropertySpec> getPropertySpec(String name) {
+        return getPropertySpecs()
+                .stream()
+                .filter(spec -> name.equals(spec.getName()))
+                .findAny();
+    }
 
     default void init(Logger logger) {
         // empty by default
@@ -18,8 +30,6 @@ public interface Estimator extends HasDynamicProperties {
 
     String getDisplayName();
 
-    String getDisplayName(String property);
-
     String getDefaultFormat();
 
     default void validateProperties(Map<String, Object> properties) {
@@ -28,11 +38,6 @@ public interface Estimator extends HasDynamicProperties {
 
     NlsKey getNlsKey();
 
-    NlsKey getPropertyNlsKey(String property);
-
-    String getPropertyDefaultFormat(String property);
-
-    List<Pair<? extends NlsKey, String>> getExtraTranslations();
-
     List<String> getRequiredProperties();
+
 }

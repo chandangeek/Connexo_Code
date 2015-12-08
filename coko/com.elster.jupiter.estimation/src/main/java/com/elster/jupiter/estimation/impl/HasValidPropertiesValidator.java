@@ -1,15 +1,14 @@
 package com.elster.jupiter.estimation.impl;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.List;
+import java.util.Map;
 
 public class HasValidPropertiesValidator implements ConstraintValidator<HasValidProperties, EstimationRuleImpl> {
 
@@ -39,10 +38,10 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     private void validateAdvanceReadingsSettingsProperty(Map<String, Object> properties, ConstraintValidatorContext context) {
         String propertyName = "averagewithsamples.advanceReadingsSettings";
-        if(properties.containsKey(propertyName)) {
+        if (properties.containsKey(propertyName)) {
             Object propertyValue = properties.get(propertyName);
             if (propertyValue instanceof ReadingTypeAdvanceReadingsSettings) {
-                if (((ReadingTypeAdvanceReadingsSettings) propertyValue).toString().isEmpty()) {
+                if (propertyValue.toString().isEmpty()) {
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
                             .addPropertyNode(propertyName)

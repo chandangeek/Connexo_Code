@@ -53,8 +53,8 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -135,11 +135,6 @@ public class ReadingEstimateTest {
                 }
 
                 @Override
-                public String getDisplayName(String property) {
-                    return IMPLEMENTATION;
-                }
-
-                @Override
                 public String getDefaultFormat() {
                     return "";
                 }
@@ -155,23 +150,8 @@ public class ReadingEstimateTest {
                 }
 
                 @Override
-                public NlsKey getPropertyNlsKey(String property) {
-                    return null;
-                }
-
-                @Override
-                public String getPropertyDefaultFormat(String property) {
-                    return null;
-                }
-
-                @Override
-                public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
-                    return null;
-                }
-
-                @Override
                 public List<String> getRequiredProperties() {
-                    return null;
+                    return Collections.emptyList();
                 }
             };
         }

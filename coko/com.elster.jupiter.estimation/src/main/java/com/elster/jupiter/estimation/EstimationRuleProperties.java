@@ -5,6 +5,8 @@ public interface EstimationRuleProperties {
 
     String getDisplayName();
 
+    String getDescription();
+
     Object getValue();
 
     void setValue(Object value);

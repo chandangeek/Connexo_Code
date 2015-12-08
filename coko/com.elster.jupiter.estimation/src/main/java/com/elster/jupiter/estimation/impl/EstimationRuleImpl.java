@@ -1,24 +1,13 @@
 package com.elster.jupiter.estimation.impl;
 
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.impl.MessageSeeds.Constants;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
-import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.estimation.impl.MessageSeeds.Constants;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -32,7 +21,23 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+
 import com.google.common.collect.ImmutableMap;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_ESTIMATION_RULE + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
@@ -70,16 +75,14 @@ class EstimationRuleImpl implements IEstimationRule {
     private final EstimatorCreator estimatorCreator;
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
-    private final EventService eventService;
     private final Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider;
 
     @Inject
-    EstimationRuleImpl(DataModel dataModel, EstimatorCreator estimatorCreator, Thesaurus thesaurus, MeteringService meteringService, EventService eventService, Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider) {
+    EstimationRuleImpl(DataModel dataModel, EstimatorCreator estimatorCreator, Thesaurus thesaurus, MeteringService meteringService, Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider) {
         this.dataModel = dataModel;
         this.estimatorCreator = estimatorCreator;
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
-        this.eventService = eventService;
         this.readingTypeInRuleProvider = readingTypeInRuleProvider;
     }
 
@@ -371,10 +374,6 @@ class EstimationRuleImpl implements IEstimationRule {
     @Override
     public String getName() {
         return name;
-    }
-
-    public String getDisplayName(String name) {
-        return getEstimator().getDisplayName(name);
     }
 
     @Override

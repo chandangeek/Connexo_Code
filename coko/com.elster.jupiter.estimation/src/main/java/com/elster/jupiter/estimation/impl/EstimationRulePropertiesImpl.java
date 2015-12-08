@@ -53,7 +53,12 @@ class EstimationRulePropertiesImpl implements EstimationRuleProperties {
 
     @Override
     public String getDisplayName() {
-        return ((EstimationRuleImpl) getRule()).getDisplayName(name);
+        return ((IEstimationRule) getRule()).getPropertySpec(name).getDisplayName();
+    }
+
+    @Override
+    public String getDescription() {
+        return ((IEstimationRule) getRule()).getPropertySpec(name).getDescription();
     }
 
     @Override

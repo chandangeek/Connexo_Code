@@ -6,7 +6,6 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Pair;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -42,11 +41,6 @@ class ReadingQualityTypedEstimator implements Estimator {
     }
 
     @Override
-    public String getDisplayName(String property) {
-        return decorated.getDisplayName(property);
-    }
-
-    @Override
     public String getDefaultFormat() {
         return decorated.getDefaultFormat();
     }
@@ -59,21 +53,6 @@ class ReadingQualityTypedEstimator implements Estimator {
     @Override
     public NlsKey getNlsKey() {
         return decorated.getNlsKey();
-    }
-
-    @Override
-    public NlsKey getPropertyNlsKey(String property) {
-        return decorated.getPropertyNlsKey(property);
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        return decorated.getPropertyDefaultFormat(property);
-    }
-
-    @Override
-    public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
-        return decorated.getExtraTranslations();
     }
 
     @Override
