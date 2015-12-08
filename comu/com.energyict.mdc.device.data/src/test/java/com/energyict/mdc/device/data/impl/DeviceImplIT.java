@@ -1284,6 +1284,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(device.getMeterActivationsMostRecentFirst()).isEmpty();
         device.setMultiplier(BigDecimal.TEN);
         device.setMultiplier(BigDecimal.ONE);
+        device.setMultiplier(BigDecimal.ONE);
+        device.setMultiplier(BigDecimal.ONE);
+        device.setMultiplier(BigDecimal.ONE);
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
         assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
         assertThat(device.getCurrentMeterActivation().get().getMultipliers()).isEmpty();
