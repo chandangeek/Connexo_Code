@@ -19,6 +19,11 @@ Ext.define('Dbp.privileges.DeviceProcesses', {
     viewProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
     administrateProcesses: ['privilege.administrate.bpm'],
 
+    executeLevel1: ['privilege.execute.processes.lvl.1'],
+    executeLevel2: ['privilege.execute.processes.lvl.2'],
+    executeLevel3: ['privilege.execute.processes.lvl.3'],
+    executeLevel4: ['privilege.execute.processes.lvl.4'],
+
     assignOrExecute: ['privilege.assign.task', 'privilege.execute.task'],
 
     all: function () {
@@ -41,5 +46,18 @@ Ext.define('Dbp.privileges.DeviceProcesses', {
     },
     canAssignOrExecute: function () {
         return Uni.Auth.checkPrivileges(Dbp.privileges.DeviceProcesses.assignOrExecute);
+    },
+    canExecuteLevel1: function () {
+        return Uni.Auth.checkPrivileges(Dbp.privileges.DeviceProcesses.executeLevel1);
+    },
+    canExecuteLevel2: function () {
+        return Uni.Auth.checkPrivileges(Dbp.privileges.DeviceProcesses.executeLevel2);
+    },
+    canExecuteLevel3: function () {
+        return Uni.Auth.checkPrivileges(Dbp.privileges.DeviceProcesses.executeLevel3);
+    },
+    canExecuteLevel4: function () {
+        return Uni.Auth.checkPrivileges(Dbp.privileges.DeviceProcesses.executeLevel4);
     }
+
 });

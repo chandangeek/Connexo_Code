@@ -6,12 +6,13 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
         'Dbp.deviceprocesses.view.RunningProcessPreview',
         'Dbp.deviceprocesses.view.RunningProcessesGrid'
     ],
-
+    startProcessRecord: null,
     router: null,
     device: null,
     initComponent: function () {
         var me = this,
-            processStore = Ext.getStore('Dbp.deviceprocesses.store.HistoryProcessesFilterProcesses'),
+            processStore = Ext.getStore('Dbp.deviceprocesses.store.AvailableProcesses'),
+            //queryString = Uni.util.QueryString.getQueryStringValues(false),
             processCombo;
         me.side = [
             {
@@ -53,14 +54,14 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                         items: [
                             {
                                 xtype: 'combobox',
-                                dataIndex: 'name',
+                                dataIndex: 'displayname',
                                 fieldLabel: Uni.I18n.translate('dbp.process.start.process', 'DBP', 'Process'),
                                 emptyText: Uni.I18n.translate('dbp.process.startTyping', 'DBP', 'Start typing for process...'),
                                 multiSelect: false,
-                                displayField: 'name',
+                                displayField: 'displayname',
                                 valueField: 'id',
                                 itemId: 'cbo-processes-definition',
-                                store: 'Dbp.deviceprocesses.store.HistoryProcessesFilterProcesses',
+                                //store: 'Dbp.deviceprocesses.store.AvailableProcesses',
                                 width: 600,
                                 labelWidth: 250,
                                 queryMode: 'local',
@@ -68,13 +69,51 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                                 required: true
                             }
                         ]
+                    },
+                    {
+                        xtype: 'container',
+                        margin: '20 0 0 0',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        itemId: 'process-start-content',
+                        items: [
+                            {
+                                xtype: 'property-form'
+                            },
+                            {
+                                xtype: 'container',
+                                margin: '10 0 0 265',
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        text: Uni.I18n.translate('task.action', 'BPM', 'Start'),
+                                        xtype: 'button',
+                                        ui: 'action',
+                                        itemId: 'btn-start',
+                                        action: 'startProcess',
+                                        startProcessRecord: me.startProcessRecord
+
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        text: Uni.I18n.translate('general.cancel', 'DBP', 'Cancel'),
+                                        itemId: 'btn-cancel-link',
+                                        action: 'cancelStartProcess',
+                                        ui: 'link'
+                                    }
+                                ]
+                            }
+                        ]
                     }
-                                    ]
+                ]
 
             }
         ];
         me.callParent(arguments);
         processCombo = me.down('combobox[name=startProcessCombo]');
+
         processStore.load(function (records) {
             Ext.getBody().unmask();
             if (!Ext.isEmpty(records)) {

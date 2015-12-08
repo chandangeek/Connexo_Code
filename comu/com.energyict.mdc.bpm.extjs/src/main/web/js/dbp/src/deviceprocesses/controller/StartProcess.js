@@ -2,14 +2,16 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
     extend: 'Ext.app.Controller',
     requires: [],
     models: [
-        'Dbp.deviceprocesses.model.HistoryProcessesFilter'
+        'Dbp.deviceprocesses.model.HistoryProcessesFilter',
+        'Dbp.deviceprocesses.model.StartProcess'
     ],
     stores: [
         'Dbp.deviceprocesses.store.RunningProcesses',
         'Dbp.deviceprocesses.store.HistoryProcesses',
         'Dbp.deviceprocesses.store.HistoryProcessesFilterProcesses',
         'Dbp.deviceprocesses.store.HistoryProcessesFilterStatuses',
-        'Dbp.deviceprocesses.store.HistoryProcessesFilterUsers'
+        'Dbp.deviceprocesses.store.HistoryProcessesFilterUsers',
+        'Dbp.deviceprocesses.store.AvailableProcesses'
 
     ],
     views: [
@@ -23,28 +25,35 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
         {ref: 'historyProcessesGrid', selector: '#history-processes-grid'},
         {ref: 'runningProcessesGrid', selector: '#running-processes-grid'},
         {ref: 'openTasksDisplay', selector: '#dbp-preview-running-process-open-tasks'},
-        {ref: 'startProcess', selector: '#dbp-start-processes'}
+        {ref: 'startProcess', selector: 'dbp-start-processes'},
+        {ref: 'processStartContent',selector: 'dbp-start-processes #process-start-content'},
     ],
     mRID: null,
+    processRecord: null,
 
     init: function () {
         var me = this;
         me.control({
-            'dbp-running-processes #running-processes-grid': {
-                select: this.showProcessPreview
+
+            '#process-start-content button[action=cancelStartProcess]': {
+                click: this.cancelStartProcess
             },
-            'dbp-history-processes #history-processes-grid': {
-                select: this.showHistoryPreview
+            '#process-start-content button[action=startProcess]': {
+                click: this.startProcess
             },
-            '#tab-processes': {
-                tabChange: this.changeTab
+            'combobox[itemId=cbo-processes-definition]':
+            {
+                select: this.processComboChange
             }
         });
     },
 
+
     showStartProcess: function (mRID) {
         var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+            processStore = Ext.getStore('Dbp.deviceprocesses.store.AvailableProcesses'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            processCombo;
 
         me.mRID = mRID;
         viewport.setLoading();
@@ -56,8 +65,13 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
 
-                //me.getStore('Dbp.deviceprocesses.store.RunningProcesses').getProxy().setUrl('mrid', me.mRID);
-                //me.getStore('Dbp.deviceprocesses.store.HistoryProcesses').getProxy().setUrl('mrid', me.mRID);
+                var jsonData;
+                var request = {};
+                me.getPrivileges();
+                processStore.getProxy().setUrl(device.data.state.id);
+
+                processStore.getProxy().extraParams = {privileges: Ext.encode(me.getPrivileges())};
+
                 if (!widget) {
                     widget = Ext.widget('dbp-start-processes', {device: device});
                     me.getApplication().fireEvent('changecontentevent', widget);
@@ -65,14 +79,6 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
                     widget.device = device;
                 }
 
-                //var queryString = Uni.util.QueryString.getQueryStringValues(false);
-                //me.getProcessesTab().setActiveTab(queryString.activeTab == 'history' ? 1 : 0);
-/*
-                me.getHistoryProcessesGrid().getStore().on('datachanged', function () {
-                    me.getHistoryProcessesGrid().getSelectionModel().select(0);
-                    return true;
-                }, this);
-*/
             },
             failure: function (response) {
                 viewport.setLoading(false);
@@ -80,112 +86,102 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
         });
     },
 
-    showDeviceProcesses: function (mRID) {
+    getPrivileges: function () {
         var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+        executionPrivileges =[];
 
-        me.mRID = mRID;
-        viewport.setLoading();
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
-            success: function (device) {
-                var widget = me.getMainPage();
+        if (Dbp.privileges.DeviceProcesses.canExecuteLevel1()) {
+            executionPrivileges.push({
+                privilege: Dbp.privileges.DeviceProcesses.executeLevel1.toString()
+            });
+        }
+        if (Dbp.privileges.DeviceProcesses.canExecuteLevel2()) {
+            executionPrivileges.push({
+                privilege: Dbp.privileges.DeviceProcesses.executeLevel2.toString()
+            });
+        }
+        if (Dbp.privileges.DeviceProcesses.canExecuteLevel3()) {
+            executionPrivileges.push({
+                privilege: Dbp.privileges.DeviceProcesses.executeLevel3.toString()
+            });
+        }
+        if (Dbp.privileges.DeviceProcesses.canExecuteLevel4()) {
+            executionPrivileges.push({
+                privilege: Dbp.privileges.DeviceProcesses.executeLevel4.toString()
+            });
+        }
+        return executionPrivileges;
 
-                me.getApplication().fireEvent('loadDevice', device);
-                viewport.setLoading(false);
+    },
 
-                me.getStore('Dbp.deviceprocesses.store.RunningProcesses').getProxy().setUrl('mrid', me.mRID);
-                me.getStore('Dbp.deviceprocesses.store.HistoryProcesses').getProxy().setUrl('mrid', me.mRID);
-                if (!widget) {
-                    widget = Ext.widget('dbp-device-processes-main-view', {device: device});
-                    me.getApplication().fireEvent('changecontentevent', widget);
+
+
+    loadJbpmForm: function (processRecord) {
+        var me = this,
+            processStartContent = me.getProcessStartContent(),
+            startProcess = me.getModel('Dbp.deviceprocesses.model.StartProcess'),
+            propertyForm;
+
+        if (processStartContent == undefined){
+            return;
+        }
+        propertyForm = processStartContent.down('property-form');
+        processStartContent.setLoading();
+
+        me.processRecord = processRecord.lastSelection[0].data;
+
+        startProcess.load(processRecord.lastValue,{
+            success: function (startProcessRecord) {
+
+                processStartContent.startProcessRecord = startProcessRecord;
+                if (startProcessRecord && startProcessRecord.properties() && startProcessRecord.properties().count()) {
+                    propertyForm.loadRecord(startProcessRecord);
+                    propertyForm.show();
                 } else {
-                    widget.device = device;
+                    propertyForm.hide();
                 }
-
-                var queryString = Uni.util.QueryString.getQueryStringValues(false);
-                me.getProcessesTab().setActiveTab(queryString.activeTab == 'history' ? 1 : 0);
-
-                me.getHistoryProcessesGrid().getStore().on('datachanged', function () {
-                    me.getHistoryProcessesGrid().getSelectionModel().select(0);
-                    return true;
-                }, this);
-
+                processStartContent.setLoading(false);
+                propertyForm.up('#process-start-content').doLayout();
             },
-            failure: function (response) {
-                viewport.setLoading(false);
+            failure: function (record, operation) {
             }
         });
 
     },
 
-    showProcessPreview: function (selectionModel, record) {
-        var me = this,
-            mainPage = me.getMainPage(),
-            preview = mainPage.down('dbp-running-process-preview'),
-            previewForm = mainPage.down('#frm-preview-running-process'),
-            router = me.getController('Uni.controller.history.Router'),
-            openTasksValue = "";
+    processComboChange: function (record) {
+        var me = this;
+        me.loadJbpmForm(record);
+    },
+    cancelStartProcess: function (btn) {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('devices/device').forward();
+    },
+    startProcess: function (button) {
+        var me=this,
+            processStartContent = me.getProcessStartContent(),
+            router = this.getController('Uni.controller.history.Router'),
+            startProcessRecord = processStartContent.startProcessRecord,
+            //startProcess = me.getModel('Dbp.deviceprocesses.model.StartProcess'),
+            propertyForm = processStartContent.down('property-form');
 
-        Ext.suspendLayouts();
-        preview.setTitle(record.get('name'));
-        previewForm.loadRecord(record);
-
-        record.openTasks().each(function (rec) {
-            if (openTasksValue.length > 0) {
-                openTasksValue += '<br>';
+        propertyForm.updateRecord();
+        startProcessRecord.beginEdit();
+        startProcessRecord.set('mrid', me.mRID);
+        startProcessRecord.set('deploymentId', me.processRecord.deploymentId);
+        startProcessRecord.save({
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dbp.startprocess.started', 'DBP', 'Process started.'));
+                me.getController('Uni.controller.history.Router').getRoute('devices/device/processes').forward();
+            },
+            failure: function (record, operation) {
+                if (operation.response.status == 400) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        processStartContent.getForm().markInvalid(json.errors);
+                    }
+                }
             }
-
-            var taskName = rec.get('name').length >0? rec.get('name'): Uni.I18n.translate('dbp.process.noTaskName', 'DBP', 'No task name'),
-                status = rec.get('statusDisplay'),
-                assign = rec.get('actualOwner').length >0? rec.get('actualOwner'): Uni.I18n.translate('dbp.process.unassigned', 'DBP', 'Unassigned');
-
-            openTasksValue += Ext.String.format('<a href =\"{0}\">{1}</a> ({2}, {3})',
-                router.getRoute('workspace/taksmanagementtasks/openTask').buildUrl({taskId: rec.get('id')}),
-                Ext.String.htmlEncode(taskName), status, assign);
-        });
-
-        me.getOpenTasksDisplay().setValue((openTasksValue.length > 0)? openTasksValue: Uni.I18n.translate('dbp.process.noOpenTasks', 'DBP', 'None'));
-        Ext.resumeLayouts();
-    },
-
-    showHistoryPreview: function (selectionModel, record) {
-        var me = this,
-            mainPage = me.getMainPage(),
-            preview = mainPage.down('dbp-history-process-preview'),
-            previewForm = mainPage.down('#frm-preview-history-process');
-
-        Ext.suspendLayouts();
-        preview.setTitle(record.get('name'));
-        previewForm.loadRecord(record);
-        Ext.resumeLayouts();
-    },
-
-    applyNewState: function (queryString) {
-        var me = this,
-            href = Uni.util.QueryString.buildHrefWithQueryString(queryString, false);
-
-        if (window.location.href !== href) {
-            Uni.util.History.setParsePath(false);
-            Uni.util.History.suspendEventsForNextCall();
-            window.location.href = href;
-            Ext.util.History.currentToken = window.location.hash.substr(1);
-        }
-    },
-
-    changeTab: function (tabPanel, tab) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            queryString = Uni.util.QueryString.getQueryStringValues(false);
-
-        queryString.activeTab = (tab.itemId === 'running-processes-tab') ? 'running' : 'history';
-
-        var selectionModel = me.getHistoryProcessesGrid().getSelectionModel();
-        if ((tab.itemId === 'history-processes-tab')
-            && me.getHistoryProcessesGrid().getStore().getCount() > 0
-            && selectionModel.getCount() == 0) {
-            selectionModel.select(0);
-        }
-
-        me.applyNewState(queryString);
+        })
     }
 });
