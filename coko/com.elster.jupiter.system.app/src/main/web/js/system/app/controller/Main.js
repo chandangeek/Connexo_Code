@@ -12,7 +12,7 @@ Ext.define('SystemApp.controller.Main', {
         'Tme.privileges.Period',
         'Fim.privileges.DataImport',
         'Apr.privileges.AppServer',
-        'Cps.privileges.customattributes',
+        'Cps.privileges.CustomAttributeSets',
         'Mtr.privileges.ReadingTypes'
     ],
 
