@@ -17,10 +17,6 @@ public abstract class AbstractMultiplierConfigurationValidator {
 
     abstract String getReadingTypeFieldName();
 
-    ReadingType getReadingTypeToCompare(ReadingType channelSpecReadingType) {
-        return channelSpecReadingType.getCalculatedReadingType().orElse(channelSpecReadingType);
-    }
-
     boolean invalidCalculatedReadingType(ConstraintValidatorContext constraintValidatorContext, ReadingType specReadingType, ReadingType calculatedReadingType) {
         if (readingTypeIsCount(specReadingType)) {
             if (readingTypeIsSecondaryMetered(specReadingType)) {

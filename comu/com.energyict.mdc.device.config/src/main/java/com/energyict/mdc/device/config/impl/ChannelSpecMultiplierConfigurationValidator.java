@@ -34,6 +34,10 @@ public class ChannelSpecMultiplierConfigurationValidator extends AbstractMultipl
         return true;
     }
 
+    private ReadingType getReadingTypeToCompare(ReadingType channelSpecReadingType) {
+        return channelSpecReadingType.getCalculatedReadingType().orElse(channelSpecReadingType);
+    }
+
     @Override
     String getReadingTypeFieldName() {
         return ChannelSpecImpl.ChannelSpecFields.CHANNEL_TYPE.fieldName() + "readingType";
