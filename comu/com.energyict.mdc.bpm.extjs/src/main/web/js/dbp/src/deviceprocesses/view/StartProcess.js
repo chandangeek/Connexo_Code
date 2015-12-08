@@ -12,7 +12,6 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
     initComponent: function () {
         var me = this,
             processStore = Ext.getStore('Dbp.deviceprocesses.store.AvailableProcesses'),
-            //queryString = Uni.util.QueryString.getQueryStringValues(false),
             processCombo;
         me.side = [
             {
@@ -40,7 +39,7 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('processes.start.title', 'DBP', 'Start process'),
+                title: Uni.I18n.translate('dbp.process.start.title', 'DBP', 'Start process'),
                 itemId: 'pnl-processes',
                 items: [
                     {
@@ -59,7 +58,7 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                                 emptyText: Uni.I18n.translate('dbp.process.startTyping', 'DBP', 'Start typing for process...'),
                                 multiSelect: false,
                                 displayField: 'displayname',
-                                valueField: 'id',
+                                valueField: 'processId',
                                 itemId: 'cbo-processes-definition',
                                 //store: 'Dbp.deviceprocesses.store.AvailableProcesses',
                                 width: 600,
@@ -88,7 +87,7 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                                 layout: 'hbox',
                                 items: [
                                     {
-                                        text: Uni.I18n.translate('task.action', 'BPM', 'Start'),
+                                        text: Uni.I18n.translate('dbp.process.action', 'DBP', 'Start'),
                                         xtype: 'button',
                                         ui: 'action',
                                         itemId: 'btn-start',

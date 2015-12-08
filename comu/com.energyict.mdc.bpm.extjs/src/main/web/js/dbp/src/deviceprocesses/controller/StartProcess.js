@@ -2,17 +2,10 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
     extend: 'Ext.app.Controller',
     requires: [],
     models: [
-        'Dbp.deviceprocesses.model.HistoryProcessesFilter',
         'Dbp.deviceprocesses.model.StartProcess'
     ],
     stores: [
-        'Dbp.deviceprocesses.store.RunningProcesses',
-        'Dbp.deviceprocesses.store.HistoryProcesses',
-        'Dbp.deviceprocesses.store.HistoryProcessesFilterProcesses',
-        'Dbp.deviceprocesses.store.HistoryProcessesFilterStatuses',
-        'Dbp.deviceprocesses.store.HistoryProcessesFilterUsers',
         'Dbp.deviceprocesses.store.AvailableProcesses'
-
     ],
     views: [
         'Dbp.deviceprocesses.view.SideMenu',
@@ -21,9 +14,6 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
     ],
     refs: [
         {ref: 'mainPage', selector: 'dbp-device-processes-main-view'},
-        {ref: 'processesTab', selector: '#tab-processes'},
-        {ref: 'historyProcessesGrid', selector: '#history-processes-grid'},
-        {ref: 'runningProcessesGrid', selector: '#running-processes-grid'},
         {ref: 'openTasksDisplay', selector: '#dbp-preview-running-process-open-tasks'},
         {ref: 'startProcess', selector: 'dbp-start-processes'},
         {ref: 'processStartContent',selector: 'dbp-start-processes #process-start-content'},
