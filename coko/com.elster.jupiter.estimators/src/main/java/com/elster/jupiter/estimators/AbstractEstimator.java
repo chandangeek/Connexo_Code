@@ -10,12 +10,11 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.logging.LoggingContext;
+
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -58,7 +57,7 @@ public abstract class AbstractEstimator implements Estimator {
         }
     }
 
-    private Thesaurus getThesaurus() {
+    protected Thesaurus getThesaurus() {
         return thesaurus;
     }
 
@@ -67,18 +66,8 @@ public abstract class AbstractEstimator implements Estimator {
     }
 
     @Override
-    public String getDisplayName(String property) {
-        return getThesaurus().getString(getPropertyNlsKey(property).getKey(), getPropertyDefaultFormat(property));
-    }
-
-    @Override
     public String getDisplayName() {
         return getThesaurus().getString(getNlsKey().getKey(), getDefaultFormat());
-    }
-
-    boolean isAProperty(final String property) {
-        return getPropertySpecs().stream()
-                .anyMatch(input -> property.equals(input.getName()));
     }
 
     protected final Object getProperty(String key) {
@@ -98,22 +87,6 @@ public abstract class AbstractEstimator implements Estimator {
         return SimpleNlsKey.key(EstimationService.COMPONENTNAME, Layer.DOMAIN, getBaseKey());
     }
 
-    @Override
-    public NlsKey getPropertyNlsKey(String property) {
-        if (isAProperty(property)) {
-            /*
-             * Component=UNI and Layer=REST because the front-end will try to translate the property itself, using unifyingjs framework
-             */
-            return SimpleNlsKey.key("UNI", Layer.REST, property);
-        }
-        return null;
-    }
-
-    @Override
-    public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
-        return Collections.emptyList();
-    }
-
     protected final String format(EstimationBlock block) {
         return EstimationBlockFormatter.getInstance().format(block);
     }
@@ -123,4 +96,5 @@ public abstract class AbstractEstimator implements Estimator {
                 "block", EstimationBlockFormatter.getInstance().format(block),
                 "readingType", block.getReadingType().getMRID()));
     }
+
 }

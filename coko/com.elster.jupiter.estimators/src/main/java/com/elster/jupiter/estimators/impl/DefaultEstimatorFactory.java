@@ -6,9 +6,7 @@ import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -16,15 +14,16 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -97,24 +96,13 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        for (EstimatorDefinition estimatorDefinition : EstimatorDefinition.values()) {
-            AbstractEstimator estimator = estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService,timeService);
-            translationKeys.add(new SimpleTranslationKey(estimator.getNlsKey().getKey(), estimator.getDefaultFormat()));
-            estimator.getPropertySpecs()
-                    .stream()
-                    .map(key -> {
-                        NlsKey nlsKey = estimator.getPropertyNlsKey(key.getName());
-                        return nlsKey != null ? new SimpleTranslationKey(nlsKey.getKey(), estimator.getPropertyDefaultFormat(key.getName())) : null;
-                    })
-                    .filter(Objects::nonNull)
-                    .forEach(translationKeys::add);
-            estimator.getExtraTranslations()
-                    .stream()
-                    .map(extraTranslation -> new SimpleTranslationKey(extraTranslation.getFirst().getKey(), extraTranslation.getLast()))
-                    .forEach(translationKeys::add);
-        }
-        return translationKeys;
+        List<TranslationKey> keys = new ArrayList<>();
+        Collections.addAll(keys, AverageWithSamplesEstimator.TranslationKeys.values());
+        Collections.addAll(keys, EqualDistribution.TranslationKeys.values());
+        Collections.addAll(keys, LinearInterpolation.TranslationKeys.values());
+        Collections.addAll(keys, PowerGapFill.TranslationKeys.values());
+        Collections.addAll(keys, ValueFillEstimator.TranslationKeys.values());
+        return keys;
     }
 
     @Override

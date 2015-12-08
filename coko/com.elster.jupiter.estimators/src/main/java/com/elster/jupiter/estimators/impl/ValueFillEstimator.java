@@ -6,9 +6,11 @@ import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.logging.LoggingContext;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -25,11 +27,45 @@ import java.util.function.Consumer;
  */
 public class ValueFillEstimator extends AbstractEstimator {
 
-    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "valuefill.maxNumberOfConsecutiveSuspects";
+    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
     private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
 
-    static final String FILL_VALUE = "valuefill.fillValue";
+    static final String FILL_VALUE = TranslationKeys.FILL_VALUE.getKey();
     private static final BigDecimal DEFAULT_FILL_VALUE = BigDecimal.ZERO;
+
+    /**
+     * Contains {@link TranslationKey}s for all the
+     * {@link PropertySpec}s of this estimator.
+     *
+     * @author Rudi Vankeirsbilck (rudi)
+     * @since 2015-12-07 (14:03)
+     */
+    public enum TranslationKeys implements TranslationKey {
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("valuefill.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("valuefill.maxNumberOfConsecutiveSuspects.description", "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
+        FILL_VALUE("valuefill.fillValue", "Fill value"),
+        FILL_VALUE_DESCRIPTION("valuefill.fillValue.description", "The value fill rule is the most simple rule and estimates suspect readings by replacing all the readings by a user defined value.");
+
+        private final String key;
+        private final String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+
+        @Override
+        public String getKey() {
+            return this.key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.defaultFormat;
+        }
+
+    }
 
     private Long maxNumberOfConsecutiveSuspects;
     private BigDecimal fillValue;
@@ -48,18 +84,6 @@ public class ValueFillEstimator extends AbstractEstimator {
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
         fillValue = getProperty(FILL_VALUE, BigDecimal.class)
                 .orElse(DEFAULT_FILL_VALUE);
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        switch (property) {
-        case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
-            return "Max number of consecutive suspects";
-        case FILL_VALUE:
-            return "Fill value";
-        default:
-            return "";
-        }
     }
 
     @Override
@@ -115,10 +139,20 @@ public class ValueFillEstimator extends AbstractEstimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().longPropertySpec(
-                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
-                FILL_VALUE, true, DEFAULT_FILL_VALUE));
+        builder.add(getPropertySpecService()
+                .longPropertySpec(
+                        this.getThesaurus(),
+                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
+                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION,
+                        true,
+                        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
+        builder.add(getPropertySpecService()
+                .bigDecimalPropertySpec(
+                        this.getThesaurus(),
+                        TranslationKeys.FILL_VALUE,
+                        TranslationKeys.FILL_VALUE_DESCRIPTION,
+                        true,
+                        DEFAULT_FILL_VALUE));
         return builder.build();
     }
 

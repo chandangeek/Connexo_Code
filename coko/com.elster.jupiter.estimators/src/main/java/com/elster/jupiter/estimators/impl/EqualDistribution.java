@@ -20,10 +20,12 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -45,9 +47,43 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.streams.Predicates.either;
 
 public class EqualDistribution extends AbstractEstimator implements Estimator {
-    public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "equaldistribution.maxNumberOfConsecutiveSuspects";
-    public static final String ADVANCE_READINGS_SETTINGS = "equaldistribution.advanceReadingsSettings";
+    public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
+    public static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
     private static final long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
+
+    /**
+     * Contains {@link TranslationKey}s for all the
+     * {@link PropertySpec}s of this estimator.
+     *
+     * @author Rudi Vankeirsbilck (rudi)
+     * @since 2015-12-07 (14:03)
+     */
+    public enum TranslationKeys implements TranslationKey {
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("equaldistribution.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("equaldistribution.maxNumberOfConsecutiveSuspects.description", "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
+        ADVANCE_READINGS_SETTINGS("equaldistribution.advanceReadingsSettings", "Use advance readings"),
+        ADVANCE_READINGS_SETTINGS_DESCRIPTION("equaldistribution.advanceReadingsSettings.description", "Use other data than the channel’s own delta values to estimate suspect data.");
+
+        private final String key;
+        private final String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+
+        @Override
+        public String getKey() {
+            return this.key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.defaultFormat;
+        }
+
+    }
 
     private final MeteringService meteringService;
     private AdvanceReadingsSettings advanceReadingsSettings;
@@ -69,18 +105,6 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 .orElse(BulkAdvanceReadingsSettings.INSTANCE);
         maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, Long.class)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        switch (property) {
-            case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
-                return "Max number of consecutive suspects";
-            case ADVANCE_READINGS_SETTINGS:
-                return "Use advance readings";
-            default:
-                return "";
-        }
     }
 
     @Override
@@ -331,11 +355,20 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().longPropertySpec(
-                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
-        builder.add(getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsWithoutNoneFactory(meteringService))
+        builder.add(getPropertySpecService()
+                .longPropertySpec(
+                        this.getThesaurus(),
+                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
+                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION,
+                        true,
+                        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
+        builder.add(
+            getPropertySpecService()
+                .specForValuesOf(new AdvanceReadingsSettingsWithoutNoneFactory(meteringService))
+                .named(TranslationKeys.ADVANCE_READINGS_SETTINGS)
+                .describedAs(TranslationKeys.ADVANCE_READINGS_SETTINGS_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .name(ADVANCE_READINGS_SETTINGS)
                 .setDefaultValue(BulkAdvanceReadingsSettings.INSTANCE)
                 .finish());
         return builder.build();
@@ -386,9 +419,11 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
 
         ImmutableMap<String, Consumer<Map.Entry<String, Object>>> propertyValidations = builder.build();
 
-        estimatorProperties.entrySet().forEach(property -> {
-            Optional.ofNullable(propertyValidations.get(property.getKey()))
-                    .ifPresent(validator -> validator.accept(property));
-        });
+        estimatorProperties.entrySet()
+                .forEach(
+                        property -> Optional
+                                .ofNullable(propertyValidations.get(property.getKey()))
+                                .ifPresent(validator -> validator.accept(property)));
     }
+
 }

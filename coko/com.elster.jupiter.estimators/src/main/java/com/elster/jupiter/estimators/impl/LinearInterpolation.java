@@ -8,10 +8,12 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -31,8 +33,40 @@ import java.util.logging.Logger;
  */
 public class LinearInterpolation extends AbstractEstimator {
 
-    public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "linearinterpolation.maxNumberOfConsecutiveSuspects";
+    public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
     private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
+
+    /**
+     * Contains {@link TranslationKey}s for all the
+     * {@link PropertySpec}s of this estimator.
+     *
+     * @author Rudi Vankeirsbilck (rudi)
+     * @since 2015-12-07 (14:03)
+     */
+    public enum TranslationKeys implements TranslationKey {
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("linearinterpolation.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("linearinterpolation.maxNumberOfConsecutiveSuspects.description", "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated.");
+
+        private final String key;
+        private final String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+
+        @Override
+        public String getKey() {
+            return this.key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.defaultFormat;
+        }
+
+    }
 
     private Long maxNumberOfConsecutiveSuspects;
 
@@ -48,16 +82,6 @@ public class LinearInterpolation extends AbstractEstimator {
     public void init() {
         this.maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, Long.class)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        switch (property) {
-        case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
-            return "Max number of consecutive suspects";
-        default:
-            return "";
-        }
     }
 
     @Override
@@ -157,8 +181,13 @@ public class LinearInterpolation extends AbstractEstimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().longPropertySpec(
-                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
+        builder.add(getPropertySpecService()
+                .longPropertySpec(
+                        this.getThesaurus(),
+                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
+                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION,
+                        true,
+                        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
         return builder.build();
     }
 
@@ -179,5 +208,5 @@ public class LinearInterpolation extends AbstractEstimator {
                     .ifPresent(validator -> validator.accept(property));
         });
     }
-}
 
+}

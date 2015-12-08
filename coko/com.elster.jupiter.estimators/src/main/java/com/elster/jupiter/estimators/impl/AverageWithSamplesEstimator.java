@@ -20,7 +20,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -30,6 +30,7 @@ import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -52,13 +53,54 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.either;
 import static java.lang.Math.abs;
-import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.RoundingMode.HALF_UP;
 
 /**
  * Created by igh on 25/03/2015.
  */
 public class AverageWithSamplesEstimator extends AbstractEstimator {
+
+    /**
+     * Contains {@link TranslationKey}s for all the
+     * {@link PropertySpec}s of this estimator.
+     *
+     * @author Rudi Vankeirsbilck (rudi)
+     * @since 2015-12-07 (14:03)
+     */
+    public enum TranslationKeys implements TranslationKey {
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("averagewithsamples.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("averagewithsamples.maxNumberOfConsecutiveSuspects.description", "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
+        MIN_NUMBER_OF_SAMPLES("averagewithsamples.minNumberOfSamples", "Minimum samples"),
+        MIN_NUMBER_OF_SAMPLES_DESCRIPTION("averagewithsamples.minNumberOfSamples.description", "The minimum amount of sample needed for estimation."),
+        MAX_NUMBER_OF_SAMPLES("averagewithsamples.maxNumberOfSamples", "Maximum samples"),
+        MAX_NUMBER_OF_SAMPLES_DESCRIPTION("averagewithsamples.maxNumberOfSamples.description", "The maximum amount of sample needed for estimation."),
+        ALLOW_NEGATIVE_VALUES("averagewithsamples.allowNegativeValues", "Allow negative values"),
+        ALLOW_NEGATIVE_VALUES_DESCRIPTION("averagewithsamples.allowNegativeValues.description", "Indicates that negative values can be used to estimate data."),
+        RELATIVE_PERIOD("averagewithsamples.relativePeriod", "Relative period"),
+        RELATIVE_PERIOD_DESCRIPTION("averagewithsamples.relativePeriod.description", "The number of samples you will find and be able to use for estimation."),
+        ADVANCE_READINGS_SETTINGS("averagewithsamples.advanceReadingsSettings", "Use advance readings"),
+        ADVANCE_READINGS_SETTINGS_DESCRIPTION("averagewithsamples.advanceReadingsSettings.description", "Use other data than the channel’s own delta values to estimate suspect data.");
+
+        private final String key;
+        private final String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+
+        @Override
+        public String getKey() {
+            return this.key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.defaultFormat;
+        }
+
+    }
 
     class SamplesComparator implements Comparator<BaseReadingRecord> {
 
@@ -86,12 +128,12 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         }
     }
 
-    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "averagewithsamples.maxNumberOfConsecutiveSuspects";
-    static final String MIN_NUMBER_OF_SAMPLES = "averagewithsamples.minNumberOfSamples";
-    static final String MAX_NUMBER_OF_SAMPLES = "averagewithsamples.maxNumberOfSamples";
-    static final String ALLOW_NEGATIVE_VALUES = "averagewithsamples.allowNegativeValues";
-    static final String RELATIVE_PERIOD = "averagewithsamples.relativePeriod";
-    static final String ADVANCE_READINGS_SETTINGS = "averagewithsamples.advanceReadingsSettings";
+    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
+    static final String MIN_NUMBER_OF_SAMPLES = TranslationKeys.MIN_NUMBER_OF_SAMPLES.getKey();
+    static final String MAX_NUMBER_OF_SAMPLES = TranslationKeys.MAX_NUMBER_OF_SAMPLES.getKey();
+    static final String ALLOW_NEGATIVE_VALUES = TranslationKeys.ALLOW_NEGATIVE_VALUES.getKey();
+    static final String RELATIVE_PERIOD = TranslationKeys.RELATIVE_PERIOD.getKey();
+    static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
 
     private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
     private static final Long MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE = 1L;
@@ -107,7 +149,6 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private boolean allowNegativeValues = false;
     private RelativePeriod relativePeriod;
     private AdvanceReadingsSettings advanceReadingsSettings;
-
 
     AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
         super(thesaurus, propertySpecService);
@@ -125,12 +166,11 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     @Override
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
-        List<EstimationBlock> remain = new ArrayList<EstimationBlock>();
-        List<EstimationBlock> estimated = new ArrayList<EstimationBlock>();
+        List<EstimationBlock> remain = new ArrayList<>();
+        List<EstimationBlock> estimated = new ArrayList<>();
         for (EstimationBlock block : estimationBlocks) {
 
             try (LoggingContext context = initLoggingContext(block)) {
-
                 if (!isEstimatable(block)) {
                     remain.add(block);
                 } else {
@@ -141,7 +181,6 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                         remain.add(block);
                     }
                 }
-
             }
         }
         return SimpleEstimationResult.of(remain, estimated);
@@ -187,26 +226,6 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     @Override
-    public String getPropertyDefaultFormat(String property) {
-        switch (property) {
-            case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
-                return "Max number of consecutive suspects";
-            case MAX_NUMBER_OF_SAMPLES:
-                return "Maximum samples";
-            case MIN_NUMBER_OF_SAMPLES:
-                return "Minimum samples";
-            case ALLOW_NEGATIVE_VALUES:
-                return "Allow negative values";
-            case RELATIVE_PERIOD:
-                return "Relative period";
-            case ADVANCE_READINGS_SETTINGS:
-                return "Use advance readings";
-            default:
-                return "";
-        }
-    }
-
-    @Override
     public List<String> getRequiredProperties() {
         return Arrays.asList(
                 MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
@@ -222,22 +241,57 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
-        builder.add(getPropertySpecService().longPropertySpec(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
+        builder.add(getPropertySpecService()
+                .longPropertySpec(
+                        this.getThesaurus(),
+                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
+                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION,
+                        true,
+                        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
 
-        builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, true, new BooleanFactory()));
-
-        PropertySpec spec = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService))
+        builder.add(
+            getPropertySpecService()
+                .specForValuesOf(new BooleanFactory())
+                .named(TranslationKeys.ALLOW_NEGATIVE_VALUES)
+                .describedAs(TranslationKeys.ALLOW_NEGATIVE_VALUES_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .name(ADVANCE_READINGS_SETTINGS)
+                .finish());
+
+        builder.add(
+            getPropertySpecService()
+                .specForValuesOf(new AdvanceReadingsSettingsFactory(meteringService))
+                .named(TranslationKeys.ADVANCE_READINGS_SETTINGS)
+                .describedAs(TranslationKeys.ADVANCE_READINGS_SETTINGS_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
                 .setDefaultValue(NoneAdvanceReadingsSettings.INSTANCE)
-                .finish();
-        builder.add(spec);
+                .finish());
 
-        builder.add(getPropertySpecService().longPropertySpec(MIN_NUMBER_OF_SAMPLES, true, MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+        builder.add(
+            getPropertySpecService()
+                .longPropertySpec(
+                        this.getThesaurus(),
+                        TranslationKeys.MIN_NUMBER_OF_SAMPLES,
+                        TranslationKeys.MIN_NUMBER_OF_SAMPLES_DESCRIPTION,
+                        true,
+                        MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
 
-        builder.add(getPropertySpecService().longPropertySpec(MAX_NUMBER_OF_SAMPLES, true, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+        builder.add(getPropertySpecService()
+                .longPropertySpec(
+                        this.getThesaurus(),
+                        TranslationKeys.MAX_NUMBER_OF_SAMPLES,
+                        TranslationKeys.MAX_NUMBER_OF_SAMPLES_DESCRIPTION,
+                        true,
+                        MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
 
-        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, timeService.getAllRelativePeriod()));
+        builder.add(getPropertySpecService()
+                .relativePeriodPropertySpec(
+                        this.getThesaurus(),
+                        TranslationKeys.RELATIVE_PERIOD,
+                        TranslationKeys.RELATIVE_PERIOD_DESCRIPTION,
+                        true,
+                        timeService.getAllRelativePeriod()));
 
         return builder.build();
     }
@@ -341,10 +395,10 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
         }
-        return calculateConsumption(bulkReadingType, startInterval, endInterval, startBulkReading.get(), endBulkReading.get());
+        return calculateConsumption(bulkReadingType, startBulkReading.get(), endBulkReading.get());
     }
 
-    private Optional<BigDecimal> calculateConsumption(ReadingType readingType, Instant startInterval, Instant endInterval, BaseReadingRecord startReading, BaseReadingRecord endReading) {
+    private Optional<BigDecimal> calculateConsumption(ReadingType readingType, BaseReadingRecord startReading, BaseReadingRecord endReading) {
         Quantity startQty = startReading.getQuantity(readingType);
         if (startQty == null) {
             String message = "Failed estimation with {rule}: Block {block} since the prior bulk reading has no value";
@@ -518,8 +572,8 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private boolean estimateWithoutAdvances(EstimationBlock estimationBlock) {
         for (Estimatable estimatable : estimationBlock.estimatables()) {
-            boolean succes = estimateWithoutAdvances(estimationBlock, estimatable);
-            if (!succes) {
+            boolean failure = !estimateWithoutAdvances(estimationBlock, estimatable);
+            if (failure) {
                 return false;
             }
         }
@@ -560,7 +614,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private List<BaseReadingRecord> getSamples(EstimationBlock estimationBlock, Instant estimatableTime, Range<Instant> period) {
         List<BaseReadingRecord> records = estimationBlock.getChannel().getReadings(period);
-        List<BaseReadingRecord> samples = new ArrayList<BaseReadingRecord>();
+        List<BaseReadingRecord> samples = new ArrayList<>();
         for (BaseReadingRecord record : records) {
             if (isValidSample(estimationBlock, estimatableTime, record)) {
                 samples.add(record);
@@ -612,16 +666,4 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                 );
     }
 
-    private BigDecimal average(List<BaseReadingRecord> values, ReadingType readingType) {
-        int size = values.size();
-        BigDecimal value;
-        BigDecimal sum = new BigDecimal(0);
-        for (int i = 0; i < size; i++) {
-            value = ((BaseReadingRecord) values.get(i)).getQuantity(readingType).getValue();
-            sum = sum.add(value);
-        }
-        return sum.divide(new BigDecimal(size), ROUND_HALF_UP);
-    }
-
 }
-
