@@ -59,7 +59,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 });
                 me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
             } else {
-                me.setReadingQualities(me.down('#mainReadingQualities'), record.get('mainValidationInfo'));
+                var mainReadingQualitiesField = me.down('#mainReadingQualities');
+                if (mainReadingQualitiesField) {
+                    me.setReadingQualities(mainReadingQualitiesField, record.get('mainValidationInfo'));
+                }
                 me.setReadingQualities(me.down('#bulkReadingQualities'), record.get('bulkValidationInfo'));
                 me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
                 me.down('#readingDataValidated').setValue(record.get('dataValidated'));
@@ -182,24 +185,27 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     setValueWithResult: function (value, type, channelId) {
         var me = this,
             record = me.down('form').getRecord(),
-            measurementType,
+            unitOfMeasure,
             validationInfo,
             validationResultText = '',
             formatValue,
             channel;
 
+        if (type === 'main') {
+            unitOfMeasure = me.channelRecord.get('calculatedReadingType').names.unitOfMeasure;
+        } else { // 'bulk'
+            unitOfMeasure = me.channelRecord.get('readingType').names.unitOfMeasure;
+        }
         if (me.channels) {
             channel = Ext.Array.findBy(me.channels, function (item) {
                 return item.id == channelId;
             });
-            measurementType = channel.calculatedReadingType ? channel.calculatedReadingType.unit : channel.readingType.unit;
             if (record.get('channelValidationData')[channelId]) {
                 validationInfo = (type == 'main')
                     ? record.get('channelValidationData')[channelId].mainValidationInfo
                     : record.get('channelValidationData')[channelId].bulkValidationInfo;
             }
         } else {
-            measurementType = me.channelRecord.get('unitOfMeasure');
             validationInfo = record.get(type + 'ValidationInfo');
         }
 
@@ -224,10 +230,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
 
         if (!Ext.isEmpty(value)) {
             if (me.channels) {
-                return value + ' ' + measurementType + ' ' + validationResultText;
+                return value + ' ' + unitOfMeasure + ' ' + validationResultText;
             } else {
                 formatValue = Uni.Number.formatNumber(value.toString(), -1);
-                return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
+                return !Ext.isEmpty(formatValue) ? formatValue + ' ' + unitOfMeasure + ' ' + validationResultText : '';
             }
         } else {
             if(type === 'main'){
@@ -352,18 +358,22 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 });
             });
         } else {
+            var calculatedReadingType = me.channelRecord.get('calculatedReadingType');
+
             valuesItems.push(
                 {
                     xtype: 'fieldcontainer',
                     labelWidth: 200,
-                    fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                    fieldLabel: calculatedReadingType
+                        ? Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value')
+                        : Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                     layout: 'hbox',
                     items: [
                         {
                             xtype: 'displayfield',
                             name: 'value',
                             renderer: function (value) {
-                                return me.setValueWithResult(value, 'main');
+                                return me.setValueWithResult(value, calculatedReadingType ? 'main' : 'bulk');
                             }
                         },
                         {
@@ -377,36 +387,43 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     xtype: 'displayfield',
                     labelWidth: 200,
                     fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
-                    itemId: 'mainReadingQualities',
+                    itemId: calculatedReadingType ? 'mainReadingQualities' : 'bulkReadingQualities',
                     htmlEncode: false
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    labelWidth: 200,
-                    fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
-                    layout: 'hbox',
-                    items: [
-                        {
-                            xtype: 'displayfield',
-                            name: 'collectedValue',
-                            renderer: function (value) {
-                                return me.setValueWithResult(value, 'bulk');
+                }
+            );
+            if (calculatedReadingType) {
+                valuesItems.push(
+                    {
+                        xtype: 'fieldcontainer',
+                        labelWidth: 200,
+                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                name: 'collectedValue',
+                                renderer: function (value) {
+                                    return me.setValueWithResult(value, 'bulk');
+                                }
+                            },
+                            {
+                                xtype: 'edited-displayfield',
+                                name: 'bulkModificationState',
+                                margin: '0 0 0 10'
                             }
-                        },
-                        {
-                            xtype: 'edited-displayfield',
-                            name: 'bulkModificationState',
-                            margin: '0 0 0 10'
-                        }
-                    ]
-                },
-                {
-                    xtype: 'displayfield',
-                    labelWidth: 200,
-                    fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
-                    itemId: 'bulkReadingQualities',
-                    htmlEncode: false
-                },
+                        ]
+                    },
+                    {
+                        xtype: 'displayfield',
+                        labelWidth: 200,
+                        fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                        itemId: 'bulkReadingQualities',
+                        htmlEncode: false
+                    }
+                );
+            }
+
+            valuesItems.push(
                 {
                     xtype: 'displayfield',
                     labelWidth: 200,

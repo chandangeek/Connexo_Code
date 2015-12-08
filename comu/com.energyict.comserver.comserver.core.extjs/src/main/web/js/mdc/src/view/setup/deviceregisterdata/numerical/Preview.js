@@ -6,6 +6,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
     ],
     itemId: 'deviceregisterreportpreview',
     title: '',
+    unitOfMeasureCollected: '',
+    unitOfMeasureCalculated: '',
 
     items: {
         xtype: 'form',
@@ -45,7 +47,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
+                        fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
                         layout: {
                             type: 'hbox'
                         },
@@ -55,10 +57,10 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                                 margin: '0 10 0 0',
                                 name: 'value',
                                 renderer: function (value) {
-                                    var form = this.up('form'),
-                                        record = form.getRecord();
+                                    var record = this.up('form').getRecord();
                                     if (record && value) {
-                                        return Uni.Number.formatNumber(value, -1) + ' ' + record.get('unitOfMeasure');
+                                        var me = this.up('form').up('#deviceregisterreportpreview');
+                                        return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCalculated;
                                     } else {
                                         return '-'
                                     }
@@ -71,13 +73,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         ]
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),
+                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                         name: 'deltaValue',
                         renderer: function (value) {
-                            var form = this.up('form'),
-                                record = form.getRecord();
+                            var record = this.up('form').getRecord();
                             if (record && value) {
-                                return Uni.Number.formatNumber(value, -1) + ' ' + record.get('unitOfMeasure');
+                                var me = this.up('form').up('#deviceregisterreportpreview');
+                                return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCollected;
                             } else {
                                 return '-'
                             }

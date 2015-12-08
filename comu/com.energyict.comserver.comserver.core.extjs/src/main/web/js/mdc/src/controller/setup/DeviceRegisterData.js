@@ -92,19 +92,22 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                                 router: router
                             }),
                             func = function () {
-                                var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
-                                        mRID: encodeURIComponent(mRID),
-                                        registerId: registerId
-                                    }),
-                                    valueColumn = widget.down('grid').down('[dataIndex=value]'),
-                                    collectedReadingType = register.get('collectedReadingType'),
+                                var collectedReadingType = register.get('readingType'),
                                     collectedUnit = collectedReadingType.names.unitOfMeasure,
                                     calculatedReadingType = register.get('calculatedReadingType'),
-                                    calculatedUnit = calculatedReadingType.names.unitOfMeasure;
+                                    calculatedUnit = calculatedReadingType.names.unitOfMeasure,
+                                    dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
+                                        mRID: encodeURIComponent(mRID),
+                                        registerId: registerId,
+                                        unitOfMeasureCollected: collectedUnit,
+                                        unitOfMeasureCalculated: calculatedUnit
+                                    });
 
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 tabController.showTab(1);
+
                                 widget.down('#register-data').add(dataReport);
+                                var valueColumn = widget.down('grid').down('[dataIndex=value]');
                                 valueColumn.setText(Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + collectedUnit + ')');
 
                                 me.getFilterPanel().bindStore(dataStore);

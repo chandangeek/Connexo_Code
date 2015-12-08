@@ -107,8 +107,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                             'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
                         editedIconSpan = '<span class="uni-icon-edit"' + 'style="height: 13px; ' + 'width: 13px; ' +
                             'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
-                        mainValue,
-                        bulkValue;
+                        calculatedValue,
+                        collectedValue;
 
                     if (point.delta && point.delta.suspect) {
                         deltaIcon = 'icon-validation-red';
@@ -122,14 +122,24 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                         bulkIcon = 'icon-validation-black';
                     }
 
-                    mainValue = point.y ? point.y + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
-                    bulkValue = point.collectedValue ? point.collectedValue + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
-                    html += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
+                    if (point.collectedValue) {
+                        calculatedValue = point.y ? point.y + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                        collectedValue = point.collectedValue ? point.collectedValue + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                    } else {
+                        // If there's a value (point.y) but no point.collectedValue, then we should call the value "Collected value" (and there's no "Calculated value")
+                        collectedValue = point.y ? point.y + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                        calculatedValue = null;
+                    }
+                    html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
-                    html += '<tr><td><b>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + ':</b></td><td>' + mainValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
-                    html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + bulkValue + (point.bulkEdited ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
+                    if (calculatedValue) {
+                        html += '<tr><td><b>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + ':</b></td><td>' + calculatedValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                        html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue + (point.bulkEdited ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
+                    } else {
+                        html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                    }
                     if (point.multiplier) {
                         html += '<tr><td><b>' + Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier') + ':</b></td><td>' + point.multiplier + '</td></tr>';
                     }

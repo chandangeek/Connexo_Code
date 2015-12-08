@@ -57,7 +57,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + (unitOfCalculatedValues ? ' (' + unitOfCalculatedValues + ')' :''),
+                header: unitOfCalculatedValues
+                    ? Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + ' (' + unitOfCalculatedValues + ')'
+                    : Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + unitOfCollectedValues + ')',
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
@@ -74,7 +76,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 width: 200
             },
             {
-                header: Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + (unitOfCalculatedValues ? ' (' + unitOfCalculatedValues + ')' :''),
+                header: unitOfCalculatedValues
+                    ? Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + ' (' + unitOfCalculatedValues + ')'
+                    : Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + unitOfCollectedValues + ')',
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
