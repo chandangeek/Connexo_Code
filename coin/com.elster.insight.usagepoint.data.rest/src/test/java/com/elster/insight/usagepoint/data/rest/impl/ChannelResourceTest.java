@@ -3,6 +3,8 @@ package com.elster.insight.usagepoint.data.rest.impl;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 
 import java.math.BigDecimal;
@@ -65,7 +67,9 @@ public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest
 
         when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
         when(usagePoint.getMeter(any())).thenReturn(Optional.of(meter));
+        when(usagePoint.getVersion()).thenReturn(5L);
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel));
+        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         ReadingType readingType = mockReadingType(CHANNEL_MRID1);
         when(channel.getMainReadingType()).thenReturn(readingType);
         when(meteringService.getReadingType(CHANNEL_MRID1)).thenReturn(Optional.of(readingType));
@@ -73,6 +77,7 @@ public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest
         when(channel.getLastDateTime()).thenReturn(LAST_READING);
         when(channel.getReading(LAST_READING)).thenReturn(Optional.of(lastReading));
         when(channel.getMainReadingType()).thenReturn(readingType);
+        when(channel.getMeterActivation()).thenReturn(meterActivation);
         when(readingType.isCumulative()).thenReturn(false);
 
         Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
@@ -102,11 +107,17 @@ public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest
         when(confirmedReadingRecord.getTimeStamp()).thenReturn(LAST_READING);
         when(confirmedReadingRecord.getReadingType()).thenReturn(readingType);
         
-        when(validationService.getEvaluator(any(), any())).thenReturn(evaluator);
         when(clock.instant()).thenReturn(Instant.now());
         when(channel.getMeterActivation()).thenReturn(meterActivation);
-        when(meterActivation.getRange()).thenReturn(interval);
-        when(evaluator.getValidationStatus(channel, myList, channel.getMeterActivation().getRange().intersection(interval))).thenReturn(new ArrayList());
+        Range<Instant> intervalToNow = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.now());
+        when(meterActivation.getRange()).thenReturn(intervalToNow);
+//        when(evaluator.getValidationStatus(channel, myList, channel.getMeterActivation().getRange().intersection(interval))).thenReturn(new ArrayList());
+        when(evaluator.getValidationStatus(eq(channel), any(), any(Range.class))).thenReturn(new ArrayList());
+        when(validationService.getEvaluator()).thenReturn(evaluator);
+        when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(evaluator);
+        when(evaluator.isValidationEnabled(channel)).thenReturn(false);
+        when(evaluator.getLastChecked(meter, readingType)).thenReturn(Optional.empty());
+        when(evaluator.isAllDataValidated(meterActivation)).thenReturn(false);
     }
 
 //    @Test
