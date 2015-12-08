@@ -128,10 +128,10 @@ public class SecurityToken {
         try {
             if(jwtCookie !=null && jwtToken !=null){
                 if(new String(jwtCookie.getSigningInput(), StandardCharsets.UTF_8).equals(new String(jwtToken.getSigningInput(),StandardCharsets.UTF_8))) return true;
-                else if( jwtCookie.getJWTClaimsSet().getSubject().equals(jwtToken.getJWTClaimsSet().getSubject())
-                        && jwtCookie.getJWTClaimsSet().getIssueTime().after(jwtToken.getJWTClaimsSet().getIssueTime())
-                        && jwtCookie.getJWTClaimsSet().getExpirationTime().after(jwtToken.getJWTClaimsSet().getExpirationTime())
-                        && (Long)jwtCookie.getJWTClaimsSet().getCustomClaim("cnt") > (Long)jwtToken.getJWTClaimsSet().getCustomClaim("cnt")) return true;
+                else if(jwtCookie.getJWTClaimsSet().getSubject().equals(jwtToken.getJWTClaimsSet().getSubject())
+                        && (jwtCookie.getJWTClaimsSet().getIssueTime().after(jwtToken.getJWTClaimsSet().getIssueTime()) || jwtCookie.getJWTClaimsSet().getIssueTime().equals(jwtToken.getJWTClaimsSet().getIssueTime()))
+                        && (jwtCookie.getJWTClaimsSet().getExpirationTime().after(jwtToken.getJWTClaimsSet().getExpirationTime()) || jwtCookie.getJWTClaimsSet().getExpirationTime().equals(jwtToken.getJWTClaimsSet().getExpirationTime()))
+                        && (Long)jwtCookie.getJWTClaimsSet().getCustomClaim("cnt") >= (Long)jwtToken.getJWTClaimsSet().getCustomClaim("cnt")) return true;
             }else{
                 return false;
             }
