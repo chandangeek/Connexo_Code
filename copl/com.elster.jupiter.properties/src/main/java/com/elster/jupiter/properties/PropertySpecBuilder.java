@@ -1,44 +1,30 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.nls.TranslationKey;
+
 /**
  * Provides building services for {@link PropertySpec}s.
  * All methods that contribute to aspects of the PropertySpec
  * under construction will return the same PropertySpecBuilder
- * to support method chaning.
+ * to support method chaning.<br>
+ * Two aspects (name and description) of a PropertySpec are
+ * designed to support translation to all the Connexo languages.
+ * The preferred way is to use the API with {@link TranslationKey}s but
+ * an alternative API that uses simple Strings is available too.
+ * Note however that switching between the two alternatives
+ * is not supported. In other words, you need to decide
+ * if you want to build a PropertySpec whose name and description
+ * are backed by the {@link com.elster.jupiter.nls.NlsService}
+ * or if you want to hard code the name and description.
+ * Mixing the two APIs will result in an IllegalStateException.
+ * <br>
  * Finally, the client code will call the finish method when all
  * aspects of the PropertySpec have been specified.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-17 (13:13)
  */
-public interface PropertySpecBuilder {
-
-    /**
-     * Sets the name of the {@link PropertySpec} that is being constructed.
-     *
-     * @param specName The name of the PropertySpec
-     * @return This PropertySpecBuilder to support method chaining while constructing
-     * @deprecated Replace by calls to {@link #name(String, String)}
-     * Todo: remove as part of COPL-1151
-     */
-    @Deprecated
-    PropertySpecBuilder name(String specName);
-
-    /**
-     * Sets the name of the {@link PropertySpec} that is being constructed.
-     *
-     * @param specName The name of the PropertySpec
-     * @return This PropertySpecBuilder to support method chaining while constructing
-     */
-    PropertySpecBuilder name(String specName, String displayName);
-
-    /**
-     * Sets the description of the {@link PropertySpec} that is being constructed.
-     *
-     * @param description The description of the PropertySpec
-     * @return This PropertySpecBuilder to support method chaining while constructing
-     */
-    PropertySpecBuilder description(String description);
+public interface PropertySpecBuilder<T> {
 
     /**
      * Sets a default value for the {@link PropertySpec} under construction.
@@ -51,7 +37,7 @@ public interface PropertySpecBuilder {
      * @param defaultValue The default value
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    PropertySpecBuilder setDefaultValue(Object defaultValue);
+    PropertySpecBuilder<T> setDefaultValue (T defaultValue);
 
     /**
      * Marks the list of possible values of the {@link PropertySpec}
@@ -59,7 +45,7 @@ public interface PropertySpecBuilder {
      *
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    PropertySpecBuilder markExhaustive();
+    PropertySpecBuilder<T> markExhaustive ();
 
     /**
      * Marks the {@link PropertySpec} that is under construction as required.
@@ -68,7 +54,7 @@ public interface PropertySpecBuilder {
      *
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    PropertySpecBuilder markRequired();
+    PropertySpecBuilder<T> markRequired ();
 
     /**
      * Adds the specified values to the PropertySpec under construction.
@@ -76,13 +62,13 @@ public interface PropertySpecBuilder {
      * @param values The possible values
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    PropertySpecBuilder addValues(Object... values);
+    PropertySpecBuilder<T> addValues (T... values);
 
     /**
      * Finishes the building process and returns the
      * {@link PropertySpec} as it was constructed so far.
      * Note that this stops the building process and
-     * attempts to reuse this building will fail
+     * attempts to reuse this builder will fail
      * with an {@link IllegalStateException} being thrown.
      *
      * @return The PropertySpec

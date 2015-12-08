@@ -21,17 +21,12 @@ public interface PropertySpec {
 
     /**
      * Gets the human readable name of this PropertySpec
-     * that could be used in UI screens. Note that
-     * ìmplementation classes should consider using
-     * a Thesaurus to translate e.g. the name to all the
-     * language that are supported by the Connexo platform.
+     * that could be used in UI screens.
      *
      * Todo: drop default as part of COPL-1151
      * @return The display name
      */
-    default String getDisplayName() {
-        return getName();
-    }
+    String getDisplayName();
 
     /**
      * A human readable description of this PropertySpec.

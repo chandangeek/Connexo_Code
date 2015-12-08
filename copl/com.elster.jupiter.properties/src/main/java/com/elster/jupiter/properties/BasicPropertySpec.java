@@ -1,5 +1,8 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+
 import java.io.Serializable;
 
 public class BasicPropertySpec implements PropertySpec, Serializable {
@@ -17,11 +20,24 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
 
     /**
      * Todo: remove as part of COPL-1151
-     * @deprecated Replace by calls to {@link #BasicPropertySpec(String, String, boolean, ValueFactory)} as part of COPL-1151
+     * @deprecated Replace by calls to {@link #BasicPropertySpec(Thesaurus, TranslationKey, TranslationKey, boolean, ValueFactory)} as part of COPL-1151
      */
     @Deprecated
     public BasicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
         this(name, name, required, valueFactory);
+    }
+
+    public BasicPropertySpec(Thesaurus thesaurus, TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey, boolean required, ValueFactory valueFactory) {
+        this(translate(thesaurus, nameTranslationKey), translate(thesaurus, descriptionTranslationKey), required, valueFactory);
+    }
+
+    private static String translate(Thesaurus thesaurus, TranslationKey translationKey) {
+        if (translationKey != null) {
+            return thesaurus.getFormat(translationKey).format();
+        }
+        else {
+            return null;
+        }
     }
 
     public BasicPropertySpec(String name, String description, boolean required, ValueFactory valueFactory) {
@@ -163,17 +179,14 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.
-            append(this.getClass().getSimpleName()).
-            append("(name:").
-            append(this.getName()).
-            append("; required:").
-            append(this.required).
-            append("; valueFactory:").
-            append(this.valueFactory.toString()).
-            append(')');
-        return builder.toString();
+        return this.getClass().getSimpleName() +
+                "(name:" +
+                this.getName() +
+                "; required:" +
+                this.required +
+                "; valueFactory:" +
+                this.valueFactory.toString() +
+                ')';
     }
 
 }

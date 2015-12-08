@@ -17,6 +17,7 @@ import com.elster.jupiter.properties.StringReferenceFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -140,7 +141,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpecBuilder newPropertySpecBuilder(ValueFactory valueFactory) {
+    public <T> PropertySpecBuilder<T> specForValuesOf(ValueFactory<T> valueFactory) {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
 
