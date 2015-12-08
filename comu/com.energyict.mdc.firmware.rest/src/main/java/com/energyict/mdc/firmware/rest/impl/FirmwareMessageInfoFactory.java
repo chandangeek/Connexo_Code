@@ -5,7 +5,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -14,6 +13,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class FirmwareMessageInfoFactory {
     private final MdcPropertyUtils mdcPropertyUtils;
@@ -27,7 +27,7 @@ public class FirmwareMessageInfoFactory {
 
     public FirmwareMessageInfo from(DeviceMessageSpec deviceMessageSpec, Device device, String uploadOption, String firmwareType) {
         PropertyDefaultValuesProvider provider = (propertySpec, propertyType) ->
-                firmwareService.getAllUpgradableFirmwareVersionsFor(device, firmwareType!= null ? FirmwareType.from(firmwareType): null);
+                firmwareService.getAllUpgradableFirmwareVersionsFor(device, firmwareType!= null ? FirmwareTypeFieldAdapter.INSTANCE.unmarshal(firmwareType): null);
         return from(deviceMessageSpec, uploadOption, provider);
     }
 
@@ -36,7 +36,7 @@ public class FirmwareMessageInfoFactory {
             if (FirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
                 FirmwareVersionFilter filter = new FirmwareVersionFilter(deviceType);
                 if (firmwareType != null) {
-                    filter.addFirmwareTypes(Arrays.asList(FirmwareType.from(firmwareType)));
+                    filter.addFirmwareTypes(Collections.singletonList(FirmwareTypeFieldAdapter.INSTANCE.unmarshal(firmwareType)));
                 }
                 filter.addFirmwareStatuses(Arrays.asList(FirmwareStatus.FINAL, FirmwareStatus.TEST));
                 return firmwareService.findAllFirmwareVersions(filter).find();

@@ -1,5 +1,7 @@
 package com.energyict.mdc.firmware.rest;
 
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
@@ -14,6 +16,7 @@ import com.energyict.mdc.firmware.rest.impl.FirmwareComTaskResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareManagementOptionsResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareStatusTranslationKeys;
 import com.energyict.mdc.firmware.rest.impl.FirmwareTypesResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
@@ -42,14 +45,15 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.firmware.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/fwc", "app=MDC", "name=" + FirmwareApplication.COMPONENT_NAME})
-public class FirmwareApplication extends Application implements MessageSeedProvider {
+@Component(name = "com.energyict.mdc.firmware.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/fwc", "app=MDC", "name=" + FirmwareApplication.COMPONENT_NAME})
+public class FirmwareApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
     public static final String COMPONENT_NAME = "FWR";
 
     private volatile NlsService nlsService;
@@ -123,6 +127,18 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(FirmwareStatusTranslationKeys.values()));
+        return keys;
     }
 
     @Reference

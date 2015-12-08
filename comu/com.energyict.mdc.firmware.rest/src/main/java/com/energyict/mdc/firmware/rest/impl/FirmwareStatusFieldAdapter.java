@@ -5,10 +5,12 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 
 public class FirmwareStatusFieldAdapter extends MapBasedXmlAdapter<FirmwareStatus> {
 
+    static final FirmwareStatusFieldAdapter INSTANCE = new FirmwareStatusFieldAdapter();
+
     public FirmwareStatusFieldAdapter() {
-        register(MessageSeeds.Keys.STATUS_GHOST, FirmwareStatus.GHOST);
-        register(MessageSeeds.Keys.STATUS_TEST, FirmwareStatus.TEST);
-        register(MessageSeeds.Keys.STATUS_FINAL, FirmwareStatus.FINAL);
-        register(MessageSeeds.Keys.STATUS_DEPRECATED, FirmwareStatus.DEPRECATED);
+        register(FirmwareStatus.GHOST.getStatus(), FirmwareStatus.GHOST);
+        register(FirmwareStatus.TEST.getStatus(), FirmwareStatus.TEST);
+        register(FirmwareStatus.FINAL.getStatus(), FirmwareStatus.FINAL);
+        register(FirmwareStatus.DEPRECATED.getStatus(), FirmwareStatus.DEPRECATED);
     }
 }

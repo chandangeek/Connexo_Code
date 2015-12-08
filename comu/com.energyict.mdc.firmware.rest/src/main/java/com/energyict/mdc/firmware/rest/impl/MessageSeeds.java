@@ -13,11 +13,6 @@ public enum MessageSeeds implements MessageSeed {
     // firmware versions
     VERSION_IN_USE(1, Keys.VERSION_IN_USE, "This version is in use and can''t be modified"),
     VERSION_IS_DEPRECATED(2, Keys.VERSION_IS_DEPRECATED, "This version is deprecated and can''t be modified"),
-    // firmware statuses translation
-    STATUS_GHOST(3, Keys.STATUS_GHOST, "Ghost"),
-    STATUS_TEST(4, Keys.STATUS_TEST, "Test"),
-    STATUS_FINAL(5, Keys.STATUS_FINAL, "Final"),
-    STATUS_DEPRECATED(6, Keys.STATUS_DEPRECATED, "Deprecated"),
     // firmware types translation
     TYPE_METER(7, Keys.TYPE_METER, "Meter firmware"),
     TYPE_COMMUNICATION(8, Keys.TYPE_COMMUNICATION, "Communication firmware"),
@@ -105,10 +100,6 @@ public enum MessageSeeds implements MessageSeed {
     public static class Keys {
         public static final String VERSION_IN_USE = "VersionInUse";
         public static final String VERSION_IS_DEPRECATED = "VersionIsDeprecated";
-        public static final String STATUS_GHOST = "ghost";
-        public static final String STATUS_TEST = "test";
-        public static final String STATUS_FINAL = "final";
-        public static final String STATUS_DEPRECATED = "deprecated";
         public static final String TYPE_METER = "meter";
         public static final String TYPE_COMMUNICATION = "communication";
         public static final String UPGRADE_OPTION_INSTALL = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId();
@@ -130,6 +121,5 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIRMWARE_VERSION_NOT_FOUND = "firmwareVersionNotFound";
         public static final String DEVICE_GROUP_NOT_FOUND = "deviceGroupNotFound";
         public static final String FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX = "FirmwareManagementDeviceStatus.";
-
     }
 }

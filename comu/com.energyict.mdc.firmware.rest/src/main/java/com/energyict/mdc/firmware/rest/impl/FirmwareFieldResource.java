@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/field")
 public class FirmwareFieldResource extends FieldResource {
@@ -39,7 +40,11 @@ public class FirmwareFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Object getFirmwareStatuses() {
-        return asJsonArrayObjectWithTranslation("firmwareStatuses", "id", new FirmwareStatusFieldAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("firmwareStatuses", "id", firmwareStatusesClientSideValues());
+    }
+
+    private List<String> firmwareStatusesClientSideValues() {
+        return Stream.of(FirmwareStatusTranslationKeys.values()).map(FirmwareStatusTranslationKeys::getKey).collect(Collectors.toList());
     }
 
     @GET @Transactional

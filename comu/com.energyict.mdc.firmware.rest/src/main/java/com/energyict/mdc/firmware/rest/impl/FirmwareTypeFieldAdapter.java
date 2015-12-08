@@ -5,8 +5,10 @@ import com.energyict.mdc.firmware.FirmwareType;
 
 public class FirmwareTypeFieldAdapter extends MapBasedXmlAdapter<FirmwareType> {
 
+    static final FirmwareTypeFieldAdapter INSTANCE = new FirmwareTypeFieldAdapter();
+
     public FirmwareTypeFieldAdapter() {
-        register(MessageSeeds.Keys.TYPE_METER, FirmwareType.METER);
-        register(MessageSeeds.Keys.TYPE_COMMUNICATION, FirmwareType.COMMUNICATION);
+        register(FirmwareType.METER.getType(), FirmwareType.METER);
+        register(FirmwareType.COMMUNICATION.getType(), FirmwareType.COMMUNICATION);
     }
 }

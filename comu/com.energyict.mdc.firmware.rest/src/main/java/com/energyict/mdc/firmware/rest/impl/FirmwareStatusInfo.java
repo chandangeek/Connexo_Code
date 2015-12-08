@@ -6,8 +6,6 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class FirmwareStatusInfo {
-    static final FirmwareStatusFieldAdapter FIRMWARE_STATUS_ADAPTER = new FirmwareStatusFieldAdapter();
-    
     @XmlJavaTypeAdapter(FirmwareStatusFieldAdapter.class)
     public FirmwareStatus id;
     public String localizedValue;
@@ -17,6 +15,6 @@ public class FirmwareStatusInfo {
 
     public FirmwareStatusInfo(FirmwareStatus firmwareStatus, Thesaurus thesaurus) {
         this.id = firmwareStatus;
-        this.localizedValue = thesaurus.getString(FIRMWARE_STATUS_ADAPTER.marshal(firmwareStatus), FIRMWARE_STATUS_ADAPTER.marshal(firmwareStatus));
+        this.localizedValue = FirmwareStatusTranslationKeys.translationFor(id, thesaurus);
     }
 }
