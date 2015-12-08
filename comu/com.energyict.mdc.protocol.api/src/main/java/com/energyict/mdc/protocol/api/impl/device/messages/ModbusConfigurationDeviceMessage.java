@@ -1,23 +1,15 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.RadixFormatAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.RegisterAddressAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.RegisterValueAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmConfigAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmEveryAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmInstantAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmOverflowAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmTimeoutAttributeName;
+import java.util.stream.Stream;
 
 /**
  * Copyrights EnergyICT
@@ -28,55 +20,81 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetMmEvery(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_EVERY, "Set Mm every") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(SetMmEveryAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(DeviceMessageAttributes.SetMmEveryAttributeName, propertySpecService, thesaurus));
         }
     },
     SetMmTimeout(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_TIMEOUT, "Set Mm timeout") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(SetMmTimeoutAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(DeviceMessageAttributes.SetMmTimeoutAttributeName, propertySpecService, thesaurus));
         }
     },
     SetMmInstant(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_INSTANT, "Set Mm instant") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(SetMmInstantAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(DeviceMessageAttributes.SetMmInstantAttributeName, propertySpecService, thesaurus));
         }
     },
     SetMmOverflow(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_OVERFLOW, "Set Mm overflow") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(SetMmOverflowAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(DeviceMessageAttributes.SetMmOverflowAttributeName, propertySpecService, thesaurus));
         }
     },
     SetMmConfig(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_CONFIG, "Set Mm configuration") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(SetMmConfigAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(DeviceMessageAttributes.SetMmConfigAttributeName, propertySpecService, thesaurus));
         }
     },
     WriteSingleRegisters(DeviceMessageId.MODBUS_CONFIGURATION_WRITE_SINGLE_REGISTERS, "Write single registers") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.stringPropertySpecWithValues(RadixFormatAttributeName, true, "DEC", "HEX"));
-            propertySpecs.add(propertySpecService.basicPropertySpec(RegisterAddressAttributeName, true, new HexStringFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(RegisterValueAttributeName, true, new HexStringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.RadixFormatAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .addValues("DEC", "HEX")
+                            .finish());
+            Stream.of(DeviceMessageAttributes.RegisterAddressAttributeName, DeviceMessageAttributes.RegisterValueAttributeName)
+                .map(name -> propertySpecService
+                                .specForValuesOf(new HexStringFactory())
+                                .named(name)
+                                .fromThesaurus(thesaurus)
+                                .markRequired()
+                                .finish())
+                .forEach(propertySpecs::add);
         }
     },
     WriteMultipleRegisters(DeviceMessageId.MODBUS_CONFIGURATION_WRITE_MULTIPLE_REGISTERS, "Write multiple registers") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.stringPropertySpecWithValues(RadixFormatAttributeName, true, "DEC", "HEX"));
-            propertySpecs.add(propertySpecService.basicPropertySpec(RegisterAddressAttributeName, true, new HexStringFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(RegisterValueAttributeName, true, new HexStringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.RadixFormatAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .addValues("DEC", "HEX")
+                            .finish());
+            Stream.of(DeviceMessageAttributes.RegisterAddressAttributeName, DeviceMessageAttributes.RegisterValueAttributeName)
+                    .map(name -> propertySpecService
+                            .specForValuesOf(new HexStringFactory())
+                            .named(name)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish())
+                    .forEach(propertySpecs::add);
         }
     };
 
@@ -103,18 +121,18 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     };
 
-    protected PropertySpec stringProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new StringFactory());
+    protected PropertySpec stringProperty(DeviceMessageAttributes name, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        return propertySpecService.stringSpec().named(name).fromThesaurus(thesaurus).markRequired().finish();
     }
 
 }
