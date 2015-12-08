@@ -213,7 +213,7 @@ Ext.define('Mdc.controller.Main', {
             }
 
             var deviceCommunicationItem = null;
-            if (Mdc.privileges.Communication.canView() || Mdc.privileges.CommunicationSchedule.canView()) {
+            if (Mdc.privileges.Communication.canView() || Mdc.privileges.CommunicationSchedule.canView() || Mdc.privileges.DataCollectionKpi.canView()) {
                 deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
                     portal: 'administration',
@@ -252,6 +252,7 @@ Ext.define('Mdc.controller.Main', {
                         {
                             text: Uni.I18n.translate('general.dataCollectionKpis', 'MDC', 'Data collection KPIs'),
                             href: '#/administration/datacollectionkpis',
+                            privileges: Mdc.privileges.DataCollectionKpi.view,
                             route: 'datacollectionkpis'
                         }
                     ]
