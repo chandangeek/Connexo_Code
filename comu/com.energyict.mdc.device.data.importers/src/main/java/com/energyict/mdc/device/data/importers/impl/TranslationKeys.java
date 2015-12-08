@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
@@ -9,8 +10,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceI
 import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
-
-import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
@@ -39,10 +38,14 @@ public enum TranslationKeys implements TranslationKey {
 
     // Properties translations
     DEVICE_DATA_IMPORTER_PROPERTIES(AbstractDeviceDataFileImporterFactory.IMPORTER_FACTORY_PROPERTY_PREFIX, "File importer properties"),
-    DEVICE_DATA_IMPORTER_DELIMITER(DeviceDataImporterProperty.DELIMITER.getPropertyKey(), "Delimiter"),
-    DEVICE_DATA_IMPORTER_DATE_FORMAT(DeviceDataImporterProperty.DATE_FORMAT.getPropertyKey(), "Date format"),
-    DEVICE_DATA_IMPORTER_TIMEZONE(DeviceDataImporterProperty.TIME_ZONE.getPropertyKey(), "Time zone"),
-    DEVICE_DATA_IMPORTER_NUMBER_FORMAT(DeviceDataImporterProperty.NUMBER_FORMAT.getPropertyKey(), "Number format"),
+    DEVICE_DATA_IMPORTER_DELIMITER("delimiter", "Delimiter"),
+    DEVICE_DATA_IMPORTER_DELIMITER_DESCRIPTION("delimiter", "The character that delimits the values for the different properties to import"),
+    DEVICE_DATA_IMPORTER_DATE_FORMAT("dateFormat", "Date format"),
+    DEVICE_DATA_IMPORTER_DATE_FORMAT_DESCRIPTION("dateFormat.description", "The format that is used for date properties"),
+    DEVICE_DATA_IMPORTER_TIMEZONE("timeZone", "Time zone"),
+    DEVICE_DATA_IMPORTER_TIMEZONE_DESCRIPTION("timeZone.description", "The unique identifier of the Timezone in which date properties are specified"),
+    DEVICE_DATA_IMPORTER_NUMBER_FORMAT("numberFormat.description", "Number format"),
+    DEVICE_DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION("numberFormat.description", "The format that is used for numerical properties"),
 
     MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (MRID: {1}) was overridden by new one (MRID: {2})"),
     NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Note for line {0}: Usage point with MRID: {1} is not found. New usage point was created based on Service Category value"),

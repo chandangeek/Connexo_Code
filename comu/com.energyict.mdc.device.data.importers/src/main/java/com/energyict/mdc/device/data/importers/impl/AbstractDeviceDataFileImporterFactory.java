@@ -4,7 +4,6 @@ import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.google.common.collect.ImmutableList;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -50,9 +49,10 @@ public abstract class AbstractDeviceDataFileImporterFactory implements FileImpor
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        getProperties().stream().forEach(property -> builder.add(property.getPropertySpec(getContext())));
-        return builder.build();
+        return getProperties()
+                .stream()
+                .map(property -> property.getPropertySpec(getContext()))
+                .collect(Collectors.toList());
     }
 
     @Override
