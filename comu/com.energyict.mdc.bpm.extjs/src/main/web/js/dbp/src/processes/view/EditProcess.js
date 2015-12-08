@@ -125,7 +125,7 @@ Ext.define('Dbp.processes.view.EditProcess', {
                                             {
                                                 xtype: 'displayfield',
                                                 margin: '0 10 0 0',
-                                                value: Uni.I18n.translate('editProcess.noDeviceStates', 'DBP', 'No privileges have been added'),
+                                                value: Uni.I18n.translate('editProcess.noPrivileges', 'DBP', 'No privileges have been added'),
                                                 itemId: 'empty-privileges-grid',
                                                 name: 'noPrivileges',
                                                 hidden: true
