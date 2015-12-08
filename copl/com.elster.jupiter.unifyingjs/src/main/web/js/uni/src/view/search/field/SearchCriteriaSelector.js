@@ -38,6 +38,9 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             listeners = [];
 
         me.menu = {
+            floating: true,
+            constrain: true,
+            constraintInsets: '10 10 10 10',
             plain: true,
             defaults: {
                 xtype: 'menucheckitem'
@@ -177,6 +180,10 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                         text: items[0].criteria.get('group').displayValue,
                         value: group.name,
                         menu: {
+                            floating: true,
+                            constrain: true,
+                            maxHeight: me.up('uni-view-search-overview').getHeight(),
+                            enableScrolling: true,
                             itemId: 'search-criteria-sub-menu',
                             items: items
                         }
@@ -186,7 +193,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         }
 
         me.menu.setLoading(false);
-        me.updateLayout();
+        //me.updateLayout();
 
         Ext.resumeLayouts(true);
     },
