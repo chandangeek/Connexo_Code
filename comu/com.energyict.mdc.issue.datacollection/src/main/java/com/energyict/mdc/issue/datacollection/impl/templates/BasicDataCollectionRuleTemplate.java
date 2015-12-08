@@ -14,6 +14,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.osgi.service.component.annotations.Activate;
@@ -129,7 +130,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         Builder<PropertySpec> builder = ImmutableList.builder();
         EventTypes eventTypes = new EventTypes(getThesaurus(), DataCollectionEventDescription.values());
         builder.add(propertySpecService.stringReferencePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.getEventTypes()));
-        builder.add(propertySpecService.newPropertySpecBuilder(new BooleanFactory())
+        builder.add(propertySpecService.specForValuesOf(new BooleanFactory())
                 .name(AUTORESOLUTION)
                 .setDefaultValue(true)
                 .finish());
