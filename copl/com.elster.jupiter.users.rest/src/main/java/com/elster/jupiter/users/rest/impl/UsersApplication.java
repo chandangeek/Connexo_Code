@@ -41,7 +41,9 @@ public class UsersApplication extends Application {
                                DomainResource.class,
                                ResourceResource.class,
                                CurrentUserResource.class,
-                               UsersFieldResource.class);
+                               UsersFieldResource.class,
+                               FindGroupResource.class,
+                               FindUserResource.class);
     }
     
     @Reference
