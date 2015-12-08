@@ -342,7 +342,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public DlmsProperties getDlmsProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new DlmsProperties(this.propertySpecService);
+            dlmsProperties = new DlmsProperties(this.propertySpecService, this.thesaurus);
         }
         return dlmsProperties;
     }

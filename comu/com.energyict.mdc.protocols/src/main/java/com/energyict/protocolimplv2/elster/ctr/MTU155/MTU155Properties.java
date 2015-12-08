@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 
@@ -61,12 +61,12 @@ public class MTU155Properties extends BasicDynamicPropertySupport{
     private TypedProperties typedProperties;
 
     public MTU155Properties(TypedProperties typedProperties, PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(propertySpecService, thesaurus);
         this.typedProperties = typedProperties;
     }
 
     public MTU155Properties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(propertySpecService, thesaurus);
         this.typedProperties = TypedProperties.empty();
     }
 

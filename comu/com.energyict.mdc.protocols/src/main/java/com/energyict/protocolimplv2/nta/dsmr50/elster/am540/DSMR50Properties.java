@@ -111,12 +111,12 @@ public class DSMR50Properties extends G3Properties {
         if (useBeaconMirrorDeviceDialect() && !usesPublicClient()) {
             return BigDecimal.ONE.intValue();   // When talking to the Beacon mirrored device, we should always use client address 1 (except for the public client, which is always 16)
         } else {
-            return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+            return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
         }
     }
 
     public boolean usesPublicClient() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE) == PUBLIC_CLIENT_MAC_ADDRESS;
+        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE) == PUBLIC_CLIENT_MAC_ADDRESS;
     }
 
     public boolean useBeaconMirrorDeviceDialect() {

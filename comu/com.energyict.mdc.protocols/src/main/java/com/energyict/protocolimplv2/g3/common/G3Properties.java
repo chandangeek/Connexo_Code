@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.g3.common;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
 import java.math.BigDecimal;
@@ -22,8 +24,8 @@ public class G3Properties extends DlmsProperties {
     public static final String G3_SHORT_ADDRESS_PROP_NAME = "Short_MAC_address";
     public static final String G3_LOGICAL_DEVICE_ID_PROP_NAME = "Logical_device_id";
 
-    public G3Properties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public G3Properties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     public PropertySpec getMacAddressPropertySPec() {

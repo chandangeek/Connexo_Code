@@ -66,7 +66,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return this.deviceSecurityProperty.getPropertySpec(propertySpecService);
+            return this.deviceSecurityProperty.getPropertySpec(propertySpecService, this.thesaurus);
         }
 
     }
@@ -83,7 +83,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         if (password != null) {
             this.password = password.getValue();
         }
-        this.userName = (String) propertyValues.getProperty(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString());
+        this.userName = (String) propertyValues.getProperty(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey());
     }
 
     @Override
@@ -91,7 +91,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         if (!is(this.password).empty()) {
             propertySetValues.setProperty(DeviceSecurityProperty.PASSWORD.javaName(), new Password(this.password));
         }
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString(), this.userName);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey(), this.userName);
     }
 
     private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {

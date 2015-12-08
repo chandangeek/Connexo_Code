@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.common;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -31,9 +31,12 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = TimeDuration.millis(100);
 
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
-    public BasicDynamicPropertySupport(PropertySpecService propertySpecService) {
+    public BasicDynamicPropertySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -85,6 +88,10 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
 }

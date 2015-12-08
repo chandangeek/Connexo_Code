@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.EncryptedStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
@@ -33,11 +33,11 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             }
 
             @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-                return DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService);
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus);
             }
         },
-        SERVICE_ENCRYPTION_KEY("serviceEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_2.toString()) {
+        SERVICE_ENCRYPTION_KEY("serviceEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_2.getKey()) {
             @Override
             protected String getValue(MTU155SecurityProperties perClientProperties) {
                 return perClientProperties.serviceEncryptionKey;
@@ -47,8 +47,18 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             protected void setValue(MTU155SecurityProperties perClientProperties, String value) {
                 perClientProperties.serviceEncryptionKey = value;
             }
+
+            @Override
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return propertySpecService
+                        .encryptedStringSpec()
+                        .named(SecurityPropertySpecName.ENCRYPTION_KEY_2)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish();
+            }
         },
-        FACTORY_ENCRYPTION_KEY("factoryEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_3.toString()) {
+        FACTORY_ENCRYPTION_KEY("factoryEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_3.getKey()) {
             @Override
             protected String getValue(MTU155SecurityProperties perClientProperties) {
                 return perClientProperties.factoryEncryptionKey;
@@ -58,8 +68,18 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             protected void setValue(MTU155SecurityProperties perClientProperties, String value) {
                 perClientProperties.factoryEncryptionKey = value;
             }
+
+            @Override
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return propertySpecService
+                        .encryptedStringSpec()
+                        .named(SecurityPropertySpecName.ENCRYPTION_KEY_3)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish();
+            }
         },
-        TEMPORARY_ENCRYPTION_KEY("temporaryEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_1.toString()) {
+        TEMPORARY_ENCRYPTION_KEY("temporaryEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_1.getKey()) {
             @Override
             protected String getValue(MTU155SecurityProperties perClientProperties) {
                 return perClientProperties.temporaryEncryptionKey;
@@ -68,6 +88,16 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             @Override
             protected void setValue(MTU155SecurityProperties perClientProperties, String value) {
                 perClientProperties.temporaryEncryptionKey = value;
+            }
+
+            @Override
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return propertySpecService
+                        .encryptedStringSpec()
+                        .named(SecurityPropertySpecName.ENCRYPTION_KEY_1)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish();
             }
         };
 
@@ -99,13 +129,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
                 .add();
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                    .name(this.propertySpecName.toString())
-                    .markRequired()
-                    .finish();
-
-        }
+        public abstract PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
 
         public void copyPropertyTo(CustomPropertySetValues propertySetValues, MTU155SecurityProperties perClientProperties) {
             perClientProperties.setPropertyIfNotNull(propertySetValues, this.propertySpecName().toString(), this.getValue(perClientProperties));

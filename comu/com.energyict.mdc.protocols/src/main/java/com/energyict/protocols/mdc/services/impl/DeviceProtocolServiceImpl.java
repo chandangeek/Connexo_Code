@@ -33,8 +33,11 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
+import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialectProperties;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol;
 import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -327,7 +330,10 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
+                Arrays.stream(CtrInboundDeviceProtocol.TranslationKeys.values()),
+                Arrays.stream(EiWebPlusDialectProperties.TranslationKeys.values()),
                 Arrays.stream(SDKTranslationKeys.values()),
+                Arrays.stream(SecurityPropertySpecName.values()),
                 Arrays.stream(DeviceProtocolDialectName.values()),
                 Arrays.stream(CustomPropertySetTranslationKeys.values()),
                 Arrays.stream(TranslationKeys.values()))

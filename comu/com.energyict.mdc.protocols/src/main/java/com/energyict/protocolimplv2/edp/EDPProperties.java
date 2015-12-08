@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.edp;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
 import java.math.BigDecimal;
@@ -21,8 +23,8 @@ public class EDPProperties extends DlmsProperties {
 
     public static final String READCACHE_PROPERTY = "ReadCache";
 
-    public EDPProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public EDPProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     /**

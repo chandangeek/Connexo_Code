@@ -7,6 +7,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
+
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 
 import java.math.BigDecimal;
@@ -31,7 +32,7 @@ public class AbntProperties extends BasicDynamicPropertySupport {
     private DeviceProtocolSecurityPropertySet securityPropertySet;
 
     public AbntProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(propertySpecService, thesaurus);
     }
 
     /**

@@ -44,12 +44,12 @@ public class ExtendedAnsiC12CustomPropertySet extends SecurityCustomPropertySet<
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService));
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService, this.thesaurus));
     }
 
 }

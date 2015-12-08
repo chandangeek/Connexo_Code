@@ -116,7 +116,7 @@ public class GarnetProperties implements HasDynamicProperties {
 
     public byte[] getManufacturerKey() {
         if (this.manufacturerKey == null) {
-            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString());
+            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.getKey());
             if (hex != null) {
                 this.manufacturerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.manufacturerKey.length != 16) {
@@ -133,7 +133,7 @@ public class GarnetProperties implements HasDynamicProperties {
 
     public byte[] getCustomerKey() {
         if (this.customerKey == null) {
-            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString());
+            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.getKey());
             if (hex != null) {
                 this.customerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.customerKey.length != 16) {

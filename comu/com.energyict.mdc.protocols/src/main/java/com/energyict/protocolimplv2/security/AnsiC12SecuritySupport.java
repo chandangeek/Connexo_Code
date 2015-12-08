@@ -73,11 +73,11 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password(""));
             if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), ((Password) property).getValue());
             } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), property);
             }
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
         }
@@ -141,9 +141,9 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService()),
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService()),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService())
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService(), this.thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService(), this.thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService(), this.thesaurus)
             );
         }
     }
@@ -166,9 +166,9 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService()),
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService()),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService())
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService(), this.thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService(), this.thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService(), this.thesaurus)
             );
         }
     }
@@ -191,9 +191,9 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService()),
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService()),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService())
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService(), this.thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService(), this.thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService(), this.thesaurus)
             );
         }
     }

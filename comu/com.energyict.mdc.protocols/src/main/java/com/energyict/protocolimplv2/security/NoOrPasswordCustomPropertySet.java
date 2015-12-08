@@ -43,7 +43,7 @@ public class NoOrPasswordCustomPropertySet extends SecurityCustomPropertySet<NoO
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService));
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus));
     }
 
 }

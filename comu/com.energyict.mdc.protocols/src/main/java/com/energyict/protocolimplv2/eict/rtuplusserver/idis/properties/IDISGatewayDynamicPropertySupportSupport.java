@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
@@ -22,8 +24,8 @@ import java.util.List;
 public class IDISGatewayDynamicPropertySupportSupport extends DlmsProperties {
 
 
-    public IDISGatewayDynamicPropertySupportSupport(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public IDISGatewayDynamicPropertySupportSupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override

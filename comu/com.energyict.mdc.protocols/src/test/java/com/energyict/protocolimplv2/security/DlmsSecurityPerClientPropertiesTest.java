@@ -77,7 +77,7 @@ public class DlmsSecurityPerClientPropertiesTest extends CustomPropertiesPersist
         List<DlmsSecurityPerClientProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
                 .of(DlmsSecurityPerClientProperties.ActualFields.values())
-                .filter(field -> field.propertySpecName().toString().isEmpty())
+                .filter(field -> field.propertySpecName().getKey().isEmpty())
                 .collect(Collectors.toList());
 
         // Asserts

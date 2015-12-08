@@ -1,11 +1,7 @@
 package com.energyict.protocolimplv2.security;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.dynamic.EncryptedStringFactory;
-import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
@@ -23,17 +19,18 @@ public enum DeviceSecurityProperty {
      */
     PASSWORD {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(PasswordFactory.class).
-                    name(SecurityPropertySpecName.PASSWORD.toString()).
-                    markRequired().
-                    finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .passwordSpec()
+                    .named(SecurityPropertySpecName.PASSWORD)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.PASSWORD.toString();
+            return SecurityPropertySpecName.PASSWORD.getKey();
         }
     },
     /**
@@ -41,17 +38,18 @@ public enum DeviceSecurityProperty {
      */
     ENCRYPTION_KEY {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(EncryptedStringFactory.class).
-                    name(SecurityPropertySpecName.ENCRYPTION_KEY.toString()).
-                    markRequired().
-                    finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .passwordSpec()
+                    .named(SecurityPropertySpecName.ENCRYPTION_KEY)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.ENCRYPTION_KEY.toString();
+            return SecurityPropertySpecName.ENCRYPTION_KEY.getKey();
         }
     },
     /**
@@ -59,17 +57,18 @@ public enum DeviceSecurityProperty {
      */
     AUTHENTICATION_KEY {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(EncryptedStringFactory.class).
-                    name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString()).
-                    markRequired().
-                    finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .passwordSpec()
+                    .named(SecurityPropertySpecName.AUTHENTICATION_KEY)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.AUTHENTICATION_KEY.toString();
+            return SecurityPropertySpecName.AUTHENTICATION_KEY.getKey();
         }
     },
     /**
@@ -77,17 +76,18 @@ public enum DeviceSecurityProperty {
      */
     CLIENT_MAC_ADDRESS {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(new BigDecimalFactory()).
-                    name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()).
-                    markRequired().
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .bigDecimalSpec()
+                    .named(SecurityPropertySpecName.CLIENT_MAC_ADDRESS)
+                    .fromThesaurus(thesaurus)
+                    .markRequired().
                     finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString();
+            return SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey();
         }
     },
     /**
@@ -95,17 +95,18 @@ public enum DeviceSecurityProperty {
      */
     DEVICE_ACCESS_IDENTIFIER {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(new StringFactory()).
-                    name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString()).
-                    markRequired().
-                    finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .stringSpec()
+                    .named(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString();
+            return SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey();
         }
     },
     /**
@@ -113,17 +114,18 @@ public enum DeviceSecurityProperty {
      */
     ANSI_C12_USER {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(new StringFactory()).
-                    name(SecurityPropertySpecName.ANSI_C12_USER.toString()).
-                    markRequired().
-                    finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .stringSpec()
+                    .named(SecurityPropertySpecName.ANSI_C12_USER)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.ANSI_C12_USER.toString();
+            return SecurityPropertySpecName.ANSI_C12_USER.getKey();
         }
     },
     /**
@@ -131,17 +133,18 @@ public enum DeviceSecurityProperty {
      */
     ANSI_C12_USER_ID {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(new StringFactory()).
-                    name(SecurityPropertySpecName.ANSI_C12_USER_ID.toString()).
-                    markRequired().
-                    finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .stringSpec()
+                    .named(SecurityPropertySpecName.ANSI_C12_USER_ID)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.ANSI_C12_USER_ID.toString();
+            return SecurityPropertySpecName.ANSI_C12_USER_ID.getKey();
         }
     },
     /**
@@ -149,17 +152,18 @@ public enum DeviceSecurityProperty {
      */
     BINARY_PASSWORD {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(new BooleanFactory()).
-                    name(SecurityPropertySpecName.BINARY_PASSWORD.toString()).
-                    markRequired().
-                    finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .booleanSpec()
+                    .named(SecurityPropertySpecName.BINARY_PASSWORD)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.BINARY_PASSWORD.toString();
+            return SecurityPropertySpecName.BINARY_PASSWORD.getKey();
         }
     },
     /**
@@ -167,17 +171,18 @@ public enum DeviceSecurityProperty {
      */
     ANSI_CALLED_AP_TITLE {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(new StringFactory()).
-                    name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString()).
-                    markRequired().
-                    finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .stringSpec()
+                    .named(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString();
+            return SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.getKey();
         }
     },
 
@@ -186,41 +191,45 @@ public enum DeviceSecurityProperty {
      */
     MANUFACTURER_ENCRYPTION_KEY {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(EncryptedStringFactory.class).
-                    name(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString()).finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .encryptedStringSpec()
+                    .named(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER)
+                    .fromThesaurus(thesaurus)
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString();
+            return SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.getKey();
         }
     },
 
     /**
      * The customer key used for encryption of bytes
      */
-    CUSTOMER_ENCRYPTION_KEY{
+    CUSTOMER_ENCRYPTION_KEY {
         @Override
-        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(EncryptedStringFactory.class).
-                    name(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString()).finish();
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .encryptedStringSpec()
+                    .named(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER)
+                    .fromThesaurus(thesaurus)
+                    .finish();
         }
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString();
+            return SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.getKey();
         }
     }
     ;
 
     private PropertySpec cachedPropertySpec;
 
-    public PropertySpec getPropertySpec (PropertySpecService propertySpecService) {
+    public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         if (this.cachedPropertySpec == null) {
-            this.cachedPropertySpec = this.doGetPropertySpec(propertySpecService);
+            this.cachedPropertySpec = this.doGetPropertySpec(propertySpecService, thesaurus);
         }
         return this.cachedPropertySpec;
     }
@@ -228,7 +237,7 @@ public enum DeviceSecurityProperty {
     /**
      * @return the PropertySpec for this Enum value
      */
-    protected abstract PropertySpec doGetPropertySpec(PropertySpecService propertySpecService);
+    protected abstract PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
 
     public abstract String javaName();
 

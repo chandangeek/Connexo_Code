@@ -47,8 +47,8 @@ public class GarnetSecuritySupportCustomPropertySet extends SecurityCustomProper
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus));
     }
 
 }

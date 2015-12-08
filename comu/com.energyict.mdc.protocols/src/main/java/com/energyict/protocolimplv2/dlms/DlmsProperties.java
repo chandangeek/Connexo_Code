@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.dlms;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -77,8 +79,8 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     private SecurityProvider securityProvider;
     private String serialNumber = "";
 
-    public DlmsProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public DlmsProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
         this.properties = TypedProperties.empty();
     }
 
@@ -128,7 +130,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public int getClientMacAddress() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
     }
 
     @Override
@@ -305,12 +307,20 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
         propertySpecs.addAll(Arrays.asList(
                 getPropertySpecService().bigDecimalPropertySpec(SERVER_UPPER_MAC_ADDRESS, false, DEFAULT_UPPER_SERVER_MAC_ADDRESS),
                 getPropertySpecService().bigDecimalPropertySpec(SERVER_LOWER_MAC_ADDRESS, false, DEFAULT_LOWER_SERVER_MAC_ADDRESS),
                 getPropertySpecService().bigDecimalPropertySpec(ADDRESSING_MODE, false, DEFAULT_ADDRESSING_MODE),
-                getPropertySpecService().stringPropertySpecWithValuesAndDefaultValue(MANUFACTURER, false, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000"),
+                getPropertySpecService()
+                        .specForValuesOf(new StringFactory())
+                        .named(MANUFACTURER)
+                        .description()
+                        .setDefaultValue(DEFAULT_MANUFACTURER)
+                        .addValues("WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000")
+                        .markExhaustive()
+                        .finish(),
                 getPropertySpecService().bigDecimalPropertySpec(INFORMATION_FIELD_SIZE, false, DEFAULT_INFORMATION_FIELD_SIZE),
                 getPropertySpecService().booleanPropertySpec(WAKE_UP, false, DEFAULT_WAKE_UP),
                 getPropertySpecService().stringPropertySpec(DEVICE_ID, false, DEFAULT_DEVICE_ID),

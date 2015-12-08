@@ -69,11 +69,11 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password(""));
             if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), ((Password) property).getValue());
             } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), property);
             }
         }
         return typedProperties;
@@ -105,12 +105,12 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     }
 
     private void overrideDeviceAccessIdentifierPropertyIfAbsent(TypedProperties typedProperties) {
-        Object deviceAccessIdentifier = typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName());
+        Object deviceAccessIdentifier = typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService, this.thesaurus).getName());
         if (deviceAccessIdentifier == null) {
             deviceAccessIdentifier = typedProperties.getProperty(MeterProtocol.NODEID);
         }
         if (deviceAccessIdentifier != null) {
-            typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName(), deviceAccessIdentifier);
+            typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService, this.thesaurus).getName(), deviceAccessIdentifier);
         }
     }
 
