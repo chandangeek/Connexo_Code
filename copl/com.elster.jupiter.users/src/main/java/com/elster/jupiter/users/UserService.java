@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 import com.elster.jupiter.users.impl.UserImpl;
+import com.elster.jupiter.users.impl.UserInGroup;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,6 +63,8 @@ public interface UserService {
     Optional<User> authenticateBase64(String base64String);
 
     List<Group> getGroups();
+
+    List<User> getGroupMembers(String groupName);
 
     String getRealm();
 

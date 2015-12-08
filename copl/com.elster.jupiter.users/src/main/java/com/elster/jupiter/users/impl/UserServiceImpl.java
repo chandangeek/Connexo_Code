@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -222,7 +223,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public User createUser(String name, String description) {
         InternalDirectoryImpl directory = (InternalDirectoryImpl) this.findUserDirectory(getRealm()).orElse(null);
-        UserImpl result = directory.newUser(name, description, false,true);
+        UserImpl result = directory.newUser(name, description, false, true);
         result.update();
         return result;
     }
@@ -239,7 +240,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public User createActiveDirectoryUser(String name, String domain, boolean status) {
         ActiveDirectoryImpl directory = (ActiveDirectoryImpl) this.findUserDirectory(domain).orElse(null);
-        UserImpl result = directory.newUser(name, domain, false,status);
+        UserImpl result = directory.newUser(name, domain, false, status);
         result.update();
 
         return result;
@@ -722,6 +723,13 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 .select(where("name").isEqualTo(name))
                 .stream()
                 .findFirst();
+    }
+
+    @Override
+    public List<User> getGroupMembers(String groupName) {
+        QueryExecutor<UserInGroup> queryExecutor = dataModel.query(UserInGroup.class, Group.class);
+        List<UserInGroup> membership = queryExecutor.select(where("group.name").isEqualTo(groupName));
+        return membership.stream().map(s -> s.getUser()).collect(Collectors.toList());
     }
 
     @Override
