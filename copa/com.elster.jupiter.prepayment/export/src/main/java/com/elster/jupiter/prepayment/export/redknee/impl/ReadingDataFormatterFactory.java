@@ -1,15 +1,24 @@
 package com.elster.jupiter.prepayment.export.redknee.impl;
 
-import com.elster.jupiter.export.*;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataFormatter;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.streams.FancyJoiner;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -85,9 +94,32 @@ public class ReadingDataFormatterFactory implements DataFormatterFactory {
     @Override
     public List<PropertySpec> getPropertySpecs(){
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.TAG.getKey(), true, null));
-        propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.UPDATE_TAG.getKey(), true, null));
-        propertySpecs.add(propertySpecService.stringPropertySpecWithValues(FormatterProperties.SEPARATOR.getKey(), true, FieldSeparator.COMMA.getName(), FieldSeparator.SEMICOLON.getName(), FieldSeparator.PIPE.getName()));
+        propertySpecs.add(
+                this.propertySpecService
+                        .stringSpec()
+                        .named(FormatterProperties.TAG)
+                        .fromThesaurus(this.thesaurus)
+                        .markRequired()
+                        .finish());
+        propertySpecs.add(
+                this.propertySpecService
+                        .stringSpec()
+                        .named(FormatterProperties.UPDATE_TAG)
+                        .fromThesaurus(this.thesaurus)
+                        .markRequired()
+                        .finish());
+        propertySpecs.add(
+                this.propertySpecService
+                        .stringSpec()
+                        .named(FormatterProperties.SEPARATOR)
+                        .fromThesaurus(this.thesaurus)
+                        .markRequired()
+                        .setDefaultValue(FieldSeparator.COMMA.getName())
+                        .addValues(
+                                FieldSeparator.SEMICOLON.getName(),
+                                FieldSeparator.PIPE.getName())
+                        .markExhaustive()
+                        .finish());
         return propertySpecs;
     }
 
