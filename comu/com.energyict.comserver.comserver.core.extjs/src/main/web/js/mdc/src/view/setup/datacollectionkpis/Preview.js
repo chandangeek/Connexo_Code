@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Preview', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            privileges: Mdc.privileges.DataCollectionKpi.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'dataCollectionKpisActionMenu',
