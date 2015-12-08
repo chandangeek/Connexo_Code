@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,11 +30,14 @@ public final class DeviceLifeCyclePropertySupport {
      * property used by {@link MicroAction}s.
      *
      * @param service The PropertySpecService that effectively creates the PropertySpec
+     * @param thesaurus The Thesaurus that holds the translation for the property spec keys
      * @return The PropertySpec
      */
-    public static PropertySpec lastCheckedTimestamp(PropertySpecService service) {
-        return service.newPropertySpecBuilder(new InstantFactory())
-                .name(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key())
+    public static PropertySpec lastCheckedTimestamp(PropertySpecService service, Thesaurus thesaurus) {
+        return service.specForValuesOf(new InstantFactory())
+                .named(MicroActionTranslationKey.MICRO_ACTION_NAME_SET_LAST_CHECKED)
+                .describedAs(MicroActionTranslationKey.MICRO_ACTION_DESCRIPTION_NAME_SET_LAST_CHECKED)
+                .fromThesaurus(thesaurus)
                 .markRequired()
                 .setDefaultValue(Instant.now())
                 .finish();

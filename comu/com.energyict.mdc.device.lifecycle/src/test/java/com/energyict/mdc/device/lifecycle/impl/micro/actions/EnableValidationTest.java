@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.ValueFactory;
-
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -20,8 +20,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,7 +51,7 @@ public class EnableValidationTest {
         // Asserts
         int numberOfSpecs = propertySpecs.size();
         verify(this.propertySpecService, times(numberOfSpecs))
-                .newPropertySpecBuilder(any(ValueFactory.class));
+                .specForValuesOf(any(ValueFactory.class));
     }
 
     @Test

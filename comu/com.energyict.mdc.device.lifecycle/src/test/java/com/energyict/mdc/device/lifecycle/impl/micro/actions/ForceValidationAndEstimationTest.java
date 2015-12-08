@@ -1,15 +1,10 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
@@ -18,6 +13,12 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.common.collect.Range;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Answers;
@@ -33,7 +33,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link EnableValidation} component.
@@ -76,7 +82,7 @@ public class ForceValidationAndEstimationTest {
         // Asserts
         int numberOfSpecs = propertySpecs.size();
         verify(this.propertySpecService, times(numberOfSpecs))
-                .newPropertySpecBuilder(any(ValueFactory.class));
+                .specForValuesOf(any(ValueFactory.class));
     }
 
     @Test
