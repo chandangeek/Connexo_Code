@@ -409,7 +409,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     private PropertySpec clientMacAddressPropertySpec() {
         return propertySpecService.
-                newPropertySpecBuilder(new BigDecimalFactory()).
+                specForValuesOf(new BigDecimalFactory()).
                 name("ClientMacAddress").
                 markRequired().
                 finish();
