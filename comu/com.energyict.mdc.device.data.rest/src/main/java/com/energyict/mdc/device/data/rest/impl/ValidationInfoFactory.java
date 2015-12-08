@@ -214,7 +214,7 @@ public class ValidationInfoFactory {
         veeReadingInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
         veeReadingInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
         veeReadingInfo.mainValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getReadingQualities());
-        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+        if (channel.getCalculatedReadingType().isPresent()) {
             veeReadingInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
             veeReadingInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
             veeReadingInfo.bulkValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getBulkReadingQualities());
@@ -227,7 +227,7 @@ public class ValidationInfoFactory {
         veeReadingInfo.mainValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.mainValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.readingQualities = getReadingQualities(reading);
-        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+        if (channel.getCalculatedReadingType().isPresent()) {
             veeReadingInfo.bulkValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
             veeReadingInfo.bulkValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
         }
@@ -271,7 +271,7 @@ public class ValidationInfoFactory {
     }
 
     MinimalVeeReadingValueInfo createBulkVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
-        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+        if (channel.getCalculatedReadingType().isPresent()) {
             MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
             veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
             veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
@@ -357,7 +357,7 @@ public class ValidationInfoFactory {
     }
 
     MinimalVeeReadingValueInfo createBulkVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
-        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+        if (channel.getCalculatedReadingType().isPresent()) {
             MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
             veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
             veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()

@@ -134,7 +134,7 @@ public class EstimationHelper {
                 channelDataInfo.collectedValue = estimatable.getEstimation();
                 channelDataInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
-            if (channel.getReadingType().getCalculatedReadingType().isPresent() && channel.getReadingType().getCalculatedReadingType().get().equals(block.getReadingType())) {
+            if (channel.getCalculatedReadingType().isPresent() && channel.getCalculatedReadingType().get().equals(block.getReadingType())) {
                 channelDataInfo.value = estimatable.getEstimation();
                 channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }

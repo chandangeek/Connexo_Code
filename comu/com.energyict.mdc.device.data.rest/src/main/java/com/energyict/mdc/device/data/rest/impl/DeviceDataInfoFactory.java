@@ -125,9 +125,9 @@ public class DeviceDataInfoFactory {
                 Channel channel = entry.getKey();
                 BigDecimal value = getRoundedBigDecimal(entry.getValue().getValue(), channel);
                 String collectedValue = value != null ? value.toString() : "";
-                if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+                if (channel.getCalculatedReadingType().isPresent()) {
                     channelIntervalInfo.channelCollectedData.put(channel.getId(), collectedValue);
-                    Quantity quantity = entry.getValue().getQuantity(channel.getReadingType().getCalculatedReadingType().get());
+                    Quantity quantity = entry.getValue().getQuantity(channel.getCalculatedReadingType().get());
                     String calculatedValue = quantity != null ? getRoundedBigDecimal(quantity.getValue(), channel).toString() : "";
                     channelIntervalInfo.channelData.put(channel.getId(), calculatedValue);
                 } else {
@@ -276,11 +276,11 @@ public class DeviceDataInfoFactory {
         Device device = register.getDevice();
         registerInfo.id = registerSpec.getId();
         registerInfo.registerType = registerSpec.getRegisterType().getId();
-        registerInfo.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
+        registerInfo.readingType = new ReadingTypeInfo(register.getReadingType());
         registerInfo.obisCode = registerSpec.getObisCode();
         registerInfo.overruledObisCode = registerSpec.getDeviceObisCode();
         registerInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        registerInfo.isCumulative = registerSpec.getReadingType().isCumulative();
+        registerInfo.isCumulative = register.getReadingType().isCumulative();
         registerInfo.mRID = device.getmRID();
         registerInfo.version = device.getVersion();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
@@ -293,11 +293,7 @@ public class DeviceDataInfoFactory {
         BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
         addCommonRegisterInfo(register, billingRegisterInfo);
         billingRegisterInfo.detailedValidationInfo = registerValidationInfo;
-        if(register.getCalculatedReadingType().isPresent()){
-            billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(register.getCalculatedReadingType().get());
-        } else if(register.getReadingType().getCalculatedReadingType().isPresent()){
-            billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(register.getReadingType().getCalculatedReadingType().get());
-        }
+        register.getCalculatedReadingType().ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
         if (register.getRegisterSpec().isUseMultiplier() &&  !register.getDevice().getMultiplier().equals(BigDecimal.ONE)) {
             billingRegisterInfo.multiplier = register.getDevice().getMultiplier();
         }

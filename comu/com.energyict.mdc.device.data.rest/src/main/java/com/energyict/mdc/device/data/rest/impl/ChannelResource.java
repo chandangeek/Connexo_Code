@@ -338,8 +338,8 @@ public class ChannelResource {
                 .build()
                 .asRanges();
 
-        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getReadingType().getCalculatedReadingType().isPresent()) {
-            readingType = channel.getReadingType().getCalculatedReadingType().get();
+        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getCalculatedReadingType().isPresent()) {
+            readingType = channel.getCalculatedReadingType().get();
         }
 
         for (Range<Instant> block : blocks) {

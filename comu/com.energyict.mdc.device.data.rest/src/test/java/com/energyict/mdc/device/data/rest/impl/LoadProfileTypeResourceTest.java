@@ -112,7 +112,6 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
 
         ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         ReadingType calculatedReadingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
 
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, readingRecord1, channel2, readingRecord2));
         when(clock.instant()).thenReturn(NOW);
@@ -127,10 +126,12 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
 
         when(channel1.getDevice()).thenReturn(device);
         when(channel1.getReadingType()).thenReturn(readingType);
+        when(channel1.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
         when(channel1.getChannelSpec()).thenReturn(channelSpec);
         when(channel2.getDevice()).thenReturn(device);
         when(channel2.getReadingType()).thenReturn(readingType);
+        when(channel2.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
         when(channel2.getId()).thenReturn(CHANNEL_ID2);
         when(channel2.getChannelSpec()).thenReturn(channelSpec);
         when(device.forValidation()).thenReturn(deviceValidation);

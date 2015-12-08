@@ -89,8 +89,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private EstimationRule estimationRule;
     @Mock
     private ReadingQualityRecord quality1, quality2, quality3;
-/*    @Mock
-    private ReadingQualityRecord quality2;*/
+    /*    @Mock
+        private ReadingQualityRecord quality2;*/
     @Mock
     private ValidationRuleSet validationRuleSet;
     @Mock
@@ -103,10 +103,10 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private DeviceConfiguration deviceConfiguration;
 
     private ReadingQualityType readingQualityTypeValidated = new ReadingQualityType("3.0.1"),
-                                readingQualityTypeEdited = new ReadingQualityType("3.7.0"),
-                                readingQualityTypeAdded = new ReadingQualityType("3.7.1"),
-                                 readingQualityTypeRejected = new ReadingQualityType("3.7.3"),
-                                readingQualityTypeConfirmed = new ReadingQualityType("3.10.1");
+            readingQualityTypeEdited = new ReadingQualityType("3.7.0"),
+            readingQualityTypeAdded = new ReadingQualityType("3.7.1"),
+            readingQualityTypeRejected = new ReadingQualityType("3.7.3"),
+            readingQualityTypeConfirmed = new ReadingQualityType("3.10.1");
 
     @Before
     public void setUpStubs() {
@@ -162,7 +162,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getDevice()).thenReturn(device);
         when(channel.getId()).thenReturn(CHANNEL_ID1);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
-        when(channel.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(channelSpec.getId()).thenReturn(CHANNEL_ID1);
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(channel, NOW)).thenReturn(true);
@@ -183,7 +182,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRule.getName()).thenReturn("EstimationRule");
-        ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
+        ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityTypeEstimatedByRule);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityTypeEstimatedByRule);
         //add confirm quality
@@ -211,6 +210,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingType calculatedReadingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
         when(channel.getReadingType()).thenReturn(readingType);
+        when(channel.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
         Unit unit = Unit.get("kWh");
         when(channel.getLastReading()).thenReturn(Optional.<Instant>empty());
@@ -345,7 +345,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelDataFilteredMatches() throws UnsupportedEncodingException {
-        String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect","suspect").create();
+        String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect", "suspect").create();
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);
@@ -398,7 +398,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testChannelInfo(){
+    public void testChannelInfo() {
         String json = target("devices/1/channels/" + CHANNEL_ID1).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         // TODO add items
@@ -445,6 +445,67 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<List<?>>get("$.validationBlocks")).hasSize(1);
         assertThat(jsonModel.<Number>get("$.validationBlocks[0].startTime")).isEqualTo(now.toEpochMilli());
         assertThat(jsonModel.<Number>get("$.validationBlocks[0].endTime")).isEqualTo(now.plus(90, ChronoUnit.MINUTES).toEpochMilli());
+    }
+
+    private void mockChannelWithCalculatedReadingType(long channelId, String collectedReadingTypeMrid, String calculatedReadingTypeMrid, Optional<BigDecimal> multiplier) {
+        ReadingType collectedReadingType = ReadingTypeMockBuilder.from(collectedReadingTypeMrid).getMock();
+        ReadingType calculatedReadingType = ReadingTypeMockBuilder.from(calculatedReadingTypeMrid).getMock();
+//        when(collectedReadingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
+        ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getReadingType()).thenReturn(collectedReadingType);
+        Channel channelWithBulkAndCalculatedDelta = mock(Channel.class);
+        when(channelWithBulkAndCalculatedDelta.getId()).thenReturn(channelId);
+        when(channelWithBulkAndCalculatedDelta.getChannelSpec()).thenReturn(channelSpec);
+        when(channelWithBulkAndCalculatedDelta.getReadingType()).thenReturn(collectedReadingType);
+        when(channelWithBulkAndCalculatedDelta.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
+        when(channelWithBulkAndCalculatedDelta.getMultiplier()).thenReturn(multiplier);
+        when(channelWithBulkAndCalculatedDelta.getInterval()).thenReturn(TimeDuration.minutes(15));
+        when(channelWithBulkAndCalculatedDelta.getLastReading()).thenReturn(Optional.empty());
+        when(channelWithBulkAndCalculatedDelta.getLastDateTime()).thenReturn(Optional.empty());
+        when(channelWithBulkAndCalculatedDelta.getLoadProfile()).thenReturn(loadProfile);
+        when(channelWithBulkAndCalculatedDelta.getDevice()).thenReturn(device);
+        Unit collectedUnit = getUnit(collectedReadingType);
+        when(channelWithBulkAndCalculatedDelta.getUnit()).thenReturn(collectedUnit);
+        when(loadProfile.getChannels()).thenReturn(Arrays.asList(channelWithBulkAndCalculatedDelta));
+        when(deviceValidation.getLastChecked(channelWithBulkAndCalculatedDelta)).thenReturn(Optional.of(NOW));
+    }
+
+    public Unit getUnit(ReadingType rt) {
+        Unit unit = Unit.get(rt.getMultiplier().getSymbol() + rt.getUnit().getSymbol());
+        if (unit == null) {
+            unit = Unit.get(rt.getMultiplier().getSymbol() + rt.getUnit().getUnit().getAsciiSymbol());
+        }
+        return unit;
+    }
+
+    @Test
+    public void getWithDeltaCalculatedReadingTypeTest() {
+        long channelId = 123L;
+        String collectedReadingTypeMrid = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+        String calculatedReadingTypeMrid = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+        mockChannelWithCalculatedReadingType(channelId, collectedReadingTypeMrid, calculatedReadingTypeMrid, Optional.empty());
+        String json = target("devices/1/channels/" + channelId).request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.id").longValue()).isEqualTo(channelId);
+        assertThat(jsonModel.<Number>get("$readingType.mRID")).isEqualTo(collectedReadingTypeMrid);
+        assertThat(jsonModel.<Number>get("calculatedReadingType.mRID")).isEqualTo(calculatedReadingTypeMrid);
+        assertThat(jsonModel.hasPath("multiplier")).isFalse();
+    }
+
+    @Test
+    public void getWithMultiplierCalculatedReadingTypeTest() {
+        long channelId = 123L;
+        String collectedReadingTypeMrid = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+        String calculatedReadingTypeMrid = "0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.0.72.0";
+        BigDecimal multiplier = BigDecimal.TEN;
+        mockChannelWithCalculatedReadingType(channelId, collectedReadingTypeMrid, calculatedReadingTypeMrid, Optional.of(multiplier));
+        String json = target("devices/1/channels/" + channelId).request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.id").longValue()).isEqualTo(channelId);
+        assertThat(jsonModel.<Number>get("$readingType.mRID")).isEqualTo(collectedReadingTypeMrid);
+        assertThat(jsonModel.<Number>get("calculatedReadingType.mRID")).isEqualTo(calculatedReadingTypeMrid);
+        assertThat(jsonModel.hasPath("multiplier")).isTrue();
+        assertThat(jsonModel.<Number>get("multiplier")).isEqualTo(multiplier.intValue());
     }
 
     private NotEstimatedBlock mockNotEstimatedBlock(Instant from, Instant to, ReadingType readingType) {
