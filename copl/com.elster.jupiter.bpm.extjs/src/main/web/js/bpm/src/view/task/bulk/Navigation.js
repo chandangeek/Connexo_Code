@@ -8,7 +8,7 @@ Ext.define('Bpm.view.task.bulk.Navigation', {
         {
             itemId: 'cmbn-select-tasks',
             action: 'select-task',
-            text: Uni.I18n.translate('bpm.task.bulk.selectTasks', 'BPM', 'Select task')
+            text: Uni.I18n.translate('bpm.task.bulk.selectTasks', 'BPM', 'Select tasks')
         },
         {
             itemId: 'cmbn-select-action',
