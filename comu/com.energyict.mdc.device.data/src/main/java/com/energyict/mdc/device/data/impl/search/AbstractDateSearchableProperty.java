@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -57,16 +58,18 @@ public abstract class AbstractDateSearchableProperty<T> extends AbstractSearchab
         return Optional.of(this.propertyGroup);
     }
 
-    @Override
-    public abstract String getName();
+    protected abstract TranslationKey getNameTranslationKey();
+
+    protected abstract TranslationKey getDescriptionTranslationKey();
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                getName(),
-                false,
-                new InstantFactory()
-        );
+        return this.propertySpecService
+                .specForValuesOf(new InstantFactory())
+                .named(getNameTranslationKey())
+                .describedAs(getDescriptionTranslationKey())
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     @Override

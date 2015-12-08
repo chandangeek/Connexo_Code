@@ -50,7 +50,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
-                    newPropertySpecBuilder(new StringFactory()).
+                    specForValuesOf(new StringFactory()).
                     name(javaName(), javaName()).
                     finish();
         }
