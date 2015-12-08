@@ -61,9 +61,8 @@ Ext.define('Usr.controller.UserEdit', {
 
         Ext.ModelManager.getModel('Usr.model.User').load(userId, {
             success: function (user) {
-                var title = Uni.I18n.translate('general.edit', 'USR', 'Edit'),
-                    language = user.get('language');
-                panel.setTitle(title + ' \'' + user.get('authenticationName') + '\'');
+                var language = user.get('language');
+                panel.setTitle(Uni.I18n.translate('general.editx', 'USR', "Edit '{0}'", [user.get('authenticationName')], true));
                 if (user.get('authenticationName') == "admin") {
                     panel.down('[itemId=alertmessageuser]').show();
                 }
@@ -111,7 +110,7 @@ Ext.define('Usr.controller.UserEdit', {
         record.save({
             backUrl: '#/administration/users',
             success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('user.saved', 'USR', "User '{0}' saved.", [record.get('authenticationName')]));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('user.saved', 'USR', "User '{0}' saved.", [record.get('authenticationName')], false));
                 location.href = '#/administration/users';
             },
             failure: function (record, operation) {
