@@ -25,7 +25,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 : me;
 
         if (base) {
-            item = base.menu.items.findBy(function(i){return i.criteria === property;});
+            item = base.menu.items.findBy(function(i){return i.criteria.getId() === property.getId();});
             if (item) {
                 item.setChecked(value, suppressEvents);
             }
@@ -38,6 +38,9 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             listeners = [];
 
         me.menu = {
+            floating: true,
+            constrain: true,
+            constraintInsets: '10 10 10 10',
             plain: true,
             defaults: {
                 xtype: 'menucheckitem'
@@ -110,25 +113,30 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     },
 
     createMenuItem: function (criteria) {
-        var menuitem = {
-            xtype: 'menucheckitem',
-            text: criteria.get('displayValue'),
-            value: criteria.get('name'),
-            criteria: criteria,
-            checked: this.service.filters.get(criteria.get('name'))
-        };
+        var me = this,
+            menuitem = {
+                xtype: 'menucheckitem',
+                text: criteria.get('displayValue'),
+                value: criteria.get('name'),
+                criteria: criteria,
+                checked: this.service.filters.get(criteria.get('name'))
+            };
 
         if (    criteria.get('constraints')
             &&  criteria.get('constraints').length
-            &&  this.service.checkConstraints(criteria)
+            &&  me.service.checkConstraints(criteria)
         ) {
+            var  constraints = criteria.get('constraints').map(function(c) {
+                return me.getStore().getById(c).get('displayValue')
+            });
+
             Ext.apply(menuitem, {
                 disabled: true,
                 tooltip: {
                     title: Uni.I18n.translate('search.criteriaselector.disabled.title', 'UNI', 'Enable {0}', [criteria.get('displayValue')]),
                     text: Uni.I18n.translate('search.criteriaselector.disabled.body', 'UNI',
-                        '{0} become available as soon as a search value has been specified for {1}',
-                        [criteria.get('displayValue'), criteria.get('constraints').join(', ')]),
+                        '{0} property becomes available as soon as a value has been specified for the search criterion {1}',
+                        [criteria.get('displayValue'), constraints.join(', ')]),
                     maxWidth: 150
                 }
             })
@@ -172,6 +180,10 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                         text: items[0].criteria.get('group').displayValue,
                         value: group.name,
                         menu: {
+                            floating: true,
+                            constrain: true,
+                            maxHeight: me.up('uni-view-search-overview').getHeight(),
+                            enableScrolling: true,
                             itemId: 'search-criteria-sub-menu',
                             items: items
                         }
@@ -181,7 +193,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         }
 
         me.menu.setLoading(false);
-        me.updateLayout();
+        //me.updateLayout();
 
         Ext.resumeLayouts(true);
     },

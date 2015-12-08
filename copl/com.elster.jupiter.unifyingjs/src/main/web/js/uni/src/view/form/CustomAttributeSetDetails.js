@@ -2,9 +2,9 @@ Ext.define('Uni.view.form.CustomAttributeSetDetails', {
     extend: 'Ext.form.Panel',
     alias: 'widget.custom-attribute-set-details-form',
     itemId: 'custom-attribute-set-details-form-id',
-    title: Uni.I18n.translate('customattributeset.title', 'UNI', 'Attribute set details'),
     ui: 'medium',
     width: '100%',
+    showDefaultTitle: true,
     defaults: {
         labelWidth: 150,
         xtype: 'displayfield'
@@ -54,6 +54,15 @@ Ext.define('Uni.view.form.CustomAttributeSetDetails', {
             fieldLabel: Uni.I18n.translate('general.attributes', 'UNI', 'Attributes')
         }
     ],
+
+    initComponent: function() {
+        var me = this;
+
+      if (me.showDefaultTitle) {
+          me.title = Uni.I18n.translate('customattributeset.title', 'UNI', 'Attribute set details')
+      }
+      this.callParent(arguments);
+    },
 
     loadCustomRecord: function (record) {
         var me = this;

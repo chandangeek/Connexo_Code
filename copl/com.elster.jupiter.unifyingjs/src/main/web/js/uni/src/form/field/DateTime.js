@@ -99,11 +99,13 @@ Ext.define('Uni.form.field.DateTime', {
             },
             separator = {
                 xtype: 'component',
+                itemId: 'hours-minutes-separator',
                 html: ':',
                 margin: '0 5 0 5'
             },
             dateTimeSeparator = {
                 xtype: 'component',
+                itemId: 'date-time-separator',
                 html: '',
                 margin: '0 5 0 5'
             },
