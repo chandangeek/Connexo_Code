@@ -201,7 +201,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 var title = Uni.I18n.translate('general.clonex', 'DLC', "Clone '{0}'", deviceLifeCycleRecord.get('name'), false),
                     route;
 
-                me.getApplication().fireEvent('devicelifecyclecloneload', title);
+                me.getApplication().fireEvent('devicelifecyclecloneload', deviceLifeCycleRecord.get('name'));
                 route = me.fromOverview ? 'administration/devicelifecycles/devicelifecycle' : 'administration/devicelifecycles';
                 view = Ext.widget('device-life-cycles-clone', {
                     router: me.getController('Uni.controller.history.Router'),

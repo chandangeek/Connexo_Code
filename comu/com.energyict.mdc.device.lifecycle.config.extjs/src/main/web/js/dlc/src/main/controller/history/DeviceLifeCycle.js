@@ -28,8 +28,8 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                             privileges: Dlc.privileges.DeviceLifeCycle.configure,
                             action: 'showCloneDeviceLifeCycle',
                             callback: function (route) {
-                                this.getApplication().on('devicelifecyclecloneload', function (title) {
-                                    route.setTitle(title);
+                                this.getApplication().on('devicelifecyclecloneload', function (recordName) {
+                                    route.setTitle(Uni.I18n.translate('general.clonex', 'DLC', "Clone '{0}'", recordName));
                                     return true;
                                 }, {single: true});
                                 return this;
