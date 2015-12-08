@@ -84,7 +84,7 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
     public PropertySpec getSpecification() {
 
         return this.propertySpecService
-                .newPropertySpecBuilder(new EnumFactory(UsagePointConnectedKind.class))
+                .specForValuesOf(new EnumFactory(UsagePointConnectedKind.class))
                 .name(FIELDNAME, FIELDNAME)
                 .addValues(UsagePointConnectedKind.values())
                 .markExhaustive()
