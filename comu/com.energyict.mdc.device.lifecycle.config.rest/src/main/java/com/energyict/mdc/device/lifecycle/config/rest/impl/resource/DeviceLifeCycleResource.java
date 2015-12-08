@@ -4,7 +4,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.*;
 import com.energyict.mdc.device.lifecycle.config.rest.info.*;
 
@@ -60,18 +60,16 @@ public class DeviceLifeCycleResource {
         this.deviceLifeCyclePrivilegeFactory = deviceLifeCyclePrivilegeFactory;
     }
 
-    @GET @Transactional
+    @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getDeviceLifeCycles(@BeanParam JsonQueryParameters queryParams) {
         List<DeviceLifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
-                .map(deviceLifeCycleFactory::from)
-                .sorted((info1, info2) -> info1.name.compareToIgnoreCase(info2.name))
-                .collect(Collectors.toList());
+                .map(deviceLifeCycleFactory::from).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycles", lifecycles, queryParams);
     }
 
-    @GET @Transactional
+    @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
@@ -80,7 +78,7 @@ public class DeviceLifeCycleResource {
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
-    @POST @Transactional
+    @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
@@ -89,7 +87,7 @@ public class DeviceLifeCycleResource {
         return Response.status(Response.Status.CREATED).entity(deviceLifeCycleFactory.from(newLifeCycle)).build();
     }
 
-    @PUT @Transactional
+    @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
@@ -101,7 +99,7 @@ public class DeviceLifeCycleResource {
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
-    @POST @Transactional
+    @POST
     @Path("/{id}/clone")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -112,7 +110,7 @@ public class DeviceLifeCycleResource {
         return Response.status(Response.Status.CREATED).entity(deviceLifeCycleFactory.from(clonedLifeCycle)).build();
     }
 
-    @DELETE @Transactional
+    @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
@@ -124,6 +122,21 @@ public class DeviceLifeCycleResource {
         deviceLifeCycle.makeObsolete();
         finiteStateMachine.makeObsolete();
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
+    }
+
+    @GET
+    @Path("/states")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    public PagedInfoList getDeviceLifeCycleStateSummary(@BeanParam JsonQueryParameters queryParams) {
+        List<DeviceLifeCycleStateSummaryInfo> deviceLifeCycleStateSummary = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().stream()
+                .map(deviceLifeCycleFactory::from)
+                .map(lifecycle -> this.lifeCycleStateResourceProvider.get().getAllStatesForDeviceLifecycle(lifecycle.id).stream()
+                        .map(state -> new DeviceLifeCycleStateSummaryInfo(lifecycle.id, state.id, lifecycle.name, state.name)))
+                .flatMap(y -> y)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("deviceStates", ListPager.of(deviceLifeCycleStateSummary).from(queryParams).find(), queryParams);
+
     }
 
     @Path("/{deviceLifeCycleId}/states")
@@ -141,7 +154,7 @@ public class DeviceLifeCycleResource {
         return this.transitionBusinessProcessResourceProvider.get();
     }
 
-    @GET @Transactional
+    @GET
     @Path("/privileges")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
@@ -153,7 +166,7 @@ public class DeviceLifeCycleResource {
         return PagedInfoList.fromCompleteList("privileges", privileges, queryParams);
     }
 
-    @GET @Transactional
+    @GET
     @Path("/eventtypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
