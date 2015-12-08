@@ -7,7 +7,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -16,6 +15,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -25,8 +25,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.osgi.service.device.Device;
-
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.data.UsagePointValidation;
@@ -34,7 +32,6 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.rest.impl.ReadingInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -126,10 +123,6 @@ public class RegisterDataResource {
         return ValidationStatus.SUSPECT.equals(info.validationResult);
     }
 
-    private boolean filterActive(JsonQueryFilter filter, String key) {
-        return filter.hasProperty(key) && filter.getBoolean(key);
-    }
-
     private void calculateDeltaForNumericalReading(RegisterDataInfo previous, RegisterDataInfo current) {
         if (previous != null && current != null) {
             if (previous.value != null && current.value != null) {
@@ -146,8 +139,6 @@ public class RegisterDataResource {
 //    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getRegisterData(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid, @PathParam("timeStamp") long timeStamp) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        ReadingType readingType = resourceHelper.findReadingTypeByMrIdOrThrowException(rt_mrid);
-
         UsagePointValidation upv = registerHelper.getUsagePointValidation(usagePoint);
         boolean validationEnabled = upv.isValidationActive();
         Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
@@ -164,8 +155,6 @@ public class RegisterDataResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response editRegisterData(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid, RegisterDataInfo readingInfo) {
-        UsagePoint usagepoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        ReadingType readingType = resourceHelper.findReadingTypeByMrIdOrThrowException(rt_mrid);
         Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
         BaseReadingRecord reading = channel.getReading(readingInfo.readingTime).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, rt_mrid, readingInfo.readingTime));
@@ -190,63 +179,17 @@ public class RegisterDataResource {
         channel.editReadings(Arrays.asList(readingInfo.createNew(channel)));
         return Response.status(Response.Status.OK).build();
     }
-//
-//    @DELETE @Transactional
-//    @Path("/{timeStamp}")
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+
+    @DELETE @Transactional
+    @Path("/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-//    public Response deleteRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryParameters queryParameters) {
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-//        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-//        try {
-//            register.startEditingData().removeReading(Instant.ofEpochMilli(timeStamp)).complete();
-//        }
-//        catch (IllegalArgumentException e) {
-//            throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId).get();
-//        }
-//        return Response.status(Response.Status.OK).build();
-//    }
-
-//    private boolean hasSuspects(ReadingInfo info) {
-//        boolean result = true;
-//        if (info instanceof BillingReadingInfo) {
-//            BillingReadingInfo billingReadingInfo = (BillingReadingInfo)info;
-//            result = ValidationStatus.SUSPECT.equals(billingReadingInfo.validationResult);
-//        } else if (info instanceof NumericalReadingInfo) {
-//            NumericalReadingInfo numericalReadingInfo = (NumericalReadingInfo)info;
-//            result = ValidationStatus.SUSPECT.equals(numericalReadingInfo.validationResult);
-//        }
-//        return result;
-//    }
-
-//    private boolean hideSuspects(ReadingInfo info) {
-//        return !hasSuspects(info);
-//    }
-
-//    private List<ReadingInfo> filter(List<ReadingInfo> infos, JsonQueryFilter filter) {
-//        Predicate<ReadingInfo> fromParams = getFilter(filter);
-//        return infos.stream().filter(fromParams).collect(Collectors.toList());
-//    }
-//
-//    private Predicate<ReadingInfo> getFilter(JsonQueryFilter filter) {
-//        ImmutableList.Builder<Predicate<ReadingInfo>> list = ImmutableList.builder();
-//        if (filter.hasProperty("suspect")){
-//            List<String> suspectFilters = filter.getStringList("suspect");
-//            if (suspectFilters.size() == 0) {
-//                if ("suspect".equals(filter.getString("suspect"))) {
-//                    list.add(this::hasSuspects);
-//                } else {
-//                    list.add(not(this::hasSuspects));
-//                }
-//            }
-//        }
-//        if (filterActive(filter, "hideSuspects")) {
-//            list.add(this::hideSuspects);
-//        }
-//        return lpi -> list.build().stream().allMatch(p -> p.test(lpi));
-//    }
-//
-//    private boolean filterActive(JsonQueryFilter filter, String key) {
-//        return filter.hasProperty(key) && filter.getBoolean(key);
-//    }
+    public Response deleteRegisterData(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid, @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryParameters queryParameters) {
+        Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
+        BaseReadingRecord reading = channel.getReading(Instant.ofEpochMilli(timeStamp)).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, rt_mrid, Instant.ofEpochMilli(timeStamp)));
+        
+        channel.removeReadings(Arrays.asList(reading));
+        return Response.status(Response.Status.OK).build();
+    }
 }
