@@ -29,14 +29,15 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 hidden: true,
                 xtype: 'container',
                 itemId: 'empty',
-                html: Ext.String.htmlEncode(me.emptyMsg)
+                html: Ext.String.htmlEncode(me.emptyMsg),
+                flex: 2
             },
             {
                 xtype: 'container',
-                flex: 1,
                 hidden: true,
                 itemId: 'chart',
                 height: 400,
+                flex: 2,
                 listeners: {
                     resize: {
                         fn: function (container, width, height) {

@@ -4,7 +4,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
     layout: 'fit',
     items: {
         xtype: 'panel',
-        ui: 'tile',
+        cls: 'heatmap',
         minHeight: '300',
         itemId: 'heatmapchart'
     },
