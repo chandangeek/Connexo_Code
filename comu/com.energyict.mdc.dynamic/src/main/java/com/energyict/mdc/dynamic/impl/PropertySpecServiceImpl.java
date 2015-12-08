@@ -25,6 +25,7 @@ import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -228,7 +229,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpecBuilder newPropertySpecBuilder(ValueFactory valueFactory) {
+    public PropertySpecBuilder specForValuesOf(ValueFactory valueFactory) {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
 
@@ -257,8 +258,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
     }
 
-    @Override
-    public PropertySpecBuilder newPropertySpecBuilder(Class<? extends ValueFactory> valueFactoryClass) {
+    public PropertySpecBuilder specForValuesOf(Class<? extends ValueFactory> valueFactoryClass) {
         return PropertySpecBuilderImpl.forClass(getValueFactory(valueFactoryClass));
     }
 

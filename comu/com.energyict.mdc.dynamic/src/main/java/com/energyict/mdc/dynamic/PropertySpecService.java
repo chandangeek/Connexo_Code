@@ -1,14 +1,16 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecBuilderWizard;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Password;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.time.TimeDuration;
 
 import java.util.List;
 import java.util.TimeZone;
@@ -23,6 +25,22 @@ import java.util.TimeZone;
 public interface PropertySpecService extends com.elster.jupiter.properties.PropertySpecService {
 
     void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link Password} values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Password> passwordSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of encrypted String values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<String> encryptedStringSpec();
 
     /**
      * Todo: remove as part of COPL-1151
