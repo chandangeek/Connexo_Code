@@ -34,7 +34,7 @@ Ext.define('Bpm.view.task.bulk.Wizard', {
                 xtype: 'tasks-bulk-step3',
                 itemId: 'tskbw-step3',
                 title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'BPM', 'Bulk action - Step {0} of {1}:'), 3, 5)
-                + ' ' + Uni.I18n.translate('general.confirmation', 'BPM', 'Action details')
+                + ' ' + Uni.I18n.translate('general.actionDetails', 'BPM', 'Action details')
             },
             {
                 xtype: 'tasks-bulk-step4',
