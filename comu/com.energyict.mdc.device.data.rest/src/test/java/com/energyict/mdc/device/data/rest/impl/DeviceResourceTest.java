@@ -707,7 +707,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(data).hasSize(10);
         assertThat((Map) data.get(0))
                 .containsKey("interval")
-                .containsKey("collectedValue")
+                .containsKey("value")
                 .containsKey("readingTime")
                 .containsKey("intervalFlags");
         Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");

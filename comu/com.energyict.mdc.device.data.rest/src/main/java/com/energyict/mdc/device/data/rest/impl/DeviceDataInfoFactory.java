@@ -67,7 +67,7 @@ public class DeviceDataInfoFactory {
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
         channelIntervalInfo.multiplier = channel.getMultiplier().orElseGet(() -> null);
         channelReading.ifPresent(reading -> {
-            channelIntervalInfo.collectedValue = getRoundedBigDecimal(reading.getValue(), channel);
+            channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
             addCalculatedValueInfo(channel, channelIntervalInfo, reading);
             channelIntervalInfo.reportedDateTime = reading.getReportedDateTime();
         });
@@ -96,6 +96,7 @@ public class DeviceDataInfoFactory {
     private void addCalculatedValueInfo(Channel channel, ChannelDataInfo channelIntervalInfo, IntervalReadingRecord reading) {
         channelIntervalInfo.isBulk = channel.getReadingType().isCumulative();
         channel.getCalculatedReadingType().ifPresent(readingType -> {
+            channelIntervalInfo.collectedValue = channelIntervalInfo.value;
             Quantity quantity = reading.getQuantity(readingType);
             channelIntervalInfo.value = getRoundedBigDecimal(quantity != null? quantity.getValue(): null, channel);
         });

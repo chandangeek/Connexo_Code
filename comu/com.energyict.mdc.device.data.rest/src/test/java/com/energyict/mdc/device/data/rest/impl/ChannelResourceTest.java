@@ -315,7 +315,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(list.contains(readingType)).thenReturn(true);
 
         ChannelDataInfo channelDataInfo = new ChannelDataInfo();
-        channelDataInfo.collectedValue = BigDecimal.TEN;
+        channelDataInfo.value = BigDecimal.TEN;
         channelDataInfo.interval = new IntervalInfo();
         channelDataInfo.interval.start = intervalStart;
         channelDataInfo.interval.end = intervalEnd;

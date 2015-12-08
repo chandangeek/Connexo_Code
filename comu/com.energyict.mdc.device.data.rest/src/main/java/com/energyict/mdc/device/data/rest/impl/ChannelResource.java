@@ -270,7 +270,7 @@ public class ChannelResource {
     }
 
     private boolean hasMissingData(ChannelDataInfo info) {
-        return info.collectedValue == null;
+        return info.value == null;
     }
 
     @PUT
@@ -290,10 +290,10 @@ public class ChannelResource {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
             } else {
                 if (channelDataInfo.value != null) {
-                    editedReadings.add(channelDataInfo.createNewCalculated());
+                    editedReadings.add(channelDataInfo.createNew());
                 }
                 if (channelDataInfo.collectedValue != null) {
-                    editedBulkReadings.add(channelDataInfo.createNewCollected());
+                    editedBulkReadings.add(channelDataInfo.createNewBulk());
                 }
                 if (isToBeConfirmed(channelDataInfo)) {
                     confirmedReadings.add(channelDataInfo.createConfirm());
