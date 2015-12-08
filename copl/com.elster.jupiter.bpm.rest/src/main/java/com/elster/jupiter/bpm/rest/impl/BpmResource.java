@@ -214,14 +214,15 @@ public class BpmResource {
                 arr = obj.getJSONArray("tasks");
             }
         } catch (JSONException e) {
-            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         } catch (RuntimeException e) {
-            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
+        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
         TaskInfos infos = new TaskInfos(arr);
-        if (total > 0) {
-            infos.total = total;
-        }
+        infos.tasks = infos.tasks.stream()
+                .filter(s -> activeProcesses.stream().anyMatch(a -> s.processName.split("\\.")[s.processName.split("\\.").length -1].equals(a.getProcessName())))
+                .filter(s -> activeProcesses.stream().anyMatch(a -> s.deploymentId.split(":")[s.deploymentId.split(":").length -1].equals(a.getVersion())))
+                .collect(Collectors.toList());
+        infos.total = infos.tasks.size();
         return infos;
     }
 
@@ -266,7 +267,14 @@ public class BpmResource {
         } catch (RuntimeException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
-        return new ProcessDefinitionInfos(arr);
+        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+        ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
+        processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
+                .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name)))
+                .filter(s -> activeProcesses.stream().anyMatch(a -> a.getVersion().equals(s.version)))
+                .collect(Collectors.toList());
+        processDefinitionInfos.total = processDefinitionInfos.processes.size();
+        return processDefinitionInfos;
     }
 
     @GET
@@ -291,6 +299,7 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
     public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @Context SecurityContext securityContext) {
+        long response = -1;
         String userName = getQueryValue(uriInfo, "username");
         String rest = "/rest/tasks/";
         rest += String.valueOf(id);
@@ -298,8 +307,11 @@ public class BpmResource {
             rest += "/assign?username=" + userName;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
-                bpmService.getBpmServer().doPost(rest, null);
+                response = bpmService.getBpmServer().doPost(rest, null);
             } catch (RuntimeException e) {
+            }
+            if(response < 0){
+                throw new BpmResourceAssignUserException(thesaurus);
             }
             return Response.ok().build();
         }
@@ -510,7 +522,14 @@ public class BpmResource {
         } catch (JSONException e) {
         } catch (RuntimeException e) {
         }
+        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
         RunningProcessInfos runningProcessInfos = new RunningProcessInfos(arr);
+        List<RunningProcessInfo> runningProcessesList = runningProcessInfos.processes.stream()
+                .filter(s -> activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName())))
+                .filter(s -> activeProcesses.stream().anyMatch(a -> s.version.equals(a.getVersion())))
+                .collect(Collectors.toList());
+        runningProcessInfos.processes = runningProcessesList;
+        total = runningProcessesList.size();
         if (total > 0) {
             runningProcessInfos.total = total;
         }
@@ -609,7 +628,7 @@ public class BpmResource {
     }
 
     @GET
-    @Path("processcontent/{id}")
+    @Path("/processcontent/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public TaskContentInfos getProcessContent(@PathParam("id") String id) {
         String jsonContent;
@@ -632,12 +651,14 @@ public class BpmResource {
     }
 
     @PUT
-    @Path("processcontent/{id}/{deploymentId}")
+    @Path("/processcontent/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id,@PathParam("deploymentId") String deploymentId) {
-        Map<String, Object> expectedParams = new HashMap<>();
-        expectedParams =  getOutputContent(taskContentInfos, -1, id);
-        bpmService.startProcess(deploymentId, id, expectedParams);
+    public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id) {
+        Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id);
+        if(taskContentInfos.deploymentId != null && taskContentInfos.mrid != null) {
+            expectedParams.put("mrid", taskContentInfos.mrid);
+            bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams);
+        }
         return Response.ok().build();
     }
 

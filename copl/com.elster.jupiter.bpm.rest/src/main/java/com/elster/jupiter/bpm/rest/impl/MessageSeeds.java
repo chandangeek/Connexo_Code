@@ -6,7 +6,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    FIELD_CAN_NOT_BE_EMPTY(1, "BPM.FieldCanNotBeEmpty", "This field is required", Level.SEVERE);
+    FIELD_CAN_NOT_BE_EMPTY(1, "BPM.FieldCanNotBeEmpty", "This field is required", Level.SEVERE),
+    ASSIGN_USER_EXCEPTION(2, "BPM.AssignUserException", "Only members of \"Administrators\" role can perform this action.", Level.SEVERE);
 
     public static final String COMPONENT_NAME = "BPM";
 

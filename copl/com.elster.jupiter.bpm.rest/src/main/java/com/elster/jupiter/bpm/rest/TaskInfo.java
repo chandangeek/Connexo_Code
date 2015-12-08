@@ -31,7 +31,6 @@ public class TaskInfo {
             this.actualOwner = jsonObject.isNull("actualOwner") ? "" : jsonObject.getString("actualOwner");
             this.processInstancesId = jsonObject.getString("processInstanceId").equals("-1") ? "" : jsonObject.getString("processInstanceId");
         } catch (JSONException e) {
-//        throw new RuntimeException(e);
     }
     }
 
