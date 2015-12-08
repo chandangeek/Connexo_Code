@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 /**
@@ -34,6 +35,17 @@ public class NumericalRegisterImpl extends RegisterImpl<NumericalReading, Numeri
 
     @Override
     public Optional<ReadingType> getCalculatedReadingType() {
-        return getRegisterSpec().getCalculatedReadingType();
+        return getMultiplier().isPresent()? getRegisterSpec().getCalculatedReadingType() : getRegisterSpec().getReadingType().getCalculatedReadingType();
+    }
+
+    @Override
+    public Optional<BigDecimal> getMultiplier() {
+        if (getRegisterSpec().isUseMultiplier()) {
+            BigDecimal multiplier = getDevice().getMultiplier();
+            if(multiplier.compareTo(BigDecimal.ONE) == 1){
+                return Optional.of(multiplier);
+            }
+        }
+        return Optional.empty();
     }
 }
