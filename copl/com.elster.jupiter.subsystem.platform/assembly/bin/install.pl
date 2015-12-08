@@ -523,7 +523,7 @@ sub start_tomcat {
 			system("sc failure \"ConnexoTomcat$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
 			system("sc start ConnexoTomcat$SERVICE_VERSION");
 			sleep 10;
-			while (`sc query ConnexoTomcat$SERVICE_VERSION | find "STATE" | find "RUNNING"` eq "") {
+			while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
 				sleep 3;
 			}
 		} else {
@@ -555,7 +555,6 @@ sub start_tomcat {
 
 			chdir "$CONNEXO_DIR";
 			system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
-			system("\"$JAVA_HOME/bin/java\" -cp $CONNEXO_DIR/partners/facts/yellowfin.installer.jar com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
 			unlink("$CONNEXO_DIR/datasource.xml");
 		}
 
