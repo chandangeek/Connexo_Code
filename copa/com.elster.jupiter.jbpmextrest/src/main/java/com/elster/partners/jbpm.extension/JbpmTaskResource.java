@@ -519,31 +519,6 @@ public class JbpmTaskResource {
         return filter;
     }
 
-//
-//    @GET
-//    @Produces("application/json")
-//    @Path("/{taskId: [0-9-]+}/content")
-//    public ConnexoForm getTaskContent(@PathParam("taskId") long taskId) {
-//
-//        if(formProviderService != null && internalTaskService != null) {
-//            try {
-//                JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
-//                Unmarshaller unmarshaller = jc.createUnmarshaller();
-//
-//                String stringContent = formProviderService.getFormDisplayTask(taskId);
-//                StringReader reader = new StringReader(stringContent);
-//                ConnexoForm form = (ConnexoForm) unmarshaller.unmarshal(reader);
-//                form.content = internalTaskService.getTaskContent(taskId);
-//                form.taskStatus = internalTaskService.getTaskById(taskId).getTaskData().getStatus();
-//                return form;
-//            } catch (JAXBException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        // TODO throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
-//        return null;
-//    }
-
     @GET
     @Produces("application/json")
     @Path("/{taskId: [0-9-]+}/content")
@@ -584,7 +559,6 @@ public class JbpmTaskResource {
                         StringReader reader = new StringReader(template);
                         form = (ConnexoForm) unmarshaller.unmarshal(reader);
 
-//                        return form;
                     } catch (JAXBException e) {
                         e.printStackTrace();
                     }
