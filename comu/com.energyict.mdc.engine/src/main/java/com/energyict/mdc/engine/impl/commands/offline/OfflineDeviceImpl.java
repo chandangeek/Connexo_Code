@@ -335,10 +335,10 @@ public class OfflineDeviceImpl implements OfflineDevice {
         }
         // adding the SerialNumber as a property value because legacy protocols check the serialNumber based on the property value
         this.allProperties.setProperty(MeterProtocol.SERIALNUMBER, getSerialNumber());
-        this.allProperties.setAllProperties(properties);
         if(properties.getInheritedProperties() != null) {
             this.allProperties.setAllProperties(properties.getInheritedProperties());
         }
+        this.allProperties.setAllProperties(properties);
     }
 
     /**
