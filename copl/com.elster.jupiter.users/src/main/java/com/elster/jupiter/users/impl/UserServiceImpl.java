@@ -306,6 +306,19 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
+    public Optional<User> findUser(String authenticationName, String userDirectoryName) {
+        Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
+        Condition userDirectoryCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", userDirectoryName);
+        List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(userDirectoryCondition));
+        if (!users.isEmpty()) {
+            if (users.get(0).getStatus()) {
+                return Optional.of(users.get(0));
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public User findOrCreateUser(String name, String domain, String directoryType, boolean status) {
         Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", name);
         Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", domain);

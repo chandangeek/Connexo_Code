@@ -31,6 +31,8 @@ public interface UserService {
 
     Optional<User> findUser(String authenticationName);
 
+    Optional<User> findUser(String authenticationName, String userDirectoryName);
+
     Optional<Resource> findResource(String name);
 
     Optional<Group> findGroup(String name);
