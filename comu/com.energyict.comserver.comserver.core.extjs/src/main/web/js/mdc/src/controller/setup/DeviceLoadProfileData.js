@@ -241,7 +241,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             seriesObject['yAxis'] = currentLine;
             currentLine += 1;
             var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.fullAliasName : channel.readingType.fullAliasName;
-            channels.push({name: channelHeader, unitOfMeasure: channel.unitOfMeasure });
+            channels.push(
+                {
+                    name: channelHeader,
+                    unitOfMeasure: !Ext.isEmpty(channel.calculatedReadingType)
+                        ? channel.calculatedReadingType.names.unitOfMeasure : channel.readingType.names.unitOfMeasure
+                }
+            );
             seriesToYAxisMap[index] = seriesObject['yAxis'];
             series.push(seriesObject);
         });
