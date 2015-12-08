@@ -33,6 +33,9 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     },
                     minutesConfig: {
                         width: 75
+                    },
+                    dateTimeSeparatorConfig: {
+                        html: '<span style="color: #686868;">' + Uni.I18n.translate('general.lovercase.at', 'MDC', 'at') + '</span>'
                     }
                 }
             },
@@ -130,7 +133,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGrid', {
                         xtype: 'container',
                         margin: '10 0 0 20',
                         flex: 1,
-                        html: '<span style="font-style:normal; font-family: Lato, helvetica, arial, verdana, sans-serif; color: #eb5642;">' + Uni.I18n.translate('customattributesetsversions.overlappaneltoptext', 'MDC', 'There are overlapping versions') + '</span>'
+                        html: '<span style="font-style:normal; font-family: Lato, helvetica, arial, verdana, sans-serif; color: #eb5642;">' + Uni.I18n.translate('customattributesetsversions.conflictedtoptext', 'MDC', 'There are conflicting versions') + '</span>'
                     },
                     {
                         text: Uni.I18n.translate('general.undo', 'MDC', 'Undo'),
@@ -155,11 +158,13 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGrid', {
                 if (me.getEl().down('#edit-column-icon-0')) {
                     me.getEl().down('#edit-column-icon-0').on('click', function () {
                         me.plugins[0].startEdit(me.recordToEdit, 0);
+                        me.down('date-time[dataIndex=startTime]').down('#date-time-field-minutes').focus();
                     });
                 }
                 if (me.getEl().down('#edit-column-icon-1')) {
                     me.getEl().down('#edit-column-icon-1').on('click', function () {
                         me.plugins[0].startEdit(me.recordToEdit, 1);
+                        me.down('date-time[dataIndex=endTime]').down('#date-time-field-minutes').focus();
                     });
                 }
                 if (me.getEl().down('.uni-actioncolumn-gear')) {

@@ -6,7 +6,9 @@ Ext.define('Mdc.controller.setup.ComServersView', {
     ],
 
     views: [
-        'Mdc.view.setup.comserver.ComServersSetup'
+        'Mdc.view.setup.comserver.ComServersSetup',
+        'Mdc.store.LogLevels',
+        'Mdc.store.TimeUnitsWithoutMilliseconds'
     ],
 
     stores: [
@@ -149,18 +151,22 @@ Ext.define('Mdc.controller.setup.ComServersView', {
     },
 
     showComServerPreview: function (selectionModel, record) {
-        var itemPanel = this.getComServerPreview(),
+        var me = this,
+            itemPanel = this.getComServerPreview(),
             form = itemPanel.down('form'),
-            model = this.getModel('Mdc.model.ComServer'),
+            model = me.getModel('Mdc.model.ComServer'),
+            menu =  form.up('panel').down('menu'),
             id = record.getId();
 
-        itemPanel.setLoading(this.getModel('Mdc.model.ComServer'));
+        itemPanel.setLoading();
 
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
-                    form.loadRecord(record);
-                    form.up('panel').down('menu').record = record;
+                    me.fillPreviewForm(form, record);
+                    if (menu) {
+                        menu.record = record;
+                    }
                     itemPanel.setLoading(false);
                     itemPanel.setTitle(record.get('name'));
                 }
@@ -168,10 +174,26 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         });
     },
 
+    fillPreviewForm: function(form, record) {
+        var loglevelsStore = this.getStore('Mdc.store.LogLevels'),
+            timeUnitsStore = this.getStore('Mdc.store.TimeUnitsWithoutMilliseconds'),
+            serverLogLevel = loglevelsStore.findRecord('logLevel', record.get('serverLogLevel')).get('localizedValue'),
+            communicationLogLevel = loglevelsStore.findRecord('logLevel', record.get('communicationLogLevel')).get('localizedValue'),
+            changesInterPollDelayUnit = timeUnitsStore.findRecord('timeUnit', record.get('changesInterPollDelay').timeUnit).get('localizedValue'),
+            schedulingInterPollDelayUnit = timeUnitsStore.findRecord('timeUnit', record.get('schedulingInterPollDelay').timeUnit).get('localizedValue'),
+            changesInterPollDelay = {count: record.get('changesInterPollDelay').count, timeUnit: changesInterPollDelayUnit},
+            schedulingInterPollDelay = {count: record.get('schedulingInterPollDelay').count , timeUnit: schedulingInterPollDelayUnit};
+
+        record.set('serverLogLevel', serverLogLevel);
+        record.set('communicationLogLevel', communicationLogLevel);
+        record.set('changesInterPollDelay', changesInterPollDelay);
+        record.set('schedulingInterPollDelay', schedulingInterPollDelay);
+        form.loadRecord(record);
+    },
+
     editComServer: function (record) {
         var router = this.getController('Uni.controller.history.Router'),
             id = record.getId();
-
 
         router.getRoute('administration/comservers/edit').forward({id: id});
     },

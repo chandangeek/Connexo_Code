@@ -21,6 +21,9 @@ Ext.define('Mdc.customattributesonvaluesobjects.service.VersionsManager', {
             if (record.get('endTime')) {
                 htmlString += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'MDC', 'Until'), Uni.DateTime.formatDateTimeLong(record.get('endTime')));
             }
+            if (!record.get('endTime') && !record.get('startTime')) {
+                htmlString += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
+            }
             propertyForm.loadRecord(record);
         } else {
             htmlString = '(' + Uni.I18n.translate('customattributesets.versions.none', 'MDC', 'no active version') + ')';

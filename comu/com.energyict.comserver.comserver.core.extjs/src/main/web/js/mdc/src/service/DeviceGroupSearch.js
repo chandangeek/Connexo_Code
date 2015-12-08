@@ -21,5 +21,20 @@ Ext.define('Mdc.service.DeviceGroupSearch', {
             me.filters.add(property.get('sticky') ? filter : filter.widget);
             me.fireEvent('add', me.filters, filter, property);
         }
+    },
+
+    applyFilters: function () {
+        var me = this,
+            searchResults = me.getSearchResultsStore(),
+            filters = me.getFilters();
+
+        searchResults.clearFilter(true);
+        if (filters && filters.length) {
+            searchResults.addFilter(me.getFilters(), false);
+            searchResults.load();
+        } else {
+            searchResults.loadData([]);
+            searchResults.fireEvent('load', searchResults, [], true);
+        }
     }
 });
