@@ -3,31 +3,33 @@ package com.elster.partners.jbpm.extension;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.jbpm.bpmn2.xml.TaskHandler;
-import org.jbpm.services.task.audit.impl.model.AuditTaskImpl;
-import org.jbpm.services.task.impl.model.OrganizationalEntityImpl;
+import org.jbpm.kie.services.api.RuntimeDataService;
+import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.model.TaskImpl;
+import org.jbpm.services.task.impl.model.UserImpl;
+import org.jbpm.services.task.utils.ContentMarshallerHelper;
+import org.kie.api.task.TaskService;
+import org.kie.api.task.model.*;
+import org.kie.internal.task.api.ContentMarshallerContext;
+import org.kie.internal.task.api.InternalTaskService;
+import org.kie.internal.task.api.TaskModelProvider;
+import org.kie.internal.task.api.TaskPersistenceContext;
+import org.kie.internal.task.api.model.*;
 
 import javax.inject.Inject;
-
-import org.jbpm.services.task.impl.model.UserImpl;
-import org.kie.api.definition.process.*;
-import org.kie.api.task.model.OrganizationalEntity;
-import org.kie.api.task.model.Status;
-import org.kie.api.task.model.Task;
-import org.kie.api.task.model.User;
-import org.kie.internal.task.api.InternalTaskService;
-import org.kie.internal.task.api.model.InternalTaskData;
-
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.ws.rs.*;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.util.*;
 
 @Path("/tasks")
@@ -41,6 +43,10 @@ public class JbpmTaskResource {
 
     @Inject
     InternalTaskService internalTaskService;
+
+    @Inject
+    RuntimeDataService runtimeDataService;
+
 
     @GET
     @Produces("application/json")
@@ -83,11 +89,10 @@ public class JbpmTaskResource {
                                 predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.InProgress));
                             }
                             if (filterProperties.get("status").get(i).toString().contains("COMPLETED")) {
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Completed));
+                                predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
                             }
                             if (filterProperties.get("status").get(i).toString().contains("FAILED")) {
                                 predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Failed));
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Error));
                                 predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Exited));
                                 predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Obsolete));
                             }
@@ -172,6 +177,11 @@ public class JbpmTaskResource {
 
                 }
                 criteriaQuery.where(criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()])));
+            }else{
+                List<Predicate> predicatesStatus = new ArrayList<>();
+                predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
+                predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Exited));
+                criteriaQuery.where(criteriaBuilder.and(predicatesStatus.toArray(new Predicate[predicatesStatus.size()])));
             }
             criteriaQuery.select(criteriaBuilder.construct(TaskSummary.class,
                     taskRoot.get("id"),
@@ -233,7 +243,8 @@ public class JbpmTaskResource {
             }
             return taskSummaryList;
         }
-        throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
+        // TODO throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
+        return null;
     }
 
     @GET
@@ -250,48 +261,27 @@ public class JbpmTaskResource {
     public Response assignTask(@Context UriInfo uriInfo,@PathParam("taskId") long taskId){
         String userName = getQueryValue(uriInfo, "username");
         String currentuser = getQueryValue(uriInfo, "currentuser");
-        Task task = internalTaskService.getTaskById(taskId);
-        if(task.getTaskData().getStatus().equals(Status.Created)) {
-            internalTaskService.activate(taskId, userName);
-            List<OrganizationalEntity> list = new ArrayList<OrganizationalEntity>(1);
-            list.add(new UserImpl("admin"));
-            internalTaskService.nominate(taskId, "admin", list);
-        }
-        if(task.getTaskData().getStatus().equals(Status.Ready)) {
-            internalTaskService.claim(taskId, currentuser);
-            internalTaskService.delegate(taskId, currentuser, userName);
-        }
-        if(task.getTaskData().getStatus().equals(Status.Reserved)) {
-            if(task.getTaskData().getActualOwner() != null) {
-                if(!userName.equals("")) {
-                    internalTaskService.delegate(taskId, task.getTaskData().getActualOwner().getId(), userName);
-                }
-            }
-        }
-        if(task.getTaskData().getStatus().equals(Status.InProgress)) {
-            if(task.getTaskData().getActualOwner() != null) {
-                if(!userName.equals("")) {
-                    internalTaskService.stop(taskId, task.getTaskData().getActualOwner().getId());
-                    internalTaskService.delegate(taskId, task.getTaskData().getActualOwner().getId(), userName);
-                }
-            }
+        boolean check = assignTaskToUser(userName, currentuser, taskId);
+        if(!check){
+            return Response.status(403).build();
         }
         return Response.ok().build();
     }
 
     @POST
     @Path("/{taskId: [0-9-]+}/set")
-    public Response setDue(@Context UriInfo uriInfo,@PathParam("taskId") long taskId){
+    public Response setDueDateAndPriority(@Context UriInfo uriInfo,@PathParam("taskId") long taskId){
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
         if(priority != null || date != null){
             if(priority != null && !priority.equals("")){
-                internalTaskService.setPriority(taskId, Integer.valueOf(priority));
+                setPriority(Integer.valueOf(priority), taskId);
+
             }
             if(date != null && !date.equals("")){
                 Date millis = new Date();
                 millis.setTime(Long.valueOf(date));
-                internalTaskService.setExpirationDate(taskId, millis);
+                setDueDate(millis, taskId);
             }
         }
         return Response.ok().build();
@@ -527,5 +517,284 @@ public class JbpmTaskResource {
         }
         filter += order;
         return filter;
+    }
+
+//
+//    @GET
+//    @Produces("application/json")
+//    @Path("/{taskId: [0-9-]+}/content")
+//    public ConnexoForm getTaskContent(@PathParam("taskId") long taskId) {
+//
+//        if(formProviderService != null && internalTaskService != null) {
+//            try {
+//                JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
+//                Unmarshaller unmarshaller = jc.createUnmarshaller();
+//
+//                String stringContent = formProviderService.getFormDisplayTask(taskId);
+//                StringReader reader = new StringReader(stringContent);
+//                ConnexoForm form = (ConnexoForm) unmarshaller.unmarshal(reader);
+//                form.content = internalTaskService.getTaskContent(taskId);
+//                form.taskStatus = internalTaskService.getTaskById(taskId).getTaskData().getStatus();
+//                return form;
+//            } catch (JAXBException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        // TODO throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
+//        return null;
+//    }
+
+    @GET
+    @Produces("application/json")
+    @Path("/{taskId: [0-9-]+}/content")
+    public ConnexoForm getTaskContent(@PathParam("taskId") long taskId) {
+        ConnexoForm form = new ConnexoForm();
+        if(internalTaskService != null && runtimeDataService != null) {
+            String template = "";
+            Task task = internalTaskService.getTaskById(taskId);
+
+            ProcessAssetDesc process = runtimeDataService.getProcessById(task.getTaskData().getProcessId());
+            if(process != null) {
+                String lookupName = "";
+                String formName = ((InternalTask) task).getFormName();
+                if (formName != null && !formName.equals("")) {
+                    lookupName = formName;
+                } else {
+                    lookupName = ((I18NText) task.getNames().get(0)).getText();
+                }
+
+                if (process.getForms().containsKey(lookupName)) {
+                    template = process.getForms().get(lookupName);
+                }
+                if (template.isEmpty() && process.getForms().containsKey(lookupName.replace(" ", "") + "-taskform")) {
+                    template = process.getForms().get(lookupName.replace(" ", "") + "-taskform");
+                }
+                if (template.isEmpty() && process.getForms().containsKey(lookupName.replace(" ", "") + "-taskform.form")) {
+                    template = process.getForms().get(lookupName.replace(" ", "") + "-taskform.form");
+                }
+                if (template.isEmpty() && process.getForms().containsKey("DefaultTask")) {
+                    template = process.getForms().get("DefaultTask");
+                }
+
+                if (!template.isEmpty()) {
+                    try {
+                        JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
+                        Unmarshaller unmarshaller = jc.createUnmarshaller();
+
+                        StringReader reader = new StringReader(template);
+                        form = (ConnexoForm) unmarshaller.unmarshal(reader);
+
+//                        return form;
+                    } catch (JAXBException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            form.content = internalTaskService.getTaskContent(taskId);
+            long contentId = internalTaskService.getTaskById(taskId).getTaskData().getOutputContentId();
+            if(contentId != -1) {
+                byte[] outContent = internalTaskService.getContentById(contentId).getContent();
+                form.outContent = (Map<String, Object>) ContentMarshallerHelper.unmarshall(outContent, null);
+            }
+            form.taskStatus = internalTaskService.getTaskById(taskId).getTaskData().getStatus();
+        }
+        // TODO throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
+        return form;
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("/process/{processId}/content")
+    public ConnexoForm getProcessForm(@PathParam("processId") String processId) {
+
+        if(runtimeDataService != null) {
+            String template = "";
+
+            ProcessAssetDesc process = runtimeDataService.getProcessById(processId);
+
+            if(process.getForms().containsKey(process.getId())) {
+                template = process.getForms().get(process.getId());
+            }
+            if(template.isEmpty() && process.getForms().containsKey(process.getId() + "-taskform")) {
+                template = process.getForms().get(process.getId() + "-taskform");
+            }
+            if(template.isEmpty() && process.getForms().containsKey(process.getId() + "-taskform.form")) {
+                template = process.getForms().get(process.getId() + "-taskform.form");
+            }
+            if(template.isEmpty() && process.getForms().containsKey("DefaultProcess")) {
+                template = process.getForms().get("DefaultProcess");
+            }
+
+            if (!template.isEmpty()) {
+                try {
+                    JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
+                    Unmarshaller unmarshaller = jc.createUnmarshaller();
+
+                    StringReader reader = new StringReader(template);
+                    ConnexoForm form = (ConnexoForm) unmarshaller.unmarshal(reader);
+
+                    return form;
+                } catch (JAXBException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        // TODO throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
+        return null;
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("/{taskId: [0-9-]+}/taskcontent")
+    public ConnexoForm getTaskContents(@PathParam("taskId") long taskId) {
+        ConnexoForm form = new ConnexoForm();
+        form.content = internalTaskService.getTaskContent(taskId);
+        return form;
+    }
+
+    @POST
+    @Produces("application/json")
+    @Path("/{taskId: [0-9-]+}/contentstart/{username}")
+    public Response startTaskContent(@PathParam("taskId") long taskId, @PathParam("username") String userName){
+        internalTaskService.start(taskId, userName);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Produces("application/json")
+    @Path("/{taskId: [0-9-]+}/contentcomplete/{username}")
+    public Response completeTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @PathParam("username") String userName){
+        internalTaskService.complete(taskId,userName, taskOutputContentInfo.outputTaskContent);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Produces("application/json")
+    @Path("/{taskId: [0-9-]+}/contentsave/")
+    public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId){
+        internalTaskService.addContent(taskId, taskOutputContentInfo.outputTaskContent);
+        return Response.ok().build();
+    }
+
+    private List<Long> taskIdList(String source){
+        List<Long> taskIdList = new ArrayList<>();
+        try {
+            if (source != null) {
+                JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
+                if (node != null && node.isArray()) {
+                    for (JsonNode singleFilter : node) {
+                        JsonNode property = singleFilter.get("id");
+                        if (property != null && property.getTextValue() != null)
+                            taskIdList.add(Long.parseLong(property.getTextValue()));
+                    }
+                }
+            }
+        }catch (Exception e){
+
+        }
+        return taskIdList;
+    }
+
+    @POST
+    @Produces("application/json")
+    @Path("/managetasks")
+    public Response manageTasks(@Context UriInfo uriInfo){
+        if(getQueryValue(uriInfo, "tasks") != null) {
+            if (getQueryValue(uriInfo, "assign") != null) {
+                if (getQueryValue(uriInfo, "currentuser") != null) {
+                    List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
+                    for(Long taskId: taskIdList){
+                        assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId);
+                    }
+                }
+            }
+            if(getQueryValue(uriInfo, "setPriority") != null){
+                List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
+                for(Long taskId: taskIdList){
+                    setPriority(Integer.valueOf(getQueryValue(uriInfo, "setPriority")), taskId);
+                }
+
+            }
+            if(getQueryValue(uriInfo, "setDueDate") != null){
+                Date millis = new Date();
+                millis.setTime(Long.valueOf(getQueryValue(uriInfo, "setDueDate")));
+                List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
+                for(Long taskId: taskIdList){
+                    setDueDate(millis , taskId);
+                }
+            }
+            if(getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null){
+                if (getQueryValue(uriInfo, "currentuser") != null) {
+                    List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
+                    for(Long taskId: taskIdList){
+                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
+                            assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
+                        }
+                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Created)) {
+                            assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
+                            internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                        }
+                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Reserved)){
+                            if(!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))){
+                                assignTaskToUser(getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId(), taskId);
+                            }
+                            internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                        }
+                        internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskContent(taskId));
+                    }
+                }
+            }
+        }
+        return Response.ok().build();
+    }
+
+    private boolean assignTaskToUser(String userName, String currentuser, long taskId){
+        Task task = internalTaskService.getTaskById(taskId);
+            if (task != null) {
+                if (task.getTaskData().getStatus().equals(Status.Created)) {
+                    List<OrganizationalEntity> businessAdministrators = task.getPeopleAssignments().getBusinessAdministrators();
+                    boolean check = false;
+                    for(int i = 0;i<businessAdministrators.size();i++){
+                        if(businessAdministrators.get(i).getId().equals(userName)){
+                            check = true;
+                        }
+                    }
+                    if(check) {
+                        internalTaskService.activate(taskId, userName);
+                        assignTaskToUser(userName, currentuser, taskId);
+                    }
+                    return check;
+                }
+                if (task.getTaskData().getStatus().equals(Status.Ready)) {
+                    internalTaskService.claim(taskId, currentuser);
+                    internalTaskService.delegate(taskId, currentuser, userName);
+                }
+                if (task.getTaskData().getStatus().equals(Status.Reserved)) {
+                    if (task.getTaskData().getActualOwner() != null) {
+                        if (!userName.equals("")) {
+                            internalTaskService.delegate(taskId, task.getTaskData().getActualOwner().getId(), userName);
+                        }
+                    }
+                }
+                if (task.getTaskData().getStatus().equals(Status.InProgress)) {
+                    if(!task.getTaskData().getActualOwner().getId().equals(userName)) {
+                        if (task.getTaskData().getActualOwner() != null) {
+                            if (!userName.equals("")) {
+                                internalTaskService.stop(taskId, task.getTaskData().getActualOwner().getId());
+                                internalTaskService.delegate(taskId, task.getTaskData().getActualOwner().getId(), userName);
+                            }
+                        }
+                    }
+                }
+            }
+        return true;
+    }
+
+    private void setDueDate(Date dueDate, long taskId){
+        internalTaskService.setExpirationDate(taskId, dueDate);
+    }
+
+    private void setPriority(int priority, long taskId){
+        internalTaskService.setPriority(taskId, priority);
     }
 }
