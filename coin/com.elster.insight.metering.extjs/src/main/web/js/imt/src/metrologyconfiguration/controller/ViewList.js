@@ -43,10 +43,10 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         
         switch (item.action) {
         	case 'editMetrologyConfiguration':
-        		route = 'administration/metrologyconfiguration/edit';
+        		route = 'administration/metrologyconfiguration/view/edit';
         		break;
         	case 'viewMetrologyConfiguration':
-        		route = 'administration/metrologyconfiguration/view';
+        		route = 'administration/metrologyconfiguration';
         		break;
         	case 'removeMetrologyConfiguration':
                 me.removeMetrologyConfiguration(menu.record);

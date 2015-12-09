@@ -255,7 +255,7 @@ Ext.define('Imt.controller.History', {
                         },
                         view: {
                             title: Uni.I18n.translate('general.label.metrologyconfiguration.view', 'IMT', 'View metrology configuration'),
-                            route: '{mcid}/view',
+                            route: '{mcid}',
                             controller: 'Imt.metrologyconfiguration.controller.View',
                             action: 'showMetrologyConfiguration',
                             callback: function (route) {
@@ -266,19 +266,21 @@ Ext.define('Imt.controller.History', {
 
                                 return this;
                             },
-                        },
-                        edit: {
-                            title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Edit'),
-                            route: '{mcid}/edit',
-                            controller: 'Imt.metrologyconfiguration.controller.Edit',
-                            action: 'editMetrologyConfiguration'
-                        },
-                        manage: {
-                            title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.manage', 'IMT', 'Link validation rule sets'),
-                            route: '{mcid}/manage',
-                            controller: 'Imt.metrologyconfiguration.controller.Edit',
-                            action: 'manageValidationRuleSets',
-                        }                        
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Edit'),
+                                    route: 'edit',
+                                    controller: 'Imt.metrologyconfiguration.controller.Edit',
+                                    action: 'editMetrologyConfiguration'
+                                },
+                                manage: {
+                                    title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.manage', 'IMT', 'Link validation rule sets'),
+                                    route: 'manage',
+                                    controller: 'Imt.metrologyconfiguration.controller.Edit',
+                                    action: 'manageValidationRuleSets',
+                                } 
+                            }
+                        }
                     }
                 }
             }

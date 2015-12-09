@@ -23,7 +23,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
             flex: 1,
             dataIndex: 'name', 
             renderer: function (value, b, record) {
-            	 return '<a href="#/administration/metrologyconfiguration/' + record.get('id') + '/view">' + Ext.String.htmlEncode(value) + '</a>';
+            	 return '<a href="#/administration/metrologyconfiguration/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
             }
         },
         {
