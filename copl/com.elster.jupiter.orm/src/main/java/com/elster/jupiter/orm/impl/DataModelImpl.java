@@ -60,6 +60,7 @@ public class DataModelImpl implements DataModel {
     private Injector injector;
     private final OrmServiceImpl ormService;
     private boolean registered;
+    private Optional<Boolean> isInstalled = Optional.empty();
 
     @Inject
     DataModelImpl(OrmService ormService) {
@@ -122,7 +123,7 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public String toString() {
-        return String.join(" ","DataModel", name, "(" + description + ")");
+        return String.join(" ", "DataModel", name, "(" + description + ")");
     }
 
     private void add(TableImpl<?> table) {
@@ -238,12 +239,12 @@ public class DataModelImpl implements DataModel {
     public SqlDialect getSqlDialect() {
         try (Connection connection = getConnection(false)) {
             if (connection.isWrapperFor(OracleConnection.class)) {
-            	String product = connection.getMetaData().getDatabaseProductVersion();
-            	if (product.contains("Partitioning")) {
-            		return SqlDialect.ORACLE_EE;
-            	} else {
-            		return SqlDialect.ORACLE_SE;
-            	}
+                String product = connection.getMetaData().getDatabaseProductVersion();
+                if (product.contains("Partitioning")) {
+                    return SqlDialect.ORACLE_EE;
+                } else {
+                    return SqlDialect.ORACLE_SE;
+                }
             }
             return SqlDialect.H2;
         } catch (SQLException e) {
@@ -367,11 +368,11 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public <T> QueryExecutor<T> query(Class<T> api, Class<?>... eagers) {
-        return query(mapper(api), eagers);        
+        return query(mapper(api), eagers);
     }
-    
-    public<T> QueryExecutorImpl<T> query(DataMapperImpl<T> root, Class<?> ... eagers) {
-    	DataMapperImpl<?>[] mappers = new DataMapperImpl[eagers.length];
+
+    public <T> QueryExecutorImpl<T> query(DataMapperImpl<T> root, Class<?>... eagers) {
+        DataMapperImpl<?>[] mappers = new DataMapperImpl[eagers.length];
         for (int i = 0; i < eagers.length; i++) {
             Optional<?> mapper = optionalMapper(eagers[i]);
             if (!mapper.isPresent()) {
@@ -385,9 +386,9 @@ public class DataModelImpl implements DataModel {
         }
         return root.with(mappers);
     }
-    
-    public<T> QueryStream<T> stream(Class<T> api) {
-    	return new QueryStreamImpl<>(mapper(api));    
+
+    public <T> QueryStream<T> stream(Class<T> api) {
+        return new QueryStreamImpl<>(mapper(api));
     }
 
     Module getModule() {
@@ -447,7 +448,10 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public boolean isInstalled() {
-        return ormService.isInstalled(this);
+        if (!isInstalled.isPresent()) {
+            isInstalled = Optional.of(ormService.isInstalled(this));
+        }
+        return isInstalled.get();
     }
 
     @Override
@@ -469,31 +473,31 @@ public class DataModelImpl implements DataModel {
         }
     }
 
-	public void dropJournal(Instant upTo, Logger logger) {
-		getTables().forEach(table -> table.dropJournal(upTo, logger));
-	}
+    public void dropJournal(Instant upTo, Logger logger) {
+        getTables().forEach(table -> table.dropJournal(upTo, logger));
+    }
 
-	public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
-		getTables().stream()
-			.filter(table -> table.lifeCycleClass() == lifeCycleClass)
-			.forEach(table -> table.dropData(upTo, logger));
-	}
-	
-	public void createPartitions(Instant upTo, Logger logger) {
-		getTables().stream()
-			.filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)
-			.forEach(table -> partitionCreator(table.getName(), logger).create(upTo));
-	}
+    public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
+        getTables().stream()
+                .filter(table -> table.lifeCycleClass() == lifeCycleClass)
+                .forEach(table -> table.dropData(upTo, logger));
+    }
+
+    public void createPartitions(Instant upTo, Logger logger) {
+        getTables().stream()
+                .filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)
+                .forEach(table -> partitionCreator(table.getName(), logger).create(upTo));
+    }
 
 
-	@Override
-	public DataDropper dataDropper(String tableName, Logger logger) {
-		return new DataDropperImpl(this, tableName, logger);
-	}
+    @Override
+    public DataDropper dataDropper(String tableName, Logger logger) {
+        return new DataDropperImpl(this, tableName, logger);
+    }
 
-	@Override
-	public PartitionCreator partitionCreator(String tableName, Logger logger) {
-		return new PartitionCreatorImpl(this, tableName, logger);
-	}
+    @Override
+    public PartitionCreator partitionCreator(String tableName, Logger logger) {
+        return new PartitionCreatorImpl(this, tableName, logger);
+    }
 
 }
