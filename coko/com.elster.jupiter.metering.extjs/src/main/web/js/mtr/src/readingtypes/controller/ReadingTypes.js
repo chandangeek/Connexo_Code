@@ -79,9 +79,25 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
             store = me.getStore('Mtr.readingtypes.store.ReadingTypes'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
+        me.setCurrentSort();
         widget = Ext.widget('reading-types-setup');
         me.getApplication().fireEvent('changecontentevent', widget);
-        sorting.setCurrentSort();
+        sorting.updateSortingToolbar();
+    },
+
+    setCurrentSort: function () {
+        var me = this,
+            store = me.getStore('Mtr.readingtypes.store.ReadingTypes'),
+            sorting = store.getProxy().extraParams['sort'];
+
+        if (sorting === undefined || sorting === '[]') { // set default filters
+            sorting = [];
+            sorting.push({
+                property: 'fullAliasName',
+                direction: Uni.component.sort.model.Sort.ASC
+            });
+            store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        }
     },
 
     showPreview: function (selectionModel, record) {

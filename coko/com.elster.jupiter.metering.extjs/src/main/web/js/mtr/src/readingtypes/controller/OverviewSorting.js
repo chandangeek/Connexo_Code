@@ -162,22 +162,6 @@ Ext.define('Mtr.readingtypes.controller.OverviewSorting', {
 
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         me.updateSortingToolbarAndResults();
-    },
-
-    setCurrentSort: function () {
-        var me = this,
-            store = me.getStore('Mtr.readingtypes.store.ReadingTypes'),
-            sorting = store.getProxy().extraParams['sort'];
-
-        if (sorting === undefined || sorting === '[]') { // set default filters
-            sorting = [];
-            sorting.push({
-                property: 'fullAliasName',
-                direction: Uni.component.sort.model.Sort.ASC
-            });
-            store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
-        }
-        me.updateSortingToolbar();
     }
 });
 
