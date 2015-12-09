@@ -61,6 +61,10 @@
             <artifactId>bpm.rest</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.partners</groupId>
+            <artifactId>connexo.filter</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
         </dependency>
@@ -93,6 +97,10 @@
             <artifactId>events.rest</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.partners</groupId>
+            <artifactId>facts.filter</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fileimport</artifactId>
         </dependency>
@@ -103,6 +111,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fileimport.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.partners</groupId>
+            <artifactId>flow.filter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
