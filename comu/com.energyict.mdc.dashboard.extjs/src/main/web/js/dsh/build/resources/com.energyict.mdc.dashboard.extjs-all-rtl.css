@@ -2036,7 +2036,8 @@
 }
 
 .breakdown .x-panel-tile {
-    padding: 20px
+    padding: 20px;
+    margin-right: 0 !important;
 }
 
 .breakdown .x-panel-tile .x-toolbar-footer {
@@ -2111,4 +2112,13 @@
 
 .quick-links ul li {
     line-height: 25px
+}
+
+.heatmap {
+    border-radius: 10px;
+    padding: 10px 10px 10px 10px;
+    border-width: 1px;
+    border-style: solid;
+    background-color: white;
+    border-color: #cbcbcb;
 }

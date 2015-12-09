@@ -49,7 +49,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
                 items: [
                     {
                         xtype: 'summary',
-                        flex: 2,
+                        flex: 2.05,
                         wTitle: Uni.I18n.translate('communication.widget.summary.title', 'DSH', 'Communications summary'),
                         parent: 'communications',
                         router: me.router
@@ -57,12 +57,14 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     {
                         xtype: 'communication-servers',
                         itemId: 'communication-servers',
-                        router: me.router
+                        router: me.router,
+                        flex: 1
                     },
                     {
                         xtype: 'quick-links',
                         itemId: 'quick-links',
                         maxHeight:256,
+                        flex: 1,
                         overflowY:'auto',
                         style: {
                             marginRight: '0',

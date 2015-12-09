@@ -2604,6 +2604,7 @@
 /* line 78, ../../sass/etc/all.scss */
 .breakdown .x-panel-tile {
   padding: 20px;
+  margin-right: 0 !important;
 }
 
 /* line 81, ../../sass/etc/all.scss */
@@ -2696,4 +2697,13 @@
 /* line 147, ../../sass/etc/all.scss */
 .quick-links ul li {
   line-height: 25px;
+}
+
+.heatmap {
+  border-radius: 10px;
+  padding: 10px 10px 10px 10px;
+  border-width: 1px;
+  border-style: solid;
+  background-color: white;
+  border-color: #cbcbcb;
 }
