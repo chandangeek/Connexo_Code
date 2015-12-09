@@ -317,7 +317,6 @@ Ext.define('Uni.view.search.field.Selection', {
         me.bindStore(me.store || 'ext-empty-store', true);
         me.grid = me.down('grid');
         me.on('menushow', me.viewSync, me);
-        me.store.load();
     },
 
     viewSync: function() {

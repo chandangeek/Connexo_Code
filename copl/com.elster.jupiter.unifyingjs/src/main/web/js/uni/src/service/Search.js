@@ -429,6 +429,10 @@ Ext.define('Uni.service.Search', {
                 displayField: 'displayValue',
                 multiSelect: property.get('selectionMode') === 'multiple'
             });
+
+            if (!me.isStateLoad) {
+                store.load();
+            }
         }
 
         if (property.get('constraints') && property.get('constraints').length && me.checkConstraints(property)) {
