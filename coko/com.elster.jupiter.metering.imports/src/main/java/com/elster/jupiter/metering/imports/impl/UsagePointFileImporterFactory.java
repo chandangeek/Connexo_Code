@@ -1,7 +1,11 @@
 package com.elster.jupiter.metering.imports.impl;
 
-import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -13,33 +17,31 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.metering.imports.impl.usagepointfileimporterfactory", service = {FileImporterFactory.class}, immediate = true, property = {})
-public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
+public class UsagePointFileImporterFactory implements FileImporterFactory {
 
     static final String NAME = "UsagePointFileImporterFactory";
     static final String APP_NAME = "MDC";
 
     private volatile Clock clock;
+    private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
+    private volatile PropertySpecService propertySpecService;
     private volatile FileImportService fileImportService;
     private volatile Map<String, UsagePointParser> parsers = new HashMap<>();
 
     public UsagePointFileImporterFactory() {
     }
 
-    @Override
-    protected void init() {
-    }
-
     @Inject
-    public UsagePointFileImporterFactory(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties, FileImportService fileImportService, MeteringService meteringService, Clock clock) {
-        super(thesaurus, propertySpecService, properties);
+    public UsagePointFileImporterFactory(Thesaurus thesaurus, PropertySpecService propertySpecService, FileImportService fileImportService, MeteringService meteringService, Clock clock) {
+        this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
         this.fileImportService = fileImportService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -58,8 +60,7 @@ public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        FileImporter fileImporter = new UsagePointFileImporter(getThesaurus(), getMeteringService(), getParsers(), getDataProcessor());
-        return fileImporter;
+        return new UsagePointFileImporter(thesaurus, getMeteringService(), getParsers(), getDataProcessor());
     }
 
     @Override
@@ -78,30 +79,17 @@ public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
     }
 
     @Override
+    public String getDisplayName() {
+        return thesaurus.getString(NAME, NAME);
+    }
+
+    @Override
     public void validateProperties(List<FileImporterProperty> properties) {
-        for (FileImporterProperty property : properties) {
-        }
-    }
-
-    @Override
-    public String getDefaultFormat() {
-        return "";
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        return "";
-    }
-
-    @Override
-    public List<String> getRequiredProperties() {
-        return getPropertySpecs().stream().filter(p -> p.isRequired()).map(PropertySpec::getName).collect(Collectors.toList());
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>();
-        return propertySpecs;
+        return Collections.emptyList();
     }
 
     public Clock getClock() {
@@ -115,7 +103,7 @@ public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
-        super.setPropertySpecService(propertySpecService);
+        this.propertySpecService = propertySpecService;
     }
 
     public MeteringService getMeteringService() {
@@ -129,7 +117,11 @@ public class UsagePointFileImporterFactory extends FileImporterAbstractFactory {
 
     @Reference
     public void setThesaurus(NlsService nlsService) {
-        super.setThesaurus(nlsService);
+        this.thesaurus = nlsService.getThesaurus(FileImportService.COMPONENT_NAME, Layer.REST);
+    }
+
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     public Map<String, UsagePointParser> getParsers() {
