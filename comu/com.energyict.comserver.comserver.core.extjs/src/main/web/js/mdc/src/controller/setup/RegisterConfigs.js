@@ -273,7 +273,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             values = form.getValues(),
             newObisCode = form.down('#editObisCodeField').getValue(),
             originalObisCode = form.down('#editOverruledObisCodeField').getValue(),
-            useMultiplier = form.down('#multiplierRadioGroup').getValue().useMultiplier,
+            asText = form.down('#valueTypeRadioGroup').getValue().asText,
+            useMultiplier = asText ? false : form.down('#multiplierRadioGroup').getValue().useMultiplier,
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo'),
             router = this.getController('Uni.controller.history.Router');
@@ -298,6 +299,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     }
                 } else {
                     record.setCalculatedReadingType(null);
+                    if (asText) {
+                        record.set('multiplier', false);
+                    }
                 }
 
                 record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
