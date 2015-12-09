@@ -66,7 +66,10 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         model.load(mcid, {
             success: function (record) {
                 var form = widget.down('form');
-                me.modelToForm(record, form);
+                if (form) {
+                    form.setTitle("Edit '" + record.get('name') + "'");
+                    me.modelToForm(record, form);
+                }
             },
             callback: function () {
                 widget.setLoading(false);
@@ -84,6 +87,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         		route = 'administration/metrologyconfiguration';
         		break;
         	case 'saveModel':
+        		route = 'administration/metrologyconfiguration';
         		me.saveModel(button);
         		break;
 
@@ -206,6 +210,10 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             success: function (record) {
                 view.down('#metrologyConfigValRulesSetEditForm').getForm().findField('mcid').setValue(id);
                 view.down('#metrologyConfigValRulesSetEditForm').getForm().findField('name').setValue(record.get('name'));  
+                var form = view.down('form');
+                if (form) {
+                    form.setTitle("Link validation rule sets to '" + record.get('name') + "'");
+                }
             }
         });
 
@@ -215,7 +223,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 		linkedStore = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkedValidationRulesSets').getStore();
 		linkableStore = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkableValidationRulesSets').getStore();
 		addItems = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkableValidationRulesSets').getValue();
-		
+				
 		var arrayModels = new Array();
 		addItems.forEach(function(entry) {
 				var rec = linkedStore.findRecord('id', entry);
