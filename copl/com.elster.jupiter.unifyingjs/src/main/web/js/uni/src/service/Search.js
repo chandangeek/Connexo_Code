@@ -270,7 +270,6 @@ Ext.define('Uni.service.Search', {
             searchResults.removeAll();
         }
 
-        debugger;
         me.fireEvent('applyFilters', me, filters);
     },
 
