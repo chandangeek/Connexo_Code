@@ -29,11 +29,6 @@ public class ServiceCategoryValueFactory implements ValueFactory<ServiceCategory
     }
 
     @Override
-    public String getDatabaseTypeName() {
-        return "number";
-    }
-
-    @Override
     public int getJdbcType() {
         return Types.INTEGER;
     }
@@ -67,11 +62,6 @@ public class ServiceCategoryValueFactory implements ValueFactory<ServiceCategory
     @Override
     public void bind(SqlBuilder builder, ServiceCategoryForTestingPurposes serviceCategory) {
         builder.addInt(serviceCategory.ordinal());
-    }
-
-    @Override
-    public int getObjectFactoryId() {
-        return 0;
     }
 
     @Override
