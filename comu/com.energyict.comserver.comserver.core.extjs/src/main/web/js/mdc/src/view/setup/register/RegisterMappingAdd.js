@@ -80,6 +80,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                     action: 'cancel',
                                     xtype: 'button',
+                                    itemId: 'cancelButton',
                                     ui: 'link',
                                     listeners: {
                                         click: {
