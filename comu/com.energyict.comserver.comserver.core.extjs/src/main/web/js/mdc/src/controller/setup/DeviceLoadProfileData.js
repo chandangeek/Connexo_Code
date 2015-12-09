@@ -101,8 +101,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         initView = function (device) {
             var record = me.getLoadProfile(),
                 dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
-                durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations')
-                ;
+                durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
 
             durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
 
@@ -112,7 +111,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 viewport.setLoading(false);
                 var all = dataIntervalAndZoomLevels.get('all'),
                     intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
-
                 widget = Ext.widget('tabbedDeviceLoadProfilesView',{
                     device: device,
                     loadProfileId: loadProfileId,
@@ -147,7 +145,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 tabController.showTab(1);
                 Ext.resumeLayouts(true);
 
-                !isTable && widget.setLoading();
+                if (!isTable) {
+                    widget.setLoading(); // If you entered via the URL
+                    var applyBtn = widget.down('#filter-apply-all');
+                    if (applyBtn) {
+                        applyBtn.on('click', function () {
+                            widget.setLoading(); // If you entered by clicking the Apply
+                        }, me);
+                    }
+                }
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
                         Ext.suspendLayouts();
@@ -155,7 +161,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                             me.showGraphView(record);
                         }
 
-                        widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
+                        widget.down('#readingsCount') &&
+                            widget.down('#readingsCount').setVisible(
+                                widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count()
+                            );
                         Ext.resumeLayouts(true);
                         widget.setLoading(false);
                     }
@@ -172,7 +181,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 func();
             }
         };
-
         if (loadProfile) {
             me.setLoadProfile(loadProfile);
             defer.setCallback(initView);
@@ -240,10 +248,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             measurementTypeOrder.push(channel.name);
             seriesObject['yAxis'] = currentLine;
             currentLine += 1;
-            var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.fullAliasName : channel.readingType.fullAliasName;
+            var channelName = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.fullAliasName : channel.readingType.fullAliasName;
             channels.push(
                 {
-                    name: channelHeader,
+                    name: channelName,
                     unitOfMeasure: !Ext.isEmpty(channel.calculatedReadingType)
                         ? channel.calculatedReadingType.names.unitOfMeasure : channel.readingType.names.unitOfMeasure
                 }
@@ -262,7 +270,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     gridLineDashStyle: 'Dot',
                     showEmpty: false
                 },
-                yAxisTitle = channel.name + ', ' + channel.unitOfMeasure;
+                yAxisTitle = channel.name;
 
 
             if (index == 0) {

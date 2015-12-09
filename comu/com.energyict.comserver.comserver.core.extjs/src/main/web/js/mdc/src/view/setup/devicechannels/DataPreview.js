@@ -219,13 +219,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 : channel.readingType.names.unitOfMeasure;
         }
         if (me.channels) {
-            if (record.get('channelValidationData')[channelId]) {
+            if (record && record.get('channelValidationData')[channelId]) {
                 validationInfo = (type == 'main')
                     ? record.get('channelValidationData')[channelId].mainValidationInfo
                     : record.get('channelValidationData')[channelId].bulkValidationInfo;
             }
         } else {
-            validationInfo = record.get(type + 'ValidationInfo');
+            if (record) {
+                validationInfo = record.get(type + 'ValidationInfo');
+            }
         }
 
         if (validationInfo && validationInfo.validationResult) {
@@ -326,10 +328,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
 
         if (me.channels) {
             Ext.Array.each(me.channels, function (channel) {
-                var calculatedReadingType = channel.calculatedReadingType;
+                var calculatedReadingType = channel.calculatedReadingType,
+                    channelName = !Ext.isEmpty(channel.calculatedReadingType)
+                        ? channel.calculatedReadingType.fullAliasName
+                        : channel.readingType.fullAliasName,
                     valueItem = {
                         xtype: 'fieldcontainer',
-                        fieldLabel: channel.name,
+                        fieldLabel: channelName,
                         itemId: 'channelFieldContainer' + channel.id,
                         labelAlign: 'top',
                         labelWidth: 400,
@@ -337,6 +342,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         margin: '20 0 0 0',
                         items: []
                     };
+
                 valueItem.items.push(
                     {
                         fieldLabel: calculatedReadingType
