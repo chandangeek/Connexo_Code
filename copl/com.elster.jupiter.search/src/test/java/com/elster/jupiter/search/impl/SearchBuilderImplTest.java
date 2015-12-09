@@ -619,11 +619,6 @@ public class SearchBuilderImplTest {
         }
 
         @Override
-        public String getDatabaseTypeName() {
-            return "varchar2(4000)";
-        }
-
-        @Override
         public int getJdbcType() {
             return java.sql.Types.VARCHAR;
         }
@@ -646,11 +641,6 @@ public class SearchBuilderImplTest {
         @Override
         public void bind(SqlBuilder sqlBuilder, Example example) {
             sqlBuilder.addObject(this.valueToDatabase(example));
-        }
-
-        @Override
-        public int getObjectFactoryId() {
-            return 0;
         }
 
         @Override
