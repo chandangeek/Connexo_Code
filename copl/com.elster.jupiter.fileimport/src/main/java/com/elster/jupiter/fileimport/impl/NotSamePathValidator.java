@@ -30,9 +30,12 @@ public class NotSamePathValidator implements ConstraintValidator<NotSamePath, Im
     }
 
     private boolean areTheSame(ImportSchedule importSchedule) {
-        Path importDirectory = importSchedule.getImportDirectory();
+        if(importSchedule.getImportDirectory() != null) {
+            Path importDirectory = importSchedule.getImportDirectory();
 
-        return importDirectory.equals(importSchedule.getInProcessDirectory()) || importDirectory.equals(importSchedule.getSuccessDirectory()) ||
-                importDirectory.equals(importSchedule.getFailureDirectory());
+            return importDirectory.equals(importSchedule.getInProcessDirectory()) || importDirectory.equals(importSchedule.getSuccessDirectory()) ||
+                    importDirectory.equals(importSchedule.getFailureDirectory());
+        }
+        return true;
     }
 }

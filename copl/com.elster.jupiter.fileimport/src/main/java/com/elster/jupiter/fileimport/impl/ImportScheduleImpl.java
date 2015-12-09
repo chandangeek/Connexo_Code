@@ -22,6 +22,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.nio.file.FileSystem;
@@ -55,12 +56,16 @@ final class ImportScheduleImpl implements ServerImportSchedule {
 
     private transient DestinationSpec destination;
 
+    @NonNullPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_PATH_REQUIRED + "}")
     @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path importDirectory;
+    @NonNullPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_PATH_REQUIRED + "}")
     @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path inProcessDirectory;
+    @NonNullPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_PATH_REQUIRED + "}")
     @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path successDirectory;
+    @NonNullPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_PATH_REQUIRED + "}")
     @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path failureDirectory;
 
