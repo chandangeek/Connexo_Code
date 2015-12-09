@@ -5,30 +5,31 @@ import com.elster.jupiter.bpm.rest.*;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.DateTimeUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.omg.CORBA.ExceptionList;
-import sun.util.calendar.JulianCalendar;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -452,6 +453,8 @@ public class BpmResource {
             List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
                     .filter(s -> filtredConnexoProcesses.stream().anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion().equals(s.version)))
                     .collect(Collectors.toList());
+            bpmProcesses.stream()
+                    .forEach(s -> s.id = s.id + s.deploymentId);
             return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
         }
         return null;
@@ -628,14 +631,20 @@ public class BpmResource {
     }
 
     @GET
-    @Path("/processcontent/{id}")
+    @Path("/processcontent/{id}/{deploymentId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public TaskContentInfos getProcessContent(@PathParam("id") String id) {
+    public TaskContentInfos getProcessContent(@PathParam("id") String id, @PathParam("deploymentId") String deploymentId) {
         String jsonContent;
+        String processId = null;
+        try {
+            processId = id.replace(URLDecoder.decode(deploymentId, "UTF-8"),"");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         JSONObject obj = null;
         TaskContentInfos taskContentInfos = null;
         try {
-            String rest = "/rest/tasks/process/" + id + "/content";
+            String rest = "/rest/tasks/process/" + deploymentId + "/content/"+ processId;
             jsonContent = bpmService.getBpmServer().doGet(rest);
             if (!"".equals(jsonContent)) {
                 obj = new JSONObject(jsonContent);
@@ -651,10 +660,11 @@ public class BpmResource {
     }
 
     @PUT
-    @Path("/processcontent/{id}/")
+    @Path("/processcontent/{id}/{deploymentId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id) {
+    public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id, @PathParam("deploymentId") String deploymentId) {
         Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id);
+        id = id.replace(taskContentInfos.deploymentId,"");
         if(taskContentInfos.deploymentId != null && taskContentInfos.mrid != null) {
             expectedParams.put("mrid", taskContentInfos.mrid);
             bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams);
@@ -730,9 +740,9 @@ public class BpmResource {
     }
 
     private Map<String, Object> getOutputContent(TaskContentInfos taskContentInfos, long taskId, String processId){
-        TaskContentInfos taskContents = null;
+        TaskContentInfos taskContents;
         if(processId != null) {
-            taskContents = getProcessContent(processId);
+            taskContents = getProcessContent(processId, taskContentInfos.deploymentId);
         }else{
             taskContents = getTaskContent(taskId);
         }
