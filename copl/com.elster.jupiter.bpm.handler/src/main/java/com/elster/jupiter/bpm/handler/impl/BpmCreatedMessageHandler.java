@@ -33,7 +33,9 @@ public class BpmCreatedMessageHandler implements MessageHandler{
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 String paramValue = "&";
                 try {
-                    paramValue = URLEncoder.encode(entry.getValue().toString(), "UTF-8") +"&";
+                    if(entry.getValue() != null) {
+                        paramValue = URLEncoder.encode(entry.getValue().toString(), "UTF-8") + "&";
+                    }
                 } catch (UnsupportedEncodingException e) {
                 }
                 result += "map_" + entry.getKey() + "=" + paramValue;
