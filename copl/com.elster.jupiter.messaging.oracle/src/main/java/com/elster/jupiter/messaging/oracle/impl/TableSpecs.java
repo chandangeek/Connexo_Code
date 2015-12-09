@@ -16,6 +16,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<QueueTableSpec> table = dataModel.addTable(name(), QueueTableSpec.class);
             table.map(QueueTableSpecImpl.class);
+            table.cache();
             Column nameColumn = table.column("NAME").varChar(30).notNull().map("name").add();
             table.column("PAYLOADTYPE").varChar(30).notNull().map("payloadType").add();
             table.column("MULTICONSUMER").bool().map("multiConsumer").add();
@@ -28,6 +29,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DestinationSpec> table = dataModel.addTable(name(), DestinationSpec.class);
             table.map(DestinationSpecImpl.class);
+            table.cache();
             Column nameColumn = table.column("NAME").varChar(30).notNull().map("name").add();
             Column queueTableNameColumn = table.column("QUEUETABLENAME").varChar(30).notNull().map("queueTableName").add();
             table.column("RETRYDELAY").number().notNull().conversion(NUMBER2INT).map("retryDelay").add();
@@ -43,6 +45,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<SubscriberSpec> table = dataModel.addTable(name(), SubscriberSpec.class);
             table.map(SubscriberSpecImpl.class);
+            table.cache();
             Column destinationColumn = table.column("DESTINATION").varChar(30).notNull().add();
             Column nameColumn = table.column("NAME").varChar(30).notNull().map("name").add();
             table.column("SYSTEMMANAGED").bool().map("systemManaged").add();
