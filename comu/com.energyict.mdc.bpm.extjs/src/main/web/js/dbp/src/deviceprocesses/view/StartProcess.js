@@ -47,10 +47,18 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                         itemId: 'frm-process-start',
                         margin: '0 0 0 0',
                         layout: {
-                            type: 'hbox',
+                            type: 'vbox',
                             align: 'left'
                         },
                         items: [
+                            {
+                                itemId: 'form-errors',
+                                xtype: 'uni-form-error-message',
+                                name: 'form-errors',
+                                width: 600,
+                                margin: '0 0 10 0',
+                                hidden: true
+                            },
                             {
                                 xtype: 'combobox',
                                 dataIndex: 'displayname',
@@ -60,7 +68,7 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                                 displayField: 'displayname',
                                 valueField: 'id',
                                 itemId: 'cbo-processes-definition',
-                                //store: 'Dbp.deviceprocesses.store.AvailableProcesses',
+                                allowBlank: false,
                                 width: 600,
                                 labelWidth: 250,
                                 queryMode: 'local',

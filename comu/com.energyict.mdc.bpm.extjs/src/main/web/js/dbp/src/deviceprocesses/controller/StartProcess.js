@@ -152,26 +152,37 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
             processStartContent = me.getProcessStartContent(),
             router = this.getController('Uni.controller.history.Router'),
             startProcessRecord = processStartContent.startProcessRecord,
-            //startProcess = me.getModel('Dbp.deviceprocesses.model.StartProcess'),
+            widget = me.getStartProcess(),
+            form = widget.down('#frm-process-start'),
+            formErrorsPanel = form.down('#form-errors'),
             propertyForm = processStartContent.down('property-form');
 
-        propertyForm.updateRecord();
-        startProcessRecord.beginEdit();
-        startProcessRecord.set('mrid', me.mRID);
-        startProcessRecord.set('deploymentId', me.processRecord.deploymentId);
-        startProcessRecord.save({
-            success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dbp.startprocess.started', 'DBP', 'Process started.'));
-                me.getController('Uni.controller.history.Router').getRoute('devices/device/processes').forward();
-            },
-            failure: function (record, operation) {
-                if (operation.response.status == 400) {
-                    var json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        processStartContent.getForm().markInvalid(json.errors);
+        if (form.isValid()) {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
+            }
+
+            propertyForm.updateRecord();
+            startProcessRecord.beginEdit();
+            startProcessRecord.set('mrid', me.mRID);
+            startProcessRecord.set('deploymentId', me.processRecord.deploymentId);
+            startProcessRecord.save({
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dbp.startprocess.started', 'DBP', 'Process started.'));
+                    me.getController('Uni.controller.history.Router').getRoute('devices/device/processes').forward();
+                },
+                failure: function (record, operation) {
+                    if (operation.response.status == 400) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            processStartContent.getForm().markInvalid(json.errors);
+                        }
                     }
                 }
-            }
-        })
+            })
+        }
+        else {
+            formErrorsPanel.show();
+        }
     }
 });
