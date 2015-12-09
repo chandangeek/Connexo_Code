@@ -71,6 +71,7 @@ Ext.define('Uni.property.controller.Registry', {
         LOADPROFILE: 'Uni.property.view.property.Reference',
         EAN13: 'Uni.property.view.property.Text',
         EAN18: 'Uni.property.view.property.Text',
+        OBISCODE: 'Uni.property.view.property.Text',
         ENCRYPTED_STRING: 'Uni.property.view.property.Password',
         UNKNOWN: 'Uni.property.view.property.Text',
         LISTVALUE: 'Uni.property.view.property.Multiselect',

@@ -108,7 +108,7 @@ Ext.define('Uni.property.form.Property', {
                     userHasEditPrivilege: me.userHasEditPrivilege,
                     userHasViewPrivilege: me.userHasViewPrivilege,
                     showEditButton: me.isMultiEdit,
-                    resetButtonHidden: me.isMultiEdit,
+                    resetButtonHidden: me.defaults.resetButtonHidden || me.isMultiEdit,
                     editButtonTooltip: me.editButtonTooltip,
                     removeButtonTooltip: me.removeButtonTooltip,
                     blankText: me.blankText
