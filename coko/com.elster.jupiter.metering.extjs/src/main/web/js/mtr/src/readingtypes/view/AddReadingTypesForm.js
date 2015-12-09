@@ -21,6 +21,7 @@ Ext.define('Mtr.readingtypes.view.AddReadingTypesForm', {
             {
                 xtype: 'textfield',
                 fieldLabel: Uni.I18n.translate('readingtypesmanagment.addreadingtypes.alias', 'MTR', 'Alias'),
+                itemId: 'alias-name',
                 name: 'aliasName',
                 required: true,
                 allowBlank: false,
@@ -72,6 +73,7 @@ Ext.define('Mtr.readingtypes.view.AddReadingTypesForm', {
                         xtype: 'textfield',
                         margin: '0 0 0 128',
                         emptyText: 'x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x',
+                        itemId: 'cim-code-field',
                         required: true,
                         allowBlank: false,
                         name: 'mRID',
