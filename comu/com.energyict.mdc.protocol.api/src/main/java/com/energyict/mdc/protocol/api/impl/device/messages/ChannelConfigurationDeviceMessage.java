@@ -2,9 +2,7 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -20,37 +18,37 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetFunction(DeviceMessageId.CHANNEL_CONFIGURATION_SET_FUNCTION, "Set function") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(DeviceMessageConstants.SetFunctionAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(propertySpecService, thesaurus, ChannelConfigurationDeviceMessageAttributes.SetFunctionAttributeName));
         }
     },
     SetParameters(DeviceMessageId.CHANNEL_CONFIGURATION_SET_PARAMETERS, "Set parameters") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(DeviceMessageConstants.SetParametersAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(propertySpecService, thesaurus, ChannelConfigurationDeviceMessageAttributes.SetParametersAttributeName));
         }
     },
     SetName(DeviceMessageId.CHANNEL_CONFIGURATION_SET_NAME, "Set name") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(DeviceMessageConstants.SetNameAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(propertySpecService, thesaurus, ChannelConfigurationDeviceMessageAttributes.SetNameAttributeName));
         }
     },
     SetUnit(DeviceMessageId.CHANNEL_CONFIGURATION_SET_UNIT, "Set unit") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(DeviceMessageConstants.SetUnitAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(propertySpecService, thesaurus, ChannelConfigurationDeviceMessageAttributes.SetUnitAttributeName));
         }
     },
     SetLPDivisor(DeviceMessageId.CHANNEL_CONFIGURATION_SET_LP_DIVISOR, "Set loadprofile divisor") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(DeviceMessageConstants.DivisorAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringProperty(propertySpecService, thesaurus, ChannelConfigurationDeviceMessageAttributes.DivisorAttributeName));
         }
     };
 
@@ -91,16 +89,24 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-        propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, true, getBigDecimalValues()));
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        propertySpecs.add(
+                propertySpecService
+                        .bigDecimalSpec()
+                        .named(ChannelConfigurationDeviceMessageAttributes.ID)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .addValues(getBigDecimalValues())
+                        .markExhaustive()
+                        .finish());
     };
 
-    protected PropertySpec stringProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new StringFactory());
+    protected PropertySpec stringProperty(PropertySpecService propertySpecService, Thesaurus thesaurus, ChannelConfigurationDeviceMessageAttributes name) {
+        return propertySpecService.stringSpec().named(name).fromThesaurus(thesaurus).markRequired().finish();
     }
 
 }

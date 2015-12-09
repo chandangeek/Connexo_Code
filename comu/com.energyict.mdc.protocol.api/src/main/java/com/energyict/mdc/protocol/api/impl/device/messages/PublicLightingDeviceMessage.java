@@ -9,83 +9,71 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.beginDatesAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.endDatesAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.latitudeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.longitudeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.offOffsetsAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.onOffsetsAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.relayNumberAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.relayOperatingModeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.threshold;
-
 /**
- * Provides a summary of all <i>public lighting</i> related messages
+ * Provides a summary of all <i>public lighting</i> related messages.
  *
  * Copyrights EnergyICT
  * Date: 12/8/14
  * Time: 11:21 AM
  */
-public enum PublicLightingDeviceMessage  implements DeviceMessageSpecEnum {
+public enum PublicLightingDeviceMessage implements DeviceMessageSpecEnum {
 
     SET_RELAY_OPERATING_MODE(DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_OPERATING_MODE, "Public lighting set relay operating mode"){
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayNumberAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayOperatingModeAttributeName, true, BigDecimal.ZERO, BigDecimal.ONE, BigDecimals.TWO, BigDecimals.THREE));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.relayNumberAttributeName, BigDecimal.ONE, BigDecimals.TWO);
+            this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.relayOperatingModeAttributeName, BigDecimal.ZERO, BigDecimal.ONE, BigDecimals.TWO, BigDecimals.THREE);
         }
     },
     SET_TIME_SWITCHING_TABLE(DeviceMessageId.PUBLIC_LIGHTING_SET_TIME_SWITCHING_TABLE, " Public lighting set time switching table") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayNumberAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.relayNumberAttributeName, BigDecimal.ONE, BigDecimals.TWO);
 //            propertySpecs.add(propertySpecService.referencePropertySpec(configUserFileAttributeName, true, FactoryIds.USERFILE));
         }
     },
     SET_THRESHOLD_OVER_CONSUMPTION(DeviceMessageId.PUBLIC_LIGHTING_SET_THRESHOLD_OVER_CONSUMPTION, "Public lighting set threshold over consumption"){
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(threshold, true, BigDecimal.ZERO));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.threshold, BigDecimal.ZERO);
         }
     },
     SET_OVERALL_MINIMUM_THRESHOLD(DeviceMessageId.PUBLIC_LIGHTING_SET_OVERALL_MINIMUM_THRESHOLD, "Public lighting set overall minimum threshold"){
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(threshold, true, BigDecimal.ZERO));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.threshold, BigDecimal.ZERO);
         }
     },
     SET_OVERALL_MAXIMUM_THRESHOLD(DeviceMessageId.PUBLIC_LIGHTING_SET_OVERALL_MAXIMUM_THRESHOLD, "Public lighting set overall maximum threshold"){
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(threshold, true, BigDecimal.ZERO));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.threshold, BigDecimal.ZERO);
         }
     },
     SET_RELAY_TIME_OFFSETS_TABLE(DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_TIME_OFFSETS_TABLE, "Public lighting set relay time offsets table"){
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayNumberAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
-            propertySpecs.add(propertySpecService.stringPropertySpec(beginDatesAttributeName, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(endDatesAttributeName, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(offOffsetsAttributeName, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(onOffsetsAttributeName, true, ""));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.relayNumberAttributeName, BigDecimal.ONE, BigDecimals.TWO);
+            this.addStringSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.beginDatesAttributeName);
+            this.addStringSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.endDatesAttributeName);
+            this.addStringSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.offOffsetsAttributeName);
+            this.addStringSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.onOffsetsAttributeName);
         }
     },
     WRITE_GPS_COORDINATES(DeviceMessageId.PUBLIC_LIGHTING_WRITE_GPS_COORDINATES, "Public lighting write gps coordinates"){
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.stringPropertySpec(latitudeAttributeName, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(longitudeAttributeName, true, ""));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            this.addStringSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.latitudeAttributeName);
+            this.addStringSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.longitudeAttributeName);
         }
-    },
-
-    ;
+    };
 
     private DeviceMessageId id;
     private String defaultTranslation;
@@ -111,13 +99,20 @@ public enum PublicLightingDeviceMessage  implements DeviceMessageSpecEnum {
 
     public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     };
 
-}
+    protected void addStringSpec(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus, PublicLightingDeviceMessageAttributes name) {
+        propertySpecs.add(propertySpecService.stringSpec().named(name).fromThesaurus(thesaurus).markRequired().setDefaultValue("").finish());
+    };
 
+    protected void addBigDecimalSpec(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus, PublicLightingDeviceMessageAttributes name, BigDecimal... values) {
+        propertySpecs.add(propertySpecService.bigDecimalSpec().named(name).fromThesaurus(thesaurus).markRequired().addValues(values).markExhaustive().finish());
+    };
+
+}

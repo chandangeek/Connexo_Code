@@ -5,7 +5,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.device.messages.LoadControlActions;
 import com.energyict.mdc.protocol.api.device.messages.MonitoredValue;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;

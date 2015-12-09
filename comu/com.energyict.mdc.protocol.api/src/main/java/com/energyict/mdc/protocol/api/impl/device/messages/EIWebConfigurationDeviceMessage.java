@@ -2,9 +2,7 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -20,44 +18,44 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetEIWebPassword(DeviceMessageId.EIWEB_SET_PASSWORD, "Set EIWeb password") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetEIWebPasswordAttributeName;
+        protected EIWebConfigurationDeviceMessageAttributes translationKey() {
+            return EIWebConfigurationDeviceMessageAttributes.SetEIWebPasswordAttributeName;
         }
     },
     SetEIWebPage(DeviceMessageId.EIWEB_SET_PAGE, "Set EIWeb web page") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetEIWebPageAttributeName;
+        protected EIWebConfigurationDeviceMessageAttributes translationKey() {
+            return EIWebConfigurationDeviceMessageAttributes.SetEIWebPageAttributeName;
         }
     },
     SetEIWebFallbackPage(DeviceMessageId.EIWEB_SET_FALLBACK_PAGE, "Set EIWeb fallback page") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetEIWebFallbackPageAttributeName;
+        protected EIWebConfigurationDeviceMessageAttributes translationKey() {
+            return EIWebConfigurationDeviceMessageAttributes.SetEIWebFallbackPageAttributeName;
         }
     },
     SetEIWebSendEvery(DeviceMessageId.EIWEB_SET_SEND_EVERY, "Set EIWeb send every") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetEIWebSendEveryAttributeName;
+        protected EIWebConfigurationDeviceMessageAttributes translationKey() {
+            return EIWebConfigurationDeviceMessageAttributes.SetEIWebSendEveryAttributeName;
         }
     },
     SetEIWebCurrentInterval(DeviceMessageId.EIWEB_SET_CURRENT_INTERVAL, "Set EIWeb current interval") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetEIWebCurrentIntervalAttributeName;
+        protected EIWebConfigurationDeviceMessageAttributes translationKey() {
+            return EIWebConfigurationDeviceMessageAttributes.SetEIWebCurrentIntervalAttributeName;
         }
     },
     SetEIWebDatabaseID(DeviceMessageId.EIWEB_SET_DATABASE_ID, "Set EIWeb database ID") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetEIWebDatabaseIDAttributeName;
+        protected EIWebConfigurationDeviceMessageAttributes translationKey() {
+            return EIWebConfigurationDeviceMessageAttributes.SetEIWebDatabaseIDAttributeName;
         }
     },
     SetEIWebOptions(DeviceMessageId.EIWEB_SET_OPTIONS, "Set EIWeb web options") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetEIWebOptionsAttributeName;
+        protected EIWebConfigurationDeviceMessageAttributes translationKey() {
+            return EIWebConfigurationDeviceMessageAttributes.SetEIWebOptionsAttributeName;
         }
     };
 
@@ -86,15 +84,25 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, true, BigDecimal.ONE, BigDecimals.TWO));
-        propertySpecs.add(this.stringProperty(this.propertyName(), propertySpecService));
+        propertySpecs.add(
+                propertySpecService
+                        .bigDecimalSpec()
+                        .named(EIWebConfigurationDeviceMessageAttributes.Id)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .addValues(BigDecimal.ONE, BigDecimals.TWO)
+                        .markExhaustive()
+                        .finish());
+        propertySpecs.add(
+                propertySpecService
+                        .stringSpec()
+                        .named(this.translationKey())
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish());
         return propertySpecs;
     }
 
-    private PropertySpec stringProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new StringFactory());
-    }
-
-    protected abstract String propertyName();
+    protected abstract EIWebConfigurationDeviceMessageAttributes translationKey();
 
 }

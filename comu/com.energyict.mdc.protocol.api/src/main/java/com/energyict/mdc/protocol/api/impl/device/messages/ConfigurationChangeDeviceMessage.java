@@ -2,14 +2,12 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttributes;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -329,21 +327,39 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.MeterScheme, true, FactoryIds.USERFILE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(UserFile.class)
+                            .named(ConfigurationChangeDeviceMessageAttributes.MeterScheme)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     UploadSwitchPointClockSettings(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_SETTINGS, "Upload switch point clock settings") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.SwitchPointClockSettings, true, FactoryIds.USERFILE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(UserFile.class)
+                            .named(ConfigurationChangeDeviceMessageAttributes.SwitchPointClockSettings)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     UploadSwitchPointClockUpdateSettings(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_UPDATE_SETTINGS, "Upload switch point clock update settings") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.SwitchPointClockUpdateSettings, true, FactoryIds.USERFILE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(UserFile.class)
+                            .named(ConfigurationChangeDeviceMessageAttributes.SwitchPointClockUpdateSettings)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
 
@@ -462,13 +478,14 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
-                    propertySpecService.bigDecimalPropertySpecWithValues(
-                            DeviceMessageConstants.AdministrativeStatusAttributeName,
-                            true,
-                            BigDecimal.ZERO,
-                            BigDecimal.ONE,
-                            BigDecimals.TWO,
-                            BigDecimals.THREE));
+                    propertySpecService
+                        .bigDecimalSpec()
+                        .named(DeviceMessageAttributes.AdministrativeStatusAttributeName)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .addValues(BigDecimal.ZERO, BigDecimal.ONE, BigDecimals.TWO, BigDecimals.THREE)
+                        .markExhaustive()
+                        .finish());
         }
 
     },
@@ -508,7 +525,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .stringSpec()
-                            .named(DeviceMessageAttributes.ntpAddress)
+                            .named(ConfigurationChangeDeviceMessageAttributes.ntpAddress)
                             .fromThesaurus(thesaurus)
                             .setDefaultValue("")
                             .markRequired()
@@ -527,7 +544,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .booleanSpec()
-                            .named(DeviceMessageAttributes.enableAutomaticDemandResetAttributeName)
+                            .named(ConfigurationChangeDeviceMessageAttributes.enableAutomaticDemandResetAttributeName)
                             .fromThesaurus(thesaurus)
                             .setDefaultValue(false)
                             .markRequired()
@@ -535,14 +552,14 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .boundedBigDecimalSpec(BigDecimal.ZERO, BigDecimal.valueOf(31))
-                            .named(DeviceMessageAttributes.ConfigurationChangeDeviceMessageDay)
+                            .named(ConfigurationChangeDeviceMessageAttributes.day)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
             propertySpecs.add(
                     propertySpecService
                             .boundedBigDecimalSpec(BigDecimal.ZERO, BigDecimal.valueOf(23))
-                            .named(DeviceMessageAttributes.ConfigurationChangeDeviceMessageHour)
+                            .named(ConfigurationChangeDeviceMessageAttributes.hour)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -552,7 +569,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            Stream.of(DeviceMessageAttributes.localMacAddress, DeviceMessageAttributes.maxCredit, DeviceMessageAttributes.zeroCrossDelay, DeviceMessageAttributes.synchronisationBit)
+            Stream.of(ConfigurationChangeDeviceMessageAttributes.localMacAddress, ConfigurationChangeDeviceMessageAttributes.maxCredit, ConfigurationChangeDeviceMessageAttributes.zeroCrossDelay, ConfigurationChangeDeviceMessageAttributes.synchronisationBit)
                 .map(attributName -> propertySpecService
                         .bigDecimalSpec()
                         .named(attributName)

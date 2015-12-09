@@ -2,20 +2,15 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttributes;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contractAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
 
 /**
  * Provides a summary of all <i>ActivityCalendar</i> related messages.
@@ -31,7 +26,13 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(propertySpecService.referencePropertySpec(contractsXmlUserFileAttributeName, true, FactoryIds.USERFILE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(UserFile.class)
+                            .named(DeviceMessageAttributes.contractsXmlUserFileAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     ACTIVITY_CALENDER_SEND(DeviceMessageId.ACTIVITY_CALENDER_SEND, "Send activity calendar") {
@@ -45,7 +46,13 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
-            propertySpecs.add(propertySpecService.referencePropertySpec(activityCalendarCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(Code.class)
+                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     ACTIVITY_CALENDER_SEND_WITH_DATETIME(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, "Send activity calendar with activation date") {
@@ -59,7 +66,13 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
-            propertySpecs.add(propertySpecService.referencePropertySpec(activityCalendarCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(Code.class)
+                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
             propertySpecs.add(
                     propertySpecService
                             .specForValuesOf(new DateAndTimeFactory())
@@ -89,7 +102,13 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
-            propertySpecs.add(propertySpecService.referencePropertySpec(activityCalendarCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(Code.class)
+                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
             propertySpecs.add(
                     propertySpecService
                             .specForValuesOf(new DateAndTimeFactory())
@@ -110,7 +129,13 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
-            propertySpecs.add(propertySpecService.referencePropertySpec(activityCalendarCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(Code.class)
+                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
             propertySpecs.add(
                     propertySpecService
                             .specForValuesOf(new DateAndTimeFactory())
@@ -124,7 +149,13 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(propertySpecService.referencePropertySpec(specialDaysCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(Code.class)
+                            .named(DeviceMessageAttributes.specialDaysCodeTableAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE, "Send special days calendar with type") {
@@ -140,7 +171,13 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
                             .addValues(ActivityCalendarType.getAllDescriptions())
                             .markExhaustive()
                             .finish());
-            propertySpecs.add(propertySpecService.referencePropertySpec(specialDaysCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(Code.class)
+                            .named(DeviceMessageAttributes.specialDaysCodeTableAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     CLEAR_AND_DISABLE_PASSIVE_TARIFF(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF, "Clear and disable passive tariff"),
@@ -160,7 +197,15 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(contractAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
+            propertySpecs.add(
+                    propertySpecService
+                            .bigDecimalSpec()
+                            .named(DeviceMessageAttributes.activityCalendarContractAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .addValues(BigDecimal.ONE, BigDecimals.TWO)
+                            .markExhaustive()
+                            .finish());
             propertySpecs.add(
                     propertySpecService
                             .stringSpec()
@@ -169,7 +214,13 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
                             .markRequired()
                             .setDefaultValue("")
                             .finish());
-            propertySpecs.add(propertySpecService.referencePropertySpec(activityCalendarCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(Code.class)
+                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
             propertySpecs.add(
                     propertySpecService
                             .specForValuesOf(new DateAndTimeFactory())
@@ -183,8 +234,22 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(contractAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
-            propertySpecs.add(propertySpecService.referencePropertySpec(specialDaysCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(
+                    propertySpecService
+                            .bigDecimalSpec()
+                            .named(DeviceMessageAttributes.activityCalendarContractAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .addValues(BigDecimal.ONE, BigDecimals.TWO)
+                            .markExhaustive()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(Code.class)
+                            .named(DeviceMessageAttributes.specialDaysCodeTableAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
             propertySpecs.add(
                     propertySpecService
                             .specForValuesOf(new DateAndTimeFactory())

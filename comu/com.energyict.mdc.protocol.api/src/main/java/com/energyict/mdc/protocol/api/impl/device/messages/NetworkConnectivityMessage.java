@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
