@@ -75,6 +75,12 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>com.elster.partners</groupId>
+                <artifactId>connexo.filter</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>cps</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
@@ -123,6 +129,12 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>com.elster.partners</groupId>
+                <artifactId>facts.filter</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fileimport</artifactId>
                 <version>2.0.0-SNAPSHOT</version>
@@ -138,6 +150,12 @@
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fileimport.rest</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.partners</groupId>
+                <artifactId>flow.filter</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
