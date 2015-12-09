@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -20,7 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.elster.jupiter.validation.ValidationResult.*;
+import static com.elster.jupiter.validation.ValidationResult.NOT_VALIDATED;
+import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
+import static com.elster.jupiter.validation.ValidationResult.VALID;
 
 class ThresholdValidator extends AbstractValidator {
 
@@ -50,9 +53,8 @@ class ThresholdValidator extends AbstractValidator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(MIN, true, BigDecimal.ZERO));
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(MAX, true, BigDecimal.ZERO));
-
+        builder.add(getPropertySpecService().bigDecimalSpec().named(MIN, MIN).describedAs(MIN).markRequired().setDefaultValue(BigDecimal.ZERO).finish());
+        builder.add(getPropertySpecService().bigDecimalSpec().named(MAX, MAX).describedAs(MAX).markRequired().setDefaultValue(BigDecimal.ZERO).finish());
         return builder.build();
     }
 
@@ -93,7 +95,7 @@ class ThresholdValidator extends AbstractValidator {
                 return null;
         }
     }
-    
+
     @Override
     public List<String> getRequiredProperties() {
         return Arrays.asList(MIN, MAX);
