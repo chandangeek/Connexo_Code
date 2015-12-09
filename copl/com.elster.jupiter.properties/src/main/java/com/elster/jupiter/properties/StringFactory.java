@@ -20,11 +20,6 @@ public class StringFactory extends AbstractValueFactory<String> {
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "varchar2(" + MAX_SIZE + ")";
-    }
-
-    @Override
     public int getJdbcType () {
         return java.sql.Types.VARCHAR;
     }

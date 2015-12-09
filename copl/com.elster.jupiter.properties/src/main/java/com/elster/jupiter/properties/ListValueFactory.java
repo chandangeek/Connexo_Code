@@ -22,11 +22,6 @@ public class ListValueFactory<T extends HasIdAndName> extends AbstractValueFacto
     }
 
     @Override
-    public String getDatabaseTypeName() {
-        return "varchar2(" + MAX_SIZE + ")";
-    }
-
-    @Override
     public int getJdbcType() {
         return java.sql.Types.VARCHAR;
     }

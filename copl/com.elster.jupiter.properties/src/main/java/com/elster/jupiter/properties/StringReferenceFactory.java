@@ -29,11 +29,6 @@ public class StringReferenceFactory<T extends HasIdAndName> extends AbstractValu
     }
 
     @Override
-    public String getDatabaseTypeName() {
-        return "varchar2(256)";
-    }
-
-    @Override
     public int getJdbcType() {
         return java.sql.Types.VARCHAR;
     }

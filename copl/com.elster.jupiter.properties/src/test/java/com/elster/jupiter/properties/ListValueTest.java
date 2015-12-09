@@ -44,7 +44,6 @@ public class ListValueTest {
         ListValueFactory<TestBean> factory = new ListValueFactory<>(new TestBeanFinder());
 
         assertThat(factory.getValueType().isAssignableFrom(ListValue.class)).isTrue();
-        assertThat(factory.getDatabaseTypeName()).isEqualTo("varchar2(4000)");
         assertThat(factory.getJdbcType()).isEqualTo(java.sql.Types.VARCHAR);
     }
 

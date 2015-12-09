@@ -28,11 +28,6 @@ public class RelativePeriodFactory extends AbstractValueFactory<RelativePeriod> 
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "number";
-    }
-
-    @Override
     public int getJdbcType () {
         return java.sql.Types.NUMERIC;
     }

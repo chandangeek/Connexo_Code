@@ -1,10 +1,7 @@
 package com.elster.jupiter.properties;
 
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.Instant;
 
 /**
@@ -20,11 +17,6 @@ public class InstantFactory extends AbstractValueFactory<Instant> {
     @Override
     public Class<Instant> getValueType() {
         return Instant.class;
-    }
-
-    @Override
-    public String getDatabaseTypeName () {
-        return "number";
     }
 
     @Override

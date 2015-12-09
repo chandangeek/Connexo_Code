@@ -13,10 +13,7 @@ import java.sql.SQLException;
  */
 public abstract class AbstractValueFactory<T> implements ValueFactory<T> {
 
-    @Override
-    public int getObjectFactoryId() {
-        return 0;
-    }
+    protected abstract int getJdbcType();
 
     @Override
     public boolean isReference () {

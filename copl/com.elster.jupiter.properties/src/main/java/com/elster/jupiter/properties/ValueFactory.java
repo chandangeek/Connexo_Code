@@ -23,10 +23,6 @@ public interface ValueFactory<T> {
 
     boolean isReference();
 
-    String getDatabaseTypeName();
-
-    int getJdbcType();
-
     T valueFromDatabase(Object object);
 
     Object valueToDatabase(T object);
@@ -34,8 +30,6 @@ public interface ValueFactory<T> {
     void bind(PreparedStatement statement, int offset, T value) throws SQLException;
 
     void bind(SqlBuilder builder, T value);
-
-    int getObjectFactoryId();
 
     /**
      * Test if the specified value is persistent.

@@ -10,6 +10,9 @@ import java.math.BigDecimal;
 
 /**
  * Provides services to build {@link PropertySpec}s.
+ * The base method is {@link #specForValuesOf(ValueFactory)}
+ * but convenience methods have been introduced for the commonly
+ * used data types such as String, BigDecimal and Boolean.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-17 (10:54)
@@ -70,6 +73,14 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<BigDecimal> positiveBigDecimalSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of persistent instances of the specified api class.
+     *
+     * @return The PropertySpecBuilder
+     */
+    <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass);
 
     /**
      * Creates a {@link PropertySpec} for a String value with a default value.

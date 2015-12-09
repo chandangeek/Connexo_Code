@@ -20,11 +20,6 @@ public class ThreeStateFactory extends AbstractValueFactory<Boolean> {
         return Boolean.class;
     }
 
-    @Override
-    public String getDatabaseTypeName() {
-        return "number(1)";
-    }
-
     public int getJdbcType() {
         return Types.INTEGER;
     }

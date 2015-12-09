@@ -31,11 +31,6 @@ public class EnumFactory extends AbstractValueFactory<Enum> {
     }
 
     @Override
-    public String getDatabaseTypeName() {
-        return "varchar2(40)";
-    }
-
-    @Override
     public int getJdbcType() {
         return java.sql.Types.VARCHAR;
     }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.properties.impl;
 
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
@@ -10,6 +11,7 @@ import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.StringFactory;
@@ -35,6 +37,7 @@ import java.math.BigDecimal;
 public class PropertySpecServiceImpl implements PropertySpecService {
 
     private volatile TimeService timeService;
+    private volatile OrmService ormService;
 
     // For OSGi purposes
     public PropertySpecServiceImpl() {
@@ -43,14 +46,26 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     // For testing purposes
     @Inject
-    public PropertySpecServiceImpl(TimeService timeService) {
+    public PropertySpecServiceImpl(TimeService timeService, OrmService ormService) {
         this();
         this.setTimeService(timeService);
+        this.setOrmService(ormService);
     }
 
     @Reference
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
+    @Override
+    public <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass) {
+        ReferenceValueFactory<T> valueFactory = new ReferenceValueFactory<T>(this.ormService).init(apiClass);
+        return this.specForValuesOf(valueFactory);
     }
 
     @Override
@@ -141,7 +156,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public <T> PropertySpecBuilder<T> specForValuesOf(ValueFactory<T> valueFactory) {
+    public <T> PropertySpecBuilderWizard.NlsOptions<T> specForValuesOf(ValueFactory<T> valueFactory) {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
 

@@ -15,11 +15,6 @@ public class LongFactory extends AbstractValueFactory<Long> {
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "number";
-    }
-
-    @Override
     public int getJdbcType () {
         return java.sql.Types.NUMERIC;
     }

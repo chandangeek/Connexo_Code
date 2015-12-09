@@ -17,11 +17,6 @@ public class TimeZoneFactory extends AbstractValueFactory<TimeZone> {
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "varchar2(4000)";
-    }
-
-    @Override
     public int getJdbcType () {
         return java.sql.Types.VARCHAR;
     }

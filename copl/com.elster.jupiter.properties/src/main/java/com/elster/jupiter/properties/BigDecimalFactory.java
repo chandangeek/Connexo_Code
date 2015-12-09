@@ -19,11 +19,6 @@ public class BigDecimalFactory extends AbstractValueFactory<BigDecimal> {
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "number";
-    }
-
-    @Override
     public int getJdbcType () {
         return java.sql.Types.NUMERIC;
     }
