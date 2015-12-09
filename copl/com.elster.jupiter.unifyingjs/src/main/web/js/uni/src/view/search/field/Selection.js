@@ -100,7 +100,9 @@ Ext.define('Uni.view.search.field.Selection', {
             criteria: value
         }) : null);
 
-        me.down('#filter-selected').setDisabled(!me.selection.length);
+        if (me.rendered) {
+            me.down('#filter-selected').setDisabled(!me.selection.length);
+        }
     },
 
     reset: function () {

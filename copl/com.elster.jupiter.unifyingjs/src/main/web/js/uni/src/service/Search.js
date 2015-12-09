@@ -149,6 +149,9 @@ Ext.define('Uni.service.Search', {
         ) {
             me.searchDomain = domain;
 
+            me.filters.removeAll();
+            me.fireEvent('reset', me.filters);
+
             searchProperties.removeAll();
             searchFields.removeAll();
             searchResults.removeAll(true);
@@ -203,9 +206,6 @@ Ext.define('Uni.service.Search', {
         Ext.getStore('Uni.property.store.TimeUnits').load();
         me.initStoreListeners();
         Ext.suspendLayouts();
-
-        me.filters.removeAll();
-        me.fireEvent('reset', me.filters);
 
         me.initCriteria();
         me.saveState();
