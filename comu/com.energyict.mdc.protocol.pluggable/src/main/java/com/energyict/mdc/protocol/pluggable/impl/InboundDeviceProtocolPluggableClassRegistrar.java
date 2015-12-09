@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -30,10 +29,9 @@ public class InboundDeviceProtocolPluggableClassRegistrar extends PluggableClass
 
     public void registerAll(List<InboundDeviceProtocolService> inboundDeviceProtocolServices) {
         for (InboundDeviceProtocolService inboundDeviceProtocolService : inboundDeviceProtocolServices) {
-            boolean registerNext = true;
             Collection<PluggableClassDefinition> pluggableClasses = inboundDeviceProtocolService.getExistingInboundDeviceProtocolPluggableClasses();
             Iterator<PluggableClassDefinition> pluggableClassDefinitionIterator = pluggableClasses.iterator();
-            while (registerNext && pluggableClassDefinitionIterator.hasNext()) {
+            while (pluggableClassDefinitionIterator.hasNext()) {
                 PluggableClassDefinition definition = pluggableClassDefinitionIterator.next();
                 try {
                     if (this.inboundDeviceProtocolDoesNotExist(definition)) {
@@ -43,10 +41,6 @@ public class InboundDeviceProtocolPluggableClassRegistrar extends PluggableClass
                     else {
                         this.alreadyExists(definition);
                     }
-                }
-                catch (NoFinderComponentFoundException e) {
-                    this.factoryComponentMissing();
-                    registerNext = false;
                 }
                 catch (RuntimeException e) {
                     if (e.getCause() != null) {

@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -30,10 +29,9 @@ public class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistr
 
     public void registerAll(List<ConnectionTypeService> connectionTypeServices) {
         for (ConnectionTypeService connectionTypeService : connectionTypeServices) {
-            boolean registerNext = true;
             Collection<PluggableClassDefinition> pluggableClasses = connectionTypeService.getExistingConnectionTypePluggableClasses();
             Iterator<PluggableClassDefinition> pluggableClassDefinitionIterator = pluggableClasses.iterator();
-            while (registerNext && pluggableClassDefinitionIterator.hasNext()) {
+            while (pluggableClassDefinitionIterator.hasNext()) {
                 PluggableClassDefinition definition = pluggableClassDefinitionIterator.next();
                 try {
                     if (this.connectionTypeDoesNotExist(definition)) {
@@ -43,10 +41,6 @@ public class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistr
                     else {
                         this.alreadyExists(definition);
                     }
-                }
-                catch (NoFinderComponentFoundException e) {
-                    this.factoryComponentMissing();
-                    registerNext = false;
                 }
                 catch (RuntimeException e) {
                     if (e.getCause() != null) {

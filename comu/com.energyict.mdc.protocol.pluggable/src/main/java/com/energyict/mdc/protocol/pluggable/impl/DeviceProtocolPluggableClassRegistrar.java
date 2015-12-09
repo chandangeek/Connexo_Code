@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 
@@ -39,10 +38,6 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
                 else {
                     this.alreadyExists(licensedProtocol);
                 }
-            }
-            catch (NoFinderComponentFoundException e) {
-                this.factoryComponentMissing();
-                registerNext = false;
             }
             catch (NoServiceFoundThatCanLoadTheJavaClass e) {
                 this.logWarning(() -> e.getMessage() + "; will retry later");
