@@ -88,6 +88,7 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'search-criteria-selector',
                                         xtype: 'search-criteria-selector',
                                         margin: 0,
+                                        searchContainer: me,
                                         service: me.getService()
                                     }
                                 ]

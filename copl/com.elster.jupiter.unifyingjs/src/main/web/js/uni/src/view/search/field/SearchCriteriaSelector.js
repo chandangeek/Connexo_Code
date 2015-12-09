@@ -13,7 +13,8 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     menuAlign: 'tr-br',
     store: 'Uni.store.search.Properties',
     config: {
-        service: null
+        service: null,
+        searchContainer: null
     },
     menuItems: [],
 
@@ -182,7 +183,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                         menu: {
                             floating: true,
                             constrain: true,
-                            maxHeight: me.up('uni-view-search-overview').getHeight(),
+                            maxHeight: me.getSearchContainer().getHeight(),
                             enableScrolling: true,
                             itemId: 'search-criteria-sub-menu',
                             items: items

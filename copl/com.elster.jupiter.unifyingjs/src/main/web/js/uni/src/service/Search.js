@@ -270,6 +270,7 @@ Ext.define('Uni.service.Search', {
             searchResults.removeAll();
         }
 
+        debugger;
         me.fireEvent('applyFilters', me, filters);
     },
 
@@ -334,6 +335,7 @@ Ext.define('Uni.service.Search', {
                 resultsStore.load();
             } else {
                 resultsStore.removeAll();
+                resultsStore.fireEvent('load', resultsStore, [], true);
             }
         });
     },
