@@ -495,9 +495,10 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<? extends MeterActivation> getMeterActivation(Instant when) {
+    public Optional<MeterActivation> getMeterActivation(Instant when) {
         return meterActivations.stream()
                 .filter(meterActivation -> meterActivation.isEffectiveAt(when))
+                .map(MeterActivation.class::cast)
                 .findFirst();
     }
 
