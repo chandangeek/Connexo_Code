@@ -95,7 +95,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                                 var collectedReadingType = register.get('readingType'),
                                     collectedUnit = collectedReadingType.names.unitOfMeasure,
                                     calculatedReadingType = register.get('calculatedReadingType'),
-                                    calculatedUnit = calculatedReadingType.names.unitOfMeasure,
+                                    calculatedUnit = calculatedReadingType ? calculatedReadingType.names.unitOfMeasure : '',
                                     dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
                                         mRID: encodeURIComponent(mRID),
                                         registerId: registerId,
