@@ -28,12 +28,12 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.Path;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -43,6 +43,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.nio.file.FileSystem;
+import java.nio.file.InvalidPathException;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -114,15 +115,15 @@ public class FileImportScheduleResource {
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
         }
-        ImportScheduleBuilder builder = fileImportService.newBuilder()
-                .setName(info.name)
-                .setPathMatcher(info.pathMatcher)
-                .setImportDirectory(fileSystem.getPath(info.importDirectory))
-                .setFailureDirectory(fileSystem.getPath(info.failureDirectory))
-                .setSuccessDirectory(fileSystem.getPath(info.successDirectory))
-                .setProcessingDirectory(fileSystem.getPath(info.inProcessDirectory))
-                .setImporterName(info.importerInfo.name)
-                .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
+            ImportScheduleBuilder builder = fileImportService.newBuilder()
+                    .setName(info.name)
+                    .setPathMatcher(info.pathMatcher)
+                    .setImportDirectory(getPath(info.importDirectory))
+                    .setFailureDirectory(getPath(info.failureDirectory))
+                    .setSuccessDirectory(getPath(info.successDirectory))
+                    .setProcessingDirectory(getPath(info.inProcessDirectory))
+                    .setImporterName(info.importerInfo.name)
+                    .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
 
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
 
@@ -176,10 +177,10 @@ public class FileImportScheduleResource {
 
             importSchedule.setName(info.name);
             importSchedule.setActive(info.active);
-            importSchedule.setImportDirectory(fileSystem.getPath(info.importDirectory));
-            importSchedule.setFailureDirectory(fileSystem.getPath(info.failureDirectory));
-            importSchedule.setSuccessDirectory(fileSystem.getPath(info.successDirectory));
-            importSchedule.setProcessingDirectory(fileSystem.getPath(info.inProcessDirectory));
+            importSchedule.setImportDirectory(getPath(info.importDirectory));
+            importSchedule.setFailureDirectory(getPath(info.failureDirectory));
+            importSchedule.setSuccessDirectory(getPath(info.successDirectory));
+            importSchedule.setProcessingDirectory(getPath(info.inProcessDirectory));
             importSchedule.setImporterName(info.importerInfo.name);
             importSchedule.setPathMatcher(info.pathMatcher);
             importSchedule.setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
@@ -308,5 +309,14 @@ public class FileImportScheduleResource {
     private ImportSchedule fetchImportScheduleIncludeDeleted(long id) {
         return fileImportService.getImportSchedule(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private java.nio.file.Path getPath(String value){
+        java.nio.file.Path path = null;
+        try {
+            path = fileSystem.getPath(value);
+        }catch (InvalidPathException e ){
+        }
+        return path;
     }
 }
