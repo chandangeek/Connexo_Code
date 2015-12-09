@@ -268,24 +268,16 @@ Ext.define('Imt.controller.History', {
                             },
                         },
                         edit: {
-                            title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Edit metrology configuration'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Edit'),
                             route: '{mcid}/edit',
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
-                            action: 'editMetrologyConfiguration'                                
+                            action: 'editMetrologyConfiguration'
                         },
                         manage: {
-                            title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.manage', 'IMT', 'Manage metrology configuration validation rule sets'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.manage', 'IMT', 'Link validation rule sets'),
                             route: '{mcid}/manage',
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'manageValidationRuleSets',
-                            callback: function (route) {
-                                this.getApplication().on('metrologyConfigurationValRuleSetLoaded', function (record) {
-                                    route.setTitle('Manage metrology configuration validation rules sets');
-                                    return true;
-                                }, {single: true});
-
-                                return this;
-                            }
                         }                        
                     }
                 }

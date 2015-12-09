@@ -23,7 +23,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
     initComponent: function () {
         var me = this,
         	panel = me.content[0];
-        panel.title = me.router.getRoute().getTitle();
+ //       panel.title = me.router.getRoute().getTitle();
 
         me.side = [
             {
