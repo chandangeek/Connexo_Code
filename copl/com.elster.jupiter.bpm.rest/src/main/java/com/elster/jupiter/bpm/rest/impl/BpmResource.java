@@ -274,6 +274,8 @@ public class BpmResource {
                 .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name)))
                 .filter(s -> activeProcesses.stream().anyMatch(a -> a.getVersion().equals(s.version)))
                 .collect(Collectors.toList());
+        processDefinitionInfos.processes.stream()
+                .forEach(s -> s.id = s.id + " (" + s.deploymentId+ ") ");
         processDefinitionInfos.total = processDefinitionInfos.processes.size();
         return processDefinitionInfos;
     }
