@@ -238,46 +238,63 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                     width: 600
                 },
                 {
-                	xtype: 'combobox',
-                    name: 'serviceCategory',
-                    fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
-                    store: serviceTypes,
-                    queryMode: 'local',
-                    editable: false,
-                    displayField: 'localizedValue',
-                    valueField: 'value',
-                    allowBlank: false,
-                    required: true,
-                    width: 600,
-                    listeners: {
-                    	change: function(field, newValue, oldValue) {
-	                		if (newValue == 'ELECTRICITY') {
-								this.up().down('panel[itemId=form-technical-information]').show();
-	                		} else {
-	                			this.up().down('panel[itemId=form-technical-information]').hide();
-	                		}
-                    	}
-                    }
-                },
-                {
                 	xtype: 'panel',
-                	title: Uni.I18n.translate('usagepoint.technical.information', 'IMT', 'Technical information'),
+                	title: Uni.I18n.translate('usagepoint.service.information', 'IMT', 'Service information'),
+                    defaults: {
+                        labelWidth: 250,
+                        validateOnChange: false,
+                        validateOnBlur: false
+                    },
                 	layout: 'form',
                 	ui: 'large',
                 	itemId: 'form-technical-information',
-                	hidden: true,
+//                	hidden: true,
                 	width: 600,
                 	items: [
+                        {
+                            xtype: 'combobox',
+                            name: 'serviceCategory',
+                            fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
+                            store: serviceTypes,
+                            queryMode: 'local',
+                            editable: false,
+                            displayField: 'localizedValue',
+                            valueField: 'value',
+                            allowBlank: false,
+                            required: true,
+                            width: 600,
+                            listeners: {
+                                change: function(field, newValue, oldValue) {
+                                    if (newValue == 'ELECTRICITY') {
+                                        this.up('panel[itemId=form-technical-information]').down('[name=grounded]').show();
+                                        this.up('panel[itemId=form-technical-information]').down('[name=nominalServiceVoltageValue]').show();
+                                        this.up('panel[itemId=form-technical-information]').down('[name=phaseCode]').show();                                        
+                                        this.up('panel[itemId=form-technical-information]').down('[name=ratedCurrentValue]').show();
+                                        this.up('panel[itemId=form-technical-information]').down('[name=ratedPowerValue]').show();
+                                        this.up('panel[itemId=form-technical-information]').down('[itemId=estimatedLoadPanel]').show();
+                                    } else {
+                                        this.up('panel[itemId=form-technical-information]').down('[name=grounded]').hide();
+                                        this.up('panel[itemId=form-technical-information]').down('[name=nominalServiceVoltageValue]').hide();
+                                        this.up('panel[itemId=form-technical-information]').down('[name=phaseCode]').hide();                                        
+                                        this.up('panel[itemId=form-technical-information]').down('[name=ratedCurrentValue]').hide();
+                                        this.up('panel[itemId=form-technical-information]').down('[name=ratedPowerValue]').hide();
+                                        this.up('panel[itemId=form-technical-information]').down('[itemId=estimatedLoadPanel]').hide();
+                                    }
+                                }
+                            }
+                        },
 						{
 						    xtype: 'checkbox',
 						    name: 'grounded',
 						    labelWidth: 250,
 						    value: true,
+						    hidden: true,
 						    fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
 						},
                         {
                             xtype: 'numberfield',
                             name: 'nominalServiceVoltageValue',
+                            hidden: true,
                             allowNegative: false,
                             minValue: 0,
                             labelWidth: 250,
@@ -288,6 +305,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                         {
 	                    	xtype: 'combobox',
 	                        name: 'phaseCode',
+	                        hidden: true,
 	                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code'),
 	                        store: phaseCodes,
 	                        value: 'UNKNOWN',
@@ -302,6 +320,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                         {
                             xtype: 'numberfield',
                             name: 'ratedCurrentValue',
+                            hidden: true,
                             labelWidth: 250,
                             allowNegative: false,
                             minValue: 0,
@@ -312,6 +331,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                         {
                             xtype: 'numberfield',
                             name: 'ratedPowerValue',
+                            hidden: true,
                             labelWidth: 250,
                             allowNegative: false,
                             minValue: 0,
@@ -322,6 +342,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                         {
                         	xtype: 'panel',
                         	layout: 'hbox',
+                        	itemId: 'estimatedLoadPanel',
+                        	hidden: true,
                         	items: [
                         	    {
                         	    	xtype: 'numberfield',
