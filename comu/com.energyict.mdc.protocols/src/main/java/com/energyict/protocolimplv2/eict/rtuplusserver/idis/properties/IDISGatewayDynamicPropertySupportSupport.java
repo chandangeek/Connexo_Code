@@ -3,13 +3,12 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,18 +30,20 @@ public class IDISGatewayDynamicPropertySupportSupport extends DlmsProperties {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(Arrays.asList(
-                callingAPTitlePropertySpec(),
-                nodeAddressPropertySpec()
-        ));
+        Collections.addAll(propertySpecs, this.callingAPTitlePropertySpec(), this.nodeAddressPropertySpec());
         return propertySpecs;
     }
 
     public PropertySpec callingAPTitlePropertySpec() {
-        return getPropertySpecService().stringPropertySpec(IDIS.CALLING_AP_TITLE, false, IDIS.CALLING_AP_TITLE_DEFAULT);
+        return this.stringSpec(TranslationKeys.CALLING_AP_TITLE_TK, IDIS.CALLING_AP_TITLE_DEFAULT);
     }
 
     public PropertySpec nodeAddressPropertySpec() {
-        return getPropertySpecService().stringPropertySpec(MeterProtocol.NODEID, false, "");
+        return this.getPropertySpecService()
+                .stringSpec()
+                .named(TranslationKeys.NODEID_TK)
+                .fromThesaurus(this.getThesaurus())
+                .finish();
     }
+
 }

@@ -8,7 +8,7 @@ import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,24 +20,24 @@ import java.util.List;
  */
 public class G3Properties extends DlmsProperties {
 
-    public static final String G3_MAC_ADDRESS_PROP_NAME = "MAC_address";
-    public static final String G3_SHORT_ADDRESS_PROP_NAME = "Short_MAC_address";
-    public static final String G3_LOGICAL_DEVICE_ID_PROP_NAME = "Logical_device_id";
+    public static final String G3_MAC_ADDRESS_PROP_NAME = TranslationKeys.G3_MAC_ADDRESS_PROP_NAME_TK.getPropertySpecName();
+    public static final String G3_SHORT_ADDRESS_PROP_NAME = TranslationKeys.G3_SHORT_ADDRESS_PROP_NAME_TK.getPropertySpecName();
+    public static final String G3_LOGICAL_DEVICE_ID_PROP_NAME = TranslationKeys.G3_LOGICAL_DEVICE_ID_PROP_NAME_TK.getPropertySpecName();
 
     public G3Properties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
     }
 
     public PropertySpec getMacAddressPropertySPec() {
-        return getPropertySpecService().stringPropertySpec(G3_MAC_ADDRESS_PROP_NAME, false, "");
+        return this.stringSpec(TranslationKeys.G3_MAC_ADDRESS_PROP_NAME_TK, "");
     }
 
     public PropertySpec getShortAddressPropertySpec() {
-        return getPropertySpecService().bigDecimalPropertySpec(G3_SHORT_ADDRESS_PROP_NAME, false, BigDecimal.valueOf(-1));
+        return this.bigDecimalSpec(TranslationKeys.G3_SHORT_ADDRESS_PROP_NAME_TK, BigDecimal.valueOf(-1));
     }
 
     public PropertySpec getLogicalDeviceIdPropertySpec() {
-        return getPropertySpecService().bigDecimalPropertySpec(G3_LOGICAL_DEVICE_ID_PROP_NAME, false, BigDecimal.ZERO);
+        return this.bigDecimalSpec(TranslationKeys.G3_LOGICAL_DEVICE_ID_PROP_NAME_TK, BigDecimal.ZERO);
     }
 
     @Override
@@ -48,10 +48,12 @@ public class G3Properties extends DlmsProperties {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(Arrays.asList(
+        Collections.addAll(
+                propertySpecs,
                 getMacAddressPropertySPec(),
                 getShortAddressPropertySpec(),
-                getLogicalDeviceIdPropertySpec()));
+                getLogicalDeviceIdPropertySpec());
         return propertySpecs;
     }
+
 }

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.common;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
@@ -94,4 +95,32 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
         return thesaurus;
     }
 
+    protected PropertySpec bigDecimalSpec(TranslationKey translationKey, BigDecimal defaultValue) {
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(translationKey)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(defaultValue)
+                .finish();
+    }
+
+    protected PropertySpec booleanSpec(TranslationKey translationKey, Boolean defaultValue) {
+        return this.propertySpecService
+                .booleanSpec()
+                .named(translationKey)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(defaultValue)
+                .finish();
+    }
+
+    protected PropertySpec stringSpec(TranslationKey translationKey, String defaultValue, String... possibleValues) {
+        return this.propertySpecService
+                .stringSpec()
+                .named(translationKey)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(defaultValue)
+                .addValues(possibleValues)
+                .markExhaustive()
+                .finish();
+    }
 }

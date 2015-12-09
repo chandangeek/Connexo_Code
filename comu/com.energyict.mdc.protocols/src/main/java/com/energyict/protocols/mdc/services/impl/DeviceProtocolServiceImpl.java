@@ -37,6 +37,8 @@ import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialectProperties;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
+import com.energyict.protocolimplv2.dlms.DlmsProperties;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.AbstractSMSServletBasedInboundDeviceProtocol;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol;
 import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
 import com.google.inject.AbstractModule;
@@ -335,6 +337,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 Arrays.stream(SDKTranslationKeys.values()),
                 Arrays.stream(SecurityPropertySpecName.values()),
                 Arrays.stream(DeviceProtocolDialectName.values()),
+                Arrays.stream(DlmsProperties.TranslationKeys.values()),
+                Arrays.stream(AbstractSMSServletBasedInboundDeviceProtocol.TranslationKeys.values()),
                 Arrays.stream(CustomPropertySetTranslationKeys.values()),
                 Arrays.stream(TranslationKeys.values()))
                 .flatMap(Function.identity())

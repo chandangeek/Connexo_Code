@@ -1,16 +1,15 @@
 package com.energyict.protocols.mdc.inbound.general;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -34,7 +33,13 @@ public class DialHomeIdRequestDiscover extends RequestDiscover {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         final List<PropertySpec> requiredProperties = super.getPropertySpecs();
-        requiredProperties.add(this.getPropertySpecService().stringPropertySpec(this.getThesaurus().getString(MessageSeeds.DEVICEDIALHOMEID.getKey(), "Device call home ID"), true, null));
+        requiredProperties.add(
+                this.getPropertySpecService()
+                        .stringSpec()
+                        .named(TranslationKeys.DEVICEDIALHOMEID)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .finish());
         return requiredProperties;
     }
 

@@ -2,9 +2,6 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-import java.util.Optional;
-import java.util.stream.StreamSupport;
-
 /**
  * Copyrights EnergyICT
  * Date: 16/05/14
@@ -103,6 +100,7 @@ public enum TranslationKeys implements TranslationKey {
     INHERITED_ACCESSLEVEL("inheritedDeviceAccessLevel", "Inherited access level"),
     GARNET_AUTHENTICATION_LEVEL_0("GarnetSecuritySupport.authenticationlevel.0", "Garnet message authentication"),
     GARNET_ENCRYPTION_LEVEL_1("GarnetSecuritySupport.encryptionlevel.1", "Garnet message encryption"),
+    DEVICEDIALHOMEID("deviceDialHomeId", "Device call home ID"),
     ;
 
     private final String key;
