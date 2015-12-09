@@ -1,10 +1,15 @@
 Ext.define('Mdc.model.DeviceLabel', {
-    extend: 'Uni.model.ParentVersion',
+    extend: 'Ext.data.Model',
     fields: [
         {name: 'id', mapping: function (data) {return data.category.id;}, persist: false},
         {name: 'category', type: 'auto'},
         {name: 'comment', type: 'string', useNull: true},
-        {name: 'creationDate', dateFormat: 'time', type: 'date', persist: false}
+        {name: 'creationDate', type: 'auto', defaultValue: null},
+        {
+            name: 'parent',
+            type: 'auto',
+            defaultValue: null
+        }
     ],
 
     proxy: {

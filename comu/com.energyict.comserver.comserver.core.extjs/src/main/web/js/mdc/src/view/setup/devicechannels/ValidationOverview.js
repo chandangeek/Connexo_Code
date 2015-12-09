@@ -32,6 +32,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationOverview', {
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation.suspects', 'MDC', 'Suspects (last month)'),
                 name: 'validationInfo',
+                minWidth: 450,
                 renderer: function (value, field) {
                     var result = '',
                         url;

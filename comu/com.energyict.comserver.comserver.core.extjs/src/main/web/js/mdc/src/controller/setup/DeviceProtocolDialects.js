@@ -136,6 +136,14 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                         widget.down('form').loadRecord(protocolDialect);
                         widget.down('property-form').loadRecord(protocolDialect);
                         widget.down('#deviceProtocolDialectEditAddTitle').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[protocolDialect.get('name')]));
+
+                        if (protocolDialect.properties().data.items.length == 0) {
+                            widget.down('#addEditButton').hide();
+                            widget.down('#restoreAllButton').hide();
+                            widget.down('#cancelLink').hide();
+                            widget.down('#noAttributesDefinedLabel').show();
+                        }
+
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(false);
                     }

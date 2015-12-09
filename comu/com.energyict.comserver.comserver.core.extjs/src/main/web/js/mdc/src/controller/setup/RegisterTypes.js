@@ -153,12 +153,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', message);
                     me.getRegisterTypesStore().load();
-                },
-                callback: function () {
-                    location.href = '#/administration/registertypes/';
-
                 }
-
             });
         }
     },

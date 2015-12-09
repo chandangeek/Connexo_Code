@@ -82,7 +82,9 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         var preview = this.getDataCollectionKpisPreviewContainer();
 
         Ext.suspendLayouts();
-        preview.down('dataCollectionKpisActionMenu').record = record;
+        if (preview.down('dataCollectionKpisActionMenu')) {
+            preview.down('dataCollectionKpisActionMenu').record = record;
+        }
         preview.setTitle(Ext.String.htmlEncode(record.get('deviceGroup').name));
         this.getDataCollectionKpisPreviewForm().loadRecord(record);
         Ext.resumeLayouts(true);

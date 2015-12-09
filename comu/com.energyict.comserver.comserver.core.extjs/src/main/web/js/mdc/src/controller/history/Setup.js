@@ -973,18 +973,21 @@ Ext.define('Mdc.controller.history.Setup', {
                 datacollectionkpis: {
                     title: Uni.I18n.translate('general.dataCollectionKpis', 'MDC', 'Data collection KPIs'),
                     route: 'datacollectionkpis',
+                    privileges: Mdc.privileges.DataCollectionKpi.view,
                     controller: 'Mdc.controller.setup.DataCollectionKpi',
                     action: 'showDataCollectionKpiView',
                     items: {
                         add: {
                             title: Uni.I18n.translate('datacollectionkpis.add', 'MDC', 'Add data collection KPI'),
                             route: 'add',
+                            privileges: Mdc.privileges.DataCollectionKpi.admin,
                             controller: 'Mdc.controller.setup.DataCollectionKpi',
                             action: 'showDataCollectionKpiEditView'
                         },
                         edit: {
                             title: Uni.I18n.translate('datacollectionkpis.editDataCollectionKpi', 'MDC', 'Edit data collection KPI'),
                             route: '{id}/edit',
+                            privileges: Mdc.privileges.DataCollectionKpi.admin,
                             controller: 'Mdc.controller.setup.DataCollectionKpi',
                             action: 'showDataCollectionKpiEditView',
                             callback: function (route) {
