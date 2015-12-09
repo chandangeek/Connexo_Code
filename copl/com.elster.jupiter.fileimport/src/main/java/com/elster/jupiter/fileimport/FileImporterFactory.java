@@ -34,7 +34,10 @@ public interface FileImporterFactory extends HasDynamicProperties, HasName {
     List<String> getRequiredProperties();
 
     /**
-     * Indicates if the FileImporter does its own transaction management or not
+     * Indicates if the FileImporter does its own transaction management or not.
+     * If the FileImporter does its own transaction management, this method should return false.
+     * When the importer does it's own transaction management, any interaction (including logging) with the fileImportOccurrence
+     * needs to happen <b>outside</b> of a transaction
      *
      * @return
      */
