@@ -13,6 +13,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,15 +35,14 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        String token = "123456789";
-        /*String token = null;
+        String token = null;
         Cookie cookies[] = request.getCookies();
         for(Cookie cookie : cookies) {
-            if(cookie.getName().equals("X-CONNEXO_TOKEN")) {
+            if(cookie.getName().equals("X-CONNEXO-TOKEN")) {
                 token = cookie.getValue();
                 break;
             }
-        }*/
+        }
 
         ConnexoPrincipal principal = (ConnexoPrincipal) request.getUserPrincipal();
 
