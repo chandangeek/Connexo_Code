@@ -18,11 +18,6 @@ public class AdvanceReadingsSettingsWithoutNoneFactory extends AbstractValueFact
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "varchar2(256)";
-    }
-
-    @Override
     public int getJdbcType () {
         return java.sql.Types.VARCHAR;
     }

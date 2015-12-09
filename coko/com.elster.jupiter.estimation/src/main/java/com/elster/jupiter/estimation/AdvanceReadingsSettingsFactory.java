@@ -18,15 +18,9 @@ public class AdvanceReadingsSettingsFactory extends AbstractValueFactory<Advance
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "varchar2(256)";
-    }
-
-    @Override
     public int getJdbcType () {
         return java.sql.Types.VARCHAR;
     }
-
 
     @Override
     public AdvanceReadingsSettings valueFromDatabase (Object object) {
