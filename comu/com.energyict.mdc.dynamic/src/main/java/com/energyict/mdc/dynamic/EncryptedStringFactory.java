@@ -4,9 +4,10 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.util.sql.SqlBuilder;
+
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import javax.inject.Inject;
 
 /**
  * Insert your comments here.
@@ -28,11 +29,6 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
     @Override
     public Class<String> getValueType() {
         return String.class;
-    }
-
-    @Override
-    public String getDatabaseTypeName () {
-        return "varchar2(" + MAX_SIZE + ")";
     }
 
     @Override

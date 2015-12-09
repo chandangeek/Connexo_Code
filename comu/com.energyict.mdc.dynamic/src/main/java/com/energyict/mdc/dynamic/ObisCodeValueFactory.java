@@ -16,11 +16,6 @@ import java.sql.SQLException;
 public class ObisCodeValueFactory extends AbstractValueFactory<ObisCode> {
 
     @Override
-    public String getDatabaseTypeName () {
-        return "varchar2(23)";
-    }
-
-    @Override
     public Class<ObisCode> getValueType () {
         return ObisCode.class;
     }

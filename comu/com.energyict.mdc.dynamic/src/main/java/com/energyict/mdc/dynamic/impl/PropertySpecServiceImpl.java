@@ -16,11 +16,9 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.HexStringFactory;
-import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -36,7 +34,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
@@ -200,32 +197,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
             builder.markExhaustive();
         }
         return builder.name(name).description(description).addValues(values).finish();
-    }
-
-    @Override
-    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId) {
-        return this.referencePropertySpec(name, "", required, factoryId);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public PropertySpec referencePropertySpec(String name, String description, boolean required, FactoryIds factoryId) {
-        return new JupiterReferencePropertySpec(name, description, required, this.finderFor(factoryId));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<? extends Object> possibleValues) {
-        return new JupiterReferencePropertySpec(name, "", required, this.finderFor(factoryId), possibleValues);
-    }
-
-    private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : finders.values()) {
-            if (factoryId.equals(finder.factoryId())) {
-                return finder;
-            }
-        }
-        throw new NoFinderComponentFoundException(factoryId);
     }
 
     @Override

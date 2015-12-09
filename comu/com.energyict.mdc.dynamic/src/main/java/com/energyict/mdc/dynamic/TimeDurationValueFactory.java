@@ -1,8 +1,8 @@
 package com.energyict.mdc.dynamic;
 
 import com.elster.jupiter.properties.AbstractValueFactory;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,11 +21,6 @@ public class TimeDurationValueFactory extends AbstractValueFactory<TimeDuration>
     @Override
     public Class<TimeDuration> getValueType() {
         return TimeDuration.class;
-    }
-
-    @Override
-    public String getDatabaseTypeName () {
-        return "varchar2(32)";
     }
 
     @Override

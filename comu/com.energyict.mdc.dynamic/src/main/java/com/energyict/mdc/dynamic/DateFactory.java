@@ -28,11 +28,6 @@ public class DateFactory extends AbstractValueFactory<Date> {
         return Date.class;
     }
 
-    @Override
-    public String getDatabaseTypeName () {
-        return "date";
-    }
-
     public int getJdbcType() {
         return Types.DATE;
     }

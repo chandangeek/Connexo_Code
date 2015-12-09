@@ -28,11 +28,6 @@ public class LargeStringFactory extends StringFactory {
     private static final Logger LOGGER = Logger.getLogger(LargeStringFactory.class.getName());
 
     @Override
-    public String getDatabaseTypeName () {
-        return "CLOB";
-    }
-
-    @Override
     public int getJdbcType () {
         return java.sql.Types.CLOB;
     }

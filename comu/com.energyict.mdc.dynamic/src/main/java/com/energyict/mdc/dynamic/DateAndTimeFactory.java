@@ -28,11 +28,6 @@ public class DateAndTimeFactory extends AbstractValueFactory<Date> {
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "number";
-    }
-
-    @Override
     public int getJdbcType() {
         return java.sql.Types.INTEGER;
     }

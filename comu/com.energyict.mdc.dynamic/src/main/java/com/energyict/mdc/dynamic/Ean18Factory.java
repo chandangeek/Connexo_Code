@@ -2,8 +2,8 @@ package com.energyict.mdc.dynamic;
 
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.common.ean.Ean18;
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.ean.Ean18;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -24,11 +24,6 @@ public class Ean18Factory extends AbstractValueFactory<Ean18> {
     @Override
     public Class<Ean18> getValueType () {
         return Ean18.class;
-    }
-
-    @Override
-    public String getDatabaseTypeName () {
-        return "char(18)";
     }
 
     @Override

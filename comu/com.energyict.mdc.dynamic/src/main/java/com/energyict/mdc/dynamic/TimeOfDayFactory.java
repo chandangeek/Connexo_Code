@@ -17,11 +17,6 @@ public class TimeOfDayFactory extends AbstractValueFactory<TimeOfDay> {
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "number";
-    }
-
-    @Override
     public int getJdbcType() {
         return java.sql.Types.INTEGER;
     }

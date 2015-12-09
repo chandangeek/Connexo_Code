@@ -27,11 +27,6 @@ public class Ean13Factory extends AbstractValueFactory<Ean13> {
     }
 
     @Override
-    public String getDatabaseTypeName () {
-        return "char(13)";
-    }
-
-    @Override
     public int getJdbcType () {
         return java.sql.Types.CHAR;
     }

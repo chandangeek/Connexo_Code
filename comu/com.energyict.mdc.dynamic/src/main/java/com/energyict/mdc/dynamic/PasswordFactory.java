@@ -5,9 +5,10 @@ import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.Password;
+
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link ValueFactory}
@@ -29,11 +30,6 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     @Override
     public Class<Password> getValueType () {
         return Password.class;
-    }
-
-    @Override
-    public String getDatabaseTypeName () {
-        return "varchar2(" + MAX_SIZE + ")";
     }
 
     public int getJdbcType () {
