@@ -6,7 +6,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.io.naming.ModemPropertySpecNames;
 
 import java.math.BigDecimal;
@@ -158,7 +157,7 @@ public class TypedPaknetModemProperties implements PaknetModemProperties, HasDyn
 
     private PropertySpec timeDurationPropertySpec(TranslationKeys name, TimeDuration defaultValue) {
         return this.propertySpecService
-                .specForValuesOf(new TimeDurationValueFactory())
+                .timeDurationSpec()
                 .named(name)
                 .fromThesaurus(this.thesaurus)
                 .setDefaultValue(defaultValue)
