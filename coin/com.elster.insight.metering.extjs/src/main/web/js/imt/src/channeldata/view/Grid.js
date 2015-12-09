@@ -24,7 +24,7 @@ Ext.define('Imt.channeldata.view.Grid', {
                 flex: 2,
                 showTimeAttribute: false,
                 makeLink: function (record) {
-                    return me.router.getRoute('usagepoints/view/channels/channel').buildUrl({
+                    return me.router.getRoute('usagepoints/view/channels/channeldata').buildUrl({
                         mRID: me.mRID,
                         channelId: record.get('readingType').mRID
                     });

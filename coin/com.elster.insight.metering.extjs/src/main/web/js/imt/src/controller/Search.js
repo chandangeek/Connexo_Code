@@ -70,7 +70,7 @@ Ext.define('Imt.controller.Search', {
             'search-object-selector': {
                 change: function (field, value) {
                     Uni.util.History.setParsePath(false);
-                    router.getRoute('search').forward(null, Ext.apply(router.queryParams, {searchDomain: value}));
+                    router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
                     me.service.setDomain(value);
                 }
             },
@@ -139,5 +139,16 @@ Ext.define('Imt.controller.Search', {
 //            handler: me.showBulkAction,
 //            scope: me
 //        });
+        me.service.on('searchResultsBeforeLoad', me.availableClearAll, me);
+        widget.on('destroy', function () {
+            me.service.un('searchResultsBeforeLoad', me.availableClearAll, me);
+        }, me);
+    },
+    availableClearAll: function () {
+        var me = this,
+            searchOverview = me.getSearchOverview(),
+            filters = me.service.getFilters();
+
+        searchOverview.down('[action=clearFilters]').setDisabled(!(filters && filters.length));
     }
 });

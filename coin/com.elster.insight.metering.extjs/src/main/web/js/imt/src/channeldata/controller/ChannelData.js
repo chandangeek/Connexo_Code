@@ -688,10 +688,6 @@ Ext.define('Imt.channeldata.controller.ChannelData', {
                         bulkStatus = validationResult.bulk == 'suspect';
                     }
 
-                    if (!Ext.isEmpty(bulkValidationResult)) {
-                        bulkStatus = validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
-                    }
-
                     if (mainStatus) {
                         rec.get('mainValidationInfo').confirmedNotSaved = true;
                         chart.get(rec.get('interval').start).update({color: 'rgba(112,187,81,0.3)'});
