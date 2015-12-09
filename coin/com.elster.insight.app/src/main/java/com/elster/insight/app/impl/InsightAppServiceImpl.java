@@ -95,7 +95,7 @@ public class InsightAppServiceImpl implements InsightAppService, ApplicationPriv
     
     @Override
     public List<String> getApplicationPrivileges() {
-        return InsightAppPrivileges.getApplicationPrivileges();
+        return InsightAppPrivileges.getApplicationAllPrivileges();
     }
     
 	@Override
@@ -124,46 +124,6 @@ public class InsightAppServiceImpl implements InsightAppService, ApplicationPriv
         }
         return null;
         
-//        List<TranslationKey> translationKeys = new ArrayList<>();
-//        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APPLICATION_NAME));
-//        return translationKeys;
-        
     }
-
-    
-//    @Override
-//    public void install() {
-//        assignPrivilegesToDefaultRoles();
-//    }
-//
-//    @Override
-//    public List<String> getPrerequisiteModules() {
-//        return Arrays.asList(UserService.COMPONENTNAME, MeteringService.COMPONENTNAME);
-//    }
-//
-//
-//
-//    private void assignPrivilegesToDefaultRoles() {
-//        List<String> availablePrivileges = getApplicationPrivileges();
-//        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().toArray(String[]::new));
-//        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().toArray(String[]::new));
-//    }
-//
-//
-//    private List<String> getApplicationPrivileges(){
-//        return Arrays.asList(
-//            //validation
-//            com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
-//            com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-//            com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL,
-//            com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
-//            com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
-//            //com.elster.jupiter.metering.security - usage points
-//            com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_ANY,
-//            com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_OWN,
-//            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
-//            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN);
-//    }
-
 
 }

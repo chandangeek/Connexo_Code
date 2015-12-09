@@ -45,49 +45,37 @@ public class InsightAppInstaller implements InstallService {
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        List<String> privilegesMeterExpert =  getPrivilegesMeterExpert();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, InsightAppService.APPLICATION_KEY, privilegesMeterExpert.stream().toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, InsightAppService.APPLICATION_KEY, privilegesMeterExpert.stream().toArray(String[]::new));
+    	String adminAppKey = com.elster.jupiter.system.app.SysAppService.APPLICATION_KEY;
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, InsightAppService.APPLICATION_KEY, getApplicationAllPrivileges().stream().toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, InsightAppService.APPLICATION_KEY, getApplicationAllPrivileges().stream().toArray(String[]::new));
+        
+        userService.grantGroupWithPrivilege(InsightAppService.Roles.METER_EXPERT.value(), InsightAppService.APPLICATION_KEY, getApplicationAllPrivileges().stream().toArray(String[]::new));
+        userService.grantGroupWithPrivilege(InsightAppService.Roles.METER_EXPERT.value(), adminAppKey, getAdminApplicationAllPrivileges().stream().toArray(String[]::new));
 
-        userService.grantGroupWithPrivilege(InsightAppService.Roles.METER_OPERATOR.value(), InsightAppService.APPLICATION_KEY, getPrivilegesMeterOperator().stream().toArray(String[]::new));
-        userService.grantGroupWithPrivilege(InsightAppService.Roles.METER_EXPERT.value(), InsightAppService.APPLICATION_KEY, privilegesMeterExpert.stream().toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, InsightAppService.APPLICATION_KEY, privilegesMeterExpert.stream().toArray(String[]::new));
+        userService.grantGroupWithPrivilege(InsightAppService.Roles.METER_OPERATOR.value(), InsightAppService.APPLICATION_KEY, getApplicationViewPrivileges().stream().toArray(String[]::new));
+        userService.grantGroupWithPrivilege(InsightAppService.Roles.METER_OPERATOR.value(), adminAppKey, getAdminApplicationViewPrivileges().stream().toArray(String[]::new));
+
 
         //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
-        userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(InsightAppService.Roles.METER_EXPERT.value())).findFirst().get()));
+//        userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(InsightAppService.Roles.METER_EXPERT.value())).findFirst().get()));
         //TODO: workaround: attached Report viewer to user admin !!! to remove this line when the user can be created/added to system
 //        userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(InsightAppService.Roles.REPORT_VIEWER.value())).findFirst().get())); 
     }
 
-    private List<String> getPrivilegesMeterExpert() {
-        return InsightAppPrivileges.getApplicationPrivileges();
+    private List<String> getApplicationAllPrivileges() {
+        return InsightAppPrivileges.getApplicationAllPrivileges();
     }
 
-
-    private List<String> getPrivilegesMeterOperator(){
-    	  return Arrays.asList(
-    		        
-    	        	//com.elster.jupiter.metering.security - usage points
-    	            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
-    	            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
-    	        		
-    	            //validation
-    	            com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-
-    	            //metrology configuration
-    	            com.elster.insight.usagepoint.config.Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG,
-    	            
-    	            //com.elster.jupiter.time
-    	            com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
-    	            
-    	            //com.elster.jupiter.cps
-    	            com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1,
-    	            com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_2,
-    	            com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_3,
-    	            com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_4,
-
-    	           	//import
-    	        	com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
-    	  );
+    private List<String> getApplicationViewPrivileges() {
+        return InsightAppPrivileges.getApplicationViewPrivileges();
     }
+    
+    private List<String> getAdminApplicationAllPrivileges() {
+        return InsightAppPrivileges.getAdminApplicationAllPrivileges();
+    }
+    
+    private List<String> getAdminApplicationViewPrivileges() {
+        return InsightAppPrivileges.getAdminApplicationViewPrivileges();
+    }
+
 }

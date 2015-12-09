@@ -6,8 +6,8 @@ public interface InsightAppService {
     String APPLICATION_NAME = "InSight";
     
     enum Roles {
-        METER_EXPERT("Meter expert", "Full meter management privileges"),
-        METER_OPERATOR("Meter operator", "Meter operation privileges");
+        METER_EXPERT("Insight data expert", "Full data management privileges"),
+        METER_OPERATOR("Insight data operator", "Data operation privileges");
 
         private String role;
         private String description;
