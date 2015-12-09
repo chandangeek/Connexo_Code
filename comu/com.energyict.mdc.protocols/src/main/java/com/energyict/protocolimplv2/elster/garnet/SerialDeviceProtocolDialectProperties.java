@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.elster.garnet;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
@@ -112,11 +113,13 @@ public class SerialDeviceProtocolDialectProperties extends CommonDeviceProtocolD
             table
                 .column(this.databaseName() + "VALUE")
                 .number()
+                .conversion(ColumnConversion.NUMBER2INT)
                 .map(this.javaName() + ".count")
                 .add();
             table
                 .column(this.databaseName() + "UNIT")
                 .number()
+                .conversion(ColumnConversion.NUMBER2INT)
                 .map(this.javaName() + ".timeUnitCode")
                 .add();
         }
