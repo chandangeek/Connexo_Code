@@ -269,6 +269,10 @@ sub install_tomcat {
 		if (-d "$TOMCAT_DIR") { rmtree("$TOMCAT_DIR"); }
 		rename("apache-$TOMCAT_ZIP","$TOMCAT_DIR");
 
+		if (-e "$TOMCAT_BASE/connexo.filter.jar") {
+            print "    $TOMCAT_BASE/connexo.filter.jar -> $TOMCAT_BASE/tomcat/lib/connexo.filter.jar\n";
+		    copy("$TOMCAT_BASE/connexo.filter.jar","$TOMCAT_BASE/tomcat/lib/connexo.filter.jar");
+        }
 		chdir "$TOMCAT_DIR/bin";
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/server.xml","<Connector port=\"8009\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />","<Connector port=\"$TOMCAT_AJP_PORT\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"analyst\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
@@ -392,6 +396,10 @@ sub install_facts {
 		unlink("$FACTS_BASE/facts.war");
 		if (-d "$FACTS_BASE/appserver") { rmtree("$FACTS_BASE/appserver"); }
 
+		if (-e "$CONNEXO_DIR/partners/facts/facts.filter.jar") {
+            print "    $CONNEXO_DIR/partners/facts/facts.filter.jar -> $FACTS_DIR/WEB-INF/lib/facts.filter.jar\n";
+		    copy("$CONNEXO_DIR/partners/facts/facts.filter.jar","$FACTS_DIR/WEB-INF/lib/facts.filter.jar");
+        }
 		print "Connexo Facts successfully installed\n";
 	}
 }
@@ -482,6 +490,10 @@ sub install_flow {
 		if (-e "$CONNEXO_DIR/partners/flow/jbpm.extension.jar") {
             print "    $CONNEXO_DIR/partners/flow/jbpm.extension.jar -> $FLOW_DIR/WEB-INF/lib/jbpm.extension.jar\n";
 		    copy("$CONNEXO_DIR/partners/flow/jbpm.extension.jar","$FLOW_DIR/WEB-INF/lib/jbpm.extension.jar");
+        }
+		if (-e "$CONNEXO_DIR/partners/flow/flow.filter.jar") {
+            print "    $CONNEXO_DIR/partners/flow/flow.filter.jar -> $FLOW_DIR/WEB-INF/lib/flow.filter.jar\n";
+		    copy("$CONNEXO_DIR/partners/flow/flow.filter.jar","$FLOW_DIR/WEB-INF/lib/flow.filter.jar");
         }
 		print "Connexo Flow successfully installed\n";
 	}
