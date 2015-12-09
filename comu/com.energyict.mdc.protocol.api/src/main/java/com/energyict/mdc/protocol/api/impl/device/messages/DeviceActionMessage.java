@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -132,7 +133,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .bigDecimalSpec()
-                            .named(DeviceMessageAttributes.DeviceActionMessageId)
+                            .named(DeviceMessageConstants.id, DeviceMessageAttributes.DeviceActionMessageId)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .addValues(analogOutPossibleValues())
@@ -149,7 +150,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .bigDecimalSpec()
-                            .named(DeviceMessageAttributes.DeviceActionMessageContract)
+                            .named(DeviceMessageConstants.contractAttributeName, DeviceMessageAttributes.DeviceActionMessageContract)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .addValues(BigDecimal.ONE, BigDecimals.TWO)

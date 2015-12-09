@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -26,8 +27,20 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(this.stringProperty(DeviceMessageAttributes.usernameAttributeName, propertySpecService, thesaurus));
-            propertySpecs.add(this.passwordProperty(DeviceMessageAttributes.passwordAttributeName, propertySpecService, thesaurus));
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.usernameAttributeName, DeviceMessageAttributes.usernameAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .passwordSpec()
+                            .named(DeviceMessageConstants.passwordAttributeName, DeviceMessageAttributes.passwordAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     CHANGE_GPRS_APN_CREDENTIALS(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_APN_CREDENTIALS, "Change the GPRS APN credentials") {
@@ -35,8 +48,20 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(this.stringProperty(DeviceMessageAttributes.apnAttributeName, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringProperty(DeviceMessageAttributes.usernameAttributeName, propertySpecService, thesaurus));
-            propertySpecs.add(this.passwordProperty(DeviceMessageAttributes.passwordAttributeName, propertySpecService, thesaurus));
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.usernameAttributeName, DeviceMessageAttributes.usernameAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .passwordSpec()
+                            .named(DeviceMessageConstants.passwordAttributeName, DeviceMessageAttributes.passwordAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     // will be a semicolon separated string (maybe in the future this will be a StringListAspectEditor ...
@@ -215,7 +240,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .specForValuesOf(new TimeOfDayFactory())
-                            .named(DeviceMessageAttributes.startTime)
+                            .named(DeviceMessageConstants.startTime, DeviceMessageAttributes.startTime)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -228,7 +253,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .specForValuesOf(new TimeOfDayFactory())
-                            .named(DeviceMessageAttributes.endTime)
+                            .named(DeviceMessageConstants.endTime, DeviceMessageAttributes.endTime)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());

@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -62,27 +63,81 @@ public enum OutputConfigurationMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputConfigurationMessageId, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.startTime, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.endTime, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputConfigurationMessageOutputBitMap, propertySpecService, thesaurus));
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.id, DeviceMessageAttributes.OutputConfigurationMessageId)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.startTime, DeviceMessageAttributes.startTime)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.endTime, DeviceMessageAttributes.endTime)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.outputBitMap, DeviceMessageAttributes.OutputConfigurationMessageOutputBitMap)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     DeleteDOSwitchRule(DeviceMessageId.OUTPUT_CONFIGURATION_DELETE_DO_SWITCH_RULE, "Delete DO switch rule"){
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputConfigurationMessageId, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputConfigurationMessageDelete, propertySpecService, thesaurus));
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.id, DeviceMessageAttributes.OutputConfigurationMessageId)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.delete, DeviceMessageAttributes.OutputConfigurationMessageDelete)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     RelativeDOSwitchRule(DeviceMessageId.OUTPUT_CONFIGURATION_RELATIVE_DO_SWITCH_RULE, "Relative DO switch rule"){
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputConfigurationMessageId, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputConfigurationMessageDuration, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputConfigurationMessageOutputBitMap, propertySpecService, thesaurus));
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.id, DeviceMessageAttributes.OutputConfigurationMessageId)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.duration, DeviceMessageAttributes.OutputConfigurationMessageDuration)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.outputBitMap, DeviceMessageAttributes.OutputConfigurationMessageOutputBitMap)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     WriteOutputState(DeviceMessageId.OUTPUT_CONFIGURATION_WRITE_OUTPUT_STATE, "Write output state"){
