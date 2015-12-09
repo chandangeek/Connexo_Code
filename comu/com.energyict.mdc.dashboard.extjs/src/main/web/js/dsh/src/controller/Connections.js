@@ -87,18 +87,14 @@ Ext.define('Dsh.controller.Connections', {
                 selectionchange: this.onCommunicationSelectionChange
             },
             '#connectionsActionMenu': {
-                show: this.initConnectionMenu
+                show: this.initConnectionMenu,
+                click: this.chooseAction
             },
             'connections-list #generate-report': {
                 click: this.onGenerateReport
             },
             'connections-list #btn-connections-bulk-action': {
                 click: this.navigateToBulk
-            },
-            'connections-details uni-actioncolumn': {
-                run: this.connectionRun,
-                viewLog: this.viewLog,
-                viewHistory: this.viewHistory
             },
             // disable the finished between filter if in the latest status filter "Not applicable" is selected:
             'dsh-view-widget-connectionstopfilter #latest-state-filter': {
@@ -258,40 +254,6 @@ Ext.define('Dsh.controller.Connections', {
         });
     },
 
-    connectionRun: function (record) {
-        var me = this;
-        record.run(function () {
-            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.runSucceeded', 'DSH', 'Run succeeded'));
-            record.set('nextExecution', new Date());
-            me.showOverview();
-        });
-
-    },
-
-    viewLog: function (record) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
-            {
-                mRID: encodeURIComponent(record.get('device').id),
-                connectionMethodId: record.get('id'),
-                historyId: record.get('comSessionId')
-            });
-    },
-
-    viewHistory: function (record) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute('devices/device/connectionmethods/history').forward(
-            {
-                mRID: encodeURIComponent(record.get('device').id),
-                connectionMethodId: record.get('id')
-            }
-        );
-    },
-
     navigateToBulk: function () {
         location.href = '#/workspace/connections/details/bulk?' + Uni.util.QueryString.getQueryString();
     },
@@ -331,5 +293,36 @@ Ext.define('Dsh.controller.Connections', {
 
     doFilterLatestStatus: function(record, id) {
         return record.get('successIndicator') !== 'NOT_APPLICABLE';
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        switch (item.action) {
+            case 'run':
+                menu.record.run(function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.runSucceeded', 'DSH', 'Run succeeded'));
+                    menu.record.set('nextExecution', new Date());
+                    me.showOverview();
+                });
+                break;
+            case 'viewLog':
+                router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
+                    {
+                        mRID: encodeURIComponent(menu.record.get('device').id),
+                        connectionMethodId: menu.record.get('id'),
+                        historyId: menu.record.get('comSessionId')
+                    });
+                break;
+            case 'viewHistory':
+                router.getRoute('devices/device/connectionmethods/history').forward(
+                    {
+                        mRID: encodeURIComponent(menu.record.get('device').id),
+                        connectionMethodId: menu.record.get('id')
+                    }
+                );
+                break;
+        }
     }
 });
