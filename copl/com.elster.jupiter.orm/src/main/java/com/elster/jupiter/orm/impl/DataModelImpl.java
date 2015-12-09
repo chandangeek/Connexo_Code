@@ -161,6 +161,7 @@ public class DataModelImpl implements DataModel {
             }
             ormService.getDataModel(OrmService.COMPONENTNAME).get().persist(this);
         }
+        isInstalled = Optional.empty();
 
     }
 
