@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
@@ -75,7 +74,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new HexStringFactory())
+                            .hexStringSpec()
                             .named(DeviceMessageAttributes.pskAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -154,7 +153,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new HexStringFactory())
+                            .hexStringSpec()
                             .named(DeviceMessageAttributes.newHexPasswordAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -168,7 +167,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new HexStringFactory())
+                            .hexStringSpec()
                             .named(DeviceMessageAttributes.newHexPasswordAttributeName)
                                 .fromThesaurus(thesaurus)
                                 .markRequired()
@@ -289,7 +288,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new HexStringFactory())
+                            .hexStringSpec()
                             .named(DeviceMessageAttributes.randomBytesAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -395,7 +394,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             Stream.of(DeviceMessageAttributes.preparedDataAttributeName, DeviceMessageAttributes.signatureAttributeName)
                 .map(attributeName -> propertySpecService
-                        .specForValuesOf(new HexStringFactory())
+                        .hexStringSpec()
                         .named(attributeName)
                         .fromThesaurus(thesaurus)
                         .markRequired()
@@ -416,7 +415,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             Stream.of(DeviceMessageAttributes.preparedDataAttributeName, DeviceMessageAttributes.signatureAttributeName)
                     .map(attributeName -> propertySpecService
-                            .specForValuesOf(new HexStringFactory())
+                            .hexStringSpec()
                             .named(attributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -437,7 +436,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             Stream.of(DeviceMessageAttributes.preparedDataAttributeName, DeviceMessageAttributes.signatureAttributeName)
                     .map(attributeName -> propertySpecService
-                            .specForValuesOf(new HexStringFactory())
+                            .hexStringSpec()
                             .named(attributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()

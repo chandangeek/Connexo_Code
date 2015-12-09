@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.protocol.api.device.messages.LoadControlActions;
 import com.energyict.mdc.protocol.api.device.messages.MonitoredValue;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -81,7 +80,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                         .finish());
             propertySpecs.add(
                     propertySpecService
-                        .specForValuesOf(new TimeDurationValueFactory())
+                        .timeDurationSpec()
                         .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                         .fromThesaurus(thesaurus)
                         .finish());
@@ -101,7 +100,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new TimeDurationValueFactory())
+                            .timeDurationSpec()
                             .named(DeviceMessageAttributes.readFrequencyInMinutesAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -115,7 +114,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new TimeDurationValueFactory())
+                            .timeDurationSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
                             .finish());
@@ -165,7 +164,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             Stream.of(DeviceMessageAttributes.overThresholdDurationAttributeName, DeviceMessageAttributes.underThresholdDurationAttributeName)
                 .map(attributeName -> propertySpecService
-                        .specForValuesOf(new TimeDurationValueFactory())
+                        .timeDurationSpec()
                         .named(attributeName)
                         .fromThesaurus(thesaurus)
                         .finish())
@@ -194,7 +193,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new TimeDurationValueFactory())
+                            .timeDurationSpec()
                             .named(DeviceMessageAttributes.emergencyProfileDurationAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -312,7 +311,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new TimeDurationValueFactory())
+                            .timeDurationSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()

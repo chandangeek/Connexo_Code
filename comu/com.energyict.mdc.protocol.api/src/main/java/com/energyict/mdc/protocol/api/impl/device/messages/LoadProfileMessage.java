@@ -5,7 +5,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.protocol.api.device.messages.LoadProfileMode;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -49,7 +48,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new TimeDurationValueFactory())
+                            .timeDurationSpec()
                             .named(DeviceMessageAttributes.capturePeriodAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -62,7 +61,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new TimeDurationValueFactory())
+                            .timeDurationSpec()
                             .named(DeviceMessageAttributes.capturePeriodAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()

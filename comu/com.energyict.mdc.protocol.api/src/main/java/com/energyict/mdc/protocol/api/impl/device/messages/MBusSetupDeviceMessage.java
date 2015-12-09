@@ -3,7 +3,6 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -69,7 +68,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecEnum {
                     MBusSetupDeviceMessageAttributes.dibInstance4,
                     MBusSetupDeviceMessageAttributes.vibInstance4)
                 .map(name -> propertySpecService
-                                .specForValuesOf(new HexStringFactory())
+                                .hexStringSpec()
                                 .named(name)
                                 .fromThesaurus(thesaurus)
                                 .markRequired()
@@ -119,7 +118,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecEnum {
 
     protected PropertySpec hexStringProperty(MBusSetupDeviceMessageAttributes name, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         return propertySpecService
-                .specForValuesOf(new HexStringFactory())
+                .hexStringSpec()
                 .named(name)
                 .fromThesaurus(thesaurus)
                 .markRequired()

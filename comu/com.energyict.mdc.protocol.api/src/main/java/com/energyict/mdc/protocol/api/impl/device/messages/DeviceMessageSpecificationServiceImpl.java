@@ -182,6 +182,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         Stream.of(ContactorDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(EIWebConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(MBusSetupDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(ZigBeeConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
         return keys;
     }
 
