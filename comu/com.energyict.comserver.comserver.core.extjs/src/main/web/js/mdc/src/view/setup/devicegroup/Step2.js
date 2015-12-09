@@ -91,7 +91,8 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                                         disabled: true,
                                         itemId: 'search-criteria-selector',
                                         xtype: 'search-criteria-selector',
-                                        service: me.getService()
+                                        service: me.getService(),
+                                        searchContainer: me
                                     }
                                 ]
                             },
