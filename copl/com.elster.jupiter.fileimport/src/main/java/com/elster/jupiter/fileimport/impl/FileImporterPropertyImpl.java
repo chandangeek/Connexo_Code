@@ -77,7 +77,6 @@ final class FileImporterPropertyImpl implements FileImporterProperty, Persistenc
         return propertySpec;
     }
 
-    @Override
     public void setValue(Object value) {
         if (BigDecimal.class.equals(getPropertySpec().getValueFactory().getValueType())) {
             this.stringValue = toStringValue(new BigDecimal(value.toString()));
@@ -101,7 +100,6 @@ final class FileImporterPropertyImpl implements FileImporterProperty, Persistenc
         return getName() + ": " + getValue();
     }
 
-    @Override
     public void save() {
         dataModel.mapper(FileImporterProperty.class).update(this);
     }

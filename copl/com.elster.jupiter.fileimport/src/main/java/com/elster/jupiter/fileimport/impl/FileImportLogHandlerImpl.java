@@ -1,7 +1,5 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImportLogHandler;
-
 import java.time.Instant;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;

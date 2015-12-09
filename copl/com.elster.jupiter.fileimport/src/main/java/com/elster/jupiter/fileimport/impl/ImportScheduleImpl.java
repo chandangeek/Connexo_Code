@@ -238,9 +238,10 @@ final class ImportScheduleImpl implements ServerImportSchedule {
 
     @Override
     public void setProperty(String name, Object value) {
-        FileImporterProperty fileImporterProperty = properties.stream()
+        FileImporterPropertyImpl fileImporterProperty = properties.stream()
                 .filter(p -> p.getName().equals(name))
                 .findFirst()
+                .map(FileImporterPropertyImpl.class::cast)
                 .orElseGet(() -> {
                     FileImporterPropertyImpl property = FileImporterPropertyImpl.from(dataModel, this, name, value);
                     properties.add(property);
@@ -414,7 +415,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     private void doUpdate() {
 
         if (propertiesDirty) {
-            properties.forEach(FileImporterProperty::save);
+            properties.stream().map(FileImporterPropertyImpl.class::cast).forEach(FileImporterPropertyImpl::save);
         }
         Save.UPDATE.save(dataModel, this);
     }

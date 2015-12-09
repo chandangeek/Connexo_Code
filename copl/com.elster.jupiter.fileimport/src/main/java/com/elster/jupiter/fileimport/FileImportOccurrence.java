@@ -11,11 +11,12 @@ import java.util.logging.Logger;
 
 /**
  * A FileImport is an occurrence of one file being imported.
- * It can be in one of 4 states :
+ * It can be in one of 5 states :
  * <ul>
  *     <li>NEW : when the file is first detected to be imported.</li>
  *     <li>PROCESSING : when the file is awaiting processing, or being processed</li>
  *     <li>SUCCESS : when the file was processed successfully</li>
+ *     <li>SUCCESS_WITH_FAILURES: when the file was processed successfull, but some errors where caught</li>
  *     <li>FAILURE : when the file was not processed successfully.</li>
  * </ul>
  * FileImport shields the actual file from the code that does the actual processing of its contents,

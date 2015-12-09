@@ -1,7 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.fileimport.FileImportLogHandler;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.fileimport.ImportSchedule;

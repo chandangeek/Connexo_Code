@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.google.common.collect.Range;
 
@@ -9,6 +10,7 @@ import java.util.List;
 /**
  * Created by Lucian on 6/2/2015.
  */
+@ProviderType
 public interface FileImportOccurrenceFinderBuilder {
 
     FileImportOccurrenceFinderBuilder withStatusIn(List<Status> statuses);

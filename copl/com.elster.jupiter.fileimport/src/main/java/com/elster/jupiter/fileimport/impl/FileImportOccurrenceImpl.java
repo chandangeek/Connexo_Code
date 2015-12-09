@@ -3,7 +3,6 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fileimport.FileIOException;
-import com.elster.jupiter.fileimport.FileImportLogHandler;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportLogEntry;

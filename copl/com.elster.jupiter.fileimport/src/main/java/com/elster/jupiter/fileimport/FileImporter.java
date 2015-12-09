@@ -1,8 +1,11 @@
 package com.elster.jupiter.fileimport;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to be implemented by classes that process file contents.
  */
+@ProviderType
 public interface FileImporter {
 
     /**
@@ -15,7 +18,7 @@ public interface FileImporter {
      * If the importer is doing it's own transaction management (see {@link FileImporterFactory#requiresTransaction}), any interaction
      * with the fileImportOccurrence, including logging, needs to happen <b>outside</b> of a transaction
      *
-     * @param fileImportOccurrence
+     * @param fileImportOccurrence the file import occurrence to handle
      */
     void process(FileImportOccurrence fileImportOccurrence);
 

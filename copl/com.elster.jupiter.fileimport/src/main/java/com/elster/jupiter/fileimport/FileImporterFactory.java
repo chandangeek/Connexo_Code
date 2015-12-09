@@ -1,7 +1,6 @@
 package com.elster.jupiter.fileimport;
 
 import aQute.bnd.annotation.ConsumerType;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.HasName;
 
@@ -15,23 +14,11 @@ public interface FileImporterFactory extends HasDynamicProperties, HasName {
 
     String getDisplayName();
 
-    String getDisplayName(String property);
-
     String getDestinationName();
 
     String getApplicationName();
 
     void validateProperties(List<FileImporterProperty> properties);
-
-    NlsKey getNlsKey();
-
-    NlsKey getPropertyNlsKey(String property);
-
-    String getDefaultFormat();
-
-    String getPropertyDefaultFormat(String property);
-
-    List<String> getRequiredProperties();
 
     /**
      * Indicates if the FileImporter does its own transaction management or not.
@@ -45,5 +32,4 @@ public interface FileImporterFactory extends HasDynamicProperties, HasName {
         return true;
     }
 
-    ;
 }
