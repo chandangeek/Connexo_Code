@@ -13,14 +13,6 @@ Ext.define('Bpm.store.task.TasksFilterStatuses', {
                 {
                     value: 'INPROGRESS',
                     display: Uni.I18n.translate('bpm.filter.inProgressStatus', 'BPM', 'In progress')
-                },
-                {
-                    value: 'COMPLETED',
-                    display: Uni.I18n.translate('bpm.filter.completedStatus', 'BPM', 'Completed')
-                },
-                {
-                    value: 'FAILED',
-                    display: Uni.I18n.translate('bpm.filter.failedStatus', 'BPM', 'Failed')
                 }
             ],
             fields: [

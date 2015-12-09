@@ -17,6 +17,14 @@ Ext.define('Bpm.store.task.TasksFilterProcesses', {
 
     fields: [
         {name: 'name',  type: 'string'},
-        {name: 'id',  type: 'string'}
+        {name: 'id',  type: 'string'},
+        {name: 'version',  type: 'string'},
+        {
+            name: 'displayName',
+            type: 'string',
+            convert: function (value, record) {
+                return Ext.String.format('{0} ({1})', record.get('name'), record.get('version'));
+            }
+        }
     ]
 });
