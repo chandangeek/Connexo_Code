@@ -31,6 +31,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Path("/tasks")
 public class JbpmTaskResource {
@@ -578,13 +579,20 @@ public class JbpmTaskResource {
 
     @GET
     @Produces("application/json")
-    @Path("/process/{processId}/content")
-    public ConnexoForm getProcessForm(@PathParam("processId") String processId) {
+    @Path("/process/{deploymentId}/content/{processId}")
+    public ConnexoForm getProcessForm(@PathParam("processId") String processId, @PathParam("deploymentId") String deploymentId) {
 
         if(runtimeDataService != null) {
             String template = "";
 
             ProcessAssetDesc process = runtimeDataService.getProcessById(processId);
+            List<ProcessAssetDesc> processAssetDescList = runtimeDataService.getProcessesByDeploymentId(deploymentId).stream()
+                    .collect(Collectors.toList());
+            for(ProcessAssetDesc proc : processAssetDescList){
+                if(proc.getId().equals(processId)){
+                    process = proc;
+                }
+            }
 
             if(process.getForms().containsKey(process.getId())) {
                 template = process.getForms().get(process.getId());
