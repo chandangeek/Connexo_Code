@@ -48,6 +48,14 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of Long values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Long> longSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of BigDecimal values.
      *
      * @return The PropertySpecBuilder
@@ -81,44 +89,6 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass);
-
-    /**
-     * Creates a {@link PropertySpec} for a String value with a default value.
-     *
-     * @param name The name of the PropertySpec
-     * @param required A flag that indicates if the PropertySpec should be required or not
-     * @param defaultValue The default value in case the property is not specified
-     * @return The PropertySpec
-     */
-    PropertySpec stringPropertySpec(String name, boolean required, String defaultValue);
-
-    /**
-     * @deprecated Use {@link #stringPropertySpecWithValuesAndDefaultValue(Thesaurus, TranslationKey, TranslationKey, boolean, String, String...)} instead
-     */
-    @Deprecated
-    PropertySpec stringPropertySpecWithValuesAndDefaultValue(String name, boolean required, String defaultValue, String... values);
-
-    /**
-     * Creates a {@link PropertySpec} for a BigDecimal value which only allows the given values.
-     *
-     * @param name The name of the PropertySpec
-     * @param required A flag that indicates if the PropertySpec should be required or not
-     * @param values The allowed values for the PropertySpec
-     * @return the PropertySpec
-     */
-    PropertySpec bigDecimalPropertySpecWithValues(String name, boolean required, BigDecimal... values);
-
-    /**
-     * Creates a {@link PropertySpec} for a BigDecimal value with a default value.
-     *
-     * @param thesaurus The Thesaurus that contains the translations for the name and description keys
-     * @param nameTranslationKey The TranslationKey for the name of the PropertySpec
-     * @param descriptionTranslationKey The TranslationKey for the description of the PropertySpec
-     * @param required A flag that indicates if the PropertySpec should be required or not
-     * @param defaultValue The default value in case the property is not specified
-     * @return The PropertySpec
-     */
-    PropertySpec bigDecimalPropertySpec(Thesaurus thesaurus, TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey, boolean required, BigDecimal defaultValue);
 
     /**
      * @deprecated Use {@link #bigDecimalPropertySpec(Thesaurus, TranslationKey, TranslationKey, boolean, BigDecimal)} instead
