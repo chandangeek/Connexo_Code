@@ -58,7 +58,7 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                                 emptyText: Uni.I18n.translate('dbp.process.startTyping', 'DBP', 'Start typing for process...'),
                                 multiSelect: false,
                                 displayField: 'displayname',
-                                valueField: 'processId',
+                                valueField: 'id',
                                 itemId: 'cbo-processes-definition',
                                 //store: 'Dbp.deviceprocesses.store.AvailableProcesses',
                                 width: 600,

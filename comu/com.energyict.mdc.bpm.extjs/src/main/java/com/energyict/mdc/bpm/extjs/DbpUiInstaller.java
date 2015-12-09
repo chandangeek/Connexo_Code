@@ -36,8 +36,8 @@ public class DbpUiInstaller implements TranslationKeyProvider {
     @Activate
     public void activate(BundleContext context) {
              HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
-        // EXAMPLE: Below is how to enable local development mode.
-    //   HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Work\\Jupiter\\Connexo\\comu\\com.energyict.mdc.bpm.extjs\\src\\main\\web\\js\\dbp", new FileResolver());
+//         EXAMPLE: Below is how to enable local development mode.
+//       HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Work\\Sources\\comu\\com.energyict.mdc.bpm.extjs\\src\\main\\web\\js\\dbp", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

@@ -20,9 +20,13 @@ Ext.define('Dbp.deviceprocesses.model.StartProcess', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/bpm/runtime/processcontent',
+        //url: '/api/bpm/runtime/processcontent',
+        urlTpl: '/api/bpm/runtime/processcontent/{id}',
         reader: {
             type: 'json'
+        },
+        setUrl: function(processId, deploymentId){
+            this.url = this.urlTpl.replace('{id}', encodeURIComponent(processId));
         }
     }
 });

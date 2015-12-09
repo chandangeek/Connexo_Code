@@ -119,8 +119,8 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
         processStartContent.setLoading();
 
         me.processRecord = processRecord.lastSelection[0].data;
-
-        startProcess.load(processRecord.lastValue,{
+        startProcess.getProxy().setUrl(me.processRecord.id);
+        startProcess.load(encodeURIComponent(me.processRecord.deploymentId),{
             success: function (startProcessRecord) {
 
                 processStartContent.startProcessRecord = startProcessRecord;
