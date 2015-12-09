@@ -82,6 +82,7 @@ public class ChannelResource {
     }
 
     @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public Response getChannels(@PathParam("mrid") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
@@ -89,6 +90,7 @@ public class ChannelResource {
     }
 
     @GET
+    @Transactional
     @Path("/{rt_mrid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
@@ -279,10 +281,6 @@ public class ChannelResource {
 
     private boolean hasMissingData(ChannelDataInfo info) {
         return info.value == null;
-    }
-
-    private ValidationEvaluator getEvaluator(Meter meter) {
-        return validationService.getEvaluator(meter, Range.atMost(clock.instant()));
     }
     
 }

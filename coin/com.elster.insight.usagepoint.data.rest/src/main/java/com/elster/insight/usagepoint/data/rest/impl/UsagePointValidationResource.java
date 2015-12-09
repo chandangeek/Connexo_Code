@@ -395,39 +395,5 @@ public class UsagePointValidationResource {
         Optional<? extends ValidationRuleSet> ruleSet = validationService.getValidationRuleSet(validationRuleSetId);
         return ruleSet.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
-//
-//    private boolean isAllDataValidated(Device device) {
-//        boolean result = true;
-//
-//        ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-//
-//        Range<Instant> loadProfileRange = Range.openClosed(end.minusMonths(1).toInstant(), end.toInstant());
-//
-//        List<DataValidationStatus> lpStatuses = device.getLoadProfiles().stream()
-//                .flatMap(l -> l.getChannels().stream())
-//                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), loadProfileRange).stream())
-//                .collect(Collectors.toList());
-//
-//            result &= device.getLoadProfiles().stream()
-//                    .flatMap(l -> l.getChannels().stream())
-//                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-//
-//            result &= lpStatuses.stream()
-//                    .allMatch(DataValidationStatus::completelyValidated);
-//
-//        Range<Instant> registerRange = Range.openClosed(end.minusYears(1).toInstant(), end.toInstant());
-//
-//        List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
-//                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), registerRange).stream())
-//                .collect(Collectors.toList());
-//
-//            result &= device.getRegisters().stream()
-//                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-//
-//            result &= rgStatuses.stream()
-//                    .allMatch(DataValidationStatus::completelyValidated);
-//
-//        return result;
-//    }
 
 }
