@@ -15,8 +15,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+
 import com.google.common.collect.ImmutableList;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -69,7 +69,13 @@ public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
-        builder.add(propertySpecService.bigDecimalPropertySpec("Device id", true, new BigDecimal(1)));
+        builder.add(propertySpecService
+                .bigDecimalSpec()
+                .named("Device id", "Device identifier")
+                .describedAs("Device identifier")
+                .markRequired()
+                .setDefaultValue(BigDecimal.ONE)
+                .finish());
 
         return builder.build();
     }
