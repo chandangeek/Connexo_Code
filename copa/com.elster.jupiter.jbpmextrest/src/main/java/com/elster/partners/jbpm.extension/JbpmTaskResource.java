@@ -75,6 +75,7 @@ public class JbpmTaskResource {
                 List<Predicate> predicatesDueDate = new ArrayList<Predicate>();
                 List<Predicate> predicatesProcess = new ArrayList<Predicate>();
                 List<Predicate> predicatesStatus = new ArrayList<Predicate>();
+                List<Predicate> predicatesDeploymentId = new ArrayList<Predicate>();
                 Iterator<String> it = filterProperties.keySet().iterator();
                 while(it.hasNext()){
                     String theKey = (String)it.next();
@@ -147,7 +148,12 @@ public class JbpmTaskResource {
                     }
                     if(theKey.equals("process")) {
                         for (int i = 0; i < filterProperties.get("process").size(); i++) {
-                            predicatesProcess.add(criteriaBuilder.equal(taskRoot.get("taskData").get("processId"), filterProperties.get("process").get(i).toString().replace("\"", "")));
+                            if(filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(").length > 0) {
+                                String processId = filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(")[0];
+                                String deploymentId = filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(")[1].replace(") ", "");
+                                predicatesProcess.add(criteriaBuilder.equal(taskRoot.get("taskData").get("processId"), processId));
+                                predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), deploymentId));
+                            }
                         }
                     }
                 }
@@ -175,6 +181,12 @@ public class JbpmTaskResource {
                 if(!predicatesProcess.isEmpty()) {
                     p4 = criteriaBuilder.or(predicatesProcess.toArray(new Predicate[predicatesProcess.size()]));
                     predicateList.add(p4);
+
+                }
+                Predicate p5 = criteriaBuilder.disjunction();
+                if(!predicatesDeploymentId.isEmpty()) {
+                    p5 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
+                    predicateList.add(p5);
 
                 }
                 criteriaQuery.where(criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()])));
