@@ -1,8 +1,5 @@
 package com.energyict.mdc.issue.datacollection.impl.actions;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
-
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
@@ -13,16 +10,24 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
 import javax.inject.Inject;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,8 +37,6 @@ public class CloseIssueAction extends AbstractIssueAction {
     private static final String NAME = "CloseIssueAction";
     public static final String CLOSE_STATUS = NAME + ".status";
     public static final String COMMENT = NAME + ".comment";
-
-    private final PossibleStatuses statuses = new PossibleStatuses();
 
     private final IssueService issueService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -67,9 +70,22 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().stringReferencePropertySpec(CLOSE_STATUS, true, statuses, statuses.getStatuses()));
-        builder.add(getPropertySpecService().stringPropertySpec(COMMENT, false, null));
+        builder.add(
+                getPropertySpecService()
+                    .specForValuesOf(new StatusValueFactory())
+                    .named(CLOSE_STATUS, CLOSE_STATUS)
+                    .describedAs(CLOSE_STATUS)
+                    .markRequired()
+                    .addValues(this.getPossibleStatuses())
+                    .markExhaustive()
+                    .finish());
+        builder.add(getPropertySpecService().stringSpec().named(COMMENT, COMMENT).describedAs(COMMENT).finish());
         return builder.build();
+    }
+
+    private Status[] getPossibleStatuses() {
+        List<IssueStatus> statuses = issueService.query(IssueStatus.class).select(Where.where("isHistorical").isEqualTo(Boolean.TRUE));
+        return statuses.stream().map(Status::new).toArray(Status[]::new);
     }
 
     @Override
@@ -107,24 +123,6 @@ public class CloseIssueAction extends AbstractIssueAction {
         return Optional.empty();
     }
 
-    class PossibleStatuses implements CanFindByStringKey<Status> {
-
-        @Override
-        public Optional<Status> find(String key) {
-            return issueService.findStatus(key).map(Status::new);
-        }
-
-        public Status[] getStatuses() {
-            List<IssueStatus> statuses = issueService.query(IssueStatus.class).select(Where.where("isHistorical").isEqualTo(Boolean.TRUE));
-            return statuses.stream().map(Status::new).toArray(Status[]::new);
-        }
-
-        @Override
-        public Class<Status> valueDomain() {
-            return Status.class;
-        }
-    }
-
     static class Status extends HasIdAndName {
 
         private IssueStatus status;
@@ -134,13 +132,70 @@ public class CloseIssueAction extends AbstractIssueAction {
         }
 
         @Override
-        public Object getId() {
+        public String getId() {
             return status.getKey();
         }
 
         @Override
         public String getName() {
             return status.getName();
+        }
+    }
+
+    private class StatusValueFactory implements ValueFactory<Status> {
+        @Override
+        public Status fromStringValue(String stringValue) {
+            return issueService.findStatus(stringValue).map(Status::new).orElse(null);
+        }
+
+        @Override
+        public String toStringValue(Status status) {
+            return status.getId();
+        }
+
+        @Override
+        public Class<Status> getValueType() {
+            return Status.class;
+        }
+
+        @Override
+        public boolean isReference() {
+            return true;
+        }
+
+        @Override
+        public Status valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(Status object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, Status value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            }
+            else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, Status value) {
+            if (value != null) {
+                builder.addObject(this.valueToDatabase(value));
+            }
+            else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public boolean isPersistent(Status value) {
+            return !Checks.is(value.getId()).empty();
         }
     }
 
