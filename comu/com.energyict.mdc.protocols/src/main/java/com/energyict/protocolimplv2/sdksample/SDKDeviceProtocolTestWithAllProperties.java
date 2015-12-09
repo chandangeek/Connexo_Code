@@ -7,13 +7,9 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
-import com.energyict.mdc.dynamic.Ean13Factory;
-import com.energyict.mdc.dynamic.Ean18Factory;
-import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -168,7 +164,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .specForValuesOf(new HexStringFactory())
+                        .hexStringSpec()
                         .named(SDKTranslationKeys.SDKHEXSTRINGPROPERTY)
                         .fromThesaurus(this.getThesaurus())
                         .finish());
@@ -241,7 +237,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .specForValuesOf(new TimeDurationValueFactory())
+                        .timeDurationSpec()
                         .named(SDKTranslationKeys.SDKTIMEDURATIONPROPERTY)
                         .fromThesaurus(this.getThesaurus())
                         .finish());
@@ -265,13 +261,13 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
         //optionalProperties.add(propertySpecService.referencePropertySpec("SDKUserFileReferenceProperty", false, FactoryIds.USERFILE));
         optionalProperties.add(
                 this.propertySpecService
-                        .specForValuesOf(new Ean13Factory())
+                        .ean13Spec()
                         .named(SDKTranslationKeys.SDKEAN13PROPERTY)
                         .fromThesaurus(this.getThesaurus())
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .specForValuesOf(new Ean18Factory())
+                        .ean18Spec()
                         .named(SDKTranslationKeys.SDKEAN18PROPERTY)
                         .fromThesaurus(this.getThesaurus())
                         .finish());
