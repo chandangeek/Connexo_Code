@@ -51,6 +51,7 @@ Ext.define('Uni.service.Search', {
 
     stateful: true,
     stateId: 'search',
+    isStateLoad: false,
 
     /**
      * search domain
@@ -156,18 +157,31 @@ Ext.define('Uni.service.Search', {
             searchFields.getProxy().url     = domain.get('describedByHref');
             searchResults.getProxy().url    = domain.get('selfHref');
 
-            searchProperties.clearFilter(true);
+            if (!me.isStateLoad) {
+                searchFields.clearFilter(true);
+                searchResults.clearFilter(true);
+                searchProperties.clearFilter(true);
+            }
+
             searchProperties.load(function(){
                 me.init();
-                searchFields.load();
-                callback ? callback() : null;
+                searchFields.load(function(){
+                    callback ? callback() : null;
+                });
             });
         }
     },
 
     onSearchFieldsLoad: function(store, records, success) {
-        if (success) {
-            this.getSearchResultsStore().removeAll(true);
+        var me = this,
+            resultsStore = this.getSearchResultsStore();
+
+        resultsStore.removeAll(true);
+        resultsStore.model.setFields(records.map(function (field) {
+            return me.createFieldDefinitionFromModel(field)
+        }));
+
+        if (!me.isStateLoad) {
             this.applyFilters();
         }
     },
@@ -286,8 +300,13 @@ Ext.define('Uni.service.Search', {
 
     applyState: function (state) {
         var me = this,
-            propertiesStore = me.getSearchPropertiesStore();
+            propertiesStore = me.getSearchPropertiesStore(),
+            resultsStore = me.getSearchResultsStore();
 
+        me.isStateLoad = true;
+        resultsStore.clearFilter(true);
+        propertiesStore.clearFilter(true);
+        resultsStore.addFilter(state.filters, false);
         propertiesStore.addFilter(state.filters, false);
 
         me.setDomain(state.domain, function() {
@@ -310,7 +329,11 @@ Ext.define('Uni.service.Search', {
                     }
                 });
 
+                me.isStateLoad = false;
                 Ext.resumeLayouts(true);
+                resultsStore.load();
+            } else {
+                resultsStore.removeAll();
             }
         });
     },
@@ -437,7 +460,8 @@ Ext.define('Uni.service.Search', {
     onCriteriaChange: function (widget, value) {
         var me = this;
 
-        if (widget.property.get('affectsAvailableDomainProperties')) {
+        if (widget.property.get('affectsAvailableDomainProperties')
+            && !me.isStateLoad) {
             me.storeReload(me.getSearchPropertiesStore());
         }
 

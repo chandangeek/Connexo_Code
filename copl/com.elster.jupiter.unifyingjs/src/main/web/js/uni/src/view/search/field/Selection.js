@@ -315,9 +315,7 @@ Ext.define('Uni.view.search.field.Selection', {
         me.bindStore(me.store || 'ext-empty-store', true);
         me.grid = me.down('grid');
         me.on('menushow', me.viewSync, me);
-        me.store.load(function(){
-            me.storeSync();
-        });
+        me.store.load();
     },
 
     viewSync: function() {
@@ -327,6 +325,8 @@ Ext.define('Uni.view.search.field.Selection', {
         model.deselectAll(true);
         model.select(me.getStoreRecords(), true, true);
         model.updateHeaderState();
+
+        me.down('#select-all').setDisabled(!me.getStore().count());
         me.down('#filter-selected').setValue(
                 me.store.getCount() === model.getCount()
             &&  me.store.getCount() === me.selection.getCount()

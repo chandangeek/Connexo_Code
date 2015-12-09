@@ -36,10 +36,10 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
         var me = this;
         me.menu = {
             plain: true,
-                enableScrolling: true,
-                maxHeight: 350,
-                itemId: 'search-object-menu',
-                listeners: {
+            enableScrolling: true,
+            maxHeight: 350,
+            itemId: 'search-object-menu',
+            listeners: {
                 click: function(cmp, item) {
                     me.setValue(item.value);
                 }
