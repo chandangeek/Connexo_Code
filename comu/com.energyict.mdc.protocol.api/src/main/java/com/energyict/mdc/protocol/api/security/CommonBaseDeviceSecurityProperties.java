@@ -70,7 +70,7 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
     private Interval interval;
 
     @Override
-    public void copyFrom(BaseDevice device, CustomPropertySetValues propertyValues) {
+    public void copyFrom(BaseDevice device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.device.set(device);
         SecurityPropertySpecProvider propertySpecProvider = (SecurityPropertySpecProvider) propertyValues.getProperty(Fields.PROPERTY_SPEC_PROVIDER.javaName());
         this.propertySpecProvider.set(propertySpecProvider);
@@ -87,7 +87,7 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
     protected abstract void copyActualPropertiesFrom(CustomPropertySetValues propertyValues);
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(Fields.PROPERTY_SPEC_PROVIDER.javaName(), this.propertySpecProvider.get());
         propertySetValues.setProperty(Fields.COMPLETE.javaName(), this.complete);
         this.copyActualPropertiesTo(propertySetValues);

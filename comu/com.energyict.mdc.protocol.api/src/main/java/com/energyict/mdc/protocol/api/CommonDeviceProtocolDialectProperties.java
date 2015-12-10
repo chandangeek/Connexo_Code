@@ -44,7 +44,7 @@ public abstract class CommonDeviceProtocolDialectProperties implements Persisten
     private Interval interval;
 
     @Override
-    public void copyFrom(DeviceProtocolDialectPropertyProvider dialectPropertyProvider, CustomPropertySetValues propertyValues) {
+    public void copyFrom(DeviceProtocolDialectPropertyProvider dialectPropertyProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.dialectPropertyProvider.set(dialectPropertyProvider);
         this.copyActualPropertiesFrom(propertyValues);
     }
@@ -52,7 +52,7 @@ public abstract class CommonDeviceProtocolDialectProperties implements Persisten
     protected abstract void copyActualPropertiesFrom(CustomPropertySetValues propertyValues);
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         /* We could also not implement this method and have subclasses implement it
          * but that would create an incosisten api. Now subclasses have two methods to implement:
          * copyActualPropertiesFrom
