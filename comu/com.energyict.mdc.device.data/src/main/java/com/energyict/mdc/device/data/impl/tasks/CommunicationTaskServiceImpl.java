@@ -731,7 +731,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
-        getServerComTaskExecution(comTaskExecution).setLockedComPort(null);
+        //Avoid OptimisticLockException
+        refreshComTaskExecution(comTaskExecution).setLockedComPort(null);
     }
 
     @Override
