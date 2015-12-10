@@ -12,20 +12,22 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import javax.inject.Inject;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,8 +37,6 @@ public class AssignIssueAction extends AbstractIssueAction {
     private static final String NAME = "AssignIssueAction";
     public static final String ASSIGNEE = NAME + ".assignee";
     public static final String COMMENT = NAME + ".comment";
-
-    private final PossibleAssignees assignees = new PossibleAssignees();
 
     private IssueService issueService;
     private UserService userService;
@@ -83,15 +83,20 @@ public class AssignIssueAction extends AbstractIssueAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().stringReferencePropertySpec(ASSIGNEE, true, assignees, assignees.getPossibleAssignees()));
-        builder.add(
+        Assignee[] possibleAssignees = userService.getUserQuery()
+                .select(Condition.TRUE, Order.ascending("authenticationName"))
+                .stream()
+                .map(Assignee::new)
+                .toArray(Assignee[]::new);
+        return Collections.singletonList(
             getPropertySpecService()
-                .stringSpec()
-                .named(COMMENT, COMMENT)
-                .describedAs(COMMENT)
-                .finish());
-        return builder.build();
+                    .specForValuesOf(new AssigneeValueFactory())
+                    .named(ASSIGNEE, TranslationKeys.ASSIGNACTION_PROPERTY_ASSIGNEE)
+                    .fromThesaurus(this.getThesaurus())
+                    .markRequired()
+                    .addValues(possibleAssignees)
+                    .markExhaustive()
+                    .finish());
     }
 
     @Override
@@ -104,21 +109,63 @@ public class AssignIssueAction extends AbstractIssueAction {
         return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.Constants.ASSIGN_ISSUE.equals(p.getName())).findAny().isPresent();
     }
 
-    class PossibleAssignees implements CanFindByStringKey<Assignee> {
-
+    private class AssigneeValueFactory implements ValueFactory<Assignee> {
         @Override
-        public Optional<Assignee> find(String key) {
-            return userService.getUser(Long.valueOf(key).longValue()).map(Assignee::new);
-        }
-
-        public Assignee[] getPossibleAssignees() {
-            return userService.getUserQuery().select(Condition.TRUE, Order.ascending("authenticationName"))
-                                .stream().map(Assignee::new).toArray(Assignee[]::new);
+        public Assignee fromStringValue(String stringValue) {
+            return userService
+                    .getUser(Long.valueOf(stringValue).longValue())
+                    .map(Assignee::new)
+                    .orElse(null);
         }
 
         @Override
-        public Class<Assignee> valueDomain() {
+        public String toStringValue(Assignee object) {
+            return String.valueOf(object.getId());
+        }
+
+        @Override
+        public Class<Assignee> getValueType() {
             return Assignee.class;
+        }
+
+        @Override
+        public boolean isReference() {
+            return true;
+        }
+
+        @Override
+        public Assignee valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(Assignee object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, Assignee value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            }
+            else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, Assignee value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            }
+            else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public boolean isPersistent(Assignee value) {
+            return value != null && value.getId() > 0;
         }
     }
 
