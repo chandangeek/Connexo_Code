@@ -84,14 +84,14 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
     private String macAddress;
 
     @Override
-    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
         this.ipAddress = (String) propertyValues.getProperty(Fields.IP_ADDRESS.propertySpecName());
         this.macAddress = (String) propertyValues.getProperty(Fields.MAC_ADDRESS.propertySpecName());
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         if (!is(this.ipAddress).empty()) {
             propertySetValues.setProperty(Fields.IP_ADDRESS.propertySpecName(), this.ipAddress);
         }

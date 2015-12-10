@@ -170,7 +170,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     }
 
     @Override
-    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
         this.copyHost(propertyValues);
         this.copyPort(propertyValues);
@@ -202,7 +202,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(Fields.HOST.propertySpecName(), this.host);
         propertySetValues.setProperty(Fields.PORT_NUMBER.propertySpecName(), this.portNumber);
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
