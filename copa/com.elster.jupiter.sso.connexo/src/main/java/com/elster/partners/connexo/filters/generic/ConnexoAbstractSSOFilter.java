@@ -18,7 +18,6 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     private FilterConfig filterConfig;
     private List<String> excludedUrls = new ArrayList<>();
 
-    protected final String CONNEXO_URL = System.getProperty("connexo.url");
     protected final String CONNEXO_CONFIG = System.getProperty("connexo.configuration");
 
     protected Properties properties = new Properties();
@@ -33,6 +32,8 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
                 excludedUrls.add(url.replace("*", ".*?").trim());
             }
         }
+
+        loadProperties();
     }
 
     @Override
@@ -41,15 +42,21 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     }
 
     protected void redirectToLogin(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-        response.sendRedirect(getConnexoUrl() + "/apps/login/index.html?page=" + request.getRequestURL());
+        response.sendRedirect(getConnexoExternalUrl() + "/apps/login/index.html?page=" + request.getRequestURL());
     }
 
     protected void redirectToLogout(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-        response.sendRedirect(getConnexoUrl() + "/apps/login/index.html");
+        response.sendRedirect(getConnexoExternalUrl() + "/apps/login/index.html");
     }
 
-    protected String getConnexoUrl() {
-        return (CONNEXO_URL != null) ? CONNEXO_URL : "http://localhost:8080";
+    protected String getConnexoInternalUrl() {
+        String url = properties.getProperty("com.elster.jupiter.url");
+        return (url != null) ? url : "http://localhost:8080";
+    }
+
+    protected String getConnexoExternalUrl() {
+        String url = properties.getProperty("com.elster.jupiter.externalurl");
+        return (url != null) ? url : getConnexoInternalUrl();
     }
 
     protected boolean shouldExcludUrl(final HttpServletRequest request) {

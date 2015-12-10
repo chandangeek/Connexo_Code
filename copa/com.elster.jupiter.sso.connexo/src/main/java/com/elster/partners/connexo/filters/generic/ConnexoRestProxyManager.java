@@ -1,11 +1,8 @@
 package com.elster.partners.connexo.filters.generic;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Base64;
 
 /**
  * Created by dragos on 11/26/2015.
@@ -25,7 +22,7 @@ public class ConnexoRestProxyManager {
     }
 
     public String getToken(){
-        return doGet("/api/usr/currentuser/");
+        return doPost("/api/apps/apps/login");
     }
 
     private ConnexoRestProxyManager(String url, String authorization) {
@@ -33,23 +30,23 @@ public class ConnexoRestProxyManager {
         this.authorization = authorization;
     }
 
-    private String doGet(String targetURL) {
+    private String doPost(String targetURL) {
         HttpURLConnection httpConnection = null;
         try {
-            URL targetUrl = new URL(url + targetURL);
-            httpConnection = (HttpURLConnection) targetUrl.openConnection();
-            httpConnection.setDoOutput(true);
-            httpConnection.setRequestMethod("GET");
+            URL connexoUrl = new URL(url + targetURL);
+            httpConnection = (HttpURLConnection) connexoUrl.openConnection();
+            //httpConnection.setDoOutput(true);
+            httpConnection.setRequestMethod("POST");
             httpConnection.setRequestProperty("Authorization", this.authorization);
             httpConnection.setRequestProperty("Accept", "application/json");
-            if (httpConnection.getResponseCode() != 200) {
+            if (httpConnection.getResponseCode() != 204) {
                 throw new RuntimeException("Failed : HTTP error code : "
                         + httpConnection.getResponseCode());
             }
 
             return httpConnection.getHeaderField("X-CONNEXO-TOKEN");
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getStackTrace().toString());
         } finally {
             if (httpConnection != null) {

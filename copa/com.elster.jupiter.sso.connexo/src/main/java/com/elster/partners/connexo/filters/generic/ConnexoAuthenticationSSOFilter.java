@@ -5,10 +5,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -73,7 +69,7 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
                 xsrf = authorization.split(" ")[1];
             }
             else if (authorization.startsWith("Basic ")){
-                ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance(getConnexoUrl(), authorization);
+                ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance(getConnexoInternalUrl(), authorization);
                 xsrf = restManager.getToken();
             }
         }
