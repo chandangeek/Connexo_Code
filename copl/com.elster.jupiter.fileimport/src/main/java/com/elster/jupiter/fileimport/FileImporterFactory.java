@@ -1,38 +1,35 @@
 package com.elster.jupiter.fileimport;
 
-import com.elster.jupiter.nls.NlsKey;
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.HasName;
 
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
+@ConsumerType
 public interface FileImporterFactory extends HasDynamicProperties, HasName {
 
     FileImporter createImporter(Map<String, Object> properties);
 
     String getDisplayName();
 
-    String getDisplayName(String property);
-
-
     String getDestinationName();
-    String getApplicationName();
 
+    String getApplicationName();
 
     void validateProperties(List<FileImporterProperty> properties);
 
-    void init(Logger logger);
-
-    NlsKey getNlsKey();
-
-    NlsKey getPropertyNlsKey(String property);
-
-    String getDefaultFormat();
-
-    String getPropertyDefaultFormat(String property);
-
-    List<String> getRequiredProperties();
+    /**
+     * Indicates if the FileImporter does its own transaction management or not.
+     * If the FileImporter does its own transaction management, this method should return false.
+     * When the importer does it's own transaction management, any interaction (including logging) with the fileImportOccurrence
+     * needs to happen <b>outside</b> of a transaction
+     *
+     * @return
+     */
+    default boolean requiresTransaction() {
+        return true;
+    }
 
 }

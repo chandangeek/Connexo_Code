@@ -1,7 +1,9 @@
 package com.elster.jupiter.fileimport;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 
+@ProviderType
 public interface FileImporterProperty extends HasName {
 
     ImportSchedule getImportSchedule();
@@ -12,7 +14,4 @@ public interface FileImporterProperty extends HasName {
 
     boolean useDefault();
 
-    void setValue(Object value);
-
-    void save();
 }

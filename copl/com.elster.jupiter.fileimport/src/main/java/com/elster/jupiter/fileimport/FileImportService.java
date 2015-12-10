@@ -59,15 +59,14 @@ public interface FileImportService {
     Optional<FileImporterFactory> getImportFactory(String importerName);
 
     /**
-     * @param applicationName
-     * @return the list of importers
+     * @param applicationName the name of the application to look for applicable FileImporterFactory
+     * @return the list of importers for the given applicationName
      */
     List<FileImporterFactory> getAvailableImporters(String applicationName);
 
     /**
      * @return query to the import schedules
      */
-
     Query<ImportSchedule> getImportSchedulesQuery();
 
     /**
@@ -99,7 +98,6 @@ public interface FileImportService {
     /**
      * @return the list of import schedules
      */
-
     List<ImportSchedule> getImportSchedules();
 
     /**

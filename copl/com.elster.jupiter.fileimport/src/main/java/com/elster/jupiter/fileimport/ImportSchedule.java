@@ -7,14 +7,14 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.nio.file.Path;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * Entity that models when a certain directory should be scanned for files to import and where to move them during different stages of the import cycle.
+ * Entity that models when a certain directory should be scanned for files to import
+ * and where to move them during different stages of the import cycle.
  */
 @ProviderType
 public interface ImportSchedule {
@@ -42,7 +42,7 @@ public interface ImportSchedule {
     DestinationSpec getDestination();
 
     /**
-     * @return File representing the directory to scan for new files to import
+     * @return Path representing the directory to scan for new files to import
      */
     Path getImportDirectory();
 
@@ -52,17 +52,17 @@ public interface ImportSchedule {
     String getPathMatcher();
 
     /**
-     * @return File representing the directory where files are moved for awaiting processing.
+     * @return Path representing the directory where files are moved for awaiting processing.
      */
     Path getInProcessDirectory();
 
     /**
-     * @return File representing the directory where files are moved once they've been processed successfully.
+     * @return Path representing the directory where files are moved once they've been processed successfully.
      */
     Path getSuccessDirectory();
 
     /**
-     * @return File representing the directory where files are moved in case they could not be processed successfully.
+     * @return Path representing the directory where files are moved in case they could not be processed successfully.
      */
     Path getFailureDirectory();
 
@@ -76,13 +76,7 @@ public interface ImportSchedule {
     void update();
 
     /**
-     * @param file
-     * @return creates a new FileImport instance for the given file.
-     */
-    FileImportOccurrence createFileImportOccurrence(Path file, Clock clock);
-
-    /**
-     * @return returns the type of the importer
+     * @return returns the type of the importer (name of the FileImporterFactory
      */
     String getImporterName();
 

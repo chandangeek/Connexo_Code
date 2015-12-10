@@ -1,4 +1,4 @@
-package com.elster.jupiter.fileimport;
+package com.elster.jupiter.fileimport.impl;
 
 
 import java.util.logging.Handler;

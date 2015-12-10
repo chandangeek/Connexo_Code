@@ -303,7 +303,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public MessageHandler createMessageHandler() {
-        return new StreamImportMessageHandler(jsonService, thesaurus, clock, this);
+        return new StreamImportMessageHandler(jsonService, thesaurus, clock, this, transactionService);
     }
 
     public FileNameCollisionResolver getFileNameCollisionResolver() {
@@ -311,8 +311,9 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     }
 
     public Optional<FileImporterFactory> getImportFactory(String name) {
-
-        return importerFactories.stream().filter(factory -> factory.getName().equals(name))
+        return importerFactories
+                .stream()
+                .filter(factory -> factory.getName().equals(name))
                 .findAny();
     }
 
@@ -327,7 +328,6 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public Query<ImportSchedule> getImportSchedulesQuery() {
-
         return queryService.wrap(dataModel.query(ImportSchedule.class));
     }
 

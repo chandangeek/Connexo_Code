@@ -1,15 +1,15 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +18,11 @@ import org.mockito.Answers;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.Matchers.eq;
@@ -41,14 +46,15 @@ public class StreamImportMessageHandlerTest {
     private Message message;
     @Mock
     private FileImportService fileImportService;
-
+    @Mock
+    private TransactionService transactionService;
     @Mock
     private Thesaurus thesaurus;
 
     @Mock
     private JsonService jsonService;
     @Mock
-    private FileImportOccurrence fileImportOccurrence;
+    private ServerFileImportOccurrence fileImportOccurrence;
 
     @Mock
     private ImportSchedule importSchedule;
@@ -78,8 +84,9 @@ public class StreamImportMessageHandlerTest {
         when(fileImportService.getImportFactory(IMPORTER_NAME)).thenReturn(Optional.of(fileImporterFactory));
         when(fileImportService.getFileImportOccurrence(Matchers.anyLong())).thenReturn(Optional.of(fileImportOccurrence));
         when(fileImportOccurrence.getImportSchedule().getImporterProperties()).thenReturn(new ArrayList<>());
+        when(fileImporterFactory.requiresTransaction()).thenReturn(true);
         when(fileImporterFactory.createImporter(Matchers.anyMap())).thenReturn(fileImporter);
-        streamImportMessageHandler = new StreamImportMessageHandler(jsonService, thesaurus, clock, fileImportService);
+        streamImportMessageHandler = new StreamImportMessageHandler(jsonService, thesaurus, clock, fileImportService, transactionService);
     }
 
     @After
