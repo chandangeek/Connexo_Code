@@ -93,7 +93,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                             if (record && value) {
                                 var me = this.up('form').up('#deviceregisterreportpreview');
                                 return Uni.Number.formatNumber(value, -1) + ' ' +
-                                    me.unitOfMeasureCalculated !== '' ? me.unitOfMeasureCalculated : me.unitOfMeasureCollected;
+                                    (me.unitOfMeasureCalculated !== '' ? me.unitOfMeasureCalculated : me.unitOfMeasureCollected);
                             } else {
                                 return '-'
                             }
