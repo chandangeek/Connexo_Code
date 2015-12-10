@@ -1,5 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
@@ -33,14 +40,12 @@ import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecific
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.time.TimeService;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -48,21 +53,13 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link OfflineDeviceImpl} component.
@@ -200,7 +197,8 @@ public class OfflineDeviceImplTest {
     @Test
     public void propertiesTest() {
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(createMockDevice(), DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
-        offlineRtu.addProperties(getDeviceProperties(), getDeviceProtocolProperties());
+        offlineRtu.addProperties(getDeviceProperties());
+        offlineRtu.addProperties(getDeviceProtocolProperties());
         assertEquals("Size should be equal to seven", getTotalSizeOfProperties(), offlineRtu.getAllProperties().localSize());
         assertEquals(cp_propValue1, offlineRtu.getAllProperties().getProperty(cp_prop1));
         assertEquals(cp_propValue2, offlineRtu.getAllProperties().getProperty(cp_prop2));
