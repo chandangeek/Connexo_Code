@@ -41,7 +41,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         metaData.tdCls = cls;
                     }
                     if (!Ext.isEmpty(data)) {
-                        return record.get('isConfirmed') ? Uni.Number.formatNumber(data, -1) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>' : Uni.Number.formatNumber(data, -1);
+                        return record.get('isConfirmed')
+                            ? Uni.Number.formatNumber(data, -1) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>'
+                            : Uni.Number.formatNumber(data, -1);
                     }
                 }
             },
@@ -53,8 +55,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 emptyText: ' '
             },
             {
-                xtype: 'validation-flag-column',
-                dataIndex: 'deltaValue',
+                dataIndex: 'calculatedValue',
                 align: 'right',
                 minWidth: 150,
                 hidden: true,
@@ -73,7 +74,22 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         metaData.tdCls = cls;
                     }
                     if (!Ext.isEmpty(data)) {
-                        return record.get('isConfirmed') ? Uni.Number.formatNumber(data, -1) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>' : Uni.Number.formatNumber(data, -1);
+                        return record.get('isConfirmed')
+                            ? Uni.Number.formatNumber(data, -1) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>'
+                            : Uni.Number.formatNumber(data, -1);
+                    }
+                }
+            },
+            {
+                xtype: 'validation-flag-column',
+                dataIndex: 'deltaValue',
+                align: 'right',
+                minWidth: 150,
+                hidden: true,
+                flex: 1,
+                renderer: function (data) {
+                    if (!Ext.isEmpty(data)) {
+                        return Uni.Number.formatNumber(data, -1);
                     }
                 }
             },
