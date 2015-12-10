@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                         layout: {
                             type: 'hbox'
                         },
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                                     var record = this.up('form').getRecord();
                                     if (record && value) {
                                         var me = this.up('form').up('#deviceregisterreportpreview');
-                                        return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCalculated;
+                                        return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCollected;
                                     } else {
                                         return '-'
                                     }
@@ -73,13 +73,27 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         ]
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                        fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                        name: 'calculatedValue',
+                        renderer: function (value) {
+                            var record = this.up('form').getRecord();
+                            if (record && value) {
+                                var me = this.up('form').up('#deviceregisterreportpreview');
+                                return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCalculated;
+                            } else {
+                                return '-'
+                            }
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),
                         name: 'deltaValue',
                         renderer: function (value) {
                             var record = this.up('form').getRecord();
                             if (record && value) {
                                 var me = this.up('form').up('#deviceregisterreportpreview');
-                                return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCollected;
+                                return Uni.Number.formatNumber(value, -1) + ' ' +
+                                    me.unitOfMeasureCalculated !== '' ? me.unitOfMeasureCalculated : me.unitOfMeasureCollected;
                             } else {
                                 return '-'
                             }
