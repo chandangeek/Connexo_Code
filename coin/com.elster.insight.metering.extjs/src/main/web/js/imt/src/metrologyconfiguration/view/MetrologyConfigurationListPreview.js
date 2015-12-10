@@ -5,7 +5,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview', 
     record: null,
 
     requires: [
-        'Imt.metrologyconfiguration.view.ActionMenu',
+        'Imt.metrologyconfiguration.view.ActionMenu'
     ],
 
     initComponent: function () {
@@ -67,6 +67,18 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview', 
             }
         ];
 
+        me.tools = [
+            {
+                xtype: 'button',
+                text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                itemId: 'actionButton',
+                iconCls: 'x-uni-action-iconD',
+                menu: {
+                    xtype: 'metrologyConfigurationActionMenu',
+                    record: me.record
+                }
+            }
+        ],
         me.callParent(arguments);
     }
 });

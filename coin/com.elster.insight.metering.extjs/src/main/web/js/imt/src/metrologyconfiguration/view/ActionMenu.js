@@ -8,14 +8,14 @@ Ext.define('Imt.metrologyconfiguration.view.ActionMenu', {
     items: [
         {
             itemId: 'edit',
-            text: Uni.I18n.translate('general.menu.edit', 'IMT', 'Edit')
-//            action: 'edit'
+            text: Uni.I18n.translate('general.menu.edit', 'IMT', 'Edit'),
+            action: 'editMetrologyConfiguration'
         },
         {
             itemId: 'remove',
-            text: Uni.I18n.translate('general.menu.remove', 'IMT', 'Remove')
+            text: Uni.I18n.translate('general.menu.remove', 'IMT', 'Remove'),
 //            privileges: Cfg.privileges.Validation.validateManual,
-//           action: 'remove'
+           action: 'removeMetrologyConfiguration'
         }
     ]
 });

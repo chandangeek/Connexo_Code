@@ -30,6 +30,9 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             'metrology-configuration-action-menu': {
                 click: this.chooseAction
             },
+            '#metrologyConfigurationActionMenu': {
+                click: this.chooseAction
+            },
             '#createMetrologyConfiguration': {
                 click: this.createMetrologyConfiguration
             }
@@ -92,15 +95,16 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
 
     previewMetrologyConfiguration: function (record) {
         var me = this,
-            widget = Ext.widget('metrologyConfigurationListPreview'),  
+            widget = Ext.widget('metrologyConfigurationListPreview', {record: record}),  
             form = widget.down('#metrologyConfigurationListPreviewForm'),
+            menu = widget.down('#metrologyConfigurationActionMenu'),
             previewContainer = me.getMetrologyConfigurationListSetup().down('#previewComponentContainer');
         
         form.loadRecord(record);
         widget.setTitle(record.get('name'));
         previewContainer.removeAll();
         previewContainer.add(widget);
-   	
+//        menu.record = record;
     },
     removeMetrologyConfiguration: function (record) {
         var me = this,

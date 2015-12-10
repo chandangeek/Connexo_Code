@@ -3,11 +3,10 @@ Ext.define('Imt.metrologyconfiguration.view.GeneralPreview', {
     itemId: 'metrologyConfigurationGeneralPreview',
 
     requires: [
-        'Imt.metrologyconfiguration.view.ActionMenu'
     ],
 
     frame: true,
-
+  
     initComponent: function () {
         var me = this;
 
