@@ -57,11 +57,6 @@ class ReadingQualityTypedEstimator implements Estimator {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        return decorated.getPropertySpec(name);
-    }
-
-    @Override
     public NlsKey getNlsKey() {
         return decorated.getNlsKey();
     }
@@ -85,4 +80,5 @@ class ReadingQualityTypedEstimator implements Estimator {
     public List<String> getRequiredProperties() {
         return decorated.getRequiredProperties();
     }
+
 }
