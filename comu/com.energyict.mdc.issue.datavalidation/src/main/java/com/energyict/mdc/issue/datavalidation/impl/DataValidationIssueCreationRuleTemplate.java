@@ -10,14 +10,16 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.osgi.service.component.annotations.Component;
@@ -25,6 +27,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,21 +39,19 @@ import java.util.Optional;
 public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemplate {
 
     static final String NAME = "DataValidationIssueCreationRuleTemplate";
-    
+
     public static final String DEVICE_CONFIGURATIONS = NAME + ".deviceConfigurations";
-    
+
     private volatile IssueDataValidationService issueDataValidationService;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
-    
-    private final PossibleDeviceConfigurations deviceConfigurations = new PossibleDeviceConfigurations();
-    
+
     //for OSGI
     public DataValidationIssueCreationRuleTemplate() {
     }
-    
+
     @Inject
     public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService,
             NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService) {
@@ -79,7 +82,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         return "package com.energyict.mdc.issue.datavalidation\n" +
                "import com.energyict.mdc.issue.datavalidation.impl.event.CannotEstimateDataEvent;\n" +
                "import com.energyict.mdc.issue.datavalidation.impl.event.SuspectDeletedEvent;\n" +
-               "global java.util.logging.Logger LOGGER;\n" + 
+               "global java.util.logging.Logger LOGGER;\n" +
                "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                "rule \"Data validation rule @{ruleId}\"\n" +
                "when\n" +
@@ -97,27 +100,27 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                "end\n";
     }
-    
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
     }
-    
+
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
-    
+
     @Reference
     public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
         this.issueDataValidationService = issueDataValidationService;
     }
-    
+
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
-    
+
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
@@ -125,8 +128,20 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        DeviceConfigurationInfo[] possibleValues = deviceConfigurationService.findAllDeviceTypes().stream()
+                .flatMap(type -> type.getConfigurations().stream())
+                .map(DeviceConfigurationInfo::new)
+                .toArray(DeviceConfigurationInfo[]::new);
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(propertySpecService.listValuePropertySpec(DEVICE_CONFIGURATIONS, true, deviceConfigurations, deviceConfigurations.getPossibleValues()));
+        builder.add(
+                propertySpecService
+                        .specForValuesOf(new DeviceConfigurationInfoValueFactory())
+                        .named(DEVICE_CONFIGURATIONS, DEVICE_CONFIGURATIONS)
+                        .describedAs(DEVICE_CONFIGURATIONS)
+                        .markRequired()
+                        .addValues(possibleValues)
+                        .markExhaustive()
+                        .finish());
         return builder.build();
     }
 
@@ -155,37 +170,73 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         }
         return issue;
     }
-    
-    private class PossibleDeviceConfigurations implements CanFindByStringKey<DeviceConfigurationInfo> {
+
+    private class DeviceConfigurationInfoValueFactory implements ValueFactory<DeviceConfigurationInfo> {
+        @Override
+        public DeviceConfigurationInfo fromStringValue(String stringValue) {
+            return deviceConfigurationService
+                    .findDeviceConfiguration(Long.parseLong(stringValue))
+                    .map(DeviceConfigurationInfo::new)
+                    .orElse(null);
+        }
 
         @Override
-        public Optional<DeviceConfigurationInfo> find(String key) {
-            try {
-                return deviceConfigurationService.findDeviceConfiguration(Long.parseLong(key)).map(DeviceConfigurationInfo::new);
-            } catch (NumberFormatException e) {
-                return Optional.empty();
+        public String toStringValue(DeviceConfigurationInfo object) {
+            return String.valueOf(object.getId());
+        }
+
+        @Override
+        public Class<DeviceConfigurationInfo> getValueType() {
+            return DeviceConfigurationInfo.class;
+        }
+
+        @Override
+        public boolean isReference() {
+            return false;
+        }
+
+        @Override
+        public DeviceConfigurationInfo valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(DeviceConfigurationInfo object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, DeviceConfigurationInfo value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            }
+            else {
+                statement.setNull(offset, Types.VARCHAR);
             }
         }
 
         @Override
-        public Class<DeviceConfigurationInfo> valueDomain() {
-            return DeviceConfigurationInfo.class;
+        public void bind(SqlBuilder builder, DeviceConfigurationInfo value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            }
+            else {
+                builder.addNull(Types.VARCHAR);
+            }
         }
-        
-        public DeviceConfigurationInfo[] getPossibleValues() {
-            return deviceConfigurationService.findAllDeviceTypes().stream()
-                        .flatMap(type -> type.getConfigurations().stream())
-                        .map(DeviceConfigurationInfo::new)
-                        .toArray(DeviceConfigurationInfo[]::new);
+
+        @Override
+        public boolean isPersistent(DeviceConfigurationInfo value) {
+            return false;
         }
     }
-    
+
     @XmlRootElement
     static class DeviceConfigurationInfo extends HasIdAndName {
-        
+
         private transient DeviceConfiguration deviceConfiguration;
-        
-        public DeviceConfigurationInfo(DeviceConfiguration deviceConfiguration) {
+
+        DeviceConfigurationInfo(DeviceConfiguration deviceConfiguration) {
             this.deviceConfiguration = deviceConfiguration;
         }
 
@@ -198,15 +249,15 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         public String getName() {
             return deviceConfiguration.getName();
         }
-        
+
         public Long getDeviceTypeId() {
             return deviceConfiguration.getDeviceType().getId();
         }
-        
+
         public String getDeviceTypeName() {
             return deviceConfiguration.getDeviceType().getName();
         }
-        
+
         public boolean isActive() {
             return deviceConfiguration.isActive();
         }
