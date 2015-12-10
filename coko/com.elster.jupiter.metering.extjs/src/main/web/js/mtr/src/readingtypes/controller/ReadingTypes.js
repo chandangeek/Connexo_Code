@@ -83,6 +83,7 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
         widget = Ext.widget('reading-types-setup');
         me.getApplication().fireEvent('changecontentevent', widget);
         sorting.updateSortingToolbar();
+        store.load();
     },
 
     setCurrentSort: function () {
