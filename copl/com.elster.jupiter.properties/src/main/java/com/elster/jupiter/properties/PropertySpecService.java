@@ -7,6 +7,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
+import java.util.TimeZone;
 
 /**
  * Provides services to build {@link PropertySpec}s.
@@ -84,37 +85,19 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of TimeZone values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    <T> PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of persistent instances of the specified api class.
      *
      * @return The PropertySpecBuilder
      */
     <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass);
-
-    /**
-     * @deprecated Use {@link #bigDecimalPropertySpec(Thesaurus, TranslationKey, TranslationKey, boolean, BigDecimal)} instead
-     */
-    @Deprecated
-    PropertySpec bigDecimalPropertySpec(String name, boolean required, BigDecimal defaultValue);
-
-    /**
-     * Creates a {@link PropertySpec} for positive BigDecimal values.
-     *
-     * @param name The name of the PropertySpec
-     * @param required A flag that indicates if the PropertySpec should be required or not
-     * @return The PropertySpec
-     */
-    PropertySpec positiveDecimalPropertySpec(String name, boolean required);
-
-    /**
-     * Creates a {@link PropertySpec} for BigDecimal values that are limited between the lowerLimit and the upperLimit (inclusive).
-     *
-     * @param name The name of the PropertySpec
-     * @param required A flag that indicates if the PropertySpec should be required or not
-     * @param lowerLimit The lowest value allowed
-     * @param upperLimit The largest value allowed
-     * @return The PropertySpec
-     */
-    PropertySpec boundedDecimalPropertySpec(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit);
 
     /**
      * Creates a {@link PropertySpec} for ListValue values that can have single or multiple values at the same time.
