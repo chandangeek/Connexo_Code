@@ -21,7 +21,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.RelativePeriod;
@@ -242,16 +241,17 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
         builder.add(getPropertySpecService()
-                .longPropertySpec(
-                        this.getThesaurus(),
-                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
-                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION,
-                        true,
-                        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
+                .longSpec()
+                .named(TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)
+                .describedAs(TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .setDefaultValue(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)
+                .finish());
 
         builder.add(
             getPropertySpecService()
-                .specForValuesOf(new BooleanFactory())
+                .booleanSpec()
                 .named(TranslationKeys.ALLOW_NEGATIVE_VALUES)
                 .describedAs(TranslationKeys.ALLOW_NEGATIVE_VALUES_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
@@ -270,28 +270,33 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
         builder.add(
             getPropertySpecService()
-                .longPropertySpec(
-                        this.getThesaurus(),
-                        TranslationKeys.MIN_NUMBER_OF_SAMPLES,
-                        TranslationKeys.MIN_NUMBER_OF_SAMPLES_DESCRIPTION,
-                        true,
-                        MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+                    .longSpec()
+                    .named(TranslationKeys.MIN_NUMBER_OF_SAMPLES)
+                    .describedAs(TranslationKeys.MIN_NUMBER_OF_SAMPLES_DESCRIPTION)
+                    .fromThesaurus(this.getThesaurus())
+                    .markRequired()
+                    .setDefaultValue(MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE)
+                    .finish());
 
-        builder.add(getPropertySpecService()
-                .longPropertySpec(
-                        this.getThesaurus(),
-                        TranslationKeys.MAX_NUMBER_OF_SAMPLES,
-                        TranslationKeys.MAX_NUMBER_OF_SAMPLES_DESCRIPTION,
-                        true,
-                        MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+        builder.add(
+            getPropertySpecService()
+                    .longSpec()
+                    .named(TranslationKeys.MAX_NUMBER_OF_SAMPLES)
+                    .describedAs(TranslationKeys.MAX_NUMBER_OF_SAMPLES_DESCRIPTION)
+                    .fromThesaurus(this.getThesaurus())
+                    .markRequired()
+                    .setDefaultValue(MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE)
+                    .finish());
 
-        builder.add(getPropertySpecService()
-                .relativePeriodPropertySpec(
-                        this.getThesaurus(),
-                        TranslationKeys.RELATIVE_PERIOD,
-                        TranslationKeys.RELATIVE_PERIOD_DESCRIPTION,
-                        true,
-                        timeService.getAllRelativePeriod()));
+        builder.add(
+            getPropertySpecService()
+                .relativePeriodSpec()
+                .named(TranslationKeys.RELATIVE_PERIOD)
+                .describedAs(TranslationKeys.RELATIVE_PERIOD_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .addValues(timeService.getAllRelativePeriod())
+                .finish());
 
         return builder.build();
     }

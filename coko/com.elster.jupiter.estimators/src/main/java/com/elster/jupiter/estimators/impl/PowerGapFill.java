@@ -248,12 +248,13 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getPropertySpecService()
-                .longPropertySpec(
-                        this.getThesaurus(),
-                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
-                        TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION,
-                        true,
-                        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
+                .longSpec()
+                .named(TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)
+                .describedAs(TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .setDefaultValue(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)
+                .finish());
         return builder.build();
     }
 
