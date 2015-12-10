@@ -204,10 +204,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         comTasksStore.getProxy().startParam = false;
                         comTasksStore.load({
                             callback: function () {
-                                connectionMethodsStore.getProxy().extraParams = ({
-                                    deviceType: deviceTypeId,
-                                    deviceConfig: deviceConfigurationId
-                                });
+                                connectionMethodsStore.getProxy().setUrl(deviceTypeId, deviceConfigurationId);
                                 connectionMethodsStore.load({
                                     callback: function () {
                                         securityPropertySetsStore.getProxy().extraParams = ({
