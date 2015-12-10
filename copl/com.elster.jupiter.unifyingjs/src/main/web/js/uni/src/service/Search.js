@@ -265,7 +265,7 @@ Ext.define('Uni.service.Search', {
         searchResults.clearFilter(true);
         if (filters && filters.length) {
             searchResults.addFilter(me.getFilters(), false);
-            searchResults.load();
+            searchResults.loadPage(1);
         } else {
             searchResults.removeAll();
         }
