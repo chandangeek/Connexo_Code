@@ -97,7 +97,14 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
         CALLING_AP_TITLE_TK(IDIS.CALLING_AP_TITLE, "Calling AP title"),
         G3_MAC_ADDRESS_PROP_NAME_TK("MAC_address", "MAC address"),
         G3_SHORT_ADDRESS_PROP_NAME_TK("Short_MAC_address", "Short MAC address"),
-        G3_LOGICAL_DEVICE_ID_PROP_NAME_TK("Logical_device_id", "Logical device id");
+        G3_LOGICAL_DEVICE_ID_PROP_NAME_TK("Logical_device_id", "Logical device id"),
+        AARQ_TIMEOUT_PROPERTY("AARQTimeout", "AARQ Timeout"),
+        AARQ_RETRIES_PROPERTY("AARQRetries", "AARQ Retries"),
+        READCACHE_PROPERTY("ReadCache", "Read cache"),
+        CumulativeCaptureTimeChannel("CumulativeCaptureTimeChannel", "Cumulative capture time channel"),
+        PSK_PROPERTY("PSK", "PSK"),
+        CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME("CheckNumberOfBlocksDuringFirmwareResume", "Check number of blocks during firmware resume"),
+        USE_EQUIPMENT_IDENTIFIER_AS_SERIAL("UseEquipmentIdentifierAsSerialNumber", "Use equipment identifier as serial number");
 
         private final String propertySpecName;
         private final String defaultFormat;

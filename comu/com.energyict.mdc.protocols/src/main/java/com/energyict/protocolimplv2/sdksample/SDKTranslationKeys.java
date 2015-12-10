@@ -28,6 +28,8 @@ public enum SDKTranslationKeys implements TranslationKey {
     SDKEAN13PROPERTY(Keys.SDKEAN13PROPERTY, "An EAN13 property"),
     SDKEAN18PROPERTY(Keys.SDKEAN18PROPERTY, "An EAN18 property"),
     SDKENCRYPTEDSTRINGPROPERTY(Keys.SDKENCRYPTEDSTRINGPROPERTY, "An encrypted string property"),
+    DEFAULT_OPTIONAL_PROPERTY("SDK.defaultOptionalProperty", "Default optional propertry"),
+    DELAY_AFTER_REQUEST("SDK.delay.after.request", "Delay after request"),
     ;
 
     private final String key;

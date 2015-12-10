@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -11,7 +12,7 @@ import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -60,12 +61,12 @@ public class MTU155Properties extends BasicDynamicPropertySupport{
 
     private TypedProperties typedProperties;
 
-    public MTU155Properties(TypedProperties typedProperties, PropertySpecService propertySpecService) {
+    public MTU155Properties(TypedProperties typedProperties, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
         this.typedProperties = typedProperties;
     }
 
-    public MTU155Properties(PropertySpecService propertySpecService) {
+    public MTU155Properties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
         this.typedProperties = TypedProperties.empty();
     }
@@ -73,28 +74,49 @@ public class MTU155Properties extends BasicDynamicPropertySupport{
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(Arrays.asList(debugPropertySpec(), channelBacklogPropertySpec(), extractInstallationDatePropertySpec(), removeDayProfileOffsetPropertySpec()));
+        Collections.addAll(
+                propertySpecs,
+                debugPropertySpec(),
+                channelBacklogPropertySpec(),
+                extractInstallationDatePropertySpec(),
+                removeDayProfileOffsetPropertySpec());
         return propertySpecs;
     }
 
-    public PropertySpec timeZonePropertySpec() {
-        return getPropertySpecService().timeZonePropertySpec(TIMEZONE, true, DEFAULT_TIMEZONE);
-    }
-
     private PropertySpec debugPropertySpec() {
-        return getPropertySpecService().booleanPropertySpec(DEBUG_PROPERTY_NAME, false, DEFAULT_DEBUG);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(DEBUG_PROPERTY_NAME, MTU155TranslationKeys.DEBUG)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(DEFAULT_DEBUG)
+                .finish();
     }
 
     private PropertySpec channelBacklogPropertySpec() {
-        return getPropertySpecService().bigDecimalPropertySpec(CHANNEL_BACKLOG_PROPERTY_NAME, false, DEFAULT_CHANNEL_BACKLOG);
+        return getPropertySpecService()
+                .bigDecimalSpec()
+                .named(CHANNEL_BACKLOG_PROPERTY_NAME, MTU155TranslationKeys.CHANNEL_BACKLOG)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(DEFAULT_CHANNEL_BACKLOG)
+                .finish();
     }
 
     private PropertySpec extractInstallationDatePropertySpec() {
-        return getPropertySpecService().booleanPropertySpec(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME, false, DEFAULT_EXTRACT_INSTALLATION_DATE);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME, MTU155TranslationKeys.EXTRACT_INSTALLATION_DATE)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(DEFAULT_EXTRACT_INSTALLATION_DATE)
+                .finish();
     }
 
     private PropertySpec removeDayProfileOffsetPropertySpec() {
-        return getPropertySpecService().booleanPropertySpec(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME, false, DEFAULT_REMOVE_DAY_PROFILE_OFFSET);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME, MTU155TranslationKeys.REMOVE_DAY_PROFILE_OFFSET)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(DEFAULT_REMOVE_DAY_PROFILE_OFFSET)
+                .finish();
     }
 
     public TimeZone getTimeZone() {
@@ -211,7 +233,7 @@ public class MTU155Properties extends BasicDynamicPropertySupport{
 
     private String getKeyValue(String propertyName, String defaultValue) {
         String key = (String) typedProperties.getProperty(propertyName, defaultValue);
-        if (key.length() == 0) {
+        if (key.isEmpty()) {
             key = defaultValue;
         }
 

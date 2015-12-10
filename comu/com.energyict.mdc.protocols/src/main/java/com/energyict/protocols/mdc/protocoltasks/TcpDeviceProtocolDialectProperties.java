@@ -2,6 +2,8 @@ package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,6 +12,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 
 import java.math.BigDecimal;
 
@@ -22,58 +25,60 @@ import java.math.BigDecimal;
 class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
 
     enum ActualFields {
-        RETRIES("retries", DlmsProtocolProperties.RETRIES, "RETRIES") {
+        RETRIES("retries", DlmsProtocolProperties.RETRIES, CommonV2TranslationKeys.RETRIES, "RETRIES") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
 
             @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-                return this.propertySpec(propertySpecService, TcpDeviceProtocolDialect.DEFAULT_RETRIES);
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return this.propertySpec(propertySpecService, thesaurus, TcpDeviceProtocolDialect.DEFAULT_RETRIES);
             }
         },
-        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, "TIMEOUTMILLIS") {
+        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, CommonV2TranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
 
             @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-                return this.propertySpec(propertySpecService, TcpDeviceProtocolDialect.DEFAULT_TIMEOUT);
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return this.propertySpec(propertySpecService, thesaurus, TcpDeviceProtocolDialect.DEFAULT_TIMEOUT);
             }
         },
-        FORCED_DELAY("forcedDelay", DlmsProtocolProperties.FORCED_DELAY, "FORCED_DELAY") {
+        FORCED_DELAY("forcedDelay", DlmsProtocolProperties.FORCED_DELAY, CommonV2TranslationKeys.FORCED_DELAY, "FORCED_DELAY") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
 
             @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-                return this.propertySpec(propertySpecService, TcpDeviceProtocolDialect.DEFAULT_FORCED_DELAY);
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return this.propertySpec(propertySpecService, thesaurus, TcpDeviceProtocolDialect.DEFAULT_FORCED_DELAY);
             }
         },
-        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
+        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, CommonV2TranslationKeys.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
 
             @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-                return this.propertySpec(propertySpecService, TcpDeviceProtocolDialect.DEFAULT_DELAY_AFTER_ERROR);
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return this.propertySpec(propertySpecService, thesaurus, TcpDeviceProtocolDialect.DEFAULT_DELAY_AFTER_ERROR);
             }
         };
 
         private final String javaName;
         private final String propertySpecName;
+        private final TranslationKey translationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, String propertySpecName, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, TranslationKey translationKey, String databaseName) {
             this.javaName = javaName;
             this.propertySpecName = propertySpecName;
+            this.translationKey = translationKey;
             this.databaseName = databaseName;
         }
 
@@ -89,14 +94,24 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
             return this.databaseName;
         }
 
-        public abstract PropertySpec propertySpec(PropertySpecService propertySpecService);
+        public abstract PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
 
-        protected PropertySpec propertySpec(PropertySpecService propertySpecService, BigDecimal defaultValue) {
-            return propertySpecService.bigDecimalPropertySpec(this.propertySpecName(), false, defaultValue);
+        protected PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, BigDecimal defaultValue) {
+            return propertySpecService
+                    .bigDecimalSpec()
+                    .named(this.propertySpecName, this.translationKey)
+                    .fromThesaurus(thesaurus)
+                    .setDefaultValue(defaultValue)
+                    .finish();
         };
 
-        protected PropertySpec propertySpec(PropertySpecService propertySpecService, TimeDuration defaultValue) {
-            return propertySpecService.timeDurationPropertySpec(this.propertySpecName(), false, defaultValue);
+        protected PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, TimeDuration defaultValue) {
+            return propertySpecService
+                    .timeDurationSpec()
+                    .named(this.propertySpecName, this.translationKey)
+                    .fromThesaurus(thesaurus)
+                    .setDefaultValue(defaultValue)
+                    .finish();
         };
 
         public abstract void addTo(Table table);

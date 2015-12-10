@@ -17,7 +17,7 @@ import java.util.TimeZone;
  * Date: 12/9/14
  * Time: 12:23 PM
  */
-public class BasicDynamicPropertySupport implements HasDynamicProperties{
+public class BasicDynamicPropertySupport implements HasDynamicProperties {
 
     public static final String TIMEOUT = "Timeout";
     public static final String TIMEZONE = "TimeZone";
@@ -46,45 +46,54 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
                 timeOutPropertySpec(),
                 timeZonePropertySpec(),
                 retriesPropertySPec(),
-                forceDelayPropertySpec(),
+                forcedDelayPropertySpec(),
                 delayAfterErrorPropertySpec()
         );
     }
 
-    public PropertySpec delayAfterErrorPropertySpec() {
-        return propertySpecService.timeDurationPropertySpec(DELAY_AFTER_ERROR, false, getDefaultDelayAfterError());
+    private PropertySpec delayAfterErrorPropertySpec() {
+        return propertySpecService
+                .timeDurationSpec()
+                .named(DELAY_AFTER_ERROR, CommonV2TranslationKeys.DELAY_AFTER_ERROR)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_DELAY_AFTER_ERROR)
+                .finish();
     }
 
-    public TimeDuration getDefaultDelayAfterError() {
-        return DEFAULT_DELAY_AFTER_ERROR;
+    public PropertySpec forcedDelayPropertySpec() {
+        return propertySpecService
+                .timeDurationSpec()
+                .named(FORCED_DELAY, CommonV2TranslationKeys.FORCED_DELAY)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_FORCED_DELAY)
+                .finish();
     }
 
-    public PropertySpec forceDelayPropertySpec() {
-        return propertySpecService.timeDurationPropertySpec(FORCED_DELAY, false, getDefaultForcedDelay());
+    private PropertySpec retriesPropertySPec() {
+        return propertySpecService
+                .bigDecimalSpec()
+                .named(RETRIES, CommonV2TranslationKeys.RETRIES)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_RETRIES)
+                .finish();
     }
 
-    public TimeDuration getDefaultForcedDelay() {
-        return DEFAULT_FORCED_DELAY;
+    private PropertySpec timeZonePropertySpec() {
+        return propertySpecService
+                .timezoneSpec()
+                .named(TIMEZONE, CommonV2TranslationKeys.TIMEZONE)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(TimeZone.getTimeZone(DEFAULT_TIMEZONE))
+                .finish();
     }
 
-    public PropertySpec retriesPropertySPec() {
-        return propertySpecService.bigDecimalPropertySpec(RETRIES, false, getDefaultRetries());
-    }
-
-    public BigDecimal getDefaultRetries() {
-        return DEFAULT_RETRIES;
-    }
-
-    public PropertySpec timeZonePropertySpec() {
-        return propertySpecService.timeZonePropertySpec(TIMEZONE, false, TimeZone.getTimeZone(DEFAULT_TIMEZONE));
-    }
-
-    public PropertySpec timeOutPropertySpec() {
-        return propertySpecService.timeDurationPropertySpec(TIMEOUT, false, getDefaultTimeout());
-    }
-
-    public TimeDuration getDefaultTimeout() {
-        return DEFAULT_TIMEOUT;
+    private PropertySpec timeOutPropertySpec() {
+        return propertySpecService
+                .timeDurationSpec()
+                .named(TIMEOUT, CommonV2TranslationKeys.TIMEOUT)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_TIMEOUT)
+                .finish();
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -123,4 +132,5 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
                 .markExhaustive()
                 .finish();
     }
+
 }

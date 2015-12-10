@@ -33,13 +33,19 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
+import com.energyict.protocols.mdc.protocoltasks.CTRTranslationKeys;
 import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialectProperties;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
+import com.energyict.protocolimplv2.abnt.AbntTranslationKeys;
+import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
+import com.energyict.protocolimplv2.dlms.DlmsTranslationKeys;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155TranslationKeys;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.AbstractSMSServletBasedInboundDeviceProtocol;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol;
+import com.energyict.protocolimplv2.elster.garnet.GarnetTranslationKeys;
 import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -340,6 +346,12 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 Arrays.stream(DlmsProperties.TranslationKeys.values()),
                 Arrays.stream(AbstractSMSServletBasedInboundDeviceProtocol.TranslationKeys.values()),
                 Arrays.stream(CustomPropertySetTranslationKeys.values()),
+                Arrays.stream(AbntTranslationKeys.values()),
+                Arrays.stream(CTRTranslationKeys .values()),
+                Arrays.stream(GarnetTranslationKeys.values()),
+                Arrays.stream(CommonV2TranslationKeys.values()),
+                Arrays.stream(DlmsTranslationKeys.values()),
+                Arrays.stream(MTU155TranslationKeys.values()),
                 Arrays.stream(TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());

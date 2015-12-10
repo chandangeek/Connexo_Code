@@ -1,15 +1,17 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties;
 
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
+
+import com.energyict.protocolimplv2.dlms.DlmsTranslationKeys;
 import com.energyict.protocolimplv2.edp.EDPProperties;
 import com.energyict.protocolimplv2.g3.common.G3Properties;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,8 +25,8 @@ public class G3GatewayProperties extends G3Properties {
     public static final String AARQ_TIMEOUT_PROP_NAME = "AARQ_Timeout";
     public static final TimeDuration AARQ_TIMEOUT_DEFAULT = TimeDuration.NONE;
 
-    public G3GatewayProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public G3GatewayProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     public long getAarqTimeout() {
@@ -38,31 +40,50 @@ public class G3GatewayProperties extends G3Properties {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(Arrays.asList(validateInvokeIdPropertySpec(),
+        Collections.addAll(
+                propertySpecs,
+                validateInvokeIdPropertySpec(),
                 aarqTimeoutPropertySpec(),
                 readCachePropertySpec(),
                 forcedDelayPropertySpec(),
-                maxRecPduSizePropertySpec()));
+                maxRecPduSizePropertySpec());
         return propertySpecs;
     }
 
     private PropertySpec validateInvokeIdPropertySpec() {
-        return getPropertySpecService().booleanPropertySpec(VALIDATE_INVOKE_ID, false, true);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(VALIDATE_INVOKE_ID, DlmsTranslationKeys.VALIDATE_INVOKE_ID)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(true)
+                .finish();
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {
-        return getPropertySpecService().timeDurationPropertySpec(G3GatewayProperties.AARQ_TIMEOUT_PROP_NAME, false, G3GatewayProperties.AARQ_TIMEOUT_DEFAULT);
+        return getPropertySpecService()
+                .timeDurationSpec()
+                .named(G3GatewayProperties.AARQ_TIMEOUT_PROP_NAME, DlmsTranslationKeys.AARQ_TIMEOUT_PROP_NAME)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(G3GatewayProperties.AARQ_TIMEOUT_DEFAULT)
+                .finish();
     }
 
     private PropertySpec readCachePropertySpec() {
-        return getPropertySpecService().booleanPropertySpec(EDPProperties.READCACHE_PROPERTY, false, false);
-    }
-
-    private PropertySpec forcedDelayPropertySpec() {
-        return getPropertySpecService().timeDurationPropertySpec(FORCED_DELAY, false, DEFAULT_FORCED_DELAY);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(EDPProperties.READCACHE_PROPERTY, DlmsTranslationKeys.READCACHE_PROPERTY)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(false)
+                .finish();
     }
 
     private PropertySpec maxRecPduSizePropertySpec() {
-        return getPropertySpecService().bigDecimalPropertySpec(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
+        return getPropertySpecService()
+                .bigDecimalSpec()
+                .named(EDPProperties.MAX_REC_PDU_SIZE, DlmsTranslationKeys.MAX_REC_PDU_SIZE)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(DEFAULT_MAX_REC_PDU_SIZE)
+                .finish();
     }
+
 }

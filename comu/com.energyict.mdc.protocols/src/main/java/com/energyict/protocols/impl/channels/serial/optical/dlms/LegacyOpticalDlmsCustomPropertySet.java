@@ -109,31 +109,39 @@ public class LegacyOpticalDlmsCustomPropertySet implements CustomPropertySet<Con
     }
 
     PropertySpec getDataLinkLayerTypePropertySpec() {
-        return this.propertySpecService.bigDecimalPropertySpec(
-                LegacyOpticalDlmsConnectionProperties.Field.DATA_LINK_LAYER_TYPE.javaName(),
-                false,
-                BigDecimal.ZERO);
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(LegacyOpticalDlmsConnectionProperties.Field.DATA_LINK_LAYER_TYPE.javaName(), TranslationKeys.DATA_LINK_LAYER_TYPE)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(BigDecimal.ZERO)
+                .finish();
     }
 
     private PropertySpec getServerMacAddress() {
-        return this.propertySpecService.bigDecimalPropertySpec(
-                LegacyOpticalDlmsConnectionProperties.Field.SERVER_MAC_ADDRESS.javaName(),
-                false,
-                DEFAULT_SERVER_MAC_ADDRESS);
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(LegacyOpticalDlmsConnectionProperties.Field.SERVER_MAC_ADDRESS.javaName(), TranslationKeys.SERVER_MAC_ADDRESS)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_SERVER_MAC_ADDRESS)
+                .finish();
     }
 
     private PropertySpec getServerLowerMacAddress() {
-        return this.propertySpecService.bigDecimalPropertySpec(
-                LegacyOpticalDlmsConnectionProperties.Field.SERVER_LOWER_MAC_ADDRESS.javaName(),
-                false,
-                DEFAULT_SERVER_LOWER_MAC_ADDRESS);
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(LegacyOpticalDlmsConnectionProperties.Field.SERVER_LOWER_MAC_ADDRESS.javaName(), TranslationKeys.SERVER_LOWER_MAC_ADDRESS)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_SERVER_LOWER_MAC_ADDRESS)
+                .finish();
     }
 
     private PropertySpec getServerUpperMacAddress() {
-        return this.propertySpecService.bigDecimalPropertySpec(
-                LegacyOpticalDlmsConnectionProperties.Field.SERVER_UPPER_MAC_ADDRESS.javaName(),
-                false,
-                DEFAULT_SERVER_UPPER_MAC_ADDRESS);
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(LegacyOpticalDlmsConnectionProperties.Field.SERVER_UPPER_MAC_ADDRESS.javaName(), TranslationKeys.SERVER_UPPER_MAC_ADDRESS)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_SERVER_UPPER_MAC_ADDRESS)
+                .finish();
     }
 
 }

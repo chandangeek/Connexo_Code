@@ -3,12 +3,12 @@ package com.energyict.protocolimplv2.sdksample;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -154,23 +154,48 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(this.propertySpecService.basicPropertySpec("defaultOptionalProperty", false, new BooleanFactory()));
+        optionalProperties.add(
+                this.propertySpecService
+                        .booleanSpec()
+                        .named("defaultOptionalProperty", SDKTranslationKeys.DEFAULT_OPTIONAL_PROPERTY)
+                        .fromThesaurus(this.thesaurus)
+                        .finish());
         // codetables not supported
         // optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
         optionalProperties.add(
-                this.propertySpecService.
-                        obisCodePropertySpecWithValues(
-                                "SDKObisCodeProperty",
-                                false,
+                this.propertySpecService
+                        .specForValuesOf(new ObisCodeValueFactory())
+                        .named(SDKTranslationKeys.SDKOBISCODEPROPERTY)
+                        .fromThesaurus(this.thesaurus)
+                        .addValues(
                                 ObisCode.fromString("1.0.1.8.0.255"),
                                 ObisCode.fromString("1.0.1.8.1.255"),
                                 ObisCode.fromString("1.0.1.8.2.255"),
                                 ObisCode.fromString("1.0.2.8.0.255"),
                                 ObisCode.fromString("1.0.2.8.1.255"),
-                                ObisCode.fromString("1.0.2.8.2.255")));
-        optionalProperties.add(this.propertySpecService.bigDecimalPropertySpec("SDKBigDecimalWithDefault", false, new BigDecimal("666.156")));
-        optionalProperties.add(this.propertySpecService.basicPropertySpec("MyDateTimeProperty", false, new DateAndTimeFactory()));
-        optionalProperties.add(this.propertySpecService.timeDurationPropertySpec(delayAfterRequest, false, TimeDuration.NONE));
+                                ObisCode.fromString("1.0.2.8.2.255"))
+                        .markExhaustive()
+                        .finish());
+        optionalProperties.add(
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(SDKTranslationKeys.SDKBIGDECIMALWITHDEFAULT)
+                        .fromThesaurus(this.thesaurus)
+                        .setDefaultValue(new BigDecimal("666.156"))
+                        .finish());
+        optionalProperties.add(
+                this.propertySpecService
+                        .specForValuesOf(new DateAndTimeFactory())
+                        .named(SDKTranslationKeys.SDKDATETIMEPROPERTY)
+                        .fromThesaurus(this.thesaurus)
+                        .finish());
+        optionalProperties.add(
+                this.propertySpecService
+                        .timeDurationSpec()
+                        .named(delayAfterRequest, SDKTranslationKeys.DELAY_AFTER_REQUEST)
+                        .fromThesaurus(this.thesaurus)
+                        .setDefaultValue(TimeDuration.NONE)
+                        .finish());
         return optionalProperties;
     }
 
