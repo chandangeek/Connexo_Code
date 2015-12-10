@@ -10,5 +10,5 @@ In order to enable single sign on for Connexo Facts:
 Specific Facts configuration needs to be updated as follows:
 
 1. Stop Apache Tomcat 7.0 ConnexoTomcat10.1 service
-2. Copy web.xml to <Tomcat folder>/webapps/facts/WEB-INF
+2. Edit web.xml file from <Tomcat folder>/webapps/facts/WEB-INF to uncomment SSO lines
 4. Start Apache Tomcat 7.0 ConnexoTomcat10.1 service
