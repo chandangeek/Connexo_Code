@@ -86,7 +86,7 @@ public class ListValueTest {
         ListValue<TestBean> listValue2 = new ListValue<>(bean1);
         ListValue<TestBean> listValue3 = new ListValue<>(bean2);
 
-        assertThat(listValue1.isEmpty()).isFalse();
+        assertThat(listValue1.equals("")).isFalse();
         assertThat(listValue1).isEqualTo(listValue1);
         assertThat(listValue1.hashCode() == listValue2.hashCode()).isTrue();
         assertThat(listValue1).isEqualTo(listValue2);
