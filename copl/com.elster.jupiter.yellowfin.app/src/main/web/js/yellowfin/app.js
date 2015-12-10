@@ -10,10 +10,20 @@ Ext.onReady(function () {
         ];
         loader.initPackages(packages);
 
+        Ext.Ajax.on("beforerequest", function(conn){
+            var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
+            conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : 'Bearer '.concat(xAuthToken);
+
+        });
+        Ext.Ajax.on("requestcomplete", function(conn, response){
+            localStorage.setItem('X-AUTH-TOKEN',response.getResponseHeader('X-AUTH-TOKEN'));
+        });
+
         loader.onReady(function () {
 
             Ext.Ajax.defaultHeaders = {
-                'X-CONNEXO-APPLICATION-NAME': 'YFN' // a function that return the main application
+                'X-CONNEXO-APPLICATION-NAME': 'YFN', // a function that return the main application
+                'Authorization': 'Bearer ' + localStorage.getItem('X-AUTH-TOKEN')
             };
 
             Ext.Loader.setConfig({
@@ -36,8 +46,8 @@ Ext.onReady(function () {
 
 
     Ext.Ajax.request({
-        url: '/api/yfn/user/login',
-        method: 'POST',
+        url: '/api/yfn/user/url',
+        method: 'GET',
         async: false,
         success: function(response){
             var data = Ext.JSON.decode(response.responseText);
@@ -49,13 +59,6 @@ Ext.onReady(function () {
 
                 run_loader();
                 return;
-            }
-
-            if(data.token == "LICENSE_BREACH"){
-                url = data.url +"?LOGIN";
-            }
-            else{
-                url = data.url +"/logon.i4?LoginWebserviceId=" +data.token+"&disablelogoff=true";
             }
 
             window.location = url;
