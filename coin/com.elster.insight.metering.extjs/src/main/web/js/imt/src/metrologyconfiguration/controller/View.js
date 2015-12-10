@@ -43,7 +43,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
             }
         });
         
-         pageMainContent.setLoading(true);
+        pageMainContent.setLoading(true);
 
         metrologyConfigurationModel.load(id, {
 

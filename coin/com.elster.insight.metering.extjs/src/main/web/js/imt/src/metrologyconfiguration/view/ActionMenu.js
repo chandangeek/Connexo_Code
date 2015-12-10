@@ -1,7 +1,6 @@
 Ext.define('Imt.metrologyconfiguration.view.ActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.metrologyConfigurationActionMenu',
-    itemId: 'metrologyConfigurationActionMenu',
     plain: true,
     border: false,
     shadow: false,
