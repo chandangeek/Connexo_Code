@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.osgi.service.component.annotations.Activate;
@@ -21,7 +22,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.LongStream;
 
-import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.*;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNABLE_TO_CONNECT;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.EventAggregationRuleTemplate",
         property = {"name=" + EventAggregationRuleTemplate.NAME},
@@ -109,9 +112,24 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(propertySpecService.longPropertySpecWithValues(THRESHOLD, true, LongStream.rangeClosed(0, 100).boxed().toArray(Long[]::new)));
+        builder.add(propertySpecService
+                .longSpec()
+                .named(THRESHOLD, TranslationKeys.PARAMETER_NAME_THRESHOLD)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .addValues(LongStream.rangeClosed(0, 100).boxed().toArray(Long[]::new))
+                .markExhaustive()
+                .finish());
         EventTypes eventTypes = new EventTypes(getThesaurus(), CONNECTION_LOST, DEVICE_COMMUNICATION_FAILURE, UNABLE_TO_CONNECT);
-        builder.add(propertySpecService.stringReferencePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.getEventTypes()));
+        builder.add(
+            propertySpecService
+                .specForValuesOf(new EventTypeValueFactory(eventTypes))
+                .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .addValues(eventTypes.getEventTypes())
+                .markExhaustive()
+                .finish());
         return builder.build();
     }
 }

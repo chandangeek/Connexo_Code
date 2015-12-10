@@ -1,15 +1,12 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.CanFindByStringKey;
-import com.elster.jupiter.properties.HasIdAndName;
-
 import java.util.Arrays;
-import java.util.Optional;
 
-public class EventTypes implements CanFindByStringKey<EventTypes.EventType> {
+public class EventTypes {
 
     private final EventType[] eventTypes;
     private Thesaurus thesaurus;
@@ -17,21 +14,6 @@ public class EventTypes implements CanFindByStringKey<EventTypes.EventType> {
     public EventTypes(Thesaurus thesaurus, DataCollectionEventDescription... eventTypes) {
         this.thesaurus = thesaurus;
         this.eventTypes = Arrays.asList(eventTypes).stream().map(EventType::new).toArray(EventType[]::new);
-    }
-
-    @Override
-    public Optional<EventType> find(String key) {
-        for (EventType eventType : eventTypes) {
-            if (eventType.getId().equals(key)) {
-                return Optional.of(eventType);
-            }
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Class<EventType> valueDomain() {
-        return EventType.class;
     }
 
     public EventType[] getEventTypes() {

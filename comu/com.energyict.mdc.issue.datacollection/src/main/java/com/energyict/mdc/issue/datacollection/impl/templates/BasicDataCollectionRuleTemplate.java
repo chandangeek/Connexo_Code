@@ -8,7 +8,6 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -22,7 +21,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -129,20 +127,25 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
         EventTypes eventTypes = new EventTypes(getThesaurus(), DataCollectionEventDescription.values());
-        builder.add(propertySpecService.stringReferencePropertySpec(EVENTTYPE, true, eventTypes, eventTypes.getEventTypes()));
-        builder.add(propertySpecService.specForValuesOf(new BooleanFactory())
-                .name(AUTORESOLUTION)
+        builder.add(propertySpecService
+                .specForValuesOf(new EventTypeValueFactory(eventTypes))
+                .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .addValues(eventTypes.getEventTypes())
+                .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .booleanSpec()
+                .named(AUTORESOLUTION, AUTORESOLUTION).describedAs(AUTORESOLUTION)
                 .setDefaultValue(true)
                 .finish());
         return builder.build();
-    }
-
-    public Object[] getPossibleValuesForEventTypes() {
-        return Arrays.asList(DataCollectionEventDescription.values()).stream().map(DataCollectionEventDescription::name).toArray();
     }
 
     @Override
     public String getDisplayName() {
         return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DATACOLLECTION_NAME).format();
     }
+
 }
