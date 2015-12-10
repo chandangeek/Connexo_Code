@@ -90,6 +90,8 @@ import static java.util.stream.Collectors.toList;
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 public class DeviceImpl implements Device, CanLock {
 
+    private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
+
     private final DataModel dataModel;
     private final EventService eventService;
     private final IssueService issueService;
@@ -102,8 +104,8 @@ public class DeviceImpl implements Device, CanLock {
     private final SecurityPropertyService securityPropertyService;
     private final ProtocolPluggableService protocolPluggableService;
     private final MeteringGroupsService meteringGroupsService;
-    private final MdcReadingTypeUtilService readingTypeUtilService;
 
+    private final MdcReadingTypeUtilService readingTypeUtilService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private static final String MULTIPLIER_TYPE = "Default";
@@ -615,9 +617,9 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private void validateMultiplierValue(BigDecimal multiplier) {
-        if(multiplier.longValue() <= 0){
+        if(multiplier.compareTo(BigDecimal.ZERO) != 1){
             throw MultiplierConfigurationException.multiplierShouldBeLargerThanZero(thesaurus);
-        } else if (multiplier.longValue() > Integer.MAX_VALUE){
+        } else if (multiplier.compareTo(maxMultiplier) == 1){
             throw MultiplierConfigurationException.multiplierValueExceedsMax(thesaurus);
         }
     }

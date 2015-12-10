@@ -35,7 +35,7 @@ public class NumericalRegisterImpl extends RegisterImpl<NumericalReading, Numeri
 
     @Override
     public Optional<ReadingType> getCalculatedReadingType() {
-        return getMultiplier().isPresent()? getRegisterSpec().getCalculatedReadingType() : getRegisterSpec().getReadingType().getCalculatedReadingType();
+        return getMultiplier().isPresent()? getRegisterSpec().getCalculatedReadingType() : Optional.empty();
     }
 
     @Override

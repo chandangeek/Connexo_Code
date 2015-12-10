@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterDataUpdater;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +61,16 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     @Override
     public RS getRegisterSpec() {
         return registerSpec;
+    }
+
+    @Override
+    public Optional<BigDecimal> getMultiplier() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<ReadingType> getCalculatedReadingType() {
+        return Optional.empty();
     }
 
     @Override

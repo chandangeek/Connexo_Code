@@ -36,7 +36,7 @@ public class BillingRegisterImpl extends RegisterImpl<BillingReading, NumericalR
 
     @Override
     public Optional<ReadingType> getCalculatedReadingType() {
-        return getMultiplier().isPresent()? getRegisterSpec().getCalculatedReadingType() : getRegisterSpec().getReadingType().getCalculatedReadingType();
+        return getMultiplier().isPresent()? getRegisterSpec().getCalculatedReadingType() : Optional.empty();
     }
 
     @Override
