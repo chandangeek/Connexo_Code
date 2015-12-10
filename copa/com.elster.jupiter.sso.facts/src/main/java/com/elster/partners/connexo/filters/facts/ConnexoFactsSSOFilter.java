@@ -78,7 +78,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
             result = manager.login(principal.getName());
 
             if (result.isPresent()) {
-                response.sendRedirect(request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI())) + request.getContextPath() + "/logon.i4?LoginWebserviceId=" +result.get()+"&disablelogoff=true");
+                response.sendRedirect(request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI())) + request.getContextPath() + "/logon.i4?LoginWebserviceId=" +result.get());
             }
         }
     }
