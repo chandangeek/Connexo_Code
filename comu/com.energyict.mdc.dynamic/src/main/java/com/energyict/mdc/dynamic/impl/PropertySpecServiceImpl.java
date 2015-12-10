@@ -8,10 +8,8 @@ import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
@@ -295,37 +293,4 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return timeZonePropertySpecBuilder.finish();
     }
 
-    @Override
-    public PropertySpec relativePeriodPropertySpec(String name, boolean required, RelativePeriod defaultRelativePeriod) {
-        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new RelativePeriodFactory(timeService));
-        if (required) {
-            builder.markRequired();
-        }
-        return builder.name(name).setDefaultValue(defaultRelativePeriod).finish();
-    }
-
-    @Override
-    public PropertySpec longPropertySpec(String name, boolean required, Long defaultValue) {
-        return basicPropertySpecService.longPropertySpec(name, required, defaultValue);
-    }
-
-    @Override
-    public PropertySpec longPropertySpecWithValues(String name, boolean required, Long... values) {
-        return basicPropertySpecService.longPropertySpecWithValues(name, required, values);
-    }
-
-    @Override
-    public PropertySpec positiveLongPropertySpec(String name, boolean required) {
-        return basicPropertySpecService.positiveLongPropertySpec(name, required);
-    }
-
-    @Override
-    public PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit) {
-        return basicPropertySpecService.boundedLongPropertySpec(name, required, lowerLimit, upperLimit);
-    }
-
-    @Override
-    public <T extends HasIdAndName> PropertySpec stringReferencePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
-        return basicPropertySpecService.stringReferencePropertySpec(name, required, finder, values);
-    }
 }
