@@ -1585,8 +1585,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        ComTaskExecution toRemove = this.comTaskExecutions.stream().filter(x-> x.executesComSchedule(comSchedule))
-                .findFirst().
+        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x-> x.executesComSchedule(comSchedule)).findFirst().
                 orElseThrow(()-> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
         removeComTaskExecution(toRemove);
     }
