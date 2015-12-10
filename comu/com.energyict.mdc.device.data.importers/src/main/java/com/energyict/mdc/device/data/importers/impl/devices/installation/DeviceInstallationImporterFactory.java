@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.FileImportRecord;
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -21,7 +20,10 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.TranslationKeys.DEVICE_INSTALLATION_IMPORTER;
 
 @Component(name = "com.energyict.mdc.device.data.importers." + DeviceInstallationImporterFactory.NAME,
         service = FileImporterFactory.class,
@@ -46,8 +48,9 @@ public class DeviceInstallationImporterFactory extends AbstractDeviceDataFileImp
     }
 
     @Override
-    public String getDefaultFormat() {
-        return TranslationKeys.DEVICE_INSTALLATION_IMPORTER.getDefaultFormat();
+    public String getDisplayName() {
+        return getContext().getThesaurus()
+                .getString(DEVICE_INSTALLATION_IMPORTER.getKey(), DEVICE_INSTALLATION_IMPORTER.getDefaultFormat());
     }
 
     @Override
