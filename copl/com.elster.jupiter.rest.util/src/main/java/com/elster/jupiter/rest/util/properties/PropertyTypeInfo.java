@@ -1,8 +1,10 @@
 package com.elster.jupiter.rest.util.properties;
 
-import java.net.URI;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;
+
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.net.URI;
 
 /**
  * Provides additional type information of a specific property.
@@ -17,12 +19,12 @@ public class PropertyTypeInfo {
     /**
      * Identifies the backEnd type of the property
      */
-    @XmlJavaTypeAdapter(PropertyTypeAdapter.class)
+    @JsonDeserialize(using = NullifyingDeserializer.class)
     public PropertyType simplePropertyType;
     /**
      * Provides validation rules for this property (min/max/...)
      */
-    @XmlJavaTypeAdapter(PropertyValidationRuleAdapter.class)
+    @JsonDeserialize(using = NullifyingDeserializer.class)
     public PropertyValidationRule propertyValidationRule;
     /**
      * Defines predefined values which the user should be able to choose from

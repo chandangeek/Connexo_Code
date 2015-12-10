@@ -1,5 +1,7 @@
 package com.elster.jupiter.rest.util.properties;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * PlaceHolder for validation rule implementations for properties
  *
@@ -7,6 +9,7 @@ package com.elster.jupiter.rest.util.properties;
  * Date: 19/11/13
  * Time: 11:45
  */
+@XmlRootElement
 public interface PropertyValidationRule {
 
 }
