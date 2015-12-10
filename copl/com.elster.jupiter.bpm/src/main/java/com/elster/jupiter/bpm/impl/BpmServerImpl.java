@@ -1,7 +1,6 @@
 package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmServer;
-
 import org.osgi.framework.BundleContext;
 
 import java.io.BufferedReader;
@@ -91,7 +90,7 @@ public class BpmServerImpl implements BpmServer {
             return jsonContent.toString();
 
         } catch (IOException e) {
-            throw new RuntimeException(e.getStackTrace().toString());
+            return e.getMessage();
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
