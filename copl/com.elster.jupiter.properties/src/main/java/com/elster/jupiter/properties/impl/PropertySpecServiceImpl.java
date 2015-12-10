@@ -3,18 +3,17 @@ package com.elster.jupiter.properties.impl;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.BoundedLongPropertySpecImpl;
 import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 
 import org.osgi.service.component.annotations.Component;
@@ -92,6 +91,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
+    public <T> PropertySpecBuilderWizard.NlsOptions<RelativePeriod> relativePeriodSpec() {
+        return this.specForValuesOf(new RelativePeriodFactory(this.timeService));
+    }
+
+    @Override
     public <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass) {
         ReferenceValueFactory<T> valueFactory = new ReferenceValueFactory<T>(this.ormService).init(apiClass);
         return this.specForValuesOf(valueFactory);
@@ -105,40 +109,13 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
+    public PropertySpecBuilderWizard.NlsOptions<BigDecimal> positiveBigDecimalSpec() {
+        return this.boundedBigDecimalSpec(BigDecimal.ZERO, null);
+    }
+
+    @Override
     public <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
         return new ListValuePropertySpec<>(name, required, finder, values);
-    }
-
-    @Override
-    public PropertySpec longPropertySpec(String name, boolean required, Long defaultValue) {
-        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new LongFactory());
-        if (required) {
-            builder.markRequired();
-        }
-        return builder.name(name).setDefaultValue(defaultValue).finish();
-    }
-
-    @Override
-    public PropertySpec longPropertySpecWithValues(String name, boolean required, Long... values) {
-        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new LongFactory());
-        if (required) {
-            builder.markRequired();
-        }
-        return builder.name(name).addValues(values).markExhaustive().finish();
-    }
-
-    @Override
-    public PropertySpec positiveLongPropertySpec(String name, boolean required) {
-        BoundedLongPropertySpecImpl propertySpec = new BoundedLongPropertySpecImpl(name, 0L, null);
-        propertySpec.setRequired(required);
-        return propertySpec;
-    }
-
-    @Override
-    public PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit) {
-        BoundedLongPropertySpecImpl propertySpec = new BoundedLongPropertySpecImpl(name, lowerLimit, upperLimit);
-        propertySpec.setRequired(required);
-        return propertySpec;
     }
 
 }

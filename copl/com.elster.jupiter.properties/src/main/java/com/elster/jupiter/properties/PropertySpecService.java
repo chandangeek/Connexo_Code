@@ -1,7 +1,5 @@
 package com.elster.jupiter.properties;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.time.RelativePeriod;
 
 import aQute.bnd.annotation.ProviderType;
@@ -95,6 +93,14 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of RelativePeriod values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    <T> PropertySpecBuilderWizard.NlsOptions<RelativePeriod> relativePeriodSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of persistent instances of the specified api class.
      *
      * @return The PropertySpecBuilder
@@ -110,27 +116,5 @@ public interface PropertySpecService {
      * @return The PropertySpec
      */
     <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values);
-
-    PropertySpec relativePeriodPropertySpec(Thesaurus thesaurus, TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey, boolean required, RelativePeriod defaultPeriod);
-
-    /**
-     * @deprecated Use {@link #relativePeriodPropertySpec(Thesaurus, TranslationKey, TranslationKey, boolean, RelativePeriod)} instead
-     */
-    @Deprecated
-    PropertySpec relativePeriodPropertySpec(String name, boolean required, RelativePeriod defaultPeriod);
-
-    PropertySpec longPropertySpec(Thesaurus thesaurus, TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey, boolean required, Long defaultValue);
-
-    /**
-     * @deprecated Use {@link #longPropertySpec(Thesaurus, TranslationKey, TranslationKey, boolean, Long)} instead.
-     */
-    @Deprecated
-    PropertySpec longPropertySpec(String name, boolean required, Long defaultValue);
-
-    PropertySpec longPropertySpecWithValues(String name, boolean required, Long... values);
-
-    PropertySpec positiveLongPropertySpec(String name, boolean required);
-
-    PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit);
 
 }
