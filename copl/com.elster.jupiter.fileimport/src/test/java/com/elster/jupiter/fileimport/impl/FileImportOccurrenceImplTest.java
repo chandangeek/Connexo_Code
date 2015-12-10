@@ -31,7 +31,9 @@ import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileImportOccurrenceImplTest {
@@ -158,8 +160,8 @@ public class FileImportOccurrenceImplTest {
     @Test
     public void testCreateKeepsReferenceToFile() {
 
-        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
-        ((FileImportOccurrenceImpl)fileImportOccurrence).setLogger(logger);
+        FileImportOccurrenceImpl fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
+        fileImportOccurrence.setLogger(logger);
         fileImportOccurrence.prepareProcessing();
 
         assertThat(fileImportOccurrence.getFileName()).isEqualTo(FILE_NAME);
@@ -177,8 +179,8 @@ public class FileImportOccurrenceImplTest {
 
     @Test
     public void testMovedToProcessing() {
-        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
-        ((FileImportOccurrenceImpl)fileImportOccurrence).setLogger(logger);
+        FileImportOccurrenceImpl fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
+        fileImportOccurrence.setLogger(logger);
         fileImportOccurrence.prepareProcessing();
 
         assertThat(!Files.exists(sourceFilePath));
@@ -189,8 +191,8 @@ public class FileImportOccurrenceImplTest {
 
     @Test
     public void testMarkSuccessMovedToSuccessFolder() {
-        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
-        ((FileImportOccurrenceImpl)fileImportOccurrence).setLogger(logger);
+        FileImportOccurrenceImpl fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
+        fileImportOccurrence.setLogger(logger);
         fileImportOccurrence.prepareProcessing();
 
         fileImportOccurrence.markSuccess(SUCCESS_MESSAGE);
@@ -206,8 +208,8 @@ public class FileImportOccurrenceImplTest {
         ByteArrayInputStream spiedStream = spy(contentsAsStream());
         when(fileUtils.getInputStream(any(Path.class))).thenReturn(spiedStream);
 
-        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
-        ((FileImportOccurrenceImpl)fileImportOccurrence).setLogger(logger);
+        FileImportOccurrenceImpl fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
+        fileImportOccurrence.setLogger(logger);
         fileImportOccurrence.prepareProcessing();
         fileImportOccurrence.getContents();
 
@@ -218,8 +220,8 @@ public class FileImportOccurrenceImplTest {
 
     @Test
     public void testMarkFailureMovedToFailureFolder() {
-        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
-        ((FileImportOccurrenceImpl)fileImportOccurrence).setLogger(logger);
+        FileImportOccurrenceImpl fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
+        fileImportOccurrence.setLogger(logger);
         fileImportOccurrence.prepareProcessing();
 
 
@@ -236,8 +238,8 @@ public class FileImportOccurrenceImplTest {
         ByteArrayInputStream spiedStream = spy(contentsAsStream());
         when(fileUtils.getInputStream(any(Path.class))).thenReturn(spiedStream);
 
-        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
-        ((FileImportOccurrenceImpl)fileImportOccurrence).setLogger(logger);
+        FileImportOccurrenceImpl fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
+        fileImportOccurrence.setLogger(logger);
         fileImportOccurrence.prepareProcessing();
         fileImportOccurrence.getContents();
 
@@ -249,8 +251,8 @@ public class FileImportOccurrenceImplTest {
 
     @Test
     public void testMarkSuccessWithFailureMovedToSuccessFolder() {
-        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
-        ((FileImportOccurrenceImpl)fileImportOccurrence).setLogger(logger);
+        FileImportOccurrenceImpl fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
+        fileImportOccurrence.setLogger(logger);
         fileImportOccurrence.prepareProcessing();
 
         fileImportOccurrence.markSuccessWithFailures(SUCCESS_WITH_FAILURE_MESSAGE);
@@ -266,8 +268,8 @@ public class FileImportOccurrenceImplTest {
         ByteArrayInputStream spiedStream = spy(contentsAsStream());
         when(fileUtils.getInputStream(any(Path.class))).thenReturn(spiedStream);
 
-        FileImportOccurrence fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
-        ((FileImportOccurrenceImpl)fileImportOccurrence).setLogger(logger);
+        FileImportOccurrenceImpl fileImportOccurrence = FileImportOccurrenceImpl.create(fileImportService, testFileSystem, fileUtils, dataModel, fileNameCollisionResolver, thesaurus, clock, importSchedule, sourceFilePath);
+        fileImportOccurrence.setLogger(logger);
         fileImportOccurrence.prepareProcessing();
         fileImportOccurrence.getContents();
 

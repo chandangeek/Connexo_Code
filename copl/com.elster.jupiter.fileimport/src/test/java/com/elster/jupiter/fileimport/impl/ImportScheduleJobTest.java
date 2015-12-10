@@ -1,8 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
@@ -29,7 +27,9 @@ import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ImportScheduleJobTest {
@@ -39,7 +39,7 @@ public class ImportScheduleJobTest {
     private ImportScheduleJob importScheduleJob;
 
     @Mock
-    private ImportSchedule importSchedule;
+    private ServerImportSchedule importSchedule;
     @Mock
     private ScheduleExpression scheduleExpression;
     @Mock
@@ -57,7 +57,7 @@ public class ImportScheduleJobTest {
     private CronExpressionParser cronExpressionParser;
 
     @Mock
-    private FileImportOccurrence fileImportOccurrence;
+    private ServerFileImportOccurrence fileImportOccurrence;
     @Mock
     private JsonService jsonService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)

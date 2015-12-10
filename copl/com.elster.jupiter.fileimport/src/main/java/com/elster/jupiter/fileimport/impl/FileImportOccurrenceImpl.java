@@ -2,7 +2,12 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.fileimport.FileIOException;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.ImportLogEntry;
+import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -17,15 +22,17 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-final class FileImportOccurrenceImpl implements FileImportOccurrence {
+final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
 
     private long id;
     private ImportSchedule importSchedule;
@@ -175,7 +182,6 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         return Collections.unmodifiableList(logEntries);
     }
 
-    @Override
     public FileImportLogHandler createFileImportLogHandler() {
         return new FileImportLogHandlerImpl(this);
     }
@@ -205,16 +211,23 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         this.logger = logger;
     }
 
-    void log(Level level, Instant timestamp, String message) {
+    @Override
+    public void log(Level level, Instant timestamp, String message) {
         logEntries.add(dataModel.getInstance(ImportLogEntryImpl.class).init(this, timestamp, level, message));
     }
 
-    void save() {
+    @Override
+    public void save() {
+        flushLogEntries();
         if (id == 0) {
             fileImportFactory().persist(this);
         } else {
             fileImportFactory().update(this);
         }
+    }
+
+    private void flushLogEntries() {
+        Arrays.stream(getLogger().getHandlers()).filter(FileImportLogHandler.class::isInstance).forEach(Handler::flush);
     }
 
     private DataMapper<FileImportOccurrence> fileImportFactory() {
@@ -287,7 +300,6 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         save();
     }
 
-    @Override
     public void setEndDate(Instant instant) {
         this.endDate = instant;
         save();
