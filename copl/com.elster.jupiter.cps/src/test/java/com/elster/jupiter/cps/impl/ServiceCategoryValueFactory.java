@@ -78,5 +78,4 @@ public class ServiceCategoryValueFactory implements ValueFactory<ServiceCategory
     public boolean isPersistent(ServiceCategoryForTestingPurposes value) {
         return false;
     }
-
 }
