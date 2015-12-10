@@ -27,6 +27,7 @@ public abstract class ComServerInfo<B extends ComServer.ComServerBuilder,C exten
     public long id;
     public String name;
     public Boolean active;
+    public String displayComServerType;
     @XmlJavaTypeAdapter(LogLevelAdapter.class)
     public ComServer.LogLevel serverLogLevel;
     @XmlJavaTypeAdapter(LogLevelAdapter.class)

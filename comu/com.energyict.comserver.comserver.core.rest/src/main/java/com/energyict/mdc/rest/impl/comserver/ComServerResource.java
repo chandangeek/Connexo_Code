@@ -36,13 +36,15 @@ public class ComServerResource {
     private final Provider<ComServerComPortResource> comServerComPortResourceProvider;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final ResourceHelper resourceHelper;
+    private final ComServerInfoFactory comServerInfoFactory;
 
     @Inject
     public ComServerResource(EngineConfigurationService engineConfigurationService,
-                             Provider<ComServerComPortResource> comServerComPortResourceProvider, ConcurrentModificationExceptionFactory conflictFactory, ResourceHelper resourceHelper) {
+                             Provider<ComServerComPortResource> comServerComPortResourceProvider, ConcurrentModificationExceptionFactory conflictFactory, ComServerInfoFactory comServerInfoFactory, ResourceHelper resourceHelper) {
         this.engineConfigurationService = engineConfigurationService;
         this.comServerComPortResourceProvider = comServerComPortResourceProvider;
         this.conflictFactory = conflictFactory;
+        this.comServerInfoFactory = comServerInfoFactory;
         this.resourceHelper = resourceHelper;
     }
 
@@ -54,7 +56,7 @@ public class ComServerResource {
         List<ComServer> allComServers = this.getSortedComServers(queryParameters);
 
         for (ComServer comServer : allComServers) {
-            comServers.add(ComServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService));
+            comServers.add(comServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService));
         }
 
         return PagedInfoList.fromPagedList("data", comServers, queryParameters);
@@ -72,7 +74,7 @@ public class ComServerResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComServerInfo<?,?> getComServer(@PathParam("id") long id) {
         ComServer comServer = resourceHelper.findComServerOrThrowException(id);
-        return ComServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService);
+        return comServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService);
     }
 
     @DELETE @Transactional
@@ -113,7 +115,7 @@ public class ComServerResource {
         for (ComPortInfo<?,?> comPortInfo : allComPorts) {
             comPortInfo.createNew(comServer, engineConfigurationService);
         }
-        return Response.status(Response.Status.CREATED).entity(ComServerInfoFactory.asInfo(comServer)).build();
+        return Response.status(Response.Status.CREATED).entity(comServerInfoFactory.asInfo(comServer)).build();
     }
 
     @PUT @Transactional
@@ -137,7 +139,7 @@ public class ComServerResource {
         }
 
         comServerInfo.updateTo(comServer, engineConfigurationService);
-        return ComServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService);
+        return comServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService);
     }
 
     @PUT @Transactional
@@ -158,7 +160,7 @@ public class ComServerResource {
             comServer.setActive(info.active);
             comServer.update();
         }
-        return ComServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService);
+        return comServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService);
     }
 
     @Path("/{comServerId}/comports")

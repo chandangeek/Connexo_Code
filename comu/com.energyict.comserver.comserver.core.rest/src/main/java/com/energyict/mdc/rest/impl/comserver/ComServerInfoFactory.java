@@ -1,39 +1,60 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.RemoteComServer;
+
+import javax.inject.Inject;
 import java.util.List;
 
 public class ComServerInfoFactory {
 
-    public static ComServerInfo<?,?> asInfo(ComServer comServer) {
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public ComServerInfoFactory(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+
+    public ComServerInfo<?, ?> asInfo(ComServer comServer) {
         if (OnlineComServer.class.isAssignableFrom(comServer.getClass())) {
-            return new OnlineComServerInfo((OnlineComServer) comServer);
+            ComServerInfo comServerInfo = new OnlineComServerInfo((OnlineComServer) comServer);
+            comServerInfo.displayComServerType = TranslationKeys.COMSERVER_ONLINE.getDisplayName(thesaurus);
+            return comServerInfo;
         }
         else if (OfflineComServer.class.isAssignableFrom(comServer.getClass())) {
-            return new OfflineComServerInfo((OfflineComServer) comServer);
+            ComServerInfo comServerInfo = new OfflineComServerInfo((OfflineComServer) comServer);
+            comServerInfo.displayComServerType = TranslationKeys.COMSERVER_OFFLINE.getDisplayName(thesaurus);
+            return comServerInfo;
         }
         else if (RemoteComServer.class.isAssignableFrom(comServer.getClass())) {
-            return new RemoteComServerInfo((RemoteComServer) comServer);
+            ComServerInfo comServerInfo = new RemoteComServerInfo((RemoteComServer) comServer);
+            comServerInfo.displayComServerType = TranslationKeys.COMSERVER_REMOTE.getDisplayName(thesaurus);
+            return comServerInfo;
         }
         else
             throw new IllegalArgumentException("Unsupported ComServer type "+comServer.getClass().getSimpleName());
-
     }
 
-    public static ComServerInfo<?,?> asInfo(ComServer comServer, List<ComPort> comPortList, EngineConfigurationService engineConfigurationService) {
+    public ComServerInfo<?, ?> asInfo(ComServer comServer, List<ComPort> comPortList, EngineConfigurationService engineConfigurationService) {
         if (OnlineComServer.class.isAssignableFrom(comServer.getClass())) {
-            return new OnlineComServerInfo((OnlineComServer) comServer, comPortList, engineConfigurationService);
+            ComServerInfo comServerInfo = new OnlineComServerInfo((OnlineComServer) comServer, comPortList, engineConfigurationService);
+            comServerInfo.displayComServerType = TranslationKeys.COMSERVER_ONLINE.getDisplayName(thesaurus);
+            return comServerInfo;
         }
         else if (OfflineComServer.class.isAssignableFrom(comServer.getClass())) {
-            return new OfflineComServerInfo((OfflineComServer) comServer, comPortList, engineConfigurationService);
+            ComServerInfo comServerInfo = new OfflineComServerInfo((OfflineComServer) comServer, comPortList, engineConfigurationService);
+            comServerInfo.displayComServerType = TranslationKeys.COMSERVER_OFFLINE.getDisplayName(thesaurus);
+            return comServerInfo;
         }
         else if (RemoteComServer.class.isAssignableFrom(comServer.getClass())) {
-            return new RemoteComServerInfo((RemoteComServer) comServer, comPortList, engineConfigurationService);
+            ComServerInfo comServerInfo = new RemoteComServerInfo((RemoteComServer) comServer, comPortList, engineConfigurationService);
+            comServerInfo.displayComServerType = TranslationKeys.COMSERVER_REMOTE.getDisplayName(thesaurus);
+            return comServerInfo;
         }
         else
             throw new IllegalArgumentException("Unsupported ComServer type "+comServer.getClass().getSimpleName());

@@ -5,14 +5,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.ComPortPoolComPortResource;
-import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
-import com.energyict.mdc.rest.impl.comserver.ComPortResource;
-import com.energyict.mdc.rest.impl.comserver.ComServerComPortResource;
-import com.energyict.mdc.rest.impl.comserver.ComServerResource;
-import com.energyict.mdc.rest.impl.comserver.MessageSeeds;
-import com.energyict.mdc.rest.impl.comserver.ResourceHelper;
-import com.energyict.mdc.rest.impl.comserver.TimeDurationUnitTranslationKeys;
+import com.energyict.mdc.rest.impl.comserver.*;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
@@ -28,11 +21,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component(name = "com.energyict.mdc.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/mdc", "app=MDC", "name=" + MdcApplication.COMPONENT_NAME})
 public class MdcApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
@@ -99,7 +88,10 @@ public class MdcApplication extends Application implements TranslationKeyProvide
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TimeDurationUnitTranslationKeys.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(TimeDurationUnitTranslationKeys.values()));
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        return keys;
     }
 
     @Reference
@@ -129,6 +121,7 @@ public class MdcApplication extends Application implements TranslationKeyProvide
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ComServerInfoFactory.class).to(ComServerInfoFactory.class);
         }
     }
 
