@@ -215,7 +215,11 @@ public enum DeviceMessageAttributes implements TranslationKey {
     OutputOff(DeviceMessageConstants.OutputOff, "Output off"),
     OutputToggle(DeviceMessageConstants.OutputToggle, "Output toggle"),
     OutputPulse(DeviceMessageConstants.OutputPulse, "Output pulse"),
-    output(DeviceMessageConstants.output, "Output"),;
+    output(DeviceMessageConstants.output, "Output"),
+    IEC1107ClassIdAttributeName(DeviceMessageConstants.IEC1107ClassIdAttributeName, "GeneralDeviceMessage.IEC1107ClassId"),
+    OffsetAttributeName(DeviceMessageConstants.OffsetAttributeName, "GeneralDeviceMessage.Offset"),
+    RawDataAttributeName(DeviceMessageConstants.RawDataAttributeName, "GeneralDeviceMessage.RawData"),
+    ;
 
     private final String key;
     private final String defaultFormat;

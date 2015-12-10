@@ -2,19 +2,13 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.IEC1107ClassIdAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.OffsetAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.RawDataAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.configUserFileAttributeName;
 
 /**
  * Provides a summary of all messages that have no unique goal.
@@ -29,18 +23,42 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecEnum {
 
     WRITE_RAW_IEC1107_CLASS(DeviceMessageId.GENERAL_WRITE_RAW_IEC1107_CLASS, "Write raw IEC1107 class") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(IEC1107ClassIdAttributeName, true, BigDecimal.ZERO, Constants.UPPER_LIMIT));
-            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(OffsetAttributeName, true, BigDecimal.ZERO, Constants.UPPER_LIMIT));
-            propertySpecs.add(propertySpecService.basicPropertySpec(RawDataAttributeName, true, new HexStringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .boundedBigDecimalSpec(BigDecimal.ZERO, Constants.UPPER_LIMIT)
+                            .named(DeviceMessageAttributes.IEC1107ClassIdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .boundedBigDecimalSpec(BigDecimal.ZERO, Constants.UPPER_LIMIT)
+                            .named(DeviceMessageAttributes.OffsetAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .hexStringSpec()
+                            .named(DeviceMessageAttributes.RawDataAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     WRITE_FULL_CONFIGURATION(DeviceMessageId.GENERAL_WRITE_FULL_CONFIGURATION, "Write full configuration") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.referencePropertySpec(configUserFileAttributeName, true, FactoryIds.USERFILE));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(UserFile.class)
+                            .named(DeviceMessageAttributes.configUserFileAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     };
 
@@ -69,11 +87,11 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecEnum {
 
     public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     };
 
