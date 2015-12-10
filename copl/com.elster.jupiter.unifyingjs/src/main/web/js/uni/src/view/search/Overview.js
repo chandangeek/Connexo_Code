@@ -10,6 +10,7 @@ Ext.define('Uni.view.search.Overview', {
 
     requires: [
         'Uni.view.container.PreviewContainer',
+        'Uni.view.container.EmptyGridContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.search.Results',
         'Uni.store.search.Domains',
@@ -179,7 +180,7 @@ Ext.define('Uni.view.search.Overview', {
                         ]
                     },
                     {
-                        xtype: 'preview-container',
+                        xtype: 'emptygridcontainer',
                         itemId: 'search-preview-container',
                         grid: {
                             xtype: 'uni-view-search-results',
@@ -195,9 +196,6 @@ Ext.define('Uni.view.search.Overview', {
                                 Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'The applied search criteria are too specific.')
                             ],
                             margins: '16 0 0 0'
-                        },
-                        previewComponent: {
-                            hidden: true
                         }
                     }
                 ]/*,
