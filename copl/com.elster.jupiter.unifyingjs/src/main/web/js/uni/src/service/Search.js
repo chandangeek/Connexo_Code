@@ -268,6 +268,7 @@ Ext.define('Uni.service.Search', {
             searchResults.loadPage(1);
         } else {
             searchResults.removeAll();
+            searchResults.fireEvent('load', searchResults, [], true);
         }
 
         me.fireEvent('applyFilters', me, filters);
