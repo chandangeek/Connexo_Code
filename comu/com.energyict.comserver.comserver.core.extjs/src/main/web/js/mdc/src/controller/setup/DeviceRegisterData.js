@@ -108,12 +108,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
 
                                 widget.down('#register-data').add(dataReport);
                                 var valueColumn = widget.down('grid').down('[dataIndex=value]');
-                                valueColumn.setText(Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + collectedUnit + ')');
+                                valueColumn.setText(Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + ' (' + calculatedUnit + ')');
 
                                 me.getFilterPanel().bindStore(dataStore);
                                 if (type === 'billing' || type === 'numerical') {
                                     var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
-                                    deltaValueColumn.setText(Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + ' (' + calculatedUnit + ')');
+                                    deltaValueColumn.setText(Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + collectedUnit + ')');
                                     deltaValueColumn.setVisible(register.get('isCumulative'));
                                 }
                                 dataStore.load();
