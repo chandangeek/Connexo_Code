@@ -27,13 +27,13 @@ public class ModemConnectionPropertyValues implements PersistentDomainExtension<
     private String phoneNumber;
 
     @Override
-    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
         this.phoneNumber = (String) propertyValues.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName());
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(ModemConnectionProperties.PHONE_NUMBER.propertyName(), this.phoneNumber);
     }
 
