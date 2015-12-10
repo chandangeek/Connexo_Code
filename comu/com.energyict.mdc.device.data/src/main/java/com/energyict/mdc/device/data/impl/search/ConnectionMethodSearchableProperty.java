@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -9,7 +10,6 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -31,7 +31,7 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
 
     @Inject
     public ConnectionMethodSearchableProperty(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
@@ -90,11 +90,14 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                getName(),
-                false,
-                FactoryIds.CONNECTION_TYPE,
-                this.protocolPluggableService.findAllConnectionTypePluggableClasses());
+        List<ConnectionTypePluggableClass> connectionTypePluggableClasses = this.protocolPluggableService.findAllConnectionTypePluggableClasses();
+        return this.propertySpecService
+                .referenceSpec(ConnectionTypePluggableClass.class)
+                .named(this.getName(), this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(connectionTypePluggableClasses.toArray(new ConnectionTypePluggableClass[connectionTypePluggableClasses.size()]))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -108,8 +111,8 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_METHOD).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CONNECTION_METHOD;
     }
 
     @Override

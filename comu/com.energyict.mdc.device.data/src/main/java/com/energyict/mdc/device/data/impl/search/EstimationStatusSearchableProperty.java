@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -26,12 +27,11 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
     private SearchablePropertyGroup group;
 
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     @Inject
     public EstimationStatusSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     EstimationStatusSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
@@ -82,12 +82,11 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.booleanPropertySpec(
-                PROPERTY_NAME,
-                PROPERTY_NAME,
-                false,
-                null
-        );
+        return this.propertySpecService
+                .booleanSpec()
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .finish();
     }
 
     @Override
@@ -101,8 +100,8 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.ESTIMATION_STATUS).format();
+    protected TranslationKey getNameTranslationKey() {
+        return null;
     }
 
     @Override

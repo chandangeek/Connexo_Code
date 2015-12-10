@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
@@ -21,15 +22,14 @@ public class ComTaskUrgencySearchableProperty extends AbstractSearchableDevicePr
     static final String PROPERTY_NAME = "device.comtask.urgency";
 
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     private SearchDomain searchDomain;
     private SearchablePropertyGroup group;
 
     @Inject
     public ComTaskUrgencySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     ComTaskUrgencySearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup parentGroup) {
@@ -80,11 +80,12 @@ public class ComTaskUrgencySearchableProperty extends AbstractSearchableDevicePr
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.longPropertySpec(
-            PROPERTY_NAME,
-            false,
-            0L
-        );
+        return this.propertySpecService
+                .longSpec()
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(0L)
+                .finish();
     }
 
     @Override
@@ -98,8 +99,8 @@ public class ComTaskUrgencySearchableProperty extends AbstractSearchableDevicePr
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_URGENCY).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.COMTASK_URGENCY;
     }
 
     @Override

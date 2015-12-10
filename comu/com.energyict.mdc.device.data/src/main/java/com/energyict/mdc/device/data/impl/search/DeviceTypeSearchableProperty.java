@@ -1,13 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -15,6 +9,11 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceFields;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -36,14 +35,12 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
     private DeviceSearchDomain domain;
     private final DeviceConfigurationService deviceConfigurationService;
     private final PropertySpecService mdcPropertySpecService;
-    private final Thesaurus thesaurus;
 
     @Inject
     public DeviceTypeSearchableProperty(DeviceConfigurationService deviceConfigurationService, PropertySpecService mdcPropertySpecService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.mdcPropertySpecService = mdcPropertySpecService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.thesaurus = thesaurus;
     }
 
     DeviceTypeSearchableProperty init(DeviceSearchDomain domain) {
@@ -77,8 +74,8 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_TYPE).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.DEVICE_TYPE;
     }
 
     @Override
@@ -93,11 +90,14 @@ public class DeviceTypeSearchableProperty extends AbstractSearchableDeviceProper
 
     @Override
     public PropertySpec getSpecification() {
-        return this.mdcPropertySpecService.referencePropertySpec(
-                    PROPERTY_NAME,
-                    false,
-                    FactoryIds.DEVICE_TYPE,
-                    this.deviceConfigurationService.findAllDeviceTypes().find());
+        List<DeviceType> deviceTypes = this.deviceConfigurationService.findAllDeviceTypes().find();
+        return this.mdcPropertySpecService
+                .referenceSpec(DeviceType.class)
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(deviceTypes.toArray(new DeviceType[deviceTypes.size()]))
+                .markExhaustive()
+                .finish();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -21,15 +22,14 @@ public class ConnectionSimultaneousSearchableProperty extends AbstractSearchable
     static final String PROPERTY_NAME = "device.connection.simultaneous";
 
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     private SearchDomain searchDomain;
     private SearchablePropertyGroup group;
 
     @Inject
     public ConnectionSimultaneousSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     ConnectionSimultaneousSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup parentGroup) {
@@ -80,12 +80,10 @@ public class ConnectionSimultaneousSearchableProperty extends AbstractSearchable
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.booleanPropertySpec(
-                PROPERTY_NAME,
-                PROPERTY_NAME,
-                false,
-                null
-        );
+        return this.propertySpecService
+                .booleanSpec()
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus()).finish();
     }
 
     @Override
@@ -99,8 +97,8 @@ public class ConnectionSimultaneousSearchableProperty extends AbstractSearchable
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_SIMULTANEOUS).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CONNECTION_SIMULTANEOUS;
     }
 
     @Override

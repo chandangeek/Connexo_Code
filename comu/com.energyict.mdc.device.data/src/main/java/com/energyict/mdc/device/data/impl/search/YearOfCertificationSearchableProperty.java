@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.search;
 
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
@@ -15,21 +16,21 @@ import com.energyict.mdc.device.data.DeviceFields;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class YearOfCertificationSearchableProperty extends AbstractSearchableDeviceProperty {
 
     private DeviceSearchDomain domain;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
     private static final int YEARS_IN_LIST_NUMBER = 20;
     private Long[] years = new Long [YEARS_IN_LIST_NUMBER];
 
     @Inject
     public YearOfCertificationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     YearOfCertificationSearchableProperty init(DeviceSearchDomain domain) {
@@ -63,8 +64,8 @@ public class YearOfCertificationSearchableProperty extends AbstractSearchableDev
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_CERT_YEAR).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.DEVICE_CERT_YEAR;
     }
 
     @Override
@@ -82,10 +83,13 @@ public class YearOfCertificationSearchableProperty extends AbstractSearchableDev
         for (int i=0; i < YEARS_IN_LIST_NUMBER; i++) {
             this.years[i] = Long.valueOf(String.valueOf(ZonedDateTime.now().getYear() - i));
         }
-        return this.propertySpecService.longPropertySpecWithValues(
-                DeviceFields.CERT_YEAR.fieldName(),
-                false,
-                this.years);
+        return this.propertySpecService
+                .longSpec()
+                .named(DeviceFields.CERT_YEAR.fieldName(), this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(this.years)
+                .markExhaustive()
+                .finish();
     }
 
     @Override

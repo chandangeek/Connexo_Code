@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchablePropertyGroup;
@@ -7,6 +9,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
 import com.google.inject.Inject;
 
 import java.time.Instant;
@@ -16,8 +19,8 @@ public class GeneralAttributeDynamicSearchableProperty extends AbstractDynamicSe
     private DeviceProtocolPluggableClass pluggableClass;
 
     @Inject
-    public GeneralAttributeDynamicSearchableProperty() {
-        super(GeneralAttributeDynamicSearchableProperty.class);
+    public GeneralAttributeDynamicSearchableProperty(Thesaurus thesaurus) {
+        super(GeneralAttributeDynamicSearchableProperty.class, thesaurus);
     }
 
     public GeneralAttributeDynamicSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, PropertySpec propertySpec, DeviceProtocolPluggableClass pluggableClass) {
@@ -29,6 +32,11 @@ public class GeneralAttributeDynamicSearchableProperty extends AbstractDynamicSe
     @Override
     public String getName() {
         return getGroup().get().getId() + "." + this.pluggableClass.getJavaClassName() + "." + getPropertySpec().getName();
+    }
+
+    @Override
+    protected TranslationKey getNameTranslationKey() {
+        return null;    // Should be fine since I am overwritting getDisplayName also
     }
 
     @Override

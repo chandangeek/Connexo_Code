@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
@@ -30,15 +31,14 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
     private final Class<T> implClass;
     private final MeteringService meteringService;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
     private DeviceSearchDomain domain;
     private SearchablePropertyGroup group;
 
     public AbstractReadingTypeUnitOfMeasureSearchableProperty(Class<T> clazz, MeteringService meteringService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.implClass = clazz;
         this.meteringService = meteringService;
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     T init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
@@ -86,15 +86,11 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
         sqlBuilder.append(" where ");
         sqlBuilder.append(contains.getCollection().stream()
                 .map(UnitOfMeasureInfo.class::cast)
-                .map(unit -> {
-                    StringBuilder builder = new StringBuilder(' ');
-                    builder.append("MDS_MEASUREMENTTYPE.readingtype like '%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.");
-                    builder.append(unit.getMetricMultiplier().getId());
-                    builder.append(".");
-                    builder.append(unit.getReadingTypeUnit().getId());
-                    builder.append(".%' ");
-                    return builder.toString();
-                })
+                .map(unit -> ' ' + "MDS_MEASUREMENTTYPE.readingtype like '%.%.%.%.%.%.%.%.%.%.%.%.%.%.%." +
+                        unit.getMetricMultiplier().getId() +
+                        "." +
+                        unit.getReadingTypeUnit().getId() +
+                        ".%' ")
                 .collect(Collectors.joining(" OR ")));
         sqlBuilder.closeBracket();
         return sqlBuilder;
@@ -146,8 +142,8 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.READING_TYPE_UNIT_OF_MEASURE).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.READING_TYPE_UNIT_OF_MEASURE;
     }
 
     @Override

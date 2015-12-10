@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
@@ -12,6 +11,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
@@ -23,10 +23,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConnectionStatusSearchableProperty extends AbstractSearchableDeviceProperty {
-    static final ConnectionStatusFinder CONNECTION_STATUS_FINDER = new ConnectionStatusFinder();
     static final String PROPERTY_NAME = "device.connection.status";
 
     private final PropertySpecService propertySpecService;
@@ -37,6 +36,7 @@ public class ConnectionStatusSearchableProperty extends AbstractSearchableDevice
 
     @Inject
     public ConnectionStatusSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -94,15 +94,14 @@ public class ConnectionStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.stringReferencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                CONNECTION_STATUS_FINDER,
-                Arrays.stream(ConnectionStatusContainer.values())
-                        .map(ConnectionStatusSearchWrapper::new)
-                        .collect(Collectors.toList())
-                        .toArray(new ConnectionStatusSearchWrapper[ConnectionStatusContainer.values().length])
-        );
+        Stream<ConnectionStatusSearchWrapper> statusses = Arrays.stream(ConnectionStatusContainer.values()).map(ConnectionStatusSearchWrapper::new);
+        return this.propertySpecService
+                .specForValuesOf(new ConnectionStatusValueFactory())
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(statusses.toArray(ConnectionStatusSearchWrapper[]::new))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -116,8 +115,8 @@ public class ConnectionStatusSearchableProperty extends AbstractSearchableDevice
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_STATUS).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CONNECTION_STATUS;
     }
 
     @Override
@@ -154,18 +153,23 @@ public class ConnectionStatusSearchableProperty extends AbstractSearchableDevice
 
     }
 
-    static class ConnectionStatusFinder implements CanFindByStringKey<ConnectionStatusSearchWrapper> {
-        @Override
-        public Optional<ConnectionStatusSearchWrapper> find(String key) {
-            return Arrays.stream(ConnectionStatusContainer.values())
-                    .filter(stk -> stk.name().equals(key))
-                    .map(ConnectionStatusSearchWrapper::new)
-                    .findFirst();
+    private class ConnectionStatusValueFactory extends SearchHelperValueFactory<ConnectionStatusSearchWrapper> {
+        ConnectionStatusValueFactory() {
+            super(ConnectionStatusSearchWrapper.class);
         }
 
         @Override
-        public Class<ConnectionStatusSearchWrapper> valueDomain() {
-            return ConnectionStatusSearchWrapper.class;
+        public ConnectionStatusSearchWrapper fromStringValue(String stringValue) {
+            return Arrays.stream(ConnectionStatusContainer.values())
+                    .filter(stk -> stk.name().equals(stringValue))
+                    .map(ConnectionStatusSearchWrapper::new)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        @Override
+        public String toStringValue(ConnectionStatusSearchWrapper object) {
+            return object.getId();
         }
     }
 

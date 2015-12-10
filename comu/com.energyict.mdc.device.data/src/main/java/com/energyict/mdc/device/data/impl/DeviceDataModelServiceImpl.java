@@ -27,32 +27,6 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -279,7 +253,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus meteringThesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN).join(meteringThesaurus);
     }
 
     @Override

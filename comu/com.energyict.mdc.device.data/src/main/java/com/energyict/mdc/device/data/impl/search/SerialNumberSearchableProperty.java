@@ -1,18 +1,17 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFields;
-
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceFields;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -31,13 +30,11 @@ public class SerialNumberSearchableProperty extends AbstractSearchableDeviceProp
 
     private DeviceSearchDomain domain;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     @Inject
     public SerialNumberSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     SerialNumberSearchableProperty init(DeviceSearchDomain domain) {
@@ -71,11 +68,6 @@ public class SerialNumberSearchableProperty extends AbstractSearchableDeviceProp
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_SERIAL_NUMBER).format();
-    }
-
-    @Override
     protected boolean valueCompatibleForDisplay(Object value) {
         return value instanceof String;
     }
@@ -86,11 +78,17 @@ public class SerialNumberSearchableProperty extends AbstractSearchableDeviceProp
     }
 
     @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.DEVICE_SERIAL_NUMBER;
+    }
+
+    @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                    DeviceFields.SERIALNUMBER.fieldName(),
-                    false,
-                    new StringFactory());
+        return this.propertySpecService
+                .stringSpec()
+                .named(DeviceFields.SERIALNUMBER.fieldName(), this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .finish();
     }
 
     @Override

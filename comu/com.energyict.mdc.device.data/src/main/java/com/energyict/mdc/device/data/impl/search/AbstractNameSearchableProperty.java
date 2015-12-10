@@ -22,6 +22,7 @@ public abstract class AbstractNameSearchableProperty<T> extends AbstractSearchab
     private SearchablePropertyGroup group;
 
     public AbstractNameSearchableProperty(Class<T> clazz, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.implClass = clazz;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;

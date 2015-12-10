@@ -15,14 +15,14 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -112,7 +112,7 @@ public class DeviceGroupSearchablePropertyTest {
     }
 
     private DeviceGroupSearchableProperty getTestInstance() {
-        return new DeviceGroupSearchableProperty(this.meteringGroupsService, this.propertySpecService, this.thesaurus, this.deviceService).init(this.domain);
+        return new DeviceGroupSearchableProperty(this.meteringGroupsService, this.propertySpecService, this.thesaurus).init(this.domain);
     }
 
 }
