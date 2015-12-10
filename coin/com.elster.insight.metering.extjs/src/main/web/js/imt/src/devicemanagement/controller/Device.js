@@ -21,7 +21,7 @@ Ext.define('Imt.devicemanagement.controller.Device', {
     init: function () {
     },
 
-    showDevice: function (metername) {
+    showDevice: function (usagepoint, metername) {
 
         var me = this,
             router = me.getController('Uni.controller.history.Router'),

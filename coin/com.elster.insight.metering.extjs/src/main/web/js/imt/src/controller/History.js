@@ -205,35 +205,47 @@ Ext.define('Imt.controller.History', {
                             controller: 'Imt.validation.controller.UsagePointDataValidation',
                             action: 'showUsagePointDataValidationMainView',
            			    },
-           			},
+                        device: {
+                             title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
+                             route: 'device/{deviceMRID}',
+                             controller: 'Imt.devicemanagement.controller.Device',
+                             action: 'showDevice',
+                             callback: function (route) {
+                                 this.getApplication().on('deviceloaded', function (record) {
+                                     route.setTitle('Device ' + record.get('name'));
+                                     return true;
+                                 }, {single: true});       
+                                 return this;
+                             } 
+                        },
+                        metrologyconfiguration: {
+                           title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+                           route: 'metrologyconfiguration/{mcid}',
+                           controller: 'Imt.usagepointmanagement.controller.View',
+                           action: 'showMetrologyConfiguration',
+                           callback: function (route) {
+                               this.getApplication().on('metrologyConfigurationLoaded', function (record) {
+                                   route.setTitle(record.get('name'));
+                                   return true;
+                               }, {single: true});       
+                               return this;
+                           }  
+                        }
+           			}
            		},
-                device: {
+           		device: {
                     title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
-                    route: 'device/{mRID}',
+                    route: 'device/{deviceMRID}',
                     controller: 'Imt.devicemanagement.controller.Device',
-                    action: 'showDevice'
-                },
-                metrologyconfiguration: {
-	              title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-	              route: '{mRID}',
-	              controller: 'Imt.usagepointmanagement.controller.View',
-	              action: 'showMetrologyConfiguration',
-                  items: {
-                	  view: {
-	                    route: 'metrologyconfiguration/{mcid}/view',
-	                    controller: 'Imt.usagepointmanagement.controller.View',
-	                    action: 'showMetrologyConfiguration',
-	                    callback: function (route) {
-	                        this.getApplication().on('metrologyConfigurationLoaded', function (record) {
-	                            route.setTitle(record.get('name'));
-	                            return true;
-	                        }, {single: true});
-	
-	                        return this;
-	                    },  
-                	  },
-                  }
-                },
+                    action: 'showDevice',
+                    callback: function (route) {
+                        this.getApplication().on('deviceloaded', function (record) {
+                            route.setTitle('Device ' + record.get('name'));
+                            return true;
+                        }, {single: true});       
+                        return this;
+                    } 
+               }
             }
         },
         administration: {

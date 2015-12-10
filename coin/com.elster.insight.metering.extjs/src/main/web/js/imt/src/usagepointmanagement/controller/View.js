@@ -79,7 +79,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                         cls: 'x-form-display-field',
                         autoEl: {
                             tag: 'a',
-                            href: router.getRoute('usagepoints/metrologyconfiguration/view').buildUrl({mRID: mRID, mcid: record.get('metrologyConfiguration').id}),
+                            href: router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl({mRID: mRID, mcid: record.get('metrologyConfiguration').id}),
                             html: record.get('metrologyConfiguration').name
                         }
                     });
@@ -99,7 +99,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                                         cls: 'x-form-display-field',
                                         autoEl: {
                                             tag: 'a',
-                                            href: router.getRoute('usagepoints/device').buildUrl({mRID: item.get('meter').mRID}),
+                                            href: router.getRoute('usagepoints/view/device').buildUrl({mRID: mRID, deviceMRID: item.get('meter').mRID}),
                                             html: item.get('meter').mRID
                                         }
                                     },
@@ -118,7 +118,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                                         cls: 'x-form-display-field',
                                         autoEl: {
                                             tag: 'a',
-                                            href: router.getRoute('usagepoints/device').buildUrl({mRID: item.get('meter').mRID}),
+                                            href: router.getRoute('usagepoints/view/device').buildUrl({mRID: mRID, deviceMRID: item.get('meter').mRID}),
                                             html: item.get('meter').mRID
                                         }
                                     },
