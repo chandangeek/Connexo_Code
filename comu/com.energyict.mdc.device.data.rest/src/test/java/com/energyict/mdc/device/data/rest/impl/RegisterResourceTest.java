@@ -88,9 +88,9 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         customPropertySetValues.setProperty("testname", "testValue1");
         CustomPropertySetValues customPropertySetValues2 = CustomPropertySetValues.emptyDuring(Interval.of(Range.closedOpen(Instant.ofEpochMilli(endTimeFirst), Instant.ofEpochMilli(endTimeSecond))));
         customPropertySetValues2.setProperty("testname2", "testValue2");
-        when(customPropertySetService.getUniqueValuesFor(customPropertySet, registerSpec)).thenReturn(customPropertySetValues);
-        when(customPropertySetService.getUniqueValuesFor(eq(customPropertySet), eq(registerSpec), any(Instant.class))).thenReturn(customPropertySetValuesNoTimesliced);
-        when(customPropertySetService.getAllVersionedValuesFor(customPropertySet, registerSpec)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
+        when(customPropertySetService.getUniqueValuesFor(eq(customPropertySet), eq(registerSpec), anyObject())).thenReturn(customPropertySetValues);
+        when(customPropertySetService.getUniqueValuesFor(eq(customPropertySet), eq(registerSpec), any(Instant.class), anyObject())).thenReturn(customPropertySetValuesNoTimesliced);
+        when(customPropertySetService.getAllVersionedValuesFor(eq(customPropertySet), eq(registerSpec), anyObject())).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
         ValuesRangeConflict conflict1 = mock(ValuesRangeConflict.class);
         when(conflict1.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeFirst),Instant.ofEpochMilli(endTimeFirst)));
         when(conflict1.getMessage()).thenReturn("testMessage");
