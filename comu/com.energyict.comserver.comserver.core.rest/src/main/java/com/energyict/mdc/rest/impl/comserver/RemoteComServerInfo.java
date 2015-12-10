@@ -16,8 +16,8 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer.RemoteCom
     /**
      * Create Info based on comserver properties and comports
      */
-    public RemoteComServerInfo(final RemoteComServer remoteComServer, List<ComPort> comPorts, EngineConfigurationService engineConfigurationService) {
-        super(remoteComServer, comPorts, engineConfigurationService);
+    public RemoteComServerInfo(final RemoteComServer remoteComServer, List<ComPort> comPorts, EngineConfigurationService engineConfigurationService, ComPortInfoFactory comPortInfoFactory) {
+        super(remoteComServer, comPorts, engineConfigurationService, comPortInfoFactory);
         readFrom(remoteComServer);
     }
 

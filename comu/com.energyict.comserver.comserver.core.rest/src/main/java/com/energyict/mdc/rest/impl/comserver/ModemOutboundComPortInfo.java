@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 public class ModemOutboundComPortInfo extends OutboundComPortInfo {
 
     public ModemOutboundComPortInfo() {
-        this.comPortType = ComPortType.SERIAL;
+        this.comPortType = new ComPortTypeInfo(ComPortType.SERIAL);
     }
 
     public ModemOutboundComPortInfo(OutboundComPort comPort, EngineConfigurationService engineConfigurationService) {

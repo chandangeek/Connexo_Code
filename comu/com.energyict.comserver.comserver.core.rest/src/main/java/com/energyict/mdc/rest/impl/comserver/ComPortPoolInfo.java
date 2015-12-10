@@ -3,13 +3,11 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,8 +24,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public String description;
     public Boolean obsoleteFlag;
     public Instant obsoleteDate;
-    @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
-    public ComPortType comPortType;
+    public ComPortTypeInfo comPortType;
     public List<InboundComPortInfo> inboundComPorts;
     public Long discoveryProtocolPluggableClassId;
     public List<OutboundComPortInfo> outboundComPorts;
@@ -44,7 +41,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
         this.description = comPortPool.getDescription();
         this.obsoleteDate = comPortPool.getObsoleteDate();
         this.obsoleteFlag = comPortPool.isObsolete();
-        this.comPortType = comPortPool.getComPortType();
+        this.comPortType = new ComPortTypeInfo(comPortPool.getComPortType());
         this.version = comPortPool.getVersion();
     }
 

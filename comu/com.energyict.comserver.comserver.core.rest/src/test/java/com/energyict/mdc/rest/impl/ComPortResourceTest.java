@@ -24,6 +24,13 @@ import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -103,12 +110,19 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(tcpBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
         when(tcpBasedInboundComPort.getPortNumber()).thenReturn(8);
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
+        AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(objectMapper.getTypeFactory());
+        AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.setAnnotationIntrospector(pair);
+
         doReturn(Optional.of(tcpBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "tcp inbound"),
-                MapEntry.entry("comPortType", "TCP"),
                 MapEntry.entry("description", "this is a test port"),
                 MapEntry.entry("comServer_id", comServer_id),
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
@@ -117,6 +131,10 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("direction", "inbound")
         );
         assertThat(response).containsKey("comPortPool_id");
+        try {
+            String responseString = objectMapper.writeValueAsString(response.get("comPortType"));
+            assertThat(responseString).contains("{\"id\":\"TYPE_TCP\",\"localizedValue\":\"TCP\"}");
+        } catch (Exception ex) {}
     }
 
     @Test
@@ -149,10 +167,18 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
         doReturn(Optional.of(servletBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
+        AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(objectMapper.getTypeFactory());
+        AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.setAnnotationIntrospector(pair);
+
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "servlet inbound"),
-                MapEntry.entry("comPortType", "SERVLET"),
                 MapEntry.entry("description", "this is a test port"),
                 MapEntry.entry("comServer_id", comServer_id),
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
@@ -166,6 +192,10 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("direction", "inbound")
         );
         assertThat(response).containsKey("comPortPool_id");
+        try {
+            String responseString = objectMapper.writeValueAsString(response.get("comPortType"));
+            assertThat(responseString).contains("{\"id\":\"TYPE_SERVLET\",\"localizedValue\":\"SERVLET\"}");
+        } catch (Exception ex) {}
     }
 
     @Test
@@ -193,10 +223,18 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
         doReturn(Optional.of(udpBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
+        AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(objectMapper.getTypeFactory());
+        AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.setAnnotationIntrospector(pair);
+
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "udp inbound"),
-                MapEntry.entry("comPortType", "UDP"),
                 MapEntry.entry("description", "this is a test port"),
                 MapEntry.entry("comServer_id", comServer_id),
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
@@ -206,6 +244,10 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("direction", "inbound")
         );
         assertThat(response).containsKey("comPortPool_id");
+        try {
+            String responseString = objectMapper.writeValueAsString(response.get("comPortType"));
+            assertThat(responseString).contains("{\"id\":\"TYPE_UDP\",\"localizedValue\":\"UDP\"}");
+        } catch (Exception ex) {}
     }
 
     @Test
@@ -266,10 +308,18 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         HashMap<String, String> map4 = new HashMap<>();
         map3.put("globalModemInitString", "G1");
         map4.put("globalModemInitString", "G2");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
+        AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(objectMapper.getTypeFactory());
+        AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.setAnnotationIntrospector(pair);
+
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "modem inbound"),
-                MapEntry.entry("comPortType", "SERIAL"),
                 MapEntry.entry("description", "this is a test port"),
                 MapEntry.entry("comServer_id", comServer_id),
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
@@ -287,11 +337,17 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("baudrate", "1200"),
                 MapEntry.entry("nrOfDataBits", "5"),
                 MapEntry.entry("nrOfStopBits", "2"),
-                MapEntry.entry("parity", "Even parity"),
-                MapEntry.entry("flowControl", "Xon/Xoff"),
                 MapEntry.entry("direction", "inbound")
         );
         assertThat(response).containsKey("comPortPool_id");
+        try {
+            String responseString = objectMapper.writeValueAsString(response.get("comPortType"));
+            assertThat(responseString).contains("{\"id\":\"TYPE_SERIAL\",\"localizedValue\":\"SERIAL\"}");
+            responseString = objectMapper.writeValueAsString(response.get("parity"));
+            assertThat(responseString).contains("{\"id\":\"parities_even\",\"localizedValue\":\"Even Parity\"}");
+            responseString = objectMapper.writeValueAsString(response.get("flowControl"));
+            assertThat(responseString).contains("{\"id\":\"flowcontrol_xon_xoff\",\"localizedValue\":\"XON/XOFF\"}");
+        } catch (Exception ex) {}
     }
 
     @Test

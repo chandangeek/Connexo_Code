@@ -33,12 +33,14 @@ public class ComPortPoolComPortResource {
     private final EngineConfigurationService engineConfigurationService;
     private final ResourceHelper resourceHelper;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final ComPortInfoFactory comPortInfoFactory;
 
     @Inject
-    public ComPortPoolComPortResource(EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory) {
+    public ComPortPoolComPortResource(EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory, ComPortInfoFactory comPortInfoFactory) {
         this.engineConfigurationService = engineConfigurationService;
         this.resourceHelper = resourceHelper;
         this.conflictFactory = conflictFactory;
+        this.comPortInfoFactory = comPortInfoFactory;
     }
 
     @GET @Transactional
@@ -58,7 +60,7 @@ public class ComPortPoolComPortResource {
         List<ComPortInfo> comPortInfos = new ArrayList<>(comPorts.size());
 
         for (ComPort comPort : comPorts) {
-            comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
+            comPortInfos.add(comPortInfoFactory.asInfo(comPort, engineConfigurationService));
         }
         return PagedInfoList.fromPagedList("data", comPortInfos, queryParameters);
     }
@@ -70,7 +72,7 @@ public class ComPortPoolComPortResource {
     public ComPortInfo getComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id) {
         ComPortPool comPortPool = resourceHelper.findComPortPoolOrThrowException(comPortPoolId);
         ComPort comPort = resourceHelper.findComPortOrThrowException(id, comPortPool);
-        return ComPortInfoFactory.asInfo(comPort, engineConfigurationService);
+        return comPortInfoFactory.asInfo(comPort, engineConfigurationService);
     }
 
     @DELETE @Transactional

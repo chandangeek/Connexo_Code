@@ -21,7 +21,7 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
 
     public OutboundComPortInfo() {
         this.direction = "outbound";
-        this.comPortType = ComPortType.TCP;
+        this.comPortType = new ComPortTypeInfo(ComPortType.TCP);
     }
 
     public OutboundComPortInfo(OutboundComPort comPort, EngineConfigurationService engineConfigurationService) {
@@ -74,7 +74,7 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
 
     @Override
     protected OutboundComPort.OutboundComPortBuilder build(OutboundComPort.OutboundComPortBuilder builder, EngineConfigurationService engineConfigurationService) {
-        return super.build(builder.comPortType(comPortType), engineConfigurationService);
+        return super.build(builder.comPortType(comPortType.id), engineConfigurationService);
     }
 
     @Override

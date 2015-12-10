@@ -9,7 +9,7 @@ import java.util.Optional;
 public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundComPort, UDPBasedInboundComPort.UDPBasedInboundComPortBuilder> {
 
     public UdpInboundComPortInfo() {
-        this.comPortType = ComPortType.UDP;
+        this.comPortType = new ComPortTypeInfo(ComPortType.UDP);
     }
 
     public UdpInboundComPortInfo(UDPBasedInboundComPort comPort) {

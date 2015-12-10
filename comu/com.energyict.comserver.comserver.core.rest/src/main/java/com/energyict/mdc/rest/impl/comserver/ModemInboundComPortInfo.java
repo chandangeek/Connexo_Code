@@ -5,10 +5,8 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import com.energyict.mdc.io.SerialPortConfiguration;
@@ -26,7 +24,7 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     public static final String GLOBAL_MODEM_INIT_MAP_KEY = "globalModemInitString";
 
     public ModemInboundComPortInfo() {
-        this.comPortType = ComPortType.SERIAL;
+        this.comPortType = new ComPortTypeInfo(ComPortType.SERIAL);
     }
 
     public ModemInboundComPortInfo(ModemBasedInboundComPort comPort) {
@@ -46,8 +44,8 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
             this.baudrate = comPort.getSerialPortConfiguration().getBaudrate();
             this.nrOfDataBits = comPort.getSerialPortConfiguration().getNrOfDataBits();
             this.nrOfStopBits = comPort.getSerialPortConfiguration().getNrOfStopBits();
-            this.flowControl = comPort.getSerialPortConfiguration().getFlowControl();
-            this.parity = comPort.getSerialPortConfiguration().getParity();
+            this.flowControl = new FlowControlInfo(comPort.getSerialPortConfiguration().getFlowControl());
+            this.parity = new ParitiesInfo(comPort.getSerialPortConfiguration().getParity());
         }
     }
 
@@ -116,13 +114,13 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         if(nrOfStopBits.isPresent()) {
             updatedSerialPortConfiguration.setNrOfStopBits(nrOfStopBits.get());
         }
-        Optional<Parities> parity = Optional.ofNullable(this.parity);
-        if(parity.isPresent()) {
-            updatedSerialPortConfiguration.setParity(parity.get());
+        Optional<ParitiesInfo> parity = Optional.ofNullable(this.parity);
+        if(parity.isPresent() && parity.get().id != null ) {
+            updatedSerialPortConfiguration.setParity(parity.get().id);
         }
-        Optional<FlowControl> flowControl = Optional.ofNullable(this.flowControl);
-        if(flowControl.isPresent()) {
-            updatedSerialPortConfiguration.setFlowControl(flowControl.get());
+        Optional<FlowControlInfo> flowControl = Optional.ofNullable(this.flowControl);
+        if(flowControl.isPresent() && flowControl.get().id != null) {
+            updatedSerialPortConfiguration.setFlowControl(flowControl.get().id);
         }
         source.setSerialPortConfiguration(updatedSerialPortConfiguration);
     }
@@ -159,8 +157,8 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
                     this.baudrate,
                     this.nrOfDataBits,
                     this.nrOfStopBits,
-                    this.parity,
-                    this.flowControl)), engineConfigurationService).add();
+                    this.parity != null ? this.parity.id : null,
+                        this.flowControl != null ? this.flowControl.id : null)), engineConfigurationService).add();
     }
 
     private List<Map<String, String>> asMap(String key, List<String> strings) {

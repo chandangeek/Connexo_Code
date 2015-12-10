@@ -11,10 +11,10 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
     public InboundComPortPoolInfo() {
     }
 
-    public InboundComPortPoolInfo(InboundComPortPool comPortPool) {
+    public InboundComPortPoolInfo(InboundComPortPool comPortPool, ComPortInfoFactory comPortInfoFactory) {
         super(comPortPool);
         this.discoveryProtocolPluggableClassId = comPortPool.getDiscoveryProtocolPluggableClass().getId();
-        this.inboundComPorts = comPortPool.getComPorts().stream().map(ComPortInfoFactory::asInboundInfo).collect(Collectors.toList());
+        this.inboundComPorts = comPortPool.getComPorts().stream().map(comPortInfoFactory::asInboundInfo).collect(Collectors.toList());
     }
 
     @Override
@@ -32,7 +32,7 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
     protected InboundComPortPool createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
         InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(
                 this.name,
-                this.comPortType,
+                this.comPortType != null ? this.comPortType.id : null,
                 protocolPluggableService
                         .findInboundDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId!=null?this.discoveryProtocolPluggableClassId:0)
                         .orElse(null));

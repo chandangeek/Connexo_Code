@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 public class TcpOutboundComPortInfo extends OutboundComPortInfo {
 
     public TcpOutboundComPortInfo() {
-        this.comPortType = ComPortType.TCP;
+        this.comPortType = new ComPortTypeInfo(ComPortType.TCP);
     }
 
     public TcpOutboundComPortInfo(OutboundComPort comPort, EngineConfigurationService engineConfigurationService) {

@@ -54,14 +54,16 @@ public class ComPortPoolResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider;
     private final ResourceHelper resourceHelper;
+    private final ComPortPoolInfoFactory comPortPoolInfoFactory;
 
     @Inject
-    public ComPortPoolResource(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider, DeviceConfigurationService deviceConfigurationService, ResourceHelper resourceHelper) {
+    public ComPortPoolResource(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider, DeviceConfigurationService deviceConfigurationService, ResourceHelper resourceHelper, ComPortPoolInfoFactory comPortPoolInfoFactory) {
         this.engineConfigurationService = engineConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
         this.comPortPoolComPortResourceProvider = comPortPoolComPortResourceProvider;
         this.deviceConfigurationService = deviceConfigurationService;
         this.resourceHelper = resourceHelper;
+        this.comPortPoolInfoFactory = comPortPoolInfoFactory;
     }
 
     @GET @Transactional
@@ -71,7 +73,7 @@ public class ComPortPoolResource {
     public ComPortPoolInfo<?> getComPortPool(@PathParam("id") long id) {
         return engineConfigurationService
                 .findComPortPool(id)
-                .map(comPortPool -> ComPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService))
+                .map(comPortPool -> comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService))
                 .orElseThrow(() -> new WebApplicationException(
                         "No ComPortPool with id " + id,
                         Response.status(Response.Status.NOT_FOUND)
@@ -98,7 +100,7 @@ public class ComPortPoolResource {
         comPortPools = ListPager.of(comPortPools, (cpp1, cpp2) -> cpp1.getName().compareToIgnoreCase(cpp2.getName())).from(queryParameters).find();
 
         for (ComPortPool comPortPool : comPortPools) {
-            comPortPoolInfos.add(ComPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService));
+            comPortPoolInfos.add(comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService));
         }
         return PagedInfoList.fromPagedList("data", comPortPoolInfos, queryParameters);
     }
@@ -156,7 +158,7 @@ public class ComPortPoolResource {
         } else if (comPortPool instanceof InboundComPortPool) {
             handleInboundPoolPorts((InboundComPortPool)comPortPool, Optional.ofNullable(comPortPoolInfo.inboundComPorts));
         }
-        return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService)).build();
+        return Response.status(Response.Status.CREATED).entity(comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService)).build();
     }
 
     @PUT @Transactional
@@ -174,7 +176,7 @@ public class ComPortPoolResource {
             handleInboundPoolPorts((InboundComPortPool)comPortPool, Optional.ofNullable(info.inboundComPorts));
         }
         comPortPool.update();
-        return ComPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService);
+        return comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService);
     }
 
     @Path("/{comPortPoolId}/comports")

@@ -7,10 +7,8 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -42,8 +40,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public String description;
     public Boolean active = Boolean.FALSE;
     public Boolean bound;
-    @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
-    public ComPortType comPortType;
+    public ComPortTypeInfo comPortType;
     public Long comServer_id;
     public String comServerName;
     public Integer numberOfSimultaneousConnections = Integer.valueOf(0);
@@ -64,10 +61,8 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public NrOfDataBits nrOfDataBits;
     @XmlJavaTypeAdapter(NrOfStopBitsAdapter.class)
     public NrOfStopBits nrOfStopBits;
-    @XmlJavaTypeAdapter(value = FlowControlAdapter.class)
-    public FlowControl flowControl;
-    @XmlJavaTypeAdapter(ParitiesAdapter.class)
-    public Parities parity;
+    public FlowControlInfo flowControl;
+    public ParitiesInfo parity;
     public Integer portNumber;
     public Integer bufferSize;
     public Boolean useHttps;
@@ -90,7 +85,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
         this.bound = comPort.isInbound();
         this.comServer_id = comPort.getComServer()!=null?comPort.getComServer().getId():0L;
         this.comServerName = comPort.getComServer() != null ? comPort.getComServer().getName():null;
-        this.comPortType = comPort.getComPortType();
+        this.comPortType = new ComPortTypeInfo(comPort.getComPortType());
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
         this.version = comPort.getVersion();
         this.parent = new VersionInfo<>(this.comServer_id, comPort.getComServer() != null ? comPort.getComServer().getVersion() : 0L);
@@ -109,7 +104,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
         if(active.isPresent()) {
             source.setActive(active.get());
         }
-        Optional<ComPortType> comPortType = Optional.ofNullable(this.comPortType);
+        Optional<ComPortType> comPortType = Optional.ofNullable(this.comPortType.id);
         if(comPortType.isPresent()) {
             source.setComPortType(comPortType.get());
         }
