@@ -78,7 +78,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                     },
                     {
                         xtype: 'label',
-                        text: 'at',
+                        text: Uni.I18n.translate('general.at.lowercase', 'UNI','at'),
                         cls: Ext.baseCSSPrefix + 'form-item-label',
                         style: {
                             fontWeight: 'normal'
