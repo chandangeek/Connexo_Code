@@ -133,6 +133,4 @@ public interface PropertySpecService {
 
     PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit);
 
-    <T extends HasIdAndName> PropertySpec stringReferencePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values);
-
 }

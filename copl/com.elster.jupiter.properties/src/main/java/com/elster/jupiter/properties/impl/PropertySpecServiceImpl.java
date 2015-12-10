@@ -13,7 +13,6 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.StringReferenceFactory;
 import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeService;
@@ -141,13 +140,5 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         propertySpec.setRequired(required);
         return propertySpec;
     }
-
-    public <T extends HasIdAndName> PropertySpec stringReferencePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T[] values) {
-        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new StringReferenceFactory<T>(finder));
-        if (required) {
-            builder.markRequired();
-        }
-        return builder.name(name).addValues(values).markExhaustive().finish();
-    };
 
 }
