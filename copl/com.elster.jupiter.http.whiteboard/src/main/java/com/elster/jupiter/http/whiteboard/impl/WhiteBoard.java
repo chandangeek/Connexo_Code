@@ -1,6 +1,5 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.MessageSeeds;
@@ -11,29 +10,20 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.BinderProvider;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import javax.ws.rs.core.Application;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -49,8 +39,6 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
     private volatile UserService userService;
     private volatile JsonService jsonService;
     private volatile LicenseService licenseService;
-    private volatile EventService eventService;
-    private volatile TransactionService transactionService;
 
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 
@@ -74,11 +62,6 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
     }
 
     @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
@@ -94,11 +77,6 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
     }
 
     @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
-    }
-
-    @Reference
     public void setEventAdminService(EventAdmin eventAdminService) {
         this.eventAdminHolder.set(eventAdminService);
     }
@@ -107,7 +85,7 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
     public void addResource(HttpResource resource) {
 
         String alias = getAlias(resource.getAlias());
-        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, eventAdminHolder);
+        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, eventAdminHolder);
         try {
             httpService.registerResources(alias, resource.getLocalName(), httpContext);
             resources.add(resource);
@@ -206,7 +184,6 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
         return new AbstractBinder() {
             @Override
             protected void configure() {
-                this.bind(eventService).to(EventService.class);
                 this.bind(jsonService).to(JsonService.class);
                 this.bind(userService).to(UserService.class);
                 this.bind(WhiteBoard.this).to(WhiteBoard.class);
@@ -216,22 +193,11 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
 
     @Override
     public void install() {
-        createEventTypes();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "EVT");
-    }
-
-    private void createEventTypes() {
-        for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(eventService);
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Could not install eventType '" + eventType.name() + "': " + ex.getMessage(), ex);
-            }
-        }
     }
 
     @Override
