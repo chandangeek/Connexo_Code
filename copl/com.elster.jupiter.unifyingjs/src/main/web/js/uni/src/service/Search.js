@@ -274,8 +274,12 @@ Ext.define('Uni.service.Search', {
     },
 
     clearFilters: function () {
-        this.init();
-        this.applyFilters();
+        var me = this;
+
+        me.getSearchResultsStore().removeAll();
+        me.setDomain(me.searchDomain, function() {
+            me.applyFilters();
+        })
     },
 
     getFilters: function() {

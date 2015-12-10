@@ -326,16 +326,18 @@ Ext.define('Uni.view.search.field.Selection', {
 
     viewSync: function() {
         var me = this,
-            model = me.grid.getSelectionModel();
+            model = me.grid.getSelectionModel(),
+            count = me.store.getCount();
 
         model.deselectAll(true);
         model.select(me.getStoreRecords(), true, true);
         model.updateHeaderState();
 
-        me.down('#select-all').setDisabled(!me.getStore().count());
+        me.down('#select-all').setDisabled(!count);
         me.down('#filter-selected').setValue(
-                me.store.getCount() === model.getCount()
-            &&  me.store.getCount() === me.selection.getCount()
+                count > 0
+            &&  count === model.getCount()
+            &&  count === me.selection.getCount()
         );
     },
 
