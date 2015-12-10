@@ -7,7 +7,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 
 import javax.validation.constraints.NotNull;
@@ -18,6 +17,7 @@ public class RegisterTypeOneVersionedDomainExtension implements PersistentDomain
 
     public enum FieldNames {
         DOMAIN("registerSpec", "registerSpec"),
+        DEVICE("device", "device"),
         TEST_ATTRIBUTE_NUMBER("testNumber", "test_number"),
         TEST_ATTRIBUTE_STRING("testString", "test_string"),
         TEST_ATTRIBUTE_ENUM_NUMBER("testEnumNumber", "test_enum_number"),
@@ -44,8 +44,9 @@ public class RegisterTypeOneVersionedDomainExtension implements PersistentDomain
     private Reference<RegisterSpec> registerSpec = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
+    private BigDecimal device;
     private Interval interval;
-
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
     private BigDecimal testNumber;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
@@ -62,6 +63,14 @@ public class RegisterTypeOneVersionedDomainExtension implements PersistentDomain
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
         return registeredCustomPropertySet.get();
+    }
+
+    public BigDecimal getDevice() {
+        return device;
+    }
+
+    public void setDevice(BigDecimal device) {
+        this.device = device;
     }
 
     public Interval getInterval() {
@@ -113,8 +122,9 @@ public class RegisterTypeOneVersionedDomainExtension implements PersistentDomain
     }
 
     @Override
-    public void copyFrom(RegisterSpec registerSpec, CustomPropertySetValues propertyValues) {
+    public void copyFrom(RegisterSpec registerSpec, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.registerSpec.set(registerSpec);
+        this.setDevice(new BigDecimal(additionalPrimaryKeyValues[0].toString()));
         this.setTestNumber(new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_NUMBER.javaName()).toString()));
         this.setTestString((String) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_STRING.javaName()));
         this.setTestEnumNumber(new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName()).toString()));
@@ -123,11 +133,15 @@ public class RegisterTypeOneVersionedDomainExtension implements PersistentDomain
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), this.getTestNumber());
         propertySetValues.setProperty(FieldNames.TEST_ATTRIBUTE_STRING.javaName(), this.getTestString());
         propertySetValues.setProperty(FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), this.getTestEnumNumber());
         propertySetValues.setProperty(FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), this.getTestEnumString());
         propertySetValues.setProperty(FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), this.getTestBoolean());
+    }
+
+    @Override
+    public void validateDelete() {
     }
 }

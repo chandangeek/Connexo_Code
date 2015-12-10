@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
@@ -19,6 +20,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -152,7 +154,12 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
         }
 
         @Override
-        public void addCustomPropertyColumnsTo(Table table) {
+        public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            return Collections.EMPTY_LIST;
+        }
+
+        @Override
+        public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
                     .column(DeviceTypeTwoDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.databaseName())
                     .number()

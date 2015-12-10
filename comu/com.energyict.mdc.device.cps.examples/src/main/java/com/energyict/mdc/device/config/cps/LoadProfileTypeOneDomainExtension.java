@@ -16,6 +16,7 @@ public class LoadProfileTypeOneDomainExtension implements PersistentDomainExtens
 
     public enum FieldNames {
         DOMAIN("channelSpec", "channelSpec"),
+        DEVICE("device", "device"),
         TEST_ATTRIBUTE_ENUM_NUMBER("testEnumNumberA", "test_enum_number"),
         TEST_ATTRIBUTE_ENUM_STRING("testEnumStringB", "test_enum_string"),
         TEST_ATTRIBUTE_BOOLEAN("testBooleanC", "test_boolean");
@@ -40,6 +41,8 @@ public class LoadProfileTypeOneDomainExtension implements PersistentDomainExtens
     private Reference<ChannelSpec> channelSpec = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "CannotBeNull")
+    private BigDecimal device;
     @NotNull(groups = {Save.Create.class, Save.Update.class})
     private BigDecimal testEnumNumberA;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
@@ -52,6 +55,14 @@ public class LoadProfileTypeOneDomainExtension implements PersistentDomainExtens
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
         return registeredCustomPropertySet.get();
+    }
+
+    public BigDecimal getDevice() {
+        return device;
+    }
+
+    public void setDevice(BigDecimal device) {
+        this.device = device;
     }
 
     public boolean getTestBoolean() {
@@ -79,17 +90,22 @@ public class LoadProfileTypeOneDomainExtension implements PersistentDomainExtens
     }
 
     @Override
-    public void copyFrom(ChannelSpec channelSpec, CustomPropertySetValues propertyValues) {
-        this.channelSpec.set(channelSpec);
+    public void copyFrom(ChannelSpec channel, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+        this.channelSpec.set(channel);
+        this.setDevice(new BigDecimal(additionalPrimaryKeyValues[0].toString()));
         this.setTestEnumNumber(new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName()).toString()));
         this.setTestEnumString((String) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName()));
         this.setTestBoolean((boolean) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName()));
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), this.getTestEnumNumber());
         propertySetValues.setProperty(FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), this.getTestEnumString());
         propertySetValues.setProperty(FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), this.getTestBoolean());
+    }
+
+    @Override
+    public void validateDelete() {
     }
 }

@@ -4,12 +4,12 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.DeviceService;
 import com.google.inject.Module;
@@ -20,6 +20,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -153,7 +154,18 @@ public class LoadProfileTypeOneCustomPropertySet implements CustomPropertySet<Ch
         }
 
         @Override
-        public void addCustomPropertyColumnsTo(Table table) {
+        public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            return Collections.singletonList(
+                    table
+                            .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
+                            .number()
+                            .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
+                            .notNull()
+                            .add());
+        }
+
+        @Override
+        public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
                     .column(LoadProfileTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.databaseName())
                     .number()
