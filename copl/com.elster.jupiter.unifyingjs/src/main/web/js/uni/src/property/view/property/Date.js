@@ -17,6 +17,7 @@ Ext.define('Uni.property.view.property.Date', {
             format: me.format,
             altFormats: me.formats.join('|'),
             width: me.width,
+            maxWidth: 128,
             required: me.required,
             readOnly: me.isReadOnly,
             inputType: me.inputType,

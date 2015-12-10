@@ -13,6 +13,7 @@ Ext.define('Uni.property.view.property.DateTime', {
             layout: 'hbox',
             align: 'stretch',
             width: me.width,
+            maxWidth: 135,
             margin: '0 0 0 5',
             items: [
                 {
@@ -24,6 +25,7 @@ Ext.define('Uni.property.view.property.DateTime', {
                     xtype: 'numberfield',
                     itemId: 'hourField',
                     readOnly: me.isReadOnly,
+                    maxWidth: 60,
                     margin: '0 3 0 0',
                     flex: 1,
                     valueToRaw: function (value) {
@@ -53,6 +55,7 @@ Ext.define('Uni.property.view.property.DateTime', {
                     xtype: 'numberfield',
                     itemId:'minuteField',
                     readOnly: me.isReadOnly,
+                    maxWidth: 60,
                     valueToRaw: function (value) {
                         if (!Ext.isDefined(value)) {
                             return null;

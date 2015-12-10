@@ -100,7 +100,9 @@ Ext.define('Uni.view.search.field.Selection', {
             criteria: value
         }) : null);
 
-        me.down('#filter-selected').setDisabled(!me.selection.length);
+        if (me.rendered) {
+            me.down('#filter-selected').setDisabled(!me.selection.length);
+        }
     },
 
     reset: function () {
@@ -236,11 +238,17 @@ Ext.define('Uni.view.search.field.Selection', {
                         disabled: true,
                         hidden: !me.multiSelect,
                         handler: function () {
-                            var store = me.grid.getStore();
+                            var store = me.grid.getStore(),
+                                input = me.down('#filter-input');
+
                             Ext.suspendLayouts();
 
+                            input.suspendEvent('change');
+                            input.reset();
+                            input.resumeEvent('change');
+                            store.filters.removeAtKey(me.displayField);
+
                             if (this.checked) {
-                                //store.clearFilter(true);
                                 if (store.remoteFilter) {
                                     store.removeAll();
                                     store.add(selection.getRange());
@@ -252,7 +260,6 @@ Ext.define('Uni.view.search.field.Selection', {
                                     });
                                 }
                             } else {
-                                store.removeFilter(me.displayField, false);
                                 store.load();
                             }
                             Ext.resumeLayouts(true);
@@ -315,21 +322,22 @@ Ext.define('Uni.view.search.field.Selection', {
         me.bindStore(me.store || 'ext-empty-store', true);
         me.grid = me.down('grid');
         me.on('menushow', me.viewSync, me);
-        me.store.load();
     },
 
     viewSync: function() {
         var me = this,
-            model = me.grid.getSelectionModel();
+            model = me.grid.getSelectionModel(),
+            count = me.store.getCount();
 
         model.deselectAll(true);
         model.select(me.getStoreRecords(), true, true);
         model.updateHeaderState();
 
-        me.down('#select-all').setDisabled(!me.getStore().count());
+        me.down('#select-all').setDisabled(!count);
         me.down('#filter-selected').setValue(
-                me.store.getCount() === model.getCount()
-            &&  me.store.getCount() === me.selection.getCount()
+                count > 0
+            &&  count === model.getCount()
+            &&  count === me.selection.getCount()
         );
     },
 

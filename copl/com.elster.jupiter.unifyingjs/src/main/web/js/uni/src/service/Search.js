@@ -149,6 +149,9 @@ Ext.define('Uni.service.Search', {
         ) {
             me.searchDomain = domain;
 
+            me.filters.removeAll();
+            me.fireEvent('reset', me.filters);
+
             searchProperties.removeAll();
             searchFields.removeAll();
             searchResults.removeAll(true);
@@ -204,9 +207,6 @@ Ext.define('Uni.service.Search', {
         me.initStoreListeners();
         Ext.suspendLayouts();
 
-        me.filters.removeAll();
-        me.fireEvent('reset', me.filters);
-
         me.initCriteria();
         me.saveState();
 
@@ -234,9 +234,9 @@ Ext.define('Uni.service.Search', {
         });
     },
 
-    addProperty: function (property) {
+    addProperty: function (property, state) {
         var me = this,
-            filter = me.createWidgetForProperty(property);
+            filter = me.createWidgetForProperty(property, state);
 
         if (Ext.isDefined(filter)) {
             me.filters.add(property.get('sticky') ? filter : filter.widget);
@@ -265,17 +265,22 @@ Ext.define('Uni.service.Search', {
         searchResults.clearFilter(true);
         if (filters && filters.length) {
             searchResults.addFilter(me.getFilters(), false);
-            searchResults.load();
+            searchResults.loadPage(1);
         } else {
             searchResults.removeAll();
+            searchResults.fireEvent('load', searchResults, [], true);
         }
 
         me.fireEvent('applyFilters', me, filters);
     },
 
     clearFilters: function () {
-        this.init();
-        this.applyFilters();
+        var me = this;
+
+        me.getSearchResultsStore().removeAll();
+        me.setDomain(me.searchDomain, function() {
+            me.applyFilters();
+        })
     },
 
     getFilters: function() {
@@ -316,7 +321,7 @@ Ext.define('Uni.service.Search', {
                 state.filters.map(function(item) {
                     var property = propertiesStore.getById(item.property);
                     if (property && property.get('visibility') === 'removable') {
-                        me.addProperty(property);
+                        me.addProperty(property, state.filters);
                     }
                     var filter = me.filters.getByKey(item.property);
                     if (filter && item.value) {
@@ -334,6 +339,7 @@ Ext.define('Uni.service.Search', {
                 resultsStore.load();
             } else {
                 resultsStore.removeAll();
+                resultsStore.fireEvent('load', resultsStore, [], true);
             }
         });
     },
@@ -380,7 +386,7 @@ Ext.define('Uni.service.Search', {
         }).length
     },
 
-    createWidgetForProperty: function (property) {
+    createWidgetForProperty: function (property, state) {
         var me = this,
             type = property.get('type') + ':' + property.get('factoryName'),
             displayValue = property.get('displayValue'),
@@ -415,8 +421,8 @@ Ext.define('Uni.service.Search', {
             });
 
             if (property.get('constraints')) {
-                var filters = _.filter(me.getFilters(), function (f) {
-                    return property.get('constraints').indexOf(f.id >= 0);
+                var filters = _.filter(state ? state : me.getFilters(), function (i) {
+                    return property.get('constraints').indexOf(i.property >= 0);
                 });
                 store.addFilter(filters, false);
             }
@@ -429,6 +435,10 @@ Ext.define('Uni.service.Search', {
                 displayField: 'displayValue',
                 multiSelect: property.get('selectionMode') === 'multiple'
             });
+
+            if (!state && !_.find(state, function(i){return i.property == property.getId()})) {
+                store.load();
+            }
         }
 
         if (property.get('constraints') && property.get('constraints').length && me.checkConstraints(property)) {
