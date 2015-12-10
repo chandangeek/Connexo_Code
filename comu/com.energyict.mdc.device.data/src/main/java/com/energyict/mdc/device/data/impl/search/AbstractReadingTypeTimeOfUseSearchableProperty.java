@@ -106,11 +106,13 @@ public abstract class AbstractReadingTypeTimeOfUseSearchableProperty<T> extends 
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.longPropertySpecWithValues(
-                getName(),
-                false,
-                LongStream.rangeClosed(0, 255).mapToObj(Long::valueOf).toArray(Long[]::new)
-        );
+        return this.propertySpecService
+                .longSpec()
+                .named(getName(), PropertyTranslationKeys.READING_TYPE_TOU)
+                .fromThesaurus(this.getThesaurus())
+                .addValues(LongStream.rangeClosed(0, 255).mapToObj(Long::valueOf).toArray(Long[]::new))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
