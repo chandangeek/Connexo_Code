@@ -44,6 +44,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                 xtype: 'emptygridcontainer',
                 itemId: 'dynamic-group-preview-container',
                 grid: {
+                    maxHeight: 450,
                     xtype: 'dynamic-group-devices-grid',
                     itemId: 'dynamic-group-devices-grid',
                     service: me.getService()
