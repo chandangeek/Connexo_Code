@@ -238,11 +238,17 @@ Ext.define('Uni.view.search.field.Selection', {
                         disabled: true,
                         hidden: !me.multiSelect,
                         handler: function () {
-                            var store = me.grid.getStore();
+                            var store = me.grid.getStore(),
+                                input = me.down('#filter-input');
+
                             Ext.suspendLayouts();
 
+                            input.suspendEvent('change');
+                            input.reset();
+                            input.resumeEvent('change');
+                            store.filters.removeAtKey(me.displayField);
+
                             if (this.checked) {
-                                //store.clearFilter(true);
                                 if (store.remoteFilter) {
                                     store.removeAll();
                                     store.add(selection.getRange());
@@ -254,7 +260,6 @@ Ext.define('Uni.view.search.field.Selection', {
                                     });
                                 }
                             } else {
-                                store.removeFilter(me.displayField, false);
                                 store.load();
                             }
                             Ext.resumeLayouts(true);
