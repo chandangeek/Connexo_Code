@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
@@ -9,34 +10,23 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableMap;
 
-import javax.validation.constraints.NotNull;
 import java.util.Map;
 
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_NAME + "}")
 public abstract class AbstractEndDeviceGroup extends AbstractGroup implements EndDeviceGroup {
-
-    @NotNull
-    private String queryProviderName;
-
-    private String label;
 
     private final DataModel dataModel;
     private final EventService eventService;
+
+    private String label;
 
     AbstractEndDeviceGroup(EventService eventService, DataModel dataModel) {
         this.eventService = eventService;
         this.dataModel = dataModel;
     }
 
-    final String getQueryProviderName() {
-        return queryProviderName;
-    }
-
     final DataModel getDataModel() {
         return dataModel;
-    }
-
-    final void setQueryProviderName(String queryProviderName) {
-        this.queryProviderName = queryProviderName;
     }
 
     @Override

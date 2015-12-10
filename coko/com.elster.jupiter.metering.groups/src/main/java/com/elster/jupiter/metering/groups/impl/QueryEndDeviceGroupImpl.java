@@ -18,6 +18,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -49,6 +50,8 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     }
 
     @NotNull
+    private String queryProviderName;
+    @NotNull
     private String searchDomain;
 
     @Valid
@@ -79,10 +82,10 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     @Override
     public EndDeviceQueryProvider getEndDeviceQueryProvider() {
         try {
-            return meteringGroupService.pollEndDeviceQueryProvider(getQueryProviderName(), Duration.ofMinutes(1)).orElseThrow(() -> new NoSuchQueryProvider(getQueryProviderName()));
+            return meteringGroupService.pollEndDeviceQueryProvider(queryProviderName, Duration.ofMinutes(1)).orElseThrow(() -> new NoSuchQueryProvider(queryProviderName));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new NoSuchQueryProvider(getQueryProviderName());
+            throw new NoSuchQueryProvider(queryProviderName);
         }
     }
 
@@ -182,5 +185,9 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
 
     List<QueryEndDeviceGroupCondition> getConditions() {
         return conditions;
+    }
+
+    void setQueryProviderName(String queryProviderName) {
+        this.queryProviderName = queryProviderName;
     }
 }
