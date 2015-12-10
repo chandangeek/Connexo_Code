@@ -8,10 +8,13 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,9 +55,14 @@ public class InstallerImpl {
     }
 
     private void createValidationUser() {
-        userService.createUser(ValidationServiceImpl.VALIDATION_USER, ValidationServiceImpl.VALIDATION_USER);
+        User validationUser = userService.createUser(ValidationServiceImpl.VALIDATION_USER, ValidationServiceImpl.VALIDATION_USER);
+        Optional<Group> batchExecutorRole = userService.findGroup(UserService.BATCH_EXECUTOR_ROLE);
+        if (batchExecutorRole.isPresent()) {
+            validationUser.join(batchExecutorRole.get());
+        } else {
+            LOGGER.log(Level.SEVERE, "Could not add role to '" + ValidationServiceImpl.VALIDATION_USER + "' user because role '" + UserService.BATCH_EXECUTOR_ROLE + "' is not found");
+        }
     }
-
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
