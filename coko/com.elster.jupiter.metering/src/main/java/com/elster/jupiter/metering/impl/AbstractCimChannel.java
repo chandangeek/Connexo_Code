@@ -209,7 +209,6 @@ public abstract class AbstractCimChannel implements CimChannel {
         if (readings.isEmpty()) {
             return;
         }
-        ReadingQualityType qualityForUpdate = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED);
         ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.CONFIRM);
         Map<Instant, List<ReadingQualityRecordImpl>> readingQualityByTimestamp = findReadingQualitiesByTimestamp(readings);
 
@@ -219,17 +218,32 @@ public abstract class AbstractCimChannel implements CimChannel {
                     .stream()
                     .filter(r -> r.getReadingType().equals(getReadingType()))
                     .collect(Collectors.toList());
-
             if (currentQualityRecords.stream().filter(ReadingQualityRecord::isSuspect).findFirst().isPresent()) {
-                Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
-                ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.CONFIRMED).or(oldReading.map(BaseReadingRecord::getProcesStatus).orElse(ProcessStatus.of()));
-                this.createReadingQuality(qualityForUpdate, reading).save();
                 makeNoLongerSuspect(currentQualityRecords);
                 makeNoLongerEstimated(currentQualityRecords);
+                makeConfirmed(reading, currentQualityRecords);
+                Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
+                ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.CONFIRMED).or(oldReading.map(BaseReadingRecord::getProcesStatus).orElse(ProcessStatus.of()));
                 storer.addReading(this, reading, processStatus);
             }
         }
         storer.execute();
+    }
+
+    private void makeConfirmed(BaseReading reading, List<ReadingQualityRecordImpl> currentQualityRecords) {
+        ReadingQualityRecord confirmedQualityRecord = currentQualityRecords.stream()
+                .filter(ReadingQualityRecord::isConfirmed)
+                .findFirst()
+                .map(ReadingQualityRecord.class::cast)
+                .orElseGet(() -> {
+                    ReadingQualityType qualityForUpdate = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED);
+                    ReadingQualityRecord readingQuality = this.createReadingQuality(qualityForUpdate, reading);
+                    readingQuality.save();
+                    return readingQuality;
+                });
+        if (!confirmedQualityRecord.isActual()) {
+            confirmedQualityRecord.makeActual();
+        }
     }
 
     @Override
