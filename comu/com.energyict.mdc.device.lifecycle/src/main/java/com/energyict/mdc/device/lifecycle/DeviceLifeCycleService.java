@@ -41,7 +41,8 @@ public interface DeviceLifeCycleService {
      * also be used as a translation key.
      */
     public enum MicroActionPropertyName {
-        LAST_CHECKED(Keys.LAST_CHECKED_TIMESTAMP_PROPERTY_NAME);
+        LAST_CHECKED(Keys.LAST_CHECKED_TIMESTAMP_PROPERTY_NAME),
+        MULTIPLIER(Keys.MULTIPLIER_PROPERTY_NAME);
 
         private String key;
         MicroActionPropertyName(String key) {
@@ -54,6 +55,7 @@ public interface DeviceLifeCycleService {
 
         public static class Keys {
             public static final String LAST_CHECKED_TIMESTAMP_PROPERTY_NAME = "mdc.device.lifecycle.micro.action.lastChecked.timestamp";
+            public static final String MULTIPLIER_PROPERTY_NAME = "mdc.device.lifecycle.micro.action.multiplier.value";
         }
     }
 

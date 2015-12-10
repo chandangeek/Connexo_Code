@@ -162,6 +162,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             case REMOVE_DEVICE: {
                 return new RemoveDevice(thesaurus);
             }
+            case SET_MULTIPLIER: {
+                return new SetMultiplier(thesaurus);
+            }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
             }

@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -74,7 +75,36 @@ public final class DeviceLifeCyclePropertySupport {
         return getOptionalTimestamp(properties, predicate).get();
     }
 
+    /**
+     * Provides the PropertySpec for the multiplier
+     *
+     * @param service The PropertySpecService that effectively creates the PropertySpec
+     * @return The PropertySpec
+     */
+    public static PropertySpec multiplierPropertySpec(PropertySpecService service) {
+        return service.boundedDecimalPropertySpec(
+                DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key(),
+                false, BigDecimal.ONE, BigDecimal.valueOf(Integer.MAX_VALUE));
+    }
+
+    /**
+     * Gets the value of the optional property {@link DeviceLifeCycleService.MicroActionPropertyName#MULTIPLIER}.
+     * If the property is not present a {@link BigDecimal#ONE} is returned.
+     *
+     * @param properties the list of provided properties
+     * @return the value of the multiplier
+     */
+    public static BigDecimal getMultiplierValue(List<ExecutableActionProperty> properties) {
+        Optional<ExecutableActionProperty> configuredProperty = properties.stream().filter(executableActionProperty -> executableActionProperty.getPropertySpec().getName().equals(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key())).findAny();
+        if (configuredProperty.isPresent()) {
+            return (BigDecimal) configuredProperty.get().getValue();
+        } else {
+            return BigDecimal.ONE;
+        }
+    }
+
     // Hide constructor for static utility class
-    private DeviceLifeCyclePropertySupport() {}
+    private DeviceLifeCyclePropertySupport() {
+    }
 
 }
