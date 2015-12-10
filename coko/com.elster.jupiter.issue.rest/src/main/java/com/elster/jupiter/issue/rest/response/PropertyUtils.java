@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.Objects;
 
 public class PropertyUtils {
-    
+
     private final Thesaurus thesaurus;
-    
+
     @Inject
     public PropertyUtils(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
@@ -91,9 +91,6 @@ public class PropertyUtils {
         }
 
         PropertySelectionMode selectionMode = PropertySelectionMode.UNSPECIFIED;
-        if (PropertyType.IDWITHNAME == propertyType) {
-            selectionMode = PropertySelectionMode.COMBOBOX;
-        }
 
         return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive());
     }
