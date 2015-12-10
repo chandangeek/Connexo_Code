@@ -58,8 +58,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     private DeviceValidation deviceValidation;
     @Mock
     private DataValidationStatus dataValidationStatus;
-    @Mock(extraInterfaces = NumericalRegister.class)
-    private Register register;
+    @Mock
+    private NumericalRegister register;
     @Mock
     private RegisterType registerType;
     @Mock
@@ -94,6 +94,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(numericalRegisterSpec.getRegisterType()).thenReturn(registerType);
         when(register.getRegisterSpec()).thenReturn(numericalRegisterSpec);
         when(register.getReadingType()).thenReturn(readingType);
+        when(register.getCalculatedReadingType()).thenReturn(Optional.empty());
 
         BillingReading billingReading = mockBillingReading(actualReading1);
         when(actualReading1.edited()).thenReturn(true);
