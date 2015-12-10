@@ -620,7 +620,10 @@ public class BpmResource {
             String rest = "/rest/tasks/" + id + "/content";
             jsonContent = bpmService.getBpmServer().doGet(rest);
             if (!"".equals(jsonContent)) {
-                obj = new JSONObject(jsonContent);
+                if(!jsonContent.equals("Connection refused: connect")){
+                    obj = new JSONObject(jsonContent);
+                }
+
             }
 
         } catch (JSONException e) {
@@ -628,6 +631,8 @@ public class BpmResource {
         }
         if(obj != null) {
             taskContentInfos = new TaskContentInfos(obj);
+        }else {
+            throw new NoBpmConnectionException(thesaurus);
         }
         return taskContentInfos;
     }
