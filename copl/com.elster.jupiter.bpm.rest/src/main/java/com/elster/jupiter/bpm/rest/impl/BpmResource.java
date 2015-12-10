@@ -760,12 +760,16 @@ public class BpmResource {
                         if (taskContentInfo.isPresent()) {
                             if (taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("TIMESTAMP")) {
                                 Date date = new Date();
-                                date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
-                                outputBindingContents.put(s.outputBinding, date);
+                                if(taskContentInfo.get().propertyValueInfo.value != null) {
+                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
+                                    outputBindingContents.put(s.outputBinding, date);
+                                }
                             } else if (taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("DATE")) {
                                 Date date = new Date();
-                                date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
-                                outputBindingContents.put(s.outputBinding, date);
+                                if(taskContentInfo.get().propertyValueInfo.value != null) {
+                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
+                                    outputBindingContents.put(s.outputBinding, date);
+                                }
                             } else if(taskContentInfo.get().propertyTypeInfo.predefinedPropertyValuesInfo != null){
                                 if(taskContentInfo.get().propertyTypeInfo.predefinedPropertyValuesInfo.selectionMode.equals("COMBOBOX")) {
                                     Iterator<String> it = s.propertyTypeInfo.predefinedPropertyValuesInfo.comboKeys.keySet().iterator();
