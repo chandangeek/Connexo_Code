@@ -5,7 +5,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.StringReferenceFactory;
 import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
@@ -53,7 +52,7 @@ public enum DeviceDataImporterProperty {
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
             PropertySpecBuilder builder =
                 context.getPropertySpecService()
-                    .specForValuesOf(new StringReferenceFactory(new SupportedNumberFormat.SupportedNumberFormatFinder()))
+                    .specForValuesOf(new SupportedNumberFormat.SupportedNumberFormatValueFactory())
                     .named(this.nameTranslationKey)
                     .describedAs(this.descriptionTranslationKey)
                     .fromThesaurus(context.getThesaurus())

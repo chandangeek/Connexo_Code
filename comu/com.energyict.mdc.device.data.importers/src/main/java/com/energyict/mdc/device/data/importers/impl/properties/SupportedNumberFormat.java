@@ -1,10 +1,13 @@
 package com.energyict.mdc.device.data.importers.impl.properties;
 
-import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Arrays;
-import java.util.Optional;
 
 import static com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImporterFactory.COMMA;
 import static com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImporterFactory.DOT;
@@ -50,16 +53,64 @@ public enum SupportedNumberFormat {
         return Arrays.asList(values()).stream().map(SupportedNumberFormatInfo::new).toArray(SupportedNumberFormatInfo[]::new);
     }
 
-    public static class SupportedNumberFormatFinder implements CanFindByStringKey<SupportedNumberFormatInfo> {
-
+    public static class SupportedNumberFormatValueFactory implements ValueFactory<SupportedNumberFormatInfo> {
         @Override
-        public Optional<SupportedNumberFormatInfo> find(String key) {
-            return Arrays.asList(values()).stream().filter(format -> format.name().equalsIgnoreCase(key)).findFirst().map(SupportedNumberFormatInfo::new);
+        public SupportedNumberFormatInfo fromStringValue(String stringValue) {
+            return Arrays.asList(values()).stream()
+                    .filter(format -> format.name().equalsIgnoreCase(stringValue))
+                    .findFirst()
+                    .map(SupportedNumberFormatInfo::new)
+                    .orElse(null);
         }
 
         @Override
-        public Class<SupportedNumberFormatInfo> valueDomain() {
+        public String toStringValue(SupportedNumberFormatInfo object) {
+            return object.getId();
+        }
+
+        @Override
+        public Class<SupportedNumberFormatInfo> getValueType() {
             return SupportedNumberFormatInfo.class;
+        }
+
+        @Override
+        public boolean isReference() {
+            return false;
+        }
+
+        @Override
+        public SupportedNumberFormatInfo valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(SupportedNumberFormatInfo object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, SupportedNumberFormatInfo value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            }
+            else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, SupportedNumberFormatInfo value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            }
+            else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public boolean isPersistent(SupportedNumberFormatInfo value) {
+            return false;
         }
     }
 
@@ -76,7 +127,7 @@ public enum SupportedNumberFormat {
         }
 
         @Override
-        public Object getId() {
+        public String getId() {
             return format.name();
         }
 
