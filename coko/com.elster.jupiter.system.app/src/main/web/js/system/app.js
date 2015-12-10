@@ -49,8 +49,9 @@ Ext.onReady(function () {
         conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : 'Bearer '.concat(xAuthToken);
 
     });
-    Ext.Ajax.on("requestcomplete", function(conn, response){
-        localStorage.setItem('X-AUTH-TOKEN',response.getResponseHeader('X-AUTH-TOKEN'));
+    Ext.Ajax.on("requestcomplete", function(conn, response, options, eOpts ){
+        if(response.request && JSON.stringify(response.request.headers).match('"X-Requested-With":"XMLHttpRequest"'))
+            localStorage.setItem('X-AUTH-TOKEN', response.getResponseHeader('X-AUTH-TOKEN'));
     });
 
     loader.onReady(function () {
