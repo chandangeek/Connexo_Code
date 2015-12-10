@@ -110,7 +110,13 @@ public enum MicroAction {
     /**
      * Removes the device and all it's references
      */
-    REMOVE_DEVICE(MicroCategory.RETENTION);
+    REMOVE_DEVICE(MicroCategory.RETENTION),
+
+    /**
+     * Sets the value of a multiplier on the device
+     */
+    SET_MULTIPLIER(MicroCategory.DATA_COLLECTION),
+    ;
 
     private MicroCategory category;
     private String conflictGroupKey;

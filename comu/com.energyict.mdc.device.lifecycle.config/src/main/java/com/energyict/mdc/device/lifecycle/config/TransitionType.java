@@ -39,6 +39,7 @@ public enum TransitionType {
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
                     MicroAction.CREATE_METER_ACTIVATION,
+                    MicroAction.SET_MULTIPLIER,
                     MicroAction.SET_LAST_READING);
         }
         @Override
@@ -73,6 +74,7 @@ public enum TransitionType {
             return EnumSet.of(MicroAction.START_COMMUNICATION,
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.ENABLE_ESTIMATION,
+                    MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION);
         }
         @Override
@@ -111,6 +113,7 @@ public enum TransitionType {
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.DISABLE_COMMUNICATION,
+                    MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION);
         }
         @Override
@@ -147,6 +150,7 @@ public enum TransitionType {
                     MicroAction.START_COMMUNICATION,
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.ENABLE_ESTIMATION,
+                    MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION);
         }
 
@@ -186,6 +190,7 @@ public enum TransitionType {
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.DISABLE_COMMUNICATION,
+                    MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION);
         }
         @Override
@@ -223,6 +228,7 @@ public enum TransitionType {
                     MicroAction.START_COMMUNICATION,
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.ENABLE_ESTIMATION,
+                    MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION);
         }
 
