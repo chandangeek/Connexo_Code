@@ -2,8 +2,6 @@ package com.elster.jupiter.properties;
 
 import java.math.BigDecimal;
 
-import com.elster.jupiter.properties.PropertySpec;
-
 /**
  * BoundedBigDecimalPropertySpec is a {@link PropertySpec} for
  * BigDecimal values that are bounded between a lower and an upper limit value.
@@ -14,10 +12,10 @@ import com.elster.jupiter.properties.PropertySpec;
 public interface BoundedBigDecimalPropertySpec extends PropertySpec {
 
     @Override
-    public ValueFactory<BigDecimal> getValueFactory();
+    ValueFactory<BigDecimal> getValueFactory();
 
-    public BigDecimal getLowerLimit ();
+    BigDecimal getLowerLimit();
 
-    public BigDecimal getUpperLimit ();
+    BigDecimal getUpperLimit();
 
 }

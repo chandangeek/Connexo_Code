@@ -66,7 +66,9 @@ public interface PropertySpecService {
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of BigDecimal values that are bounded
-     * by the specified upper and lower limit values.
+     * by the specified upper and lower limit values.<br>
+     * Note that the result of the building process
+     * will actually be a {@link BoundedBigDecimalPropertySpec}.
      *
      * @param lowerLimit The lower limit
      * @param upperLimit upper limit

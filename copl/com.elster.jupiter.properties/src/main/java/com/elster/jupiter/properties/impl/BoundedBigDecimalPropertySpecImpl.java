@@ -1,4 +1,9 @@
-package com.elster.jupiter.properties;
+package com.elster.jupiter.properties.impl;
+
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
+import com.elster.jupiter.properties.InvalidValueException;
 
 import java.math.BigDecimal;
 
@@ -8,28 +13,23 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:22)
  */
-public class BoundedBigDecimalPropertySpecImpl extends BasicPropertySpec implements BoundedBigDecimalPropertySpec {
+class BoundedBigDecimalPropertySpecImpl extends BasicPropertySpec implements BoundedBigDecimalPropertySpec {
 
     private BigDecimal lowerLimit;
     private BigDecimal upperLimit;
 
-    /**
-     * a PropertySpec for properties of type BigDecimal having values between the lower and upper limit (included)
-     *
-     * @param name for the property
-     * @param lowerLimit smallest value allowed
-     * @param upperLimit greates value allowed
-     */
-    public BoundedBigDecimalPropertySpecImpl(String name, BigDecimal lowerLimit, BigDecimal upperLimit) {
-        super(name, new BigDecimalFactory());
+    BoundedBigDecimalPropertySpecImpl(BigDecimal lowerLimit, BigDecimal upperLimit) {
+        super(new BigDecimalFactory());
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
     }
 
+    @Override
     public BigDecimal getLowerLimit () {
         return lowerLimit;
     }
 
+    @Override
     public BigDecimal getUpperLimit () {
         return upperLimit;
     }

@@ -1,14 +1,14 @@
 package com.elster.jupiter.properties;
 
-import static org.fest.assertions.Assertions.assertThat;
+import com.elster.jupiter.properties.impl.BoundedBigDecimalPropertySpecImpl;
 
 import java.math.BigDecimal;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.properties.InvalidValueException;
+import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BoundedBigDecimalPropertyTest {

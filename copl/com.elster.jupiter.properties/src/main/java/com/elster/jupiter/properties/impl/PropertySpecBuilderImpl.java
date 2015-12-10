@@ -33,12 +33,12 @@ import java.util.Arrays;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-20 (09:06)
  */
-public class PropertySpecBuilderImpl implements PropertySpecBuilder {
+class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
     /**
      * The initial name that is used for a {@link PropertySpec}
      * that is still under construction. This name will remain
-     * in effect until you call the {@link #name(String)} method.
+     * in effect until you call the {@link #setNameAndDescription(NameAndDescription)} method.
      */
     private static final String INITIAL_SPEC_NAME = "UnderConstruction";
 
@@ -49,49 +49,50 @@ public class PropertySpecBuilderImpl implements PropertySpecBuilder {
      * domain that are managed with the speciied {@link ValueFactory}.
      *
      * @param valueFactory The ValueFactory
-     * @return The PropertySpecBuilder
      */
-    public static PropertySpecBuilder forClass(ValueFactory valueFactory) {
-        return new PropertySpecBuilderImpl(valueFactory);
+    PropertySpecBuilderImpl(ValueFactory<T> valueFactory) {
+        super();
+        this.propertySpecAccessor = new BasicPropertySpecAccessor(new BasicPropertySpec(INITIAL_SPEC_NAME, valueFactory));
     }
 
-    @Override
-    public PropertySpecBuilder name(String specName) {
-        return this.name(specName, specName);
+    /**
+     * Creates a new PropertySpecBuilder for the BasicPropertySpec
+     * that was already partially initialized.
+     *
+     * @param valueFactory The ValueFactory
+     * @param partiallyInitialized The partially intialized BasicPropertySpec
+     */
+    PropertySpecBuilderImpl(ValueFactory<T> valueFactory, BasicPropertySpec partiallyInitialized) {
+        super();
+        this.propertySpecAccessor = new BasicPropertySpecAccessor(partiallyInitialized);
     }
 
-    @Override
-    public PropertySpecBuilder name(String specName, String displayName) {
-        this.propertySpecAccessor.setName(specName, displayName);
+    PropertySpecBuilderImpl<T> setNameAndDescription(NameAndDescription nameAndDescription) {
+        this.propertySpecAccessor.setName(nameAndDescription.getName(), nameAndDescription.getDisplayName());
+        this.propertySpecAccessor.setDescription(nameAndDescription.getDescription());
         return this;
     }
 
     @Override
-    public PropertySpecBuilder description(String description) {
-        this.propertySpecAccessor.setDescription(description);
-        return this;
-    }
-
-    @Override
-    public PropertySpecBuilder setDefaultValue(Object defaultValue) {
+    public PropertySpecBuilder<T> setDefaultValue(Object defaultValue) {
         this.propertySpecAccessor.setDefaultValue(defaultValue);
         return this;
     }
 
     @Override
-    public PropertySpecBuilder markExhaustive() {
+    public PropertySpecBuilder<T> markExhaustive() {
         this.propertySpecAccessor.markExhaustive();
         return this;
     }
 
     @Override
-    public PropertySpecBuilder markRequired() {
+    public PropertySpecBuilder<T> markRequired() {
         this.propertySpecAccessor.markRequired();
         return this;
     }
 
     @Override
-    public PropertySpecBuilder addValues(Object... values) {
+    public PropertySpecBuilder<T> addValues(Object... values) {
         this.propertySpecAccessor.addValues(values);
         return this;
     }
@@ -103,9 +104,24 @@ public class PropertySpecBuilderImpl implements PropertySpecBuilder {
         return finished;
     }
 
-    private PropertySpecBuilderImpl(ValueFactory valueFactory) {
-        super();
-        this.propertySpecAccessor = new BasicPropertySpecAccessor(new BasicPropertySpec(INITIAL_SPEC_NAME, valueFactory));
+    private interface PropertySpecAccessor {
+
+        PropertySpec getPropertySpec();
+
+        void setName(String name);
+
+        void setName(String name, String displayName);
+
+        void setDescription(String description);
+
+        void setDefaultValue(Object defaultValue);
+
+        void addValues(Object... values);
+
+        void markRequired();
+
+        void markExhaustive();
+
     }
 
     private class BasicPropertySpecAccessor implements PropertySpecAccessor {
@@ -179,6 +195,65 @@ public class PropertySpecBuilderImpl implements PropertySpecBuilder {
                 PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
                 possibleValues.setExhaustive(true);
             }
+        }
+    }
+
+    /**
+     * Provides an implementation for the {@link PropertySpecAccessor} interface
+     * that will be used once the building process is complete
+     * and will throw {@link IllegalStateException} on every attempt to change
+     * the {@link PropertySpec} that was built in previous steps.
+     */
+    private class BuildingProcessComplete implements PropertySpecAccessor {
+        private PropertySpec propertySpec;
+
+        BuildingProcessComplete (PropertySpec propertySpec) {
+            super();
+            this.propertySpec = propertySpec;
+        }
+
+        @Override
+        public PropertySpec getPropertySpec () {
+            return this.propertySpec;
+        }
+
+        @Override
+        public void setName (String name) {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void setName(String name, String displayName) {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void setDescription(String description) {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void setDefaultValue (Object defaultValue) {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void addValues (Object... values) {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void markRequired () {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void markExhaustive () {
+            this.notifyBuildingProcessComplete();
+        }
+
+        private void notifyBuildingProcessComplete () {
+            throw new IllegalStateException("PropertySpec building process is complete, use another builder if you want to construct another PropertySpec!");
         }
     }
 

@@ -1,8 +1,5 @@
 package com.elster.jupiter.properties;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-
 import java.io.Serializable;
 
 public class BasicPropertySpec implements PropertySpec, Serializable {
@@ -14,37 +11,8 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     protected ValueFactory valueFactory;
     protected PropertySpecPossibleValues possibleValues;
 
-    public BasicPropertySpec(String name, ValueFactory valueFactory) {
-        this(name, false, valueFactory);
-    }
-
-    /**
-     * Todo: remove as part of COPL-1151
-     * @deprecated Replace by calls to {@link #BasicPropertySpec(Thesaurus, TranslationKey, TranslationKey, boolean, ValueFactory)} as part of COPL-1151
-     */
-    @Deprecated
-    public BasicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
-        this(name, name, required, valueFactory);
-    }
-
-    public BasicPropertySpec(Thesaurus thesaurus, TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey, boolean required, ValueFactory valueFactory) {
-        this(translate(thesaurus, nameTranslationKey), translate(thesaurus, descriptionTranslationKey), required, valueFactory);
-    }
-
-    private static String translate(Thesaurus thesaurus, TranslationKey translationKey) {
-        if (translationKey != null) {
-            return thesaurus.getFormat(translationKey).format();
-        }
-        else {
-            return null;
-        }
-    }
-
-    public BasicPropertySpec(String name, String description, boolean required, ValueFactory valueFactory) {
+    public BasicPropertySpec(ValueFactory valueFactory) {
         super();
-        this.name = name;
-        this.description = description;
-        this.required = required;
         this.valueFactory = valueFactory;
     }
 
