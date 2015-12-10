@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
     title: '',
     unitOfMeasureCollected: '',
     unitOfMeasureCalculated: '',
+    multiplier: null,
 
     items: {
         xtype: 'form',
@@ -97,6 +98,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                             } else {
                                 return '-'
                             }
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                        itemId: 'mdc-register-preview-numerical-multiplier',
+                        renderer: function () {
+                            return this.up('form').up('#deviceregisterreportpreview').multiplier;
                         }
                     }
                 ]

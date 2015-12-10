@@ -97,11 +97,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                                     calculatedReadingType = register.get('calculatedReadingType'),
                                     calculatedUnit = calculatedReadingType ? calculatedReadingType.names.unitOfMeasure : '',
                                     isCumulative = register.get('isCumulative'),
+                                    multiplier = register.get('multiplier'),
                                     dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
                                         mRID: encodeURIComponent(mRID),
                                         registerId: registerId,
                                         unitOfMeasureCollected: collectedUnit,
-                                        unitOfMeasureCalculated: calculatedUnit
+                                        unitOfMeasureCalculated: calculatedUnit,
+                                        multiplier: multiplier
                                     }),
                                     preview = dataReport.down('deviceregisterreportpreview-' + type);
 
@@ -130,6 +132,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                                     } else {
                                         preview.down('displayfield[name=deltaValue]').setVisible(false);
                                     }
+                                    preview.down('#mdc-register-preview-'+type+'-multiplier').setVisible(multiplier);
                                 }
                                 me.getFilterPanel().bindStore(dataStore);
                                 dataStore.load();
