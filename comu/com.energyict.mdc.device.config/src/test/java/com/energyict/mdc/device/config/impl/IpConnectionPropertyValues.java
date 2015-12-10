@@ -29,14 +29,14 @@ public class IpConnectionPropertyValues implements PersistentDomainExtension<Con
     private BigDecimal port;
 
     @Override
-    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
         this.ipAddress = (String) propertyValues.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName());
         this.port = (BigDecimal) propertyValues.getProperty(IpConnectionProperties.PORT.propertyName());
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), this.ipAddress);
         if (this.port != null) {
             propertySetValues.setProperty(IpConnectionProperties.PORT.propertyName(), this.port);
@@ -47,5 +47,4 @@ public class IpConnectionPropertyValues implements PersistentDomainExtension<Con
     public void validateDelete() {
         // Nothing to validate
     }
-
 }
