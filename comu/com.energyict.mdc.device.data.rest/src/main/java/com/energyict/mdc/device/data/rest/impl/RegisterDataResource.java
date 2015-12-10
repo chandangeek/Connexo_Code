@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -7,6 +8,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
@@ -81,39 +83,40 @@ public class RegisterDataResource {
                         device.forValidation().isValidationActive(register, this.clock.instant()), device);
         // sort the list of readings
         Collections.sort(readingInfos, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
-        /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
-           The Delta value won't be stored in the database yet, as it has a performance impact */
-        if (register.getReadingType().isCumulative()){
-            for (int i = 0; i < readingInfos.size() - 1; i++){
-                calculateDeltaForNumericalReading(readingInfos.get(i + 1), readingInfos.get(i));
-                calculateDeltaForBillingReading(readingInfos.get(i + 1), readingInfos.get(i));
-            }
-        }
+        addDeltaCalculationIfApplicable(register, readingInfos);
+
         // filter the list of readings based on user parameters
         readingInfos = filter(readingInfos, filter);
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
     }
 
-    private void calculateDeltaForNumericalReading(ReadingInfo previous, ReadingInfo current){
-        if (previous != null && current != null && current instanceof NumericalReadingInfo){
-            NumericalReadingInfo prevCasted = (NumericalReadingInfo) previous;
-            NumericalReadingInfo curCasted = (NumericalReadingInfo) current;
-            if (prevCasted.value != null && curCasted.value != null) {
-                curCasted.deltaValue = curCasted.value.subtract(prevCasted.value);
-                curCasted.deltaValue = curCasted.deltaValue.setScale(curCasted.value.scale(), BigDecimal.ROUND_UP);
+    private void addDeltaCalculationIfApplicable(Register<?, ?> register, List<ReadingInfo> readingInfos) {
+    /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
+       The Delta value won't be stored in the database yet, as it has a performance impact */
+        if(!register.getRegisterSpec().isTextual()){
+            NumericalRegister numericalRegister = (NumericalRegister) register;
+            ReadingType readingTypeForCalculation = numericalRegister.getCalculatedReadingType().isPresent()? numericalRegister.getCalculatedReadingType().get():numericalRegister.getReadingType();
+            boolean cumulative = readingTypeForCalculation.isCumulative();
+            if(cumulative){
+                List<NumericalReadingInfo> numericalReadingInfos = readingInfos.stream().map(readingInfo -> ((NumericalReadingInfo) readingInfo)).collect(Collectors.toList());
+                for (int i = 0; i < numericalReadingInfos.size() - 1; i++){
+                    NumericalReadingInfo previous = numericalReadingInfos.get(i + 1);
+                    NumericalReadingInfo current = numericalReadingInfos.get(i);
+                    if(numericalRegister.getCalculatedReadingType().isPresent() && previous.calculatedValue != null && current.calculatedValue != null){
+                        calculateDelta(current, previous.calculatedValue, current.calculatedValue);
+                    } else if(previous.value != null && current.value != null) {
+                        calculateDelta(current, previous.value, current.value);
+
+                    }
+                }
             }
         }
     }
 
-    private void calculateDeltaForBillingReading(ReadingInfo previous, ReadingInfo current){
-        if (previous != null && current != null && current instanceof BillingReadingInfo){
-            BillingReadingInfo prevCasted = (BillingReadingInfo) previous;
-            BillingReadingInfo curCasted = (BillingReadingInfo) current;
-            if (prevCasted.value != null && curCasted.value != null) {
-                curCasted.deltaValue = curCasted.value.subtract(prevCasted.value);
-            }
-        }
+    private void calculateDelta(NumericalReadingInfo current, BigDecimal previousVale, BigDecimal currentValue){
+        current.deltaValue = currentValue.subtract(previousVale);
+        current.deltaValue = current.deltaValue.setScale(currentValue.scale(), BigDecimal.ROUND_UP);
     }
 
     @GET

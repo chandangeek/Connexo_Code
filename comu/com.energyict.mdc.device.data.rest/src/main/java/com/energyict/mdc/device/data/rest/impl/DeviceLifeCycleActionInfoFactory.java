@@ -29,7 +29,7 @@ public class DeviceLifeCycleActionInfoFactory {
     public DeviceLifeCycleActionInfo from(ExecutableAction executableAction){
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.device = DeviceInfo.from(executableAction.getDevice());
-        if (executableAction != null && executableAction.getAction() instanceof AuthorizedTransitionAction){
+        if (executableAction.getAction() instanceof AuthorizedTransitionAction){
             info.id = executableAction.getAction().getId();
             info.name = executableAction.getAction().getName();
             AuthorizedTransitionAction castedAction = (AuthorizedTransitionAction) executableAction.getAction();

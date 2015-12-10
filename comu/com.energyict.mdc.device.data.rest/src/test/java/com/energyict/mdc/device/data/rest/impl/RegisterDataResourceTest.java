@@ -21,12 +21,7 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.RegisterDataUpdater;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -63,7 +58,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     private DeviceValidation deviceValidation;
     @Mock
     private DataValidationStatus dataValidationStatus;
-    @Mock
+    @Mock(extraInterfaces = NumericalRegister.class)
     private Register register;
     @Mock
     private RegisterType registerType;
