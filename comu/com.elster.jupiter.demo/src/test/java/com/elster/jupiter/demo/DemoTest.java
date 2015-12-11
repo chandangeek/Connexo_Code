@@ -783,9 +783,6 @@ public class DemoTest {
         protocolPluggableService.addLicensedProtocolService(injector.getInstance(LicensedProtocolService.class));
 
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
-        propertySpecService.addFactoryProvider((DeviceServiceImpl) injector.getInstance(DeviceService.class));
-        propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl) injector.getInstance(ConnectionTaskService.class));
-
 
         DefaultValidatorFactory defaultValidatorFactory = new DefaultValidatorFactory();
         defaultValidatorFactory.setPropertySpecService(propertySpecService);
