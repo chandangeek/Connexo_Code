@@ -118,7 +118,7 @@ public class DeviceTypeThreeCustomPropertySet implements CustomPropertySet<Devic
     private static class DeviceThreePeristenceSupport implements PersistenceSupport<Device, DeviceTypeThreeDomainExtension> {
         @Override
         public String componentName() {
-            return "RVK";
+            return "RVK3";
         }
 
         @Override

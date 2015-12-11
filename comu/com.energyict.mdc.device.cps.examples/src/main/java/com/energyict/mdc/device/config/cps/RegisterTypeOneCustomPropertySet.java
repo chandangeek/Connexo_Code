@@ -139,7 +139,7 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
     private static class RegisterTypeOnePeristenceSupport implements PersistenceSupport<RegisterSpec, RegisterTypeOneDomainExtension> {
         @Override
         public String componentName() {
-            return "RVK";
+            return "RVK11";
         }
 
         @Override

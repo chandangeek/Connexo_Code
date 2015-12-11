@@ -139,7 +139,7 @@ public class LoadProfileTypeTwoCustomPropertySet implements CustomPropertySet<Ch
     private static class LoadProfileTypeTwoPeristenceSupport implements PersistenceSupport<ChannelSpec, LoadProfileTypeTwoDomainExtension> {
         @Override
         public String componentName() {
-            return "RVK";
+            return "RVK9";
         }
 
         @Override

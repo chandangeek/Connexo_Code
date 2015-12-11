@@ -125,7 +125,7 @@ public class DeviceTypeOneVersionedCustomPropertySet implements CustomPropertySe
     private static class DeviceTypeOneVersionedPeristenceSupport implements PersistenceSupport<Device, DeviceTypeOneVersionedDomainExtension> {
         @Override
         public String componentName() {
-            return "RVK";
+            return "RVK2";
         }
 
         @Override

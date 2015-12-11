@@ -139,7 +139,7 @@ public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device,
     private static class DeviceOnePeristenceSupport implements PersistenceSupport<Device, DeviceTypeOneDomainExtension> {
         @Override
         public String componentName() {
-            return "RVK";
+            return "RVK1";
         }
 
         @Override
