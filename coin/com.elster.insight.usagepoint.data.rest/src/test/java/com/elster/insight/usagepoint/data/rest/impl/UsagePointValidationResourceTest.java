@@ -80,8 +80,6 @@ public class UsagePointValidationResourceTest extends UsagePointDataRestApplicat
     @Mock
     private Channel channel, register;
     @Mock
-    private DataValidationStatus validationStatus1, validationStatus2, validationStatus3, validationStatus4, validationStatus5, validationStatus6;
-    @Mock
     private ReadingQuality suspect, notSuspect;
     @Mock
     private IntervalReadingRecord irr1, irr2, irr3, irr4;
@@ -138,8 +136,6 @@ public class UsagePointValidationResourceTest extends UsagePointDataRestApplicat
         DataValidationStatus statusForSuspect = mockDataValidationStatus(readingQualitySuspect, false);
         when(evaluator.getValidationStatus(eq(channel), any(), any())).thenReturn(Arrays.asList(statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect));
         when(evaluator.getValidationStatus(eq(register), any(), any())).thenReturn(Arrays.asList(statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect));
-        doModelStubbing();
-
     }
 
     @Test
@@ -158,84 +154,6 @@ public class UsagePointValidationResourceTest extends UsagePointDataRestApplicat
         assertThat(response.channelSuspectCount).isEqualTo(4);
     }
 
-
-    private void doModelStubbing() {
-//        when(usagePoint.getRegisters()).thenReturn(Arrays.asList(register1));
-//        when(register1.getReadingType()).thenReturn(regReadingType);
-//        when(register1.getRegisterSpec()).thenReturn(registerSpec);
-//        when(registerSpec.getReadingType()).thenReturn(regReadingType);
-//        when(regReadingType.getMRID()).thenReturn("REG1");
-//        when(regReadingType.getAliasName()).thenReturn("Sum+");
-//        when(channelReadingType1.getMRID()).thenReturn("CH1");
-//        when(channelReadingType2.getMRID()).thenReturn("CH2");
-
-//        when(usagePoint.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1));
-//        when(loadProfile1.getChannels()).thenReturn(Arrays.asList(ch1, ch2));
-//        when(loadProfile1.getId()).thenReturn(1L);
-//        when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec1);
-//        when(loadProfileSpec1.getLoadProfileType()).thenReturn(loadProfileType1);
-//        when(loadProfileType1.getName()).thenReturn("Profile1");
-//
-//        when(ch1.getReadingType()).thenReturn(channelReadingType1);
-//        when(ch2.getReadingType()).thenReturn(channelReadingType2);
-
-        
-        ZonedDateTime fromReg = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-        ZonedDateTime from = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(2);
-        ZonedDateTime to = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusDays(10);
-        when(meterActivation.getInterval()).thenReturn(Interval.endAt(from.toInstant()));
-        Range<Instant> intervalToNow = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.now());
-        when(meterActivation.getRange()).thenReturn(intervalToNow);
-        
-//        when(channel1.getMeterActivation()).thenReturn(meterActivation);
-//        when(channel2.getMeterActivation()).thenReturn(meterActivation);
-//        when(channel3.getMeterActivation()).thenReturn(meterActivation);
-//        when(validationService.getLastChecked(meterActivation)).thenReturn(Optional.of(NOW));
-//        when(channel1.getMainReadingType()).thenReturn(regReadingType);
-//        when(channel2.getMainReadingType()).thenReturn(channelReadingType1);
-//        when(channel3.getMainReadingType()).thenReturn(channelReadingType2);
-//        when(channel4.getMainReadingType()).thenReturn(regReadingType);
-//        when(channel5.getMainReadingType()).thenReturn(channelReadingType1);
-//        when(channel6.getMainReadingType()).thenReturn(channelReadingType2);
-//        when(channel7.getMainReadingType()).thenReturn(regReadingType);
-//        when(channel8.getMainReadingType()).thenReturn(channelReadingType1);
-//        when(channel9.getMainReadingType()).thenReturn(channelReadingType2);
-//        doReturn(Arrays.asList(regReadingType)).when(channel1).getReadingTypes();
-//        doReturn(Arrays.asList(channelReadingType1)).when(channel2).getReadingTypes();
-//        doReturn(Arrays.asList(channelReadingType2)).when(channel3).getReadingTypes();
-//        doReturn(Arrays.asList(regReadingType)).when(channel4).getReadingTypes();
-//        doReturn(Arrays.asList(channelReadingType1)).when(channel5).getReadingTypes();
-//        doReturn(Arrays.asList(channelReadingType2)).when(channel6).getReadingTypes();
-//        doReturn(Arrays.asList(regReadingType)).when(channel7).getReadingTypes();
-//        doReturn(Arrays.asList(channelReadingType1)).when(channel8).getReadingTypes();
-//        doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
-        
-
-        Interval regInterval1 = new Interval(Date.from(fromReg.toInstant()), Date.from(to.toInstant()));
-        Instant toNow = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
-        Range<Instant> wholeRegInterval = Range.openClosed(fromReg.toInstant(), toNow);
-//        when(deviceValidation.getValidationStatus(eq(register1), anyList(), eq(wholeRegInterval))).thenReturn(Arrays.asList(validationStatus1, validationStatus2, validationStatus3));
-        doReturn(Arrays.asList(suspect, suspect)).when(validationStatus1).getReadingQualities();
-        doReturn(Arrays.asList(suspect, suspect)).when(validationStatus2).getReadingQualities();
-        doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus3).getReadingQualities();
-
-        ZonedDateTime fromCh = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-        Range wholeInterval = Range.openClosed(fromCh.toInstant(), toNow);
-//        when(deviceValidation.getValidationStatus(eq(ch1), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus4));
-//        when(deviceValidation.getValidationStatus(eq(ch2), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
-        doReturn(Arrays.asList(suspect, suspect)).when(validationStatus4).getReadingQualities();
-        doReturn(Arrays.asList(suspect, notSuspect)).when(validationStatus5).getReadingQualities();
-        doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus6).getReadingQualities();
-
-//        when(deviceValidation.getLastChecked()).thenReturn(Optional.<Instant>empty());
-
-        ValidationRuleSet ruleSet = mockValidationRuleSet(1,true);
-        doReturn(ruleSet.getRules()).when(validationStatus4).getOffendedRules();
-        doReturn(ruleSet.getRules()).when(validationStatus2).getOffendedRules();
-//        when(usagePoint.getDeviceType()).thenReturn(deviceType);
-//        when(usagePoint.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-    }
-    
     private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {
         DataValidationStatus status = mock(DataValidationStatus.class);
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
@@ -247,56 +165,5 @@ public class UsagePointValidationResourceTest extends UsagePointDataRestApplicat
             doReturn(readingQualities).when(status).getReadingQualities();
         }
         return status;
-    }
-
-    private ValidationRuleSet mockValidationRuleSet(int id, boolean version) {
-        ValidationRuleSet ruleSet = mock(ValidationRuleSet.class);
-        when(ruleSet.getId()).thenReturn(Long.valueOf(id));
-        when(ruleSet.getName()).thenReturn("MyName");
-        when(ruleSet.getDescription()).thenReturn("MyDescription");
-        if (version) {
-            ValidationRuleSetVersion ruleSetVersion = mockValidationRuleSetVersion(11, ruleSet);
-            List versions = Arrays.asList(ruleSetVersion);
-            when(ruleSet.getRuleSetVersions()).thenReturn(versions);
-
-            List rules = Arrays.asList(mockValidationRuleInRuleSetVersion(20, ruleSet, ruleSetVersion));
-            when(ruleSetVersion.getRules()).thenReturn(rules);
-            when(ruleSet.getRules()).thenReturn(rules);
-        }
-
-        doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(id);
-
-        return ruleSet;
-    }
-
-    private ValidationRuleSetVersion mockValidationRuleSetVersion(long id, ValidationRuleSet ruleSet){
-        ValidationRuleSetVersion ruleSetVersion = mock(ValidationRuleSetVersion.class);
-        when(ruleSetVersion.getDescription()).thenReturn("descriptionOfVersion");
-        when(ruleSetVersion.getId()).thenReturn(id);
-        when(ruleSetVersion.getStartDate()).thenReturn(ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
-        when(ruleSetVersion.getRuleSet()).thenReturn(ruleSet);
-        return ruleSetVersion;
-    }
-
-    private ValidationRule mockValidationRuleInRuleSetVersion(long id, ValidationRuleSet ruleSet, ValidationRuleSetVersion ruleSetVersion) {
-        ValidationRule rule = mock(ValidationRule.class);
-        when(rule.getName()).thenReturn("MyRule");
-        when(rule.getId()).thenReturn(id);
-        when(rule.getAction()).thenReturn(ValidationAction.FAIL);
-        when(rule.getImplementation()).thenReturn("com.blablabla.Validator");
-        when(rule.getDisplayName()).thenReturn("My rule");
-        when(rule.isActive()).thenReturn(true);
-        when(rule.getRuleSetVersion()).thenReturn(ruleSetVersion);
-        when(rule.getRuleSet()).thenReturn(ruleSet);
-
-
-        Map<String, Object> props = new HashMap<>();
-        props.put("number", 13);
-        props.put("nullableboolean", true);
-        props.put("boolean", false);
-        props.put("text", "string");
-        when(rule.getProps()).thenReturn(props);
-
-        return rule;
     }
 }
