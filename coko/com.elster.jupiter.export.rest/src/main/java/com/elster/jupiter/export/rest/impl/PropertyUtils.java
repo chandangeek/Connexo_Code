@@ -5,17 +5,15 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +87,7 @@ public class PropertyUtils {
         if (possibleValues == null) {
             return null;
         }
-        if (possibleValues.getAllValues().size() <= 1) {
+        if (possibleValues.getDefault() != null) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
         }
@@ -98,12 +96,7 @@ public class PropertyUtils {
             possibleObjects[i] = propertyInfoFactory.asInfoObjectForPredifinedValues(possibleValues.getAllValues().get(i));
         }
 
-        PropertySelectionMode selectionMode = PropertySelectionMode.UNSPECIFIED;
-        if (PropertyType.LISTVALUE == propertyType) {
-            selectionMode = PropertySelectionMode.LIST;
-        } else if (possibleValues.isExhaustive()) {
-            selectionMode = PropertySelectionMode.COMBOBOX;
-        }
+        PropertySelectionMode selectionMode = possibleValues.getSelectionMode();
 
         return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive());
     }
@@ -127,12 +120,12 @@ public class PropertyUtils {
     }
 
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
-        if (Objects.equals(propertySpec.getValueFactory().getValueType(), ListValue.class)) {
-            ListValue<HasIdAndName> listValue = new ListValue<>();
+        if (HasIdAndName.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
+            List<HasIdAndName> listValue = new ArrayList<>();
             if (value instanceof List) {
                 List list = (List) value;
                 for (Object listItem : list) {
-                    listValue.addValue(parseListValueInfo(propertySpec, listItem));
+                    listValue.add(parseListValueInfo(propertySpec, listItem));
                 }
                 return listValue;
             }
@@ -145,10 +138,9 @@ public class PropertyUtils {
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
 
-    private ListValue<HasIdAndName> parseListValueInfo(PropertySpec propertySpec, Object value) {
+    private HasIdAndName parseListValueInfo(PropertySpec propertySpec, Object value) {
         String stringValue = (String) value;
-        Object obj = propertySpec.getValueFactory().fromStringValue(stringValue);
-        return (ListValue<HasIdAndName>) obj;
+        return (HasIdAndName) propertySpec.getValueFactory().fromStringValue(stringValue);
     }
 
 }
