@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -116,19 +115,26 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.propertySpecService.basicPropertySpec("SDKStringProperty", true, new StringFactory()));
         propertySpecs.add(
-                this.propertySpecService.
-                        obisCodePropertySpecWithValuesExhaustive(
-                                "SDKObisCodeProperty",
-                                false,
+                this.propertySpecService
+                        .stringSpec()
+                        .named(SDKTranslationKeys.SDKSTRINGPROPERTY)
+                        .fromThesaurus(getThesaurus())
+                        .markRequired()
+                        .finish());
+        propertySpecs.add(
+                this.propertySpecService
+                        .obisCodeSpec()
+                        .named(SDKTranslationKeys.SDKOBISCODEPROPERTY)
+                        .fromThesaurus(getThesaurus())
+                        .addValues(
                                 ObisCode.fromString("1.0.1.8.0.255"),
                                 ObisCode.fromString("1.0.1.8.1.255"),
                                 ObisCode.fromString("1.0.1.8.2.255"),
                                 ObisCode.fromString("1.0.2.8.0.255"),
                                 ObisCode.fromString("1.0.2.8.1.255"),
-                                ObisCode.fromString("1.0.2.8.2.255")));
-
+                                ObisCode.fromString("1.0.2.8.2.255"))
+                        .finish());
         return propertySpecs;
     }
 

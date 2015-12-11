@@ -2,8 +2,9 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
@@ -19,14 +20,16 @@ import java.math.BigDecimal;
 class ACE4000DeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
 
     enum ActualFields {
-        TIMEOUT_PROPERTY("timeoutMillis", "TIMEOUTMILLIS"),
-        RETRIES("retries", "RETRIES");
+        TIMEOUT_PROPERTY("timeoutMillis", ACE4000Properties.TranslationKeys.TIMEOUT, "TIMEOUTMILLIS"),
+        RETRIES("retries", ACE4000Properties.TranslationKeys.RETRIES, "RETRIES");
 
         private final String javaName;
+        private final TranslationKey nameTranslationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, String databaseName) {
+        ActualFields(String javaName, TranslationKey nameTranslationKey, String databaseName) {
             this.javaName = javaName;
+            this.nameTranslationKey = nameTranslationKey;
             this.databaseName = databaseName;
         }
 
@@ -42,8 +45,12 @@ class ACE4000DeviceProtocolDialectProperties extends CommonDeviceProtocolDialect
             return this.databaseName;
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertySpecName(), false, new BigDecimalFactory());
+        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .bigDecimalSpec()
+                    .named(this.propertySpecName(), this.nameTranslationKey)
+                    .fromThesaurus(thesaurus)
+                    .finish();
         };
 
         public void addTo(Table table) {

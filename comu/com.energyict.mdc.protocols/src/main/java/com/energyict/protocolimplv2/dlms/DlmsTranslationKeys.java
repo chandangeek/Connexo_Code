@@ -14,6 +14,9 @@ public enum DlmsTranslationKeys implements TranslationKey {
     AARQ_TIMEOUT_PROP_NAME("dlms.aarq.timeout", "AARQ timeout"),
     READCACHE_PROPERTY("dlms.read.cache", "Read cache"),
     MAX_REC_PDU_SIZE("dlms.max.rec.pdu.size", "Max REC PDU size"),
+    CLIENT_MAC_ADDRESS("dlms.protocol.property.client.mac.address", "Client mac address"),
+    SERVER_MAC_ADDRESS("dlms.protocol.property.server.mac.address", "Server mac address"),
+    DEVICE_ID_OBISCODE_KEY("dlms.protocol.property.device.id.obiscode", "DeviceIdObisCode"),
     ;
 
     private final String key;

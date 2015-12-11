@@ -30,6 +30,16 @@ public enum SDKTranslationKeys implements TranslationKey {
     SDKENCRYPTEDSTRINGPROPERTY(Keys.SDKENCRYPTEDSTRINGPROPERTY, "An encrypted string property"),
     DEFAULT_OPTIONAL_PROPERTY("SDK.defaultOptionalProperty", "Default optional propertry"),
     DELAY_AFTER_REQUEST("SDK.delay.after.request", "Delay after request"),
+    ACTIVE_METER_FIRMWARE_VERSION("SDK.activeMeterFirmwareVersion", "Active meter firmware version"),
+    PASSIVE_METER_FIRMWARE_VERSION("SDK.passiveMeterFirmwareVersion", "Passive meter firmware version"),
+    ACTIVE_COMMUNICATION_FIRMWARE_VERSION("SDK.activeCommunicationFirmwareVersion", "Active communication firmware version"),
+    PASSIVE_COMMUNICATION_FIRMWARE_VERSION("SDK.passiveCommunicationFirmwareVersion", "Passive communication firmware version"),
+    NOT_SUPPORTED_LOAD_PROFILE("SDK.notSupportedLoadProfile", "Not supported load profile"),
+    DO_SOME_THING("SDK.doSomething", "Just doit!"),
+    CLOCK_OFFSET_WHEN_READING("SDK.clockOffsetWhenReading", "Clock offset when reading"),
+    CLOCK_OFFSET_WHEN_WRITING("SDK.clockOffsetWhenWriting", "Clock offset when writing"),
+    SLAVE_ONE_SERIAL_NUMBER("SDK.slaveOneSerialNumber", "Slave one serial number"),
+    SLAVE_TWO_SERIAL_NUMBER("SDK.slaveTwoSerialNumber", "Slave two serial number"),
     ;
 
     private final String key;

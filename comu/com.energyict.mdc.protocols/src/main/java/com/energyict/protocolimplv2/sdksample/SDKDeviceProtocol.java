@@ -8,7 +8,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -164,7 +163,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         // optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
         optionalProperties.add(
                 this.propertySpecService
-                        .specForValuesOf(new ObisCodeValueFactory())
+                        .obisCodeSpec()
                         .named(SDKTranslationKeys.SDKOBISCODEPROPERTY)
                         .fromThesaurus(this.thesaurus)
                         .addValues(

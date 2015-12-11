@@ -5,6 +5,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
+import com.energyict.protocolimplv2.dlms.DlmsTranslationKeys;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,7 +41,12 @@ public class EDPProperties extends DlmsProperties {
     }
 
     private PropertySpec readCachePropertySpec() {
-        return getPropertySpecService().booleanPropertySpec(EDPProperties.READCACHE_PROPERTY, false, false);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(EDPProperties.READCACHE_PROPERTY, DlmsTranslationKeys.READCACHE_PROPERTY)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(false)
+                .finish();
     }
 
     @Override

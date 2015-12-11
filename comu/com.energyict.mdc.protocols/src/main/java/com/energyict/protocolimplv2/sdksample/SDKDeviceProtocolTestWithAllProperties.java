@@ -8,7 +8,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.io.ComChannel;
@@ -244,7 +243,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
 
         optionalProperties.add(
                 this.propertySpecService
-                        .specForValuesOf(new ObisCodeValueFactory())
+                        .obisCodeSpec()
                         .named(SDKTranslationKeys.SDKOBISCODEPROPERTY)
                         .fromThesaurus(this.getThesaurus())
                         .addValues(

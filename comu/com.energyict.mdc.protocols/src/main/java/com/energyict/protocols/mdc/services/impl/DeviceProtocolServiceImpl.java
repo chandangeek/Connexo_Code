@@ -39,6 +39,7 @@ import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.abnt.AbntTranslationKeys;
+import com.energyict.protocolimplv2.ace4000.ACE4000Properties;
 import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.dlms.DlmsTranslationKeys;
@@ -352,7 +353,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 Arrays.stream(CommonV2TranslationKeys.values()),
                 Arrays.stream(DlmsTranslationKeys.values()),
                 Arrays.stream(MTU155TranslationKeys.values()),
-                Arrays.stream(TranslationKeys.values()))
+                Arrays.stream(ACE4000Properties.TranslationKeys.values()),
+                Arrays.stream(com.energyict.protocols.mdc.services.impl.TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }

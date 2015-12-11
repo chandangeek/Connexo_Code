@@ -78,7 +78,7 @@ class SDKStandardDialectCustomPropertySet implements CustomPropertySet<DevicePro
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(SDKStandardDialectProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 
