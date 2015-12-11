@@ -2,8 +2,10 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -23,6 +25,7 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,6 +46,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
 
     private final DataModel dataModel;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
     private final ProtocolPluggableService protocolPluggableService;
     private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
     private final CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
@@ -61,9 +65,10 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
      */
     public abstract HHUEnabler getHhuEnabler();
 
-    protected DeviceProtocolAdapterImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory) {
+    protected DeviceProtocolAdapterImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.dataModel = dataModel;
@@ -214,15 +219,36 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     private PropertySpec nodeAddressPropertySpec(boolean required) {
-        return this.propertySpecService.basicPropertySpec(MeterProtocol.NODEID, required, new StringFactory());
+        PropertySpecBuilder<String> builder = this.propertySpecService
+                .stringSpec()
+                .named(MeterProtocol.NODEID, TranslationKeys.NODE_ID)
+                .fromThesaurus(thesaurus);
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.finish();
     }
 
     private PropertySpec deviceIdPropertySpec(boolean required) {
-        return this.propertySpecService.basicPropertySpec(MeterProtocol.ADDRESS, required, new StringFactory());
+        PropertySpecBuilder<String> builder = this.propertySpecService
+                .stringSpec()
+                .named(MeterProtocol.ADDRESS, TranslationKeys.ADDRESS)
+                .fromThesaurus(thesaurus);
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.finish();
     }
 
     private PropertySpec callHomeIdPropertySpec(boolean required) {
-        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), required, new StringFactory());
+        PropertySpecBuilder<String> builder = this.propertySpecService
+                .stringSpec()
+                .named(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), TranslationKeys.CALL_HOME_ID)
+                .fromThesaurus(thesaurus);
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.finish();
     }
 
     protected abstract AbstractDeviceProtocolSecuritySupportAdapter getSecuritySupportAdapter();

@@ -27,7 +27,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.WrappingFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
@@ -144,7 +143,6 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     private volatile DataVaultService dataVaultService;
 
     private volatile boolean installed = false;
-    private List<ReferencePropertySpecFinderProvider> factoryProviders = new ArrayList<>();
     private volatile List<ProtocolDeploymentListenerRegistrationImpl> registrations = new CopyOnWriteArrayList<>();
 
     // For OSGi purposes
@@ -687,11 +685,6 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
-        if (!this.factoryProviders.isEmpty()) {
-            for (ReferencePropertySpecFinderProvider factoryProvider : this.factoryProviders) {
-                this.propertySpecService.addFactoryProvider(factoryProvider);
-            }
-        }
     }
 
     @Reference
@@ -747,25 +740,6 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     @Reference
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
-    }
-
-    /**
-     * We add all the ReferencePropertySpecFinderProviders so we can try to reregsiter all PluggableClasses
-     */
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        if (getPropertySpecService() != null) {
-            getPropertySpecService().addFactoryProvider(factoryProvider);
-        }
-        this.factoryProviders.add(factoryProvider);
-        if (installed) {
-            registerAllPluggableClasses();
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void removeFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        this.factoryProviders.remove(factoryProvider);
     }
 
     @Override

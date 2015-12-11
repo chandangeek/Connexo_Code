@@ -10,6 +10,9 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum TranslationKeys implements TranslationKey {
 
+    NODE_ID("Adapter.property.nodeId", "Node id"),
+    CALL_HOME_ID("Adapter.property.callHomeId", "Call home id"),
+    ADDRESS("Adapter.property.address", "Address"),
     LEGACY_PROTOCOL("AdapterDeviceProtocolDialect", "Default");
 
     private final String uniqueName;

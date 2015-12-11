@@ -25,10 +25,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -38,7 +35,6 @@ import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
@@ -69,9 +65,7 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.*;
@@ -163,12 +157,6 @@ public class DeviceProtocolPluggableClassImplTest {
             propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             ctx.commit();
         }
-        propertySpecService.addFactoryProvider(() -> {
-            List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-            finders.add(new ProtocolDialectPropertiesFinder());
-            finders.add(new CodeFinder());
-            return finders;
-        });
     }
 
     @Before
@@ -398,40 +386,5 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
     public interface ProtocolDialectProperties {}
-
-    private class ProtocolDialectPropertiesFinder implements CanFindByLongPrimaryKey {
-        @Override
-        public FactoryIds factoryId() {
-            return FactoryIds.DEVICE_PROTOCOL_DIALECT;
-        }
-
-        @Override
-        public Class<?> valueDomain() {
-            return ProtocolDialectProperties.class;
-        }
-
-        @Override
-        public Optional<?> findByPrimaryKey(long id) {
-            return null;
-        }
-
-    }
-
-    private class CodeFinder implements CanFindByLongPrimaryKey {
-        @Override
-        public FactoryIds factoryId() {
-            return FactoryIds.CODE;
-        }
-
-        @Override
-        public Class<Code> valueDomain() {
-            return Code.class;
-        }
-
-        @Override
-        public Optional<Code> findByPrimaryKey(long id) {
-            return Optional.empty();
-        }
-    }
 
 }

@@ -156,7 +156,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     private PropertiesAdapter propertiesAdapter;
 
     public SmartMeterProtocolAdapterImpl(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Thesaurus thesaurus) {
-        super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);
+        super(propertySpecService, protocolPluggableService, thesaurus, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);
         this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
