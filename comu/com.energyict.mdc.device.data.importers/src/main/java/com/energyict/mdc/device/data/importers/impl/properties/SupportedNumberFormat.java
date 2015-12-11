@@ -74,11 +74,6 @@ public enum SupportedNumberFormat {
         }
 
         @Override
-        public boolean isReference() {
-            return false;
-        }
-
-        @Override
         public SupportedNumberFormatInfo valueFromDatabase(Object object) {
             return this.fromStringValue((String) object);
         }
@@ -106,11 +101,6 @@ public enum SupportedNumberFormat {
             else {
                 builder.addNull(Types.VARCHAR);
             }
-        }
-
-        @Override
-        public boolean isPersistent(SupportedNumberFormatInfo value) {
-            return false;
         }
     }
 
