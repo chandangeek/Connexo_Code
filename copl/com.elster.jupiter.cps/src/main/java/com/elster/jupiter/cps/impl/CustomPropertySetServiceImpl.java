@@ -491,16 +491,16 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @SuppressWarnings("unchecked")
     private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, Range<Instant> newRange, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         OverlapCalculatorBuilder overlapCalculatorBuilder = this.calculateOverlapsFor(activeCustomPropertySet.getCustomPropertySet(), businesObject, additionalPrimaryKeyValues);
-        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenUpdating(effectiveTimestamp, newRange));
+        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenUpdating(effectiveTimestamp, newRange), additionalPrimaryKeyValues);
     }
 
     @SuppressWarnings("unchecked")
     private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, Range<Instant> newRange, Object... additionalPrimaryKeyValues) {
         OverlapCalculatorBuilder overlapCalculatorBuilder = this.calculateOverlapsFor(activeCustomPropertySet.getCustomPropertySet(), businesObject, additionalPrimaryKeyValues);
-        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenCreating(newRange));
+        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenCreating(newRange), additionalPrimaryKeyValues);
     }
 
-    private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, List<ValuesRangeConflict> conflicts) {
+    private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, List<ValuesRangeConflict> conflicts, Object... additionalPrimaryKeyValues) {
         for (ValuesRangeConflict conflict : conflicts) {
             Instant currentConflictedIntervalStart;
             if (conflict.getValues().getEffectiveRange().hasLowerBound()) {
@@ -511,15 +511,15 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             }
             switch (conflict.getType()) {
                 case RANGE_OVERLAP_DELETE: {
-                    activeCustomPropertySet.removeTimeSlicedValues(businesObject, currentConflictedIntervalStart);
+                    activeCustomPropertySet.removeTimeSlicedValues(businesObject, currentConflictedIntervalStart, additionalPrimaryKeyValues);
                     break;
                 }
                 case RANGE_OVERLAP_UPDATE_END: {
-                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict));
+                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict), additionalPrimaryKeyValues);
                     break;
                 }
                 case RANGE_OVERLAP_UPDATE_START: {
-                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict));
+                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict), additionalPrimaryKeyValues);
                     break;
                 }
                 case RANGE_INSERTED:
@@ -565,7 +565,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
         this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, newRange, effectiveTimestamp, addtionalPrimaryKeyValues);
-        activeCustomPropertySet.removeTimeSlicedValues(businesObject,effectiveTimestamp);
+        activeCustomPropertySet.removeTimeSlicedValues(businesObject, effectiveTimestamp, addtionalPrimaryKeyValues);
         Instant startTime = newRange.hasLowerBound() ? newRange.lowerEndpoint() : Instant.EPOCH;
         activeCustomPropertySet.setValuesEntityFor(businesObject, values, startTime, newRange, addtionalPrimaryKeyValues);
     }
