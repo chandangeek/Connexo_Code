@@ -444,7 +444,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void addLoadProfileType(LoadProfileType loadProfileType) {
         for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : this.loadProfileTypeUsages) {
             if (loadProfileTypeUsage.sameLoadProfileType(loadProfileType)) {
-                throw new LoadProfileTypeAlreadyInDeviceTypeException(this, loadProfileType, this.getThesaurus(), MessageSeeds.DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE);
+                throw new LoadProfileTypeAlreadyInDeviceTypeException(this, loadProfileType, this.getThesaurus());
             }
         }
         DeviceTypeLoadProfileTypeUsage loadProfileTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeLoadProfileTypeUsage.class).initialize(this, loadProfileType);
@@ -520,7 +520,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void addLogBookType(LogBookType logBookType) {
         for (DeviceTypeLogBookTypeUsage logBookTypeUsage : this.logBookTypeUsages) {
             if (logBookTypeUsage.sameLogBookType(logBookType)) {
-                throw new LogBookTypeAlreadyInDeviceTypeException(this, logBookType, this.getThesaurus(), MessageSeeds.DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE);
+                throw new LogBookTypeAlreadyInDeviceTypeException(this, logBookType, this.getThesaurus());
             }
         }
         this.logBookTypeUsages.add(new DeviceTypeLogBookTypeUsage(this, logBookType));
@@ -533,7 +533,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void addRegisterType(RegisterType registerType) {
         for (DeviceTypeRegisterTypeUsage registerTypeUsage : this.registerTypeUsages) {
             if (registerTypeUsage.sameRegisterType(registerType)) {
-                throw new RegisterTypeAlreadyInDeviceTypeException(this, registerType, this.getThesaurus(), MessageSeeds.DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE);
+                throw new RegisterTypeAlreadyInDeviceTypeException(this, registerType, this.getThesaurus());
             }
         }
         DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeRegisterTypeUsage.class).initialize(this, registerType);

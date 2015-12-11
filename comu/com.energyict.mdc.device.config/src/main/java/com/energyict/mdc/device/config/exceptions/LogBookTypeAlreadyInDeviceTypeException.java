@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.LogBookType;
-
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.impl.MessageSeeds;
+import com.energyict.mdc.masterdata.LogBookType;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -17,8 +16,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
  */
 public class LogBookTypeAlreadyInDeviceTypeException extends LocalizedException {
 
-    public LogBookTypeAlreadyInDeviceTypeException(DeviceType deviceType, LogBookType logBookType, Thesaurus thesaurus, MessageSeed messageSeed) {
-        super(thesaurus, messageSeed);
+    public LogBookTypeAlreadyInDeviceTypeException(DeviceType deviceType, LogBookType logBookType, Thesaurus thesaurus) {
+        super(thesaurus, MessageSeeds.DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE, logBookType.getName(), deviceType.getName());
         this.set("deviceType", deviceType);
         this.set("logBookType", logBookType);
     }
