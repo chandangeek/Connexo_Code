@@ -147,7 +147,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 if (!previewPanel.isDestroyed) {
                     previewPanel.setTitle(Ext.String.htmlEncode(record.get('name')));
                     previewPanel.down('menu').record = record;
-                    form = previewPanel.down('comPortForm' + record.get('comPortType'));
+                    form = previewPanel.down('comPortForm' + record.get('comPortType').localizedValue);
                     currentForm && currentForm.hide();
                     if (form) {
                         form.show();

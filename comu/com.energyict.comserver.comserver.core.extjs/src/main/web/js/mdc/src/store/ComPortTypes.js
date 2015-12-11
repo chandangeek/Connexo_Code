@@ -1,6 +1,6 @@
 Ext.define('Mdc.store.ComPortTypes',{
     extend: 'Ext.data.Store',
-    fields: ['comPortType', 'localizedValue'],
+    fields: ['id', 'localizedValue'],
     storeId: 'comporttypes',
     proxy: {
         type: 'rest',

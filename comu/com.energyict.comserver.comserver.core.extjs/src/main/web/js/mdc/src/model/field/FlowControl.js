@@ -2,7 +2,7 @@ Ext.define('Mdc.model.field.FlowControl', {
     extend: 'Ext.data.Model',
     fields: [
         {
-            name: 'flowControl',
+            name: 'id',
             type: 'string'
         },
         {

@@ -61,8 +61,8 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     store: 'Mdc.store.ComPortTypes',
                     queryMode: 'local',
                     editable: false,
-                    displayField: 'comPortType',
-                    valueField: 'comPortType',
+                    displayField: 'localizedValue',
+                    valueField: 'id',
                     required: true,
                     width: 600
                 },
