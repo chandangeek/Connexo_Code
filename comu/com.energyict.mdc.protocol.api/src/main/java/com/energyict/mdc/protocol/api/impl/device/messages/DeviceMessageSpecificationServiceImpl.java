@@ -179,6 +179,18 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         Stream.of(UplinkDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(ChannelConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(FirmwareDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(ClockDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(DisplayDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(DLMSConfigurationDeviceMessage.allTranslationKeys()).forEach(keys::add);
+        Stream.of(FirewallDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(EventsDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(MailDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(ModemDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(OpusDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PeakShaverDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PowerConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PPPConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(SMSConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(LoadProfileDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(PricingInformationDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(ConfigurationChangeDeviceMessageAttributes.values()).forEach(keys::add);

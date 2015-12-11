@@ -2,18 +2,12 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMBusConfigAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMBusEveryAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMBusInterFrameTimeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMBusVIFAttributeName;
 
 /**
  * Copyrights EnergyICT
@@ -24,30 +18,54 @@ public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetMBusEvery(DeviceMessageId.MBUS_CONFIGURATION_SET_EVERY, "Set MBus every") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(SetMBusEveryAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(ConfigurationChangeDeviceMessageAttributes.SetMBusEveryAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetMBusInterFrameTime(DeviceMessageId.MBUS_CONFIGURATION_SET_INTER_FRAME_TIME, "Set MBus inter frame time") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(SetMBusInterFrameTimeAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(ConfigurationChangeDeviceMessageAttributes.SetMBusInterFrameTimeAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetMBusConfig(DeviceMessageId.MBUS_CONFIGURATION_SET_CONFIG, "Set MBus configuration") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(SetMBusConfigAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(ConfigurationChangeDeviceMessageAttributes.SetMBusConfigAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetMBusVIF(DeviceMessageId.MBUS_CONFIGURATION_SET_VIF, "Set MBus VIF") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetMBusVIFAttributeName, true, new HexStringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new HexStringFactory())
+                            .named(ConfigurationChangeDeviceMessageAttributes.SetMBusVIFAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     };
 
@@ -76,16 +94,12 @@ public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     };
-
-    protected PropertySpec stringProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new StringFactory());
-    }
 
 }

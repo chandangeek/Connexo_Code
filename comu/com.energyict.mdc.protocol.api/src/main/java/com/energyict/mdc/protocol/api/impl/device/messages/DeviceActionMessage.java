@@ -155,13 +155,55 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
                             .markRequired()
                             .addValues(BigDecimal.ONE, BigDecimals.TWO)
                             .finish());
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.DeviceActionMessageYear, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.DeviceActionMessageMonth, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.DeviceActionMessageDay, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.DeviceActionMessageDayOfWeek, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.DeviceActionMessageHour, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.DeviceActionMessageMinute, propertySpecService, thesaurus));
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.DeviceActionMessageSecond, propertySpecService, thesaurus));
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.year, DeviceMessageAttributes.DeviceActionMessageYear)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.month, DeviceMessageAttributes.DeviceActionMessageMonth)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.day, DeviceMessageAttributes.DeviceActionMessageDay)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.dayOfWeek, DeviceMessageAttributes.DeviceActionMessageDayOfWeek)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.hour, DeviceMessageAttributes.DeviceActionMessageHour)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.minute, DeviceMessageAttributes.DeviceActionMessageMinute)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.second, DeviceMessageAttributes.DeviceActionMessageSecond)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     REBOOT_APPLICATION(DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATION, "Reboot the application"),

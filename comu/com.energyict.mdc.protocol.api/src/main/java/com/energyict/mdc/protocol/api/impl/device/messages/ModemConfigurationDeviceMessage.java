@@ -1,10 +1,9 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
@@ -19,44 +18,44 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetDialCommand(DeviceMessageId.MODEM_CONFIGURATION_SET_DIAL_COMMAND, "Set dial command") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetDialCommandAttributeName;
+        protected TranslationKey translationKey() {
+            return ModemDeviceMessageAttributes.SetDialCommandAttributeName;
         }
     },
     SetModemInit1(DeviceMessageId.MODEM_CONFIGURATION_SET_MODEM_INIT_1, "Set modem init1") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetModemInit1AttributeName;
+        protected TranslationKey translationKey() {
+            return ModemDeviceMessageAttributes.SetModemInit1AttributeName;
         }
     },
     SetModemInit2(DeviceMessageId.MODEM_CONFIGURATION_SET_MODEM_INIT_2, "Set modem init2") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetModemInit2AttributeName;
+        protected TranslationKey translationKey() {
+            return ModemDeviceMessageAttributes.SetModemInit2AttributeName;
         }
     },
     SetModemInit3(DeviceMessageId.MODEM_CONFIGURATION_SET_MODEM_INIT_3, "Set modem init3") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetModemInit3AttributeName;
+        protected TranslationKey translationKey() {
+            return ModemDeviceMessageAttributes.SetModemInit3AttributeName;
         }
     },
     SetPPPBaudRate(DeviceMessageId.MODEM_CONFIGURATION_SET_PPP_BAUD_RATE, "Set PPP baud rate") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetPPPBaudRateAttributeName;
+        protected TranslationKey translationKey() {
+            return ModemDeviceMessageAttributes.SetPPPBaudRateAttributeName;
         }
     },
     SetModemtype(DeviceMessageId.MODEM_CONFIGURATION_SET_MODEMTYPE, "Set modem type") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetModemtypeAttributeName;
+        protected TranslationKey translationKey() {
+            return ModemDeviceMessageAttributes.SetModemtypeAttributeName;
         }
     },
     SetResetCycle(DeviceMessageId.MODEM_CONFIGURATION_SET_RESET_CYCLE, "Set reset cycle") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetResetCycleAttributeName;
+        protected TranslationKey translationKey() {
+            return ModemDeviceMessageAttributes.SetResetCycleAttributeName;
         }
     };
 
@@ -85,14 +84,16 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.stringProperty(this.propertyName(), propertySpecService));
+        propertySpecs.add(
+                propertySpecService
+                        .stringSpec()
+                        .named(translationKey())
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish());
         return propertySpecs;
     }
 
-    private PropertySpec stringProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new StringFactory());
-    }
-
-    protected abstract String propertyName();
+    protected abstract TranslationKey translationKey();
 
 }

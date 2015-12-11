@@ -14,6 +14,7 @@ public enum ConfigurationChangeDeviceMessageAttributes implements TranslationKey
     deviceName(DeviceMessageConstants.deviceName, "Device name"),
     ntpAddress(DeviceMessageConstants.ntpAddress, "NTP address"),
     enableAutomaticDemandResetAttributeName(DeviceMessageConstants.enableAutomaticDemandResetAttributeName, "Enable demand reset"),
+    enableDSTAttributeName(DeviceMessageConstants.enableDSTAttributeName, "Enable daylight savings time"),
     localMacAddress(DeviceMessageConstants.localMacAddress, "Local Mac address"),
     maxCredit(DeviceMessageConstants.maxCredit, "Maximium credit"),
     zeroCrossDelay(DeviceMessageConstants.zeroCrossDelay, "Zero cross delay"),
@@ -23,6 +24,11 @@ public enum ConfigurationChangeDeviceMessageAttributes implements TranslationKey
     MeterScheme(DeviceMessageConstants.MeterScheme, "Meter scheme"),
     SwitchPointClockSettings(DeviceMessageConstants.SwitchPointClockSettings, "Switchpoint clock settings"),
     SwitchPointClockUpdateSettings(DeviceMessageConstants.SwitchPointClockUpdateSettings, "Switchpoint clock update settings"),
+    SetMBusEveryAttributeName(DeviceMessageConstants.SetMBusEveryAttributeName, "Set MBus every"),
+    SetMBusInterFrameTimeAttributeName(DeviceMessageConstants.SetMBusInterFrameTimeAttributeName, "Set MBus inter frame time"),
+    SetMBusConfigAttributeName(DeviceMessageConstants.SetMBusConfigAttributeName, "Set MBus config"),
+    SetMBusVIFAttributeName(DeviceMessageConstants.SetMBusVIFAttributeName, "MBus VIF"),
+    powerQualityThresholdAttributeName(DeviceMessageConstants.powerQualityThresholdAttributeName, "powerQualityThreshold"),
     ;
 
     private final String key;

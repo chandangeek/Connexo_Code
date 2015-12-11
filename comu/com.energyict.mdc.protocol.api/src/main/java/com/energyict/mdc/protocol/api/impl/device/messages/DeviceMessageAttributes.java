@@ -135,7 +135,8 @@ public enum DeviceMessageAttributes implements TranslationKey {
     DeviceActionMessageYear(DeviceMessageConstants.year, "year"),
     DeviceActionMessageMonth(DeviceMessageConstants.month, "month"),
     DeviceActionMessageDay(DeviceMessageConstants.day, "day"),
-    DeviceActionMessageDayOfWeek(DeviceMessageConstants.dayOfWeek, "dayOfWeek"),
+    DeviceActionMessageDayOfMonth(DeviceMessageConstants.dayOfMonth, "day of month"),
+    DeviceActionMessageDayOfWeek(DeviceMessageConstants.dayOfWeek, "day of week"),
     DeviceActionMessageHour(DeviceMessageConstants.hour, "hour"),
     DeviceActionMessageMinute(DeviceMessageConstants.minute, "minute"),
     DeviceActionMessageSecond(DeviceMessageConstants.second, "second"),
@@ -217,6 +218,11 @@ public enum DeviceMessageAttributes implements TranslationKey {
     IEC1107ClassIdAttributeName(DeviceMessageConstants.IEC1107ClassIdAttributeName, "GeneralDeviceMessage.IEC1107ClassId"),
     OffsetAttributeName(DeviceMessageConstants.OffsetAttributeName, "GeneralDeviceMessage.Offset"),
     RawDataAttributeName(DeviceMessageConstants.RawDataAttributeName, "GeneralDeviceMessage.RawData"),
+    xmlConfigAttributeName(DeviceMessageConstants.xmlConfigAttributeName, "xml config"),
+    UserFileConfigAttributeName(DeviceMessageConstants.UserFileConfigAttributeName, "Configuration user file"),
+    prepaidCreditAttributeName(DeviceMessageConstants.prepaidCreditAttributeName, "PrepaidConfigurationDeviceMessage.prepaidCredit"),
+    SetSumMaskAttributeName(DeviceMessageConstants.SetSumMaskAttributeName, "Set sumMask"),
+    SetSubstractMaskAttributeName(DeviceMessageConstants.SetSubstractMaskAttributeName, "Set substractMask"),
     ;
 
     private final String key;

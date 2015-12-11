@@ -1,14 +1,13 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Copyrights EnergyICT
@@ -21,36 +20,57 @@ public enum FirewallConfigurationMessage implements DeviceMessageSpecEnum {
     DeactivateFirewall(DeviceMessageId.FIREWALL_DEACTIVATE_FIREWALL, "Deactivate the firewall"),
     ConfigureFWWAN(DeviceMessageId.FIREWALL_CONFIGURE_FW_WAN, "Configure the WAN firewall") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EnableDLMS, true, new BooleanFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EnableHTTP, true, new BooleanFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EnableSSH, true, new BooleanFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            Stream.of(FirewallDeviceMessageAttributes.EnableDLMS, FirewallDeviceMessageAttributes.EnableHTTP, FirewallDeviceMessageAttributes.EnableSSH)
+                .map(name -> propertySpecService
+                        .booleanSpec()
+                        .named(name)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish())
+                .forEach(propertySpecs::add);
         }
     },
     ConfigureFWLAN(DeviceMessageId.FIREWALL_CONFIGURE_FW_LAN, "Configure the LAN firewall") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EnableDLMS, true, new BooleanFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EnableHTTP, true, new BooleanFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EnableSSH, true, new BooleanFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            Stream.of(FirewallDeviceMessageAttributes.EnableDLMS, FirewallDeviceMessageAttributes.EnableHTTP, FirewallDeviceMessageAttributes.EnableSSH)
+                    .map(name -> propertySpecService
+                            .booleanSpec()
+                            .named(name)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish())
+                    .forEach(propertySpecs::add);
         }
     },
     ConfigureFWGPRS(DeviceMessageId.FIREWALL_CONFIGURE_FW_GPRS, "Configure the GPRS firewall") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EnableDLMS, true, new BooleanFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EnableHTTP, true, new BooleanFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EnableSSH, true, new BooleanFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            Stream.of(FirewallDeviceMessageAttributes.EnableDLMS, FirewallDeviceMessageAttributes.EnableHTTP, FirewallDeviceMessageAttributes.EnableSSH)
+                    .map(name -> propertySpecService
+                            .booleanSpec()
+                            .named(name)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish())
+                    .forEach(propertySpecs::add);
         }
     },
     SetFWDefaultState(DeviceMessageId.FIREWALL_SET_FW_DEFAULT_STATE, "Set default") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.defaultEnabled, true, new BooleanFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .booleanSpec()
+                            .named(FirewallDeviceMessageAttributes.defaultEnabled)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     };
 
@@ -78,11 +98,11 @@ public enum FirewallConfigurationMessage implements DeviceMessageSpecEnum {
 
     public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     }
 
