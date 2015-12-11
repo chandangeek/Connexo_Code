@@ -48,7 +48,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         Device device = getContext().getDeviceService().findByUniqueMrid(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         beforeTransition(device, data);
-        performDeviceTransition(data, device);
+        performDeviceTransition(data, device, logger);
         processMasterMrid(device, data, logger);
         afterTransition(device, data, logger);
     }
@@ -61,7 +61,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         device.save();
     }
 
-    private void performDeviceTransition(T data, Device device) {
+    private void performDeviceTransition(T data, Device device, FileImportLogger logger) {
         String targetStateName = getTargetState(data).getKey();
         if (targetStateName.equals(device.getState().getName())) {
             throw new ProcessorException(MessageSeeds.DEVICE_ALREADY_IN_THAT_STATE, data.getLineNumber(), translate(targetStateName));
@@ -79,8 +79,9 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         }
 
         try {
+            List<ExecutableActionProperty> executableActionProperties = getExecutableActionProperties(data, getAllPropertySpecsForAction(executableAction), logger, executableAction);
             executableAction.execute(data.getTransitionDate().orElse(getContext().getClock().instant()),
-                    getExecutableActionProperties(data, getAllPropertySpecsForAction(executableAction)));
+                    executableActionProperties);
         } catch (MultipleMicroCheckViolationsException ex) {
             throw new ProcessorException(MessageSeeds.PRE_TRANSITION_CHECKS_FAILED, data.getLineNumber(),
                     ex.getViolations()
@@ -115,7 +116,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         return Collections.emptyMap();
     }
 
-    private List<ExecutableActionProperty> getExecutableActionProperties(T data, Map<String, PropertySpec> allPropertySpecsForAction) {
+    protected List<ExecutableActionProperty> getExecutableActionProperties(T data, Map<String, PropertySpec> allPropertySpecsForAction, FileImportLogger logger, ExecutableAction executableAction) {
         List<ExecutableActionProperty> executableProperties = new ArrayList<>(allPropertySpecsForAction.size());
         PropertySpec propertySpec = allPropertySpecsForAction.get(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key());
         if (propertySpec != null) {

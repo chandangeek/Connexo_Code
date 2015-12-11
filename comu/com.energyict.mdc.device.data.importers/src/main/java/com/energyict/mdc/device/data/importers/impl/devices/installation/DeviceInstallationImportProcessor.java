@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.importers.impl.devices.installation;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
@@ -10,11 +12,15 @@ import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -59,7 +65,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
     }
 
     private UsagePoint createNewUsagePoint(DeviceInstallationImportRecord data) {
-        UsagePoint usagePoint = Arrays.stream(ServiceKind.values())
+        return Arrays.stream(ServiceKind.values())
                 .filter(candidate -> candidate.getDisplayName().equalsIgnoreCase(data.getServiceCategory()))
                 .map(serviceKind -> getContext().getMeteringService().getServiceCategory(serviceKind))
                 .findFirst()
@@ -69,7 +75,6 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                         data.getUsagePointMrid(), Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))))
                 .newUsagePoint(data.getUsagePointMrid())
                 .create();
-        return usagePoint;
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data) {
@@ -78,5 +83,27 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                 usagePoint.activate(meter, data.getTransitionDate().orElse(getContext().getClock().instant()));
             });
         });
+    }
+
+    @Override
+    protected List<ExecutableActionProperty> getExecutableActionProperties(DeviceInstallationImportRecord data, Map<String, PropertySpec> allPropertySpecsForAction, FileImportLogger logger, ExecutableAction executableAction) {
+        List<ExecutableActionProperty> executableActionProperties = super.getExecutableActionProperties(data, allPropertySpecsForAction, logger, executableAction);
+
+        if(data.getMultiplier() != null){
+            PropertySpec propertySpec = allPropertySpecsForAction.get(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key());
+            if(propertySpec != null){
+                try {
+                    executableActionProperties.add(getContext().getDeviceLifeCycleService()
+                            .toExecutableActionProperty(data.getMultiplier(), propertySpec));
+                } catch (InvalidValueException e) {
+                    throw new ProcessorException(MessageSeeds.INCORRECT_MULTIPLIER_VALUE,
+                            data.getLineNumber(), data.getMultiplier(), e.getLocalizedMessage());
+                }
+            } else {
+                logger.warning(MessageSeeds.USELESS_MULTIPLIER_CONFIGURED, data.getLineNumber(), data.getMultiplier());
+
+            }
+        }
+        return executableActionProperties;
     }
 }

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -12,6 +13,7 @@ public class DeviceInstallationImportRecord extends DeviceTransitionRecord {
     private String serviceCategory;
     private boolean installInactive;
     private ZonedDateTime startValidationDate;
+    private BigDecimal multiplier;
 
     public String getUsagePointMrid() {
         return usagePointMrid;
@@ -43,5 +45,13 @@ public class DeviceInstallationImportRecord extends DeviceTransitionRecord {
 
     public void setStartValidationDate(ZonedDateTime startValidationDate) {
         this.startValidationDate = startValidationDate;
+    }
+
+    public BigDecimal getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(BigDecimal multiplier) {
+        this.multiplier = multiplier;
     }
 }

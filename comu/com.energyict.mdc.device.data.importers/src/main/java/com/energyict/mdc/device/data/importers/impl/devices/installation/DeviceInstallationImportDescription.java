@@ -3,9 +3,11 @@ package com.energyict.mdc.device.data.importers.impl.devices.installation;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
 import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
 import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
+import com.energyict.mdc.device.data.importers.impl.parsers.BigDecimalParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.BooleanParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,7 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
     public List<FileImportField<?>> getFields(DeviceInstallationImportRecord record) {
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
+        BigDecimalParser bigDecimalParser = new BigDecimalParser(SupportedNumberFormat.FORMAT3);
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setDeviceMRID)
                 .markMandatory()
@@ -48,6 +51,9 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 .build());
         fields.add(CommonField.withParser(dateParser)
                 .withSetter(record::setStartValidationDate)
+                .build());
+        fields.add(CommonField.withParser(bigDecimalParser)
+                .withSetter(record::setMultiplier)
                 .build());
         return fields;
     }

@@ -28,6 +28,8 @@ public enum MessageSeeds implements MessageSeed {
     PRE_TRANSITION_CHECKS_FAILED(110, "ImportProcessorPreTransitionsChecksFailed", "Can''t process line {0}: Pre-transition check(s) failed: {1}", Level.WARNING),
     TRANSITION_ACTION_DATE_IS_INCORRECT(111, "ImportProcessorTransitionActionDateIsIncorrect", "Can''t process line {0}: The transition action date has incorrect value: {1}, {2}", Level.WARNING),
     DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER(112, "ImportProcessorDeviceCanNotBeMovedToStateByImporter", "Can''t process line {0}: The device can''t be moved to {1} from {2} state by this importer. Appropriate initial state(s) is(are) {3}", Level.WARNING),
+    INCORRECT_MULTIPLIER_VALUE(113, "ImportProcessorInvalidMultiplierValue", "Can''t process line {0}: The value of the multiplier is not valid {1}", Level.WARNING),
+    USELESS_MULTIPLIER_CONFIGURED(114, "ImportProcessorMultiplierConfiguredButNotUsed", "There is a multiplier configured on line {0} with value {1}, but the action 'set multiplier' is not defined on the lifecycle transition", Level.WARNING),
 
     READING_DATE_BEFORE_METER_ACTIVATION(201, "ReadingDateBeforeMeterActivation", "Note for line {0}: Reading date: {1} is before the first meter activation start date and will not be stored.", Level.WARNING),
     READING_DATE_AFTER_METER_ACTIVATION(202, "ReadingDateAfterMeterActivation", "Note for line {0}: Reading date: {1} is after the last meter activation end date and will not be stored.", Level.WARNING),
