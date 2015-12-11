@@ -10,10 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -31,6 +28,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.TopologyTask;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -39,7 +37,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -47,8 +44,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, InstallService.class, MessageSeedProvider.class, ReferencePropertySpecFinderProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
-public class TaskServiceImpl implements ServerTaskService, InstallService, MessageSeedProvider, ReferencePropertySpecFinderProvider {
+@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
+public class TaskServiceImpl implements ServerTaskService, InstallService, MessageSeedProvider {
 
     private final Logger logger = Logger.getLogger(TaskServiceImpl.class.getName());
 
@@ -284,13 +281,6 @@ public class TaskServiceImpl implements ServerTaskService, InstallService, Messa
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    @Override
-    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-        finders.add(new TaskFinder(this));
-        return finders;
     }
 
 }
