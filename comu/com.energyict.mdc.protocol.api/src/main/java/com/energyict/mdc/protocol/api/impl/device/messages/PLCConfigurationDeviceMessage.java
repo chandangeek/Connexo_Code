@@ -797,7 +797,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(this.addStringSpec(propertySpecs, propertySpecService, thesaurus, PLCConfigurationDeviceMessageAttributes.toneMaskAttributeName);
+            this.addStringSpec(propertySpecs, propertySpecService, thesaurus, PLCConfigurationDeviceMessageAttributes.toneMaskAttributeName);
 
         }
     },

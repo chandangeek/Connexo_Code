@@ -66,7 +66,7 @@ public enum OpusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(propertySpecService.stringSpec().named(this.translationKey()).fromThesaurus(thesaurus).markRequired().finish();
+        propertySpecs.add(propertySpecService.stringSpec().named(this.translationKey()).fromThesaurus(thesaurus).markRequired().finish());
         return propertySpecs;
     }
 
