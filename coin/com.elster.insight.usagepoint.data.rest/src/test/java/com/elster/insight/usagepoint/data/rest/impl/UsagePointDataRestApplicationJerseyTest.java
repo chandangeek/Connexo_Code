@@ -3,10 +3,19 @@ package com.elster.insight.usagepoint.data.rest.impl;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.util.Currency;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.ext.Provider;
 
 import org.mockito.Mock;
 
@@ -59,10 +68,30 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     EstimationService estimationService;
     @Mock
     ValidationService validationService;
+    @Mock
+    static SecurityContext securityContext;
+
+
+    @Provider
+    @Priority(Priorities.AUTHORIZATION)
+    private static class SecurityRequestFilter implements ContainerRequestFilter {
+        @Override
+        public void filter(ContainerRequestContext requestContext) throws IOException {
+            requestContext.setSecurityContext(securityContext);
+        }
+    }
 
     @Override
     protected Application getApplication() {
-        UsagePointApplication application = new UsagePointApplication();
+        UsagePointApplication application = new UsagePointApplication() {
+            @Override
+            public Set<Class<?>> getClasses() {
+                Set<Class<?>> classes = new HashSet<>();
+                classes.addAll(super.getClasses());
+                classes.add(SecurityRequestFilter.class);
+                return classes;
+            }
+        };
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setJsonService(jsonService);
