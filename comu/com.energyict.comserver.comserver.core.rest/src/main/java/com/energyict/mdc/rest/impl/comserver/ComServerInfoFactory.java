@@ -22,7 +22,7 @@ public class ComServerInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public static ComServerInfo<?,?> asInfo(ComServer comServer) {
+    public ComServerInfo<?,?> asInfo(ComServer comServer) {
         if (OnlineComServer.class.isAssignableFrom(comServer.getClass())) {
             ComServerInfo comServerInfo = new OnlineComServerInfo((OnlineComServer) comServer);
             comServerInfo.displayComServerType = TranslationKeys.COMSERVER_ONLINE.getDisplayName(thesaurus);
