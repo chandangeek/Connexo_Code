@@ -95,16 +95,14 @@ public class SecurityToken {
         try {
 
             SignedJWT signedJWT = checkTokenIntegrity(token);
-            Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-            long count = (Long)signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
-
-                if (signedJWT!=null && count < MAX_COUNT) {
+                if (signedJWT!=null && (Long)signedJWT.getJWTClaimsSet().getCustomClaim("cnt") < MAX_COUNT) {
                     long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
                     Optional<User> user = userService.getLoggedInUser(userId);
-                    if (new Date().before(new Date(expirationTime.getTime()))) {
+                    if (new Date().before(new Date(signedJWT.getJWTClaimsSet().getExpirationTime().getTime()))) {
                         return user;
-                    } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT*1000))) {
+                    } else if (new Date().before(new Date(signedJWT.getJWTClaimsSet().getExpirationTime().getTime() + TIMEOUT*1000))) {
                         if(!userService.findUser(user.get().getName(), user.get().getDomain()).isPresent()) return Optional.empty();
+                        long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
                         String newToken = createToken(userService.getLoggedInUser(userId).get(),++count);
                         response.setHeader("X-AUTH-TOKEN", newToken);
                         response.setHeader("Authorization", "Bearer " + newToken);
