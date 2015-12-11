@@ -171,9 +171,9 @@ public enum DynamicPropertyConverter {
     public abstract String getExpectedFormat(Thesaurus thesaurus);
 
     public static Optional<DynamicPropertyConverter> of(Class<? extends ValueFactory> clazz) {
-        for (DynamicPropertyConverter cvsPropertyParser : DynamicPropertyConverter.values()) {
-            if (cvsPropertyParser.clazz.equals(clazz)) {
-                return Optional.of(cvsPropertyParser);
+        for (DynamicPropertyConverter propertyConverter : DynamicPropertyConverter.values()) {
+            if (propertyConverter.clazz.equals(clazz)) {
+                return Optional.of(propertyConverter);
             }
         }
         return Optional.empty();
