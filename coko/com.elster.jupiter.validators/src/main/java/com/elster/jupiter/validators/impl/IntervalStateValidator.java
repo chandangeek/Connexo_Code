@@ -10,32 +10,51 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationResult;
-import com.google.common.collect.ImmutableList;
+
 import com.google.common.collect.Range;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class IntervalStateValidator extends AbstractValidator {
 
     static final String INTERVAL_FLAGS = "intervalFlags";
 
-    private PossibleIntervalFlags possibleIntervalFlags = new PossibleIntervalFlags();
     private Set<Flag> selectedFlags;
+    private final IntervalFlag[] POSSIBLE_FLAGS = {
+            new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"),
+            new IntervalFlag(Flag.BATTERY_LOW, "batteryLow", "Battery low"),
+            new IntervalFlag(Flag.CONFIGURATIONCHANGE, "configurationChange", "Configuration change"),
+            new IntervalFlag(Flag.CORRUPTED, "corrupted", "Corrupted"),
+            new IntervalFlag(Flag.DEVICE_ERROR, "deviceError", "Device error"),
+            new IntervalFlag(Flag.MISSING, "missing", "Missing"),
+            new IntervalFlag(Flag.OTHER, "other", "Other"),
+            new IntervalFlag(Flag.OVERFLOW, "overflow", "Overflow"),
+            new IntervalFlag(Flag.PHASEFAILURE, "phaseFailure", "Phase failure"),
+            new IntervalFlag(Flag.POWERDOWN, "powerDown", "Power down"),
+            new IntervalFlag(Flag.POWERUP, "powerUp", "Power up"),
+            new IntervalFlag(Flag.WATCHDOGRESET, "watchdogReset", "Watchdog reset"),
+            new IntervalFlag(Flag.TEST, "test", "Test")
+    };
+
 
     IntervalStateValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -53,8 +72,14 @@ class IntervalStateValidator extends AbstractValidator {
 
     @SuppressWarnings("unchecked")
     private void initParameters(Map<String, Object> properties) {
-        ListValue<IntervalFlag> property = (ListValue<IntervalFlag>) properties.get(INTERVAL_FLAGS);
-        selectedFlags = property.getValues().stream().map(IntervalFlag::getFlag).collect(Collectors.toSet());
+        Object property = properties.get(INTERVAL_FLAGS);
+        if (property instanceof Collection) {
+            selectedFlags = ((Collection<IntervalFlag>) property).stream().map(IntervalFlag::getFlag).collect(Collectors.toSet());
+        }
+        else {
+            selectedFlags = new HashSet<>();
+            selectedFlags.add(((IntervalFlag) property).getFlag());
+        }
     }
 
     @Override
@@ -70,9 +95,15 @@ class IntervalStateValidator extends AbstractValidator {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec property = getPropertySpecService().listValuePropertySpec(INTERVAL_FLAGS, true, possibleIntervalFlags, possibleIntervalFlags.flags);
-        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        return builder.add(property).build();
+        return Collections.singletonList(
+                getPropertySpecService()
+                        .specForValuesOf(new IntervalFlagValueFactory())
+                        .named(INTERVAL_FLAGS, INTERVAL_FLAGS)
+                        .describedAs(INTERVAL_FLAGS)
+                        .addValues(POSSIBLE_FLAGS)
+                        .markMultiValued()
+                        .markExhaustive(PropertySelectionMode.LIST)
+                        .finish());
     }
 
     @Override
@@ -92,18 +123,77 @@ class IntervalStateValidator extends AbstractValidator {
 
     @Override
     public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
-        List<Pair<? extends NlsKey, String>> pairs = new ArrayList<>();
-
-        for (IntervalFlag flag : possibleIntervalFlags.getFlags()) {
-            pairs.add(Pair.of(SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, flag.getTranslationKey()), flag.getName()));
-        }
-
-        return pairs;
+        return Stream.of(POSSIBLE_FLAGS)
+                .map(flag -> Pair.of(SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, flag.getTranslationKey()), flag.getName()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<String> getRequiredProperties() {
-        return Arrays.asList(INTERVAL_FLAGS);
+        return Collections.singletonList(INTERVAL_FLAGS);
+    }
+
+    private class IntervalFlagValueFactory implements ValueFactory <IntervalFlag> {
+
+        @Override
+        public IntervalFlag fromStringValue(String stringValue) {
+            for (IntervalFlag flagParameter : POSSIBLE_FLAGS) {
+                if (stringValue.equals(flagParameter.getId())){
+                    return flagParameter;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public String toStringValue(IntervalFlag object) {
+            return object.getId();
+        }
+
+        @Override
+        public Class<IntervalFlag> getValueType() {
+            return IntervalFlag.class;
+        }
+
+        @Override
+        public boolean isReference() {
+            return false;
+        }
+
+        @Override
+        public IntervalFlag valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(IntervalFlag object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, IntervalFlag value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            }
+            else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, IntervalFlag value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            }
+            else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public boolean isPersistent(IntervalFlag value) {
+            return false;
+        }
     }
 
     class IntervalFlag extends HasIdAndName {
@@ -136,41 +226,4 @@ class IntervalStateValidator extends AbstractValidator {
         }
     }
 
-    private class PossibleIntervalFlags implements CanFindByStringKey<IntervalFlag> {
-
-        private final IntervalFlag[] flags = {
-            new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"),
-            new IntervalFlag(Flag.BATTERY_LOW, "batteryLow", "Battery low"),
-            new IntervalFlag(Flag.CONFIGURATIONCHANGE, "configurationChange", "Configuration change"),
-            new IntervalFlag(Flag.CORRUPTED, "corrupted", "Corrupted"),
-            new IntervalFlag(Flag.DEVICE_ERROR, "deviceError", "Device error"),
-            new IntervalFlag(Flag.MISSING, "missing", "Missing"),
-            new IntervalFlag(Flag.OTHER, "other", "Other"),
-            new IntervalFlag(Flag.OVERFLOW, "overflow", "Overflow"),
-            new IntervalFlag(Flag.PHASEFAILURE, "phaseFailure", "Phase failure"),
-            new IntervalFlag(Flag.POWERDOWN, "powerDown", "Power down"),
-            new IntervalFlag(Flag.POWERUP, "powerUp", "Power up"),
-            new IntervalFlag(Flag.WATCHDOGRESET, "watchdogReset", "Watchdog reset"),
-            new IntervalFlag(Flag.TEST, "test", "Test")
-        };
-
-        @Override
-        public Optional<IntervalFlag> find(String key) {
-            for (IntervalFlag flagParameter : flags) {
-                if (key.equals(flagParameter.getId())){
-                    return Optional.of(flagParameter);
-                }
-            }
-            return Optional.empty();
-        }
-        
-        @Override
-        public Class<IntervalFlag> valueDomain() {
-            return IntervalFlag.class;
-        }
-
-        public IntervalFlag[] getFlags() {
-            return flags;
-        }
-    }
 }

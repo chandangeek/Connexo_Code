@@ -7,15 +7,16 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ProfileStatus.Flag;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.impl.IntervalStateValidator.IntervalFlag;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,13 +51,13 @@ public class IntervalStateValidatorTest {
 
     @Before
     public void setUp() {
-        ListValue<IntervalFlag> flags = new ListValue<>();
+        List<IntervalFlag> flags = new ArrayList<>();
         Map<String, Object> properties = new HashMap<>();
-        properties.put(INTERVAL_FLAGS, (Object) flags);
+        properties.put(INTERVAL_FLAGS, flags);
         validator = new IntervalStateValidator(thesaurus, propertySpecService, properties);
 
-        flags.addValue(validator.new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"));
-        flags.addValue(validator.new IntervalFlag(Flag.POWERDOWN, "powerDown", "Power down"));
+        flags.add(validator.new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"));
+        flags.add(validator.new IntervalFlag(Flag.POWERDOWN, "powerDown", "Power down"));
 
         validator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
     }
@@ -112,8 +113,10 @@ public class IntervalStateValidatorTest {
         List<PropertySpec> propertySpecs = validator.getPropertySpecs();
 
         assertThat(propertySpecs).hasSize(1);
-        assertThat(propertySpecs.get(0).getName()).isEqualTo(INTERVAL_FLAGS);
-        assertThat(propertySpecs.get(0).getValueFactory().getValueType()).isEqualTo(ListValue.class);
+        PropertySpec propertySpec = propertySpecs.get(0);
+        assertThat(propertySpec.getName()).isEqualTo(INTERVAL_FLAGS);
+        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(IntervalFlag.class);
     }
 
     @Test
@@ -121,7 +124,7 @@ public class IntervalStateValidatorTest {
         PropertySpec propertySpec = validator.getPropertySpec(INTERVAL_FLAGS).get();
 
         assertThat(propertySpec.getName()).isEqualTo(INTERVAL_FLAGS);
-        assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(ListValue.class);
+        assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(IntervalFlag.class);
 
         assertThat(validator.getPropertySpec("flags~")).isEmpty();
     }
