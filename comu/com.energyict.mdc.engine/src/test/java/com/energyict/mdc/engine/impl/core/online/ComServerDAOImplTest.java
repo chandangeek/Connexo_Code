@@ -22,6 +22,7 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
@@ -314,7 +315,7 @@ public class ComServerDAOImplTest {
         String newActiveMeterFirmwareVersion = "MyActiveMeterFirmwareVersion";
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveMeterFirmwareVersion(newActiveMeterFirmwareVersion);
-        FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersion.FirmwareVersionBuilder.class);
+        FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersionBuilder.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
@@ -343,7 +344,7 @@ public class ComServerDAOImplTest {
         String newActiveMeterFirmwareVersion = "SameVersion";
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveMeterFirmwareVersion(newActiveMeterFirmwareVersion);
-        FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersion.FirmwareVersionBuilder.class);
+        FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersionBuilder.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
@@ -372,7 +373,7 @@ public class ComServerDAOImplTest {
         String myActiveCommunicationFirmwareVersion = "MyActiveCommunicationFirmwareVersion";
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveCommunicationFirmwareVersion(myActiveCommunicationFirmwareVersion);
-        FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersion.FirmwareVersionBuilder.class);
+        FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersionBuilder.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
@@ -401,7 +402,7 @@ public class ComServerDAOImplTest {
         String myActiveCommunicationFirmwareVersion = "SameVersion";
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         collectedFirmwareVersion.setActiveCommunicationFirmwareVersion(myActiveCommunicationFirmwareVersion);
-        FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersion.FirmwareVersionBuilder.class);
+        FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersionBuilder.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
