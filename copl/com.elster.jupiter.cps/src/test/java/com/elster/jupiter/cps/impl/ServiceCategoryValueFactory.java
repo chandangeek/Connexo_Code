@@ -6,7 +6,6 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 
 
 /**
@@ -21,16 +20,6 @@ public class ServiceCategoryValueFactory implements ValueFactory<ServiceCategory
     @Override
     public Class<ServiceCategoryForTestingPurposes> getValueType() {
         return ServiceCategoryForTestingPurposes.class;
-    }
-
-    @Override
-    public boolean isReference() {
-        return false;
-    }
-
-    @Override
-    public int getJdbcType() {
-        return Types.INTEGER;
     }
 
     @Override
@@ -62,11 +51,6 @@ public class ServiceCategoryValueFactory implements ValueFactory<ServiceCategory
     @Override
     public void bind(SqlBuilder builder, ServiceCategoryForTestingPurposes serviceCategory) {
         builder.addInt(serviceCategory.ordinal());
-    }
-
-    @Override
-    public boolean isPersistent(ServiceCategoryForTestingPurposes value) {
-        return false;
     }
 
 }
