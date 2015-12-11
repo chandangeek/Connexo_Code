@@ -4,22 +4,17 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.CanFindByStringKey;
-import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
 import com.google.inject.AbstractModule;
@@ -27,14 +22,10 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -50,7 +41,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private volatile DataVaultService dataVaultService;
     private volatile TimeService timeService;
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
-    private Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
 
     // For OSGi purposes
     public PropertySpecServiceImpl() {
@@ -202,29 +192,9 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
 
-    @Override
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
-            finders.put(finder.getClass(), finder);
-        }
-    }
-
     @Reference
     public void setBasicPropertySpecService(com.elster.jupiter.properties.PropertySpecService propertySpecService) {
         this.basicPropertySpecService = propertySpecService;
-    }
-
-    @SuppressWarnings("unused")
-    public void removeFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
-            this.finders.remove(finder);
-        }
-    }
-
-    @Override
-    public <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
-        return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
     }
 
     public PropertySpecBuilder specForValuesOf(Class<? extends ValueFactory> valueFactoryClass) {

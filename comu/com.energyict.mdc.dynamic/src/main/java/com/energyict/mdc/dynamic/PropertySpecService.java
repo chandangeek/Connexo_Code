@@ -24,8 +24,6 @@ import java.util.TimeZone;
 @ProviderType
 public interface PropertySpecService extends com.elster.jupiter.properties.PropertySpecService {
 
-    void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
-
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of {@link Password} values.

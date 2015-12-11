@@ -3,7 +3,7 @@ package com.energyict.mdc.dynamic.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
+import com.elster.jupiter.properties.impl.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.ValueFactory;
 
 import java.util.ArrayList;
