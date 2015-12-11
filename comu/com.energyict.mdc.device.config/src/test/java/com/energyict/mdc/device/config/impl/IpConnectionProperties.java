@@ -1,10 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 /**
  * Insert your comments here.
@@ -22,7 +19,12 @@ public enum IpConnectionProperties {
 
         @Override
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertyName(), true, new StringFactory());
+            return propertySpecService
+                    .stringSpec()
+                    .named(this.propertyName(), this.propertyName())
+                    .describedAs(this.propertyName())
+                    .markRequired()
+                    .finish();
         }
     },
 
@@ -34,7 +36,11 @@ public enum IpConnectionProperties {
 
         @Override
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertyName(), false, new BigDecimalFactory());
+            return propertySpecService
+                    .bigDecimalSpec()
+                    .named(this.propertyName(), this.propertyName())
+                    .describedAs(this.propertyName())
+                    .finish();
         }
     };
 
