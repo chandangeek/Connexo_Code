@@ -64,7 +64,7 @@ public class ComTaskNameSearchablePropertyTest {
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService), this.dataVaultService, this.timeService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService), this.dataVaultService, this.ormService);
 
         NlsMessageFormat propertyName = mock(NlsMessageFormat.class);
         when(propertyName.format(anyVararg())).thenReturn(PropertyTranslationKeys.COMTASK_NAME.getDefaultFormat());

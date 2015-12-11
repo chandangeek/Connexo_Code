@@ -60,7 +60,7 @@ public class DeviceGroupSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_GROUP.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_GROUP)).thenReturn(messageFormat);
         when(meteringGroupsService.findEndDeviceGroups()).thenReturn(Collections.singletonList(endDeviceGroup));
-        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.timeService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
     }
 
     @Test

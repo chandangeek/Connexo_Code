@@ -61,7 +61,7 @@ public class SharedScheduleSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.SHARED_SCHEDULE.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.SHARED_SCHEDULE)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         ComSchedule comSchedule = mock(ComSchedule.class);
         Finder finder = mock(Finder.class);
         when(finder.find()).thenReturn(Arrays.asList(comSchedule));

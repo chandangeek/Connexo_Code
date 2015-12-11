@@ -65,7 +65,7 @@ public class ServiceCategorySearchablePropertyTest {
         when(thesaurus.getFormat(PropertyTranslationKeys.SERVICE_CATEGORY)).thenReturn(messageFormat);
         when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         ServiceCategory gasCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(any())).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(ServiceKind.GAS)).thenReturn(Optional.of(gasCategory));

@@ -146,7 +146,6 @@ public class SecurityPropertyServiceImplTest {
                 new PropertySpecServiceImpl(
                         new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService),
                         this.dataVaultService,
-                        this.timeService,
                         this.ormService));
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
         when(this.pluggableService

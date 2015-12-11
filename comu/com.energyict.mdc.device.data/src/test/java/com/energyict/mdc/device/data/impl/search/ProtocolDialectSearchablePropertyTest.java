@@ -72,7 +72,7 @@ public class ProtocolDialectSearchablePropertyTest {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService);
         when(this.thesaurus.getFormat(PropertyTranslationKeys.PROTOCOL_DIALECT)).thenReturn(messageFormat);
-        com.energyict.mdc.dynamic.PropertySpecService mdcPropertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(this.propertySpecService, dataVaultService, timeService, ormService);
+        com.energyict.mdc.dynamic.PropertySpecService mdcPropertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(this.propertySpecService, dataVaultService, ormService);
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, mdcPropertySpecService, this.thesaurus);
     }

@@ -72,7 +72,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_CONFIGURATION.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_CONFIGURATION)).thenReturn(messageFormat);
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.timeService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);

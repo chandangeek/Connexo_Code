@@ -59,7 +59,7 @@ public class ConnectionMethodSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.CONNECTION_METHOD.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_METHOD)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         ConnectionTypePluggableClass ctpc = mock(ConnectionTypePluggableClass.class);
         when(ctpc.getId()).thenReturn(13L);
         when(ctpc.getName()).thenReturn("EIWEB");

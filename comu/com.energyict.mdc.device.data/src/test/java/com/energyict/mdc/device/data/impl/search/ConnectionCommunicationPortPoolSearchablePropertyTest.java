@@ -54,7 +54,7 @@ public class ConnectionCommunicationPortPoolSearchablePropertyTest {
     public void initializeMocks() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.CONNECTION_PORTPOOL.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_PORTPOOL)).thenReturn(messageFormat);
