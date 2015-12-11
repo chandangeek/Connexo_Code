@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -55,6 +56,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     @Inject
     public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService,
             NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService) {
+        this();
         setIssueDataValidationService(issueDataValidationIssueService);
         setIssueService(issueService);
         setNlsService(nlsService);
@@ -140,7 +142,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                         .describedAs(DEVICE_CONFIGURATIONS)
                         .markRequired()
                         .addValues(possibleValues)
-                        .markExhaustive()
+                        .markExhaustive(PropertySelectionMode.LIST)
                         .finish());
         return builder.build();
     }
