@@ -33,7 +33,6 @@ import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
@@ -304,18 +303,33 @@ public class MeterProtocolAdapterTest {
     public void getDeviceProtocolDialect() {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         List<PropertySpec> optionalKeys = new ArrayList<>();
-        final List<String> optionalKeyNames = Arrays.asList("o1", "o2", "o3");
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1", inMemoryPersistence.getPropertySpecService()));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o2", inMemoryPersistence.getPropertySpecService()));
-        optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3", inMemoryPersistence.getPropertySpecService()));
+        String optionalPropertyName1 = "o1";
+        String optionalPropertyName2 = "o2";
+        String optionalPropertyName3 = "o3";
+        final List<String> optionalKeyNames = Arrays.asList(optionalPropertyName1, optionalPropertyName2, optionalPropertyName3);
+        optionalKeys.add(inMemoryPersistence.getPropertySpecService()
+                .stringSpec()
+                .named(optionalPropertyName1, optionalPropertyName1)
+                .describedAs(optionalPropertyName1)
+                .finish());
+        optionalKeys.add(inMemoryPersistence.getPropertySpecService()
+                .stringSpec()
+                .named(optionalPropertyName2, optionalPropertyName2)
+                .describedAs(optionalPropertyName2)
+                .finish());
+        optionalKeys.add(inMemoryPersistence.getPropertySpecService()
+                .stringSpec()
+                .named(optionalPropertyName3, optionalPropertyName3)
+                .describedAs(optionalPropertyName3)
+                .finish());
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
-        doReturn(new BasicPropertySpec("o1", false, new StringFactory()))
-                .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class));
-        doReturn(new BasicPropertySpec("o2", false, new StringFactory()))
-                .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class));
-        doReturn(new BasicPropertySpec("o3", false, new StringFactory()))
-                .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class));
+        doReturn(new BasicPropertySpec(optionalPropertyName1, false, new StringFactory()))
+                .when(propertySpecService).basicPropertySpec(eq(optionalPropertyName1), eq(false), any(ValueFactory.class));
+        doReturn(new BasicPropertySpec(optionalPropertyName2, false, new StringFactory()))
+                .when(propertySpecService).basicPropertySpec(eq(optionalPropertyName2), eq(false), any(ValueFactory.class));
+        doReturn(new BasicPropertySpec(optionalPropertyName3, false, new StringFactory()))
+                .when(propertySpecService).basicPropertySpec(eq(optionalPropertyName3), eq(false), any(ValueFactory.class));
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());

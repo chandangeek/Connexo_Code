@@ -14,7 +14,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -178,14 +177,27 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     @Override
     public List<PropertySpec> getRequiredProperties() {
         List<PropertySpec> required = new ArrayList<>(1);
-        required.add(PropertySpecFactory.stringPropertySpec("RequiredProperty", this.propertySpecService));
+        String propertyName = "RequiredProperty";
+        required.add(
+            this.propertySpecService
+                .stringSpec()
+                .named(propertyName, propertyName)
+                .describedAs(propertyName)
+                .markRequired()
+                .finish());
         return required;
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> optional = new ArrayList<>(1);
-        optional.add(PropertySpecFactory.stringPropertySpec("OptionalProperty", this.propertySpecService));
+        String propertyName = "OptionalProperty";
+        optional.add(
+            this.propertySpecService
+                .stringSpec()
+                .named(propertyName, propertyName)
+                .describedAs(propertyName)
+                .finish());
         return optional;
     }
 
