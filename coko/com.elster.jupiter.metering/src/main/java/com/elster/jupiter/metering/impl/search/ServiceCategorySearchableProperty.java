@@ -80,8 +80,10 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.specForValuesOf(new EnumFactory(ServiceKind.class))
-                .name(FIELDNAME, FIELDNAME)
+        return this.propertySpecService
+                .specForValuesOf(new EnumFactory(ServiceKind.class))
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
+                .fromThesaurus(this.thesaurus)
                 .addValues(ServiceKind.values())
                 .markExhaustive()
                 .finish();

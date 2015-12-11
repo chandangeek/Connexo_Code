@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl.search;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
@@ -79,10 +78,11 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                FIELDNAME,
-                false,
-                new StringFactory());
+        return this.propertySpecService
+                .stringSpec()
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_MRID)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     @Override
