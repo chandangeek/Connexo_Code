@@ -4,7 +4,6 @@ import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
@@ -17,7 +16,6 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
     NULLABLE_BOOLEAN(ThreeStateFactory.class),
     BOOLEAN(BooleanFactory.class),
     TEXT(StringFactory.class),
-    LISTVALUE(ListValueFactory.class),
     RELATIVEPERIOD(RelativePeriodFactory.class),
     ADVANCEREADINGSSETTINGS(AdvanceReadingsSettingsFactory.class),
     ADVANCEREADINGSSETTINGSWITHOUTNONE(AdvanceReadingsSettingsWithoutNoneFactory.class),

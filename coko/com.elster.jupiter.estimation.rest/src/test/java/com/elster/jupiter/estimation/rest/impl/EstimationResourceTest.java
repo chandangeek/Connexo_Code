@@ -20,10 +20,8 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.ListValue;
-import com.elster.jupiter.properties.ListValuePropertySpec;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
@@ -32,14 +30,11 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Order;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -48,6 +43,7 @@ import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +51,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import org.junit.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -297,7 +297,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         verify(rule).addProperty("nullableboolean", false);
         verify(rule).addProperty("boolean", true);
         verify(rule).addProperty("text", "string");
-        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
+        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(List.class));
     }
 
     @Test
@@ -529,8 +529,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 mockPropertySpec(PropertyType.NUMBER, "number", true),
                 mockPropertySpec(PropertyType.NULLABLE_BOOLEAN, "nullableboolean", true),
                 mockPropertySpec(PropertyType.BOOLEAN, "boolean", true),
-                mockPropertySpec(PropertyType.TEXT, "text", true),
-                mockPropertySpec(PropertyType.LISTVALUE, "listvalue", true));
+                mockPropertySpec(PropertyType.TEXT, "text", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
 
         Map<String, Object> props = new HashMap<>();
@@ -538,9 +537,9 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         props.put("nullableboolean", true);
         props.put("boolean", false);
         props.put("text", "string");
-        ListValue<ListValueBean> listValue = new ListValue<>();
-        listValue.addValue(Finder.bean1);
-        listValue.addValue(Finder.bean2);
+        List<ListValueBean> listValue = new ArrayList<>();
+        listValue.add(Finder.bean1);
+        listValue.add(Finder.bean2);
         props.put("listvalue", listValue);
         when(rule.getProps()).thenReturn(props);
         List helper = new ArrayList<>();
@@ -618,7 +617,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         Estimator estimator = mock(Estimator.class);
         when(estimator.getDisplayName()).thenReturn(displayName);
 
-        List<PropertySpec> propertySpecs = Arrays.asList(mockPropertySpec(PropertyType.LISTVALUE, "listvalue", false));
+        List<PropertySpec> propertySpecs = Collections.singletonList(mockPropertySpec(PropertyType.LISTVALUE, "listvalue", false));
         when(estimator.getPropertySpecs()).thenReturn(propertySpecs);
 
         return estimator;
@@ -645,26 +644,32 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         }
     }
 
-    private static class Finder implements CanFindByStringKey<ListValueBean> {
+    private static class Finder extends AbstractValueFactory<ListValueBean> {
 
         static ListValueBean bean1 = new ListValueBean("1", "first");
         static ListValueBean bean2 = new ListValueBean("2", "second");
 
+        private Finder() {
+            super(ListValueBean.class);
+        }
+
         @Override
-        public Optional<ListValueBean> find(String key) {
-            switch (key) {
-            case "1":
-                return Optional.of(bean1);
-            case "2":
-                return Optional.of(bean2);
-            default:
-                return Optional.empty();
+        public ListValueBean fromStringValue(String stringValue) {
+            switch (stringValue) {
+                case "1":
+                    return bean1;
+                case "2":
+                    return bean2;
+                default:
+                    return null;
             }
         }
-        
+
         @Override
-        public Class<ListValueBean> valueDomain() {
-            return ListValueBean.class;
+        public String toStringValue(ListValueBean object) {
+            return object.getId();
         }
+
     }
+
 }
