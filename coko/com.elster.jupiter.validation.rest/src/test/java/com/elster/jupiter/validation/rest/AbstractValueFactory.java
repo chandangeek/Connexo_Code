@@ -27,16 +27,6 @@ public abstract class AbstractValueFactory<T> implements ValueFactory<T> {
     }
 
     @Override
-    public boolean isReference() {
-        return false;
-    }
-
-    @Override
-    public boolean isPersistent(T value) {
-        return false;
-    }
-
-    @Override
     public T valueFromDatabase(Object object) {
         return this.fromStringValue((String) object);
     }
