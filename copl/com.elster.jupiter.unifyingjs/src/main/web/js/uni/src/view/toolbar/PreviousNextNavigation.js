@@ -50,6 +50,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
      */
     routerIdArgument: null,
 
+    clearQueryParams: false,
     /**
      * @cfg {String} [itemsName="items"]
      * Name of items.
@@ -117,6 +118,10 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             storePageSize = store.pageSize,
             storeTotal = store.getTotalCount(),
             storeCount =  store.getCount();
+
+        if (me.clearQueryParams) {
+            queryParams = {}
+        }
 
         if (currentIndex === -1) {
             currentIndex = store.indexOfId(parseInt(indexContainer[me.routerIdArgument]));
