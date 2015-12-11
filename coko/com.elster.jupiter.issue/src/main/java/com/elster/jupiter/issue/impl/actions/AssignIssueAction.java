@@ -129,11 +129,6 @@ public class AssignIssueAction extends AbstractIssueAction {
         }
 
         @Override
-        public boolean isReference() {
-            return true;
-        }
-
-        @Override
         public Assignee valueFromDatabase(Object object) {
             return this.fromStringValue((String) object);
         }
@@ -164,8 +159,8 @@ public class AssignIssueAction extends AbstractIssueAction {
         }
 
         @Override
-        public boolean isPersistent(Assignee value) {
-            return value != null && value.getId() > 0;
+        public boolean isValid(Assignee value) {
+            return value.getId() > 0;
         }
     }
 
