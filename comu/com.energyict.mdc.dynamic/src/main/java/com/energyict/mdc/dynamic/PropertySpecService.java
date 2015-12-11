@@ -91,31 +91,7 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      */
     PropertySpec basicPropertySpec (String name, String description, boolean required, Class<? extends ValueFactory> valueFactoryClass);
 
-    /**
-     * Todo: remove as part of COPL-1151
-     * @deprecated Replace by calls to {@link #timeDurationPropertySpec(String, String, boolean, TimeDuration)}
-     */
-    @Deprecated
-    PropertySpec timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue);
-
     PropertySpec timeDurationPropertySpec(String name, String descrption, boolean required, TimeDuration defaultValue);
-
-    /**
-     * Todo: remove as part of COPL-1151
-     * @deprecated Replace by calls to {@link #obisCodePropertySpecWithValues(String, String, boolean, ObisCode...)}
-     */
-    @Deprecated
-    PropertySpec obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values);
-
-    /**
-     * Creates a {@link PropertySpec} for an {@link ObisCode} value which only allows the given values.
-     *
-     * @param name The name of the PropertySpec
-     * @param required A flag that indicates if the PropertySpec should be required or not
-     * @param values The allowed values for the PropertySpec
-     * @return The PropertySpec
-     */
-    PropertySpec obisCodePropertySpecWithValues(String name, String description, boolean required, ObisCode... values);
 
     /**
      * Todo: remove as part of COPL-1151
@@ -123,8 +99,6 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      */
     @Deprecated
     PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values);
-
-    PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, String description, boolean required, ObisCode... values);
 
     /**
      * Todo: remove as part of COPL-1151
@@ -161,18 +135,4 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      */
     PropertySpec timeZonePropertySpec(String name, String description, boolean required, TimeZone defaultValue);
 
-    /**
-     * Creates a new {@link PropertySpecBuilder} for building a custom
-     * {@link PropertySpec} of values that are managed by the
-     * specified {@link ValueFactory}. An instance of the ValueFactory is created by the injector (DataModel), thereby enabling
-     * injection on the ValueFactory in casu
-     *
-     * @param valueFactoryClass Injector will create a instance of this ValueFactory-class
-     * @return The PropertySpecBuilder
-     */
-    PropertySpecBuilder newPropertySpecBuilder(Class<? extends ValueFactory> valueFactoryClass);
-
-    ValueFactory getValueFactory(Class<? extends ValueFactory> valueFactoryClassName);
-
-    PropertySpec hexStringPropertySpec(String name, String description, boolean required, HexString defaultValue);
 }

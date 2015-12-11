@@ -11,9 +11,7 @@ import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
@@ -104,11 +102,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue) {
-        return this.timeDurationPropertySpec(name, "", required, defaultValue);
-    }
-
-    @Override
     public PropertySpec timeDurationPropertySpec(String name, String description, boolean required, TimeDuration defaultValue) {
         PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new TimeDurationValueFactory());
         if (required) {
@@ -122,23 +115,8 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values) {
-        return this.obisCodePropertySpecWithValues(name, "", required, false, values);
-    }
-
-    @Override
-    public PropertySpec obisCodePropertySpecWithValues(String name, String description, boolean required, ObisCode... values) {
-        return this.obisCodePropertySpecWithValues(name, description, required, false, values);
-    }
-
-    @Override
     public PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values) {
         return this.obisCodePropertySpecWithValues(name, "", required, true, values);
-    }
-
-    @Override
-    public PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, String description, boolean required, ObisCode... values) {
-        return this.obisCodePropertySpecWithValues(name, description, required, true, values);
     }
 
     private PropertySpec obisCodePropertySpecWithValues(String name, String description, boolean required, boolean exhaustive, ObisCode... values) {
@@ -160,18 +138,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     public ValueFactory getValueFactory(Class<? extends ValueFactory> valueFactoryClass) {
         return dataModel.getInstance(valueFactoryClass);
-    }
-
-    @Override
-    public PropertySpec hexStringPropertySpec(String name, String description, boolean required, HexString defaultValue) {
-        final PropertySpecBuilder propertySpecBuilder = PropertySpecBuilderImpl.forClass(new HexStringFactory())
-                .name(name)
-                .description(description)
-                .setDefaultValue(defaultValue);
-        if (required) {
-            propertySpecBuilder.markRequired();
-        }
-        return propertySpecBuilder.finish();
     }
 
     @Override
