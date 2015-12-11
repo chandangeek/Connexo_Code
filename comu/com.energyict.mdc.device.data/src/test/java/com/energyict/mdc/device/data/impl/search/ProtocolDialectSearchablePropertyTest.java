@@ -15,25 +15,22 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -59,15 +56,11 @@ public class ProtocolDialectSearchablePropertyTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private Finder deviceTypeFinder;
-    @Mock
-    private DeviceTypeFinder specDeviceTypeFinder;
 
     private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
     private PropertySpecService propertySpecService;
@@ -81,10 +74,6 @@ public class ProtocolDialectSearchablePropertyTest {
         when(this.thesaurus.getFormat(PropertyTranslationKeys.PROTOCOL_DIALECT)).thenReturn(messageFormat);
         com.energyict.mdc.dynamic.PropertySpecService mdcPropertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(this.propertySpecService, dataVaultService, timeService, ormService);
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
-        when(this.specDeviceTypeFinder.factoryId()).thenReturn(FactoryIds.DEVICE_TYPE);
-        when(this.specDeviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
-        when(this.referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(this.specDeviceTypeFinder));
-        mdcPropertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, mdcPropertySpecService, this.thesaurus);
     }
 

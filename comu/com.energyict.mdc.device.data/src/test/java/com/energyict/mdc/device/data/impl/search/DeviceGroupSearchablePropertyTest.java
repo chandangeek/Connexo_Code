@@ -13,10 +13,9 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.*;
@@ -52,8 +51,6 @@ public class DeviceGroupSearchablePropertyTest {
     private DeviceService deviceService;
     @Mock
     private EndDeviceGroup endDeviceGroup;
-    @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
     private PropertySpecService propertySpecService;
 
     @Before
@@ -62,9 +59,8 @@ public class DeviceGroupSearchablePropertyTest {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_GROUP.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_GROUP)).thenReturn(messageFormat);
-        when(meteringGroupsService.findEndDeviceGroups()).thenReturn(Arrays.asList(endDeviceGroup));
+        when(meteringGroupsService.findEndDeviceGroups()).thenReturn(Collections.singletonList(endDeviceGroup));
         this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.timeService, this.ormService);
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
     }
 
     @Test

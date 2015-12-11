@@ -15,20 +15,11 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
-import com.energyict.mdc.device.config.impl.FiniteStateFinder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -36,11 +27,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link StateNameSearchableProperty} component.
@@ -66,12 +64,6 @@ public class StateNameSearchablePropertyTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
-    private FiniteStateFinder finiteStateFinder;
-    @Mock
-    private DeviceTypeFinder deviceTypeFinder;
-    @Mock
     private DeviceConfigurationService deviceConfigurationService;
 
     private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
@@ -87,15 +79,9 @@ public class StateNameSearchablePropertyTest {
         NlsMessageFormat deviceStatusMessageFormat = mock(NlsMessageFormat.class);
         when(deviceStatusMessageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_STATUS.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_STATUS)).thenReturn(deviceStatusMessageFormat);
-        when(this.deviceTypeFinder.factoryId()).thenReturn(FactoryIds.DEVICE_TYPE);
-        when(this.deviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
-        when(this.finiteStateFinder.factoryId()).thenReturn(FactoryIds.FINITE_STATE);
-        when(this.finiteStateFinder.valueDomain()).thenReturn(State.class);
-        when(this.referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder, this.finiteStateFinder));
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
     }
 

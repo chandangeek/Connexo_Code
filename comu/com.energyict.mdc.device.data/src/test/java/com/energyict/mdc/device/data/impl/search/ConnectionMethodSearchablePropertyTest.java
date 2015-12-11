@@ -10,27 +10,27 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTypeFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyVararg;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionMethodSearchablePropertyTest {
@@ -50,10 +50,6 @@ public class ConnectionMethodSearchablePropertyTest {
     ProtocolPluggableService protocolPluggableService;
     @Mock
     Thesaurus thesaurus;
-    @Mock
-    ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
-    ConnectionTypeFinder connectionTypeFinder;
 
     PropertySpecService propertySpecService;
 
@@ -64,14 +60,10 @@ public class ConnectionMethodSearchablePropertyTest {
         when(thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_METHOD)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
-        when(connectionTypeFinder.factoryId()).thenReturn(FactoryIds.CONNECTION_TYPE);
-        when(connectionTypeFinder.valueDomain()).thenReturn(ConnectionTypePluggableClass.class);
-        when(referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(connectionTypeFinder));
         ConnectionTypePluggableClass ctpc = mock(ConnectionTypePluggableClass.class);
         when(ctpc.getId()).thenReturn(13L);
         when(ctpc.getName()).thenReturn("EIWEB");
         when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Arrays.asList(ctpc));
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
     }
 
     @Test

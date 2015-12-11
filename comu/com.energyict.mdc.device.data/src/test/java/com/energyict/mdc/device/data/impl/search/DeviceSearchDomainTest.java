@@ -1,22 +1,31 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
-import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -26,19 +35,15 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.ws.rs.HEAD;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,15 +51,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyVararg;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DeviceSearchDomain} component.
@@ -234,28 +245,11 @@ public class DeviceSearchDomainTest {
 
     @Test
     public void getPropertiesWithDeviceTypeConstrictionsConstructsTheFixedProperties() {
-        PropertySpec deviceTypePropertySpec = mock(PropertySpec.class);
-        when(deviceTypePropertySpec.getName()).thenReturn(DeviceTypeSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(DeviceTypeSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.DEVICE_TYPE),
-                anyList())).thenReturn(deviceTypePropertySpec);
-        PropertySpec deviceConfigurationPropertySpec = mock(PropertySpec.class);
-        when(deviceConfigurationPropertySpec.getName()).thenReturn(DeviceConfigurationSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(DeviceConfigurationSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.DEVICE_CONFIGURATION),
-                anyList())).thenReturn(deviceConfigurationPropertySpec);
+        this.mockReferencePropertySpec(DeviceTypeSearchableProperty.PROPERTY_NAME, DeviceType.class);
+        this.mockReferencePropertySpec(DeviceConfigurationSearchableProperty.PROPERTY_NAME, DeviceConfiguration.class);
+        this.mockReferencePropertySpec(StateNameSearchableProperty.VIRTUAL_FIELD_NAME, State.class);
+
         DeviceSearchDomain searchDomain = this.getTestInstance();
-        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
-        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
-                eq(false),
-                eq(FactoryIds.FINITE_STATE),
-                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(Collections.emptyList());
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -297,70 +291,31 @@ public class DeviceSearchDomainTest {
     }
 
     private void mockStateNamePropertySpec() {
-        PropertySpec state = mock(PropertySpec.class);
-        when(state.getName()).thenReturn(DeviceFields.SERIALNUMBER.fieldName());
-        when(this.propertySpecService.stringPropertySpecWithValues(
-                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
-                eq(false),
-                Matchers.<String>anyVararg())).thenReturn(state);
+        this.mockStringPropertySpec(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
     }
 
     private void mockDeviceGroupPropertySpec() {
-        PropertySpec deviceGroup = mock(PropertySpec.class);
-        when(deviceGroup.getName()).thenReturn(DeviceFields.DEVICEGROUP.fieldName());
-        when(this.propertySpecService.referencePropertySpec(
-                eq(DeviceGroupSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.DEVICE_GROUP),
-                anyList())).thenReturn(deviceGroup);
+        this.mockReferencePropertySpec(DeviceGroupSearchableProperty.PROPERTY_NAME, EndDeviceGroup.class);
     }
 
     private void mockYearOfCertificationPropertySpec() {
-        PropertySpec year = mock(PropertySpec.class);
-        when(year.getName()).thenReturn(DeviceFields.SERIALNUMBER.fieldName());
-        when(this.propertySpecService.longPropertySpecWithValues(
-                eq(DeviceFields.CERT_YEAR.fieldName()),
-                eq(false),
-                Matchers.<Long>anyVararg())).thenReturn(year);
+        this.mockLongPropertySpec(DeviceFields.CERT_YEAR.fieldName());
     }
 
     private void mockBatchPropertySpec() {
-        PropertySpec batch = mock(PropertySpec.class);
-        when(batch.getName()).thenReturn(DeviceFields.BATCH.fieldName());
-        when(this.propertySpecService.basicPropertySpec(
-                eq(DeviceFields.BATCH.fieldName()),
-                eq(false),
-                Matchers.<StringFactory>anyObject())).thenReturn(batch);
+        this.mockStringPropertySpec(DeviceFields.BATCH.fieldName());
     }
 
     private void mockConnectionMethodPropertySpec() {
-        PropertySpec connectionMethod = mock(PropertySpec.class);
-        when(connectionMethod.getName()).thenReturn(ConnectionMethodSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(ConnectionMethodSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.CONNECTION_TYPE),
-                anyList())).thenReturn(connectionMethod);
+        this.mockReferencePropertySpec(ConnectionMethodSearchableProperty.PROPERTY_NAME, ConnectionTask.class);
     }
 
     private void mockSharedSchedulePropertySpec() {
-        PropertySpec sharedSchedule = mock(PropertySpec.class);
-        when(sharedSchedule.getName()).thenReturn(SharedScheduleSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(SharedScheduleSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.COMSCHEDULE),
-                anyList())).thenReturn(sharedSchedule);
+        this.mockReferencePropertySpec(SharedScheduleSearchableProperty.PROPERTY_NAME, ComSchedule.class);
     }
 
     private void mockServiceCategoryPropertySpec() {
-        PropertySpec serviceCategory = mock(PropertySpec.class);
-        when(serviceCategory.getName()).thenReturn(ServiceCategorySearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(ServiceCategorySearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.SERVICE_CATEGORY),
-                anyList())).thenReturn(serviceCategory);
+        this.mockReferencePropertySpec(ServiceCategorySearchableProperty.PROPERTY_NAME, ServiceCategory.class);
         when(meteringService.getServiceCategory(any())).thenReturn(Optional.empty());
     }
 
@@ -553,47 +508,13 @@ public class DeviceSearchDomainTest {
         when(taskService.findAllComTasks()).thenReturn(taskFinder);
         when(taskFinder.paged(anyInt(), anyInt())).thenReturn(taskFinder);
         when(taskFinder.find()).thenReturn(Collections.emptyList());
-        PropertySpec nameSpec = mock(PropertySpec.class);
-        when(nameSpec.getName()).thenReturn(ComTaskNameSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(ComTaskNameSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.COMTASK),
-                anyList())).thenReturn(nameSpec);
-        PropertySpec securitySetSpec = mock(PropertySpec.class);
-        when(securitySetSpec.getName()).thenReturn(ComTaskSecuritySettingSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(ComTaskSecuritySettingSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.SECURITY_SET),
-                anyList())).thenReturn(securitySetSpec);
-        /** {@link #mockConnectionMethodPropertySpec()} */
-        PropertySpec currentStatusSpec = mock(PropertySpec.class);
-        when(currentStatusSpec.getName()).thenReturn(ComTaskStatusSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.stringReferencePropertySpec(
-                eq(ComTaskStatusSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                any(),
-                anyVararg()
-        )).thenReturn(currentStatusSpec);
-        PropertySpec urgencyPropertySpec = mock(PropertySpec.class);
-        when(urgencyPropertySpec.getName()).thenReturn(ComTaskUrgencySearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.longPropertySpec(ComTaskUrgencySearchableProperty.PROPERTY_NAME, false, 0L))
-                .thenReturn(urgencyPropertySpec);
-        PropertySpec comScheduleSpec = mock(PropertySpec.class);
-        when(comScheduleSpec.getName()).thenReturn(ComTaskScheduleNameSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(ComTaskScheduleNameSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.COMSCHEDULE),
-                anyList())).thenReturn(comScheduleSpec);
-        PropertySpec scheduleTypeSpec = mock(PropertySpec.class);
-        when(scheduleTypeSpec.getName()).thenReturn(ComTaskScheduleTypeSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.stringReferencePropertySpec(
-                eq(ComTaskScheduleTypeSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                Matchers.anyObject(),
-                Matchers.anyVararg())).thenReturn(scheduleTypeSpec);
+        this.mockStringPropertySpec(ComTaskNameSearchableProperty.PROPERTY_NAME);
+        this.mockReferencePropertySpec(ComTaskNameSearchableProperty.PROPERTY_NAME, ComTask.class);
+        this.mockReferencePropertySpec(ComTaskSecuritySettingSearchableProperty.PROPERTY_NAME, SecurityPropertySet.class);
+        this.mockStringPropertySpec(ComTaskStatusSearchableProperty.PROPERTY_NAME);
+        this.mockLongPropertySpec(ComTaskUrgencySearchableProperty.PROPERTY_NAME);
+        this.mockReferencePropertySpec(ComTaskScheduleNameSearchableProperty.PROPERTY_NAME, ComSchedule.class);
+        this.mockStringPropertySpec(ComTaskScheduleTypeSearchableProperty.PROPERTY_NAME);
     }
 
     private void mockConnections() {
@@ -604,25 +525,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 Matchers.<StringFactory>anyObject())).thenReturn(nameSpec);
 
-        PropertySpec directionSpec = mock(PropertySpec.class);
-        when(directionSpec.getName()).thenReturn(ConnectionDirectionSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.stringReferencePropertySpec(
-                eq(ConnectionDirectionSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                Matchers.anyObject(),
-                Matchers.anyVararg())).thenReturn(directionSpec);
+        this.mockStringPropertySpec(ConnectionDirectionSearchableProperty.PROPERTY_NAME);
 
         InboundComPortPool mock = mock(InboundComPortPool.class);
         List<ComPortPool> comPortPools = new ArrayList<>();
         comPortPools.add(mock);
         when(engineConfigurationService.findAllComPortPools()).thenReturn(comPortPools);
-        PropertySpec portPoolsSpec = mock(PropertySpec.class);
-        when(portPoolsSpec.getName()).thenReturn(ConnectionCommunicationPortPoolSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.referencePropertySpec(
-                eq(ConnectionCommunicationPortPoolSearchableProperty.PROPERTY_NAME),
-                eq(false),
-                eq(FactoryIds.CONNECTION_TASK),
-                anyList())).thenReturn(portPoolsSpec);
+        this.mockReferencePropertySpec(ConnectionCommunicationPortPoolSearchableProperty.PROPERTY_NAME, ConnectionTask.class);
         PropertySpec simultaneousSpec = mock(PropertySpec.class);
         when(simultaneousSpec.getName()).thenReturn(ConnectionSimultaneousSearchableProperty.PROPERTY_NAME);
         when(this.propertySpecService.booleanPropertySpec(
@@ -646,6 +555,70 @@ public class DeviceSearchDomainTest {
                     startsWith("device.transition."),
                     eq(false),
                     Matchers.<StringFactory>anyObject())).thenReturn(anyDateProperty);
+    }
+
+    private void mockReferencePropertySpec(String name, Class referencedClass) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
+        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
+        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        when(nlsOptions
+                .named(name, any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(nlsOptions
+                .named(any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(this.propertySpecService.referenceSpec(referencedClass)).thenReturn(nlsOptions);
+    }
+
+    private void mockStringPropertySpec(String name) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
+        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
+        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        when(nlsOptions
+                .named(name, any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(nlsOptions
+                .named(any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(this.propertySpecService.stringSpec()).thenReturn(nlsOptions);
+    }
+
+    private void mockLongPropertySpec(String name) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
+        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
+        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        when(nlsOptions
+                .named(name, any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(nlsOptions
+                .named(any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(this.propertySpecService.longSpec()).thenReturn(nlsOptions);
+    }
+
+    private void mockBooleanPropertySpec(String name) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
+        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
+        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        when(nlsOptions
+                .named(name, any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(nlsOptions
+                .named(any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(this.propertySpecService.booleanSpec()).thenReturn(nlsOptions);
     }
 
     private DeviceSearchDomain getTestInstance() {

@@ -13,12 +13,10 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -28,11 +26,6 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
-import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
-import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
-import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
-import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -51,7 +44,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,17 +77,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
         this.thesaurus = thesaurus;
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
-    }
-
-    @Override
-    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-        finders.add(new DeviceFinder(this.deviceDataModelService.dataModel()));
-        finders.add(new ProtocolDialectPropertiesFinder(this.deviceDataModelService.dataModel()));
-        finders.add(new SecuritySetFinder(this.deviceDataModelService.deviceConfigurationService()));
-        finders.add(new DeviceGroupFinder(this.meteringGroupsService));
-        finders.add(new ServiceCategoryFinder(this.meteringService));
-        return finders;
     }
 
     @Override

@@ -44,7 +44,6 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -52,22 +51,11 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationFinder;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
-import com.energyict.mdc.device.config.impl.FiniteStateFinder;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTypeFinder;
-import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
-import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
-import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
-import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
-import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
@@ -102,9 +90,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.impl.ComScheduleFinder;
 import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.TaskFinder;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.google.inject.AbstractModule;
@@ -122,8 +108,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -297,7 +281,6 @@ public class InMemoryIntegrationPersistence {
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(CustomPropertySetService.class);
-            initializeFactoryProviders();
             initializePrivileges();
             ctx.commit();
         }
@@ -306,25 +289,6 @@ public class InMemoryIntegrationPersistence {
     private void initializePrivileges() {
         ((PrivilegesProvider)deviceConfigurationService).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-    }
-
-    private void initializeFactoryProviders() {
-        getPropertySpecService().addFactoryProvider(() -> {
-            List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-            finders.add(new ConnectionTaskFinder(dataModel));
-            finders.add(new SecuritySetFinder(deviceConfigurationService));
-            finders.add(new ProtocolDialectPropertiesFinder(dataModel));
-            finders.add(new DeviceTypeFinder(this.deviceConfigurationService));
-            finders.add(new LogBookFinder(dataModel));
-            finders.add(new ConnectionTypeFinder(protocolPluggableService));
-            finders.add(new ComScheduleFinder(schedulingService));
-            finders.add(new ServiceCategoryFinder(meteringService));
-            finders.add(new TaskFinder(taskService));
-            finders.add(new DeviceConfigurationFinder(deviceConfigurationService));
-            finders.add(new FiniteStateFinder(finiteStateMachineService));
-            finders.add(new DeviceGroupFinder(meteringGroupsService));
-            return finders;
-        });
     }
 
     private void initializeMocks(String testName) {

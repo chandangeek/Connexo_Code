@@ -1,16 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
-import java.util.Optional;
-import javax.inject.Inject;
 
-import java.util.ArrayList;
+import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link LogBookService} interface.
@@ -26,13 +22,6 @@ public class LogBookServiceImpl implements ServerLogBookService {
     public LogBookServiceImpl(DeviceDataModelService deviceDataModelService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
-    }
-
-    @Override
-    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-        finders.add(new LogBookFinder(this.deviceDataModelService.dataModel()));
-        return finders;
     }
 
     @Override

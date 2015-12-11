@@ -11,28 +11,27 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.scheduling.model.impl.ComScheduleFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SharedScheduleSearchablePropertyTest {
@@ -53,10 +52,6 @@ public class SharedScheduleSearchablePropertyTest {
     private SchedulingService schedulingService;
     @Mock
     private Thesaurus thesaurus;
-    @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
-    private ComScheduleFinder comScheduleFinder;
 
     private PropertySpecService propertySpecService;
 
@@ -67,14 +62,10 @@ public class SharedScheduleSearchablePropertyTest {
         when(thesaurus.getFormat(PropertyTranslationKeys.SHARED_SCHEDULE)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
-        when(comScheduleFinder.factoryId()).thenReturn(FactoryIds.COMSCHEDULE);
-        when(comScheduleFinder.valueDomain()).thenReturn(ComSchedule.class);
-        when(referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(comScheduleFinder));
         ComSchedule comSchedule = mock(ComSchedule.class);
         Finder finder = mock(Finder.class);
         when(finder.find()).thenReturn(Arrays.asList(comSchedule));
         when(schedulingService.findAllSchedules()).thenReturn(finder);
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
     }
 
     @Test

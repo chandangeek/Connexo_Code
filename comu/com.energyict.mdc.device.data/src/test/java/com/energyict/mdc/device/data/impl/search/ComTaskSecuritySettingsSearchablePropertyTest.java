@@ -13,27 +13,23 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
-import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -58,17 +54,11 @@ public class ComTaskSecuritySettingsSearchablePropertyTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
-    private SecuritySetFinder securitySetFinder;
-    @Mock
     private SearchablePropertyGroup parentGroup;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private Finder deviceTypeFinder;
-    @Mock
-    private DeviceTypeFinder specDeviceTypeFinder;
 
     @Mock
     private SecurityPropertySet sps1;
@@ -87,16 +77,7 @@ public class ComTaskSecuritySettingsSearchablePropertyTest {
         when(propertyName.format(anyVararg())).thenReturn(PropertyTranslationKeys.COMTASK_SECURITY_SETTING.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_SECURITY_SETTING)).thenReturn(propertyName);
 
-        when(this.securitySetFinder.factoryId()).thenReturn(FactoryIds.SECURITY_SET);
-        when(this.securitySetFinder.valueDomain()).thenReturn(SecurityPropertySet.class);
-        when(this.referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(this.securitySetFinder));
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
-
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
-        when(this.specDeviceTypeFinder.factoryId()).thenReturn(FactoryIds.DEVICE_TYPE);
-        when(this.specDeviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
-        when(this.referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(this.specDeviceTypeFinder));
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
     }
 
