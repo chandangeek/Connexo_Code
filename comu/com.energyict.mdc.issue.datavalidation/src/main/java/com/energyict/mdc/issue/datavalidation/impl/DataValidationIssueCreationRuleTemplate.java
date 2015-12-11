@@ -193,11 +193,6 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         }
 
         @Override
-        public boolean isReference() {
-            return false;
-        }
-
-        @Override
         public DeviceConfigurationInfo valueFromDatabase(Object object) {
             return this.fromStringValue((String) object);
         }
@@ -225,11 +220,6 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
             else {
                 builder.addNull(Types.VARCHAR);
             }
-        }
-
-        @Override
-        public boolean isPersistent(DeviceConfigurationInfo value) {
-            return false;
         }
     }
 
