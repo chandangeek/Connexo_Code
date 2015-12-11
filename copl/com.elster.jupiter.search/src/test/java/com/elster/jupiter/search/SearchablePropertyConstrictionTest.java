@@ -2,8 +2,7 @@ package com.elster.jupiter.search;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
-import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.impl.PropertySpecPossibleValuesImpl;
 
 import java.util.Arrays;
 import java.util.Collections;

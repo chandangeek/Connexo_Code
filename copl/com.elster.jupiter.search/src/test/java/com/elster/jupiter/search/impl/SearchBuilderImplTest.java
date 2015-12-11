@@ -3,7 +3,7 @@ package com.elster.jupiter.search.impl;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
+import com.elster.jupiter.properties.impl.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.search.SearchBuilder;
