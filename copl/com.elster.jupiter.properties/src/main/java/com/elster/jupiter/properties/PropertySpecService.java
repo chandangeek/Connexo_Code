@@ -89,7 +89,7 @@ public interface PropertySpecService {
      *
      * @return The PropertySpecBuilder
      */
-    <T> PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
+    PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
@@ -97,7 +97,7 @@ public interface PropertySpecService {
      *
      * @return The PropertySpecBuilder
      */
-    <T> PropertySpecBuilderWizard.NlsOptions<RelativePeriod> relativePeriodSpec();
+    PropertySpecBuilderWizard.NlsOptions<RelativePeriod> relativePeriodSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
