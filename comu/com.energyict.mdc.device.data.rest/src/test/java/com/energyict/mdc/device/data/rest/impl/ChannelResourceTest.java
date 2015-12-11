@@ -541,7 +541,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         OverlapCalculatorBuilder overlapCalculatorBuilder = mock(OverlapCalculatorBuilder.class);
         when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
         when(overlapCalculatorBuilder.whenUpdating(any(Instant.class),any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
-        when(customPropertySetService.calculateOverlapsFor(anyObject(),anyObject())).thenReturn(overlapCalculatorBuilder);
+        when(customPropertySetService.calculateOverlapsFor(anyObject(),anyObject(),anyObject())).thenReturn(overlapCalculatorBuilder);
         return customPropertySet;
     }
 
