@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.TimeZoneFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -215,7 +215,15 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     private PropertySpec deviceTimeZonePropertySpec(boolean required) {
-        return this.propertySpecService.timeZonePropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), required, TimeZone.getDefault());
+        PropertySpecBuilder<TimeZone> builder = this.propertySpecService
+                .specForValuesOf(new TimeZoneFactory())
+                .named(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), TranslationKeys.DEVICE_TIME_ZONE)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(TimeZone.getDefault());
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.finish();
     }
 
     private PropertySpec nodeAddressPropertySpec(boolean required) {

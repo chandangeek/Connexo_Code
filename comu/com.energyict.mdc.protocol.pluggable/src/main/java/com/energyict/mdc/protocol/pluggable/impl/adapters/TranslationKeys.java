@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum TranslationKeys implements TranslationKey {
 
+    DEVICE_TIME_ZONE("Adapter.property.device.timezone", "Device timezone"),
     NODE_ID("Adapter.property.nodeId", "Node id"),
     CALL_HOME_ID("Adapter.property.callHomeId", "Call home id"),
     ADDRESS("Adapter.property.address", "Address"),

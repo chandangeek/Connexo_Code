@@ -2,9 +2,7 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -109,18 +107,26 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.propertySpecService.basicPropertySpec("SDKStringProperty", false, new StringFactory()));
         propertySpecs.add(
-                this.propertySpecService.
-                        obisCodePropertySpecWithValuesExhaustive(
-                                "SDKObisCodeProperty",
-                                true,
+                this.propertySpecService
+                        .stringSpec()
+                        .named("SDKStringProperty", "SDKStringProperty")
+                        .describedAs(null)
+                        .finish());
+        propertySpecs.add(
+                this.propertySpecService
+                        .obisCodeSpec()
+                        .named("SDKObisCodeProperty", "SDKObisCodeProperty")
+                        .describedAs("Description for obis code property")
+                        .markRequired()
+                        .addValues(
                                 ObisCode.fromString("1.0.1.8.0.255"),
                                 ObisCode.fromString("1.0.1.8.1.255"),
                                 ObisCode.fromString("1.0.1.8.2.255"),
                                 ObisCode.fromString("1.0.2.8.0.255"),
                                 ObisCode.fromString("1.0.2.8.1.255"),
-                                ObisCode.fromString("1.0.2.8.2.255")));
+                                ObisCode.fromString("1.0.2.8.2.255"))
+                        .finish());
 
         return propertySpecs;
     }
@@ -408,11 +414,12 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     private PropertySpec clientMacAddressPropertySpec() {
-        return propertySpecService.
-                specForValuesOf(new BigDecimalFactory()).
-                name("ClientMacAddress").
-                markRequired().
-                finish();
+        return propertySpecService
+                .bigDecimalSpec()
+                .named("ClientMacAddress", "ClientMacAddress")
+                .describedAs(null)
+                .markRequired()
+                .finish();
     }
 
     protected class NoMessageEncryption implements EncryptionDeviceAccessLevel {
