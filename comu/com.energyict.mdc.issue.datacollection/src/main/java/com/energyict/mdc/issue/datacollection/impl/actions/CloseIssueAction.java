@@ -159,11 +159,6 @@ public class CloseIssueAction extends AbstractIssueAction {
         }
 
         @Override
-        public boolean isReference() {
-            return true;
-        }
-
-        @Override
         public Status valueFromDatabase(Object object) {
             return this.fromStringValue((String) object);
         }
@@ -194,7 +189,7 @@ public class CloseIssueAction extends AbstractIssueAction {
         }
 
         @Override
-        public boolean isPersistent(Status value) {
+        public boolean isValid(Status value) {
             return !Checks.is(value.getId()).empty();
         }
     }

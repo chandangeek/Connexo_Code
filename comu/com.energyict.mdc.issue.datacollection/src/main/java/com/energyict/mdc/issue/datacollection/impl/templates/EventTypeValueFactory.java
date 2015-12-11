@@ -43,11 +43,6 @@ public class EventTypeValueFactory implements ValueFactory<EventTypes.EventType>
     }
 
     @Override
-    public boolean isReference() {
-        return false;
-    }
-
-    @Override
     public EventTypes.EventType valueFromDatabase(Object object) {
         return this.fromStringValue((String) object);
     }
@@ -75,11 +70,6 @@ public class EventTypeValueFactory implements ValueFactory<EventTypes.EventType>
         else {
             builder.addNull(Types.VARCHAR);
         }
-    }
-
-    @Override
-    public boolean isPersistent(EventTypes.EventType value) {
-        return false;
     }
 
 }
