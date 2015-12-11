@@ -36,7 +36,13 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
             if(xsrf != null){
                 updateToken(response, null, 0); // clear out token
             }
-            redirectToLogin(request, response);
+
+            if(shouldUnauthorize(request)){
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            }
+            else {
+                redirectToLogin(request, response);
+            }
         }
         else {
             if(securityManager.needToUpdateToken()){

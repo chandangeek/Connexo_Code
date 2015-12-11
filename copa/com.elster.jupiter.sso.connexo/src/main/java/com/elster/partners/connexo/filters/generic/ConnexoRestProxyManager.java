@@ -35,7 +35,6 @@ public class ConnexoRestProxyManager {
         try {
             URL connexoUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) connexoUrl.openConnection();
-            //httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("POST");
             httpConnection.setRequestProperty("Authorization", this.authorization);
             httpConnection.setRequestProperty("Accept", "application/json");
@@ -44,7 +43,7 @@ public class ConnexoRestProxyManager {
                         + httpConnection.getResponseCode());
             }
 
-            return httpConnection.getHeaderField("X-CONNEXO-TOKEN");
+            return httpConnection.getHeaderField("X-AUTH-TOKEN");
 
         } catch (Exception e) {
             throw new RuntimeException(e.getStackTrace().toString());

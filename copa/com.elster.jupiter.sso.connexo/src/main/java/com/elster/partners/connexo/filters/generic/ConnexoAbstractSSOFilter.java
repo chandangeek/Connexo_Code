@@ -17,6 +17,7 @@ import java.util.Properties;
 public abstract class ConnexoAbstractSSOFilter implements Filter {
     private FilterConfig filterConfig;
     private List<String> excludedUrls = new ArrayList<>();
+    private List<String> unauthorizedUrls = new ArrayList<>();
 
     protected final String CONNEXO_CONFIG = System.getProperty("connexo.configuration");
 
@@ -33,6 +34,14 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
             }
         }
 
+        String unauthorizedPatterns = this.filterConfig.getInitParameter("unauthorizedPatterns");
+        if(unauthorizedPatterns != null) {
+            String[] unauthorize = unauthorizedPatterns.split(";");
+            for (String url : unauthorize) {
+                unauthorizedUrls.add(url.replace("*", ".*?").trim());
+            }
+        }
+
         loadProperties();
     }
 
@@ -46,7 +55,7 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     }
 
     protected void redirectToLogout(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-        response.sendRedirect(getConnexoExternalUrl() + "/apps/login/index.html");
+        response.sendRedirect(getConnexoExternalUrl() + "/apps/login/index.html?logout");
     }
 
     protected String getConnexoInternalUrl() {
@@ -62,6 +71,17 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     protected boolean shouldExcludUrl(final HttpServletRequest request) {
         String requestUrl = request.getRequestURI().toString();
         for(String url : excludedUrls) {
+            if(requestUrl.matches(request.getContextPath() + url)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected boolean shouldUnauthorize(final HttpServletRequest request) {
+        String requestUrl = request.getRequestURI().toString();
+        for(String url : unauthorizedUrls) {
             if(requestUrl.matches(request.getContextPath() + url)) {
                 return true;
             }
