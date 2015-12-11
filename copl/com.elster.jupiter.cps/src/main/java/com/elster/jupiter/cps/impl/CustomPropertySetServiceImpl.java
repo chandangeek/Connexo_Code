@@ -21,7 +21,9 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -268,6 +270,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 try (TransactionContext ctx = transactionService.getContext()) {
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
                     ctx.commit();
+                } catch (UnderlyingSQLFailedException | CommitException ex) {
+                    ex.printStackTrace();
                 }
             }
             else {
@@ -487,16 +491,16 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @SuppressWarnings("unchecked")
     private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, Range<Instant> newRange, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         OverlapCalculatorBuilder overlapCalculatorBuilder = this.calculateOverlapsFor(activeCustomPropertySet.getCustomPropertySet(), businesObject, additionalPrimaryKeyValues);
-        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenUpdating(effectiveTimestamp, newRange));
+        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenUpdating(effectiveTimestamp, newRange), additionalPrimaryKeyValues);
     }
 
     @SuppressWarnings("unchecked")
     private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, Range<Instant> newRange, Object... additionalPrimaryKeyValues) {
         OverlapCalculatorBuilder overlapCalculatorBuilder = this.calculateOverlapsFor(activeCustomPropertySet.getCustomPropertySet(), businesObject, additionalPrimaryKeyValues);
-        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenCreating(newRange));
+        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenCreating(newRange), additionalPrimaryKeyValues);
     }
 
-    private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, List<ValuesRangeConflict> conflicts) {
+    private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, List<ValuesRangeConflict> conflicts, Object... additionalPrimaryKeyValues) {
         for (ValuesRangeConflict conflict : conflicts) {
             Instant currentConflictedIntervalStart;
             if (conflict.getValues().getEffectiveRange().hasLowerBound()) {
@@ -507,22 +511,22 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             }
             switch (conflict.getType()) {
                 case RANGE_OVERLAP_DELETE: {
-                    activeCustomPropertySet.removeTimeSlicedValues(businesObject, currentConflictedIntervalStart);
+                    activeCustomPropertySet.removeTimeSlicedValues(businesObject, currentConflictedIntervalStart, additionalPrimaryKeyValues);
                     break;
                 }
                 case RANGE_OVERLAP_UPDATE_END: {
-                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict));
+                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict), additionalPrimaryKeyValues);
                     break;
                 }
                 case RANGE_OVERLAP_UPDATE_START: {
-                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict));
+                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict), additionalPrimaryKeyValues);
                     break;
                 }
+                case RANGE_INSERTED:
+                    break;
                 case RANGE_GAP_BEFORE:
                     // Intentional fall-through
                 case RANGE_GAP_AFTER:
-                    // Intentional fall-through
-                case RANGE_INSERTED:
                     // Intentional fall-through
                 default: {
                     throw new IllegalStateException("Not expecting conflict type " + conflict.getType());
@@ -561,7 +565,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
         this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, newRange, effectiveTimestamp, addtionalPrimaryKeyValues);
-        activeCustomPropertySet.removeTimeSlicedValues(businesObject,effectiveTimestamp);
+        activeCustomPropertySet.removeTimeSlicedValues(businesObject, effectiveTimestamp, addtionalPrimaryKeyValues);
         Instant startTime = newRange.hasLowerBound() ? newRange.lowerEndpoint() : Instant.EPOCH;
         activeCustomPropertySet.setValuesEntityFor(businesObject, values, startTime, newRange, addtionalPrimaryKeyValues);
     }
@@ -585,7 +589,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     public <D, T extends PersistentDomainExtension<D>> List <T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
-        return activeCustomPropertySet.getAllNonVersionedValuesEntitiesFor(businesObject);
+        return activeCustomPropertySet.getAllNonVersionedValuesEntitiesFor(businesObject, additionalPrimaryKeyValues);
     }
 
     private <D, T extends PersistentDomainExtension<D>> ActiveCustomPropertySet findActiveCustomPropertySetOrThrowException(CustomPropertySet<D, T> customPropertySet) {
@@ -596,7 +600,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> void removeValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject) {
+    public <D, T extends PersistentDomainExtension<D>> void removeValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         activeCustomPropertySet.deleteExtensions(businessObject);
     }

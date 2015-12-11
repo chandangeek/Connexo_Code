@@ -4,8 +4,11 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.HardCodedFieldNames;
+import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ValuesRangeConflict;
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -25,6 +28,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 
@@ -33,14 +37,17 @@ import javax.validation.ValidatorFactory;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.*;
-import org.junit.runner.*;
+import com.google.common.collect.Range;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -649,6 +656,299 @@ public class CustomPropertySetServiceImplTest {
 
         // Asserts
         assertThat(moduleResources).isNotNull();
+    }
+
+    @Test
+    public void getAllVersionedValues() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval firstInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(1L), Instant.ofEpochSecond(3L)));
+        Interval secondInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(5L)));
+        VersionedDomainExtensionForTestingPurposes extensionFirst = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, firstInterval);
+        VersionedDomainExtensionForTestingPurposes extensionSecond = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, secondInterval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+
+        // Business method
+        List<CustomPropertySetValues> values = service.getAllVersionedValuesFor(this.versionedCustomPropertySet, testDomain);
+
+        // Asserts
+        assertThat(values).isNotNull();
+        assertThat(values).isNotEmpty();
+        assertThat(values.get(0)).isNotNull();
+        assertThat(values.get(0).getEffectiveRange()).isEqualTo(firstInterval.toClosedOpenRange());
+        assertThat(values.get(0).propertyNames().contains("billingCycle")).isTrue();
+        assertThat(values.get(0).propertyNames().contains("serviceCategory")).isTrue();
+        assertThat(values.get(1)).isNotNull();
+        assertThat(values.get(1).getEffectiveRange()).isEqualTo(secondInterval.toClosedOpenRange());
+    }
+
+    @Test
+    public void getVersionedCustomPropertiesConflicts() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval firstInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(1L), Instant.ofEpochSecond(3L)));
+        Interval secondInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(5L)));
+        VersionedDomainExtensionForTestingPurposes extensionFirst = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, firstInterval);
+        VersionedDomainExtensionForTestingPurposes extensionSecond = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, secondInterval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+        Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(2L), Instant.ofEpochSecond(5L));
+        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
+
+        // Business method
+        OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
+        List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
+        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+
+        // Asserts
+        assertThat(conflicts).isNotNull();
+        assertThat(conflicts).isNotEmpty();
+        assertThat(conflicts.get(0)).isNotNull();
+        assertThat(conflicts.get(0).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(2L), Instant.ofEpochSecond(3L)));
+        assertThat(conflicts.get(0).getType()).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
+        assertThat(Interval.of(conflicts.get(0).getValues().getEffectiveRange())).isEqualTo(extensionFirst.getInterval());
+        assertThat(conflicts.get(1)).isNotNull();
+        assertThat(conflicts.get(1).getType()).isEqualTo(ValuesRangeConflictType.RANGE_INSERTED);
+        assertThat(Interval.of(conflicts.get(1).getValues().getEffectiveRange())).isEqualTo(Interval.of(candidateRange));
+        assertThat(conflicts.get(2)).isNotNull();
+        assertThat(conflicts.get(2).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(5L)));
+        assertThat(conflicts.get(2).getType()).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_DELETE);
+        assertThat(Interval.of(conflicts.get(2).getValues().getEffectiveRange())).isEqualTo(extensionSecond.getInterval());
+    }
+
+    @Test
+    public void getVersionedCustomPropertiesConflictsOneInfiniteInterval() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval interval = Interval.forever();
+        VersionedDomainExtensionForTestingPurposes extension = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, interval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Collections.singletonList(extension));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+        Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(2L), Instant.ofEpochSecond(5L));
+        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
+
+        // Business method
+        OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
+        List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
+        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+
+        // Asserts
+        assertThat(conflicts).isNotNull();
+        assertThat(conflicts).isNotEmpty();
+        assertThat(conflicts.get(0)).isNotNull();
+        assertThat(conflicts.get(0).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(2L), Instant.ofEpochSecond(5L)));
+        assertThat(conflicts.get(0).getType()).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
+        assertThat(Interval.of(conflicts.get(0).getValues().getEffectiveRange())).isEqualTo(extension.getInterval());
+        assertThat(conflicts.get(1)).isNotNull();
+        assertThat(conflicts.get(1).getType()).isEqualTo(ValuesRangeConflictType.RANGE_INSERTED);
+        assertThat(Interval.of(conflicts.get(1).getValues().getEffectiveRange())).isEqualTo(Interval.of(candidateRange));
+    }
+
+    @Test
+    public void getVersionedCustomPropertiesConflictsTwoInfiniteIntervals() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval firstInterval = Interval.of(Range.lessThan(Instant.ofEpochSecond(3L)));
+        Interval secondInterval = Interval.of(Range.atLeast(Instant.ofEpochSecond(3L)));
+        VersionedDomainExtensionForTestingPurposes extensionFirst = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, firstInterval);
+        VersionedDomainExtensionForTestingPurposes extensionSecond = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, secondInterval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+        Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(2L), Instant.ofEpochSecond(5L));
+        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
+
+        // Business method
+        OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
+        List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
+        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+
+        // Asserts
+        assertThat(conflicts).isNotNull();
+        assertThat(conflicts).isNotEmpty();
+        assertThat(conflicts.get(0)).isNotNull();
+        assertThat(conflicts.get(0).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(2L), Instant.ofEpochSecond(3L)));
+        assertThat(conflicts.get(0).getType()).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
+        assertThat(Interval.of(conflicts.get(0).getValues().getEffectiveRange())).isEqualTo(extensionFirst.getInterval());
+        assertThat(conflicts.get(1)).isNotNull();
+        assertThat(conflicts.get(1).getType()).isEqualTo(ValuesRangeConflictType.RANGE_INSERTED);
+        assertThat(Interval.of(conflicts.get(1).getValues().getEffectiveRange())).isEqualTo(Interval.of(candidateRange));
+        assertThat(conflicts.get(2)).isNotNull();
+        assertThat(conflicts.get(2).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(5L)));
+        assertThat(conflicts.get(2).getType()).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START);
+        assertThat(Interval.of(conflicts.get(2).getValues().getEffectiveRange())).isEqualTo(extensionSecond.getInterval());
+    }
+
+    @Test
+    public void getVersionedCustomPropertiesConflictsOverlapWhenEqualStartPoint() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval firstInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(1L), Instant.ofEpochSecond(3L)));
+        Interval secondInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(7L)));
+        Interval thirdInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(7L), Instant.ofEpochSecond(9L)));
+        VersionedDomainExtensionForTestingPurposes extensionFirst = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, firstInterval);
+        VersionedDomainExtensionForTestingPurposes extensionSecond = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, secondInterval);
+        VersionedDomainExtensionForTestingPurposes extensionThird = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, thirdInterval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond, extensionThird));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+        Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(5L));
+        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
+
+        // Business method
+        OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
+        List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
+        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getValues().getEffectiveRange(), b.getValues().getEffectiveRange()));
+
+        // Asserts
+        assertThat(conflicts).isNotNull();
+        assertThat(conflicts).isNotEmpty();
+        assertThat(conflicts.get(0)).isNotNull();
+        assertThat(conflicts.get(0).getType()).isEqualTo(ValuesRangeConflictType.RANGE_INSERTED);
+        assertThat(Interval.of(conflicts.get(0).getValues().getEffectiveRange())).isEqualTo(Interval.of(candidateRange));
+        assertThat(conflicts.get(1)).isNotNull();
+        assertThat(conflicts.get(1).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(5L)));
+        assertThat(conflicts.get(1).getType()).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START);
+        assertThat(Interval.of(conflicts.get(1).getValues().getEffectiveRange())).isEqualTo(extensionSecond.getInterval());
+    }
+
+    @Test
+    public void getVersionedCustomPropertiesConflictsOverlapWhenEqualStartPointAndEnclosing() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval firstInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(1L), Instant.ofEpochSecond(3L)));
+        Interval secondInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(7L)));
+        Interval thirdInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(7L), Instant.ofEpochSecond(9L)));
+        VersionedDomainExtensionForTestingPurposes extensionFirst = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, firstInterval);
+        VersionedDomainExtensionForTestingPurposes extensionSecond = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, secondInterval);
+        VersionedDomainExtensionForTestingPurposes extensionThird = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, thirdInterval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond, extensionThird));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+        Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(8L));
+        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
+
+        // Business method
+        OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
+        List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
+        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+
+        // Asserts
+        assertThat(conflicts).isNotNull();
+        assertThat(conflicts).isNotEmpty();
+        assertThat(conflicts.get(0)).isNotNull();
+        assertThat(conflicts.get(0).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(7L)));
+        assertThat(conflicts.get(0).getType()).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_DELETE);
+        assertThat(Interval.of(conflicts.get(0).getValues().getEffectiveRange())).isEqualTo(extensionSecond.getInterval());
+        assertThat(conflicts.get(1)).isNotNull();
+        assertThat(conflicts.get(1).getType()).isEqualTo(ValuesRangeConflictType.RANGE_INSERTED);
+        assertThat(Interval.of(conflicts.get(1).getValues().getEffectiveRange())).isEqualTo(Interval.of(candidateRange));
+        assertThat(conflicts.get(2)).isNotNull();
+        assertThat(conflicts.get(2).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(7L), Instant.ofEpochSecond(8L)));
+        assertThat(conflicts.get(2).getType()).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START);
+        assertThat(Interval.of(conflicts.get(2).getValues().getEffectiveRange())).isEqualTo(extensionThird.getInterval());
+    }
+
+    @Test
+    public void getVersionedCustomPropertiesConflictsGapEnclosing() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval firstInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(1L), Instant.ofEpochSecond(3L)));
+        Interval secondInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(7L)));
+        Interval thirdInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(7L), Instant.ofEpochSecond(9L)));
+        VersionedDomainExtensionForTestingPurposes extensionFirst = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, firstInterval);
+        VersionedDomainExtensionForTestingPurposes extensionSecond = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, secondInterval);
+        VersionedDomainExtensionForTestingPurposes extensionThird = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, thirdInterval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond, extensionThird));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+        Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(4L), Instant.ofEpochSecond(5L));
+        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
+
+        // Business method
+        OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
+        List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
+        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+
+        // Asserts
+        assertThat(conflicts).isNotNull();
+        assertThat(conflicts).isNotEmpty();
+        assertThat(conflicts.get(0)).isNotNull();
+        assertThat(conflicts.get(0).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(4L), Instant.ofEpochSecond(5L)));
+        assertThat(conflicts.get(0).getType()).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
+        assertThat(Interval.of(conflicts.get(0).getValues().getEffectiveRange())).isEqualTo(extensionSecond.getInterval());
+        assertThat(conflicts.get(1)).isNotNull();
+        assertThat(conflicts.get(1).getType()).isEqualTo(ValuesRangeConflictType.RANGE_INSERTED);
+        assertThat(Interval.of(conflicts.get(1).getValues().getEffectiveRange())).isEqualTo(Interval.of(candidateRange));
+        assertThat(conflicts.get(2)).isNotNull();
+        assertThat(conflicts.get(2).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(5L), Instant.ofEpochSecond(7L)));
+        assertThat(conflicts.get(2).getType()).isEqualTo(ValuesRangeConflictType.RANGE_GAP_BEFORE);
+        assertThat(Interval.of(conflicts.get(2).getValues().getEffectiveRange())).isEqualTo(extensionThird.getInterval());
+    }
+
+    @Test
+    public void getVersionedCustomPropertiesConflictsGapAfter() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval interval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(1L), Instant.ofEpochSecond(3L)));
+        VersionedDomainExtensionForTestingPurposes extension = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, interval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Collections.singletonList(extension));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+        Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(4L), Instant.ofEpochSecond(5L));
+        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
+
+        // Business method
+        OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
+        List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
+        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+
+        // Asserts
+        assertThat(conflicts).isNotNull();
+        assertThat(conflicts).isNotEmpty();
+        assertThat(conflicts.get(0)).isNotNull();
+        assertThat(conflicts.get(0).getConflictingRange()).isEqualTo(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(4L)));
+        assertThat(conflicts.get(0).getType()).isEqualTo(ValuesRangeConflictType.RANGE_GAP_AFTER);
+        assertThat(Interval.of(conflicts.get(0).getValues().getEffectiveRange())).isEqualTo(extension.getInterval());
+        assertThat(conflicts.get(1)).isNotNull();
+        assertThat(conflicts.get(1).getType()).isEqualTo(ValuesRangeConflictType.RANGE_INSERTED);
+        assertThat(Interval.of(conflicts.get(1).getValues().getEffectiveRange())).isEqualTo(Interval.of(candidateRange));
     }
 
     private CustomPropertySetServiceImpl testInstance() {

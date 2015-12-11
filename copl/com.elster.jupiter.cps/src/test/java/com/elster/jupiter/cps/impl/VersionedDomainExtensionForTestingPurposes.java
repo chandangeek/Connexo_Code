@@ -103,7 +103,7 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
     }
 
     @Override
-    public void copyFrom(TestDomain domainInstance, CustomPropertySetValues propertyValues) {
+    public void copyFrom(TestDomain domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.testDomain.set(domainInstance);
         this.setServiceCategory((ServiceCategoryForTestingPurposes) propertyValues.getProperty(FieldNames.SERVICE_CATEGORY.javaName()));
         this.setBillingCycle((BigDecimal) propertyValues.getProperty(FieldNames.BILLING_CYCLE.javaName()));
@@ -111,7 +111,7 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.SERVICE_CATEGORY.javaName(), this.getServiceCategory());
         propertySetValues.setProperty(FieldNames.BILLING_CYCLE.javaName(), this.getBillingCycle());
         if (this.getContractNumber() != null) {

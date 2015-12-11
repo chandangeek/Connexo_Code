@@ -34,7 +34,7 @@ public interface PersistentDomainExtension<T> {
      * @param domainInstance The domain object that is being extended
      * @param propertyValues The CustomPropertySetValues
      */
-    void copyFrom(T domainInstance, CustomPropertySetValues propertyValues);
+    void copyFrom(T domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues);
 
     /**
      * Copies the extension properties into the {@link CustomPropertySetValues}.
@@ -43,7 +43,7 @@ public interface PersistentDomainExtension<T> {
      *
      * @param propertySetValues The CustomPropertySetValues
      */
-    void copyTo(CustomPropertySetValues propertySetValues);
+    void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues);
 
     /**
      * Notifies this PersistentDomainExtension that is about to be deleted and
