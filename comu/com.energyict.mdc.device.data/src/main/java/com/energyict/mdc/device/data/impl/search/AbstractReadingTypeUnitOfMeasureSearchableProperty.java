@@ -176,11 +176,6 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
         }
 
         @Override
-        public boolean isReference() {
-            return false;
-        }
-
-        @Override
         public UnitOfMeasureInfo valueFromDatabase(Object object) {
             return this.fromStringValue((String) object);
         }
@@ -210,10 +205,6 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
             }
         }
 
-        @Override
-        public boolean isPersistent(UnitOfMeasureInfo value) {
-            return false;
-        }
     }
 
     static class UnitOfMeasureInfo extends HasIdAndName {
