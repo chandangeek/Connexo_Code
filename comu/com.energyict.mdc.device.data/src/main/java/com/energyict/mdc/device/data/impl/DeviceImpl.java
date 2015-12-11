@@ -610,7 +610,7 @@ public class DeviceImpl implements Device, CanLock {
             Optional<Instant> startDateMultiplier = Optional.ofNullable(from);
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
             MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now));
-            if(multiplier.intValue() != 1){
+            if(multiplier.compareTo(BigDecimal.ONE) == 1){
                 newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
             }
         }
