@@ -1,4 +1,6 @@
-package com.elster.jupiter.properties;
+package com.elster.jupiter.properties.impl;
+
+import com.elster.jupiter.properties.impl.PropertySpecPossibleValuesImpl;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 

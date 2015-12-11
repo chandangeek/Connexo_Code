@@ -48,6 +48,25 @@ public interface PropertySpecBuilder<T> {
     PropertySpecBuilder<T> markExhaustive ();
 
     /**
+     * Marks the list of possible values of the {@link PropertySpec}
+     * under construction as an exhaustive list and uses
+     * the specified {@link PropertySelectionMode} as a hint
+     * for the UI how to render the list of possible values.
+     *
+     * @return This PropertySpecBuilder to support method chaining while constructing
+     */
+    PropertySpecBuilder<T> markExhaustive (PropertySelectionMode selectionMode);
+
+    /**
+     * Marks the {@link PropertySpec} that is under construction as supporting multi values.
+     * The resulting PropertySpec will therefore return <code>true</code>
+     * for the {@link PropertySpec#supportsMultiValues()} method.
+     *
+     * @return This PropertySpecBuilder to support method chaining while constructing
+     */
+    PropertySpecBuilder<T> markMultiValued();
+
+    /**
      * Marks the {@link PropertySpec} that is under construction as required.
      * The resulting PropertySpec will therefore return <code>true</code>
      * for the {@link PropertySpec#isRequired()} method.

@@ -107,14 +107,4 @@ public interface PropertySpecService {
      */
     <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass);
 
-    /**
-     * Creates a {@link PropertySpec} for ListValue values that can have single or multiple values at the same time.
-     * @param name The name of the PropertySpec
-     * @param required The flag that indicates if the PropertySpec should be required or not
-     * @param finder The finder values by key
-     * @param values The list of possible values
-     * @return The PropertySpec
-     */
-    <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values);
-
 }

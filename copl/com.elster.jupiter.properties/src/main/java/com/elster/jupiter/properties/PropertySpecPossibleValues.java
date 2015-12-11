@@ -1,5 +1,7 @@
 package com.elster.jupiter.properties;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -8,14 +10,17 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-19 (15:41)
  */
+@ProviderType
 public interface PropertySpecPossibleValues {
+
+    PropertySelectionMode getSelectionMode();
 
     /**
      * Gets the possible values.
      *
      * @return The possible values
      */
-    public List getAllValues ();
+    List getAllValues();
 
     /**
      * Returns <code>true</code> if the possible values are an
@@ -26,13 +31,13 @@ public interface PropertySpecPossibleValues {
      *
      * @return A flag that indicates if only values returned by the getAllValues method are accepted
      */
-    public boolean isExhaustive ();
+    boolean isExhaustive();
 
     /**
      * Gets the default value that will be used for the PropertySpec.
      *
      * @return The default value
      */
-    public Object getDefault ();
+    Object getDefault();
 
 }

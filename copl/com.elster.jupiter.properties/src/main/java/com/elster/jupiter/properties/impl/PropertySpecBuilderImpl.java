@@ -1,10 +1,10 @@
 package com.elster.jupiter.properties.impl;
 
 import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.ValueFactory;
 
 import java.util.ArrayList;
@@ -35,13 +35,6 @@ import java.util.Arrays;
  */
 class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
-    /**
-     * The initial name that is used for a {@link PropertySpec}
-     * that is still under construction. This name will remain
-     * in effect until you call the {@link #setNameAndDescription(NameAndDescription)} method.
-     */
-    private static final String INITIAL_SPEC_NAME = "UnderConstruction";
-
     private PropertySpecAccessor propertySpecAccessor;
 
     /**
@@ -52,7 +45,7 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
      */
     PropertySpecBuilderImpl(ValueFactory<T> valueFactory) {
         super();
-        this.propertySpecAccessor = new BasicPropertySpecAccessor(new BasicPropertySpec(INITIAL_SPEC_NAME, valueFactory));
+        this.propertySpecAccessor = new BasicPropertySpecAccessor(new BasicPropertySpec(valueFactory));
     }
 
     /**
@@ -81,7 +74,19 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
     @Override
     public PropertySpecBuilder<T> markExhaustive() {
-        this.propertySpecAccessor.markExhaustive();
+        this.markExhaustive(PropertySelectionMode.UNSPECIFIED);
+        return this;
+    }
+
+    @Override
+    public PropertySpecBuilder<T> markExhaustive(PropertySelectionMode selectionMode) {
+        this.propertySpecAccessor.markExhaustive(selectionMode);
+        return this;
+    }
+
+    @Override
+    public PropertySpecBuilder<T> markMultiValued() {
+        this.propertySpecAccessor.markMultiValued();
         return this;
     }
 
@@ -120,7 +125,9 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
         void markRequired();
 
-        void markExhaustive();
+        void markMultiValued();
+
+        void markExhaustive(PropertySelectionMode selectionMode);
 
     }
 
@@ -185,15 +192,22 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
         }
 
         @Override
-        public void markExhaustive () {
+        public void markMultiValued() {
+            this.propertySpec.setMultiValued(true);
+        }
+
+        @Override
+        public void markExhaustive (PropertySelectionMode selectionMode) {
             PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
             if (xPossibleValues == null) {
                 PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(true, new ArrayList<>());
+                possibleValues.setSelectionMode(selectionMode);
                 this.propertySpec.setPossibleValues(possibleValues);
             }
             else {
                 PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
                 possibleValues.setExhaustive(true);
+                possibleValues.setSelectionMode(selectionMode);
             }
         }
     }
@@ -248,7 +262,12 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
         }
 
         @Override
-        public void markExhaustive () {
+        public void markMultiValued() {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void markExhaustive (PropertySelectionMode selectionMode) {
             this.notifyBuildingProcessComplete();
         }
 

@@ -23,7 +23,6 @@ public interface PropertySpec {
      * Gets the human readable name of this PropertySpec
      * that could be used in UI screens.
      *
-     * Todo: drop default as part of COPL-1151
      * @return The display name
      */
     String getDisplayName();
@@ -43,14 +42,14 @@ public interface PropertySpec {
      *
      * @return The ValueFactory
      */
-   ValueFactory getValueFactory ();
+    ValueFactory getValueFactory();
 
     /**
      * Tests if a value will be required for this PropertySpec.
      *
      * @return true iff a value will be required
      */
-   boolean isRequired ();
+    boolean isRequired();
 
     /**
      * Tests if a value for this PropertySpec is actually
@@ -58,7 +57,21 @@ public interface PropertySpec {
      *
      * @return true iff values of this PropertySpec are persistent business objects
      */
-   boolean isReference ();
+    boolean isReference();
+
+    /**
+     * Tests if this PropertySpec has support for
+     * multiple values at the same time, i.e. client
+     * code can specify a Collection of its value type
+     * instead of a single value.
+     * The class returning a PropertySpec that has
+     * support for multi values should be prepared
+     * to accept both Collection&lt;ValueType&gt;
+     * and ValueType when receiving values for that PropertySpec.
+     *
+     * @return A flag that indicates if this PropertySpec supports multi values
+     */
+    boolean supportsMultiValues();
 
     /**
      * Validates the specified value against this PropertySpec.
@@ -74,7 +87,7 @@ public interface PropertySpec {
      * Note that {@link ValueRequiredException} will be thrown for <code>null</code>
      * and required attributes.
      */
-   boolean validateValue (Object value) throws InvalidValueException;
+    boolean validateValue(Object value) throws InvalidValueException;
 
     /**
      * Validates the specified value against this PropertySpec,
@@ -88,7 +101,7 @@ public interface PropertySpec {
      * @return <code>true</code> iff the value is valid, all other cases will throw an InvalidValueException
      * @throws InvalidValueException Thrown if the value is not valid for this attribute specification.
      */
-   boolean validateValueIgnoreRequired (Object value) throws InvalidValueException;
+    boolean validateValueIgnoreRequired(Object value) throws InvalidValueException;
 
     /**
      * Get the {@link PropertySpecPossibleValues possible values}
@@ -97,6 +110,6 @@ public interface PropertySpec {
      *
      * @return The PropertySpecPossibleValues
      */
-   PropertySpecPossibleValues getPossibleValues ();
+    PropertySpecPossibleValues getPossibleValues();
 
 }

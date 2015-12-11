@@ -124,14 +124,14 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
     private class IntegerConverter implements StringConverter<Integer> {
         @Override
         public Integer fromString(String stringValue) {
-            return Integer.getInteger(stringValue);
+            return Integer.parseInt(stringValue);
         }
     }
 
     private class LongConverter implements StringConverter<Long> {
         @Override
         public Long fromString(String stringValue) {
-            return Long.getLong(stringValue);
+            return Long.parseLong(stringValue);
         }
     }
 
@@ -197,27 +197,27 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
 
         private void initConverterAndPrimaryKeyCheckerIfSupported() {
             switch (this.primaryKeyField.getType().getName()) {
-                case "java.util.Long": {
+                case "java.lang.Long": {
                     this.converter = new LongConverter();
                     this.primaryKeyChecker = new LongPrimaryKeyChecker();
                     break;
                 }
-                case "java.util.long": {
+                case "long": {
                     this.converter = new LongConverter();
                     this.primaryKeyChecker = new LongPrimaryKeyChecker();
                     break;
                 }
-                case "java.util.Integer": {
+                case "java.lang.Integer": {
                     this.converter = new IntegerConverter();
                     this.primaryKeyChecker = new IntegerPrimaryKeyChecker();
                     break;
                 }
-                case "java.util.int": {
+                case "int": {
                     this.converter = new IntegerConverter();
                     this.primaryKeyChecker = new IntegerPrimaryKeyChecker();
                     break;
                 }
-                case "java.util.String": {
+                case "java.lang.String": {
                     this.converter = new NoConversion();
                     this.primaryKeyChecker = new StringPrimaryKeyChecker();
                     break;

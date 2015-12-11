@@ -3,11 +3,7 @@ package com.elster.jupiter.properties.impl;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.CanFindByStringKey;
-import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.LongFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
@@ -111,11 +107,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     public PropertySpecBuilderWizard.NlsOptions<BigDecimal> positiveBigDecimalSpec() {
         return this.boundedBigDecimalSpec(BigDecimal.ZERO, null);
-    }
-
-    @Override
-    public <T extends HasIdAndName> PropertySpec listValuePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
-        return new ListValuePropertySpec<>(name, required, finder, values);
     }
 
 }

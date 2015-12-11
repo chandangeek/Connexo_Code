@@ -1,4 +1,7 @@
-package com.elster.jupiter.properties;
+package com.elster.jupiter.properties.impl;
+
+import com.elster.jupiter.properties.PropertySelectionMode;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,6 +22,7 @@ public class PropertySpecPossibleValuesImpl implements PropertySpecPossibleValue
     private List allValues = new ArrayList<>();
     private Object defaultValue;
     private boolean exhaustive = false;
+    private PropertySelectionMode selectionMode = PropertySelectionMode.UNSPECIFIED;
 
     public PropertySpecPossibleValuesImpl () {
         super();
@@ -53,6 +57,15 @@ public class PropertySpecPossibleValuesImpl implements PropertySpecPossibleValue
         this.defaultValue = defaultValue;
         this.exhaustive = exhaustive;
         this.allValues.addAll(this.copyUniqueWithRespectForOrder(otherValues, otherValues.size()));
+    }
+
+    @Override
+    public PropertySelectionMode getSelectionMode() {
+        return selectionMode;
+    }
+
+    public void setSelectionMode(PropertySelectionMode selectionMode) {
+        this.selectionMode = selectionMode;
     }
 
     @Override

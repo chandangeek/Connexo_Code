@@ -72,7 +72,7 @@ public class ReferenceValueFactoryTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void noDataModelThatSupportsApiClass() {
-        doThrow(IllegalArgumentException.class).when(this.dataModel.mapper(any(Class.class)));
+        doThrow(IllegalArgumentException.class).when(this.dataModel).mapper(any(Class.class));
 
         // Business method
         this.getTestInstanceWithValidation(DomainWithLongPrimaryKey.class);
@@ -87,7 +87,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.getPrimaryKeyColumns()).thenReturn(Arrays.asList(mock(Column.class), mock(Column.class)));
 
         // Business method
-        this.getTestInstanceWithValidation(DomainWithLongPrimaryKey.class);
+        this.getTestInstanceWithValidation(DomainWithMultiValuePrimaryKey.class);
 
         // Asserts: see expected exception rule
     }
@@ -99,7 +99,7 @@ public class ReferenceValueFactoryTest {
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
 
         // Business method
-        this.getTestInstanceWithValidation(DomainWithLongPrimaryKey.class);
+        this.getTestInstanceWithValidation(DomainWithUnsupportedPrimaryKey.class);
 
         // Asserts: see expected exception rule
     }
@@ -295,7 +295,7 @@ public class ReferenceValueFactoryTest {
         when(this.dataMapper.getOptional(3L)).thenReturn(Optional.of(persistentValue));
 
         // Business method
-        DomainWithLongPrimaryKey value = testInstance.valueFromDatabase("3");
+        DomainWithLongPrimaryKey value = testInstance.valueFromDatabase(3L);
 
         // Asserts
         assertThat(value).isEqualTo(persistentValue);
@@ -310,7 +310,7 @@ public class ReferenceValueFactoryTest {
         when(this.dataMapper.getOptional(anyLong())).thenReturn(Optional.empty());
 
         // Business method
-        DomainWithLongPrimaryKey value = testInstance.valueFromDatabase("3");
+        DomainWithLongPrimaryKey value = testInstance.valueFromDatabase(3L);
 
         // Asserts
         assertThat(value).isNull();
@@ -327,7 +327,7 @@ public class ReferenceValueFactoryTest {
         when(this.dataMapper.getOptional(3)).thenReturn(Optional.of(persistentValue));
 
         // Business method
-        DomainWithIntegerPrimaryKey value = testInstance.valueFromDatabase("3");
+        DomainWithIntegerPrimaryKey value = testInstance.valueFromDatabase(3);
 
         // Asserts
         assertThat(value).isEqualTo(persistentValue);
@@ -342,7 +342,7 @@ public class ReferenceValueFactoryTest {
         when(this.dataMapper.getOptional(anyInt())).thenReturn(Optional.empty());
 
         // Business method
-        DomainWithIntegerPrimaryKey value = testInstance.valueFromDatabase("3");
+        DomainWithIntegerPrimaryKey value = testInstance.valueFromDatabase(3);
 
         // Asserts
         assertThat(value).isNull();

@@ -4,12 +4,13 @@ import java.io.Serializable;
 
 public class BasicPropertySpec implements PropertySpec, Serializable {
 
-    protected String name;
-    protected String displayName;
-    protected String description;
-    protected boolean required;
-    protected ValueFactory valueFactory;
-    protected PropertySpecPossibleValues possibleValues;
+    private String name;
+    private String displayName;
+    private String description;
+    private boolean required;
+    private boolean multiValued;
+    private ValueFactory valueFactory;
+    private PropertySpecPossibleValues possibleValues;
 
     public BasicPropertySpec(ValueFactory valueFactory) {
         super();
@@ -50,14 +51,24 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
         return required;
     }
 
-    @Override
-    public boolean isReference() {
-        return false;
-    }
-
     // Allow subclasses or friendly builders to specify required or optional
     public void setRequired(boolean required) {
         this.required = required;
+    }
+
+    @Override
+    public boolean supportsMultiValues() {
+        return this.multiValued;
+    }
+
+    // Allow subclasses or friendly builders to specify required or optional
+    public void setMultiValued(boolean multiValued) {
+        this.multiValued = multiValued;
+    }
+
+    @Override
+    public boolean isReference() {
+        return false;
     }
 
     @Override
@@ -102,12 +113,6 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
                 String stringValue = (String) value;
                 if (stringValue.length() > StringFactory.MAX_SIZE) {
                     throw new InvalidValueException("XisToBig", "The value is too large for this property (max length=" + StringFactory.MAX_SIZE + ")", this.getName());
-                }
-            }
-            else if (ListValueFactory.class.equals(this.getValueFactory().getClass())) {
-                String stringValue = this.getValueFactory().toStringValue(value);
-                if (stringValue.length() > ListValueFactory.MAX_SIZE) {
-                    throw new InvalidValueException("XisToBig", "The value is too large for this property (max length=" + ListValueFactory.MAX_SIZE + ")", this.getName());
                 }
             }
             if (possibleValues != null && possibleValues.isExhaustive()) {

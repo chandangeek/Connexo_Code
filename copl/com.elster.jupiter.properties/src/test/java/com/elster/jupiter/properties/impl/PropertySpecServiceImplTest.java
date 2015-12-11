@@ -1,5 +1,6 @@
 package com.elster.jupiter.properties.impl;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
@@ -12,6 +13,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link PropertySpecServiceImpl} component.
@@ -29,10 +34,18 @@ public class PropertySpecServiceImplTest {
     @Mock
     private TranslationKey descriptionTranslationKey;
 
+    @Before
+    public void initializeMocks() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+    }
+
     @Test
     public void fluentApiForThesaurusBasedApproach() {
-        PropertySpec propertySpec = this.getTestInstance()
-                .specForValuesOf(new StringFactory())
+        PropertySpec propertySpec =
+            this.getTestInstance()
+                .stringSpec()
                 .named(this.nameTranslationKey)
                 .describedAs(this.descriptionTranslationKey)
                 .fromThesaurus(this.thesaurus)
