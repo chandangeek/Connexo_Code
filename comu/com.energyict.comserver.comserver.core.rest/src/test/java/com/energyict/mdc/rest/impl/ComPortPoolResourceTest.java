@@ -12,11 +12,10 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.ComPortPoolInfo;
-import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
-import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
-import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
-import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +25,10 @@ import java.util.Optional;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -74,6 +77,14 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         when(mock.getId()).thenReturn(1L);
         when(mock.getComPortType()).thenReturn(ComPortType.TCP);
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
+        AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(objectMapper.getTypeFactory());
+        AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.setAnnotationIntrospector(pair);
+
         final Map<String, Object> response = target("/comportpools").request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).describedAs("Should contain field 'data'").containsKey("data").containsKey("total").hasSize(2);
         List<Map<String, Object>> comPortPools1 = (List<Map<String, Object>>) response.get("data");
@@ -85,8 +96,11 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
                 .contains(MapEntry.entry("direction", "Inbound"))
                 .contains(MapEntry.entry("active", false))
                 .contains(MapEntry.entry("obsoleteFlag", false))
-                .contains(MapEntry.entry("comPortType", "TCP"))
                 .contains(MapEntry.entry("discoveryProtocolPluggableClassId", 6));
+        try {
+            String responseString = objectMapper.writeValueAsString(comPortPool1.get("comPortType"));
+            assertThat(responseString).contains("{\"id\":\"TYPE_TCP\",\"localizedValue\":\"TCP\"}");
+        } catch (Exception ex) {}
     }
 
     @Test
@@ -106,13 +120,24 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         List<Map<String, Object>> comPortPools1 = (List<Map<String, Object>>) response.get("data");
         assertThat(comPortPools1).describedAs("Expected only 1 comPortPool").hasSize(1);
         Map<String, Object> comPortPool1 = comPortPools1.get(0);
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
+        AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(objectMapper.getTypeFactory());
+        AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.setAnnotationIntrospector(pair);
+
         assertThat(comPortPool1)
                 .contains(MapEntry.entry("id", 1))
                 .contains(MapEntry.entry("name", "Test"))
                 .contains(MapEntry.entry("direction", "Outbound"))
                 .contains(MapEntry.entry("active", false))
-                .contains(MapEntry.entry("obsoleteFlag", false))
-                .contains(MapEntry.entry("comPortType", "TCP"));
+                .contains(MapEntry.entry("obsoleteFlag", false));
+        try {
+            String responseString = objectMapper.writeValueAsString(comPortPool1.get("comPortType"));
+            assertThat(responseString).contains("{\"id\":\"TYPE_TCP\",\"localizedValue\":\"TCP\"}");
+        } catch (Exception ex) {}
 
         Map<String, Object> taskExecutionTimeout = (Map<String, Object>) comPortPool1.get("taskExecutionTimeout");
         assertThat(taskExecutionTimeout).hasSize(2)
@@ -154,11 +179,11 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         OutboundComPortInfo tcpOutboundComPortInfo1 = new TcpOutboundComPortInfo();
         tcpOutboundComPortInfo1.name="Port 1";
         tcpOutboundComPortInfo1.id=comPort1_id_to_be_kept;
-        tcpOutboundComPortInfo1.comPortType=ComPortType.TCP;
+        tcpOutboundComPortInfo1.comPortType.id=ComPortType.TCP;
         OutboundComPortInfo tcpOutboundComPortInfo2 = new TcpOutboundComPortInfo();
         tcpOutboundComPortInfo2.name="Port 2";
         tcpOutboundComPortInfo2.id=comPort2_id_to_be_added;
-        tcpOutboundComPortInfo2.comPortType=ComPortType.TCP;
+        tcpOutboundComPortInfo2.comPortType.id=ComPortType.TCP;
         outboundComPortPoolInfo.outboundComPorts= new ArrayList<>(Arrays.asList(tcpOutboundComPortInfo1, tcpOutboundComPortInfo2));
         outboundComPortPoolInfo.version = 1L;
 

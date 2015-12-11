@@ -14,11 +14,11 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
         this.outboundComPorts = new ArrayList<>();
     }
 
-    public OutboundComPortPoolInfo(OutboundComPortPool comPortPool, EngineConfigurationService engineConfigurationService) {
+    public OutboundComPortPoolInfo(OutboundComPortPool comPortPool, EngineConfigurationService engineConfigurationService, ComPortInfoFactory comPortInfoFactory) {
         super(comPortPool);
         this.outboundComPorts = comPortPool.getComPorts()
                 .stream()
-                .map(outboundComPort -> ComPortInfoFactory.asOutboundInfo(outboundComPort, engineConfigurationService))
+                .map(outboundComPort -> comPortInfoFactory.asOutboundInfo(outboundComPort, engineConfigurationService))
                 .collect(Collectors.toList());
         this.taskExecutionTimeout = TimeDurationInfo.of(comPortPool.getTaskExecutionTimeout());
     }
@@ -32,7 +32,7 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
             taskExecutionTimeout = this.taskExecutionTimeout.asTimeDuration();
         }
 
-        OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(this.name, this.comPortType, taskExecutionTimeout);
+        OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(this.name, this.comPortType != null ? this.comPortType.id : null, taskExecutionTimeout);
         this.writeTo(outboundComPortPool);
         return outboundComPortPool;
     }

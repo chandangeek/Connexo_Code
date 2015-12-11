@@ -9,7 +9,7 @@ import java.util.Optional;
 public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedInboundComPort, ServletBasedInboundComPort.ServletBasedInboundComPortBuilder> {
 
     public ServletInboundComPortInfo() {
-        this.comPortType = ComPortType.SERVLET;
+        this.comPortType = new ComPortTypeInfo(ComPortType.SERVLET);
     }
 
     public ServletInboundComPortInfo(ServletBasedInboundComPort comPort) {

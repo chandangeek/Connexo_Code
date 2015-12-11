@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 public class UdpOutboundComPortInfo extends OutboundComPortInfo {
 
     public UdpOutboundComPortInfo() {
-        this.comPortType = ComPortType.UDP;
+        this.comPortType = new ComPortTypeInfo(ComPortType.UDP);
     }
 
     public UdpOutboundComPortInfo(OutboundComPort comPort, EngineConfigurationService engineConfigurationService) {

@@ -6,10 +6,10 @@ import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 public class FlowControlAdapter extends MapBasedXmlAdapter<FlowControl> {
 
     public FlowControlAdapter() {
-        register("DTR/DSR", FlowControl.DTRDSR);
-        register("Xon/Xoff", FlowControl.XONXOFF);
-        register("RTS/CTS", FlowControl.RTSCTS);
-        register("No flow control", FlowControl.NONE);
+        register(ComServerFieldTranslationKeys.FLOW_CONTROL_DTRDSR.getKey(), FlowControl.DTRDSR);
+        register(ComServerFieldTranslationKeys.FLOW_CONTROL_XONXOFF.getKey(), FlowControl.XONXOFF);
+        register(ComServerFieldTranslationKeys.FLOW_CONTROL_RTSCTS.getKey(), FlowControl.RTSCTS);
+        register(ComServerFieldTranslationKeys.FLOW_CONTROL_NONE.getKey(), FlowControl.NONE);
         register("", null);
     }
 }

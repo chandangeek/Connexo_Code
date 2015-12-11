@@ -19,8 +19,8 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
     /**
      * Create Info based on comserver properties and comports
      */
-    public OnlineComServerInfo(final OnlineComServer onlineComServer, List<ComPort> comPorts, EngineConfigurationService engineConfigurationService) {
-        super(onlineComServer, comPorts, engineConfigurationService);
+    public OnlineComServerInfo(final OnlineComServer onlineComServer, List<ComPort> comPorts, EngineConfigurationService engineConfigurationService, ComPortInfoFactory comPortInfoFactory) {
+        super(onlineComServer, comPorts, engineConfigurationService, comPortInfoFactory);
         readFrom(onlineComServer);
     }
 

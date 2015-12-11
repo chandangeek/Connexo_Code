@@ -9,7 +9,7 @@ import java.util.Optional;
 public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundComPort, TCPBasedInboundComPort.TCPBasedInboundComPortBuilder> {
 
     public TcpInboundComPortInfo() {
-        this.comPortType = ComPortType.TCP;
+        this.comPortType = new ComPortTypeInfo(ComPortType.TCP);
     }
 
     public TcpInboundComPortInfo(TCPBasedInboundComPort comPort) {

@@ -27,10 +27,12 @@ import java.util.Optional;
 public class ComPortResource {
 
     private final EngineConfigurationService engineConfigurationService;
+    private final ComPortInfoFactory comPortInfoFactory;
 
     @Inject
-    public ComPortResource(EngineConfigurationService engineConfigurationService) {
+    public ComPortResource(EngineConfigurationService engineConfigurationService, ComPortInfoFactory comPortInfoFactory) {
         this.engineConfigurationService = engineConfigurationService;
+        this.comPortInfoFactory = comPortInfoFactory;
     }
 
     @GET @Transactional
@@ -45,19 +47,19 @@ public class ComPortResource {
                 Optional<ComServer> comServer = engineConfigurationService.findComServer(comserverIdProperty);
                 List<ComPort> comPorts = comServer.get().getComPorts();
                 for (ComPort comPort : comPorts) {
-                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
+                    comPortInfos.add(comPortInfoFactory.asInfo(comPort, engineConfigurationService));
                 }
             } else if (directionProperty != null) {
                 List<? extends ComPort> comPorts = ("inbound".equals(directionProperty)) ?
                         engineConfigurationService.findAllInboundComPorts() :
                         engineConfigurationService.findAllOutboundComPorts();
                 for (ComPort comPort : comPorts) {
-                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
+                    comPortInfos.add(comPortInfoFactory.asInfo(comPort, engineConfigurationService));
                 }
             }
         } else {
             for (ComPort comPort : engineConfigurationService.findAllComPortsWithDeleted()) {
-                comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
+                comPortInfos.add(comPortInfoFactory.asInfo(comPort, engineConfigurationService));
             }
         }
         return PagedInfoList.fromPagedList("data", comPortInfos, queryParameters);
@@ -73,7 +75,7 @@ public class ComPortResource {
             throw new WebApplicationException("No ComPort with id " + id,
                     Response.status(Response.Status.NOT_FOUND).entity("No ComPort with id " + id).build());
         }
-        return ComPortInfoFactory.asInfo(comPort.get(), engineConfigurationService);
+        return comPortInfoFactory.asInfo(comPort.get(), engineConfigurationService);
     }
 
 }

@@ -7,10 +7,10 @@ public class ParitiesAdapter extends MapBasedXmlAdapter<Parities> {
 
     public ParitiesAdapter() {
         register("", null);
-        register("No parity", Parities.NONE);
-        register("Even parity", Parities.EVEN);
-        register("Odd parity", Parities.ODD);
-        register("Mark parity", Parities.MARK);
-        register("Space parity", Parities.SPACE);
+        register(ComServerFieldTranslationKeys.PARITY_NONE.getKey(), Parities.NONE);
+        register(ComServerFieldTranslationKeys.PARITY_EVEN.getKey(), Parities.EVEN);
+        register(ComServerFieldTranslationKeys.PARITY_ODD.getKey(), Parities.ODD);
+        register(ComServerFieldTranslationKeys.PARITY_MARK.getKey(), Parities.MARK);
+        register(ComServerFieldTranslationKeys.PARITY_SPACE.getKey(), Parities.SPACE);
     }
 }

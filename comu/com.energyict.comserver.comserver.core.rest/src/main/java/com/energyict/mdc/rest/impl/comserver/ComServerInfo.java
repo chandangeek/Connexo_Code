@@ -68,15 +68,15 @@ public abstract class ComServerInfo<B extends ComServer.ComServerBuilder,C exten
     /**
      * Creates info object containing both ComServer properties and comports
      */
-    public ComServerInfo(ComServer comServer, List<ComPort> comPorts, EngineConfigurationService engineConfigurationService) {
+    public ComServerInfo(ComServer comServer, List<ComPort> comPorts, EngineConfigurationService engineConfigurationService, ComPortInfoFactory comPortInfoFactory) {
         this(comServer);
         inboundComPorts = new ArrayList<>();
         outboundComPorts = new ArrayList<>();
         for (final ComPort comPort : comPorts) {
             if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
-                inboundComPorts.add(ComPortInfoFactory.asInboundInfo(comPort));
+                inboundComPorts.add(comPortInfoFactory.asInboundInfo(comPort));
             } else {
-                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(comPort, engineConfigurationService));
+                outboundComPorts.add(comPortInfoFactory.asOutboundInfo(comPort, engineConfigurationService));
             }
         }
     }

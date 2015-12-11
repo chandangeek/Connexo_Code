@@ -86,7 +86,7 @@ public class ComServerFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getComPortTypes() {
-        return asJsonArrayObjectWithTranslation("comPortTypes", "comPortType", new ComPortTypeAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("comPortTypes", "id", new ComPortTypeAdapter().getClientSideValues());
     }
 
     @GET @Transactional
@@ -94,7 +94,7 @@ public class ComServerFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getParities() {
-        return asJsonArrayObjectWithTranslation("parities", "parity", new ParitiesAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("parities", "id", new ParitiesAdapter().getClientSideValues());
     }
 
     @GET @Transactional
@@ -102,7 +102,7 @@ public class ComServerFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getFlowControls() {
-        return asJsonArrayObjectWithTranslation("flowControls", "flowControl", new FlowControlAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("flowControls", "id", new FlowControlAdapter().getClientSideValues());
     }
 
     @GET @Transactional

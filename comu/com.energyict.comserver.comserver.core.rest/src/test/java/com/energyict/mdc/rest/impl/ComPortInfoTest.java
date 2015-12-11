@@ -2,6 +2,7 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.ComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.FlowControlInfo;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -39,32 +40,33 @@ public class ComPortInfoTest {
     public void testComPortInfoSerialization() throws Exception {
         ModemInboundComPortInfo comPort = new ModemInboundComPortInfo();
         comPort.name="new";
-        comPort.flowControl= FlowControl.XONXOFF;
+        comPort.flowControl = new FlowControlInfo();
+        comPort.flowControl.id= FlowControl.XONXOFF;
         String response = objectMapper.writeValueAsString(comPort);
         assertThat(response).contains("\"name\":\"new\"");
-        assertThat(response).contains("\"flowControl\":\"Xon/Xoff\"");
+        assertThat(response).contains("\"flowControl\":{\"id\":\"flowcontrol_xon_xoff\"}");
     }
 
     @Test
     public void testComPortInfoDeserialization() throws Exception {
         String json = "{" +
                 "    'type': 'inbound_SERIAL'," +
-                "    'comPortType': 'SERIAL'," +
+                "    'comPortType': {'id': 'TYPE_SERIAL'}," +
                 "    'id': 201," +
                 "    'direction': 'inbound'," +
                 "    'name': 'comport name'," +
-                "    'flowControl': 'Xon/Xoff'" +
+                "    'flowControl': {'id': 'flowcontrol_xon_xoff'}" +
                 "}";
         json = json.replace("'","\"");
         ComPortInfo response = objectMapper.readValue(json, InboundComPortInfo.class);
-        assertThat(response.flowControl).isEqualTo(FlowControl.XONXOFF);
+        assertThat(response.flowControl.id).isEqualTo(FlowControl.XONXOFF);
     }
 
     @Test
     public void testComPortInfoDeserializationWithEmptyString() throws Exception {
         String json = "{" +
                 "    'type': 'inbound_SERIAL'," +
-                "    'comPortType': 'SERIAL'," +
+                "    'comPortType': {'id': 'TYPE_SERIAL'}," +
                 "    'id': 201," +
                 "    'direction': 'inbound'," +
                 "    'name': 'comport name'," +
@@ -80,11 +82,11 @@ public class ComPortInfoTest {
     public void testComPortInfoDeserializationWithIllegalValue() throws Exception {
         String json = "{" +
                 "    'type': 'inbound_SERIAL'," +
-                "    'comPortType': 'SERIAL'," +
+                "    'comPortType': {'id': 'TYPE_SERIAL'}," +
                 "    'id': 201," +
                 "    'direction': 'inbound'," +
                 "    'name': 'comport name'," +
-                "    'flowControl': 'fyk'" +
+                "    'flowControl': {'id': 'fyk'}" +
                 "}";
         json = json.replace("'","\"");
         ComPortInfo response = objectMapper.readValue(json, InboundComPortInfo.class);

@@ -29,12 +29,15 @@ public class ComServerComPortResource {
 
     private final EngineConfigurationService engineConfigurationService;
     private final ResourceHelper resourceHelper;
+    private final ComPortInfoFactory comPortInfoFactory;
 
     @Inject
     public ComServerComPortResource(EngineConfigurationService engineConfigurationService,
-                                    ResourceHelper resourceHelper) {
+                                    ResourceHelper resourceHelper,
+                                    ComPortInfoFactory comPortInfoFactory) {
         this.engineConfigurationService = engineConfigurationService;
         this.resourceHelper = resourceHelper;
+        this.comPortInfoFactory = comPortInfoFactory;
     }
 
     @GET @Transactional
@@ -47,7 +50,7 @@ public class ComServerComPortResource {
         List<ComPortInfo> comPortInfos = new ArrayList<>(comPorts.size());
 
         for (ComPort comPort : comPorts) {
-            comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
+            comPortInfos.add(comPortInfoFactory.asInfo(comPort, engineConfigurationService));
         }
 
         return PagedInfoList.fromPagedList("data", comPortInfos, queryParameters);
@@ -59,7 +62,7 @@ public class ComServerComPortResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComPortInfo getComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id) {
         ComPort comPort = resourceHelper.findComPortOrThrowException(id);
-        return ComPortInfoFactory.asInfo(comPort, engineConfigurationService);
+        return comPortInfoFactory.asInfo(comPort, engineConfigurationService);
     }
 
     @POST @Transactional
@@ -69,7 +72,7 @@ public class ComServerComPortResource {
     public ComPortInfo createOutboundComPort(@PathParam("comServerId") long comServerId, ComPortInfo comPortInfo) {
         ComServer comServer = resourceHelper.findComServerOrThrowException(comServerId);
         ComPort newComPort = comPortInfo.createNew(comServer, engineConfigurationService);
-        return ComPortInfoFactory.asInfo(newComPort, engineConfigurationService);
+        return comPortInfoFactory.asInfo(newComPort, engineConfigurationService);
     }
 
     @PUT @Transactional
@@ -82,7 +85,7 @@ public class ComServerComPortResource {
         ComPort comPort = resourceHelper.lockComPortOrThrowException(info);
         info.writeTo(comPort, engineConfigurationService, resourceHelper);
         comPort.update();
-        return ComPortInfoFactory.asInfo(comPort, engineConfigurationService);
+        return comPortInfoFactory.asInfo(comPort, engineConfigurationService);
     }
 
     @DELETE @Transactional
