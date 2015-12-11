@@ -142,7 +142,7 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
     private String serviceCode;
 
     @Override
-    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
         this.phoneNumber = (String) propertyValues.getProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName());
         this.connectionUrl = (String) propertyValues.getProperty(Fields.CONNECTION_URL.propertySpecName());
@@ -152,7 +152,7 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName(), this.phoneNumber);
         propertySetValues.setProperty(Fields.CONNECTION_URL.propertySpecName(), this.connectionUrl);
         propertySetValues.setProperty(Fields.SOURCE.propertySpecName(), this.source);

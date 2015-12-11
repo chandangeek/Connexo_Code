@@ -69,7 +69,7 @@ public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomai
     private String dialHomeId;
 
     @Override
-    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
         this.copyDialHomeId(propertyValues);
     }
@@ -79,7 +79,7 @@ public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomai
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(Fields.DIAL_HOME_ID.propertySpecName(), this.dialHomeId);
     }
 

@@ -266,7 +266,7 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
     }
 
     @Override
-    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
         this.copyParityFrom(propertyValues);
         this.copyFromControlFrom(propertyValues);
@@ -344,7 +344,7 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         // The PropertySpec of the following properties are actually using StringFactory so generic clients will expect String values
         if (this.parity != null) {
             this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.PARITY, this.parity.value());

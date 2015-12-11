@@ -53,7 +53,7 @@ public class LegacyOpticalDlmsConnectionProperties extends SioSerialConnectionPr
     private BigDecimal dataLinkLayerType;
 
     @Override
-    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         super.copyFrom(connectionProvider, propertyValues);
         this.addressingMode = (BigDecimal) propertyValues.getProperty(Field.ADDRESSING_MODE.javaName());
         this.serverMacAddress = (BigDecimal) propertyValues.getProperty(Field.SERVER_MAC_ADDRESS.javaName());
@@ -63,7 +63,7 @@ public class LegacyOpticalDlmsConnectionProperties extends SioSerialConnectionPr
     }
 
     @Override
-    public void copyTo(CustomPropertySetValues propertySetValues) {
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         super.copyTo(propertySetValues);
         this.copyTo(propertySetValues, Field.ADDRESSING_MODE.javaName(), this.addressingMode);
         this.copyTo(propertySetValues, Field.SERVER_MAC_ADDRESS.javaName(), this.serverMacAddress);
