@@ -3,7 +3,6 @@ package com.energyict.mdc.dynamic;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
@@ -12,8 +11,6 @@ import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
 
 import aQute.bnd.annotation.ProviderType;
-
-import java.util.TimeZone;
 
 /**
  * Provides services to build {@link PropertySpec}s.
@@ -54,7 +51,7 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      *
      * @return The PropertySpecBuilder
      */
-    PropertySpecBuilderWizard.NlsOptions<Ean13> hexStringSpec();
+    PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
@@ -73,66 +70,11 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
     PropertySpecBuilderWizard.NlsOptions<Ean18> ean18Spec();
 
     /**
-     * Todo: remove as part of COPL-1151
-     * @deprecated Should be replaced by calls to {@link #basicPropertySpec(String, String, boolean, Class)}
-     */
-    @Deprecated
-    PropertySpec basicPropertySpec (String name, boolean required, Class<? extends ValueFactory> valueFactoryClass);
-
-    /**
-     * Creates a PropertySpec, creating the required ValueFactory by asking the injector (DataModel) to provide an instance,
-     * thereby enabling Injection on the ValueFactories.
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link ObisCode} values.
      *
-     * @param name The name of the PropertySpec
-     * @param description The description of the PropertySpec
-     * @param required A flag that indicates if the PropertySpec should be required or not
-     * @param valueFactoryClass The class for which the DataModel (injector) will provide an instance
-     * @return The PropertySpec
+     * @return The PropertySpecBuilder
      */
-    PropertySpec basicPropertySpec (String name, String description, boolean required, Class<? extends ValueFactory> valueFactoryClass);
-
-    PropertySpec timeDurationPropertySpec(String name, String descrption, boolean required, TimeDuration defaultValue);
-
-    /**
-     * Todo: remove as part of COPL-1151
-     * @deprecated Replace by calls to {@link #obisCodePropertySpecWithValuesExhaustive(String, String, boolean, ObisCode...)}
-     */
-    @Deprecated
-    PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values);
-
-    /**
-     * Todo: remove as part of COPL-1151
-     * @deprecated Replace by calls to {@link #booleanPropertySpec(String, String, boolean, Boolean)}
-     */
-    @Deprecated
-    PropertySpec booleanPropertySpec(String name, boolean required, Boolean defaultValue);
-
-    PropertySpec booleanPropertySpec(String name, String description, boolean required, Boolean defaultValue);
-
-    /**
-     * Todo: remove as part of COPL-1151
-     * @deprecated Replace by calls to {@link #timeZonePropertySpec(String, String, boolean, TimeZone)}
-     */
-    @Deprecated
-    PropertySpec timeZonePropertySpec(String name, boolean required, TimeZone defaultValue);
-
-    /**
-     * Creates a PropertySPec that references a TimeZone object.
-     *<br/>
-     * For now the list of possible values will only contain:
-     * <ul>
-     *     <li>GMT</li>
-     *     <li>Europe/Brussels</li>
-     *     <li>EST</li>
-     *     <li>Europe/Moscow</li>
-     *     </ul>
-     *
-     * @param name The PropertySpec name
-     * @param description The description for the PropertySpec
-     * @param required A flag that indicates if the PropertySpec should be required or not
-     * @param defaultValue The default value
-     * @return the newly created propertyspec
-     */
-    PropertySpec timeZonePropertySpec(String name, String description, boolean required, TimeZone defaultValue);
+    PropertySpecBuilderWizard.NlsOptions<ObisCode> obisCodeSpec();
 
 }
