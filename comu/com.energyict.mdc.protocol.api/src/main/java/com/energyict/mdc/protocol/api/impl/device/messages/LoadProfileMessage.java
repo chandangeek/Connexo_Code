@@ -2,15 +2,15 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.LoadProfileMode;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.loadProfileAttributeName;
 
@@ -27,15 +27,27 @@ public enum LoadProfileMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(propertySpecService.referencePropertySpec(loadProfileAttributeName, true, FactoryIds.LOADPROFILE));
-            Stream.of(DeviceMessageAttributes.LoadProfileMessageFromDate, DeviceMessageAttributes.LoadProfileMessageToDate)
-                .map(attributeName -> propertySpecService
-                            .specForValuesOf(new DateAndTimeFactory())
-                            .named(attributeName)
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(BaseLoadProfile.class)
+                            .named(loadProfileAttributeName, LoadProfileDeviceMessageAttributes.loadProfileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
-                            .finish())
-                .forEach(propertySpecs::add);
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(DeviceMessageConstants.fromDateAttributeName, LoadProfileDeviceMessageAttributes.LoadProfileMessageFromDate)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(DeviceMessageConstants.toDateAttributeName, LoadProfileDeviceMessageAttributes.LoadProfileMessageToDate)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     ResetActiveImportLP(DeviceMessageId.LOAD_PROFILE_RESET_ACTIVE_IMPORT, "Reset active import load profile"),
@@ -87,11 +99,17 @@ public enum LoadProfileMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(propertySpecService.referencePropertySpec(loadProfileAttributeName, true, FactoryIds.LOADPROFILE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(BaseLoadProfile.class)
+                            .named(loadProfileAttributeName, LoadProfileDeviceMessageAttributes.loadProfileAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
             propertySpecs.add(
                     propertySpecService
                             .specForValuesOf(new DateAndTimeFactory())
-                            .named(DeviceMessageAttributes.LoadProfileMessageFromDate)
+                            .named(DeviceMessageConstants.fromDateAttributeName, LoadProfileDeviceMessageAttributes.LoadProfileMessageFromDate)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());

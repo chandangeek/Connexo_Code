@@ -178,6 +178,9 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         Stream.of(PublicLightingDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(UplinkDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(ChannelConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(FirmwareDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(LoadProfileDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PricingInformationDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(ConfigurationChangeDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(ContactorDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(EIWebConfigurationDeviceMessageAttributes.values()).forEach(keys::add);

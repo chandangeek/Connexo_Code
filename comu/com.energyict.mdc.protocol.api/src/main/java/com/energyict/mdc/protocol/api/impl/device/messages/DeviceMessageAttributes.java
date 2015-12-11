@@ -144,8 +144,6 @@ public enum DeviceMessageAttributes implements TranslationKey {
     OutputConfigurationMessageId("OutputConfigurationMessage." + DeviceMessageConstants.id, "ID"),
     OutputConfigurationMessageDelete("OutputConfigurationMessage." + DeviceMessageConstants.delete, "Delete"),
     OutputConfigurationMessageDuration("OutputConfigurationMessage." + DeviceMessageConstants.duration, "Duration"),
-    LoadProfileMessageFromDate(DeviceMessageConstants.fromDateAttributeName, "From"),
-    LoadProfileMessageToDate(DeviceMessageConstants.toDateAttributeName, "To"),
     capturePeriodAttributeName(DeviceMessageConstants.capturePeriodAttributeName, "capture period"),
     consumerProducerModeAttributeName(DeviceMessageConstants.consumerProducerModeAttributeName, "Consumer producer mode"),
     SetMmEveryAttributeName(DeviceMessageConstants.SetMmEveryAttributeName, "SetMmEvery"),
