@@ -8,14 +8,21 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import java.util.EnumSet;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.*;
 
 class InstallerImpl {
+
+    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     public static final String DESTINATION_NAME = EstimationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = EstimationServiceImpl.SUBSCRIBER_NAME;
@@ -91,6 +98,12 @@ class InstallerImpl {
     }
 
     private void createTaskExecutorUser() {
-        userService.createUser(EstimationServiceImpl.ESTIMATION_TASKS_USER, "task executor for estimation tasks");
+        User estimationUser = userService.createUser(EstimationServiceImpl.ESTIMATION_TASKS_USER, "task executor for estimation tasks");
+        Optional<Group> batchExecutorRole = userService.findGroup(UserService.BATCH_EXECUTOR_ROLE);
+        if (batchExecutorRole.isPresent()) {
+            estimationUser.join(batchExecutorRole.get());
+        } else {
+            LOGGER.log(Level.SEVERE, "Could not add role to '" + EstimationServiceImpl.ESTIMATION_TASKS_USER + "' user because role '" + UserService.BATCH_EXECUTOR_ROLE + "' is not found");
+        }
     }
 }
