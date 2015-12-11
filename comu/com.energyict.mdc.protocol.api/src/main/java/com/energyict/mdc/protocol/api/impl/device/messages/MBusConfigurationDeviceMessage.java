@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -61,7 +60,7 @@ public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .specForValuesOf(new HexStringFactory())
+                            .hexStringSpec()
                             .named(ConfigurationChangeDeviceMessageAttributes.SetMBusVIFAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
