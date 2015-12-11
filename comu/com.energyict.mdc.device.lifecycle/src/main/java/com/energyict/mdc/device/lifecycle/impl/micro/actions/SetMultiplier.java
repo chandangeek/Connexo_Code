@@ -36,7 +36,7 @@ public class SetMultiplier extends TranslatableServerMicroAction {
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         BigDecimal multiplierValue = DeviceLifeCyclePropertySupport.getMultiplierValue(properties);
         if(multiplierValue != null && multiplierValue.compareTo(BigDecimal.ONE) == 1){
-            device.setMultiplier(multiplierValue);
+            device.setMultiplier(multiplierValue, effectiveTimestamp);
         }
     }
 
