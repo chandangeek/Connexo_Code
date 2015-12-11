@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.jayway.jsonpath.JsonModel;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
@@ -38,7 +39,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     @Mock
     private FirmwareVersion firmwareVersion;
     @Mock
-    private FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder;
+    private FirmwareVersionBuilder firmwareVersionBuilder;
     @Mock
     private Condition condition;
     @Mock
@@ -74,7 +75,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
 
         assertThat(jsonModel.<List<?>> get("$.firmwares")).hasSize(1);
     }
-    
+
     @Test
     public void testGetFirmwaresWithFilters() {
         String json = target("devicetypes/1/firmwares")
@@ -84,7 +85,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>> get("$.firmwares")).hasSize(1);        
+        assertThat(jsonModel.<List<?>> get("$.firmwares")).hasSize(1);
     }
 
     @Test
@@ -151,7 +152,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         assertThat(response.getEntity()).isNotNull();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
-    
+
     @Test
     public void testEditFirmwareVersion() throws Exception {
         FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
@@ -164,29 +165,29 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         verify(firmwareVersion).update();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
-    
+
     @Test
     public void testDepricateFirmwareVersion() {
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.firmwareStatus = new FirmwareStatusInfo();
         info.firmwareStatus.id = FirmwareStatus.DEPRECATED;
         info.version = 1L;
-        
+
         Response response = target("devicetypes/1/firmwares/1").request().put(Entity.json(info));
-        
+
         verify(firmwareVersion).deprecate();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
-    
+
     @Test
     public void testSetaAsFinalFirmwareVersion() {
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.firmwareStatus = new FirmwareStatusInfo();
         info.firmwareStatus.id = FirmwareStatus.FINAL;
         info.version = 1L;
-        
+
         Response response = target("devicetypes/1/firmwares/1").request().put(Entity.json(info));
-        
+
         verify(firmwareVersion).setFirmwareStatus(FirmwareStatus.FINAL);
         verify(firmwareVersion).update();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

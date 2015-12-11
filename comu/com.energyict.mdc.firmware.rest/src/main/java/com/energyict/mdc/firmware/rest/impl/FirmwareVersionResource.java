@@ -12,6 +12,7 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -85,7 +86,7 @@ public class FirmwareVersionResource {
     public Response validateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, FirmwareVersionInfo firmwareVersionInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
-        FirmwareVersion.FirmwareVersionBuilder versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
+        FirmwareVersionBuilder versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
                 firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
 
         if (firmwareVersionInfo.fileSize != null) {
@@ -114,7 +115,7 @@ public class FirmwareVersionResource {
         FirmwareType firmwareType = parseFirmwareTypeField(typeInputStream).orElse(null);
         FirmwareStatus firmwareStatus = parseFirmwareStatusField(statusInputStream).orElse(null);
 
-        FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
+        FirmwareVersionBuilder firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
         setFirmwareFile(firmwareVersionBuilder, fileInputStream);
         firmwareVersionBuilder.create();
 
@@ -223,7 +224,7 @@ public class FirmwareVersionResource {
         }
     }
 
-    private void setFirmwareFile(FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder, InputStream fileInputStream) {
+    private void setFirmwareFile(FirmwareVersionBuilder firmwareVersionBuilder, InputStream fileInputStream) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream(); InputStream fis = fileInputStream) {
             byte[] buffer = new byte[1024];
             int length;
