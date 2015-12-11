@@ -81,12 +81,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public <T> PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec() {
+    public PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec() {
         return this.specForValuesOf(new TimeZoneFactory());
     }
 
     @Override
-    public <T> PropertySpecBuilderWizard.NlsOptions<RelativePeriod> relativePeriodSpec() {
+    public PropertySpecBuilderWizard.NlsOptions<RelativePeriod> relativePeriodSpec() {
         return this.specForValuesOf(new RelativePeriodFactory(this.timeService));
     }
 
