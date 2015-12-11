@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
@@ -30,7 +31,9 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,15 +41,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.omg.CORBA.MARSHAL;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -495,6 +496,121 @@ public class DeviceInstallationImporterFactoryTest {
 
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
+    }
+
+    @Test
+    public void testSuccessCaseInstallActiveWithMultiplier() {
+        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
+                "VPB0002;01/08/2015 00:30;;;electricity;false;01/08/2015 00:30;5.6";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceInstallImporter();
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
+        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        State deviceState = mock(State.class);
+        when(device.getState()).thenReturn(deviceState);
+        when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        Device masterDevice = mock(Device.class);
+        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
+        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        ExecutableAction executableAction = mock(ExecutableAction.class);
+        when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
+        AuthorizedAction authorizedAction = mock(AuthorizedAction.class, withSettings().extraInterfaces(AuthorizedTransitionAction.class));
+        when(((AuthorizedTransitionAction) authorizedAction).getActions()).thenReturn(EnumSet.of(MicroAction.SET_MULTIPLIER));
+        when(executableAction.getAction()).thenReturn(authorizedAction);
+        PropertySpec multiplierPropertySpec = mock(PropertySpec.class);
+        when(multiplierPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key());
+        when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.SET_MULTIPLIER)).thenReturn(Collections.singletonList(multiplierPropertySpec));
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
+        Meter meter = mock(Meter.class);
+        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
+
+        importer.process(importOccurrence);
+
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
+    }
+
+    @Test
+    public void testFailureCaseInstallActiveWithIncorrectMultiplier() {
+        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
+                "VPB0002;01/08/2015 00:30;;;electricity;false;01/08/2015 00:30;abc";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceInstallImporter();
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
+        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        State deviceState = mock(State.class);
+        when(device.getState()).thenReturn(deviceState);
+        when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        Device masterDevice = mock(Device.class);
+        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
+        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        ExecutableAction executableAction = mock(ExecutableAction.class);
+        when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
+        AuthorizedAction authorizedAction = mock(AuthorizedAction.class, withSettings().extraInterfaces(AuthorizedTransitionAction.class));
+        when(((AuthorizedTransitionAction) authorizedAction).getActions()).thenReturn(EnumSet.of(MicroAction.SET_MULTIPLIER));
+        when(executableAction.getAction()).thenReturn(authorizedAction);
+        PropertySpec multiplierPropertySpec = mock(PropertySpec.class);
+        when(multiplierPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key());
+        when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.SET_MULTIPLIER)).thenReturn(Collections.singletonList(multiplierPropertySpec));
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
+        Meter meter = mock(Meter.class);
+        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
+
+        importer.process(importOccurrence);
+
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_FORMAT_ERROR).format(2, "multiplier", "123456789.012"));
+    }
+
+    @Test
+    public void testSuccessCaseInstallActiveWithMultiplierWhenNotApplicableForAction() {
+        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
+                "VPB0002;01/08/2015 00:30;;;electricity;false;01/08/2015 00:30;5.6";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceInstallImporter();
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
+        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        State deviceState = mock(State.class);
+        when(device.getState()).thenReturn(deviceState);
+        when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        Device masterDevice = mock(Device.class);
+        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
+        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        ExecutableAction executableAction = mock(ExecutableAction.class);
+        when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
+        AuthorizedAction authorizedAction = mock(AuthorizedAction.class, withSettings().extraInterfaces(AuthorizedTransitionAction.class));
+        when(((AuthorizedTransitionAction) authorizedAction).getActions()).thenReturn(EnumSet.of(MicroAction.SET_MULTIPLIER));
+        when(executableAction.getAction()).thenReturn(authorizedAction);
+        when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.SET_MULTIPLIER)).thenReturn(Collections.emptyList());
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
+        Meter meter = mock(Meter.class);
+        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
+
+        importer.process(importOccurrence);
+
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1,1));
+        verify(logger, times(1)).info(thesaurus.getFormat(MessageSeeds.USELESS_MULTIPLIER_CONFIGURED).format(2, 5.6));
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
     }
