@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.Set;
 /**
  * Provides Firmware related services.
  */
-public interface FirmwareService extends ReferencePropertySpecFinderProvider {
+public interface FirmwareService {
     String COMPONENTNAME = "FWC";
     int MAX_FIRMWARE_FILE_SIZE = 50 * 1024 * 1024;
 
@@ -24,7 +23,7 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
     Optional<FirmwareVersion> findAndLockFirmwareVersionByIdAndVersion(long id, long version);
     Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType);
-    FirmwareVersion.FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
+    FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
     boolean isFirmwareVersionInUse(long firmwareVersionId);
 
 

@@ -15,6 +15,7 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Max;
@@ -233,7 +234,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
         return (int) (id ^ (id >>> 32));
     }
 
-    public static class FirmwareVersionImplBuilder implements FirmwareVersionBuilder{
+    public static class FirmwareVersionImplBuilder implements FirmwareVersionBuilder {
 
         private final FirmwareVersionImpl underConstruction;
 

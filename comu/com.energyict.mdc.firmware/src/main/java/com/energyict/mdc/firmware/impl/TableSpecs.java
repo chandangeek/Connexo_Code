@@ -14,6 +14,7 @@ import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -22,7 +23,7 @@ public enum TableSpecs {
     FWC_FIRMWAREVERSION {
         @Override
         void addTo(DataModel dataModel) {
-            Table<FirmwareVersion> table = dataModel.addTable(name(),FirmwareVersion.class);
+            Table<FirmwareVersion> table = dataModel.addTable(name(),FirmwareVersion.class).alsoReferredToAs(BaseFirmwareVersion.class);
             table.map(FirmwareVersionImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column firmwareVersion = table.column("FIRMWAREVERSION").varChar(Table.NAME_LENGTH).map(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName()).notNull().add();

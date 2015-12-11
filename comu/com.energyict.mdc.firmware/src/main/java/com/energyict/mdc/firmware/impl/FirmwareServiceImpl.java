@@ -7,7 +7,12 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -15,14 +20,11 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.CommunicationTaskService;
@@ -30,7 +32,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -41,6 +42,7 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.security.Privileges;
@@ -51,6 +53,7 @@ import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -66,10 +69,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -81,7 +83,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * Date: 3/5/15
  * Time: 10:33 AM
  */
-@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, InstallService.class, ReferencePropertySpecFinderProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
 public class FirmwareServiceImpl implements FirmwareService, InstallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -193,7 +195,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     }
 
     @Override
-    public FirmwareVersion.FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type) {
+    public FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type) {
         return new FirmwareVersionImpl.FirmwareVersionImplBuilder(dataModel.getInstance(FirmwareVersionImpl.class), deviceType, firmwareVersion, status, type);
     }
 
@@ -502,13 +504,6 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
         return Arrays.asList(MessageSeeds.values());
     }
 
-    @Override
-    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-        List<CanFindByLongPrimaryKey<? extends HasId>> canFindByLongPrimaryKeys = new ArrayList<>();
-        canFindByLongPrimaryKeys.add(new FirmwareVersionFinder());
-        return canFindByLongPrimaryKeys;
-    }
-
     public DataModel getDataModel() {
         return this.dataModel;
     }
@@ -527,22 +522,4 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
         return resources;
     }
 
-    private class FirmwareVersionFinder implements CanFindByLongPrimaryKey<FirmwareVersion> {
-
-        @Override
-        public FactoryIds factoryId() {
-            return FactoryIds.FIRMWAREVERSION;
-        }
-
-        @Override
-        public Class<FirmwareVersion> valueDomain() {
-            return FirmwareVersion.class;
-        }
-
-        @Override
-        public Optional<FirmwareVersion> findByPrimaryKey(long id) {
-            return getFirmwareVersionById(id);
-        }
-
-    }
 }

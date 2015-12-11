@@ -7,25 +7,19 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.TaskService;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -37,9 +31,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -53,13 +48,6 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
         inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.firmware", false, false);
-        FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
-        CanFindByLongPrimaryKey firmwareFinder = mock(CanFindByLongPrimaryKey.class);
-        when(firmwareFinder.factoryId()).thenReturn(FactoryIds.FIRMWAREVERSION);
-        when(firmwareFinder.findByPrimaryKey(anyLong())).thenReturn(Optional.of(firmwareVersion));
-        when(firmwareFinder.valueDomain()).thenReturn(FirmwareVersion.class);
-        when(inMemoryPersistence.getFirmwareService().finders()).thenReturn(Collections.singletonList(firmwareFinder));
-        inMemoryPersistence.getInjector().getInstance(PropertySpecService.class).addFactoryProvider(inMemoryPersistence.getFirmwareService());
     }
 
     private DeviceType getDeviceTypeMock(){
