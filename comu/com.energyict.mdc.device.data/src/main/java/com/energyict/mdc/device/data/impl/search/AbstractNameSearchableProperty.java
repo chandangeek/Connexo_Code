@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -48,6 +47,7 @@ public abstract class AbstractNameSearchableProperty<T> extends AbstractSearchab
     public SearchDomain getDomain() {
         return this.domain;
     }
+
     @Override
     public boolean affectsAvailableDomainProperties() {
         return false;
@@ -63,10 +63,11 @@ public abstract class AbstractNameSearchableProperty<T> extends AbstractSearchab
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                getName(),
-                false,
-                new StringFactory());
+        return this.propertySpecService
+                .stringSpec()
+                .named(getName(), getNameTranslationKey())
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     @Override
