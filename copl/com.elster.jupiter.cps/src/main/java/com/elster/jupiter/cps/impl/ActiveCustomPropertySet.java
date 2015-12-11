@@ -274,12 +274,12 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends PersistentDomainExtension<D>, D> void deleteExtensions(D businessObject) {
+    public <T extends PersistentDomainExtension<D>, D> void deleteExtensions(D businessObject, Object... additionalPrimaryKeyValues) {
         if (this.customPropertySet.isVersioned()) {
-            this.getMapper().remove(this.getAllValuesEntityFor(businessObject));
+            this.getMapper().remove(this.getAllValuesEntityFor(businessObject, additionalPrimaryKeyValues));
         }
         else {
-            this.getNonVersionedValuesEntityFor(businessObject).ifPresent(this::delete);
+            this.getNonVersionedValuesEntityFor(businessObject, additionalPrimaryKeyValues).ifPresent(this::delete);
         }
     }
 
