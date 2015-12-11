@@ -22,6 +22,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 import com.energyict.protocols.util.ProtocolImplFactory;
 import com.energyict.protocols.util.ProtocolInstantiator;
 
@@ -124,17 +125,17 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs () {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), false, new BigDecimalFactory()));
-        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), false, new BigDecimalFactory()));
+        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(this.thesaurus.getString(TranslationKeys.TIMEOUT.getKey(), "Timeout"), false, new BigDecimalFactory()));
+        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(this.thesaurus.getString(TranslationKeys.RETRIES.getKey(), "Retries"), false, new BigDecimalFactory()));
         return propertySpecs;
     }
 
     public int getTimeOutProperty() {
-        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), new BigDecimal(TIMEOUT_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(TranslationKeys.TIMEOUT.getKey(), "Timeout"), new BigDecimal(TIMEOUT_DEFAULT)).intValue();
     }
 
     public int getRetriesProperty() {
-        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), new BigDecimal(RETRIES_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(TranslationKeys.RETRIES.getKey(), "Retries"), new BigDecimal(RETRIES_DEFAULT)).intValue();
     }
 
     public TypedProperties getTypedProperties() {
