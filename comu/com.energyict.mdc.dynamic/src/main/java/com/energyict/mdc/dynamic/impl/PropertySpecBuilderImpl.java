@@ -2,12 +2,7 @@ package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.impl.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.ValueFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Provides building services for {@link PropertySpec}s.
@@ -101,85 +96,6 @@ public class PropertySpecBuilderImpl implements PropertySpecBuilder {
         PropertySpec finished = this.propertySpecAccessor.getPropertySpec();
         this.propertySpecAccessor = new BuildingProcessComplete(finished);
         return finished;
-    }
-
-    private PropertySpecBuilderImpl(ValueFactory valueFactory) {
-        super();
-        this.propertySpecAccessor = new BasicPropertySpecAccessor(new BasicPropertySpec(INITIAL_SPEC_NAME, valueFactory));
-    }
-
-    private class BasicPropertySpecAccessor implements PropertySpecAccessor {
-        private BasicPropertySpec propertySpec;
-
-        private BasicPropertySpecAccessor (BasicPropertySpec propertySpec) {
-            super();
-            this.propertySpec = propertySpec;
-        }
-
-        @Override
-        public PropertySpec getPropertySpec () {
-            return this.propertySpec;
-        }
-
-        @Override
-        public void setName (String name) {
-            this.setName(name, name);
-        }
-
-        @Override
-        public void setName(String name, String displayName) {
-            this.propertySpec.setName(name);
-            this.propertySpec.setDisplayName(displayName);
-        }
-
-        @Override
-        public void setDescription(String description) {
-            this.propertySpec.setDescription(description);
-        }
-
-        @Override
-        public void setDefaultValue (Object defaultValue) {
-            PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
-            if (xPossibleValues == null) {
-                PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(defaultValue, false);
-                this.propertySpec.setPossibleValues(possibleValues);
-            }
-            else {
-                PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
-                possibleValues.setDefault(defaultValue);
-            }
-        }
-
-        @Override
-        public void addValues (Object... values) {
-            PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
-            if (xPossibleValues == null) {
-                PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(false, Arrays.asList(values));
-                this.propertySpec.setPossibleValues(possibleValues);
-            }
-            else {
-                PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
-                possibleValues.add(values);
-            }
-        }
-
-        @Override
-        public void markRequired () {
-            this.propertySpec.setRequired(true);
-        }
-
-        @Override
-        public void markExhaustive () {
-            PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
-            if (xPossibleValues == null) {
-                PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(true, new ArrayList());
-                this.propertySpec.setPossibleValues(possibleValues);
-            }
-            else {
-                PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
-                possibleValues.setExhaustive(true);
-            }
-        }
     }
 
 }

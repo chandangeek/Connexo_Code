@@ -3,6 +3,7 @@ package com.energyict.mdc.dynamic.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
@@ -24,7 +25,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.util.TimeZone;
 
 /**
@@ -100,42 +100,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpec basicPropertySpec(String name, String description, boolean required, Class<? extends ValueFactory> valueFactoryClass) {
-        return new com.elster.jupiter.properties.BasicPropertySpec(name, description, required, getValueFactory(valueFactoryClass));
-    }
-
-    @Override
-    public PropertySpec stringPropertySpecWithValues(String name, boolean required, String... values) {
-        return basicPropertySpecService.stringPropertySpecWithValues(name, required, values);
-    }
-
-    @Override
-    public PropertySpec stringPropertySpec(String name, boolean required, String defaultValue) {
-        return basicPropertySpecService.stringPropertySpec(name, required, defaultValue);
-    }
-
-    @Override
-    public PropertySpec stringPropertySpecWithValuesAndDefaultValue(String name, boolean required, String defaultValue, String... values) {
-        return basicPropertySpecService.stringPropertySpecWithValuesAndDefaultValue(name, required, defaultValue, values);
-    }
-
-    @Override
-    public PropertySpec bigDecimalPropertySpecWithValues(String name, boolean required, BigDecimal... values) {
-        return basicPropertySpecService.bigDecimalPropertySpecWithValues(name, required, values);
-    }
-
-    @Override
-    public PropertySpec bigDecimalPropertySpec(String name, boolean required, BigDecimal defaultValue) {
-        return basicPropertySpecService.bigDecimalPropertySpec(name, required, defaultValue);
-    }
-
-    @Override
-    public PropertySpec positiveDecimalPropertySpec(String name, boolean required) {
-        return basicPropertySpecService.positiveDecimalPropertySpec(name, required);
-    }
-
-    @Override
-    public PropertySpec boundedDecimalPropertySpec(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit) {
-        return basicPropertySpecService.boundedDecimalPropertySpec(name, required, lowerLimit, upperLimit);
+        return new BasicPropertySpec(name, description, required, getValueFactory(valueFactoryClass));
     }
 
     @Override
@@ -187,18 +152,9 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return builder.name(name).description(description).addValues(values).finish();
     }
 
-    @Override
-    public PropertySpecBuilder specForValuesOf(ValueFactory valueFactory) {
-        return PropertySpecBuilderImpl.forClass(valueFactory);
-    }
-
     @Reference
     public void setBasicPropertySpecService(com.elster.jupiter.properties.PropertySpecService propertySpecService) {
         this.basicPropertySpecService = propertySpecService;
-    }
-
-    public PropertySpecBuilder specForValuesOf(Class<? extends ValueFactory> valueFactoryClass) {
-        return PropertySpecBuilderImpl.forClass(getValueFactory(valueFactoryClass));
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.properties.AbstractValueFactory;
-import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.Password;
 
@@ -11,7 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Provides an implementation for the {@link ValueFactory}
+ * Provides an implementation for the {@link com.elster.jupiter.properties.ValueFactory}
  * interface for {@link Password}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -37,6 +36,11 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     }
 
     @Override
+    public boolean isNull(Password password) {
+        return super.isNull(password) || password.getValue() == null || password.getValue().isEmpty();
+    }
+
+    @Override
     public Password valueFromDatabase (Object object) {
         return this.valueFromDb((String) object);
     }
@@ -47,7 +51,7 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
 
     @Override
     public Object valueToDatabase (Password password) {
-        if (password == null) {
+        if (this.isNull(password)) {
             return null;
         }
         else {
@@ -100,11 +104,10 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
         }
     }
 
-    public void validate (Password value, String propertyName) throws InvalidValueException {
+    @Override
+    public boolean isValid(Password value) {
         String encryptedValue = this.encrypt(value);
-        if (encryptedValue.length() > MAX_SIZE) {
-            throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=4000)", propertyName);
-        }
+        return encryptedValue.length() <= MAX_SIZE;
     }
 
 }

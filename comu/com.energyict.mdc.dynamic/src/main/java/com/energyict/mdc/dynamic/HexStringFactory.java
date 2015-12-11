@@ -1,7 +1,7 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.AbstractValueFactory;
-import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.HexString;
 
@@ -16,7 +16,7 @@ import java.sql.SQLException;
  */
 public class HexStringFactory extends AbstractValueFactory<HexString> {
 
-    public static final int MAX_SIZE = 4000;
+    public static final int MAX_SIZE = Table.MAX_STRING_LENGTH;
 
     @Override
     public Class<HexString> getValueType () {
@@ -26,6 +26,11 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
     @Override
     public int getJdbcType () {
         return java.sql.Types.VARCHAR;
+    }
+
+    @Override
+    public boolean isNull(HexString value) {
+        return super.isNull(value) || value.getContent() == null || value.getContent().isEmpty();
     }
 
     @Override
@@ -88,10 +93,9 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
         }
     }
 
-    public void validate (String value, String propertyName) throws InvalidValueException {
-        if (value.length() > MAX_SIZE) {
-            throw new InvalidValueException("XisToBig", "The value \"{0}\" is too large for this property (max length=4000)", propertyName);
-        }
+    @Override
+    public boolean isValid(HexString value) {
+        return value.getContent().length() <= MAX_SIZE;
     }
 
 }
