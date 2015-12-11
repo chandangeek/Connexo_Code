@@ -156,11 +156,6 @@ class IntervalStateValidator extends AbstractValidator {
         }
 
         @Override
-        public boolean isReference() {
-            return false;
-        }
-
-        @Override
         public IntervalFlag valueFromDatabase(Object object) {
             return this.fromStringValue((String) object);
         }
@@ -188,11 +183,6 @@ class IntervalStateValidator extends AbstractValidator {
             else {
                 builder.addNull(Types.VARCHAR);
             }
-        }
-
-        @Override
-        public boolean isPersistent(IntervalFlag value) {
-            return false;
         }
     }
 
