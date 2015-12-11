@@ -541,7 +541,13 @@ public class JbpmTaskResource {
             String template = "";
             Task task = internalTaskService.getTaskById(taskId);
 
-            ProcessAssetDesc process = runtimeDataService.getProcessById(task.getTaskData().getProcessId());
+            ProcessAssetDesc process = null;
+            Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
+            for(ProcessAssetDesc each: processesList){
+                if(each.getDeploymentId().equals(task.getTaskData().getDeploymentId())){
+                    process = each;
+                }
+            }
             if(process != null) {
                 String lookupName = "";
                 String formName = ((InternalTask) task).getFormName();
