@@ -452,32 +452,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             store = Ext.data.StoreManager.lookup('LogbookTypesOfDeviceType');
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', false);
-        store.load(
-            {
-                callback: function () {
-                    var self = this,
-                        widget = Ext.widget('device-type-logbooks', {deviceTypeId: deviceTypeId});
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.setLoading(true);
-                    model.load(deviceTypeId, {
-                        success: function (deviceType) {
-                            me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                            widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
-                            me.getDeviceTypeLogbookPanel().setTitle(Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'));
-                            widget.setLoading(false);
-                        }
-                    });
-                    var grid = Ext.ComponentQuery.query('device-type-logbooks grid')[0],
-                        gridView = grid.getView(),
-                        selectionModel = gridView.getSelectionModel();
-                    if (self.getCount() > 0) {
-                        selectionModel.select(0);
-                        grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
-                    }
-                }
+
+        var widget = Ext.widget('device-type-logbooks', {deviceTypeId: deviceTypeId});
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+        model.load(deviceTypeId, {
+            success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
+                me.getDeviceTypeLogbookPanel().setTitle(Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'));
+                widget.setLoading(false);
             }
-        );
+        });
     },
 
     showAddLogbookTypesView: function (deviceTypeId) {

@@ -9,6 +9,7 @@ Ext.define('Mdc.store.ConnectionMethodsOfDeviceConfigurationCombo', {
     proxy: {
         type: 'rest',
         urlTpl: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods',
+        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods',
         pageParam: false,
         limitParam: false,
         startParam: false,

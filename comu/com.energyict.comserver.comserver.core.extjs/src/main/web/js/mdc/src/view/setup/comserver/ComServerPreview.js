@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                        name: 'comServerType'
+                        name: 'displayComServerType'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('comserver.preview.serverLogLevel', 'MDC', 'Server log level'),
