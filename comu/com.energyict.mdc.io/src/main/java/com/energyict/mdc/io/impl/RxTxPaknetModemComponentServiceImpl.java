@@ -69,6 +69,6 @@ public class RxTxPaknetModemComponentServiceImpl extends RxTxSerialComponentServ
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return new TypedPaknetModemProperties(this.getPropertySpecService(), thesaurus).getPropertySpecs();
+        return new TypedPaknetModemProperties(this.getPropertySpecService(), this.getThesaurus()).getPropertySpecs();
     }
 }

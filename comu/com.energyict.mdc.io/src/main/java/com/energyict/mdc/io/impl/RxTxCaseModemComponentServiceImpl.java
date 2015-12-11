@@ -70,7 +70,7 @@ public class RxTxCaseModemComponentServiceImpl extends RxTxSerialComponentServic
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return new TypedCaseModemProperties(this.getPropertySpecService(), thesaurus).getPropertySpecs();
+        return new TypedCaseModemProperties(this.getPropertySpecService(), this.getThesaurus()).getPropertySpecs();
     }
 
 }

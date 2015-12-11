@@ -69,7 +69,7 @@ public class SerialIOPaknetModemComponentServiceImpl extends SerialIOComponentSe
 
     @Override
     protected void addModemComponentProperties(List<PropertySpec> propertySpecs) {
-        propertySpecs.addAll(new TypedPaknetModemProperties(this.getPropertySpecService(), thesaurus).getPropertySpecs());
+        propertySpecs.addAll(new TypedPaknetModemProperties(this.getPropertySpecService(), this.getThesaurus()).getPropertySpecs());
     }
 
 }

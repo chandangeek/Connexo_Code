@@ -71,7 +71,7 @@ public class RxTxPEMPModemComponentServiceImpl extends RxTxSerialComponentServic
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return new TypedPEMPModemProperties(this.getPropertySpecService(), thesaurus).getPropertySpecs();
+        return new TypedPEMPModemProperties(this.getPropertySpecService(), this.getThesaurus()).getPropertySpecs();
     }
 
 }

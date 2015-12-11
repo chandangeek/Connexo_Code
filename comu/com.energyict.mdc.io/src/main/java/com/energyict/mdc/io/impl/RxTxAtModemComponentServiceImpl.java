@@ -72,7 +72,7 @@ public class RxTxAtModemComponentServiceImpl extends RxTxSerialComponentServiceI
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(new TypedAtModemProperties(this.getPropertySpecService(), thesaurus).getPropertySpecs());
+        List<PropertySpec> propertySpecs = new ArrayList<>(new TypedAtModemProperties(this.getPropertySpecService(), this.getThesaurus()).getPropertySpecs());
         propertySpecs.add(this.baudRatePropertySpec(true));
         propertySpecs.add(this.parityPropertySpec(true));
         propertySpecs.add(this.nrOfStopBitsPropertySpec(true));
