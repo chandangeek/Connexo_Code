@@ -100,7 +100,9 @@ Ext.define('Uni.view.search.field.Selection', {
             criteria: value
         }) : null);
 
-        me.down('#filter-selected').setDisabled(!me.selection.length);
+        if (me.rendered) {
+            me.down('#filter-selected').setDisabled(!me.selection.length);
+        }
     },
 
     reset: function () {
@@ -235,27 +237,34 @@ Ext.define('Uni.view.search.field.Selection', {
                         boxLabel: Uni.I18n.translate('search.field.selection.checkbox.show-selected', 'UNI', 'Show all selected values'),
                         disabled: true,
                         hidden: !me.multiSelect,
-                        handler: function () {
-                            var store = me.grid.getStore();
-                            Ext.suspendLayouts();
+                        listeners: {
+                            change: function () {
+                                var store = me.grid.getStore(),
+                                    input = me.down('#filter-input');
 
-                            if (this.checked) {
-                                //store.clearFilter(true);
-                                if (store.remoteFilter) {
-                                    store.removeAll();
-                                    store.add(selection.getRange());
+                                Ext.suspendLayouts();
+
+                                input.suspendEvent('change');
+                                input.reset();
+                                input.resumeEvent('change');
+                                store.filters.removeAtKey(me.displayField);
+
+                                if (this.checked) {
+                                    if (store.remoteFilter) {
+                                        store.removeAll();
+                                        store.add(selection.getRange());
+                                    } else {
+                                        store.filter({
+                                            filterFn: function (item) {
+                                                return selection.getRange().indexOf(item) >= 0;
+                                            }
+                                        });
+                                    }
                                 } else {
-                                    store.filter({
-                                        filterFn: function (item) {
-                                            return selection.getRange().indexOf(item) >= 0;
-                                        }
-                                    });
+                                    store.load();
                                 }
-                            } else {
-                                store.removeFilter(me.displayField, false);
-                                store.load();
+                                Ext.resumeLayouts(true);
                             }
-                            Ext.resumeLayouts(true);
                         }
                     }
                 ]
@@ -315,22 +324,26 @@ Ext.define('Uni.view.search.field.Selection', {
         me.bindStore(me.store || 'ext-empty-store', true);
         me.grid = me.down('grid');
         me.on('menushow', me.viewSync, me);
-        me.store.load();
     },
 
     viewSync: function() {
         var me = this,
-            model = me.grid.getSelectionModel();
+            model = me.grid.getSelectionModel(),
+            count = me.store.getCount(),
+            filterSelected = me.down('#filter-selected');
 
         model.deselectAll(true);
         model.select(me.getStoreRecords(), true, true);
         model.updateHeaderState();
 
-        me.down('#select-all').setDisabled(!me.getStore().count());
-        me.down('#filter-selected').setValue(
-                me.store.getCount() === model.getCount()
-            &&  me.store.getCount() === me.selection.getCount()
+        me.down('#select-all').setDisabled(!count);
+        filterSelected.suspendEvent('change');
+        filterSelected.setValue(
+                count > 0
+            &&  count === model.getCount()
+            &&  count === me.selection.getCount()
         );
+        filterSelected.resumeEvent('change');
     },
 
     getStoreRecords: function() {
