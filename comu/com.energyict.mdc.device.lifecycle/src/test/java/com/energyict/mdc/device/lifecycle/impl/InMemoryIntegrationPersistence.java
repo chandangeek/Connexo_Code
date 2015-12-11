@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -142,6 +143,7 @@ public class InMemoryIntegrationPersistence {
                 new UserModule(),
                 new IdsModule(),
                 new OrmModule(),
+                new CustomPropertySetsModule(),
                 new InMemoryMessagingModule(),
                 new FiniteStateMachineModule(),
                 new MeteringModule(),

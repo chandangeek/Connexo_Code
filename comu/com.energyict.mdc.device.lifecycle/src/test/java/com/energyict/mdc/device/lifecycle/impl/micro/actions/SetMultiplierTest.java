@@ -73,9 +73,10 @@ public class SetMultiplierTest {
         when(property.getPropertySpec()).thenReturn(propertySpec);
         when(property.getValue()).thenReturn(multiplierValue);
 
-        getTestInstance().execute(device, Instant.now(), Collections.singletonList(property));
+        Instant now = Instant.now();
+        getTestInstance().execute(device, now, Collections.singletonList(property));
 
         //asserts
-        verify(device).setMultiplier(multiplierValue);
+        verify(device).setMultiplier(multiplierValue, now);
     }
 }
