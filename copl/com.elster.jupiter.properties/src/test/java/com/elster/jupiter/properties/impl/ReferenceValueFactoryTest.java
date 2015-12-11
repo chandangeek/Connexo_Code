@@ -51,11 +51,6 @@ public class ReferenceValueFactoryTest {
     }
 
     @Test
-    public void testIsReference() {
-        assertThat(this.getTestInstance().isReference()).isTrue();
-    }
-
-    @Test
     public void testDomainClass() {
         assertThat(this.getTestInstance(DomainWithLongPrimaryKey.class).getValueType()).isEqualTo(DomainWithLongPrimaryKey.class);
     }
@@ -429,7 +424,7 @@ public class ReferenceValueFactoryTest {
     }
 
     @Test
-    public void isPersistentForNonPersistentEntityWithLongPrimaryKey() {
+    public void isValidForNonPersistentEntityWithLongPrimaryKey() {
         when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
@@ -437,14 +432,14 @@ public class ReferenceValueFactoryTest {
         DomainWithLongPrimaryKey value = new DomainWithLongPrimaryKey();
 
         // Business method
-        boolean isPersistent = testInstance.isPersistent(value);
+        boolean isValid = testInstance.isValid(value);
 
         // Asserts
-        assertThat(isPersistent).isFalse();
+        assertThat(isValid).isFalse();
     }
 
     @Test
-    public void isPersistentForPersistentEntityWithLongPrimaryKey() {
+    public void isValidForPersistentEntityWithLongPrimaryKey() {
         when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
@@ -453,14 +448,14 @@ public class ReferenceValueFactoryTest {
         value.id = 3L;
 
         // Business method
-        boolean isPersistent = testInstance.isPersistent(value);
+        boolean isValid = testInstance.isValid(value);
 
         // Asserts
-        assertThat(isPersistent).isTrue();
+        assertThat(isValid).isTrue();
     }
 
     @Test
-    public void isPersistentForNonPersistentEntityWithIntegerPrimaryKey() {
+    public void isValidForNonPersistentEntityWithIntegerPrimaryKey() {
         when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
@@ -468,14 +463,14 @@ public class ReferenceValueFactoryTest {
         DomainWithIntegerPrimaryKey value = new DomainWithIntegerPrimaryKey();
 
         // Business method
-        boolean isPersistent = testInstance.isPersistent(value);
+        boolean isValid = testInstance.isValid(value);
 
         // Asserts
-        assertThat(isPersistent).isFalse();
+        assertThat(isValid).isFalse();
     }
 
     @Test
-    public void isPersistentForPersistentEntityWithIntegerPrimaryKey() {
+    public void isValidForPersistentEntityWithIntegerPrimaryKey() {
         when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
@@ -484,14 +479,14 @@ public class ReferenceValueFactoryTest {
         value.id = 3;
 
         // Business method
-        boolean isPersistent = testInstance.isPersistent(value);
+        boolean isValid = testInstance.isValid(value);
 
         // Asserts
-        assertThat(isPersistent).isTrue();
+        assertThat(isValid).isTrue();
     }
 
     @Test
-    public void isPersistentForNonPersistentEntityWithStringPrimaryKey() {
+    public void isValidForNonPersistentEntityWithStringPrimaryKey() {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
@@ -499,14 +494,14 @@ public class ReferenceValueFactoryTest {
         DomainWithStringPrimaryKey value = new DomainWithStringPrimaryKey();
 
         // Business method
-        boolean isPersistent = testInstance.isPersistent(value);
+        boolean isValid = testInstance.isValid(value);
 
         // Asserts
-        assertThat(isPersistent).isFalse();
+        assertThat(isValid).isFalse();
     }
 
     @Test
-    public void isPersistentForPersistentEntityWithStringPrimaryKey() {
+    public void isValidForPersistentEntityWithStringPrimaryKey() {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
@@ -515,10 +510,10 @@ public class ReferenceValueFactoryTest {
         value.id = "3";
 
         // Business method
-        boolean isPersistent = testInstance.isPersistent(value);
+        boolean isValid = testInstance.isValid(value);
 
         // Asserts
-        assertThat(isPersistent).isTrue();
+        assertThat(isValid).isTrue();
     }
 
     private class DomainWithMultiValuePrimaryKey {

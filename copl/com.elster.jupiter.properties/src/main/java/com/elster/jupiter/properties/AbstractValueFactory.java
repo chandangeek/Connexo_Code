@@ -16,16 +16,6 @@ public abstract class AbstractValueFactory<T> implements ValueFactory<T> {
     protected abstract int getJdbcType();
 
     @Override
-    public boolean isReference () {
-        return false;
-    }
-
-    @Override
-    public boolean isPersistent (T value) {
-        return false;
-    }
-
-    @Override
     public void bind(SqlBuilder builder, T value) {
         if (value != null) {
             builder.addObject(valueToDatabase(value));

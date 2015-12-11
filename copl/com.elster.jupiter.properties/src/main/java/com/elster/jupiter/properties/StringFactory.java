@@ -1,5 +1,7 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.orm.Table;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -12,7 +14,7 @@ import java.sql.SQLException;
  */
 public class StringFactory extends AbstractValueFactory<String> {
 
-    public static final int MAX_SIZE = 4000;
+    public static final int MAX_SIZE = Table.MAX_STRING_LENGTH;
 
     @Override
     public Class<String> getValueType () {
@@ -22,6 +24,16 @@ public class StringFactory extends AbstractValueFactory<String> {
     @Override
     public int getJdbcType () {
         return java.sql.Types.VARCHAR;
+    }
+
+    @Override
+    public boolean isNull(String value) {
+        return super.isNull(value) || value.isEmpty();
+    }
+
+    @Override
+    public boolean isValid(String value) {
+        return value.length() <= StringFactory.MAX_SIZE;
     }
 
     @Override

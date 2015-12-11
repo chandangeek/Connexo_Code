@@ -55,7 +55,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         this.ormService = ormService;
     }
 
-
     @Override
     public <T> PropertySpecBuilderWizard.NlsOptions<T> specForValuesOf(ValueFactory<T> valueFactory) {
         return new PropertySpecBuilderNlsOptions<>(valueFactory);

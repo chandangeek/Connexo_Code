@@ -21,8 +21,6 @@ public interface ValueFactory<T> {
 
     Class<T> getValueType();
 
-    boolean isReference();
-
     T valueFromDatabase(Object object);
 
     Object valueToDatabase(T object);
@@ -32,11 +30,27 @@ public interface ValueFactory<T> {
     void bind(SqlBuilder builder, T value);
 
     /**
-     * Test if the specified value is persistent.
+     * Tests if the specified value represents the <code>null</code> value for this ValueFactory.
      *
      * @param value The value
-     * @return A flag that indicates if the specified value is persistent
+     * @return A flag that indicates if the value represents the <code>null</code> value
      */
-    boolean isPersistent(T value);
+    default boolean isNull(T value) {
+        return value == null;
+    }
+
+    /**
+     * Tests if the specified value is a valid value for this ValueFactory.
+     * Factories for simple data types will likely have no additional stuff
+     * to validate because the value is guaranteed not to be null.
+     * Factories for complex data types could e.g. check that the
+     * value is persisted in the database.
+     *
+     * @param value The non-null value
+     * @return A flag that indicates if the value is valid or not
+     */
+    default boolean isValid(T value) {
+        return true;
+    }
 
 }

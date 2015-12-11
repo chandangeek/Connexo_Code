@@ -51,11 +51,6 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
     }
 
     @Override
-    public boolean isReference () {
-        return true;
-    }
-
-    @Override
     public Class<T> getValueType () {
         return this.domainClass;
     }
@@ -97,7 +92,7 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
     }
 
     @Override
-    public boolean isPersistent(T value) {
+    public boolean isValid(T value) {
         this.ensureMappingInitializedOrThrowException();
         return this.mapping.isPersistent(value);
     }
