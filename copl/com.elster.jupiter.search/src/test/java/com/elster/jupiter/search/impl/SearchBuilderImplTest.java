@@ -3,9 +3,9 @@ package com.elster.jupiter.search.impl;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.impl.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.impl.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -614,16 +614,6 @@ public class SearchBuilderImplTest {
         }
 
         @Override
-        public boolean isReference() {
-            return true;
-        }
-
-        @Override
-        public int getJdbcType() {
-            return java.sql.Types.VARCHAR;
-        }
-
-        @Override
         public Example valueFromDatabase(Object o) {
             return (Example) o;
         }
@@ -641,11 +631,6 @@ public class SearchBuilderImplTest {
         @Override
         public void bind(SqlBuilder sqlBuilder, Example example) {
             sqlBuilder.addObject(this.valueToDatabase(example));
-        }
-
-        @Override
-        public boolean isPersistent(Example example) {
-            return false;
         }
 
     }

@@ -5,6 +5,7 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -84,12 +85,6 @@ public class SearchGogo {
 
     private void printNameAndType(SearchableProperty property) {
         System.out.print(property.getName());
-        if (property.getSpecification().getValueFactory().isReference()) {
-            System.out.print(" reference to ");
-        }
-        else {
-            System.out.print(" of type ");
-        }
         System.out.println(property.getSpecification().getValueFactory().getValueType().getName());
     }
 
