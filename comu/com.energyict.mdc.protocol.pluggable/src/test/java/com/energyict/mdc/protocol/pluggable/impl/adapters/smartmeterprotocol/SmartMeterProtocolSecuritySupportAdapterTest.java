@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
