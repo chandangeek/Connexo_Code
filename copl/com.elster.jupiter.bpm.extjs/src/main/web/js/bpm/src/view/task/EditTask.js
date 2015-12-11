@@ -1,6 +1,6 @@
-Ext.define('Bpm.view.task.OpenTask', {
+Ext.define('Bpm.view.task.EditTask', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.bpm-task-open-task',
+    alias: 'widget.bpm-task-edit-task',
     requires: [
         'Bpm.store.task.Tasks',
         'Bpm.store.task.TasksFilterAllUsers',
@@ -37,7 +37,7 @@ Ext.define('Bpm.view.task.OpenTask', {
             },
             {
                 xtype: 'form',
-                itemId: 'frm-open-task',
+                itemId: 'frm-task',
                 ui: 'large',
                 layout: {
                     type: 'vbox',
@@ -201,68 +201,6 @@ Ext.define('Bpm.view.task.OpenTask', {
                                         width: 500,
                                         labelWidth: 250,
                                         fieldLabel: Uni.I18n.translate('task.task.edit.creationDate', 'BPM', 'Creation date')
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'form',
-                        title: Uni.I18n.translate('bpm.task.taskExecution', 'BPM', 'Task execution'),
-                        ui: 'medium',
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        privileges: Bpm.privileges.BpmManagement.execute,
-                        itemId: 'task-execution-form',
-                        items: [
-                            {
-                                xtype: 'container',
-                                margin: '20 0 0 0',
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch'
-                                },
-                                itemId: 'task-execution-content',
-                                privileges: Bpm.privileges.BpmManagement.execute,
-                                items: [
-                                    {
-                                        xtype: 'property-form'
-                                    },
-                                    {
-                                        xtype: 'container',
-                                        margin: '10 0 0 265',
-                                        layout: 'hbox',
-                                        items: [
-                                            {
-                                                text: Uni.I18n.translate('task.action.save', 'BPM', 'Save'),
-                                                xtype: 'button',
-                                                hidden: true,
-                                                ui: 'action',
-                                                itemId: 'btn-save',
-                                                action: 'saveTask',
-                                                taskRecord: me.taskRecord
-                                            },
-                                            {
-                                                text: Uni.I18n.translate('task.action', 'BPM', 'Start'),
-                                                xtype: 'button',
-                                                hidden: true,
-                                                ui: 'action',
-                                                itemId: 'btn-start',
-                                                action: 'startTask',
-                                                taskRecord: me.taskRecord
-                                            },
-                                            {
-                                                text: Uni.I18n.translate('task.action.complete', 'BPM', 'Complete'),
-                                                xtype: 'button',
-                                                hidden: true,
-                                                ui: 'action',
-                                                itemId: 'btn-complete',
-                                                action: 'completeTask',
-                                                taskRecord: me.taskRecord
-                                            }
-                                        ]
                                     }
                                 ]
                             }

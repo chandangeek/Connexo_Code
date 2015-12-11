@@ -47,13 +47,6 @@ Ext.define('Bpm.model.task.Task', {
             }
         },
         {
-            name: 'createdOnDisplay',
-            type: 'number',
-            convert: function (value, record) {
-                return record.get('createdOn') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('createdOn'))) : '-';
-            }
-        },
-        {
             name: 'priority',
             type: 'number'
         },
@@ -107,6 +100,18 @@ Ext.define('Bpm.model.task.Task', {
             name: 'actualOwner',
             type: 'string'
         },
+        {
+            name: 'actualOwnerDisplay',
+            type: 'string',
+            convert: function (value, record) {
+                var actualOwner = record.get('actualOwner');
+                if (actualOwner == null || actualOwner.length == 0){
+                    return Uni.I18n.translate('bpm.task.unassignee', 'BPM', 'Unassigned');
+                }
+                return actualOwner;
+            }
+        },
+
         {
             name: 'processInstancesId',
             type: 'string'

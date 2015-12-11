@@ -9,94 +9,95 @@ Ext.define('Bpm.controller.OpenTask', {
         'Bpm.model.task.OpenTask'
     ],
     views: [
-        'Bpm.view.task.OpenTask'
+        'Bpm.view.task.EditTask',
+        'Bpm.view.task.PerformTask'
     ],
     refs: [
         {
-            ref: 'openTaskPage',
-            selector: 'bpm-task-open-task'
+            ref: 'editTaskPage',
+            selector: 'bpm-task-edit-task'
+        },
+        {
+            ref: 'performTaskPage',
+            selector: 'bpm-task-perform-task'
         },
         {
             ref: 'formContent',
-            selector: 'bpm-task-open-task #formContent'
+            selector: 'bpm-task-edit-task #formContent'
         },
         {
             ref: 'assigneeUserForm',
-            selector: 'bpm-task-open-task #frm-assignee-user'
+            selector: 'bpm-task-edit-task #frm-assignee-user'
         },
         {
             ref: 'editTaskForm',
-            selector: 'bpm-task-open-task #frm-edit-task'
+            selector: 'bpm-task-edit-task #frm-edit-task'
         },
         {
             ref: 'numPriority',
-            selector: 'bpm-task-open-task #num-priority'
+            selector: 'bpm-task-edit-task #num-priority'
         },
         {
             ref: 'priorityDisplay',
-            selector: 'bpm-task-open-task #priority-display'
+            selector: 'bpm-task-edit-task #priority-display'
         },
-
         {
             ref: 'aboutTaskForm',
-            selector: 'bpm-task-open-task #frm-about-task'
+            selector: 'bpm-task-edit-task #frm-about-task'
         },
         {
             ref: 'formContainer',
-            selector: 'bpm-task-open-task #frm-form-container'
+            selector: 'bpm-task-edit-task #frm-form-container'
         },
         {
             ref: 'taskExecutionContent',
-            selector: 'bpm-task-open-task #task-execution-content'
+            selector: 'bpm-task-perform-task #task-execution-content'
         },
         {
             ref: 'taskExecutionForm',
-            selector: 'bpm-task-open-task #task-execution-form'
+            selector: 'bpm-task-perform-task #task-execution-form'
         },
         {
             ref: 'btnStart',
-            selector: 'bpm-task-open-task #btn-start'
+            selector: 'bpm-task-perform-task #btn-start'
         },
         {
             ref: 'btnSave',
-            selector: 'bpm-task-open-task #btn-save'
+            selector: 'bpm-task-perform-task #btn-save'
         },
         {
             ref: 'btnComplete',
-            selector: 'bpm-task-open-task #btn-complete'
+            selector: 'bpm-task-perform-task #btn-complete'
         }
     ],
 
     init: function () {
         this.control({
-            'bpm-task-open-task #btn-assignee-user-save': {
-                click: this.saveAssigneeUser
-            },
-            'bpm-task-open-task #btn-task-save': {
+            'bpm-task-edit-task #btn-task-save': {
                 click: this.saveTask
             },
-            'bpm-task-open-task #btn-start': {
-                click: this.chooseAction
-            },
-            'bpm-task-open-task #btn-save': {
-                click: this.chooseAction
-            },
-            'bpm-task-open-task #btn-complete': {
-                click: this.chooseAction
-            },
-            'bpm-task-open-task #num-priority': {
+            'bpm-task-edit-task #num-priority': {
                 change: this.updatePriority
+            },
+            'bpm-task-perform-task #btn-start': {
+                click: this.chooseAction
+            },
+            'bpm-task-perform-task #btn-save': {
+                click: this.chooseAction
+            },
+            'bpm-task-perform-task #btn-complete': {
+                click: this.chooseAction
             }
         });
 
     },
 
-    showOpenTask: function (taskId) {
+    showEditTask: function (taskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             tasksRoute = router.getRoute('workspace/tasks'),
-            openTaskView, topTitle, taskRecord, queryParams = {};
+            editTaskView, topTitle, taskRecord, queryParams = {};
 
         sort = router.arguments.sort;
         user = router.arguments.user;
@@ -119,23 +120,74 @@ Ext.define('Bpm.controller.OpenTask', {
         task.load(taskId, {
             success: function (taskRecord) {
 
-                openTaskView = Ext.create('Bpm.view.task.OpenTask', {
+                editTaskView = Ext.create('Bpm.view.task.EditTask', {
                     itemNameLink: '<a href="' + tasksRoute.buildUrl({}, queryParams) + '">' + Uni.I18n.translate('bpm.task.tasksName', 'BPM', 'tasks') + '</a>',
                     router: me.getController('Uni.controller.history.Router'),
                     taskRecord: taskRecord,
                     showNavigation: queryString.showNavigation
                 });
 
-                openTaskView.taskRecord = taskRecord;
-                me.getApplication().fireEvent('openTask', taskRecord);
+                editTaskView.taskRecord = taskRecord;
+                me.getApplication().fireEvent('editTask', taskRecord);
 
-                topTitle = openTaskView.down('#detail-top-title');
-                topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.openTaskTitle', 'BPM', "'{0}' task"), taskRecord.get('name')));
+                topTitle = editTaskView.down('#detail-top-title');
+                topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.editTaskTitle', 'BPM', "Edit '{0}'"), taskRecord.get('name')));
 
-                me.getApplication().fireEvent('changecontentevent', openTaskView);
+                me.getApplication().fireEvent('changecontentevent', editTaskView);
                 me.loadAssigneeForm(taskRecord);
                 me.loadEditTaskForm(taskRecord);
                 me.loadAboutTaskForm(taskRecord);
+            },
+            failure: function (record, operation) {
+            }
+        });
+    },
+
+    showPerformTask: function (taskId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            tasksRoute = router.getRoute('workspace/tasks'),
+            editTaskView, topTitle, taskRecord, queryParams = {};
+
+        sort = router.arguments.sort;
+        user = router.arguments.user;
+        dueDate = router.arguments.dueDate;
+        taskStatus = router.arguments.status;
+        process = router.arguments.process;
+
+        var tasksRoute = router.getRoute('workspace/tasks');
+        tasksRoute.params.sort = tasksRoute.params.user = tasksRoute.params.dueDate = tasksRoute.params.status =
+            tasksRoute.params.process = undefined;
+        tasksRoute.params.use = true;
+
+        sort && (sort != '') && (queryParams.sort = tasksRoute.params.sort = sort);
+        user && (user != '') && (queryParams.user = tasksRoute.params.user = user);
+        dueDate && (dueDate != '') && (queryParams.dueDate = tasksRoute.params.dueDate = dueDate);
+        taskStatus && (taskStatus != '') && (queryParams.status = tasksRoute.params.status = taskStatus);
+        process && (process != '') && (queryParams.process = tasksRoute.params.process = process);
+
+        var task = me.getModel('Bpm.model.task.Task');
+        task.load(taskId, {
+            success: function (taskRecord) {
+
+                editTaskView = Ext.create('Bpm.view.task.PerformTask', {
+                    itemNameLink: '<a href="' + tasksRoute.buildUrl({}, queryParams) + '">' + Uni.I18n.translate('bpm.task.tasksName', 'BPM', 'tasks') + '</a>',
+                    router: me.getController('Uni.controller.history.Router'),
+                    taskRecord: taskRecord,
+                    showNavigation: queryString.showNavigation
+                });
+
+                editTaskView.taskRecord = taskRecord;
+                me.getApplication().fireEvent('performTask', taskRecord);
+
+                topTitle = editTaskView.down('#detail-top-title');
+                topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.performTaskTitle', 'BPM', "Perform '{0}'"), taskRecord.get('name')));
+
+                me.getApplication().fireEvent('changecontentevent', editTaskView);
+                editTaskView.down('#frm-assignee-user').loadRecord(taskRecord);
+                editTaskView.down('#frm-edit-task').loadRecord(taskRecord);
+                editTaskView.down('#frm-about-task').loadRecord(taskRecord);
                 me.loadJbpmForm(taskRecord);
             },
             failure: function (record, operation) {
@@ -287,7 +339,7 @@ Ext.define('Bpm.controller.OpenTask', {
                 } else {
                     propertyForm.hide();
                 }
-                propertyForm.up('#frm-open-task').doLayout();
+                propertyForm.up('#frm-task').doLayout();
                 me.refreshButtons(openTaskRecord);
                 taskExecutionContent.setLoading(false);
             },
@@ -328,21 +380,30 @@ Ext.define('Bpm.controller.OpenTask', {
 
                 if (button.action === 'saveTask') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.saved', 'BPM', 'Task saved.'));
-               } else if (button.action === 'startTask') {
+                } else if (button.action === 'startTask') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.started', 'BPM', 'Task started.'));
                 } else if (button.action === 'completeTask') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.completed', 'BPM', 'Task completed.'));
                 }
 
-                var task = me.getModel('Bpm.model.task.Task');
-                task.load(openTaskRecord.get('id'), {
-                    success: function (taskRecord) {
-                        me.loadAssigneeForm(taskRecord);
-                        me.loadEditTaskForm(taskRecord);
-                        me.loadAboutTaskForm(taskRecord);
-                        me.loadJbpmForm(taskRecord);
+                if (button.action === 'completeTask'){
+                    var store = Ext.getStore('Bpm.store.task.Tasks');
+                    var rowIndex = store.findExact('id',parseInt(openTaskRecord.get('id')));
+                    if (rowIndex != -1) {
+                        store.removeAt(rowIndex);
                     }
-                });
+                }
+                else {
+                    var task = me.getModel('Bpm.model.task.Task');
+                    task.load(openTaskRecord.get('id'), {
+                        success: function (taskRecord) {
+                            me.loadAssigneeForm(taskRecord);
+                            me.loadEditTaskForm(taskRecord);
+                            me.loadAboutTaskForm(taskRecord);
+                            me.loadJbpmForm(taskRecord);
+                        }
+                    });
+                }
 
             },
             failure: function (record, operation) {

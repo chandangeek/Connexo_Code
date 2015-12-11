@@ -153,8 +153,11 @@ Ext.define('Bpm.controller.Task', {
         router.arguments.taskId = record.get('id');
 
         switch (item.action) {
-            case 'openTask':
-                route = 'workspace/tasks/openTask';
+            case 'editTask':
+                route = 'workspace/tasks/editTask';
+                break;
+            case 'performTask':
+                route = 'workspace/tasks/performTask';
                 break;
         }
 
