@@ -174,8 +174,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     showRegisterConfigs: function (deviceTypeId, deviceConfigId) {
         var me = this,
-            widget = Ext.widget('registerConfigSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
+            widget = Ext.widget('registerConfigSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId}),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
+        if (mainView) mainView.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigId = deviceConfigId;
 
@@ -190,6 +192,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
+                        if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);

@@ -223,7 +223,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     showSecuritySettings: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
-            widget = Ext.widget('securitySettingSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId});
+            widget = Ext.widget('securitySettingSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId}),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+
+        if (mainView) mainView.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
@@ -234,6 +237,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.deviceTypeName = deviceType.get('name');
