@@ -6,22 +6,22 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 /*
  * WARNING: The following implementation does not check the "OVERFLOW" flag on a register.
- * Should be done when the API which allows this check of the "OVERFLOW" flag will be available. 
+ * Should be done when the API which allows this check of the "OVERFLOW" flag will be available.
  */
 class RegisterIncreaseValidator extends AbstractValidator {
 
@@ -74,7 +74,13 @@ class RegisterIncreaseValidator extends AbstractValidator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().basicPropertySpec(FAIL_EQUAL_DATA, true, new BooleanFactory()));
+        builder.add(
+            getPropertySpecService()
+                .booleanSpec()
+                .named(FAIL_EQUAL_DATA, FAIL_EQUAL_DATA)
+                .describedAs(FAIL_EQUAL_DATA)
+                .markRequired()
+                .finish());
         return builder.build();
     }
 
@@ -92,9 +98,9 @@ class RegisterIncreaseValidator extends AbstractValidator {
                 return null;
         }
     }
-    
+
     @Override
     public List<String> getRequiredProperties() {
-        return Arrays.asList(FAIL_EQUAL_DATA);
+        return Collections.singletonList(FAIL_EQUAL_DATA);
     }
 }
