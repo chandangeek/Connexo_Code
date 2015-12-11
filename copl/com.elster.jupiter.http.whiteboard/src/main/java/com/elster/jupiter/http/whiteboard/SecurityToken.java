@@ -93,7 +93,6 @@ public class SecurityToken {
 
     public Optional<User> verifyToken(String token, HttpServletRequest request, HttpServletResponse response, UserService userService) {
         try {
-
             SignedJWT signedJWT = checkTokenIntegrity(token);
                 if (signedJWT!=null && (Long)signedJWT.getJWTClaimsSet().getCustomClaim("cnt") < MAX_COUNT) {
                     long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
@@ -141,36 +140,41 @@ public class SecurityToken {
         return false;
     }
 
-    private SignedJWT checkTokenIntegrity(String token){
-        try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            String publicKey = String.valueOf(signedJWT.getJWTClaimsSet().getCustomClaim("publicKey"));
-            String issuer = signedJWT.getJWTClaimsSet().getIssuer();
-            Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
-            Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-            long count = (Long)signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
-            long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
-            BigInteger modulus = new BigInteger(publicKey.split(" ")[0]);
-            BigInteger exp = new BigInteger(publicKey.split(" ")[1]);
-            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus,exp);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+    private SignedJWT checkTokenIntegrity(String token) {
+        if (token != null && !token.equals("null")) {
+            try {
+                SignedJWT signedJWT = SignedJWT.parse(token);
+                String publicKey = String.valueOf(signedJWT.getJWTClaimsSet().getCustomClaim("publicKey"));
+                String issuer = signedJWT.getJWTClaimsSet().getIssuer();
+                Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
+                Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+                long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
+                long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
+                BigInteger modulus = new BigInteger(publicKey.split(" ")[0]);
+                BigInteger exp = new BigInteger(publicKey.split(" ")[1]);
+                RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exp);
+                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
 
-            JWSVerifier verifier = new RSASSAVerifier(pubKey);
+                JWSVerifier verifier = new RSASSAVerifier(pubKey);
 
-            if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
-                    issueTime.before(expirationTime) && count == tokenNumericTermination) {return signedJWT;}
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (JOSEException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
+                if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
+                        issueTime.before(expirationTime) && count == tokenNumericTermination) {
+                    return signedJWT;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (JOSEException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
         }
-        return null;
-    }
+            return null;
+        }
+
 
 
 
