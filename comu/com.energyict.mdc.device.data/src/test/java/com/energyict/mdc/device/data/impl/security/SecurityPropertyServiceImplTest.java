@@ -634,7 +634,8 @@ public class SecurityPropertyServiceImplTest {
         service.deleteSecurityPropertiesFor(this.device);
 
         // Asserts
-        verify(this.customPropertySetService).removeValuesFor(customPropertySet, this.device);
+        verify(this.customPropertySetService).removeValuesFor(customPropertySet, this.device, this.securityPropertySet1);
+        verify(this.customPropertySetService).removeValuesFor(customPropertySet, this.device, this.securityPropertySet2);
     }
 
     private SecurityPropertyService testService () {

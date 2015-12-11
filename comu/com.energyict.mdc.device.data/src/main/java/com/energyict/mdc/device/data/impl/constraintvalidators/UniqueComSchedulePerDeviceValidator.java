@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
@@ -23,6 +22,9 @@ public class UniqueComSchedulePerDeviceValidator implements ConstraintValidator<
 
     @Override
     public boolean isValid(ScheduledComTaskExecutionImpl scheduledComTaskExecution, ConstraintValidatorContext context) {
+        if (scheduledComTaskExecution.isObsolete()) {
+            return true;
+        }
         for (ComTaskExecution other : scheduledComTaskExecution.getDevice().getComTaskExecutions()) {
             if (other.getId() != scheduledComTaskExecution.getId()) {
                 if (this.isScheduled(other) && other.executesComSchedule(scheduledComTaskExecution.getComSchedule())) {

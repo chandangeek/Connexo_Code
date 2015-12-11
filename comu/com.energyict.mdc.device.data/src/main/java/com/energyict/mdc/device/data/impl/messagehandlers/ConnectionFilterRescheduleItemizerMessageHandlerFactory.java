@@ -36,13 +36,12 @@ public class ConnectionFilterRescheduleItemizerMessageHandlerFactory implements 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MessageService messageService;
-    private volatile FilterFactory filterFactory;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
                 getInstance(ConnectionFilterRescheduleItemizerMessageHandler.class).
-                init(connectionTaskService, filterFactory, messageService, jsonService);
+                init(connectionTaskService, dataModel.getInstance(FilterFactory.class), messageService, jsonService);
     }
 
     @Reference

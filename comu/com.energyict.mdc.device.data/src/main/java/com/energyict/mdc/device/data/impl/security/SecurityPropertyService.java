@@ -26,7 +26,7 @@ public interface SecurityPropertyService {
      * @param securityPropertySet The SecurityPropertySet
      * @return The List of SecurityProperties
      */
-    public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
+    List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
 
     /**
      * Tests if the {@link Device} has properties for the specified {@link SecurityPropertySet}
@@ -37,7 +37,7 @@ public interface SecurityPropertyService {
      * @param securityPropertySet The SecurityPropertySet
      * @return A flag that indicates if the Device has security properties on the specified Date
      */
-    public boolean hasSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
+    boolean hasSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
 
     /**
      * Tests if all the security properties that are define in the configuration level
@@ -51,7 +51,7 @@ public interface SecurityPropertyService {
      * @param device The Device
      * @return A flag that indicates if all security properties are valid for the Device
      */
-    public boolean securityPropertiesAreValid(Device device);
+    boolean securityPropertiesAreValid(Device device);
 
     /**
      * Tests if the properties of the specified {@link SecurityPropertySet}
@@ -66,7 +66,7 @@ public interface SecurityPropertyService {
      * @param securityPropertySet The SecurityPropertySet
      * @return A flag that indicates if all security properties are valid for the Device
      */
-    public boolean securityPropertiesAreValid(Device device, SecurityPropertySet securityPropertySet);
+    boolean securityPropertiesAreValid(Device device, SecurityPropertySet securityPropertySet);
 
     /**
      * Sets the {@link SecurityProperty SecurityProperties}
@@ -77,13 +77,13 @@ public interface SecurityPropertyService {
      * @param securityPropertySet The SecurityPropertySet
      * @param properties The properties
      */
-    public void setSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties);
+    void setSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties);
 
     /**
      * Removes all securityProperties for the given Device.
      *
      * @param device the device whose properties need to be deleted
      */
-    public void deleteSecurityPropertiesFor(Device device);
+    void deleteSecurityPropertiesFor(Device device);
 
 }

@@ -218,7 +218,14 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         deviceProtocolPluggableClass
                 .getDeviceProtocol()
                 .getCustomPropertySet()
-                .ifPresent(cps -> this.customPropertySetService.removeValuesFor(cps, device));
+                .ifPresent(cps -> this.deleteSecurityPropertiesFor(device, cps));
+    }
+
+    private void deleteSecurityPropertiesFor(Device device, CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> cps) {
+        device
+            .getDeviceConfiguration()
+            .getSecurityPropertySets()
+            .forEach(securitySet -> this.customPropertySetService.removeValuesFor(cps, device, securitySet));
     }
 
 }

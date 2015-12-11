@@ -118,7 +118,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -140,7 +139,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1585,8 +1583,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        ComTaskExecution toRemove = this.comTaskExecutions.stream().filter(x-> x.executesComSchedule(comSchedule))
-                .findFirst().
+        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x-> x.executesComSchedule(comSchedule)).findFirst().
                 orElseThrow(()-> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
         removeComTaskExecution(toRemove);
     }
@@ -1936,7 +1933,7 @@ public class DeviceImpl implements Device {
     public class ScheduledComTaskExecutionBuilderForDevice
             extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
 
-        private Set<ComTaskExecution> executionsToDelete = new HashSet<>();
+        private Set<ComTaskExecution> executionsToDelete;
 
         private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComSchedule comSchedule) {
             super(comTaskExecutionProvider.get());
@@ -1945,16 +1942,11 @@ public class DeviceImpl implements Device {
         }
 
         private void initExecutionsToDelete(ComSchedule comSchedule) {
-            for(ComTaskExecution comTaskExecution:DeviceImpl.this.comTaskExecutions){
-                if(!comTaskExecution.usesSharedSchedule()){
-                    for(ComTask comTask : comSchedule.getComTasks()){
-                        if(comTaskExecution.getComTasks().get(0).getId()==comTask.getId()){
-                            this.executionsToDelete.add(comTaskExecution);
-                        }
-                    }
-                }
-            }
-            comSchedule.getComTasks();
+            Set<Long> comScheduleComTasks = comSchedule.getComTasks().stream().map(ComTask::getId).collect(Collectors.toSet());
+            this.executionsToDelete = DeviceImpl.this.getComTaskExecutionImpls()
+                    .filter(Predicates.not(ComTaskExecution::usesSharedSchedule))
+                    .filter(cte -> comScheduleComTasks.contains(cte.getComTasks().get(0).getId()))
+                    .collect(Collectors.toSet());
         }
 
         @Override
