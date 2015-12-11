@@ -334,7 +334,7 @@
         <dependency>
             <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
             <artifactId>facts</artifactId>
-            <version>10.0</version>
+            <version>10.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
