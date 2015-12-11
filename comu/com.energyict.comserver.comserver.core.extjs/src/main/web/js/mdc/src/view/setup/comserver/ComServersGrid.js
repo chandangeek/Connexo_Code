@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         },
         {
             header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-            dataIndex: 'comServerType',
+            dataIndex: 'displayComServerType',
             flex: 1
         },
         {
