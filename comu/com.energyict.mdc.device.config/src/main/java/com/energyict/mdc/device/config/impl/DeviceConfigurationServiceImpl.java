@@ -26,13 +26,11 @@ import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -56,7 +54,6 @@ import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -74,6 +71,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
@@ -99,12 +97,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static com.elster.jupiter.util.conditions.Where.where;
-import static java.util.stream.Collectors.toList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Provides an implementation for the {@link DeviceConfigurationService} interface.
@@ -112,7 +110,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class, ReferencePropertySpecFinderProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
 public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -817,15 +815,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id) {
         return this.getDataModel().mapper(DeviceConfigConflictMapping.class).getUnique("id", id);
-    }
-
-    @Override
-    public List<CanFindByLongPrimaryKey<? extends HasId>> finders () {
-        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-        finders.add(new DeviceTypeFinder(this));
-        finders.add(new DeviceConfigurationFinder(this));
-        finders.add(new FiniteStateFinder(this.finiteStateMachineService));
-        return finders;
     }
 
 }
