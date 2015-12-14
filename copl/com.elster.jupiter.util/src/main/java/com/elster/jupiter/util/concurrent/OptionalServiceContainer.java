@@ -1,6 +1,9 @@
 package com.elster.jupiter.util.concurrent;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -9,6 +12,7 @@ import java.util.function.Predicate;
  *
  * @param <S> the type of service
  */
+@ProviderType
 public interface OptionalServiceContainer<S> {
 
     /**
@@ -43,4 +47,9 @@ public interface OptionalServiceContainer<S> {
      */
     Optional<S> poll(Predicate<? super S> matcher);
 
+    /**
+     * Gets all registered services
+     * @return list of registered services
+     */
+    List<S> getServices();
 }

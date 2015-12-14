@@ -96,4 +96,9 @@ public class CopyOnWriteServiceContainer<S> implements OptionalServiceContainer<
                 .filter(matcher)
                 .findFirst();
     }
+
+    @Override
+    public List<S> getServices() {
+        return Collections.unmodifiableList(services);
+    }
 }

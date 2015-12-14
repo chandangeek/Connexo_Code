@@ -13,6 +13,7 @@
     <name>[Jupiter] com.elster.jupiter.util</name>
 
     <dependencies>
+
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
