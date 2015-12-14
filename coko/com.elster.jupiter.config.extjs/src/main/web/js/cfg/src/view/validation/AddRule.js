@@ -83,70 +83,13 @@ Ext.define('Cfg.view.validation.AddRule', {
                                 labelWidth: 260,
                                 width: 600
                             },
-                            /*{
-                                xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
-                                required: true,
-                                msgTarget: 'under',
-                                layout: 'hbox',
-                                width: 1100,
-                                items: [
-                                            {
-                                                xtype: 'component',
-                                                html: Uni.I18n.translate('general.noReadingTypesAvailable','CFG','No reading types have been added'),
-                                                itemId: 'noReadingTypesForValidationRuleLabel',
-                                                //hidden: true,
-                                                style: {
-                                                    'font': 'italic 13px/17px Lato',
-                                                    'color': '#686868',
-                                                    'margin-top': '6px',
-                                                    'margin-right': '10px'
-                                                }
-                                            },
-                                            {
-                                                xtype: 'gridpanel',
-                                                itemId: 'readingTypesForValidationRuleGridPanel',
-                                                store: 'ReadingTypesForRule',
-                                                hideHeaders: true,
-                                                padding: 0,
-                                                columns: [
-                                                    {
-                                                        xtype: 'reading-type-column',
-                                                        dataIndex: 'readingType',
-                                                        flex: 1
-                                                    },
-                                                    {
-                                                        xtype: 'actioncolumn',
-                                                        align: 'right',
-                                                        items: [
-                                                            {
-                                                                iconCls: 'uni-icon-delete',
-                                                                handler: function (grid, rowIndex) {
-                                                                    grid.getStore().removeAt(rowIndex);
-                                                                    if (grid.getStore().count() === 0) {
-                                                                        me.updateGrid();
-                                                                    }
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                ],
-                                                height: 220
-                                            },
-                                            {
-                                                        xtype: 'button',
-                                                        itemId: 'addReadingTypeButton',
-                                                        text: Uni.I18n.translate('validation.addReadingTypes', 'CFG', 'Add reading types'),
-                                                        margin: '0 0 0 10'
-                                            }
-                                ]
-                            },*/
+
 
 
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'reading-types-field-container',
-                                fieldLabel: Uni.I18n.translate('general.readingTypes', 'EST', 'Reading types'),
+                                fieldLabel: Uni.I18n.translate('general.readingTypes', 'CFG', 'Reading types'),
                                 required: true,
                                 layout: 'hbox',
                                 width: 1100,
@@ -199,16 +142,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                         ],
                                         height: 220,
                                         width: 670,
-                                        /*dockedItems: [
-                                            {
-                                                xtype: 'component',
-                                                dock: 'bottom',
-                                                cls: 'x-form-invalid-under',
-                                                itemId: 'reading-types-grid-error',
-                                                height: 52,
-                                                hidden: true
-                                            }
-                                        ]*/
+
                                     },
                                     {
                                         xtype: 'button',
