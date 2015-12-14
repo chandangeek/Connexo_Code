@@ -25,11 +25,11 @@ public class HttpContextImpl implements HttpContext {
 
     // Resources used by the login page so access is required before authenticating
     static final String[] RESOURCES_NOT_SECURED = {
-            "/apps/login/",
+            "/apps/login/"
             // Anything below will only be used in development.
-            "/apps/sky/",
-            "/apps/uni/",
-            "/apps/ext/"
+            //"/apps/sky/",
+            //"/apps/uni/",
+            //"/apps/ext/"
     };
 
     // No caching for index.html files, so that authentication will be verified first;
