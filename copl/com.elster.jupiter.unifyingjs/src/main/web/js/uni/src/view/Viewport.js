@@ -43,6 +43,7 @@ Ext.define('Uni.view.Viewport', {
             xtype: 'container',
             region: 'center',
             itemId: 'contentPanel',
+            maskElement: 'el',
             layout: 'fit',
             overflowX: 'auto',
             overflowY: 'hidden',

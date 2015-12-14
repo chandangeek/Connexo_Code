@@ -17,9 +17,14 @@ Ext.define('Uni.view.search.Results', {
     forceFit: true,
     enableColumnMove: true,
     columns: [],
+    config: {
+        service: null
+    },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            service = me.getService(),
+            searchFields = Ext.getStore('Uni.store.search.Fields');
 
         me.dockedItems = [
             {
@@ -44,11 +49,26 @@ Ext.define('Uni.view.search.Results', {
             }
         ];
 
-        me.callParent(arguments);
-    },
+        var storeListeners = searchFields.on('load', function (store, items) {
+            me.down('uni-search-column-picker').setColumns(items.map(function (field) {
+                return service.createColumnDefinitionFromModel(field)
+            }));
+        }, me, {
+            destroyable: true
+        });
 
-    setColumns: function(columns) {
-        this.down('uni-search-column-picker').setColumns(columns);
+        var serviceListeners = service.on('applyFilters', function() {
+            me.down('pagingtoolbartop').resetPaging();
+            me.down('pagingtoolbarbottom').resetPaging();
+        }, me, {
+            destroyable: true
+        });
+
+        me.callParent(arguments);
+        me.on('destroy', function(){
+            storeListeners.destroy();
+            serviceListeners.destroy();
+        });
     }
 });
 

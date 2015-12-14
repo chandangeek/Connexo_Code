@@ -11,6 +11,7 @@ Ext.define('Uni.property.model.Property', {
         {name: 'default', persist: false},
         {name: 'hasDefault', persist: false},
         {name: 'hasValue', persist:false},
+        {name: 'isReadOnly', type: 'boolean', persist: false},
         {name: 'isInheritedOrDefaultValue', type: 'boolean', defaultValue: true, persist: false}
     ],
     requires: [

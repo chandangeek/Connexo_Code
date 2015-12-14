@@ -4,7 +4,10 @@
 Ext.define('Uni.controller.AppController', {
     extend: 'Ext.app.Controller',
 
-    requires: [],
+    requires: [
+        'Ext.state.Manager',
+        'Ext.state.LocalStorageProvider'
+    ],
 
     refs: [
         {
@@ -78,6 +81,7 @@ Ext.define('Uni.controller.AppController', {
 
         var me = this;
         me.initCrossroads();
+        Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
 
         me.getController('Uni.controller.Navigation');
         me.getApplication().fireEvent('onnavigationtitlechanged', me.applicationTitle);

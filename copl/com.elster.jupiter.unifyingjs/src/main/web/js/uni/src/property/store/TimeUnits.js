@@ -4,11 +4,9 @@ Ext.define('Uni.property.store.TimeUnits', {
         'Uni.property.model.field.TimeUnit'
     ],
     model: 'Uni.property.model.field.TimeUnit',
-  //  autoLoad: true,
-
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/field/timeUnit',
+        url: '/api/tmr/field/timeUnit',
         reader: {
             type: 'json',
             root: 'timeUnits'

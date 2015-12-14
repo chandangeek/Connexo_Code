@@ -1,7 +1,7 @@
 /**
  * @class Uni.view.search.field.Selection
  *
-//{
+ //{
 //    xtype: 'search-combo',
 //    itemId: 'domain',
 //    store: Ext.create('Ext.data.Store', {
@@ -43,7 +43,9 @@ Ext.define('Uni.view.search.field.Selection', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     requires: [
         'Ext.grid.Panel',
-        'Uni.view.search.field.internal.Input'
+        'Uni.view.search.field.internal.Input',
+        'Uni.view.search.field.internal.Operator',
+        'Uni.model.search.Value'
     ],
 
     mixins: [
@@ -53,8 +55,9 @@ Ext.define('Uni.view.search.field.Selection', {
     xtype: 'uni-search-criteria-selection',
 
     updateButtonText: function () {
-        return this.selection.length
-            ? this.setText(this.emptyText + '&nbsp;(' + this.selection.length + ')')
+        //this.setValue(value);
+        return this.value
+            ? this.setText(this.emptyText + '&nbsp;(' + this.value[0].get('criteria').length + ')')
             : this.setText(this.emptyText);
     },
 
@@ -64,20 +67,45 @@ Ext.define('Uni.view.search.field.Selection', {
         maxHeight: 600
     },
 
-    populateValue: function(value) {
-        this.setValue(value);
-        this.setText(this.emptyText + '&nbsp;(' + value.length + ')');
+    populateValue: function (value) {
+        var me = this,
+            store = me.getStore(),
+            selection = me.selection;
+
+        store.load(function () {
+            if (value && value[0]) {
+                var records = _.filter(_.map(value[0].get('criteria'), function (id) {
+                    return store.getById(id);
+                }), function (r) {
+                    return r !== null
+                });
+
+                selection.suspendEvents();
+                selection.removeAll();
+                selection.add(records);
+                selection.resumeEvents();
+                me.onChange();
+            }
+        });
     },
 
-    onSelectionChange: function () {
-        var me = this;
-        me.setValue(me.selection.getRange().map(function(item){
-            return item.get(me.valueField)
-        }));
-        me.down('#filter-selected').setDisabled(!me.selection.length);
+    onChange: function () {
+        var me = this,
+            value = me.selection.getRange().map(function (item) {
+                return item.get(me.valueField)
+            });
+
+        me.setValue(value.length ? Ext.create('Uni.model.search.Value', {
+            operator: this.down('#filter-operator').getValue(),
+            criteria: value
+        }) : null);
+
+        if (me.rendered) {
+            me.down('#filter-selected').setDisabled(!me.selection.length);
+        }
     },
 
-    reset: function() {
+    reset: function () {
         this.selection.clear();
         this.down('#filter-input').reset();
         this.getStore().clearFilter(true);
@@ -90,15 +118,15 @@ Ext.define('Uni.view.search.field.Selection', {
             selection = me.selection = Ext.create('Ext.util.MixedCollection', {
                 listeners: {
                     add: {
-                        fn: me.onSelectionChange,
+                        fn: me.onChange,
                         scope: me
                     },
                     remove: {
-                        fn: me.onSelectionChange,
+                        fn: me.onChange,
                         scope: me
                     },
                     clear: {
-                        fn: me.onSelectionChange,
+                        fn: me.onChange,
                         scope: me
                     }
                 }
@@ -132,11 +160,19 @@ Ext.define('Uni.view.search.field.Selection', {
                         items: [
                             {
                                 itemId: 'filter-operator',
-                                xtype: 'combo',
-                                value: '=',
-                                width: 50,
+                                xtype: 'uni-search-internal-operator',
+                                value: '==',
                                 margin: '0 5 0 0',
-                                disabled: true
+                                operators: [
+                                    '=='
+                                    //'!='
+                                ],
+                                listeners: {
+                                    change: {
+                                        fn: me.onChange,
+                                        scope: me
+                                    }
+                                }
                             },
                             {
                                 xtype: 'uni-search-internal-input',
@@ -148,15 +184,11 @@ Ext.define('Uni.view.search.field.Selection', {
                                         var store = me.grid.getStore();
                                         Ext.suspendLayouts();
                                         if (store.remoteFilter) {
-                                            if (Ext.isEmpty(value)) {
-                                                store.clearFilter();
-                                            } else {
-                                                store.filter({
-                                                    id: me.displayField,
-                                                    property: me.displayField,
-                                                    value: value
-                                                });
-                                            }
+                                            store.filter({
+                                                id: me.displayField,
+                                                property: me.displayField,
+                                                value: value
+                                            });
                                         } else {
                                             store.clearFilter(true);
                                             me.enableRegEx
@@ -189,7 +221,7 @@ Ext.define('Uni.view.search.field.Selection', {
                                 selectionModel.selectAll();
                             }
                             selection.resumeEvents();
-                            me.onSelectionChange();
+                            me.onChange();
                             delete selectionModel.preventFocus;
                         }
                     },
@@ -205,27 +237,34 @@ Ext.define('Uni.view.search.field.Selection', {
                         boxLabel: Uni.I18n.translate('search.field.selection.checkbox.show-selected', 'UNI', 'Show all selected values'),
                         disabled: true,
                         hidden: !me.multiSelect,
-                        handler: function () {
-                            var store = me.grid.getStore();
-                            Ext.suspendLayouts();
+                        listeners: {
+                            change: function () {
+                                var store = me.grid.getStore(),
+                                    input = me.down('#filter-input');
 
-                            if (this.checked) {
-                                //store.clearFilter(true);
-                                if (store.remoteFilter) {
-                                    store.removeAll();
-                                    store.add(selection.getRange());
+                                Ext.suspendLayouts();
+
+                                input.suspendEvent('change');
+                                input.reset();
+                                input.resumeEvent('change');
+                                store.filters.removeAtKey(me.displayField);
+
+                                if (this.checked) {
+                                    if (store.remoteFilter) {
+                                        store.removeAll();
+                                        store.add(selection.getRange());
+                                    } else {
+                                        store.filter({
+                                            filterFn: function (item) {
+                                                return selection.getRange().indexOf(item) >= 0;
+                                            }
+                                        });
+                                    }
                                 } else {
-                                    store.filter({
-                                        filterFn: function (item) {
-                                            return selection.getRange().indexOf(item) >= 0;
-                                        }
-                                    });
+                                    store.load();
                                 }
-                            } else {
-                                store.removeFilter(me.displayField, false);
-                                store.load();
+                                Ext.resumeLayouts(true);
                             }
-                            Ext.resumeLayouts(true);
                         }
                     }
                 ]
@@ -234,29 +273,17 @@ Ext.define('Uni.view.search.field.Selection', {
                 store: me.store,
                 selType: 'checkboxmodel',
                 mode: me.multiSelect ? 'SIMPLE' : 'SINGLE',
-                toggleUiHeader: function(isChecked) {
+                toggleUiHeader: function (isChecked) {
                     me.grid.down('#select-all').setRawValue(isChecked);
                 },
-                onStoreAdd: function() {
-                    this.superclass.onStoreAdd.apply(this);
-                    this.select(_.intersection(this.getStore().getRange(), selection.getRange()), true, true);
-                    this.updateHeaderState();
+                onStoreAdd: function () {
+                    me.viewSync();
                 },
-                onStoreLoad: function (store) {
-                    this.superclass.onStoreLoad.apply(this);
-                    _.map(me.value, function(id) {
-                        var record = store.getById(id);
-                        if (record) {
-                            selection.add(record);
-                        }
-                    });
-                    this.select(selection.getRange(), true, true);
-                    this.updateHeaderState();
+                onStoreLoad: function () {
+                    me.viewSync();
                 },
                 onStoreRefresh: function () {
-                    this.superclass.onStoreRefresh.apply(this);
-                    this.select(_.intersection(this.getStore().getRange(), selection.getRange()), true, true);
-                    this.updateHeaderState();
+                    me.viewSync();
                 },
                 listeners: {
                     beforeselect: function (s, record) {
@@ -296,8 +323,45 @@ Ext.define('Uni.view.search.field.Selection', {
         me.callParent(arguments);
         me.bindStore(me.store || 'ext-empty-store', true);
         me.grid = me.down('grid');
-        me.on('menushow', function(){
-            me.store.load();
+        me.on('menushow', me.viewSync, me);
+    },
+
+    viewSync: function() {
+        var me = this,
+            model = me.grid.getSelectionModel(),
+            count = me.store.getCount(),
+            filterSelected = me.down('#filter-selected');
+
+        model.deselectAll(true);
+        model.select(me.getStoreRecords(), true, true);
+        model.updateHeaderState();
+
+        me.down('#select-all').setDisabled(!count);
+        filterSelected.suspendEvent('change');
+        filterSelected.setValue(
+                count > 0
+            &&  count === model.getCount()
+            &&  count === me.selection.getCount()
+        );
+        filterSelected.resumeEvent('change');
+    },
+
+    getStoreRecords: function() {
+        var me = this;
+        return _.filter(me.getStore().getRange(), function(i) {
+            return _.indexOf(_.map(me.selection.getRange(), function(i) {return i.getId()}), i.getId()) >=0
         })
+    },
+
+    storeSync: function () {
+        var me = this,
+            selection = me.selection,
+            records = me.getStoreRecords();
+
+        selection.suspendEvents();
+        selection.removeAll();
+        selection.add(records);
+        selection.resumeEvents();
+        me.onChange();
     }
 });

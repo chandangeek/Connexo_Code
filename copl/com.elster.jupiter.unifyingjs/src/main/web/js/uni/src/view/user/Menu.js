@@ -10,7 +10,7 @@ Ext.define('Uni.view.user.Menu', {
 
     menu: [
         {
-            text: 'Logout',
+            text: Uni.I18n.translate('general.logout', 'UNI', 'Logout'),
             itemId: 'user-log-out',
             listeners: {
                 'click': function () {
@@ -20,7 +20,7 @@ Ext.define('Uni.view.user.Menu', {
                         disableCaching: true,
                         scope: this,
                         success: function () {
-                            window.location.replace('/apps/login/index.html');
+                            window.location.replace('/apps/login/index.html?logout');
                         }
                     });
                 }

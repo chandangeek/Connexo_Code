@@ -5,10 +5,6 @@ Ext.define('Uni.view.search.field.internal.Adapter', {
     extend: 'Ext.container.Container',
     xtype: 'uni-search-internal-adapter',
 
-    mixins: [
-        'Uni.grid.filtertop.Base'
-    ],
-
     layout: {
         type: 'hbox'
     },
@@ -28,10 +24,7 @@ Ext.define('Uni.view.search.field.internal.Adapter', {
 
         if (Ext.isDefined(me.widget)) {
             me.property = me.widget.property;
-
-            me.active = me.widget.active;
             me.dataIndex = me.widget.dataIndex;
-            me.applyParamValue = me.widget.applyParamValue;
 
             me.defaults = {
                 margin: 0
@@ -50,29 +43,13 @@ Ext.define('Uni.view.search.field.internal.Adapter', {
 
         me.callParent(arguments);
 
+        me.widget.on('destroy', function(){
+            me.destroy();
+        });
+
         if (Ext.isDefined(me.widget)) {
             me.down('button[action=remove]').on('click', me.removeHandler, me);
         }
-    },
-
-    getValue: function () {
-        return this.widget.getValue();
-    },
-
-    populateValue: function(value) {
-        this.widget.populateValue(value);
-    },
-
-    setValue: function (value) {
-        this.widget.setValue(value);
-    },
-
-    reset: function () {
-        this.widget.reset();
-    },
-
-    getFilter: function () {
-        return this.widget.getFilter();
     }
 });
 

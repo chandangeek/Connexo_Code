@@ -1,15 +1,26 @@
-/**
- * @deprecated
- */
 Ext.define('Uni.view.search.field.internal.NumberRange', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.form.FieldSet',
     xtype: 'uni-search-internal-numberrange',
     requires: [
-        'Uni.view.search.field.internal.NumberLine'
+        'Uni.view.search.field.internal.NumberField'
     ],
-    layout: 'vbox',
+    width: '455',
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
     defaults: {
         margin: '0 0 5 0'
+    },
+    margin: 0,
+    padding: 0,
+    border: false,
+    itemsDefaultConfig: {},
+
+    setValue: function(value) {
+        this.items.each(function(item, index) {
+            item.setValue(value[index]);
+        });
     },
 
     onChange: function () {
@@ -45,18 +56,16 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
 
         me.items = [
             {
-                xtype: 'uni-search-internal-numberline',
+                xtype: 'uni-search-internal-numberfield',
                 itemId: 'from',
-                isDefault: true,
-                operator: '>',
-                listeners: listeners
+                listeners: listeners,
+                itemsDefaultConfig: me.itemsDefaultConfig
             },
             {
-                xtype: 'uni-search-internal-numberline',
+                xtype: 'uni-search-internal-numberfield',
                 itemId: 'to',
-                isDefault: true,
-                operator: '<',
-                listeners: listeners
+                listeners: listeners,
+                itemsDefaultConfig: me.itemsDefaultConfig
             }
         ];
 

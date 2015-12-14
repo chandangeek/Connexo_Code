@@ -3,16 +3,20 @@
  */
 Ext.define('Uni.model.search.Property', {
     extend: 'Ext.data.Model',
+    idProperty: 'name',
+
     fields: [
         {name: 'name', type: 'string'},
         {name: 'displayValue', type: 'string'},
         {name: 'type', type: 'string'},
+        {name: 'factoryName', type: 'string'},
         {name: 'exhaustive', type: 'boolean'},
         {name: 'link', type: 'auto'},
         {name: 'selectionMode', type: 'string'},
         {name: 'visibility', type: 'string'},
         {name: 'constraints', type: 'auto'},
         {name: 'group', type: 'auto'},
+        {name: 'affectsAvailableDomainProperties', type: 'boolean'},
         {
             name: 'groupId', type: 'int', convert: function (v, record) {
             return record.raw.group ? record.raw.group.id : null;

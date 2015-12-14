@@ -135,7 +135,7 @@ Ext.define('Uni.controller.Error', {
                         'UNI',
                         'Request failed'
                     );
-                    me.showError(title, message);
+                    me.showError(title, decoded.message ? decoded.message : message);
                 }
                 break;
             case 500: // Internal server error.

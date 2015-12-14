@@ -26,8 +26,6 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Navigation',
         'Uni.controller.Notifications',
         'Uni.controller.Portal',
-        'Uni.controller.Search',
-        'Uni.controller.Session',
 
         'Uni.view.form.field.Vtypes',
         'Uni.component.filter.view.FilterTopPanel',

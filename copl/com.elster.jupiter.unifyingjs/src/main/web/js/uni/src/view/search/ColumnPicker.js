@@ -44,17 +44,13 @@ Ext.define('Uni.view.search.ColumnPicker', {
                 itemId: 'column-picker-restore-defaults-button',
                 text: 'Restore defaults',
                 ui: 'link',
-                handler: function() {
-                    me.setColumns(me.defaultColumns);
-                }
+                handler: Ext.bind(me.restoreColumns, me)
             }],
             buttons: [
                 {
                     text: 'Done',
                     itemId: 'column-picker-done-button',
-                    handler: function() {
-                        me.grid.reconfigure(null, _.pluck(me.menu.down('#columns-selected').items.getRange(), 'column'));
-                    }
+                    handler: Ext.bind(me.changeColumns, me)
                 },
                 {
                     text: 'Cancel',
@@ -65,58 +61,31 @@ Ext.define('Uni.view.search.ColumnPicker', {
                     }
                 }
             ],
-            items: [
-                {
-                    xtype: 'checkboxgroup',
-                    padding: 5,
-                    itemId: 'columns-selected',
-                    columns: 1,
-                    vertical: true,
-                    //plain: true,
-                    floating: false,
-                    defaults: {
-                        checkDirty: Ext.emptyFn,
-                        listeners: {
-                            change: function(item) {
-                                var newItem = me.createMenuItem(item.column);
-                                newItem.checked = false;
-                                Ext.suspendLayouts();
-                                me.menu.down('#columns-selected').remove(item);
-                                me.menu.down('#columns-available').add(newItem);
-                                Ext.resumeLayouts(true);
-                                return false;
-                            }
-                        }
-                    }
-
-                },
-                {
-                    xtype: 'menuseparator'
-                },
-                {
-                    xtype: 'checkboxgroup',
-                    padding: 5,
-                    columns: 1,
-                    vertical: true,
-                    itemId: 'columns-available',
-                    //plain: true,
-                    floating: false,
-                    defaults: {
-                        checkDirty: Ext.emptyFn,
-                        listeners: {
-                            change: function(item) {
-                                var newItem = me.createMenuItem(item.column);
-                                newItem.checked = true;
-                                Ext.suspendLayouts();
-                                me.menu.down('#columns-selected').add(newItem);
-                                me.menu.down('#columns-available').remove(item);
-                                Ext.resumeLayouts(true);
-                                return false;
-                            }
-                        }
-                    }
+            items: {
+                xtype: 'checkboxgroup',
+                padding: 5,
+                itemId: 'columns-container',
+                columns: 1,
+                vertical: true,
+                floating: false,
+                defaults: {
+                    checkDirty: Ext.emptyFn
                 }
-            ]
+            },
+            listeners: {
+                beforeshow: {
+                    scope: me,
+                    fn: me.onMenuBeforeShow
+                },
+                show: {
+                    scope: me,
+                    fn: me.onMenuShow
+                },
+                hide: {
+                    scope: me,
+                    fn: me.onMenuHide
+                }
+            }
         };
 
         me.callParent(arguments);
@@ -129,29 +98,93 @@ Ext.define('Uni.view.search.ColumnPicker', {
             inputValue: column.dataIndex,
             disabled: column.disabled,
             checked: column.isDefault,
-            column: column
+            column: column,
+            handler: function (checkbox, checked) {
+                checkbox.column.isDefault = checked;
+            }
         };
     },
 
-    setColumns: function (columns) {
+    setColumns: function (columns, restoreState) {
+        var me = this;
+
+        me.columns = columns;
+        if (!restoreState) {
+            me.defaultColumns = Ext.clone(columns);
+            me.currentColumns = columns;
+            me.grid.reconfigure(null, _.filter(columns, function(c){return c.isDefault}));
+        }
+    },
+
+    onMenuBeforeShow: function (menu) {
         var me = this,
-            available = me.menu.down('#columns-available'),
-            selected = me.menu.down('#columns-selected')
-        ;
+            columnsContainer = menu.down('checkboxgroup'),
+            columns = me.columns,
+            sortedColumns = _.sortBy(columns, function (column) {return column.header}),
+            groups = _.groupBy(sortedColumns, function (column) {return column.isDefault ? 'checked' : 'unchecked'});
 
-        me.defaultColumns = columns;
         Ext.suspendLayouts();
-        available.removeAll();
-        selected.removeAll();
+        columnsContainer.removeAll();
+        Ext.Array.each(groups.checked, function (column) {
+            columnsContainer.add(me.createMenuItem(column));
+        });
+        if (groups.checked
+            && groups.checked.length
+            && groups.unchecked
+            && groups.unchecked.length) {
+            columnsContainer.add({xtype: 'menuseparator'});
+        }
+        Ext.Array.each(groups.unchecked, function (column) {
+            columnsContainer.add(me.createMenuItem(column));
+        });
+        Ext.resumeLayouts(true);
+    },
 
-        if (columns.length) {
-            Ext.each(columns, function (item) {
-                var menuItem = me.createMenuItem(item);
-                menuItem.checked ? selected.add(menuItem) : available.add(menuItem);
+    onMenuShow: function () {
+        var me = this;
+
+        me.currentColumns = Ext.clone(me.columns);
+    },
+
+    onMenuHide: function () {
+        var me = this;
+
+        me.setColumns(me.currentColumns, true);
+    },
+
+    changeColumns: function() {
+        var me = this,
+            menu = me.menu,
+            grid = me.grid,
+            currentColumns = grid.getView().getHeaderCt().items,
+            newColumns = _.filter(me.columns, function (column) {return column.isDefault}),
+            toAdd = [];
+
+        if (newColumns.length) {
+            currentColumns.each(function (currentColumn) {
+                Ext.Array.every(newColumns, function (newColumn, index) {
+                    if (currentColumn.dataIndex === newColumn.dataIndex) {
+                        toAdd.push(Ext.clone(newColumn));
+                        Ext.Array.remove(newColumns, newColumn);
+                        return false;
+                    }
+                    return true;
+                })
             });
         }
+        Ext.Array.push(toAdd, newColumns);
+        grid.reconfigure(null, toAdd);
+        menu.suspendEvent('hide');
+        menu.hide();
+        menu.resumeEvent('hide');
+    },
 
-        me.grid.reconfigure(null, _.filter(columns, function(c){return c.isDefault}));
+    restoreColumns: function() {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.setColumns(me.defaultColumns);
+        me.menu.hide();
         Ext.resumeLayouts(true);
     }
 });

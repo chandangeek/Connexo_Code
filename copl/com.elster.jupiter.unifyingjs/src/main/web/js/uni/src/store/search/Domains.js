@@ -7,6 +7,7 @@ Ext.define('Uni.store.search.Domains', {
     storeId: 'Uni.store.search.Domains',
     singleton: true,
     autoLoad: false,
+    remoteFilter: true,
 
     proxy: {
         type: 'ajax',

@@ -2,50 +2,51 @@ Ext.define('Uni.view.search.field.Simple', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     xtype: 'uni-search-criteria-simple',
     requires: [
-        'Uni.view.search.field.internal.Input'
+        'Uni.view.search.field.internal.CriteriaLine'
     ],
 
     reset: function() {
-        this.down('#filter-input').reset();
+        this.down('uni-search-internal-criterialine').reset();
         this.callParent(arguments);
     },
 
-    populateValue: function(value) {
-        this.down('#filter-input').setValue(value);
+    onInputChange: function() {
+        this.setValue(this.down('uni-search-internal-criterialine').getValue());
+    },
+
+    onInputReset: function () {
+        this.setText(this.emptyText);
     },
 
     initComponent: function () {
         var me = this;
-
-        me.items = {
-            xtype: 'toolbar',
-            layout: 'hbox',
-            padding: 5,
-            items: [
-                {
-                    itemId: 'filter-operator',
-                    xtype: 'combo',
-                    value: '=',
-                    width: 50,
-                    margin: '0 5 0 0',
-                    disabled: true
-                },
-                {
-                    xtype: 'uni-search-internal-input',
-                    itemId: 'filter-input',
-                    emptyText: me.emptyText,
-                    listeners: {
-                        change: {
-                            fn: function(elm, val) {
-                                this.setValue(val);
-                            },
-                            scope: me
-                        }
-                    }
-                }
-            ]
-        };
+        this.init();
 
         me.callParent(arguments);
+    },
+
+    init: function () {
+        var me = this;
+
+        me.items = {
+            xtype: 'uni-search-internal-criterialine',
+            operator: '==',
+            padding: 5,
+            removable: false,
+            operatorMap: {
+                '==': 'uni-search-internal-input'
+                //'!=': 'uni-search-internal-input'
+            },
+            listeners: {
+                change: {
+                    fn: me.onInputChange,
+                    scope: me
+                },
+                reset: {
+                    fn: me.onInputReset,
+                    scope: me
+                }
+            }
+        };
     }
 });

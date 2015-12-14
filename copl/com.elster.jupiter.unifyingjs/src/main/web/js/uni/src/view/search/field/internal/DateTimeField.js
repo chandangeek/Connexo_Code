@@ -1,12 +1,24 @@
-Ext.define('Uni.view.search.field.internal.DateLine', {
-    extend: 'Ext.panel.Panel',
-    xtype: 'uni-search-internal-dateline',
+Ext.define('Uni.view.search.field.internal.DateTimeField', {
+    extend: 'Ext.form.FieldContainer',
+    xtype: 'uni-search-internal-datetimefield',
     layout: 'hbox',
+    requires: [
+        'Uni.view.search.field.internal.Operator',
+        'Uni.model.search.Value'
+    ],
     defaults: {
         margin: '0 10 0 0'
     },
-
     removable: false,
+
+    setValue: function(value) {
+        var date = new Date(value);
+        if (date) {
+            this.down('#date').setValue(date);
+            this.down('#hours').setValue(date.getHours());
+            this.down('#minutes').setValue(date.getMinutes());
+        }
+    },
 
     getValue: function() {
         var date = this.down('#date').getValue();
@@ -15,7 +27,7 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
             date.setMinutes(this.down('#minutes').getValue());
         }
 
-        return date;
+        return date ? date.getTime() : null;
     },
 
     reset: function() {
@@ -45,12 +57,6 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
         );
 
         me.items = [
-            {
-                xtype: 'combo',
-                disabled: true,
-                width: 55,
-                value: me.operator
-            },
             {
                 xtype: 'datefield',
                 itemId: 'date',
@@ -98,38 +104,6 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
             }
         ];
 
-        if (me.removable) {
-            me.rbar = {
-                width: 15,
-                items: {
-                    xtype: 'button',
-                    itemId: 'filter-clear',
-                    ui: 'plain',
-                    tooltip: Uni.I18n.translate('search.field.remove', 'UNI', 'Remove filter'),
-                    iconCls: ' icon-close4',
-                    hidden: true,
-                    style: {
-                        fontSize: '16px'
-                    },
-                    handler: me.onRemove,
-                    scope: me
-                }
-            };
-        }
-
-
         me.callParent(arguments);
-
-        if (me.removable) {
-            me.on('render', function() {
-                var button = me.down('#filter-clear');
-                me.getEl().on('mouseover', function () {
-                    button.setVisible(true);
-                });
-                me.getEl().on('mouseout', function () {
-                    button.setVisible(false);
-                });
-            });
-        }
     }
 });
