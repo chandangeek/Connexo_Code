@@ -21,7 +21,7 @@ Ext.define('Mtr.readingtypes.view.bulk.Step4', {
             itemId: 'step4-notification-panel',
             margin: '0 0 0 -16',
             title: title,
-            message: message,
+            message: Ext.htmlEncode(message),
 
             additionalItems: [
                 {
