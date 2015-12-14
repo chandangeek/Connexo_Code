@@ -74,6 +74,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 },
                 {
                     xtype: 'numberfield',
+                    itemId: 'nr-of-fraction-digits',
                     fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC', 'Number of fraction digits'),
                     name: 'nbrOfFractionDigits',
                     required: true,
