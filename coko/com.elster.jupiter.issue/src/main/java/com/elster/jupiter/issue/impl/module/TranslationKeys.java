@@ -18,6 +18,9 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_STATUS_IN_PROGRESS("issue.status.in.progress", "In progress"),
     ACTION_ASSIGN_ISSUE("issue.action.assignIssue", "Assign issue"),
     ACTION_COMMENT_ISSUE("issue.action.commentIssue", "Comment issue"),
+    CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
+    ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
+    ACTION_RETRY("ActionRetry", "Retry"),
     ASSIGNACTION_PROPERTY_ASSIGNEE(AssignIssueAction.ASSIGNEE, "Assignee"),
     ASSIGNEACTION_PROPERTY_COMMENT(AssignIssueAction.COMMENT, "Comment"),
     COMMENTACTION_PROPERTY_COMMENT(CommentIssueAction.ISSUE_COMMENT, "Comment");
