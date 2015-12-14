@@ -48,14 +48,14 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortView', {
                             items: [
                                 {
                                     itemId: 'addButton',
-                                    text: Uni.I18n.translate('general.add', 'UNI', 'Add'),
+                                    text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                     ui: 'action',
                                     disabled: true /*,
                                     listeners:[{click: {fn: me.onAddButtonClick}}] */
                                 },
                                 {
                                     itemId: 'cancelButton',
-                                    text: Uni.I18n.translate('general.cancel', 'UNI', 'Cancel'),
+                                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                     ui: 'link',
                                     href: '#/administration/comportpools/'+ me.poolId +'/comports'
                                 }
