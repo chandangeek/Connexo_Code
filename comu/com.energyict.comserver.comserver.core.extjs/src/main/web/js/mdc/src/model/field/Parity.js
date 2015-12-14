@@ -2,7 +2,7 @@ Ext.define('Mdc.model.field.Parity', {
     extend: 'Ext.data.Model',
     fields: [
         {
-            name: 'parity',
+            name: 'id',
             type: 'string'
         },
         {
