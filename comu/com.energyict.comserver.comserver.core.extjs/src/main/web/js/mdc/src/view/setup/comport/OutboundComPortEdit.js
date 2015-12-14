@@ -49,8 +49,8 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
                                 fieldLabel: 'Communication port type',
                                 store: comporttypes,
                                 queryMode: 'local',
-                                displayField: 'comPortType',
-                                valueField: 'comPortType'
+                                displayField: 'localizedValue',
+                                valueField: 'id'
                             },
                             {
                                 xtype: 'textfield',

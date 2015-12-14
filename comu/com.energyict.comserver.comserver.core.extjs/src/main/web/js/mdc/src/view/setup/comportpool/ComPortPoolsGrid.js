@@ -35,7 +35,10 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
             {
                 header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 dataIndex: 'comPortType',
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    return value && value.localizedValue;
+                }
             },
             {
                 header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
