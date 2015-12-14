@@ -4,7 +4,7 @@ Ext.define('Mdc.service.DeviceGroupSearch', {
     stateful: false,
     stateId: 'deviceGroup',
 
-    addProperty: function (property) {
+    addProperty: function (property, state) {
         var me = this,
             excludedCriteria,
             filter;
@@ -15,7 +15,7 @@ Ext.define('Mdc.service.DeviceGroupSearch', {
             excludedCriteria = me.excludedCriteria ? [me.excludedCriteria] : [];
         }
         if (!Ext.Array.contains(excludedCriteria, property.get('name'))) {
-            filter = me.createWidgetForProperty(property);
+            filter = me.createWidgetForProperty(property, state);
         }
         if (Ext.isDefined(filter)) {
             me.filters.add(property.get('sticky') ? filter : filter.widget);
