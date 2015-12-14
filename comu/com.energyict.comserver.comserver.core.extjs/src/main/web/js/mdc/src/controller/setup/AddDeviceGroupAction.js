@@ -357,12 +357,17 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             me.service.excludedCriteria = 'deviceGroup';
         }
 
+        step2.setLoading(true);
         if (domainsStore.isLoading()) {
             domainsStore.on('load', function () {
-                me.service.applyState(state || defaultState);
+                me.service.applyState(state || defaultState, function(){
+                    step2.setLoading(false);
+                });
             }, me, {single: true});
         } else {
-            me.service.applyState(state || defaultState);
+            me.service.applyState(state || defaultState, function(){
+                step2.setLoading(false);
+            });
         }
     },
 
