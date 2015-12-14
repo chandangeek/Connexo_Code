@@ -115,6 +115,10 @@ public class Clock extends AbstractCosemObject {
         }
     }
 
+    public void setDateTime(Date dateTime) throws IOException {
+        setAXDRDateTimeAttr(new AXDRDateTime(dateTime));
+    }
+
     public void setDateTime(Calendar dateTime) throws IOException {
         setDateTime(dateTime.getTime());
     }
@@ -331,10 +335,6 @@ public class Clock extends AbstractCosemObject {
     	write(ClockAttributes.TIME, dateTime.getBEREncodedByteArray());
     }
 
-    public void setDateTime(Date dateTime) throws IOException {
-        setAXDRDateTimeAttr(new AXDRDateTime(dateTime));
-    }
-
     public AbstractDataType getTimeAttr() throws IOException {
         return AXDRDecoder.decode(getResponseData(ClockAttributes.TIME));
     }
@@ -398,7 +398,9 @@ public class Clock extends AbstractCosemObject {
         }
 
         Structure adjustingTimeStructure = new Structure(presetDateTime, validityIntervalStartDateTime, validityIntervalEndDateTime);
-        System.out.println(adjustingTimeStructure);
+        if (getLogger().isLoggable(java.util.logging.Level.ALL)) {
+            getLogger().log(java.util.logging.Level.ALL, (adjustingTimeStructure).toString());
+        }
         if (getObjectReference().isLNReference()) {
             this.invoke(METHODID_PRESET_ADJUSTING_TIME, adjustingTimeStructure.getBEREncodedByteArray());
         } else {
