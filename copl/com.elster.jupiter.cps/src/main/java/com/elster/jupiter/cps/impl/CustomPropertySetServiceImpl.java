@@ -602,7 +602,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Override
     public <D, T extends PersistentDomainExtension<D>> void removeValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
-        activeCustomPropertySet.deleteExtensions(businessObject);
+        activeCustomPropertySet.deleteExtensions(businessObject, additionalPrimaryKeyValues);
     }
 
     @Override
