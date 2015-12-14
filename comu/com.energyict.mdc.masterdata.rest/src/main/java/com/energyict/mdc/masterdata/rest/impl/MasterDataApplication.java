@@ -13,7 +13,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -52,7 +51,6 @@ public class MasterDataApplication extends Application implements TranslationKey
                 LogBookTypeResource.class,
                 RegisterTypeResource.class,
                 LoadProfileTypeResource.class,
-                TransactionWrapper.class,
                 ExceptionLogger.class
         );
     }
