@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.associations;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -9,7 +11,7 @@ import java.util.stream.Stream;
 /*
  * a reference to a persistent Object of a known type
  */
-
+@ProviderType
 public interface Reference<T> {
 	Optional<T> getOptional();
 	void set(T value);
