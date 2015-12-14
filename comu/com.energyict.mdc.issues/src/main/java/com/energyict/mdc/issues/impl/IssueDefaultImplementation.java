@@ -1,8 +1,7 @@
 package com.energyict.mdc.issues.impl;
 
-import com.energyict.mdc.issues.Issue;
-
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.issues.Issue;
 
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -27,7 +26,7 @@ public abstract class IssueDefaultImplementation implements Issue {
         super();
         this.timestamp = timestamp;
         this.source = source;
-        this.description = MessageFormat.format(convertSingleQuoteArgumentsToDoubleQuoteArguments(thesaurus.getStringBeyondComponent(description, description)), arguments);
+        this.description = MessageFormat.format(convertSingleQuoteArgumentsToDoubleQuoteArguments(thesaurus.getString(description, description)), arguments);
     }
 
     /**
