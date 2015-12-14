@@ -23,7 +23,6 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step1', {
                 required: true,
                 editable: false,
                 queryMode: 'local',
-                margin: '20 0 20 -40',
                 lastQuery: '',
                 displayField: 'name',
                 valueField: 'id'
