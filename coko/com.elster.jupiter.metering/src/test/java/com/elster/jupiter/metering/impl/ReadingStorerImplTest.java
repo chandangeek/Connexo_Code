@@ -35,7 +35,7 @@ public class ReadingStorerImplTest {
     private ReadingStorerImpl readingStorer;
 
     @Mock
-    private TimeSeriesDataStorer storer;
+    private TimeSeriesDataStorer storer, updatingStorer;
     @Mock
     private ChannelContract channel;
     @Mock
@@ -60,6 +60,7 @@ public class ReadingStorerImplTest {
         doReturn(Arrays.asList(fieldSpec, fieldSpec, fieldSpec)).when(recordSpec).getFieldSpecs();
         when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
         when(idsService.createOverrulingStorer()).thenReturn(storer);
+        when(idsService.createUpdatingStorer()).thenReturn(updatingStorer);
         doReturn(channel).when(cimChannel).getChannel();
         doReturn(readingType2).when(cimChannel).getReadingType();
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();

@@ -50,7 +50,7 @@ public class ReadingStorerImplDerivationTest {
     private ReadingStorerImpl readingStorer;
 
     @Mock
-    private TimeSeriesDataStorer storer;
+    private TimeSeriesDataStorer storer, updatingStorer;
     @Mock
     private ChannelContract channel;
     @Mock
@@ -91,6 +91,7 @@ public class ReadingStorerImplDerivationTest {
         when(timeSeries.getRecordSpec()).thenReturn(recordSpec);
         doReturn(asList(fieldSpec, fieldSpec, fieldSpec, fieldSpec)).when(recordSpec).getFieldSpecs();
         when(idsService.createOverrulingStorer()).thenReturn(storer);
+        when(idsService.createUpdatingStorer()).thenReturn(updatingStorer);
         when(channel.toArray(any(), any(), any())).thenAnswer(invocation -> {
             BaseReading reading = (BaseReading) invocation.getArguments()[0];
             ReadingType readingType = (ReadingType) invocation.getArguments()[1];
@@ -103,8 +104,10 @@ public class ReadingStorerImplDerivationTest {
             BigDecimal bulk = Optional.ofNullable(reading.getQuantity(secondaryBulkReadingType)).map(Quantity::getValue).orElse(null);
             return new Object[] { 0L, 0L, delta, bulk };
         });
+        when(channel.getReading(any())).thenReturn(Optional.empty());
 
         when(channel.getPreviousDateTime(any())).thenAnswer(invocation -> invocation.getArgumentAt(0, Instant.class).minusSeconds(15 * 60));
+        when(channel.getNextDateTime(any())).thenAnswer(invocation -> invocation.getArgumentAt(0, Instant.class).plusSeconds(15 * 60));
         Answer<Quantity> toQuantity = invocation -> Optional.ofNullable(invocation.getArgumentAt(0, BigDecimal.class)).map(value -> Quantity.create(value, "Wh")).orElse(null);
         when(secondaryDeltaReadingType.toQuantity(any())).thenAnswer(toQuantity);
         when(secondaryBulkReadingType.toQuantity(any())).thenAnswer(toQuantity);

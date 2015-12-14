@@ -45,6 +45,7 @@ class ReadingStorerImpl implements ReadingStorer {
     private final Map<Pair<ChannelContract, Instant>, Object[]> consolidatedValues = new HashMap<>();
     private final Map<Pair<ChannelContract, Instant>, BaseReading> readings = new HashMap<>();
     private final StorerProcess storerProcess;
+    private final IdsService idsService;
     private Map<Pair<ChannelContract, Instant>, Object[]> previous;
 
     private static class Derivation {
@@ -72,6 +73,7 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private ReadingStorerImpl(IdsService idsService, EventService eventService, UpdateBehaviour updateBehaviour, StorerProcess storerProcess) {
+        this.idsService = idsService;
         this.eventService = eventService;
         this.storer = updateBehaviour.createTimeSeriesStorer(idsService);
         this.storerProcess = storerProcess;
@@ -185,7 +187,6 @@ class ReadingStorerImpl implements ReadingStorer {
         Map<Pair<ChannelContract, Instant>, Object[]> valuesView = Maps.filterKeys(this.consolidatedValues, pair -> pair.getFirst().isRegular());
         List<Pair<ChannelContract, Instant>> needed = valuesView.keySet()
                 .stream()
-                .filter(pair11 -> pair11.getFirst().isRegular())
                 .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
                 .collect(Collectors.toList());
 
@@ -212,6 +213,46 @@ class ReadingStorerImpl implements ReadingStorer {
                 .map(Pair::getFirst)
                 .distinct()
                 .forEach(perform(this::calculateDelta).with(deltaDerivations));
+
+        List<Pair<ChannelContract, Instant>> mayNeedToUpdateTimes = valuesView.keySet()
+                .stream()
+                .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getNextDateTime(pair.getLast())))
+                .filter(not(consolidatedValues::containsKey))
+                .collect(Collectors.toList());
+        Map<Pair<ChannelContract, Instant>, Object[]> mayNeedToUpdate = readFromDb(mayNeedToUpdateTimes);
+        TimeSeriesDataStorer updatingStorer = Behaviours.UPDATE.createTimeSeriesStorer(idsService);
+        mayNeedToUpdate.entrySet()
+                .stream()
+                .filter(entry -> {
+                    Instant instant = entry.getKey().getLast();
+                    ChannelContract channel = entry.getKey().getFirst();
+                    Object[] toUpdate = entry.getValue();
+                    Instant previousInstant = channel.getPreviousDateTime(instant);
+                    Object[] previous = consolidatedValues.get(Pair.of(channel, previousInstant));
+                    if (previous != null) {
+                        return deltaDerivations.get(channel)
+                                .stream()
+                                .map(derivation -> {
+                                    int index = derivation.getIndex() + channel.getRecordSpecDefinition().slotOffset();
+                                    BigDecimal previousBulk = getBigDecimal(previous[index + 1]);
+                                    BigDecimal currentBulk = getBigDecimal(toUpdate[index + 1]);
+                                    if (currentBulk != null && previousBulk != null) {
+                                        BigDecimal delta = currentBulk.subtract(previousBulk);
+                                        if (derivation.getDerivationRule().isMultiplied()) {
+                                            BigDecimal multiplier = getMultiplier(channel, instant, (IReadingType) derivation.getReadingType().getBulkReadingType().get());
+                                            delta = delta.multiply(multiplier);
+                                        }
+                                        toUpdate[index] = delta;
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                .reduce(false, (a, b) -> a | b);
+                    }
+                    return false;
+                })
+                .forEach(entry -> updatingStorer.add(entry.getKey().getFirst().getTimeSeries(), entry.getKey().getLast(), entry.getValue()));
+        updatingStorer.execute();
     }
 
     private void doMultiplications() {
@@ -245,16 +286,14 @@ class ReadingStorerImpl implements ReadingStorer {
                                     if (DerivationRule.MULTIPLIED.equals(derivation.getDerivationRule())) {
                                         if (values[index + slotOffset + 1] != storer.doNotUpdateMarker()) {
                                             Instant instant = entry.getKey().getLast();
-                                            MultiplierType multiplierType = getMultiplierType(channelContract, readingTypes.get(index + 1), readingTypes.get(index), instant).get();
-                                            BigDecimal multiplier = channelContract.getMeterActivation().getMultiplier(multiplierType).get();
+                                            BigDecimal multiplier = getMultiplier(channelContract, instant, readingTypes.get(index + 1), readingTypes.get(index));
                                             values[index + slotOffset] = ((BigDecimal) values[index + slotOffset + 1]).multiply(multiplier);
                                         }
-                                    } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())){
+                                    } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())) {
                                         if (values[index + slotOffset] != storer.doNotUpdateMarker()) {
                                             Instant instant = entry.getKey().getLast();
                                             IReadingType target = (IReadingType) readingTypes.get(index).getBulkReadingType().get();
-                                            MultiplierType multiplierType = getMultiplierType(channelContract, target, instant).get();
-                                            BigDecimal multiplier = channelContract.getMeterActivation().getMultiplier(multiplierType).get();
+                                            BigDecimal multiplier = getMultiplier(channelContract, instant, target);
                                             values[index + slotOffset] = ((BigDecimal) values[index + slotOffset]).multiply(multiplier);
                                         }
                                     }
@@ -264,6 +303,23 @@ class ReadingStorerImpl implements ReadingStorer {
 
         );
 
+    }
+
+    private BigDecimal getBigDecimal(Object object) {
+        if (object instanceof BigDecimal) {
+            return (BigDecimal) object;
+        }
+        return null;
+    }
+
+    private BigDecimal getMultiplier(ChannelContract channelContract, Instant instant, IReadingType source, IReadingType target) {
+        MultiplierType multiplierType = getMultiplierType(channelContract, source, target, instant).get();
+        return channelContract.getMeterActivation().getMultiplier(multiplierType).get();
+    }
+
+    private BigDecimal getMultiplier(ChannelContract channelContract, Instant instant, IReadingType target) {
+        MultiplierType multiplierType = getMultiplierType(channelContract, target, instant).get();
+        return channelContract.getMeterActivation().getMultiplier(multiplierType).get();
     }
 
     private Optional<MultiplierType> getMultiplierType(ChannelContract channel, ReadingType source, ReadingType target, Instant instant) {

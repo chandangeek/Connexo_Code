@@ -61,8 +61,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingStorerImplIT {
 
-    private static final ZonedDateTime ACTIVATION = ZonedDateTime.of(1975, 9, 19, 21, 46, 55, 0, TimeZoneNeutral.getMcMurdo());
-    private static final ZonedDateTime BASE = ZonedDateTime.of(2025, 12, 20, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+
+    private class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(UserService.class).toInstance(userService);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+        }
+    }
     public static final String SECONDARY_DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final String PRIMARY_DELTA = "0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final String SECONDARY_BULK = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -70,6 +78,9 @@ public class ReadingStorerImplIT {
     public static final String SECONDARY_PULSE_DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.111.0";
     public static final String SECONDARY_BULK_REG = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final String PRIMARY_BULK_REG = "0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0";
+
+    private static final ZonedDateTime ACTIVATION = ZonedDateTime.of(1975, 9, 19, 21, 46, 55, 0, TimeZoneNeutral.getMcMurdo());
+    private static final ZonedDateTime BASE = ZonedDateTime.of(2025, 12, 20, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
 
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
@@ -88,17 +99,6 @@ public class ReadingStorerImplIT {
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private MeteringService meteringService;
     private TransactionService transactionService;
-
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-        }
-    }
 
     @Before
     public void setUp() throws SQLException {
@@ -137,20 +137,11 @@ public class ReadingStorerImplIT {
 
     @Test
     public void testWriteBulkData() {
-        AmrSystem mdc = meteringService.findAmrSystem(1L).get();
 
         ReadingType deltaReadingType = meteringService.getReadingType(SECONDARY_DELTA).get();
         ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
 
-
-        Channel channel = transactionService.execute(() -> {
-            Meter meter = mdc.newMeter("AMR_ID")
-                    .setMRID("meterMRID")
-                    .setName("Meter")
-                    .create();
-            MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
-            return meterActivation.createChannel(bulkReadingType);
-        });
+        Channel channel = createMeterAndChannelWithDelta(bulkReadingType);
 
         transactionService.run(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -169,7 +160,6 @@ public class ReadingStorerImplIT {
             meterReading.addIntervalBlock(intervalBlock);
 
             channel.getMeterActivation().getMeter().get().store(meterReading);
-
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -196,7 +186,6 @@ public class ReadingStorerImplIT {
             meterReading.addIntervalBlock(intervalBlock);
 
             channel.getMeterActivation().getMeter().get().store(meterReading);
-
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.plusMinutes(15 * 9).toInstant()));
@@ -210,31 +199,12 @@ public class ReadingStorerImplIT {
 
     @Test
     public void testWriteBulkDataWithMultiplier() {
-        AmrSystem mdc = meteringService.findAmrSystem(1L).get();
 
         ReadingType deltaReadingType = meteringService.getReadingType(PRIMARY_DELTA).get();
         ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
         ReadingType bulkPrimaryReadingType = meteringService.getReadingType(PRIMARY_BULK).get();
 
-        Channel channel = transactionService.execute(() -> {
-            Meter meter = mdc.newMeter("AMR_ID")
-                    .setMRID("meterMRID")
-                    .setName("Meter")
-                    .create();
-            MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
-
-            MultiplierType multiplierType = meteringService.createMultiplierType("CT/VT");
-
-            meterActivation.setMultiplier(multiplierType, BigDecimal.valueOf(5, 0));
-
-            MeterConfiguration meterConfiguration = meter.startingConfigurationOn(ACTIVATION.toInstant())
-                    .configureReadingType(bulkReadingType)
-                    .withMultiplierOfType(multiplierType)
-                    .calculating(bulkPrimaryReadingType)
-                    .create();
-
-            return meterActivation.createChannel(bulkReadingType);
-        });
+        Channel channel = createMeterAndChannelWithMultplier(bulkReadingType, bulkPrimaryReadingType, BigDecimal.valueOf(5, 0));
 
         transactionService.run(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -253,7 +223,6 @@ public class ReadingStorerImplIT {
             meterReading.addIntervalBlock(intervalBlock);
 
             channel.getMeterActivation().getMeter().get().store(meterReading);
-
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -280,7 +249,6 @@ public class ReadingStorerImplIT {
             meterReading.addIntervalBlock(intervalBlock);
 
             channel.getMeterActivation().getMeter().get().store(meterReading);
-
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.plusMinutes(15 * 9).toInstant()));
@@ -294,30 +262,11 @@ public class ReadingStorerImplIT {
 
     @Test
     public void testWritePulseDataWithMultiplier() {
-        AmrSystem mdc = meteringService.findAmrSystem(1L).get();
 
         ReadingType deltaReadingType = meteringService.getReadingType(PRIMARY_DELTA).get();
         ReadingType pulseDeltaReadingType = meteringService.getReadingType(SECONDARY_PULSE_DELTA).get();
 
-        Channel channel = transactionService.execute(() -> {
-            Meter meter = mdc.newMeter("AMR_ID")
-                    .setMRID("meterMRID")
-                    .setName("Meter")
-                    .create();
-            MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
-
-            MultiplierType multiplierType = meteringService.createMultiplierType("pulse");
-
-            meterActivation.setMultiplier(multiplierType, BigDecimal.valueOf(50, 0));
-
-            MeterConfiguration meterConfiguration = meter.startingConfigurationOn(ACTIVATION.toInstant())
-                    .configureReadingType(pulseDeltaReadingType)
-                    .withMultiplierOfType(multiplierType)
-                    .calculating(deltaReadingType)
-                    .create();
-
-            return meterActivation.createChannel(pulseDeltaReadingType);
-        });
+        Channel channel = createMeterAndChannelWithMultiplier2(pulseDeltaReadingType, deltaReadingType);
 
         transactionService.run(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -336,7 +285,6 @@ public class ReadingStorerImplIT {
             meterReading.addIntervalBlock(intervalBlock);
 
             channel.getMeterActivation().getMeter().get().store(meterReading);
-
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -356,30 +304,11 @@ public class ReadingStorerImplIT {
 
     @Test
     public void testWriteIrregularBulkWithMultiplied() {
-        AmrSystem mdc = meteringService.findAmrSystem(1L).get();
 
         ReadingType multipliedBulkReadingType = meteringService.getReadingType(PRIMARY_BULK_REG).get();
         ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK_REG).get();
 
-        Channel channel = transactionService.execute(() -> {
-            Meter meter = mdc.newMeter("AMR_ID")
-                    .setMRID("meterMRID")
-                    .setName("Meter")
-                    .create();
-            MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
-
-            MultiplierType multiplierType = meteringService.createMultiplierType("pulse");
-
-            meterActivation.setMultiplier(multiplierType, BigDecimal.valueOf(2, 0));
-
-            MeterConfiguration meterConfiguration = meter.startingConfigurationOn(ACTIVATION.toInstant())
-                    .configureReadingType(bulkReadingType)
-                    .withMultiplierOfType(multiplierType)
-                    .calculating(multipliedBulkReadingType)
-                    .create();
-
-            return meterActivation.createChannel(bulkReadingType);
-        });
+        Channel channel = createMeterAndChannelWithMultplier(bulkReadingType, multipliedBulkReadingType, BigDecimal.valueOf(2, 0));
 
         transactionService.run(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -389,7 +318,6 @@ public class ReadingStorerImplIT {
             meterReading.addReading(reading);
 
             channel.getMeterActivation().getMeter().get().store(meterReading);
-
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -405,4 +333,185 @@ public class ReadingStorerImplIT {
         assertThat(readChannel.getReadingTypes()).hasSize(2);
     }
 
+    @Test
+    public void testWriteMissingBulkData() {
+
+        ReadingType deltaReadingType = meteringService.getReadingType(SECONDARY_DELTA).get();
+        ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
+
+        Channel channel = createMeterAndChannelWithDelta(bulkReadingType);
+
+        transactionService.run(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
+
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            // so not this one ! This is the missing one at first : intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+
+            meterReading.addIntervalBlock(intervalBlock);
+
+            channel.getMeterActivation().getMeter().get().store(meterReading);
+        });
+
+        List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
+
+        assertThat(readings).hasSize(8);
+
+        for (int i = 0; i < 7; i++) {
+            int multiplier = i >= 4 ? i + 1 : i;
+            BaseReadingRecord baseReadingRecord = readings.get(i);
+            if (i != 0 && i != 4) {
+                assertThat(baseReadingRecord.getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(1000, 2), 3, "Wh"));
+            } else {
+                assertThat(baseReadingRecord.getQuantity(deltaReadingType)).isNull();
+            }
+            assertThat(baseReadingRecord.getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(10000 + multiplier * 1000, 2), 3, "Wh"));
+            assertThat(baseReadingRecord.getTimeStamp()).isEqualTo(BASE.plusMinutes(15 * multiplier).toInstant());
+        }
+
+        transactionService.run(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
+
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+
+            meterReading.addIntervalBlock(intervalBlock);
+
+            channel.getMeterActivation().getMeter().get().store(meterReading);
+        });
+
+        readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
+
+        assertThat(readings).hasSize(10);
+
+        for (int i = 0; i < 9; i++) {
+            BaseReadingRecord baseReadingRecord = readings.get(i);
+            if (i != 0) {
+                assertThat(baseReadingRecord.getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(1000, 2), 3, "Wh"));
+            } else {
+                assertThat(baseReadingRecord.getQuantity(deltaReadingType)).isNull();
+            }
+            assertThat(baseReadingRecord.getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(10000 + i * 1000, 2), 3, "Wh"));
+            assertThat(baseReadingRecord.getTimeStamp()).isEqualTo(BASE.plusMinutes(15 * i).toInstant());
+        }
+    }
+
+    @Test
+    public void testWriteMissingBulkDataWithMultiplier() {
+
+        ReadingType deltaReadingType = meteringService.getReadingType(PRIMARY_DELTA).get();
+        ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
+        ReadingType bulkPrimaryReadingType = meteringService.getReadingType(PRIMARY_BULK).get();
+
+        Channel channel = createMeterAndChannelWithMultplier(bulkReadingType, bulkPrimaryReadingType, BigDecimal.valueOf(2, 0));
+
+        transactionService.run(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
+
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            // so not this one ! This is the missing one at first : intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+
+            meterReading.addIntervalBlock(intervalBlock);
+
+            channel.getMeterActivation().getMeter().get().store(meterReading);
+        });
+
+        List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
+
+        assertThat(readings).hasSize(8);
+
+        for (int i = 0; i < 7; i++) {
+            int multiplier = i >= 4 ? i + 1 : i;
+            BaseReadingRecord baseReadingRecord = readings.get(i);
+            if (i != 0 && i != 4) {
+                assertThat(baseReadingRecord.getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(2000, 2), 3, "Wh"));
+            } else {
+                assertThat(baseReadingRecord.getQuantity(deltaReadingType)).isNull();
+            }
+            assertThat(baseReadingRecord.getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(10000 + multiplier * 1000, 2), 3, "Wh"));
+            assertThat(baseReadingRecord.getTimeStamp()).isEqualTo(BASE.plusMinutes(15 * multiplier).toInstant());
+        }
+
+        transactionService.run(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
+
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+
+            meterReading.addIntervalBlock(intervalBlock);
+
+            channel.getMeterActivation().getMeter().get().store(meterReading);
+        });
+
+        readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
+
+        assertThat(readings).hasSize(10);
+
+        for (int i = 0; i < 9; i++) {
+            BaseReadingRecord baseReadingRecord = readings.get(i);
+            if (i != 0) {
+                assertThat(baseReadingRecord.getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(2000, 2), 3, "Wh"));
+            } else {
+                assertThat(baseReadingRecord.getQuantity(deltaReadingType)).isNull();
+            }
+            assertThat(baseReadingRecord.getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(10000 + i * 1000, 2), 3, "Wh"));
+            assertThat(baseReadingRecord.getTimeStamp()).isEqualTo(BASE.plusMinutes(15 * i).toInstant());
+        }
+    }
+
+    private Channel createMeterAndChannelWithMultiplier2(ReadingType measured, ReadingType calculated) {
+        return createMeterAndChannelWithMultplier(measured, calculated, BigDecimal.valueOf(50, 0));
+    }
+
+    private Channel createMeterAndChannelWithMultplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {
+        return transactionService.execute(() -> {
+                AmrSystem mdc = meteringService.findAmrSystem(1L).get();
+                Meter meter = mdc.newMeter("AMR_ID")
+                        .setMRID("meterMRID")
+                        .setName("Meter")
+                        .create();
+                MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
+
+                MultiplierType multiplierType = meteringService.createMultiplierType("multiplierType");
+
+                meterActivation.setMultiplier(multiplierType, multiplierValue);
+
+                MeterConfiguration meterConfiguration = meter.startingConfigurationOn(ACTIVATION.toInstant())
+                        .configureReadingType(measured)
+                        .withMultiplierOfType(multiplierType)
+                        .calculating(caluclated)
+                        .create();
+
+                return meterActivation.createChannel(measured);
+            });
+    }
+
+    private Channel createMeterAndChannelWithDelta(ReadingType bulkReadingType) {
+        return transactionService.execute(() -> {
+            AmrSystem mdc = meteringService.findAmrSystem(1L).get();
+            Meter meter = mdc.newMeter("AMR_ID")
+                    .setMRID("meterMRID")
+                    .setName("Meter")
+                    .create();
+            MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
+            return meterActivation.createChannel(bulkReadingType);
+        });
+    }
 }
