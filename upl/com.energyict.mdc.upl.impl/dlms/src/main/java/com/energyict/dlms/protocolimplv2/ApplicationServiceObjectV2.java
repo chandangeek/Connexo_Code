@@ -16,6 +16,7 @@ import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -96,8 +97,17 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             this.acse.analyzeAARE(response);
         } catch (ConnectionException e) {                        //Decryption failed
             throw DataEncryptionException.dataEncryptionException(e);
-        } catch (IOException e) {                                //Association failed
-            throw ConnectionCommunicationException.protocolConnectFailed(e);
+        } catch (IOException e) {
+            if (e.getMessage().contains(AssociationControlServiceElement.REFUSED_BY_THE_VDE_HANDLER)
+                    || e.getMessage().contains(AssociationControlServiceElement.ACSE_SERVICE_PROVIDER_NO_REASON_GIVEN)
+                    || e.getMessage().contains(AssociationControlServiceElement.ACSE_SERVICE_USER_NO_REASON_GIVEN)
+                    ) {
+                //Association already open, retry mechanism in the protocols will be used
+                throw CommunicationException.unexpectedResponse(e);
+            } else {
+                //Association failed, abort
+                throw ConnectionCommunicationException.protocolConnectFailed(e);
+            }
         } catch (DLMSConnectionException e) {                    //Invalid frame counter
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }

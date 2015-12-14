@@ -116,7 +116,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public String getManufacturer() {
-        return properties.<String>getTypedProperty(MANUFACTURER, DEFAULT_MANUFACTURER);
+        return properties.getTypedProperty(MANUFACTURER, DEFAULT_MANUFACTURER);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public String getDeviceId() {
-        return properties.<String>getTypedProperty(DEVICE_ID, DEFAULT_DEVICE_ID);
+        return properties.getTypedProperty(DEVICE_ID, DEFAULT_DEVICE_ID);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public long getTimeout() {
-        return properties.<TimeDuration>getTypedProperty(TIMEOUT, new TimeDuration(DEFAULT_TIMEOUT.intValue() / 1000)).getMilliSeconds();
+        return properties.getTypedProperty(TIMEOUT, new TimeDuration(DEFAULT_TIMEOUT.intValue() / 1000)).getMilliSeconds();
     }
 
     @Override
@@ -266,7 +266,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public long getForcedDelay() {
-        return properties.<TimeDuration>getTypedProperty(FORCED_DELAY, new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000)).getMilliSeconds();
+        return properties.getTypedProperty(FORCED_DELAY, new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000)).getMilliSeconds();
     }
 
     @Override
@@ -275,7 +275,11 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     protected int parseBigDecimalProperty(String key, BigDecimal defaultValue) {
-        return properties.<BigDecimal>getTypedProperty(key, defaultValue).intValue();
+        try {
+            return properties.getTypedProperty(key, defaultValue).intValue();
+        } catch (Throwable e) {
+            return defaultValue.intValue();
+        }
     }
 
     /**
@@ -283,7 +287,7 @@ public class DlmsProperties implements DlmsSessionProperties {
      * Throw an error if no value was configured for this property.
      */
     protected int parseBigDecimalProperty(String key) {
-        final BigDecimal value = properties.<BigDecimal>getTypedProperty(key);
+        final BigDecimal value = properties.getTypedProperty(key);
         if (value != null) {
             return value.intValue();
         } else {
