@@ -104,6 +104,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             store: 'ReadingTypesForRule',
                                             hideHeaders: true,
                                             padding: 0,
+                                            scroll: 'vertical',
                                             columns: [
                                                 {
                                                     xtype: 'reading-type-column',
