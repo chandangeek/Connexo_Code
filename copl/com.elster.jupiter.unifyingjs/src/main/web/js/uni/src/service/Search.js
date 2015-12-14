@@ -303,7 +303,7 @@ Ext.define('Uni.service.Search', {
         }
     },
 
-    applyState: function (state) {
+    applyState: function (state, callback) {
         var me = this,
             propertiesStore = me.getSearchPropertiesStore(),
             resultsStore = me.getSearchResultsStore();
@@ -342,6 +342,7 @@ Ext.define('Uni.service.Search', {
             }
 
             me.isStateLoad = false;
+            callback ? callback() : null;
         });
     },
 
