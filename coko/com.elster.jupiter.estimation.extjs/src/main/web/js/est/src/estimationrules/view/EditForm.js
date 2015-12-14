@@ -68,7 +68,22 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 width: 1100,
                 items: [
                     {
+                        xtype: 'component',
+                        html: Uni.I18n.translate('general.noReadingTypesAvailable','EST','No reading types have been added'),
+                        itemId: 'noReadingTypesForEstimationRuleLabel',
+                        hidden: true,
+                        style: {
+                            'font': 'italic 13px/17px Lato',
+                            'color': '#686868',
+                            'margin-top': '6px',
+                            'margin-right': '10px'
+                        }
+                    },
+
+
+                    {
                         xtype: 'gridpanel',
+                        hidden: true,
                         itemId: 'reading-types-grid',
                         store: 'ext-empty-store',
                         hideHeaders: true,
@@ -88,6 +103,9 @@ Ext.define('Est.estimationrules.view.EditForm', {
                                         iconCls: 'uni-icon-delete',
                                         handler: function (grid, rowIndex) {
                                             grid.getStore().removeAt(rowIndex);
+                                            if (grid.getStore().count() === 0) {
+                                                me.updateGrid();
+                                            }
                                         }
                                     }
                                 ]
@@ -95,7 +113,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                         ],
                         height: 220,
                         width: 670,
-                        dockedItems: [
+                        /*dockedItems: [
                             {
                                 xtype: 'component',
                                 dock: 'bottom',
@@ -104,7 +122,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                                 height: 52,
                                 hidden: true
                             }
-                        ]
+                        ]*/
                     },
                     {
                         xtype: 'button',
@@ -115,9 +133,20 @@ Ext.define('Est.estimationrules.view.EditForm', {
                     }
                 ]
             },
+
+
+            {
+                xtype: 'label',
+                cls: 'x-form-invalid-under',
+                itemId: 'reading-types-grid-error',
+                margin: '0 0 0 275',
+                hidden: true
+            },
+
             {
                 xtype: 'property-form',
                 itemId: 'property-form',
+                margin: '20 0 0 0',
                 width: '100%',
                 defaults: {
                     labelWidth: me.defaults.labelWidth,
@@ -196,7 +225,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
         var me = this,
             baseForm = me.getForm(),
             errorsPanel = me.down('uni-form-error-message'),
-            readingTypesField = me.down('#reading-types-grid'),
+            //readingTypesField = me.down('#reading-types-grid'),
             readingTypesFieldError = me.down('#reading-types-grid-error'),
             readingTypesError;
 
@@ -205,7 +234,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
             readingTypesError = Ext.Array.findBy(errors, function (item) {return item.id === 'readingTypesInRule'});
             errorsPanel.show();
             if (readingTypesError) {
-                readingTypesField.addCls('error-border');
+                //readingTypesField.addCls('error-border');
                 readingTypesFieldError.update(readingTypesError.msg);
                 readingTypesFieldError.show();
             }
@@ -213,11 +242,24 @@ Ext.define('Est.estimationrules.view.EditForm', {
             me.down('property-form').markInvalid(errors);
         } else {
             errorsPanel.hide();
-            readingTypesField.removeCls('error-border');
+            //readingTypesField.removeCls('error-border');
             readingTypesFieldError.hide();
             baseForm.clearInvalid();
             me.down('property-form').clearInvalid(errors);
         }
         Ext.resumeLayouts(true);
+    },
+
+    updateGrid: function() {
+        var me = this,
+            grid = me.down('#reading-types-grid'),
+            emptyLabel = me.down('#noReadingTypesForEstimationRuleLabel');
+        if (grid.getStore().count() === 0) {
+            emptyLabel.show();
+            grid.hide();
+        } else {
+            emptyLabel.hide();
+            grid.show();
+        }
     }
 });

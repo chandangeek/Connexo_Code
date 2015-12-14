@@ -85,15 +85,18 @@ Ext.define('Est.estimationrules.controller.Edit', {
         });
         if (savedState) { // Coming back after having been to the "Add reading types" page
             rule = savedState;
+            me.showReadingTypesGrid(widget, rule.readingTypesStore.data.length > 0)
             clipboard.clear('estimationRule');
             checkFlagAndEventuallyLoadTheRuleIntoTheForm();
         } else if (!ruleId) { // Adding a new estimation rule
             rule = Ext.create('Est.estimationrules.model.Rule');
+            me.showReadingTypesGrid(widget, false);
             checkFlagAndEventuallyLoadTheRuleIntoTheForm();
         } else { // Editing an existing estimation rule
             ruleModel.load(ruleId, {
                 success: function (record) {
                     rule = record;
+                    me.showReadingTypesGrid(widget, true);
                     me.getApplication().fireEvent('loadEstimationRule', record);
                     if (widget.rendered) {
                         checkFlagAndEventuallyLoadTheRuleIntoTheForm();
@@ -106,6 +109,16 @@ Ext.define('Est.estimationrules.controller.Edit', {
         }
         me.getStore('Est.estimationrules.store.Estimators').load(checkFlagAndEventuallyLoadTheRuleIntoTheForm);
 
+    },
+
+    showReadingTypesGrid: function(widget, show) {
+        if (show) {
+            widget.down('#noReadingTypesForEstimationRuleLabel').hide();
+            widget.down('#reading-types-grid').show();
+        } else {
+            widget.down('#noReadingTypesForEstimationRuleLabel').show();
+            widget.down('#reading-types-grid').hide();
+        }
     },
 
     saveRule: function () {
