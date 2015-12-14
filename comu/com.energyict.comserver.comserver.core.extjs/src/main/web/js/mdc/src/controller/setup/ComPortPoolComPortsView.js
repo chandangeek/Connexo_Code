@@ -67,8 +67,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             'comPortPoolComPortsActionMenu': {
                 click: this.chooseAction
             },
-            'addComportToComportPoolView addComportToComportPoolGrid': {
-                allitemsadd: this.onAllComPortsAdd,
+            'addComportToComportPoolView': {
                 selecteditemsadd: this.onSelectedComPortsAdd
             }
         });
@@ -122,7 +121,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
     showAddComPortView: function (id) {
         var me = this,
-            widget = Ext.widget('addComportToComportPoolView', {
+            widget = Ext.widget('addComportToComportPoolView',{
                 poolId: id
             }),
             comPortPoolModel = me.getModel('Mdc.model.ComPortPool'),
@@ -132,12 +131,10 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             jsonValues;
 
         me.getApplication().fireEvent('changecontentevent', widget);
-        widget.updateCancelHref(id);
-        widget.setLoading(true);
+
         comPortPoolModel.load(id, {
             success: function (record) {
                 widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
-                widget.setLoading(false);
                 recordData = record.getData();
                 switch (recordData.direction) {
                     case 'Inbound':
@@ -156,17 +153,19 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                         callback: function () {
                             me.comPortsStoreToAdd.sortByType(record.get('comPortType'));
                             me.comPortsStoreToAdd.sortByExisted(existedRecordsArray);
+                            if (me.comPortsStoreToAdd.getCount() === 0){
+                                widget.noItemsAvailable();
+                            }else{
+                                widget.down('grid').reconfigure(me.comPortsStoreToAdd);
+                            }
+                            widget.setLoading(false);
                         }
                     });
+            },
+            failure: function(record){
+                widget.setLoading(false);
             }
         });
-    },
-
-    onAllComPortsAdd: function () {
-        var me = this,
-            allComPorts = me.getAddComPortGrid().store.data.items;
-
-        me.addComPorts(allComPorts);
     },
 
     onSelectedComPortsAdd: function (selection) {
