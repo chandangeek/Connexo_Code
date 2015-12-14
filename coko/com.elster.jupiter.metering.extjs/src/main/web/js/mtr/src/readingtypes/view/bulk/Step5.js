@@ -26,7 +26,7 @@ Ext.define('Mtr.readingtypes.view.bulk.Step5', {
                 additionalItems: [
                     {
                         xtype: 'container',
-                        html: htmlMsg
+                        html: Ext.htmlEncode(htmlMsg)
                     }
                 ]
             },
