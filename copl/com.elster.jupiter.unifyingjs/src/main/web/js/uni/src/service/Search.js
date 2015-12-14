@@ -334,13 +334,14 @@ Ext.define('Uni.service.Search', {
                     }
                 });
 
-                me.isStateLoad = false;
                 Ext.resumeLayouts(true);
                 resultsStore.load();
             } else {
                 resultsStore.removeAll();
                 resultsStore.fireEvent('load', resultsStore, [], true);
             }
+
+            me.isStateLoad = false;
         });
     },
 
