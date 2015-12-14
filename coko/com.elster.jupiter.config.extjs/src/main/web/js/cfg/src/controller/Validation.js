@@ -73,7 +73,6 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'createRuleSet', selector: 'createRuleSet'},
         {ref: 'addRule', selector: 'addRule'},
         {ref: 'addReadingTypesGrid', selector: '#addRule #addReadingTypesGrid'},
-        {ref: 'addRuleTitle', selector: '#addRule #addRuleTitle'},
         {ref: 'readingValuesTextFieldsContainer', selector: 'addRule #readingValuesTextFieldsContainer'},
         {ref: 'propertiesContainer', selector: 'addRule #propertiesContainer'},
         {ref: 'propertyForm', selector: 'addRule #propertyForm'},
@@ -145,7 +144,7 @@ Ext.define('Cfg.controller.Validation', {
             '#validationrulesetList uni-actioncolumn': {
                 menuclick: this.chooseRuleSetAction
             },
-            '#addRuleForm #addReadingTypeButton': {
+            '#addRule #addReadingTypeButton': {
                 click: this.showAddReadingGrid
             },
             '#addReadingTypesToRuleSetup #buttonsContainer button[name=cancel]': {
@@ -185,11 +184,21 @@ Ext.define('Cfg.controller.Validation', {
         router.getRoute(addReadingTypesRoute).forward();
     },
 
+    showReadingTypesGrid: function(widget, show) {
+        if (show) {
+            widget.down('#noReadingTypesForValidationRuleLabel').hide();
+            widget.down('#readingTypesForValidationRuleGridPanel').show();
+        } else {
+            widget.down('#noReadingTypesForValidationRuleLabel').show();
+            widget.down('#readingTypesForValidationRuleGridPanel').hide();
+        }
+    },
+
     formToModel: function () {
-        var form = this.getAddRule().down('#addRuleForm'),
+        var form = this.getAddRule(),
             propertyForm = this.getAddRule().down('property-form'),
-            grid = this.getAddRule().down('#readingTypesGridPanel'),
-            record = form.getForm().getRecord(),
+            grid = this.getAddRule().down('#readingTypesForValidationRuleGridPanel'),
+            record = form.getForm().getRecord();
             readingTypes = [];
 
 
@@ -240,7 +249,7 @@ Ext.define('Cfg.controller.Validation', {
         form.getForm().clearInvalid();
         form.down('#readingTypesErrorLabel').hide();
         form.down('#propertiesErrorLabel').hide();
-        form.down('#readingTypesGridPanel').removeCls('error-border');
+        form.down('#readingTypesForValidationRuleGridPanel').removeCls('error-border');
 
         formErrorsPanel.hide();
 
@@ -291,7 +300,7 @@ Ext.define('Cfg.controller.Validation', {
                 if (json && json.errors) {
                     Ext.Array.each(json.errors, function (item) {
                         if (item.id.indexOf("readingTypes") !== -1) {
-                            form.down('#readingTypesGridPanel').addCls('error-border');
+                            form.down('#readingTypesForValidationRuleGridPanel').addCls('error-border');
                             form.down('#readingTypesErrorLabel').setText(item.msg);
                             form.down('#readingTypesErrorLabel').show();
                         }
@@ -484,14 +493,16 @@ Ext.define('Cfg.controller.Validation', {
 
                 if (me.validationRuleRecord) {
                     me.modelToForm(null, null, null, me.validationRuleRecord, false);
+                    me.showReadingTypesGrid(editRulePanel, me.validationRuleRecord.data.readingTypes.length > 0);
                 } else {
-                    form = editRulePanel.down('#addRuleForm').getForm();
+                    form = editRulePanel;
                     propertyForm = widget.down('property-form');
                     form.loadRecord(model);
                     propertyForm.loadRecord(model);
+                    me.showReadingTypesGrid(editRulePanel, false);
                 }
 
-                editRulePanel.down('#addRuleTitle').setTitle(Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'));
+                editRulePanel.setTitle(Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'));
                 me.ruleModel = null;
 
                 ruleSetsStore.load({
@@ -722,6 +733,7 @@ Ext.define('Cfg.controller.Validation', {
                 });
 
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.showReadingTypesGrid(widget, true);
 
                 if (me.validationRuleRecord) {
                     me.modelToForm(null, null, null, me.validationRuleRecord, true);
@@ -757,8 +769,8 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             rulesStore = me.getStore('Cfg.store.ValidationRules'),
             editRulePanel = me.getAddRule(),
-            form = editRulePanel.down('#addRuleForm').getForm(),
-            grid = editRulePanel.down('#readingTypesGridPanel'),
+            form = editRulePanel,
+            grid = editRulePanel.down('#readingTypesForValidationRuleGridPanel'),
             validatorField = editRulePanel.down('#validatorCombo'),
             widget = me.getAddRule(),
             propertyForm = widget.down('property-form'),
@@ -767,7 +779,7 @@ Ext.define('Cfg.controller.Validation', {
 
         loadRecordToForm = function (rule) {
             if (isEdit) {
-                editRulePanel.down('#addRuleTitle').setTitle(me.ruleTitle);
+                editRulePanel.setTitle(me.ruleTitle);
                 validatorField.disable();
             }
 
