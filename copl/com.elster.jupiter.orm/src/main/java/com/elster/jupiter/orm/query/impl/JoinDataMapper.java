@@ -156,13 +156,11 @@ public abstract class JoinDataMapper<T> {
 	}
 
 	void completeFind(Instant effectiveDate) {
-		for (T each : cache.values()) {
-			if (each instanceof PersistenceAware) {
-				((PersistenceAware) each).postLoad();
-			} else {
-				return;
-			}
-		}
+		this.cache.values()
+            .stream()
+            .filter(PersistenceAware.class::isInstance)
+            .map(PersistenceAware.class::cast)
+            .forEach(PersistenceAware::postLoad);
 	}
 
 	boolean isChild() {
