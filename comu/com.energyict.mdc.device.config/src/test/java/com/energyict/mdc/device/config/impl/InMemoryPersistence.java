@@ -29,6 +29,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -64,6 +65,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -176,6 +178,7 @@ public class InMemoryPersistence {
                 new ThreadSecurityModule(this.principal),
                 new EventsModule(),
                 new PubSubModule(),
+                new CustomPropertySetsModule(),
                 new TransactionModule(showSqlLogging),
                 new UtilModule(),
                 new NlsModule(),
@@ -211,6 +214,7 @@ public class InMemoryPersistence {
                 new EstimationModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new TaskModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),

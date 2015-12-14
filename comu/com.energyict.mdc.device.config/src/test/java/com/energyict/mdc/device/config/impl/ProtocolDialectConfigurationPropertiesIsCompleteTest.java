@@ -1,22 +1,30 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.properties.*;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
@@ -101,9 +109,9 @@ public class ProtocolDialectConfigurationPropertiesIsCompleteTest {
         when(protocolDialect.getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
         when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
         when(protocolDialect.getPropertySpecs()).thenReturn(Arrays.asList(spec1,spec2, spec3));
-        when(protocolDialect.getPropertySpec(MY_PROPERTY1)).thenReturn(spec1);
-        when(protocolDialect.getPropertySpec(MY_PROPERTY2)).thenReturn(spec2);
-        when(protocolDialect.getPropertySpec(MY_PROPERTY3)).thenReturn(spec3);
+        when(protocolDialect.getPropertySpec(MY_PROPERTY1)).thenReturn(Optional.of(spec1));
+        when(protocolDialect.getPropertySpec(MY_PROPERTY2)).thenReturn(Optional.of(spec2));
+        when(protocolDialect.getPropertySpec(MY_PROPERTY3)).thenReturn(Optional.of(spec3));
 
         when(protocol.getDeviceProtocolDialects()).thenReturn(Collections.singletonList(protocolDialect));
 

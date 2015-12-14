@@ -1,9 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.google.common.base.Strings;
+
+import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,7 +52,7 @@ public class ProtocolDialectSharedData {
             protocolDialect = mock(DeviceProtocolDialect.class);
             when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
             valueFactory = mock(ValueFactory.class);
-            when(getProtocolDialect().getPropertySpec(MY_PROPERTY)).thenReturn(getPropertySpec());
+            when(getProtocolDialect().getPropertySpec(MY_PROPERTY)).thenReturn(Optional.of(getPropertySpec()));
             when(getPropertySpec().getValueFactory()).thenReturn(getValueFactory());
             when(getProtocolDialect().getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
             when(getValueFactory().fromStringValue("15")).thenReturn(15);

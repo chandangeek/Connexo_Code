@@ -1,15 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.NotEmpty;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -21,12 +11,24 @@ import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectExcepti
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -126,7 +128,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private TypedProperties initializeTypedProperties() {
         TypedProperties properties = TypedProperties.empty();
         for (ProtocolDialectConfigurationPropertyImpl property : propertyList) {
-            ValueFactory<?> valueFactory = getPropertySpec(property.getName()).getValueFactory();
+            ValueFactory<?> valueFactory = getPropertySpec(property.getName()).get().getValueFactory();
             properties.setProperty(property.getName(), valueFactory.fromStringValue(property.getValue()));
         }
         return properties;
@@ -135,18 +137,9 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     @Override
     public List<PropertySpec> getPropertySpecs() {
         if (this.getDeviceProtocolDialect() == null) {
-            return new ArrayList<>(0);
+            return Collections.emptyList();
         } else {
             return this.getDeviceProtocolDialect().getPropertySpecs();
-        }
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        if (this.getDeviceProtocolDialect() == null) {
-            return null;
-        } else {
-            return this.getDeviceProtocolDialect().getPropertySpec(name);
         }
     }
 
@@ -256,11 +249,10 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     @SuppressWarnings("unchecked")
     private String asStringValue(String name, Object value) {
-        PropertySpec propertySpec = getPropertySpec(name);
-        if (propertySpec == null) {
-            throw new NoSuchPropertyOnDialectException(getDeviceProtocolDialect(), name, this.getThesaurus(), MessageSeeds.PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY);
-        }
-        return propertySpec.getValueFactory().toStringValue(value);
+        return this.getPropertySpec(name)
+                .map(PropertySpec::getValueFactory)
+                .map(valueFactory -> valueFactory.toStringValue(value))
+                .orElseThrow(() -> new NoSuchPropertyOnDialectException(getDeviceProtocolDialect(), name, this.getThesaurus(), MessageSeeds.PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY));
     }
 
     @Override

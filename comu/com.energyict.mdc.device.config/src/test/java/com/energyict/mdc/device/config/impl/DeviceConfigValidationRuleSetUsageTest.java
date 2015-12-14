@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -41,7 +42,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -63,15 +63,10 @@ import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -79,6 +74,11 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -116,8 +116,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private IssueService issueService;
     @Mock
     private PropertySpecService propertySpecService;
-    @Mock
-    private RelationService relationService;
     @Mock
     private ConnectionTypeService connectionTypeService;
     @Mock
@@ -162,6 +160,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new ValidationModule(),
                 new EstimationModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new TaskModule(),
                 new SchedulingModule(),
                 new ProtocolPluggableModule(),
@@ -209,7 +208,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
             bind(LicenseService.class).toInstance(licenseService);
             bind(IssueService.class).toInstance(issueService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
-            bind(RelationService.class).toInstance(relationService);
             bind(ConnectionTypeService.class).toInstance(connectionTypeService);
             bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
             bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
