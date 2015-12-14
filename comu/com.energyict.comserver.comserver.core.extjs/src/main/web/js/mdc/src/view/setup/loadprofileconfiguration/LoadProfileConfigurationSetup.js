@@ -12,6 +12,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
     ],
 
     router: null,
+    deviceConfigurationId: null,
+    deviceTypeId: null,
 
     initComponent: function () {
         var me = this;
@@ -23,8 +25,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                 {
                     xtype: 'device-configuration-menu',
                     itemId: 'stepsMenu',
-                    deviceTypeId: me.config.deviceTypeId ? me.config.deviceTypeId : null,
-                    deviceConfigurationId: me.config.deviceConfigurationId ? me.config.deviceConfigurationId : null
+                    deviceTypeId: me.deviceTypeId,
+                    deviceConfigurationId: me.deviceConfigurationId
                 }
             ]
         };

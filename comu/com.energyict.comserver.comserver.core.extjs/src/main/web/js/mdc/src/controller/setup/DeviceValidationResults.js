@@ -133,6 +133,9 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                             configurationResultsStore.load();
                             break;
                         case 1:
+                            if(window.location.href.indexOf("intervalStart=") == -1) {
+                                window.location.replace(window.location.href + "?intervalStart=" + new Date().setHours(0,0,0,0));
+                            }
                             validationResultsStore.load();
                             break;
                     }

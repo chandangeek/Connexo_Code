@@ -26,10 +26,7 @@ Ext.define('Mdc.model.ComServerComPort', {
                 }
             }
         },
-        {
-            name: 'comPortType',
-            type: 'string'
-        },
+        'comPortType',
         {
             name: 'comServerName',
             type: 'string'
@@ -133,10 +130,7 @@ Ext.define('Mdc.model.ComServerComPort', {
                 return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
             }
         },
-        {
-            name: 'flowControl',
-            type: 'string'
-        },
+        'flowControl',
         {
             name: 'maximumNumberOfDialErrors',
             type: 'int'
@@ -149,10 +143,7 @@ Ext.define('Mdc.model.ComServerComPort', {
             name: 'nrOfStopBits',
             type: 'string'
         },
-        {
-            name: 'parity',
-            type: 'string'
-        },
+        'parity',
         {
             name: 'ringCount',
             type: 'int'
@@ -195,6 +186,11 @@ Ext.define('Mdc.model.ComServerComPort', {
         },
         {
             name: 'outboundComPortPoolIds',
+            type: 'auto',
+            defaultValue: null
+        },
+        {
+            name: 'outboundComPortPoolIdsDisplay',
             type: 'string',
             useNull: true,
             defaultValue: null,
@@ -263,13 +259,13 @@ Ext.define('Mdc.model.ComServerComPort', {
                         {
                             field: 'parity',
                             store: 'Mdc.store.Parities',
-                            associatedField: 'parity',
+                            associatedField: 'id',
                             localizedField: 'localizedValue'
                         },
                         {
                             field: 'flowControl',
                             store: 'Mdc.store.FlowControls',
-                            associatedField: 'flowControl',
+                            associatedField: 'id',
                             localizedField: 'localizedValue'
                         }
                     ];
@@ -288,7 +284,7 @@ Ext.define('Mdc.model.ComServerComPort', {
                             if (!store) {
                                 return false;
                             }
-                            index = store.find(item.associatedField, value);
+                            index = Ext.isObject(value) ? store.find(item.associatedField, value.id) : store.find(item.associatedField, value);
                             if (index !== -1) {
                                 result += store.getAt(index).get(item.localizedField);
                             } else {

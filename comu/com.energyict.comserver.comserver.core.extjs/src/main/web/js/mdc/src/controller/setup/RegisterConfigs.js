@@ -317,17 +317,17 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     failure: function (record, operation) {
                         var json = Ext.decode(operation.response.responseText, true);
 
+                    if (json && !Ext.isEmpty(json.errors)) {
                         Ext.suspendLayouts();
                         errorMsgPnl.show();
-                        if (json && json.errors) {
-                            baseForm.markInvalid(json.errors);
-                        }
+                        baseForm.markInvalid(json.errors);
                         Ext.resumeLayouts(true);
-                    },
-                    callback: function () {
-                        form.setLoading(false);
                     }
-                });
+                },
+                callback: function () {
+                    form.setLoading(false);
+                }
+            });
 
             }
         } else {

@@ -19,22 +19,35 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
     ],
 
     refresh: function(device, channel, callback) {
-        var me = this;
+        var me = this,
+            channelsIds = _.keys(me.get('channelData')),
+            requestCount = channelsIds.length,
+            reading = me.get('interval').end,
+            channelValidationData = me.get('channelValidationData'),
+            doCallback = function () {
+                requestCount--;
+                if (!requestCount && Ext.isFunction(callback)) {
+                    callback();
+                }
+            };
 
-        Ext.Ajax.request({
-            url: '/api/ddr/devices/{device}/channels/{channel}/data/{reading}/validation'
-                .replace('{device}', device)
-                .replace('{channel}', _.keys(me.get('channelData'))[0])
-                .replace('{reading}', me.get('interval').end),
-            success: function(response) {
-                var data = Ext.decode(response.responseText);
-                //Ext.apply(me.raw, data)
-                me.beginEdit();
-                me.set(data);
-                me.endEdit(true);
+        if (requestCount) {
+            Ext.Array.each(channelsIds, function (channelId) {
+                Ext.Ajax.request({
+                    url: '/api/ddr/devices/{device}/channels/{channel}/data/{reading}/validation'
+                        .replace('{device}', device)
+                        .replace('{channel}', channelId)
+                        .replace('{reading}', reading),
+                    success: function(response) {
+                        var data = Ext.decode(response.responseText);
 
-                callback ? callback() : null;
-            }
-        })
+                        Ext.merge(channelValidationData[channelId], data);
+                        doCallback();
+                    }
+                })
+            });
+        } else if (Ext.isFunction(callback)) {
+            callback();
+        }
     }
 });

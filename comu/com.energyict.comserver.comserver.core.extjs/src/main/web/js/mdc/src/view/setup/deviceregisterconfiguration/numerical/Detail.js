@@ -36,7 +36,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                 items: [
                                     {
                                         xtype: 'fieldcontainer',
-                                        flex: 1,
                                         fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                                         labelAlign: 'top',
                                         layout: 'vbox',

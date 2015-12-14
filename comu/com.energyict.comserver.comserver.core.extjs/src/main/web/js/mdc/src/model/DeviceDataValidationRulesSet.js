@@ -30,14 +30,14 @@ Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
                 if (numberOfVersions === 0 || hasCurrent === false){
                     result = '-';
                 } else if (startDate && endDate) {
-                    result = Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}',[Uni.DateTime.formatDateTimeLong(new Date(startDate))])+ ' - ' +
-                    Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]);
+                    result = Ext.String.format(Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}',[Uni.DateTime.formatDateTimeLong(new Date(startDate))])+ ' - ' +
+                    Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]));
                 } else if (startDate) {
-                    result = Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}'[Uni.DateTime.formatDateTimeLong(new Date(startDate))]);
+                    result = Ext.String.format(Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}'), Uni.DateTime.formatDateTimeLong(new Date(startDate)));
                 } else if (endDate) {
-                    result = Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]);
+                    result = Ext.String.format(Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]));
                 }else {
-                    result = Uni.I18n.translate('validationResults.version.notStart', 'MDC', 'Always')
+                    result = Ext.String.format(Uni.I18n.translate('validationResults.version.notStart', 'MDC', 'Always'))
                 }
 
 				return result;

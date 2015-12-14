@@ -91,30 +91,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
 
         me.callParent();
 
-    },
-    setValidationResult: function () {
-        var me = this,
-            href;
-
-        Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
-            method: 'GET',
-            timeout: 60000,
-
-            success: function (response) {
-                var res = Ext.JSON.decode(response.responseText);
-                if (me.down('#lnk-validation-result')) {
-                    if (res.loadProfileSuspectCount != 0 || res.registerSuspectCount != 0) {
-                        me.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.recentsuspects', 'MDC', 'Recent suspects'));
-                    } else {
-                        me.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.nosuspects', 'MDC', 'No suspects'));
-                    }
-                }
-            }
-        });
-
     }
-
 });
 
 

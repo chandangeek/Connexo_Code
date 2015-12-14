@@ -1,4 +1,3 @@
-
 Ext.define('Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm', {
     extend: 'Ext.container.Container',
     alias: 'widget.custom-attribute-sets-placeholder-form',

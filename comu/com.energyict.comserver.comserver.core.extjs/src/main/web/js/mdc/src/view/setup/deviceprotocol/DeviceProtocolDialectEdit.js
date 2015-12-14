@@ -89,6 +89,12 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                         ]
                     },
                     {
+                        xtype: 'label',
+                        text: Uni.I18n.translate('protocolDialect.noAttributesDefined', 'MDC', 'No attributes defined'),
+                        hidden: true,
+                        itemId: 'noAttributesDefinedLabel'
+                    },
+                    {
                         xtype: 'property-form',
                         width: '100%'
                     },

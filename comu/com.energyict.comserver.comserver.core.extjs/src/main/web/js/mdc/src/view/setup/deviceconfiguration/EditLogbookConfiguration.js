@@ -66,6 +66,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                     items: [
                         {
                             xtype: 'button',
+                            itemId: 'save-logbook-type-button',
                             text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                             action: 'save',
                             ui: 'action'
@@ -73,6 +74,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                         {
                             xtype: 'button',
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            itemId: 'cancel-logbook-type-button',
                             action: 'cancel',
                             ui: 'link',
                             listeners: {

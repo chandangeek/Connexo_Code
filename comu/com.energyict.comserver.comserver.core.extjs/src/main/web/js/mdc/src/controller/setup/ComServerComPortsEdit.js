@@ -166,15 +166,21 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         this.cancelAddPool();
     },
 
-    changeType: function (combo, newValue) {
-        this.portType = newValue;
+    changeType: function (combo) {
+        var me = this;
+        this.portType = combo.getRawValue();
         this.saveState();
-        this.comportEdit.showForm(this.portDirection, newValue);
+        this.comportEdit.showForm(this.portDirection, combo.getRawValue());
 
         //SERIAL form requires some fields to have preset defaults
-        if (newValue == 'SERIAL') {
+        if (combo.getRawValue() == 'SERIAL') {
             var editView = this.getComPortEdit();
-            this.setDefaultValuesForSerial(editView);
+            Uni.util.Common.loadNecessaryStores([
+                'Mdc.store.FlowControls',
+                'Mdc.store.Parities'
+            ], function () {
+                me.setDefaultValuesForSerial(editView);
+            }, false);
         }
         if (!this.restorePools) {
             this.getStore('Mdc.store.AddComPortPools').removeAll();
@@ -208,8 +214,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         baudRate.setValue('9600', true);
         nrOfDatabits.setValue('8', true);
         nrOfStopBits.setValue('1', true);
-        parity.setValue('No parity', true);
-        flowControl.setValue('No flow control', true);
+        parity.setValue('parities_none', true);
+        flowControl.setValue('flowcontrol_none', true);
     },
 
     formToModel: function (form, model) {
@@ -237,6 +243,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             values = Ext.Object.fromQueryString(queryString, true),
             formErrorsPanel = form.down('[name=form-errors]'),
             comPortPool = this.getStore('Mdc.store.AddComPortPools'),
+            comPortTypeField = form.down('#comPortTypeSelect'),
+            comPortTypeFieldValueObject = comPortTypeField.findRecordByValue(comPortTypeField.getValue()).getData(),
             modemInit = [],
             globalModemInitStrings = [],
             typeModel,
@@ -265,7 +273,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     record.set('active', false);
                     record.set('comServer_id', me.comServerId);
                     record.set('direction', me.portDirection);
-                    record.set('type', me.portDirection + '_' + record.getData().comPortType);
+                    record.set('comPortType', comPortTypeFieldValueObject);
+                    record.set('type', me.portDirection + '_' + record.getData().comPortType.localizedValue);
                     record.endEdit();
                     record.getProxy().url = '/api/mdc/comservers/' + me.comServerId + '/comports';
                     break;
@@ -286,6 +295,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             record.set('modemInitStrings', modemInit);
             record.set('globalModemInitStrings', globalModemInitStrings);
             ids && (record.set('outboundComPortPoolIds', ids));
+            if (comPortTypeField.getRawValue() == 'SERIAL') {
+                record.set('flowControl', form.down('#flowControl').findRecordByValue(form.down('#flowControl').getValue()).getData());
+                record.set('parity', form.down('#parity').findRecordByValue(form.down('#parity').getValue()).getData());
+            }
             me.portModel = null;
             record.save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comservers/detail/comports').buildUrl(),
@@ -418,85 +431,96 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
 
         portModel.getProxy().url = portModel.getProxy().url.replace('{comServerId}', me.comServerId);
-        portModel.load(me.comPortId, {
-            success: function (record) {
-                recordData = record.getData();
-                me.recordToEdit = record;
-                me.portType = recordData.comPortType;
-                me.portDirection = recordData.direction;
-                me.getApplication().fireEvent('loadComPortOnComServer', recordData.name);
-                actionButton = Ext.ComponentQuery.query('#comPortEdit #addEditButton')[0];
-                directionField = Ext.ComponentQuery.query('#comPortEdit displayfield[name=direction]')[0];
-                actionButton.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-                actionButton.action = 'editModel';
-                directionField.show();
+        Uni.util.Common.loadNecessaryStores([
+            'Mdc.store.FlowControls',
+            'Mdc.store.Parities',
+            'Mdc.store.ComPortTypes'
+        ], function () {
+            portModel.load(me.comPortId, {
+                success: function (record) {
+                    recordData = record.getData();
+                    me.recordToEdit = record;
+                    me.portType = recordData.comPortType.localizedValue;
+                    me.portDirection = recordData.direction;
+                    me.getApplication().fireEvent('loadComPortOnComServer', recordData.name);
+                    actionButton = Ext.ComponentQuery.query('#comPortEdit #addEditButton')[0];
+                    directionField = Ext.ComponentQuery.query('#comPortEdit displayfield[name=direction]')[0];
+                    actionButton.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
+                    actionButton.action = 'editModel';
+                    directionField.show();
 
-                me.getAddComPortForm().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", recordData.name));
-                widget.showForm(me.portDirection, me.portType);
-                addForm = widget.down('#addComPortForm');
-                comportTypeSelectCombo = widget.down('#comPortTypeSelect');
-                switch (recordData.direction) {
-                    case 'inbound':
-                        addForm.loadRecord(record);
-                        inboundStore.load({
-                            callback: function () {
-                                me.filterStoreByType(inboundStore, me.portType);
-                                preloader.destroy();
-                            }
-                        });
-                        if (me.portType == 'SERIAL') {
-                            var connectTimeoutCount = widget.down('#addFormNest').down('#connectTimeoutCount'),
-                                connectTimeoutUnit = widget.down('#addFormNest').down('#connectTimeoutUnit'),
-                                connectDelayCount = widget.down('#addFormNest').down('#connectDelayCount'),
-                                connectDelayUnit = widget.down('#addFormNest').down('#connectDelayUnit'),
-                                sendDelayCount = widget.down('#addFormNest').down('#sendDelayCount'),
-                                sendDelayUnit = widget.down('#addFormNest').down('#sendDelayUnit'),
-                                atCommandTimeoutCount = widget.down('#addFormNest').down('#atCommandTimeoutCount'),
-                                atCommandTimeoutUnit = widget.down('#addFormNest').down('#atCommandTimeoutUnit'),
-                                globalInitModem = widget.down('#addFormNest').down('textfield[name=globalModemInitStrings]'),
-                                initModem = widget.down('#addFormNest').down('textfield[name=modemInitStrings]');
-                            connectTimeoutCount.setValue(recordData.connectTimeout.count);
-                            connectTimeoutUnit.setValue(recordData.connectTimeout.timeUnit);
-                            connectDelayCount.setValue(recordData.delayAfterConnect.count);
-                            connectDelayUnit.setValue(recordData.delayAfterConnect.timeUnit);
-                            sendDelayCount.setValue(recordData.delayBeforeSend.count);
-                            sendDelayUnit.setValue(recordData.delayBeforeSend.timeUnit);
-                            atCommandTimeoutCount.setValue(recordData.atCommandTimeout.count);
-                            atCommandTimeoutUnit.setValue(recordData.atCommandTimeout.timeUnit);
-                            globalInitModem.setValue(me.parseGlobalModemArrayToString(recordData.globalModemInitStrings));
-                            initModem.setValue(me.parseModemArrayToString(recordData.modemInitStrings));
-                        }
-
-                        break;
-                    case 'outbound':
-                        if (me.portModel) {
-                            me.portModel.set('comPortType', me.portType);
-                            me.restoreState();
-                            preloader.destroy();
-                        } else {
-                            me.portModel = record;
+                    me.getAddComPortForm().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", recordData.name));
+                    widget.showForm(me.portDirection, me.portType);
+                    addForm = widget.down('#addComPortForm');
+                    comportTypeSelectCombo = widget.down('#comPortTypeSelect');
+                    switch (recordData.direction) {
+                        case 'inbound':
                             addForm.loadRecord(record);
-                            addComPortPoolsStore.removeAll();
-                            comPortPoolsGrid = me.getComPortPoolsGrid();
-                            outboundComPortPoolsStore.load({
+                            comportTypeSelectCombo.setValue(recordData.comPortType.id);
+                            inboundStore.load({
                                 callback: function () {
-                                    me.filterStoreByType(outboundComPortPoolsStore, me.portType);
-                                    Ext.Array.each(recordData.outboundComPortPoolIds, function (comPortPool) {
-                                        var correspondingComPortPool = outboundComPortPoolsStore.getById(comPortPool.id);
-
-                                        if (correspondingComPortPool) {
-                                            addComPortPoolsStore.add(correspondingComPortPool);
-                                        }
-                                    });
+                                    me.filterStoreByType(inboundStore, me.portType);
                                     preloader.destroy();
                                 }
                             });
-                        }
-                        break;
+                            if (me.portType == 'SERIAL') {
+                                var connectTimeoutCount = widget.down('#addFormNest').down('#connectTimeoutCount'),
+                                    connectTimeoutUnit = widget.down('#addFormNest').down('#connectTimeoutUnit'),
+                                    connectDelayCount = widget.down('#addFormNest').down('#connectDelayCount'),
+                                    connectDelayUnit = widget.down('#addFormNest').down('#connectDelayUnit'),
+                                    sendDelayCount = widget.down('#addFormNest').down('#sendDelayCount'),
+                                    sendDelayUnit = widget.down('#addFormNest').down('#sendDelayUnit'),
+                                    atCommandTimeoutCount = widget.down('#addFormNest').down('#atCommandTimeoutCount'),
+                                    atCommandTimeoutUnit = widget.down('#addFormNest').down('#atCommandTimeoutUnit'),
+                                    globalInitModem = widget.down('#addFormNest').down('textfield[name=globalModemInitStrings]'),
+                                    initModem = widget.down('#addFormNest').down('textfield[name=modemInitStrings]');
+                                connectTimeoutCount.setValue(recordData.connectTimeout.count);
+                                connectTimeoutUnit.setValue(recordData.connectTimeout.timeUnit);
+                                connectDelayCount.setValue(recordData.delayAfterConnect.count);
+                                connectDelayUnit.setValue(recordData.delayAfterConnect.timeUnit);
+                                sendDelayCount.setValue(recordData.delayBeforeSend.count);
+                                sendDelayUnit.setValue(recordData.delayBeforeSend.timeUnit);
+                                atCommandTimeoutCount.setValue(recordData.atCommandTimeout.count);
+                                atCommandTimeoutUnit.setValue(recordData.atCommandTimeout.timeUnit);
+                                globalInitModem.setValue(me.parseGlobalModemArrayToString(recordData.globalModemInitStrings));
+                                initModem.setValue(me.parseModemArrayToString(recordData.modemInitStrings));
+                                widget.down('#flowControl').setValue(recordData.flowControl.id);
+                                widget.down('#parity').setValue(recordData.parity.id);
+                            }
+
+                            break;
+                        case 'outbound':
+                            if (me.portModel) {
+                                me.portModel.set('comPortType', me.portType);
+                                me.restoreState();
+                                comportTypeSelectCombo.setValue(recordData.comPortType.id);
+                                preloader.destroy();
+                            } else {
+                                me.portModel = record;
+                                addForm.loadRecord(record);
+                                comportTypeSelectCombo.setValue(recordData.comPortType.id);
+                                addComPortPoolsStore.removeAll();
+                                comPortPoolsGrid = me.getComPortPoolsGrid();
+                                outboundComPortPoolsStore.load({
+                                    callback: function () {
+                                        me.filterStoreByType(outboundComPortPoolsStore, me.portType);
+                                        Ext.Array.each(recordData.outboundComPortPoolIds, function (comPortPool) {
+                                            var correspondingComPortPool = outboundComPortPoolsStore.getById(comPortPool.id);
+
+                                            if (correspondingComPortPool) {
+                                                addComPortPoolsStore.add(correspondingComPortPool);
+                                            }
+                                        });
+                                        preloader.destroy();
+                                    }
+                                });
+                            }
+                            break;
+                    }
+                    comportTypeSelectCombo.disable();
                 }
-                comportTypeSelectCombo.disable();
-            }
-        });
+            });
+        }, false);
     },
 
     showAddOutbound: function (id) {
@@ -634,7 +658,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
         delete me.portModel;
         me.portModel = Ext.create(Mdc.model.OutboundComPort);
-
         if (form.getRecord()) {
             form.updateRecord(me.portModel);
         } else {

@@ -6,14 +6,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
 
     deviceTypeId: null,
 
-    selModel: {
-        mode: 'SINGLE'
-    },
-
-    plugins: {
-        ptype: 'bufferedrenderer'
-    },
-
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',

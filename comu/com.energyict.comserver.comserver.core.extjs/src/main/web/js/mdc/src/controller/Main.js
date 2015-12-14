@@ -97,6 +97,10 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.usagepointmanagement.controller.UsagePoint',
         'Mdc.controller.setup.DeviceConflictingMapping',
         'Mdc.devicetypecustomattributes.controller.AttributeSets',
+        'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
+        'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnDevice',
+        'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnRegister',
+        'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
         'Mdc.controller.Search'
     ],
 
@@ -119,7 +123,7 @@ Ext.define('Mdc.controller.Main', {
         var me = this;
             //historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
-        if (Mdc.privileges.DeviceGroup.canView()) {
+        if (Mdc.privileges.Device.canViewDevices()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),
                 href: '#/devices',
@@ -129,7 +133,9 @@ Ext.define('Mdc.controller.Main', {
             });
 
             Uni.store.MenuItems.add(devicesMenuItem);
+        }
 
+        if (Mdc.privileges.DeviceGroup.canView()) {
             var portalItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                 portal: 'devices',
@@ -207,7 +213,7 @@ Ext.define('Mdc.controller.Main', {
             }
 
             var deviceCommunicationItem = null;
-            if (Mdc.privileges.Communication.canView() || Mdc.privileges.CommunicationSchedule.canView()) {
+            if (Mdc.privileges.Communication.canView() || Mdc.privileges.CommunicationSchedule.canView() || Mdc.privileges.DataCollectionKpi.canView()) {
                 deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
                     portal: 'administration',
@@ -246,6 +252,7 @@ Ext.define('Mdc.controller.Main', {
                         {
                             text: Uni.I18n.translate('general.dataCollectionKpis', 'MDC', 'Data collection KPIs'),
                             href: '#/administration/datacollectionkpis',
+                            privileges: Mdc.privileges.DataCollectionKpi.view,
                             route: 'datacollectionkpis'
                         }
                     ]

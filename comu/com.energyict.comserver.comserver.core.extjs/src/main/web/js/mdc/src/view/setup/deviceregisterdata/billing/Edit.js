@@ -83,7 +83,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                                 itemId: 'timeStampEditField',
                                 name: 'timeStamp',
                                 layout: 'hbox',
-                                getRawValue: true
+                                valueInMilliseconds: true
                             }
                         ]
                     },
@@ -101,7 +101,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                                 itemId: 'intervalStartField',
                                 name: 'interval.start',
                                 layout: 'hbox',
-                                getRawValue: true
+                                valueInMilliseconds: true
                             }
                         ]
                     },
@@ -119,7 +119,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                                 itemId: 'intervalEndField',
                                 name: 'interval.end',
                                 layout: 'hbox',
-                                getRawValue: true
+                                valueInMilliseconds: true
                             }
                         ]
                     },

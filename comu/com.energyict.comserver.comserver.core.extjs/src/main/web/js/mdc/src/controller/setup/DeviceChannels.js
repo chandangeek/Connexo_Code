@@ -20,7 +20,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
     stores: [
         'Mdc.store.ChannelsOfLoadProfilesOfDevice',
         'Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets',
-        'TimeUnits',
+        'Mdc.store.TimeUnits',
         'Mdc.store.Clipboard'
     ],
 
@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
 
         Uni.util.Common.loadNecessaryStores([
             'Mdc.store.LoadProfilesOfDevice',
-            'TimeUnits'
+            'Mdc.store.TimeUnits'
         ], function () {
             showPage();
         });

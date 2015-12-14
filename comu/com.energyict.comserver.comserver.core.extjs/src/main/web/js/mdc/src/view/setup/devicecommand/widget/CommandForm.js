@@ -7,12 +7,11 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
     ],
     layout: {
         type: 'vbox',
-        align: 'stretch'
+        align: 'stretchmax'
     },
     defaults: {
         xtype: 'combobox',
         labelWidth: 250,
-        maxWidth: 586,
         minWidth: 400,
         allowBlank: false,
         validateOnBlur: false,

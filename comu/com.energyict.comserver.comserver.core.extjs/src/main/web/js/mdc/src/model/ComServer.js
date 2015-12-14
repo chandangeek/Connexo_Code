@@ -3,6 +3,7 @@ Ext.define('Mdc.model.ComServer', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'comServerType', type: 'string', useNull: true},
+        {name: 'displayComServerType', type: 'string', useNull: true},
         {name: 'name', type: 'string', useNull: true},
         {name: 'active', type: 'boolean', useNull: true},
         {name: 'serverLogLevel', type: 'string', useNull: true},

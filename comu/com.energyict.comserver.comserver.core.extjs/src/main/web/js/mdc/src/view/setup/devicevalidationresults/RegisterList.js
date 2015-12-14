@@ -10,13 +10,13 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
             { 
 				header: Uni.I18n.translate('device.dataValidation.register', 'MDC', 'Register'),
 				dataIndex: 'name', 
-				flex: 0.7, 
+				flex: 1,
 				sortable: false, 
 				fixed: true
             },
             {
                 header: Uni.I18n.translate('validationResults.period', 'MDC', 'Period'),
-                flex: 0.7,
+                flex: 1,
                 sortable: false,
                 fixed: true,
                 renderer: function (value, meta, record) {

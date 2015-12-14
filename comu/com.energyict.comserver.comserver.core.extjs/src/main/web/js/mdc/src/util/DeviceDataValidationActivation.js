@@ -39,13 +39,13 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 var res = Ext.JSON.decode(response.responseText);
                 if (view.down('#dataValidationStatusPanel')) {
                     view.down('#deviceDataValidationStatusField').setValue(res.isActive ?
-                            Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                            Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
+                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                        Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     );
                     if (!!view.down('#deviceDataValidationStateChangeBtn')) {
                         view.down('#deviceDataValidationStateChangeBtn').setText((res.isActive ?
-                            Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-                            Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
+                                Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
+                                Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
                             ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
                         );
                         view.down('#deviceDataValidationStateChangeBtn').action = res.isActive ? 'deactivate' : 'activate';
@@ -56,6 +56,13 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     var record = Ext.create('Mdc.model.DeviceValidation', res);
                     if (!view.isDestroyed) {
                         !!view.down('#deviceDataValidationForm') && view.down('#deviceDataValidationForm').loadRecord(record);
+                        if (view.down('#lnk-validation-result')) {
+                            if (res.loadProfileSuspectCount != 0 || res.registerSuspectCount != 0) {
+                                view.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.recentsuspects', 'MDC', 'Recent suspects'));
+                            } else {
+                                view.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.nosuspects', 'MDC', 'No suspects'));
+                            }
+                        }
                     }
                 }
             }
@@ -308,6 +315,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 labelAlign: 'left',
                 labelStyle: 'font-weight: normal; padding-left: 50px'
             },
+            width: 500,
             items: [
                 {
                     xtype: 'datefield',

@@ -6,21 +6,12 @@ Ext.define('Mdc.model.DeviceGroup', {
     fields: [
         {name: 'name', type: 'string', useNull: true},
         {name: 'mRID', type: 'string', useNull: true},
-        {name: 'dynamic', type: 'boolean', useNull: true},
+        {name: 'dynamic', type: 'boolean', defaultValue: true},
         {name: 'filter', type: 'auto', useNull: true, defaultValue: null},
         {name: 'devices', type: 'auto', useNull: true, defaultValue: null},
         {name: 'deviceTypeIds', persist: false},
         {name: 'deviceConfigurationIds', persist: false},
         {name: 'selectedDevices', persist: false}
-    ],
-
-    associations: [
-        {
-            type: 'hasMany',
-            model: 'Mdc.model.SearchCriteria',
-            associationKey: 'criteria',
-            name: 'criteria'
-        }
     ],
 
     proxy: {
@@ -29,6 +20,18 @@ Ext.define('Mdc.model.DeviceGroup', {
         reader: {
             type: 'json'
         }
-    }
+    },
 
+    getNumberOfSearchResults: function (callback) {
+        var me = this;
+
+        Ext.Ajax.request({
+            method: 'GET',
+            url: '/api/jsr/search/com.energyict.mdc.device.data.Device/count',
+            params: {
+                filter: me.get('filter')
+            },
+            callback: callback
+        });
+    }
 });

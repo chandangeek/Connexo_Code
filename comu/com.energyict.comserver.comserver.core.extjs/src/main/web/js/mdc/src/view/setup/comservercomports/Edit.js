@@ -64,7 +64,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     itemId: 'comPortTypeSelect',
                     store: 'Mdc.store.ComPortTypes',
                     displayField: 'localizedValue',
-                    valueField: 'comPortType',
+                    valueField: 'id',
                     value: 'TCP',
                     queryMode: 'local'
                 },
@@ -124,7 +124,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                         form = nest.add({xtype: 'serialForm'});
                         break;
                 }
-                form.showInbound();
+                form && form.showInbound();
                 break;
             case 'outbound' :
                 switch (portType) {
@@ -148,7 +148,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                 form && form.showOutbound();
                 break;
         }
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
         return form;
     },
 
