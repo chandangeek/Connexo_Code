@@ -5,6 +5,7 @@ import com.elster.jupiter.demo.impl.commands.devices.*;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.search.SearchService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -121,6 +122,7 @@ public class DemoServiceImpl {
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile FileImportService fileImportService;
+    private volatile SearchService searchService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -164,8 +166,8 @@ public class DemoServiceImpl {
             FiniteStateMachineService finiteStateMachineService,
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             DeviceLifeCycleService deviceLifeCycleService,
-            FileImportService fileImportService
-            ) {
+            FileImportService fileImportService,
+            SearchService searchService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -202,6 +204,7 @@ public class DemoServiceImpl {
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setDeviceLifeCycleService(deviceLifeCycleService);
         setFileImportService(fileImportService);
+        setSearchService(searchService);
         activate();
         reThrowEx = true;
     }
@@ -250,6 +253,7 @@ public class DemoServiceImpl {
                 bind(FileSystem.class).toInstance(FileSystems.getDefault());
                 bind(FileImportService.class).toInstance(fileImportService);
                 bind(EstimationService.class).toInstance(estimationService);
+                bind(SearchService.class).toInstance(searchService);
             }
         });
         Builders.initWith(this.injector);
@@ -467,6 +471,12 @@ public class DemoServiceImpl {
         this.fileImportService = fileImportService;
     }
 
+    @Reference
+    @SuppressWarnings("unused")
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
     private void executeTransaction(Runnable toRunInsideTransaction) {
         setPrincipal();
         try {
@@ -619,7 +629,7 @@ public class DemoServiceImpl {
             command.setStartDate(startDate);
             if (numberOfDevicesPerType == null) {
                 command.setDevicesPerType(null);
-            }else{
+            } else {
                 command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
             }
             command.run();
@@ -763,5 +773,4 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-
 }

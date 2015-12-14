@@ -1,12 +1,14 @@
 package com.elster.jupiter.demo.impl.builders.configuration;
 
 import com.elster.jupiter.demo.impl.Builders;
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -19,7 +21,7 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
     private final ProtocolPluggableService protocolPluggableService;
 
     private int retryDelayInMinutes = 60;
-    private HashMap<String, Object> properties = new HashMap<>();
+    private Map<String, Object> properties = new HashMap<>();
 
     @Inject
     public OutboundTCPConnectionMethodsDevConfPostBuilder(ProtocolPluggableService protocolPluggableService) {
@@ -27,23 +29,18 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
     }
 
     public OutboundTCPConnectionMethodsDevConfPostBuilder withHost(String host){
-        properties.put("host", host);
+        properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString(), host);
         return this;
     }
 
-    public OutboundTCPConnectionMethodsDevConfPostBuilder withRetryDelay(int retryDelayInMinutes){
+    public OutboundTCPConnectionMethodsDevConfPostBuilder withRetryDelay(int retryDelayInMinutes) {
         this.retryDelayInMinutes =  retryDelayInMinutes;
         return this;
     }
 
-    public OutboundTCPConnectionMethodsDevConfPostBuilder withProperty(String property, Object value){
-        this.properties.put(property, value);
-        return this;
-    }
-
     public OutboundTCPConnectionMethodsDevConfPostBuilder withDefaultOutboundTcpProperties(){
-        this.properties.put("portNumber", new BigDecimal(4059));
-        this.properties.put("connectionTimeout", TimeDuration.minutes(1));
+        this.properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString(), new BigDecimal(4059));
+        this.properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.toString(), TimeDuration.minutes(1));
         return this;
     }
 

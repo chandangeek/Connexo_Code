@@ -5,15 +5,21 @@ import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static com.elster.jupiter.util.conditions.Where.where;
+import java.util.stream.Collectors;
 
 /**
  * {@link Builder} that creates a {@link EndDeviceGroup} for the given device types
@@ -21,14 +27,16 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroupBuilder> {
     private final MeteringGroupsService meteringGroupsService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final SearchService searchService;
 
     private List<String> deviceTypes;
 
     @Inject
-    public DeviceGroupBuilder(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService) {
+    public DeviceGroupBuilder(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, SearchService searchService) {
         super(DeviceGroupBuilder.class);
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.searchService = searchService;
     }
 
     public DeviceGroupBuilder withDeviceTypes(List<String> deviceTypes){
@@ -44,8 +52,9 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
     @Override
     public EndDeviceGroup create() {
         Log.write(this);
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition())
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getSearchablePropertyValues())
                 .setName(getName())
+                .setSearchDomain(findDeviceSearchDomain())
                 .setMRID("MDC:" + getName())
                 .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
                 .create();
@@ -54,18 +63,33 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
         return endDeviceGroup;
     }
 
-    private Condition getCondition() {
-        Condition condition = Condition.FALSE;
-        if (deviceTypes == null){
-            throw new UnableToCreate("You must specify the device types names for device group");
-        }
+    private SearchDomain findDeviceSearchDomain() {
+        return searchService.findDomain(Device.class.getName()).orElseThrow(() -> new UnableToCreate("Unable to find device search domain"));
+    }
+
+    private SearchablePropertyValue[] getSearchablePropertyValues() {
+        return new SearchablePropertyValue[]{
+                createSearchablePropertyValue("mRID", Collections.singletonList(Constants.Device.STANDARD_PREFIX + "*")),
+                createSearchablePropertyValue("deviceType",
+                        getDeviceTypes().stream().map(HasId::getId).map(Object::toString).collect(Collectors.toList()))
+        };
+    }
+
+    private SearchablePropertyValue createSearchablePropertyValue(String searchableProperty, List<String> values) {
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.propertyName = searchableProperty;
+        valueBean.operator = SearchablePropertyOperator.EQUAL;
+        valueBean.values = values;
+        return new SearchablePropertyValue(null, valueBean);
+    }
+
+    private List<DeviceType> getDeviceTypes() {
+        List<DeviceType> result = new ArrayList<>();
         for (String deviceType : deviceTypes) {
-            Optional<DeviceType> deviceTypeByName = deviceConfigurationService.findDeviceTypeByName(deviceType);
-            if (!deviceTypeByName.isPresent()){
-                throw new UnableToCreate("Unable to find device type with name " + deviceType);
-            }
-            condition = condition.or(where("deviceConfiguration.deviceType.id").isEqualTo(deviceTypeByName.get().getId()));
+            DeviceType deviceTypeByName = deviceConfigurationService.findDeviceTypeByName(deviceType)
+                    .orElseThrow(() -> new UnableToCreate("Unable to find device type with name " + deviceType));
+            result.add(deviceTypeByName);
         }
-        return condition.and(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
+        return result;
     }
 }

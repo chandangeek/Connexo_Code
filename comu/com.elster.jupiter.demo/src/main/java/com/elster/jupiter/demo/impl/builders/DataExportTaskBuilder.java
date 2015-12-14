@@ -41,7 +41,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
 
     @Override
     public Optional<ExportTask> find() {
-        Optional<? extends ExportTask> task = dataExportService.getReadingTypeDataExportTaskQuery().select(where("name").isEqualTo(getName())).stream().findFirst();
+        Optional<? extends ExportTask> task = dataExportService.getReadingTypeDataExportTaskByName(getName());
         return Optional.ofNullable((ExportTask) task.orElse(null));
     }
 
@@ -60,6 +60,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
         startOn = startOn.withSecond(0).withMinute(0).withHour(11);
         com.elster.jupiter.export.DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(getName())
+                .setApplication("Admin")
                 .setDataFormatterName("standardCsvDataProcessorFactory")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(11)))
                 .setNextExecution(startOn.toInstant(ZoneOffset.UTC))

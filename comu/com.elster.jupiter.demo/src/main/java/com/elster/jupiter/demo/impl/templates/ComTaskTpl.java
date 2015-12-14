@@ -60,7 +60,16 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         protected boolean isVerifyStatusInformationTask() {
             return true;
         }
-    }
+    },
+    //System communication task, it should be available out of the box
+    // We don't need to create it, just link to device configurations
+    FIRMWARE_MANAGEMENT("Firmware management",
+            null,
+            null,
+            null,
+            null,
+            null){
+    },
     ;
     private String name;
     private List<LoadProfileTypeTpl> loadProfileTypes;
@@ -97,7 +106,7 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         }
         builder.withTopologyActions(topologyActions);
         builder.withClocks(clocks);
-        builder.withStatusInformationTask(isVerifyStatusInformationTask());
+        builder.forStatusInformationTask(isVerifyStatusInformationTask());
         return builder;
     }
 
@@ -110,7 +119,7 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
     }
 
     static ComTaskTpl[] excludeTopologyTpls(){
-        return  EnumSet.of(READ_ALL, READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, VERIFY_STATUS_INFO).toArray(new ComTaskTpl[5]);
+        return  EnumSet.of(READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, VERIFY_STATUS_INFO, FIRMWARE_MANAGEMENT ).toArray(new ComTaskTpl[5]);
     }
 
     static ComTaskTpl[] TopologyTpls(){
