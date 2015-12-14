@@ -2,9 +2,11 @@ package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.security.Privileges;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -36,6 +38,7 @@ public class ImportDirectoryResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public DirectoryForAppServerInfos getImportPaths() {
         return new DirectoryForAppServerInfos(appService.getAllImportDirectories());
     }
@@ -44,6 +47,7 @@ public class ImportDirectoryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public DirectoryForAppServerInfo getImportPathForAppServer(@PathParam("appServerName") String appServerName) {
         AppServer appServer = findAppServerOrThrowException(appServerName);
         DirectoryForAppServerInfo info = new DirectoryForAppServerInfo();
@@ -55,6 +59,7 @@ public class ImportDirectoryResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response addImportPaths(DirectoryForAppServerInfo info) {
         return updateImportPaths(info.appServerName, info);
     }
@@ -63,6 +68,7 @@ public class ImportDirectoryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response updateImportPaths(@PathParam("appServerName") String appServerName, DirectoryForAppServerInfo info) {
         AppServer appServer = findAppServerOrThrowException(appServerName);
         try (TransactionContext context = transactionService.getContext()) {
@@ -81,6 +87,7 @@ public class ImportDirectoryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response removeImportPaths(@PathParam("appServerName") String appServerName){
         AppServer appServer = findAppServerOrThrowException(appServerName);
         try (TransactionContext context = transactionService.getContext()) {
