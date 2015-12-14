@@ -171,7 +171,9 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             groups.map(function(group) {
                 var items = [];
 
-                group.children.map(function(item) {
+                _.sortBy(group.children, function (item) {
+                    return item.get('displayValue');
+                }).map(function(item) {
                     items.push(me.createMenuItem(item));
                 });
 
