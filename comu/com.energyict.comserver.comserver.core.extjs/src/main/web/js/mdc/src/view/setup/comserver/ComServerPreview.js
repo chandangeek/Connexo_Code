@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                        name: 'comServerType'
+                        name: 'displayComServerType'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('comserver.preview.serverLogLevel', 'MDC', 'Server log level'),
@@ -81,8 +81,11 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                         fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                         name: 'active',
                         renderer: function (val) {
-                            val ? val = 'Active' : val = 'Inactive';
-                            return val;
+                            if (val === true) {
+                                return Uni.I18n.translate('general.active', 'MDC', 'Active');
+                            } else {
+                                return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
+                            }
                         }
                     },
                     {

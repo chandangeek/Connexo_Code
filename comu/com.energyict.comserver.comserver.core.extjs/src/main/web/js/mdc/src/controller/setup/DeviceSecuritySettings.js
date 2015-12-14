@@ -113,9 +113,14 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                     me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
                 }
                 if (!deviceSecuritySetting[0].get('userHasEditPrivilege')) {
-                    me.getDeviceSecuritySettingPreview().getHeader().down('button').hide();
+                    if (me.getDeviceSecuritySettingPreview().getHeader().down('button')) {
+                        me.getDeviceSecuritySettingPreview().getHeader().down('button').hide();
+                    }
                 } else {
-                    me.getDeviceSecuritySettingPreview().getHeader().down('button').setVisible(true);
+                    if (me.getDeviceSecuritySettingPreview().getHeader().down('button')) {
+                        me.getDeviceSecuritySettingPreview().getHeader().down('button').setVisible(true);
+                    }
+
                     if (deviceSecuritySetting[0].get('userHasViewPrivilege')) {
                         me.showPropertyValues(false);
                     }

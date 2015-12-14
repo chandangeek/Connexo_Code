@@ -204,10 +204,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         comTasksStore.getProxy().startParam = false;
                         comTasksStore.load({
                             callback: function () {
-                                connectionMethodsStore.getProxy().extraParams = ({
-                                    deviceType: deviceTypeId,
-                                    deviceConfig: deviceConfigurationId
-                                });
+                                connectionMethodsStore.getProxy().setUrl(deviceTypeId, deviceConfigurationId);
                                 connectionMethodsStore.load({
                                     callback: function () {
                                         securityPropertySetsStore.getProxy().extraParams = ({
@@ -349,7 +346,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             grid = me.getCommunicationTaskGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
-            suspended = lastSelected.get('suspended');
+            suspended = lastSelected.get('suspended'),
+            acknowledgeMessage;
 
         if (!Ext.isEmpty(suspended)) {
             var action = ((suspended == true) ? 'activate' : 'deactivate');
@@ -360,9 +358,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 isNotEdit: true,
                 jsonData: lastSelected.getRecordData(),
                 success: function () {
-                    var messageKey = ((suspended == true) ? 'communicationtasks.activated' : 'communicationtasks.deactivated');
-                    var messageText = ((suspended == true) ? 'Communication task configuration activated' : 'Communication task configuration deactivated');
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate(messageKey, 'MDC', messageText));
+                    if (suspended == true) {
+                        acknowledgeMessage = Uni.I18n.translate('communicationtasks.activated', 'MDC', 'Communication task configuration activated');
+                    } else {
+                        acknowledgeMessage = Uni.I18n.translate('communicationtasks.deactivated', 'MDC', 'Communication task configuration deactivated');
+                    }
+                    me.getApplication().fireEvent('acknowledge', acknowledgeMessage);
                     me.loadCommunicationTasksStore();
                 },
                 failure: function (response, request) {

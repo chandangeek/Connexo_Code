@@ -175,6 +175,5 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
             }
         ];
         this.callParent(arguments);
-        Ext.data.StoreManager.lookup('LogbookTypesOfDeviceType').load();
     }
 });
