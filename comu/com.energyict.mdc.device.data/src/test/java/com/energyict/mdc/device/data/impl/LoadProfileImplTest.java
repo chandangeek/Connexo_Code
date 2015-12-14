@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,8 +24,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.assertj.core.api.Condition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,6 +48,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     private ReadingType rt_bulkReactiveEnergySecondary;
     private ObisCode obisCode1;
     private ObisCode obisCode2;
+    private ObisCode overruledObisCode = ObisCode.fromString("0.0.0.0.0.0");
     private DeviceConfiguration deviceConfigurationWithLoadProfileAndChannels;
     private RegisterType registerType1;
     private RegisterType registerType2;
@@ -105,7 +105,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).setOverruledObisCode(overruledObisCode).overflow(overflow).nbrOfFractionDigits(2);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
@@ -191,7 +191,12 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         deviceWithLoadProfile.save();
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
-        assertThat(loadProfileObisCode).isEqualTo(reloadedLoadProfile.getDeviceObisCode());
+        assertThat(reloadedLoadProfile.getDeviceObisCode()).isEqualTo(loadProfileObisCode);
+
+        List<Channel> channels = reloadedLoadProfile.getChannels();
+        assertThat(channels).hasSize(2);
+        assertThat(channels.get(0).getObisCode()).isEqualTo(obisCode1);
+        assertThat(channels.get(1).getObisCode()).isEqualTo(overruledObisCode);
     }
 
     @Test

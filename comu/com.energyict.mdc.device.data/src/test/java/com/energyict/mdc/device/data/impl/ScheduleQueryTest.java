@@ -30,7 +30,6 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .add();
-        device.save();
         return scheduledConnectionTask;
     }
 
@@ -41,7 +40,16 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .add();
-        device.save();
+        return scheduledConnectionTask;
+    }
+
+    private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolationsUsingNonActiveComportPool(String name) {
+        this.partialScheduledConnectionTask.setName(name);
+        this.partialScheduledConnectionTask.save();
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(inactiveOutboundTcpipComportPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
         return scheduledConnectionTask;
     }
 
@@ -104,7 +112,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
     public void scheduleQueryTestNoTaskWhenConnectionTaskIsPaused() {
         Instant pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("scheduleQueryTestNoTaskWhenConnectionTaskIsPaused");
-        connectionTask.save();
+
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
@@ -120,7 +128,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         // we will make sure the ComServer field is filled in
         Instant pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("scheduleQueryTestNoTaskWhenConnectionTaskIsPaused");
-        connectionTask.save();
+
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
@@ -136,11 +144,27 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         // we will make sure the ComServer field is filled in
         Instant pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("scheduleQueryTestNoTaskWhenConnectionTaskIsPaused");
-        connectionTask.save();
+
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
-        comTaskExecution.makeObsolete();
+        device.removeComTaskExecution(comTaskExecution);
+        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
+
+        assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void scheduleQueryTestNoTaskWhenComPortPoolIsInactiveTest() {
+        // we will make sure the ComServer field is filled in
+        Instant pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolationsUsingNonActiveComportPool("scheduleQueryTestNoTaskWhenConnectionTaskIsPaused");
+
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
+        final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        OutboundComPort outboundComPort = createOutboundComPort();
+
         Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
@@ -151,7 +175,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
     public void scheduleQueryTestNoTaskWhenNoPendingComTaskExecutionTest() {
         Instant pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("simpleSchedulingQueryTest");
-        connectionTask.save();
+
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Instant futureDate = freezeClock(2012, Calendar.JULY, 5); // make the task waiting
         OutboundComPort outboundComPort = createOutboundComPort();
@@ -165,7 +189,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
     public void scheduleQueryTestNoTaskWhenComTaskExecutionAlreadyBusyTest() {
         Instant pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("simpleSchedulingQueryTest");
-        connectionTask.save();
+
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
@@ -180,7 +204,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
     public void scheduleQueryTestNoTaskWhenComPortInOtherPoolTest() {
         Instant pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("simpleSchedulingQueryTest");
-        connectionTask.save();
+
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createComPortInOtherComPortPool();

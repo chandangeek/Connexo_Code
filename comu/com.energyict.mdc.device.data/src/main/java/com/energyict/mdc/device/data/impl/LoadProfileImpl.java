@@ -251,7 +251,7 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public ObisCode getObisCode() {
-            return channelSpec.getObisCode();
+            return channelSpec.getDeviceObisCode();
         }
 
         @Override

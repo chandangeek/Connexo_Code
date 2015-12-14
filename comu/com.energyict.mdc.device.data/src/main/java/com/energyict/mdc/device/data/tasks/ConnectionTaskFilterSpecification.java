@@ -4,8 +4,11 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -82,4 +85,10 @@ public class ConnectionTaskFilterSpecification {
      */
     public Set<EndDeviceGroup> deviceGroups = new HashSet<>();
 
+    /**
+     * The Set of device states
+     * Connection tasks of devices in such states will be excluded from the result
+     * Default value: exclude connection tasks of "In stock" and "Decommissioned" devices
+     */
+    public Set<String> restrictedDeviceStates = new HashSet<>(Arrays.asList(DefaultState.IN_STOCK.getKey(), DefaultState.DECOMMISSIONED.getKey()));
 }

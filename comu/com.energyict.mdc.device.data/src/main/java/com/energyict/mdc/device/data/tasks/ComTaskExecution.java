@@ -202,14 +202,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     public Instant getExecutionStartedTimestamp();
 
     /**
-     * Makes this ComTaskExecution obsolete, i.e. it will no longer execute
-     * nor will it be returned by {@link DeviceService} finder methods.
-     * <p>
-     * Note: the call needs to run in a Transaction, no additional save() is required.
-     */
-    public void makeObsolete();
-
-    /**
      * Tests if this ComTaskExecution is obsolete.
      *
      * @return A flag that indicates if this ComTaskExecution is obsolete

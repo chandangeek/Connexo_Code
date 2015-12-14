@@ -29,6 +29,9 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidator imp
 
     @Override
     public boolean isValid(ScheduledComTaskExecutionImpl scheduledComTaskExecution, ConstraintValidatorContext context) {
+        if (scheduledComTaskExecution.isObsolete()) {
+            return true;
+        }
         DeviceConfiguration configuration = this.getDeviceConfiguration(scheduledComTaskExecution);
         for (ComTask comTask : scheduledComTaskExecution.getComTasks()) {
             Optional<ComTaskEnablement> comTaskEnablement = configuration.getComTaskEnablementFor(comTask);

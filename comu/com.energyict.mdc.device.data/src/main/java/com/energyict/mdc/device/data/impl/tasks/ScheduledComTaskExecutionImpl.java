@@ -51,6 +51,12 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     @Override
+    public void prepareForSaving() {
+        this.recalculateNextAndPlannedExecutionTimestamp();
+        super.prepareForSaving();
+    }
+
+    @Override
     protected void validateAndCreate() {
         this.recalculateNextAndPlannedExecutionTimestamp();
         super.validateAndCreate();

@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -34,7 +33,7 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
 
     @Override
     public boolean isValid(DeviceMessageImpl deviceMessage, ConstraintValidatorContext context) {
-        if(deviceMessage.getSpecification() != null){
+        if (deviceMessage.getSpecification() != null) {
             this.validatePropertiesAreLinkedToPropertySpecs(deviceMessage, context);
             this.validateAllAttributesArePresent(deviceMessage, context);
             this.validatePropertyValues(deviceMessage, context);
@@ -43,22 +42,25 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
     }
 
     private void validatePropertyValues(DeviceMessageImpl deviceMessage, ConstraintValidatorContext context) {
-        List<DeviceMessageAttribute> deviceMessageAttributes = deviceMessage.getAttributes();
+        deviceMessage
+            .getAttributes()
+            .forEach(deviceMessageAttribute -> this.validatePropertyValues(deviceMessageAttribute, context));
+    }
 
-        deviceMessageAttributes.stream().forEach(deviceMessageAttribute -> {
+    private void validatePropertyValues(DeviceMessageAttribute deviceMessageAttribute, ConstraintValidatorContext context) {
+        if (deviceMessageAttribute.getSpecification() != null) {
             try {
-                if (deviceMessageAttribute.getSpecification() != null) {
-                    deviceMessageAttribute.getSpecification().validateValue(deviceMessageAttribute.getValue());
-                }
-            } catch (InvalidValueException e) {
+                deviceMessageAttribute.getSpecification().validateValue(deviceMessageAttribute.getValue());
+            }
+            catch (InvalidValueException e) {
                 context
                     .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
-                        .addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
-                        .addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
+                    .addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
+                    .addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
                     .disableDefaultConstraintViolation();
                 this.valid = false;
             }
-        });
+        }
     }
 
     private void validatePropertiesAreLinkedToPropertySpecs(DeviceMessageImpl deviceMessage, ConstraintValidatorContext context) {
@@ -94,4 +96,5 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
             });
         }
     }
+
 }

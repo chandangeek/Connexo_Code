@@ -1,37 +1,56 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.impl.tasks.*;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.IpConnectionProperties;
+import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+
 import com.google.common.base.Strings;
-import org.assertj.core.api.Condition;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
+import org.assertj.core.api.Condition;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -406,32 +425,22 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
         deviceConfigurationWithConnectionType.activate();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID);
-        device.save();
+
         ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
 
+        ScheduledConnectionTask reloaded = inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(scheduledConnectionTask.getId()).get();
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.removeConnectionTask(scheduledConnectionTask);
+        reloadedDevice.removeConnectionTask(reloaded);
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
 
         Device deviceWithoutConnectionTasks = getReloadedDevice(reloadedDevice);
 
         assertThat(deviceWithoutConnectionTasks.getConnectionTasks()).isEmpty();
-        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
-        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
-        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
-    }
-
-    @Test(expected = CannotDeleteConnectionTaskWhichIsNotFromThisDevice.class)
-    @Transactional
-    public void deleteAConnectionTaskWhichIsNotFromThatDeviceTest() {
-        DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID);
-        device.save();
-        ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
-
-        Device otherDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "OtherDevice", MRID);
-
-        // should throw exception
-        otherDevice.removeConnectionTask(scheduledConnectionTask);
+        assertThat(deviceWithoutConnectionTasks.getInboundConnectionTasks()).isEmpty();
+        assertThat(deviceWithoutConnectionTasks.getScheduledConnectionTasks()).isEmpty();
+        assertThat(deviceWithoutConnectionTasks.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test
@@ -446,8 +455,11 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
                 .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                 .setNextExecutionSpecsFrom(newTemporalExpression).add();
 
+        List<ConnectionTask<?, ?>> connectionTasks = device.getConnectionTasks();
+        assertThat(((ScheduledConnectionTask) connectionTasks.get(0)).getNextExecutionSpecs()).isNotNull();
+
         Device reloadedDevice = getReloadedDevice(device);
-        List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();
+        connectionTasks = reloadedDevice.getConnectionTasks();
         assertThat(connectionTasks).hasSize(1);
         ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTasks.get(0);
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
@@ -515,11 +527,11 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpOutboundConnectionTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
         device.save();
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
         scheduledConnectionTaskBuilder.add();
-        device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice.getConnectionTasks().get(0).getProperties()).has(new Condition<List<? extends ConnectionTaskProperty>>() {
@@ -527,10 +539,10 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
             public boolean matches(List<? extends ConnectionTaskProperty> value) {
                 int bothMatch = 0b0000;
                 for (ConnectionTaskProperty connectionTaskProperty : value) {
-                    if (connectionTaskProperty.getName().equals(IpConnectionType.IP_ADDRESS_PROPERTY_NAME) && connectionTaskProperty.getValue().toString().equals(ipAddress)) {
+                    if (connectionTaskProperty.getName().equals(IpConnectionProperties.IP_ADDRESS.propertyName()) && connectionTaskProperty.getValue().toString().equals(ipAddress)) {
                         bothMatch |= 0b0001;
                     }
-                    if (connectionTaskProperty.getName().equals(IpConnectionType.PORT_PROPERTY_NAME) && connectionTaskProperty.getValue().equals(portNumber)) {
+                    if (connectionTaskProperty.getName().equals(IpConnectionProperties.PORT.propertyName()) && connectionTaskProperty.getValue().equals(portNumber)) {
                         bothMatch |= 0b0010;
                     }
                 }
@@ -550,13 +562,13 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         BigDecimal portNumber = new BigDecimal("4059");
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpOutboundConnectionTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
+
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
 
         // Business method
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
         scheduledConnectionTaskBuilder.add();
-        device.save();
 
         // Asserts: see expected exception rule
     }
@@ -608,10 +620,10 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpInboundConnectionTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
-        inboundConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
+        inboundConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
 
         // Business method
-        inboundConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+        inboundConnectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
         inboundConnectionTaskBuilder.add();
         device.save();
 
@@ -649,6 +661,17 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
         ConnectionInitiationTask connectionInitiationTask = reloadedDevice.getConnectionInitiationTasks().get(0);
         assertThat(connectionInitiationTask.getProperties()).isEmpty();
+    }
+
+    private void grantAllViewAndEditPrivilegesToPrincipal() {
+        Set<Privilege> privileges = new HashSet<>();
+        Privilege editPrivilege = mock(Privilege.class);
+        when(editPrivilege.getName()).thenReturn(EditPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(editPrivilege);
+        Privilege viewPrivilege = mock(Privilege.class);
+        when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(viewPrivilege);
+        when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
     }
 
 }

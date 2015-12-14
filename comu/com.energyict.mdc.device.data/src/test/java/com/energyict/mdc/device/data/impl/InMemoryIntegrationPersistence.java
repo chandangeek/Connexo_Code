@@ -1,52 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
-import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
-import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.ModemConnectionType;
-import com.energyict.mdc.device.data.impl.tasks.ModemNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.TasksModule;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
@@ -75,6 +31,8 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -94,10 +52,64 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationFinder;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
+import com.energyict.mdc.device.config.impl.FiniteStateFinder;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTypeFinder;
+import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
+import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
+import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
+import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
+import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
+import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.ModemConnectionType;
+import com.energyict.mdc.device.data.impl.tasks.ModemNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.impl.ComScheduleFinder;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TaskFinder;
+import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -106,7 +118,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -122,7 +133,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Copyrights EnergyICT
@@ -132,15 +142,14 @@ import static org.mockito.Mockito.withSettings;
 public class InMemoryIntegrationPersistence {
 
     private BundleContext bundleContext;
-    private Principal principal;
+    private User principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
     private EventService eventService;
     private NlsService nlsService;
     private static final Clock clock = mock(Clock.class);
     private JsonService jsonService;
-    private RelationService relationService;
+    private CustomPropertySetService customPropertySetService;
     private EngineConfigurationService engineConfigurationService;
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
@@ -167,6 +176,9 @@ public class InMemoryIntegrationPersistence {
     private IssueService issueService;
     private Thesaurus thesaurus;
     private BatchService batchService;
+    private DeviceSearchDomain deviceSearchDomain;
+    private DataCollectionKpiService dataCollectionKpiService;
+    private FiniteStateMachineService finiteStateMachineService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -222,6 +234,7 @@ public class InMemoryIntegrationPersistence {
                         "13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new DataVaultModule(),
@@ -229,6 +242,7 @@ public class InMemoryIntegrationPersistence {
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
+                new CustomPropertySetsModule(),
                 new PluggableModule(),
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
@@ -249,14 +263,14 @@ public class InMemoryIntegrationPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
-            this.ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(OrmService.class);
             injector.getInstance(CustomPropertySetService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
-            meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            this.meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
@@ -264,7 +278,7 @@ public class InMemoryIntegrationPersistence {
             this.estimationService = injector.getInstance(EstimationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
-            this.relationService = injector.getInstance(RelationService.class);
+            this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
@@ -282,8 +296,13 @@ public class InMemoryIntegrationPersistence {
             this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             this.batchService = injector.getInstance(BatchService.class);
+            this.deviceSearchDomain = injector.getInstance(DeviceSearchDomain.class);
+            injector.getInstance(SearchService.class).register(deviceSearchDomain);
+            this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
+            this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
+            this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(CustomPropertySetService.class);
             initializeFactoryProviders();
-            createOracleAliases(dataModel.getConnection(true));
             initializePrivileges();
             ctx.commit();
         }
@@ -298,33 +317,25 @@ public class InMemoryIntegrationPersistence {
         getPropertySpecService().addFactoryProvider(() -> {
             List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
             finders.add(new ConnectionTaskFinder(dataModel));
+            finders.add(new SecuritySetFinder(deviceConfigurationService));
             finders.add(new ProtocolDialectPropertiesFinder(dataModel));
+            finders.add(new DeviceTypeFinder(this.deviceConfigurationService));
+            finders.add(new LogBookFinder(dataModel));
+            finders.add(new ConnectionTypeFinder(protocolPluggableService));
+            finders.add(new ComScheduleFinder(schedulingService));
+            finders.add(new ServiceCategoryFinder(meteringService));
+            finders.add(new TaskFinder(taskService));
+            finders.add(new DeviceConfigurationFinder(deviceConfigurationService));
+            finders.add(new FiniteStateFinder(finiteStateMachineService));
+            finders.add(new DeviceGroupFinder(meteringGroupsService));
             return finders;
         });
-    }
-
-    private void createOracleAliases(Connection connection) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
-                "CREATE VIEW IF NOT EXISTS USER_TABLES AS select table_name from INFORMATION_SCHEMA.TABLES where table_schema = 'PUBLIC'"
-        )) {
-            preparedStatement.execute();
-        }
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
-                "CREATE VIEW IF NOT EXISTS USER_IND_COLUMNS AS select index_name, table_name, column_name, ordinal_position AS column_position from INFORMATION_SCHEMA.INDEXES where table_schema = 'PUBLIC'"
-        )) {
-            preparedStatement.execute();
-        }
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
-                "CREATE TABLE IF NOT EXISTS USER_SEQUENCES ( SEQUENCE_NAME VARCHAR2 (30) NOT NULL, MIN_VALUE NUMBER, MAX_VALUE NUMBER, INCREMENT_BY NUMBER NOT NULL, CYCLE_FLAG VARCHAR2 (1), ORDER_FLAG VARCHAR2 (1), CACHE_SIZE NUMBER NOT NULL, LAST_NUMBER NUMBER NOT NULL)"
-        )) {
-            preparedStatement.execute();
-        }
     }
 
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
@@ -359,8 +370,8 @@ public class InMemoryIntegrationPersistence {
         return transactionService;
     }
 
-    public RelationService getRelationService() {
-        return relationService;
+    public CustomPropertySetService getCustomPropertySetService() {
+        return this.customPropertySetService;
     }
 
     public ProtocolPluggableService getProtocolPluggableService() {
@@ -459,17 +470,12 @@ public class InMemoryIntegrationPersistence {
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(Thesaurus.class).toInstance(thesaurus);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
 
     public User getMockedUser(){
-        return (User) this.principal;
+        return this.principal;
     }
 
     public UserService getUserService() {
@@ -490,5 +496,13 @@ public class InMemoryIntegrationPersistence {
 
     public BatchService getBatchService() {
         return batchService;
+    }
+
+    public DeviceSearchDomain getDeviceSearchDomain() {
+        return deviceSearchDomain;
+    }
+
+    public DataCollectionKpiService getDataCollectionKpiService() {
+        return dataCollectionKpiService;
     }
 }

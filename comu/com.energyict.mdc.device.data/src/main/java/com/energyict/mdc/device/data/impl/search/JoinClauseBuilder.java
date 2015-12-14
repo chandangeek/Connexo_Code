@@ -22,8 +22,34 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addFiniteState();
 
-    public JoinClauseBuilder addBatch();
+    JoinClauseBuilder addBatch();
 
-    public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
+    JoinClauseBuilder addUsagePoint();
 
+    JoinClauseBuilder addServiceCategory();
+
+    JoinClauseBuilder addTopologyForSlaves();
+
+    JoinClauseBuilder addTopologyForMasters();
+
+    JoinClauseBuilder addMeterValidation();
+
+    JoinClauseBuilder addDeviceEstimation();
+
+    JoinClauseBuilder addDeviceType();
+
+    JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
+
+    JoinClauseBuilder addProtocolDialectProperties(long deviceProtocolId, String relationTableName);
+
+    class Aliases {
+        private Aliases(){ /* constant class */}
+
+        public static final String DEVICE = "dev";
+        public static final String END_DEVICE = "ed";
+        public static final String DEVICE_TYPE = "dev_Type";
+        public static final String COM_TASK_ENABLEMENT = "cten";
+        public static final String COM_TASK = "ctsk";
+        public static final String PROTOCOL_DIALECT_PROPS = "pdprops";
+    }
 }

@@ -1,9 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -29,22 +34,27 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Provides code reuse opportunities for test classes
@@ -69,7 +79,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static long PARTIAL_CONNECTION_INITIATION_TASK2_ID;
 
     protected static final long IP_COMPORT_POOL_ID = 1;
-    protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 1;
+    protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 2;
     protected static final long INBOUND_COMPORT_POOL1_ID = MODEM_COMPORT_POOL_ID + 1;
     protected static final long INBOUND_COMPORT_POOL2_ID = INBOUND_COMPORT_POOL1_ID + 1;
     protected static final String IP_ADDRESS_PROPERTY_VALUE = "192.168.2.100";
@@ -86,8 +96,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass;
     protected static OutboundComPortPool outboundTcpipComPortPool;
     protected static OutboundComPortPool outboundTcpipComPortPool2;
+    protected static OutboundComPortPool inactiveOutboundTcpipComportPool;
     protected static InboundComPortPool inboundTcpipComPortPool;
     protected static InboundComPortPool inboundTcpipComPortPool2;
+    protected static InboundComPortPool inactiveInboundTcpipComPortPool;
     protected static OutboundComPortPool outboundModemComPortPool;
 
     protected Device device;
@@ -218,9 +230,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             protected void doPerform() {
                 deleteComPortPool(outboundTcpipComPortPool);
                 deleteComPortPool(outboundTcpipComPortPool2);
+                deleteComPortPool(inactiveOutboundTcpipComportPool);
                 deleteComPortPool(inboundTcpipComPortPool);
                 deleteComPortPool(inboundTcpipComPortPool2);
                 deleteComPortPool(outboundModemComPortPool);
+                deleteComPortPool(inactiveInboundTcpipComPortPool);
             }
         });
     }
@@ -246,8 +260,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             protected void doPerform() {
                 outboundTcpipComPortPool = createOutboundIpComPortPool("TCP/IP out(1)");
                 outboundTcpipComPortPool2 = createOutboundIpComPortPool("TCP/IP out(2)");
+                inactiveOutboundTcpipComportPool = createInactiveOutboundIpComPortPool("TCP/IP out(3)");
                 inboundTcpipComPortPool = createInboundIpComPortPool("TCP/IP in(1)");
                 inboundTcpipComPortPool2 = createInboundIpComPortPool("TCP/IP in(2)");
+                inactiveInboundTcpipComPortPool = createInactiveInboundIpComPortPool("TCP/IP in(3)");
             }
         });
     }
@@ -262,10 +278,14 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private static OutboundComPortPool createOutboundIpComPortPool(String name) {
-        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        OutboundComPortPool ipComPortPool = createInactiveOutboundIpComPortPool(name);
         ipComPortPool.setActive(true);
         ipComPortPool.update();
         return ipComPortPool;
+    }
+
+    private static OutboundComPortPool createInactiveOutboundIpComPortPool(String name) {
+        return inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
     }
 
     private static OutboundComPortPool createOutboundModemComPortPool(String name) {
@@ -276,10 +296,14 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private static InboundComPortPool createInboundIpComPortPool(String name) {
-        InboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass);
+        InboundComPortPool ipComPortPool = createInactiveInboundIpComPortPool(name);
         ipComPortPool.setActive(true);
         ipComPortPool.update();
         return ipComPortPool;
+    }
+
+    private static InboundComPortPool createInactiveInboundIpComPortPool(String name) {
+        return inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass);
     }
 
     @Before
@@ -373,29 +397,36 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
                 .setConnectionStrategy(connectionStrategy);
-        device.save();
+
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(connectionStrategy)) {
             TemporalExpression nextExecutionSpecs = new TemporalExpression(EVERY_HOUR);
             scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(nextExecutionSpecs);
         }
-        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) scheduledConnectionTaskBuilder.add();
-        this.setIpConnectionProperties(scheduledConnectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-        scheduledConnectionTask.save();
-        return scheduledConnectionTask;
+        this.setIpConnectionProperties(scheduledConnectionTaskBuilder, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
+        return scheduledConnectionTaskBuilder.add();
     }
 
     protected List<PropertySpec> getOutboundIpPropertySpecs() {
         return Arrays.asList(
-                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME),
-                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME));
+                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get(),
+                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get());
+    }
+
+    protected void setIpConnectionProperties(Device.ScheduledConnectionTaskBuilder connectionTaskBuilder, String ipAddress, BigDecimal port) {
+        if (ipAddress != null) {
+            connectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
+        }
+        if (port != null) {
+            connectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), port);
+        }
     }
 
     protected void setIpConnectionProperties(ConnectionTask connectionTask, String ipAddress, BigDecimal port) {
         if (ipAddress != null) {
-            connectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+            connectionTask.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
         }
         if (port != null) {
-            connectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, port);
+            connectionTask.setProperty(IpConnectionProperties.PORT.propertyName(), port);
         }
     }
 
@@ -472,9 +503,19 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
                 .build();
     }
 
-    protected ComTaskExecution getReloadedComTaskExecution(Device device) {
-        Device reloadedDevice = getReloadedDevice(device);
-        return reloadedDevice.getComTaskExecutions().get(0);
+    protected ComTaskExecution getReloadedComTaskExecution(ComTaskExecution comTaskExecution) {
+        return  inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+    }
+
+    protected void grantAllViewAndEditPrivilegesToPrincipal() {
+        Set<Privilege> privileges = new HashSet<>();
+        Privilege editPrivilege = mock(Privilege.class);
+        when(editPrivilege.getName()).thenReturn(EditPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(editPrivilege);
+        Privilege viewPrivilege = mock(Privilege.class);
+        when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(viewPrivilege);
+        when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
     }
 
     private class ComTaskExecutionDialect implements DeviceProtocolDialect {
@@ -490,13 +531,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         }
 
         @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return Collections.emptyList();
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.empty();
         }
 
-        @Override
-        public PropertySpec getPropertySpec(String name) {
-            return null;
-        }
     }
+
 }

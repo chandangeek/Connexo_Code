@@ -1,6 +1,23 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -15,30 +32,19 @@ import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
+import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
@@ -62,21 +68,23 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private final DeviceDataModelService deviceDataModelService;
     private final ProtocolPluggableService protocolPluggableService;
     private final MeteringGroupsService meteringGroupsService;
+    private final MeteringService meteringService;
     private final QueryService queryService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, NlsService nlsService, MeteringGroupsService meteringGroupsService) {
-        this(deviceDataModelService, protocolPluggableService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN), meteringGroupsService);
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, NlsService nlsService, MeteringGroupsService meteringGroupsService, MeteringService meteringService) {
+        this(deviceDataModelService, protocolPluggableService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN), meteringGroupsService, meteringService);
     }
 
-    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService) {
+    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService, MeteringService meteringService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.protocolPluggableService = protocolPluggableService;
-        this.meteringGroupsService = meteringGroupsService;
         this.queryService = queryService;
         this.thesaurus = thesaurus;
+        this.meteringGroupsService = meteringGroupsService;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -86,6 +94,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
         finders.add(new ProtocolDialectPropertiesFinder(this.deviceDataModelService.dataModel()));
         finders.add(new SecuritySetFinder(this.deviceDataModelService.deviceConfigurationService()));
         finders.add(new DeviceGroupFinder(this.meteringGroupsService));
+        finders.add(new ServiceCategoryFinder(this.meteringService));
         return finders;
     }
 
@@ -131,25 +140,37 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private void appendCountDevicesSql(ProtocolDialectConfigurationProperties configurationProperties, SqlBuilder sqlBuilder) {
         Instant now = this.deviceDataModelService.clock().instant();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
-        DeviceProtocolDialectUsagePluggableClass deviceProtocolDialectUsagePluggableClass =
-                this.protocolPluggableService
-                        .getDeviceProtocolDialectUsagePluggableClass(
-                                deviceProtocolPluggableClass,
-                                configurationProperties.getDeviceProtocolDialectName());
-        String propertiesTable = deviceProtocolDialectUsagePluggableClass.findRelationType().getDynamicAttributeTableName();
-        sqlBuilder.append(" from ");
-        sqlBuilder.append(propertiesTable);
-        sqlBuilder.append(" dru join ");
-        sqlBuilder.append(TableSpecs.DDC_PROTOCOLDIALECTPROPS.name());
-        sqlBuilder.append(" props on dru.");
-        sqlBuilder.append(DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
-        sqlBuilder.append(" = props.id where props.configurationpropertiesid =");
-        sqlBuilder.addLong(configurationProperties.getId());
-        sqlBuilder.append("and (fromdate <=");
-        sqlBuilder.addLong(now.getEpochSecond());
-        sqlBuilder.append(" and (todate is null or todate >");
-        sqlBuilder.addLong(now.getEpochSecond());
-        sqlBuilder.append("))");
+        Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> customPropertySet =
+                this.getCustomPropertySet(deviceProtocolPluggableClass.getDeviceProtocol(), configurationProperties.getDeviceProtocolDialectName());
+        if (customPropertySet.isPresent()) {
+            String propertiesTable = customPropertySet.get().getPersistenceSupport().tableName();
+            sqlBuilder.append(" from ");
+            sqlBuilder.append(propertiesTable);
+            sqlBuilder.append(" cps join ");
+            sqlBuilder.append(TableSpecs.DDC_PROTOCOLDIALECTPROPS.name());
+            sqlBuilder.append(" props on cps.");
+            sqlBuilder.append(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName());
+            sqlBuilder.append(" = props.id where props.configurationpropertiesid =");
+            sqlBuilder.addLong(configurationProperties.getId());
+            sqlBuilder.append("and (fromdate <=");
+            sqlBuilder.addLong(now.getEpochSecond());
+            sqlBuilder.append(" and (todate is null or todate >");
+            sqlBuilder.addLong(now.getEpochSecond());
+            sqlBuilder.append("))");
+        }
+        else {
+            sqlBuilder.append(" from dual where 1 = 0");
+        }
+    }
+
+    private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(DeviceProtocol deviceProtocol, String name) {
+        return deviceProtocol
+                    .getDeviceProtocolDialects()
+                    .stream()
+                    .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(name))
+                    .map(DeviceProtocolDialect::getCustomPropertySet)
+                    .flatMap(Functions.asStream())
+                    .findAny();
     }
 
     private long count(SqlBuilder sqlBuilder) {
@@ -165,13 +186,14 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID) {
-        return this.deviceDataModelService.dataModel().getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
+        Device device = this.deviceDataModelService.dataModel().getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
+        device.save(); // always returns a persisted device
+        return device;
     }
 
     @Override
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch) {
         Device device = newDevice(deviceConfiguration, name, mRID);
-        device.save();
         this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
     }

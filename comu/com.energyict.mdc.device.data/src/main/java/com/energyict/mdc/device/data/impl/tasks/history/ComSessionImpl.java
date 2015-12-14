@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComSession;
@@ -25,6 +26,8 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,7 +38,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -80,7 +82,8 @@ public class ComSessionImpl implements ComSession {
     }
 
     private long id;
-    private DataModel dataModel;
+    private final DataModel dataModel;
+    private final ConnectionTaskService connectionTaskService;
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
     private Reference<ComPort> comPort = ValueReference.absent();
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
@@ -101,17 +104,15 @@ public class ComSessionImpl implements ComSession {
     private int taskSuccessCount;
     private int taskFailureCount;
     private int taskNotExecutedCount;
-    private String userName;
-    private long version;
-    private Instant createTime;
-    private Instant modTime;
 
     private List<ComSessionJournalEntry> journalEntries = new ArrayList<>();
     private List<ComTaskExecutionSession> comTaskExecutionSessions = new ArrayList<>();
 
     @Inject
-    ComSessionImpl(DataModel dataModel) {
+    ComSessionImpl(DataModel dataModel, ConnectionTaskService connectionTaskService) {
+        super();
         this.dataModel = dataModel;
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Override
@@ -364,7 +365,10 @@ public class ComSessionImpl implements ComSession {
         this.calculateStatus();
         if (this.id == 0) {
             this.dataModel.mapper(ComSession.class).persist(this);
-            HasLastComSession connectionTaskAsHasLastComSession = (HasLastComSession) this.connectionTask.get();
+            /* Session may have been started a long time ago
+             * so we will refresh the connection task to avoid
+             * optimistic locking issues. */
+            HasLastComSession connectionTaskAsHasLastComSession = (HasLastComSession) this.connectionTaskService.findConnectionTask(this.connectionTask.get().getId()).get();
             connectionTaskAsHasLastComSession.sessionCreated(this);
             this.comTaskExecutionSessions.forEach(this::notifyCreated);
         }

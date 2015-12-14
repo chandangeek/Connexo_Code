@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 
 import java.util.EnumSet;

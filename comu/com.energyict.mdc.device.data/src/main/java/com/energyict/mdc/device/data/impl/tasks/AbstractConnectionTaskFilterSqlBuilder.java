@@ -9,9 +9,9 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,20 +29,9 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     private final Set<ComPortPool> comPortPools;
     private final Set<DeviceType> deviceTypes;
     private final List<EndDeviceGroup> deviceGroups;
+    private final Set<String> restrictedDeviceStates;
     private final QueryExecutor<Device> queryExecutor;
     private boolean appendLastComSessionJoinClause;
-    private final Set<String> allowedDeviceStates;
-
-    public AbstractConnectionTaskFilterSqlBuilder(Clock clock, List<EndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor) {
-        super(clock);
-        this.connectionTypes = new HashSet<>();
-        this.comPortPools = new HashSet<>();
-        this.deviceTypes = new HashSet<>();
-        this.appendLastComSessionJoinClause = false;
-        this.deviceGroups = new ArrayList<>(deviceGroups);
-        this.queryExecutor = queryExecutor;
-        this.allowedDeviceStates = Collections.emptySet();
-    }
 
     public AbstractConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
         super(clock);
@@ -51,8 +40,8 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
         this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
         this.appendLastComSessionJoinClause = filterSpecification.useLastComSession;
         this.deviceGroups = new ArrayList<>(filterSpecification.deviceGroups);
+        this.restrictedDeviceStates = new HashSet<>(filterSpecification.restrictedDeviceStates);
         this.queryExecutor = deviceQueryExecutor;
-        this.allowedDeviceStates = Collections.emptySet();
     }
 
     protected void appendWhereClause(ServerConnectionTaskStatus taskStatus) {
@@ -101,7 +90,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     }
 
     protected void appendDeviceInStateSql(){
-        this.appendDeviceInStateSql(connectionTaskAliasName(), this.allowedDeviceStates);
+        this.appendDeviceNotInStateSql(connectionTaskAliasName(), this.restrictedDeviceStates);
     }
 
     protected boolean requiresLastComSessionClause() {

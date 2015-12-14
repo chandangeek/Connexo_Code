@@ -1,67 +1,52 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
-import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.impl.CreateEventType;
-import com.energyict.mdc.device.data.impl.DeleteEventType;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.PersistentIdObject;
 import com.energyict.mdc.device.data.impl.PropertyCache;
 import com.energyict.mdc.device.data.impl.PropertyFactory;
-import com.energyict.mdc.device.data.impl.RelationTransactionExecutor;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
-import com.energyict.mdc.device.data.impl.SimpleRelationTransactionExecutor;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
+import com.energyict.mdc.device.data.impl.ValidPluggableClassId;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
-import com.energyict.mdc.dynamic.relation.CanLock;
-import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -70,9 +55,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
-import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_TASK_ATTRIBUTE_NAME;
 
 /**
  * Provides an implementation for the {@link ConnectionTask} interface.
@@ -84,12 +69,9 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
-    extends PersistentIdObject<ConnectionTask>
     implements
         ServerConnectionTask<CPPT, PCTT>,
         ConnectionTaskPropertyProvider,
-        CanLock,
-        DefaultRelationParticipant,
         PropertyFactory<ConnectionType, ConnectionTaskProperty>,
         HasLastComSession,
         PersistenceAware {
@@ -103,6 +85,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                     INBOUND_DISCRIMINATOR, InboundConnectionTaskImpl.class,
                     SCHEDULED_DISCRIMINATOR, ScheduledConnectionTaskImpl.class);
 
+    @SuppressWarnings("unused")
+    private long id;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_DEVICE_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED + "}")
@@ -113,8 +97,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Instant lastCommunicationStart;
     private Instant lastSuccessfulCommunicationEnd;
     private transient PropertyCache<ConnectionType, ConnectionTaskProperty> cache;
+    @ValidPluggableClassId(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private long pluggableClassId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private ConnectionTypePluggableClass pluggableClass;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
@@ -134,6 +118,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Instant modTime;
 
     private final Clock clock;
+    private DataModel dataModel;
+    private EventService eventService;
+    private Thesaurus thesaurus;
     private final ServerConnectionTaskService connectionTaskService;
     private final ServerCommunicationTaskService communicationTaskService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -142,7 +129,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private boolean doNotTouchParentDevice = true;
 
     protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
-        super(ConnectionTask.class, dataModel, eventService, thesaurus);
+        super();
+        this.dataModel = dataModel;
+        this.eventService = eventService;
+        this.thesaurus = thesaurus;
         this.cache = new PropertyCache<>(this);
         this.clock = clock;
         this.connectionTaskService = connectionTaskService;
@@ -165,10 +155,21 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         }
     }
 
-
     @Override
-    public void lock() {
-        this.getDataMapper().lock(this.getId());
+    public long getId() {
+        return id;
+    }
+
+    public boolean hasDirtyProperties() {
+        return cache.isDirty();
+    }
+
+    private DataMapper<ConnectionTask> getDataMapper() {
+        return this.dataModel.mapper(ConnectionTask.class);
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 
     @Override
@@ -183,7 +184,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
         Class<PCTT> partialConnectionTaskType = this.getPartialConnectionTaskType();
         if (!partialConnectionTaskType.isAssignableFrom(partialConnectionTask.getClass())) {
-            throw new IncompatiblePartialConnectionTaskException(partialConnectionTask, partialConnectionTaskType, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_INCOMPATIBLE_PARTIAL);
+            throw new IncompatiblePartialConnectionTaskException(
+                    partialConnectionTask,
+                    partialConnectionTaskType,
+                    thesaurus,
+                    MessageSeeds.CONNECTION_TASK_INCOMPATIBLE_PARTIAL);
         }
     }
 
@@ -193,7 +198,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             ConnectionTask connectionTaskWithSamePartialConnectionTaskDeviceCombination = result.get();
             if (this.getId() != connectionTaskWithSamePartialConnectionTaskDeviceCombination.getId()) {
                 throw new DuplicateConnectionTaskException(
-                        device, partialConnectionTask, connectionTaskWithSamePartialConnectionTaskDeviceCombination, this.getThesaurus(),
+                        device, partialConnectionTask, connectionTaskWithSamePartialConnectionTaskDeviceCombination, thesaurus,
                         MessageSeeds.DUPLICATE_CONNECTION_TASK);
             }
         }
@@ -208,7 +213,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     private void validateSameConfiguration(PCTT partialConnectionTask, Device device) {
         if (!is(this.getDeviceConfigurationId(device)).equalTo(partialConnectionTask.getConfiguration().getId())) {
-            throw new PartialConnectionTaskNotPartOfDeviceConfigurationException(partialConnectionTask, device, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION);
+            throw new PartialConnectionTaskNotPartOfDeviceConfigurationException(partialConnectionTask, device, thesaurus, MessageSeeds.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION);
         }
     }
 
@@ -216,38 +221,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return device.getDeviceConfiguration().getId();
     }
 
-    @Override
-    protected CreateEventType createEventType() {
-        return CreateEventType.CONNECTIONTASK;
+    public void notifyCreated() {
+        this.eventService.postEvent(CreateEventType.CONNECTIONTASK.topic(), this);
     }
 
-    @Override
-    protected UpdateEventType updateEventType() {
-        return UpdateEventType.CONNECTIONTASK;
-    }
-
-    @Override
-    protected DeleteEventType deleteEventType() {
-        return DeleteEventType.CONNECTIONTASK;
-    }
-
-    @Override
-    protected void doDelete() {
-        this.deleteAllProperties();
-        this.deleteDependents();
-        this.getDataMapper().remove(this);
-    }
-
-    /**
-     * Deletes the {@link Relation}s that hold the values of
-     * all the {@link com.energyict.mdc.pluggable.PluggableClass properties}.
-     */
-    private void deleteAllProperties() {
-        this.obsoleteAllProperties();
-    }
-
-    protected void deleteDependents() {
-        this.unRegisterConnectionTaskFromComTasks();
+    public void notifyUpdated() {
+        this.eventService.postEvent(UpdateEventType.CONNECTIONTASK.topic(), this);
     }
 
     /**
@@ -260,48 +239,24 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         }
     }
 
-    @Override
-    public void save() {
-        this.validateNotObsolete();
-        super.save();
-        this.saveAllProperties();
-        getDataModel().touch(device.get());
-    }
-
-    protected void saveAllProperties() {
+    public void saveAllProperties() {
         if (this.cache.isDirty()) {
             if (this.getTypedProperties().localSize() == 0) {
                 this.removeAllProperties();
-            } else {
-                this.saveAllProperties(
-                        this.getAllProperties(),
-                        new SimpleRelationTransactionExecutor<>(
-                                this,
-                                clock.instant(),
-                                this.findRelationType(),
-                                this.getThesaurus()));
+            }
+            else {
+                this.saveAllProperties(this.getAllProperties());
             }
         }
     }
 
-    protected void removeAllProperties() {
-        Relation relation = getDefaultRelation();
-        if (relation != null) {
-            try {
-                relation.makeObsolete();
-            } catch (BusinessException e) {
-                throw new NestedRelationTransactionException(e, this.findRelationType().getName(), this.getThesaurus(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
-            }
-            // Cannot collapse catch blocks because of the constructor
-            catch (SQLException e) {
-                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
-            }
-        }
+    public void removeAllProperties() {
+        this.getPluggableClass().removePropertiesFor(this);
     }
 
-    private void saveAllProperties(List<ConnectionTaskProperty> properties, RelationTransactionExecutor<ConnectionType> transactionExecutor) {
-        properties.forEach(transactionExecutor::add);
-        transactionExecutor.execute();
+    private void saveAllProperties(List<ConnectionTaskProperty> properties) {
+        Instant now = this.now();
+        this.getPluggableClass().setPropertiesFor(this, this.toCustomPropertySetValues(properties, now), now);
         this.clearPropertyCache();
     }
 
@@ -309,20 +264,55 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return clock.instant();
     }
 
-    protected void validateNotObsolete() {
-        if (this.obsoleteDate != null) {
-            throw new CannotUpdateObsoleteConnectionTaskException(this, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
+    @Override
+    public void save () {
+        if (this.id > 0) {
+            this.validateAndUpdate();
+            this.notifyUpdated();
         }
+        else {
+            this.validateAndCreate();
+            this.notifyCreated();
+        }
+    }
+
+    /**
+     * Validates and saves this object for the first time.
+     */
+    private void validateAndCreate() {
+        Save.CREATE.save(this.dataModel, this);
+    }
+
+    /**
+     * Validates and updates the changes made to this object.
+     */
+    private void validateAndUpdate() {
+        Save.UPDATE.save(this.dataModel, this);
     }
 
     @Override
     public void makeObsolete() {
+        Save.UPDATE.validate(this.dataModel, this, Save.Update.class);
         this.reloadComServerAndObsoleteDate();
         this.validateMakeObsolete();
         this.obsoleteDate = this.clock.instant();
+        this.dataModel.update(this);
         this.makeDependentsObsolete();
         this.unRegisterConnectionTaskFromComTasks();
-        this.validateAndUpdate();
+        this.notifyUpdated();
+    }
+
+    public void update() {
+        Save.UPDATE.save(this.dataModel, this, Save.Create.class, Save.Update.class);
+        if (!doNotTouchParentDevice) {
+            this.dataModel.touch(device.get());
+        }
+        this.notifyUpdated();
+    }
+
+    protected void update(String... fieldNames) {
+        this.dataModel.update(this, fieldNames);
+        this.notifyUpdated();
     }
 
     /**
@@ -336,35 +326,17 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     protected void makeDependentsObsolete() {
-        this.obsoleteAllProperties();
-    }
-
-    /**
-     * Makes the {@link Relation}s that hold the values of
-     * all the {@link ConnectionTaskProperty ConnectionTaskProperties} obsolete.
-     */
-    protected void obsoleteAllProperties() {
-        List<Relation> relations = this.getPluggableClass().getRelations(this, Range.all());
-        for (Relation relation : relations) {
-            try {
-                relation.makeObsolete();
-            } catch (BusinessException | SQLException e) {
-                throw new RelationIsAlreadyObsoleteException(relation.getRelationType().getName(), this.getThesaurus(), MessageSeeds.CODING_RELATION_IS_ALREADY_OBSOLETE);
-            }
-        }
+        this.removeAllProperties();
     }
 
     private void validateMakeObsolete() {
-        if (this.isObsolete()) {
-            throw new ConnectionTaskIsAlreadyObsoleteException(this, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_ALREADY_OBSOLETE);
-        } else if (this.comServer.isPresent()) {
-            throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComServer(), this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
+        if (this.comServer.isPresent()) {
+            throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComServer(), thesaurus, MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
         }
     }
 
     protected abstract Class<PCTT> getPartialConnectionTaskType();
 
-    @Override
     protected void validateDelete() {
         if (this.isDefault()) {
             this.validateNoDependentComTaskExecutions();
@@ -374,7 +346,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void validateNoDependentComTaskExecutions() {
         List<ComTaskExecution> dependents = this.findDependentComTaskExecutions();
         if (!dependents.isEmpty()) {
-            throw new CannotDeleteUsedDefaultConnectionTaskException(this, this.getThesaurus(), MessageSeeds.DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE);
+            throw new CannotDeleteUsedDefaultConnectionTaskException(this, thesaurus, MessageSeeds.DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE);
         }
     }
 
@@ -385,7 +357,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void executionStarted(ComServer comServer) {
         List<String> updatedColumns = new ArrayList<>();
         this.doExecutionStarted(comServer, updatedColumns);
-        this.update(updatedColumns);
+        this.update(updatedColumns.toArray(new String[updatedColumns.size()]));
     }
 
     protected void doExecutionStarted(ComServer comServer, List<String> updatedColumns) {
@@ -398,7 +370,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void executionCompleted() {
         this.doNotTouchParentDevice();
         this.doExecutionCompleted();
-        this.update();
+        this.update(ConnectionTaskFields.COM_SERVER.fieldName(), ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName());
     }
 
     protected void doExecutionCompleted() {
@@ -419,6 +391,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.device.set(device);
     }
 
+    @Override
+    public ConnectionType getType() {
+        return this.getPluggableClass().getConnectionType();
+    }
+
     public ConnectionTypePluggableClass getPluggableClass() {
         if (this.pluggableClass == null) {
             this.loadPluggableClass();
@@ -430,32 +407,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.pluggableClass = this.findConnectionTypePluggableClass(this.pluggableClassId).get();
     }
 
-    private RelationType findRelationType() {
-        return this.getPluggableClass().findRelationType();
-    }
-
     private Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long connectionTypePluggableClassId) {
         return this.protocolPluggableService.findConnectionTypePluggableClass(connectionTypePluggableClassId);
-    }
-
-    @Override
-    public Relation getDefaultRelation() {
-        return this.getDefaultRelation(clock.instant());
-    }
-
-    @Override
-    public Relation getDefaultRelation(Instant date) {
-        return this.getPluggableClass().getRelation(this, date);
-    }
-
-    @Override
-    public RelationAttributeType getDefaultAttributeType() {
-        return this.getPluggableClass().getDefaultAttributeType();
-    }
-
-    @Override
-    public RelationType getDefaultRelationType() {
-        return this.getPluggableClass().findRelationType();
     }
 
     private void clearPropertyCache() {
@@ -477,29 +430,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public List<ConnectionTaskProperty> loadProperties(Instant date) {
-        Relation defaultRelation = this.getDefaultRelation(date);
-        /* defaultRelation is null when the pluggable class has no properties.
-         * In that case, no relation type was created. */
-        if (defaultRelation != null) {
-            return this.toProperties(defaultRelation);
-        } else {
-            return new ArrayList<>(0);
-        }
-    }
-
-    @Override
-    public List<ConnectionTaskProperty> loadProperties(Range<Instant> interval) {
-        List<ConnectionTaskProperty> properties = new ArrayList<>();
-        RelationAttributeType defaultAttributeType = this.getDefaultAttributeType();
-        /* defaultAttributeType is null when the pluggable class has no properties.
-         * In that case, no relation type was created. */
-        if (defaultAttributeType != null) {
-            List<Relation> relations = this.getRelations(defaultAttributeType, interval, false);
-            for (Relation relation : relations) {
-                properties.addAll(this.toProperties(relation));
-            }
-        }
-        return properties;
+        return this.toConnectionProperties(this.getPluggableClass().getPropertiesFor(this, date));
     }
 
     public ConnectionTaskProperty getProperty(String propertyName) {
@@ -511,37 +442,31 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return null;
     }
 
-    protected List<ConnectionTaskProperty> toProperties(Relation relation) {
-        List<ConnectionTaskProperty> properties = new ArrayList<>();
-        for (RelationAttributeType attributeType : relation.getRelationType().getAttributeTypes()) {
-            if (!isDefaultAttribute(attributeType) && this.attributeHasValue(relation, attributeType)) {
-                properties.add(this.newPropertyFor(relation, attributeType));
-            }
-        }
-        return properties;
+    private CustomPropertySetValues toCustomPropertySetValues(List<ConnectionTaskProperty> properties, Instant effectiveTimestamp) {
+        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(effectiveTimestamp);
+        properties.forEach(property -> values.setProperty(property.getName(), property.getValue()));
+        return values;
     }
 
-    private boolean attributeHasValue(Relation relation, RelationAttributeType attributeType) {
-        return relation.get(attributeType) != null;
+    protected List<ConnectionTaskProperty> toConnectionProperties(CustomPropertySetValues values) {
+        return values.propertyNames()
+                .stream()
+                .map(propertyName -> this.newProperty(propertyName, values))
+                .collect(Collectors.toList());
     }
 
-    private boolean isDefaultAttribute(RelationAttributeType attributeType) {
-        return this.getDefaultAttributeName().equals(attributeType.getName());
-    }
-
-    private String getDefaultAttributeName() {
-        return CONNECTION_TASK_ATTRIBUTE_NAME;
-    }
-
-    private ConnectionTaskProperty newPropertyFor(Relation relation, RelationAttributeType attributeType) {
-        return new ConnectionTaskPropertyImpl(this, relation, attributeType.getName(), this.getPluggableClass());
+    private ConnectionTaskProperty newProperty(String name, CustomPropertySetValues values) {
+        ConnectionTaskPropertyImpl property = new ConnectionTaskPropertyImpl(this, name);
+        property.setValue(values.getProperty(name));
+        property.setActivePeriod(values.getEffectiveRange());
+        return property;
     }
 
     @Override
     public ConnectionTaskProperty newProperty(String name, Object value, Instant activeDate) {
         ConnectionTaskPropertyImpl property = new ConnectionTaskPropertyImpl(this, name);
         property.setValue(value);
-        property.setActivePeriod(Interval.startAt(activeDate));
+        property.setActivePeriod(Range.atLeast(activeDate));
         return property;
     }
 
@@ -557,58 +482,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         Instant now = clock.instant();
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
         this.cache.remove(now, propertyName);
-    }
-
-    @Override
-    public Object get(String propertyName, Instant date) {
-        PluggableClassWithRelationSupport pluggableClass = this.getPluggableClass();
-        if (pluggableClass.findRelationType().hasAttribute(propertyName)) {
-            // Should in fact be at most one since this is the default relation
-            Relation relation = this.getDefaultRelation(date);
-            if (relation == null) {
-                // No relation active on the specified Date, therefore no value
-                return null;
-            } else {
-                return relation.get(propertyName);
-            }
-        }
-        // Either no properties configured on the PluggableClass or not one of my properties
-        return null;
-    }
-
-    @Override
-    public Object get(String attributeName) {
-        return this.get(attributeName, clock.instant());
-    }
-
-    @Override
-    public Object get(RelationAttributeType attributeType, Instant date) {
-        return this.get(attributeType.getName(), date);
-    }
-
-    @Override
-    public Object get(RelationAttributeType attributeType) {
-        return this.get(attributeType, clock.instant());
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Instant when, boolean includeObsolete) {
-        return attrib.getRelations(this, when, includeObsolete, 0, 0);
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete, int fromRow, int toRow) {
-        return attrib.getRelations(this, date, includeObsolete, fromRow, toRow);
-    }
-
-    @Override
-    public List<Relation> getAllRelations(RelationAttributeType attrib) {
-        return attrib.getAllRelations(this);
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType defaultAttribute, Range<Instant> period, boolean includeObsolete) {
-        return defaultAttribute.getRelations(this, period, includeObsolete);
     }
 
     @Override
@@ -664,14 +537,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     private void setLastSessionAndUpdate(ComSession session) {
         this.setLastSession(session);
-/*      Bug in the DataModel that does not support foreign key columns in the update method
-        this.getDataModel()
-                .update(this,
-                        ConnectionTaskFields.LAST_SESSION.fieldName(),
-                        ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName(),
-                        ConnectionTaskFields.LAST_SESSION_STATUS.fieldName());
-*/
-        this.update();
+        this.update(ConnectionTaskFields.LAST_SESSION.fieldName(),
+                    ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName(),
+                    ConnectionTaskFields.LAST_SESSION_STATUS.fieldName(),
+                    ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName());
     }
 
     private void setLastSession(ComSession session) {
@@ -728,7 +597,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.postEvent(EventType.CONNECTIONTASK_SETASDEFAULT);
     }
 
-    // To be used by the ConnectionTaskServiceImpl only that now has the responsibility to switch defaults
+    private void postEvent(EventType eventType) {
+        this.eventService.postEvent(eventType.topic(), this);
+    }
+
+    // Only to be used by the ConnectionTaskServiceImpl that now has the responsibility to switch defaults.
     void clearDefault() {
         this.isDefault = false;
         this.update();
@@ -760,18 +633,22 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public List<ConnectionTaskProperty> getProperties(Instant date) {
-        List<ConnectionTaskProperty> allProperties = new ArrayList<>();
         TypedProperties partialProperties = this.getPartialConnectionTask().getTypedProperties();
-        for (String propertyName : partialProperties.propertyNames()) {
-            allProperties.add(
-                    new ConnectionTaskPropertyImpl(
-                            this, propertyName,
-                            partialProperties.getProperty(propertyName),
-                            Range.all(),
-                            this.getPartialConnectionTask().getPluggableClass())
-            );
-        }
+        List<ConnectionTaskProperty> allProperties =
+                partialProperties
+                        .propertyNames()
+                        .stream()
+                        .map(propertyName -> toConnectionTaskProperty(partialProperties, propertyName))
+                        .collect(Collectors.toList());
         return this.merge(allProperties, this.getAllProperties(date));
+    }
+
+    private ConnectionTaskPropertyImpl toConnectionTaskProperty(TypedProperties partialProperties, String propertyName) {
+        return new ConnectionTaskPropertyImpl(
+                this, propertyName,
+                partialProperties.getProperty(propertyName),
+                Range.all(),
+                this.getPartialConnectionTask().getPluggableClass());
     }
 
     private List<ConnectionTaskProperty> merge(List<ConnectionTaskProperty> inheritedProperties, List<ConnectionTaskProperty> localProperties) {
@@ -787,6 +664,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             }
         }
         return merged;
+    }
+
+    protected List<ConnectionProperty> castToConnectionProperties(List<ConnectionTaskProperty> properties) {
+        return new ArrayList<>(properties);
     }
 
     @Override
@@ -805,14 +686,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return typedProperties;
     }
 
-    protected List<ConnectionProperty> toConnectionProperties(List<ConnectionTaskProperty> properties) {
-        List<ConnectionProperty> connectionProperties = new ArrayList<>(properties.size());
-        for (ConnectionTaskProperty property : properties) {
-            connectionProperties.add(property);
-        }
-        return connectionProperties;
-    }
-
     @Override
     @XmlAttribute
     public ConnectionTaskLifecycleStatus getStatus() {
@@ -827,14 +700,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void revalidatePropertiesAndAdjustStatus() {
         if (this.getId() > 0 && this.isActive()) {
             try {
-                Save.UPDATE.save(this.getDataModel(), this);
+                Save.UPDATE.save(this.dataModel, this);
             }
             catch (ConstraintViolationException e) {
                 /* Assumption: no changes on this ConnectionTask
                  * therefore: exception relates to missing required properties
                  * so set the status to Incomplete and apply change. */
                 this.setStatus(ConnectionTaskLifecycleStatus.INCOMPLETE);
-                this.getDataModel().update(this, ConnectionTaskFields.STATUS.fieldName());
+                this.dataModel.update(this, ConnectionTaskFields.STATUS.fieldName());
             }
         }
     }
@@ -855,24 +728,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.status.equals(ConnectionTaskLifecycleStatus.ACTIVE);
     }
 
-    @Override
-    protected void validateAndUpdate() {
-        if (this.pluggableClass == null) {
-            this.loadPluggableClass();
-        }
-        super.validateAndUpdate();
-    }
 
-    @Override
-    protected void update() {
-        if (this.pluggableClass == null) {
-            this.loadPluggableClass();
-        }
-        super.update();
-        if (!doNotTouchParentDevice) {
-            getDataModel().touch(device.get());
-        }
-    }
 
     @Override
     public boolean isExecuting() {
@@ -884,7 +740,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return comServer.orNull();
     }
 
-    public void setExecutingComServer(ComServer comServer) {
+    void setExecutingComServer(ComServer comServer) {
         this.comServer.set(comServer);
     }
 
@@ -919,7 +775,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     boolean isValidConnectionTask() {
         try {
-            Save.CREATE.validate(this.getDataModel(), this, Save.Update.class);
+            Save.CREATE.validate(this.dataModel, this, Save.Update.class);
         } catch (Exception e) {
             return false;
         }
@@ -932,10 +788,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     /**
-     * Sometimes it is necessary do not touch the parent device during an update process,
-     * because otherwise we will receive optimistic lock exception (for example when topology handler updates all com task executions)
+     * Sometimes it is necessary to avoid touching the parent device during an update process,
+     * when touching would introduce an optimistic lock exception (for example when topology handler updates all com task executions).
      */
-    public void doNotTouchParentDevice() {
+    void doNotTouchParentDevice() {
         this.doNotTouchParentDevice = true;
     }
 
@@ -946,7 +802,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     protected interface ConnectionTaskPropertyValidator {
 
-        public void validate(List<ConnectionTaskProperty> properties);
+        void validate(List<ConnectionTaskProperty> properties);
 
     }
 

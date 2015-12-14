@@ -354,7 +354,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         when(deviceType2.getName()).thenReturn("DT-Two");
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType1, deviceType2));
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
-        String expectedDisplayValue = config1Name + "(" + deviceType1.getName() + ")";
+        String expectedDisplayValue = config1Name + " (" + deviceType1.getName() + ")";
         // Business method
         String displayString = property.toDisplay(config1);
 
