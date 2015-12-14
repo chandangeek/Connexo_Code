@@ -56,6 +56,7 @@ public class JbpmTaskResource {
         Map<String, JsonNode> sortProperties;
         filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
         sortProperties = getFilterProperties(getQueryValue(uriInfo,"sort"),"direction");
+        List<String> deploymentIds = uriInfo.getQueryParameters().get("deploymentid");
         int startIndex = 0;
         int endIndex = Integer.MAX_VALUE;
         try {
@@ -187,14 +188,26 @@ public class JbpmTaskResource {
                 if(!predicatesDeploymentId.isEmpty()) {
                     p5 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
                     predicateList.add(p5);
-
                 }
                 criteriaQuery.where(criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()])));
             }else{
+                List<Predicate> predicateList = new ArrayList<Predicate>();
                 List<Predicate> predicatesStatus = new ArrayList<>();
+                List<Predicate> predicatesDeploymentId = new ArrayList<>();
+                if(deploymentIds != null){
+                    for(String each : deploymentIds)
+                        predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), each));
+                }
                 predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
                 predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Exited));
-                criteriaQuery.where(criteriaBuilder.and(predicatesStatus.toArray(new Predicate[predicatesStatus.size()])));
+                Predicate p1 = criteriaBuilder.disjunction();
+                if(!predicatesDeploymentId.isEmpty()){
+                    p1 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
+                    predicateList.add(p1);
+                }
+                p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
+                predicateList.add(p1);
+                criteriaQuery.where(criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()])));
             }
             criteriaQuery.select(criteriaBuilder.construct(TaskSummary.class,
                     taskRoot.get("id"),
