@@ -100,9 +100,11 @@ Ext.define('Uni.view.search.field.Selection', {
             criteria: value
         }) : null);
 
-        if (me.rendered) {
-            me.down('#filter-selected').setDisabled(!me.selection.length);
+        if (me.grid.rendered) {
+            me.viewSync();
         }
+
+        me.selection.sort();
     },
 
     reset: function () {
@@ -129,7 +131,12 @@ Ext.define('Uni.view.search.field.Selection', {
                         fn: me.onChange,
                         scope: me
                     }
-                }
+                },
+                sorters: [{
+                    direction: 'ASC',
+                    property: 'displayValue',
+                    root: 'data'
+                }]
             });
 
         me.items = {
@@ -222,6 +229,7 @@ Ext.define('Uni.view.search.field.Selection', {
                             }
                             selection.resumeEvents();
                             me.onChange();
+
                             delete selectionModel.preventFocus;
                         }
                     },
@@ -337,6 +345,9 @@ Ext.define('Uni.view.search.field.Selection', {
         model.updateHeaderState();
 
         me.down('#select-all').setDisabled(!count);
+
+        // "show selected" button is disabled when there is no selection or when selection is all available store items
+        filterSelected.setDisabled(!me.selection.getCount() || me.selection.getCount() == me.store.getTotalCount());
         filterSelected.suspendEvent('change');
         filterSelected.setValue(
                 count > 0
