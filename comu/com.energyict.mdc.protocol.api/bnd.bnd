@@ -22,7 +22,6 @@ Export-Package: com.energyict.mdc.protocol.api,\
         com.energyict.mdc.protocol.api.inbound,\
         com.energyict.mdc.protocol.api.legacy,\
         com.energyict.mdc.protocol.api.legacy.dynamic,\
-        com.energyict.mdc.protocol.api.lookups,\
         com.energyict.mdc.protocol.api.messaging,\
         com.energyict.mdc.protocol.api.security,\
         com.energyict.mdc.protocol.api.services,\

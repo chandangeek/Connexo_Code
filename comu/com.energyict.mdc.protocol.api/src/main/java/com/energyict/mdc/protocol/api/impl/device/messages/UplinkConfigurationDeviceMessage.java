@@ -1,10 +1,11 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -75,16 +76,6 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
         // Default behavior is not to add anything
-    }
-
-    @Override
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
     }
 
 }

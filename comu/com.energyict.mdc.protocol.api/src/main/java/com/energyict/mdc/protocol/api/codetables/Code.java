@@ -1,9 +1,5 @@
 package com.energyict.mdc.protocol.api.codetables;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NamedBusinessObject;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
-
 import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
@@ -13,35 +9,41 @@ import java.util.TimeZone;
 /**
  * Code implements a Calendar assigning to each interval a code.
  */
-public interface Code extends NamedBusinessObject, RelationParticipant {
+public interface Code {
+
+    String getName();
+
+    String getExternalName();
+
+    int getId();
 
     /**
      * Returns the begin year of this Code
      *
      * @return the YearFrom of the Code
      */
-    public int getYearFrom();
+    int getYearFrom();
 
     /**
      * Returns the end year of this Code
      *
      * @return the YearTo of the Code
      */
-    public int getYearTo();
+    int getYearTo();
 
     /**
      * Returns if the Code was verified
      *
      * @return Code was verified
      */
-    public boolean getVerified();
+    boolean getVerified();
 
     /**
      * Returns if the Code was rebuilt
      *
      * @return Code was rebuilt
      */
-    public boolean getRebuilt();
+    boolean getRebuilt();
 
 
     /**
@@ -53,21 +55,21 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      *
      * @return dst is set for the Code
      */
-    public boolean hasDst();
+    boolean hasDst();
 
     /**
      * Returns the Code's interval in minutes
      *
      * @return the interval in minuts
      */
-    public int getIntervalInMinutes();
+    int getIntervalInMinutes();
 
     /**
      * Returns the Code's interval in seconds
      *
      * @return the interval in seconds
      */
-    public int getIntervalInSeconds();
+    int getIntervalInSeconds();
 
     /**
      * Returns the receiver's destination TimeZone.
@@ -75,7 +77,7 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      * @return the receiver's destination TimeZone
      * @deprecated use getDestionationTimeZone
      */
-    public TimeZone getTimeZone();
+    TimeZone getTimeZone();
 
     /**
      * Returns the receiver's destination TimeZone.
@@ -84,7 +86,7 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      *
      * @return the receiver's destination TimeZone
      */
-    public TimeZone getDestinationTimeZone();
+    TimeZone getDestinationTimeZone();
 
     /**
      * Returns the receiver's definition TimeZone.
@@ -92,28 +94,28 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      *
      * @return the receiver's definition TimeZone
      */
-    public TimeZone getDefinitionTimeZone();
+    TimeZone getDefinitionTimeZone();
 
     /**
      * Return the different codes defined for the Code table
      *
      * @return return the codes as an integer array
      */
-    public List<Integer> getCodes();
+    List<Integer> getCodes();
 
     /**
      * Return the different codes defined for the Code table valid for the given Interval
      *
      * @return return the codes as an integer array
      */
-    public List<Integer> getCodes(Interval period);
+    List<Integer> getCodes(Interval period);
 
     /**
      * returns the day types for the receiver.
      *
      * @return a List of <Code>CodeDayType</Code> objects.
      */
-    public List<CodeDayType> getDayTypes();
+    List<CodeDayType> getDayTypes();
 
     /**
      * returns the daytype with the given day type id
@@ -121,21 +123,21 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      * @param dayTypeId the day type id to find
      * @return the day type or null.
      */
-    public CodeDayType getDayType(int dayTypeId);
+    CodeDayType getDayType(int dayTypeId);
 
     /**
      * return the list of calendar rules.
      *
      * @return a List of <Code>CodeCalendar</Code> objects.
      */
-    public List<CodeCalendar> getCalendars();
+    List<CodeCalendar> getCalendars();
 
     /**
      * returns a list of dayTypes used within the given calendar rule
      *
      * @return a List of <Code>CodeDayType</Code> objects.
      */
-    public List<CodeDayType> getDayTypesOfCalendar();
+    List<CodeDayType> getDayTypesOfCalendar();
 
 
     /**
@@ -148,7 +150,7 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      * @param dayType   the day type.
      * @return the calendar rule or null.
      */
-    public CodeCalendar getCodeCalendar(int year, int month, int day, int dayOfWeek, CodeDayType dayType);
+    CodeCalendar getCodeCalendar(int year, int month, int day, int dayOfWeek, CodeDayType dayType);
 
     /**
      * returns the name of the codetable in the db
@@ -156,34 +158,32 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      * @return the table name.
      * @deprecated
      */
-    public String getViewName();
+    String getViewName();
 
-    public String getIntervalTable();
+    String getIntervalTable();
 
     /**
      * returns true if there are objects that make use of this Code
      *
      * @return true if in use, false otherwise.
      */
-    public boolean isInUse();
+    boolean isInUse();
 
     /**
      * returns the code value for the specified date.
      *
      * @param date the date
      * @return the code.
-     * @throws BusinessException if no code is available
      */
-    public int getCodeValue(Instant date) throws BusinessException;
+    int getCodeValue(Instant date);
 
     /**
      * returns the day type for the specified date.
      *
      * @param date the date
      * @return the day type
-     * @throws BusinessException if no day type is available
      */
-    public CodeDayType getDayType(Instant date) throws BusinessException;
+    CodeDayType getDayType(Instant date);
 
     /**
      * returns the period of the code: starting on the 1 januari of the code's begin year
@@ -191,21 +191,21 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      *
      * @return the code's <CODE>TimePeriod</CODE>.
      */
-    public Interval getPeriod();
+    Interval getPeriod();
 
     /**
      * Returns the receiver's Season set
      *
      * @return the receiver's season set
      */
-    public SeasonSet getSeasonSet();
+    SeasonSet getSeasonSet();
 
     /**
      * Returns the id of the receiver's Season set
      *
      * @return the id of the receiver's season set
      */
-    public int getSeasonSetId();
+    int getSeasonSetId();
 
     /**
      * returns the <Code>Season</Code> for the specified date.
@@ -213,6 +213,6 @@ public interface Code extends NamedBusinessObject, RelationParticipant {
      * @param date the date
      * @return the season
      */
-    public Season getSeason(Instant date);
+    Season getSeason(Instant date);
 
 }

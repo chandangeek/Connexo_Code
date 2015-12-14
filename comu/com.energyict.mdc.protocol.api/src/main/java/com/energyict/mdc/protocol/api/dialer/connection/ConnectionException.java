@@ -22,18 +22,18 @@ public class ConnectionException extends IOException {
     public ConnectionException(String str) {
         super(str);
         this.sReason = -1;
-    } // public ConnectionException(String str)
+    }
 
     public ConnectionException() {
         super();
         this.sReason = -1;
 
-    } // public ConnectionException()
+    }
 
     public ConnectionException(String str, short sReason) {
         super(str);
         this.sReason = sReason;
 
-    } // public ConnectionException(String str)
+    }
 
 }

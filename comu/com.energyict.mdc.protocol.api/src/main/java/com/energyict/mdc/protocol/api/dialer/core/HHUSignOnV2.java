@@ -8,12 +8,12 @@ import com.energyict.mdc.protocol.api.inbound.MeterType;
  */
 public interface HHUSignOnV2 extends HHUSignOn {
 
-    public void sendBreak();
+    void sendBreak();
 
-    public MeterType signOn(String strIdent, String meterID);
+    MeterType signOn(String strIdent, String meterID);
 
-    public MeterType signOn(String strIdent, String meterID, int baudrate);
+    MeterType signOn(String strIdent, String meterID, int baudrate);
 
-    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate);
+    MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate);
 
 }

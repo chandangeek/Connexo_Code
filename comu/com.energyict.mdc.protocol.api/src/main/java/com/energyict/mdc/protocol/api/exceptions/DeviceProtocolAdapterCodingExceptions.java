@@ -1,10 +1,8 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
-
-import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Coding or setup exceptions which can occur in the adapter classes.
@@ -17,8 +15,7 @@ public final class DeviceProtocolAdapterCodingExceptions extends ComServerRuntim
 
     /**
      * Constructs a new DeviceProtocolAdapterCodingExceptions to represent an error produced
-     * by the java reflection layer (wrapped by a {@link BusinessException})
-     * when an attempt was made to create a new instance of a {@link DeviceSecuritySupport}
+     * by the java reflection layer when an attempt was made to create a new instance of a {@link DeviceSecuritySupport}
      *
      * @param classNotFound    The ClassNotFoundException that wraps the java reflection layer exception
      * @param noClassFoundName the name of the class that was not found on the classPath
@@ -39,8 +36,7 @@ public final class DeviceProtocolAdapterCodingExceptions extends ComServerRuntim
 
     /**
      * Constructs a new DeviceProtocolAdapterCodingExceptions to represent an error produced
-     * by the java reflection layer (wrapped by a {@link BusinessException})
-     * when an attempt was made to create a new instance of a LegacyMessageConverter
+     * by the java reflection layer when an attempt was made to create a new instance of a LegacyMessageConverter
      *
      * @param classNotFound    The ClassNotFoundException that wraps the java reflection layer exception
      * @param noClassFoundName the name of the class that was not found on the classPath

@@ -11,7 +11,38 @@ import com.elster.jupiter.properties.StringFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CurrentValueAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.DelayAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ManualAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MaxOffAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.NewValueAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.PeakShaveChnNbrAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.PeakShaverIPAddressAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetActiveChannelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetAdaptSetpointAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetAutomaticAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetCyclicAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetDeadTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetDifferenceAnalogOutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetInstantAnalogOutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetInvertAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetPInAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetPOutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetPredictedAnalogOutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetReactiveChannelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetResetLoadsAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTariffAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTimeBaseAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetpointAnalogOutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.StatusAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.day;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.hour;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.loadIdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.minute;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.month;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.second;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.tariff;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.year;
 
 /**
  * Provides a summary of all <i>Clock</i> related messages
@@ -208,15 +239,6 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecEnu
 
     protected PropertySpec bigDecimalProperty(String name, PropertySpecService propertySpecService) {
         return propertySpecService.basicPropertySpec(name, true, new BigDecimalFactory());
-    }
-
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
     }
 
 }

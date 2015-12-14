@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,15 +17,6 @@ import java.util.List;
  * Time: 12:07 PM
  */
 public enum OutputConfigurationMessage implements DeviceMessageSpecEnum {
-
-//    SET_RELAY_OPERATING_MODE(DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_OPERATING_MODE, "Public lighting set relay operating mode"){
-//        @Override
-//        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-//            super.addPropertySpecs(propertySpecs, propertySpecService);
-//            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayNumberAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
-//            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayOperatingModeAttributeName, true, BigDecimal.ZERO, BigDecimal.ONE, BigDecimals.TWO, BigDecimals.THREE));
-//        }
-//    },
 
     SetOutputOn(DeviceMessageId.OUTPUT_CONFIGURATION_SET_OUTPUT_ON, "Set output on"){
         @Override
@@ -139,16 +130,6 @@ public enum OutputConfigurationMessage implements DeviceMessageSpecEnum {
     protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
         // Default behavior is not to add anything
     };
-
-    @Override
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
 
 }
 

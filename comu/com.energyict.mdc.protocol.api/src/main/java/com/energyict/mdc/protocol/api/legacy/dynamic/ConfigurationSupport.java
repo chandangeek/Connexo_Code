@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.api.legacy.dynamic;
 
+import com.elster.jupiter.properties.PropertySpec;
+
 import java.util.List;
 
 /**

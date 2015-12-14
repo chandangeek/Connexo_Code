@@ -125,14 +125,4 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     protected abstract String propertyName();
 
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-
 }

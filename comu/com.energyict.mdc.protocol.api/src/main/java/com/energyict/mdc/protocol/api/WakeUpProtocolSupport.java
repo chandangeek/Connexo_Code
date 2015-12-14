@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.dialer.core.Link;
 
 import java.io.IOException;
@@ -19,10 +18,8 @@ public interface WakeUpProtocolSupport {
      * @param link                     Link created by the comserver, can be null if a NullDialer is configured
      * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
      *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws BusinessException
-     *                             if a business exception occurred
      * @throws java.io.IOException if an io exception occurred
      */
-    boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException;
+    boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws IOException;
 
 }

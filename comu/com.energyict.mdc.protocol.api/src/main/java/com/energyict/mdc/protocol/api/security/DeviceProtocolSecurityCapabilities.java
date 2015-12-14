@@ -1,10 +1,14 @@
 package com.energyict.mdc.protocol.api.security;
 
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides functionality to expose a {@link DeviceProtocol DeviceProtocol}
@@ -17,43 +21,52 @@ import java.util.List;
 public interface DeviceProtocolSecurityCapabilities {
 
     /**
-     * Gets <b>ALL</b> the {@link PropertySpec}s
-     * that can be set on a physical Device for this DeviceSecuritySupport.
-     * Note that none of the properties returned here
-     * will be marked as 'required' because it is possible that the communication
-     * expert has configured the devices is such a way
+     * Returns the {@link CustomPropertySet} that provides the storage area
+     * for the properties of a {@link BaseDevice} that has these security capabilities
+     * or an empty Optional if there are no properties.
+     * In that case, {@link #getSecurityPropertySpecs()} should return
+     * an empty collection as well for consistency.
+     * <p>
+     * Note that none of the properties should be 'required'
+     * because it is possible that the communication
+     * expert configures the BaseDevice is such a way
      * that not all of the properties are actually needed.
-     * As an example, say that this DeviceSecuritySupport
-     * returns the following set of properties:
+     * As an example, say that the security capabilities
+     * involve the following set of properties:
      * <ul>
      * <li>clientId</li>
      * <li>password</li>
      * <li>authentication key</li>
      * <li>encryption key</li>
      * </ul>
-     * When the communication expert configures the device
+     * When the communication expert configures the BaseDevice
      * to always use a clientId and an authentication key
      * then the password and the encryption key are never used
      * and can therefore never be required.
      *
-     * @return The list of security properties
+     * @return The CustomPropertySet
      */
-    public List<PropertySpec> getSecurityPropertySpecs();
+    Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet();
+
+    default List<PropertySpec> getSecurityPropertySpecs() {
+        return this.getCustomPropertySet()
+                .map(CustomPropertySet::getPropertySpecs)
+                .orElseGet(Collections::emptyList);
+    }
 
     /**
-     * Returns a String that is suitable as the name of
-     * a RelationType that will hold the values of the
-     * security properties of this DeviceSecuritySupport.
-     * <p>
-     * Note that classes that have exactly the same
-     * security properties are allowed to return the same
-     * name and this is in fact the main reason
-     * why this class has the responsibility
-     * of returning the name for the RelationType.
+     * Returns the security {@link PropertySpec} with the specified name
+     * or an empty Optional if no such PropertySpec exists.
      *
-     * @return The name of the RelationType that will hold security property values
+     * @param name The name of the security property specification
+     * @return The PropertySpec or an empty Optional if no such PropertySpec exists
      */
-    public String getSecurityRelationTypeName();
+    default Optional<PropertySpec> getSecurityPropertySpec (String name) {
+        return getSecurityPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getName().equals(name))
+                .findAny();
+    }
 
     /**
      * Returns the List of {@link AuthenticationDeviceAccessLevel}s.
@@ -64,7 +77,7 @@ public interface DeviceProtocolSecurityCapabilities {
      *
      * @return The List of AuthenticationDeviceAccessLevel
      */
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels();
+    List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels();
 
     /**
      * Returns the List of {@link EncryptionDeviceAccessLevel}s.
@@ -75,16 +88,6 @@ public interface DeviceProtocolSecurityCapabilities {
      *
      * @return The List of EncryptionDeviceAccessLevel
      */
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels();
-
-    /**
-     * Returns the security {@link PropertySpec} with the specified name
-     * or <code>null</code> if no such PropertySpec exists.
-     *
-     * @param name The name of the security property specification
-     * @return The PropertySpec or <code>null</code>
-     *         if no such PropertySpec exists
-     */
-    public PropertySpec getSecurityPropertySpec(String name);
+    List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels();
 
 }

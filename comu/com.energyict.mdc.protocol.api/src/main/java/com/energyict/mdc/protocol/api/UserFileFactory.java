@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.common.BusinessException;
-
 import java.sql.SQLException;
 import java.util.List;
 
@@ -14,10 +12,10 @@ import java.util.List;
  */
 public interface UserFileFactory {
 
-    public UserFile findUserFile (int userFileId);
+    UserFile findUserFile(int userFileId);
 
-    public List<UserFile> findAllUserFiles ();
+    List<UserFile> findAllUserFiles();
 
-    public UserFile createUserFile (UserFileShadow shadow) throws BusinessException, SQLException;
+    UserFile createUserFile(UserFileShadow shadow) throws SQLException;
 
 }

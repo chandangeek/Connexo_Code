@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.api.tasks;
 
-import com.energyict.mdc.common.ApplicationException;
-
 /**
  * Defines what should be done with the received Topology.
  *
@@ -33,21 +31,12 @@ public enum TopologyAction {
 
     private final int action;
 
-    private TopologyAction(final int action) {
+    TopologyAction(final int action) {
         this.action = action;
     }
 
     public int getAction() {
         return action;
-    }
-
-    public static TopologyAction valueFromDb(final int action) {
-        for (TopologyAction topologyAction : values()) {
-            if (topologyAction.getAction() == action) {
-                return topologyAction;
-            }
-        }
-        throw new ApplicationException("unknown topology action: " + action);
     }
 
 }

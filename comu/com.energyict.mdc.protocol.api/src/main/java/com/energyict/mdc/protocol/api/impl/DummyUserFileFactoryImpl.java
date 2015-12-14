@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.api.impl;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.UserFileShadow;
@@ -19,6 +18,7 @@ import java.util.List;
  * @since 2014-12-29 (09:21)
  */
 @Component(name="com.energyict.mdc.legacy.factory.userfile", service = UserFileFactory.class)
+@SuppressWarnings("unused")
 public class DummyUserFileFactoryImpl implements UserFileFactory {
 
     @Override
@@ -32,8 +32,8 @@ public class DummyUserFileFactoryImpl implements UserFileFactory {
     }
 
     @Override
-    public UserFile createUserFile(UserFileShadow shadow) throws BusinessException, SQLException {
-        throw new BusinessException("userfile.not.supported", "UserFile is not supported yet by the jupiter platform");
+    public UserFile createUserFile(UserFileShadow shadow) throws SQLException {
+        throw new UnsupportedOperationException("UserFile is not supported yet by the jupiter platform");
     }
 
 }

@@ -44,18 +44,6 @@ public interface SmartMeterProtocol extends Pluggable, MultipleLoadProfileSuppor
     final String NODEID = "NodeAddress";
 
     /**
-     * The string used for the maxTimeDifference property.
-     * The property is used only by the collection software.
-     */
-    final String MAXTIMEDIFF = "MaximumTimeDiff";
-
-    /**
-     * The string used for the minTimeDifference property.
-     * The property is used only by the collection software.
-     */
-    final String MINTIMEDIFF = "MinimumTimeDiff";
-
-    /**
      * The string used for the roundtripCorrection property.
      * This property is used by the getTime() and setTime() method
      * to correct the communication roundtrip.
@@ -67,13 +55,6 @@ public interface SmartMeterProtocol extends Pluggable, MultipleLoadProfileSuppor
      * The property is used only by the protocoltester software.
      */
     final String CORRECTTIME = "CorrectTime";
-
-    /**
-     * This string used for the ExtraIntervals property.
-     * The property is used to subtract nr of ExtraIntervals from last reading so to request ExtraIntervals more profile data
-     * from a meter. This is don to ensure that enough intervals are read to calculate advances from cumulative values!
-     */
-    final String EXTRAINTERVALS = "ExtraIntervals";
 
     /**
      * The string used for the protocol classname property

@@ -6,8 +6,6 @@
 
 package com.energyict.mdc.protocol.api.codetables;
 
-import com.energyict.mdc.common.BusinessObject;
-
 import java.util.Calendar;
 
 /**
@@ -15,28 +13,28 @@ import java.util.Calendar;
  *
  * @author pasquien
  */
-public interface CodeCalendar extends BusinessObject {
+public interface CodeCalendar {
 
     /**
      * returns the year for which this rule can be applied.
      *
      * @return the year or -1 if any year
      */
-    public int getYear();
+    int getYear();
 
     /**
      * returns the month for which the codecalendar is to be applied.
      *
      * @return the 1 based month index or -1 if any month
      */
-    public int getMonth();
+    int getMonth();
 
     /**
      * returns the day of month for which the codecalendar is to be applied.
      *
      * @return the 1 based month index or -1 if any month
      */
-    public int getDay();
+    int getDay();
 
     /**
      * returns the day of the week for which this rule is applicable
@@ -44,7 +42,7 @@ public interface CodeCalendar extends BusinessObject {
      * @return returns the day of week index ( monday = 1 , sunday = 7)
      *         or -1 if any day of week.
      */
-    public int getDayOfWeek();
+    int getDayOfWeek();
 
 
     /**
@@ -52,21 +50,21 @@ public interface CodeCalendar extends BusinessObject {
      *
      * @return the code
      */
-    public Code getCode();
+    Code getCode();
 
     /**
      * returns the day type to be used when the rule is matched.
      *
      * @return the day type
      */
-    public CodeDayType getDayType();
+    CodeDayType getDayType();
 
     /**
      * Get the number of 'Any value' for the codeCalendar
      *
      * @return the number of any values.
      */
-    public int getAnyCount();
+    int getAnyCount();
 
     /**
      * checks if a date matches a codeCalendar
@@ -74,7 +72,7 @@ public interface CodeCalendar extends BusinessObject {
      * @param cal the date to match
      * @return true if matched , false otherwhise
      */
-    public boolean matches(Calendar cal);
+    boolean matches(Calendar cal);
 
     /**
      * Get a 'quotation' for the match of a date for a codeCalendar
@@ -87,7 +85,7 @@ public interface CodeCalendar extends BusinessObject {
      *         eg date 22/10/2003 -> CodeCalendar  any any any any: returns 4
      *         5  -> does not fit
      */
-    public int getQuotation(Calendar cal);
+    int getQuotation(Calendar cal);
 
     /**
      * When the 'quotation' we will use the codecalendar in next order
@@ -98,7 +96,7 @@ public interface CodeCalendar extends BusinessObject {
      *         3 : the codecalendar where the month is defined ( not equal to any);
      *         4 : the codecalendar where the day is defined ( not equal to any);
      */
-    public int getNaturalApplyOrder(Calendar cal);
+    int getNaturalApplyOrder(Calendar cal);
 
 
     /**
@@ -106,6 +104,6 @@ public interface CodeCalendar extends BusinessObject {
      *
      * @return the (id of the) season or -1 if any year
      */
-    public int getSeason();
+    int getSeason();
 
 }

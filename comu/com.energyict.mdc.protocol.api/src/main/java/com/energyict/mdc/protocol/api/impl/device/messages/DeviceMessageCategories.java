@@ -1,17 +1,18 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -442,7 +443,7 @@ public enum DeviceMessageCategories implements TranslationKey {
         }
 
         @Override
-        public PropertySpec getPropertySpec(String name) {
+        public Optional<PropertySpec> getPropertySpec(String name) {
             return this.baseSpec.getPropertySpec(name, this.propertySpecService);
         }
 

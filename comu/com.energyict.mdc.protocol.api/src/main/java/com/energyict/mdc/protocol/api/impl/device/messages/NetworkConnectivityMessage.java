@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.elster.jupiter.properties.BooleanFactory;
-import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
@@ -9,6 +7,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 
@@ -16,7 +15,29 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.NetworkConnectivityIPAddressAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.NetworkConnectivityIntervalAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetDHCPAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetDHCPTimeoutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetGatewayAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetHttpPortAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetIPAddressAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetNameServerAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetProxyPasswordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetProxyServerAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetProxyUsernameAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetSubnetMaskAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.devicePhoneNumberAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.inactivityTimeoutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ipAddressAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.portNumberAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.smsCenterPhoneNumberAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.usernameAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.wakeupPeriodAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 
 /**
  * Provides a summary of all messages related to <i>Network</i> and <i>Connectivity</i>
@@ -264,14 +285,5 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
     protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
         // Default behavior is not to add anything
     };
-
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
 
 }

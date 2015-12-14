@@ -1,16 +1,15 @@
 package com.energyict.mdc.protocol.api.codetables;
 
-import com.energyict.mdc.common.IdBusinessObject;
-
 import java.time.Instant;
 
+public interface SeasonTransition {
 
-public interface SeasonTransition extends IdBusinessObject {
+    int getId();
 
-    public int getSeasonId();
+    int getSeasonId();
 
-    public Season getSeason();
+    Season getSeason();
 
-    public Instant getStartDate();
+    Instant getStartDate();
 
 }
