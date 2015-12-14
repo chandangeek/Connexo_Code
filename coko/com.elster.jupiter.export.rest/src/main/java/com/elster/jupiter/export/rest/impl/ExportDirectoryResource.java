@@ -3,12 +3,14 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -42,6 +44,7 @@ public class ExportDirectoryResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public DirectoryForAppServerInfos getExportPaths() {
         return new DirectoryForAppServerInfos(dataExportService.getAllExportDirecties());
     }
@@ -50,6 +53,7 @@ public class ExportDirectoryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public DirectoryForAppServerInfo getExportPathForAppServer(@PathParam("appServerName") String appServerName) {
         AppServer appServer = findAppServerOrThrowException(appServerName);
         DirectoryForAppServerInfo info = new DirectoryForAppServerInfo();
@@ -62,6 +66,7 @@ public class ExportDirectoryResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public Response addExportPaths(DirectoryForAppServerInfo info) {
         Supplier<AppServer> appServerProvider = () -> findAppServerOrThrowException(info.appServerName);
         return doExportPathUpdate(info, appServerProvider);
@@ -71,6 +76,7 @@ public class ExportDirectoryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public Response updateExportPaths(@PathParam("appServerName") String appServerName, DirectoryForAppServerInfo info) {
         info.appServerName = appServerName;
         Supplier<AppServer> appServerProvider = () -> findAndLockAppServer(info);
@@ -101,6 +107,7 @@ public class ExportDirectoryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response removeExportPaths(@PathParam("appServerName") String appServerName, DirectoryForAppServerInfo info) {
         info.appServerName = appServerName;
         try (TransactionContext context = transactionService.getContext()) {
