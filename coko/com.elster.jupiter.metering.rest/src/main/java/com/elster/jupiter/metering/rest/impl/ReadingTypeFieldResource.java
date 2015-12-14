@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ListPager;
@@ -12,6 +13,7 @@ import com.elster.jupiter.rest.util.KorePagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -40,6 +42,7 @@ public class ReadingTypeFieldResource {
 
     @GET
     @Path("/unitsofmeasure")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getUnitsOfMeasure(@BeanParam QueryParameters queryParameters) {
         return Response.ok(KorePagedInfoList.asJson(
@@ -55,6 +58,7 @@ public class ReadingTypeFieldResource {
 
     @GET
     @Path("/intervals")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public IntervalFieldInfos getIntervals() {
         IntervalFieldInfos intervalFieldInfos = new IntervalFieldInfos();
@@ -71,6 +75,7 @@ public class ReadingTypeFieldResource {
 
     @GET
     @Path("/timeofuse")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public TimeOfUseFieldInfos getTou() {
         return new TimeOfUseFieldInfos();
@@ -78,6 +83,7 @@ public class ReadingTypeFieldResource {
 
     @GET
     @Path("/readingtypes")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getReadingTypes(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
