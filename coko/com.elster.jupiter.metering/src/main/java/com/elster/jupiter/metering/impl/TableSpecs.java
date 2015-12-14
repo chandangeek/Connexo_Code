@@ -31,7 +31,14 @@ import com.elster.jupiter.parties.PartyRole;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -139,6 +146,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<AmrSystem> table = dataModel.addTable(name(), AmrSystem.class);
             table.map(AmrSystemImpl.class);
+            table.cache();
             Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2INT).map("id").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.addAuditColumns();
@@ -202,7 +210,9 @@ public enum TableSpecs {
             table.cache();
             Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
             table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
+            table.column("FULLALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("fullAliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("ACTIVE").type("char(1)").conversion(CHAR2BOOLEAN).map("active").add();
             Column equidistantColumn = table.column("EQUIDISTANT").bool().map("equidistant").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_READINGTYPE").on(mRidColumn).add();

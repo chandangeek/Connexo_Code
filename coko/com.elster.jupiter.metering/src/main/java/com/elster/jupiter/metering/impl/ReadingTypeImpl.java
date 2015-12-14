@@ -62,7 +62,9 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     // persistent fields
 	private String mRID;
 	private String aliasName;
+	private String fullAliasName;
     private String description;
+    private boolean active;
 	private long version;
 	@SuppressWarnings("unused")
 	private Instant createTime;
@@ -103,7 +105,9 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 	ReadingTypeImpl init(String mRID, String aliasName) {
 		this.mRID = mRID;
 		this.aliasName = aliasName;
+		this.active = true;
 		setTransientFields();
+		setFullAliasName();
         return this;
 	}
 
@@ -266,6 +270,11 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     @Override
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public void setAliasName(String aliasName) {
+        this.aliasName = aliasName;
     }
 
     public void persist() {
@@ -447,6 +456,27 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 		return currency;
 	}
 
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public void activate() {
+        this.active = true;
+    }
+
+    @Override
+    public void deactivate() {
+        this.active = false;
+    }
+
+    @Override
+    public void update() {
+        setFullAliasName();
+        dataModel.mapper(ReadingType.class).update(this);
+    }
+
     static TimeAttribute extractTimeAttribute(String mRID) {
 		String[] parts = mRID.split("\\.");
 		if (parts.length != MRID_FIELD_COUNT) {
@@ -464,8 +494,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     	}
     }
 
-	@Override
-	public String getFullAliasName() {
+    private void setFullAliasName() {
 		StringBuilder fullAlias = new StringBuilder();
 		if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
 			fullAlias.append("[").append(getTranslationWithDefault(this.getMeasuringPeriod().getDescription())).append("] ");
@@ -490,8 +519,14 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 		if (this.getTou() != 0) {
 			fullAlias.append(" ").append(getTranslationWithDefault("ToU")).append(" ").append(this.getTou());
 		}
-		return fullAlias.toString();
-	}
+        fullAliasName =  fullAlias.toString();
+    }
+
+    @Override
+    public String getFullAliasName() {
+		setFullAliasName();
+        return fullAliasName;
+    }
 
     private String getTranslationWithDefault(String value) {
         return thesaurus.getString(value, value);

@@ -30,6 +30,12 @@ public interface MeteringService {
 
     Optional<ReadingType> getReadingType(String mRid);
 
+    List<ReadingType> findReadingTypes(List<String> mRids);
+
+    Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter);
+
+    Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version);
+
     Optional<ServiceLocation> findServiceLocation(String mRid);
 
     Optional<ServiceLocation> findServiceLocation(long id);
@@ -56,6 +62,7 @@ public interface MeteringService {
 
     /**
      * Get a list of ReadingTypes which don't have an interval (eg. MacroPeriod and TimePeriod are NOT_APPLICABLE)
+     *
      * @since v1.1
      */
     List<ReadingType> getAllReadingTypesWithoutInterval();
@@ -88,6 +95,16 @@ public interface MeteringService {
 
     ReadingType createReadingType(String mRID, String aliasName);
 
+    /**
+     * Creates a new EndDeviceEventType based on the mRID input.
+     * mRID should have the format &lt;EndDeviceEventType&gt;.&lt;EndDeviceEventDomain&gt;.&lt;EndDeviceEventSubDomain&gt;.&lt;EndDeviceEventEventOrAction&gt;
+     * with each field a valid (according to the CIM spec) number.
+     * Will throw a {@link IllegalMRIDFormatException} if mRID has not the correct format
+     *
+     * @since 2.0
+     */
+    EndDeviceEventType createEndDeviceEventType(String mRID);
+
     void purge(PurgeConfiguration purgeConfiguration);
 
     /**
@@ -100,9 +117,9 @@ public interface MeteringService {
      * Note that the effective timestamp cannot be in the future and if it is
      * this will throw an IllegalArgumentException.
      *
-     * @param effective The instant in time on which the switch over was effective
-     * @param oldStateMachine The old FiniteStateMachine
-     * @param newStateMachine The new FiniteStateMachine
+     * @param effective           The instant in time on which the switch over was effective
+     * @param oldStateMachine     The old FiniteStateMachine
+     * @param newStateMachine     The new FiniteStateMachine
      * @param deviceAmrIdSubquery The query that returns the amrId of each device to which the change should be applied
      */
     void changeStateMachine(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery);

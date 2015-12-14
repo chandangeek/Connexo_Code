@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
@@ -56,6 +57,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
@@ -148,6 +150,21 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public Optional<ReadingType> getReadingType(String mRid) {
         return dataModel.mapper(ReadingType.class).getOptional(mRid);
+    }
+
+    @Override
+    public List<ReadingType> findReadingTypes(List<String> mRids) {
+       return dataModel.mapper(ReadingType.class).select(Where.where("mRID").in(mRids));
+    }
+
+    @Override
+    public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter){
+        return DefaultFinder.of(ReadingType.class,filter.getCondition(),dataModel);
+    }
+
+    @Override
+    public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version){
+        return dataModel.mapper(ReadingType.class).lockObjectIfVersion(version, mRID);
     }
 
     @Override
@@ -574,10 +591,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 Arrays.asList(
                         Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY,
                         Privileges.Constants.BROWSE_OWN, Privileges.Constants.ADMIN_OWN)));
-
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_READING_TYPE_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_READING_TYPE_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
         return resources;
     }
-
 
     @Override
     public String getComponentName() {

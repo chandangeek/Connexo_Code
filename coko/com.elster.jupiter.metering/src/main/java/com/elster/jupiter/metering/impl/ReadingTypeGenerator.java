@@ -26,7 +26,7 @@ public final class ReadingTypeGenerator {
 
     static List<ReadingType> generateSelectedReadingTypes(MeteringService meteringService, String... readingTypes) {
         return Stream.of(readingTypes)
-                .filter(r -> !r.equals(""))
+                .filter(r -> !r.isEmpty())
                 .map(readingType -> meteringService.createReadingType(readingType, readingType))
                 .collect(Collectors.toList());
     }

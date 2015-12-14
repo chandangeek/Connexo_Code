@@ -2,7 +2,8 @@
 -dsannotations: *
 Include-Resource: README.HTML
 Private-Package: com.elster.jupiter.metering.impl,\
-	com.elster.jupiter.metering.impl.search
+	com.elster.jupiter.metering.impl.search,\
+	com.elster.jupiter.metering.impl.search.enddevice
 Export-Package: com.elster.jupiter.metering,\
 	com.elster.jupiter.metering.security,\
 	com.elster.jupiter.metering.readings,\
