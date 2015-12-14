@@ -280,7 +280,6 @@ public class Clock extends AbstractCosemObject {
 
     /**
      * Getter for property dsDeviation.
-     *
      * @return Value of property dsDeviation.
      */
     public int getDsDeviation() throws IOException {
@@ -399,9 +398,7 @@ public class Clock extends AbstractCosemObject {
         }
 
         Structure adjustingTimeStructure = new Structure(presetDateTime, validityIntervalStartDateTime, validityIntervalEndDateTime);
-        if (getLogger().isLoggable(java.util.logging.Level.ALL)) {
-            getLogger().log(java.util.logging.Level.ALL, (adjustingTimeStructure).toString());
-}
+        System.out.println(adjustingTimeStructure);
         if (getObjectReference().isLNReference()) {
             this.invoke(METHODID_PRESET_ADJUSTING_TIME, adjustingTimeStructure.getBEREncodedByteArray());
         } else {
