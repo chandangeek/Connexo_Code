@@ -19,7 +19,7 @@ public class IssueDefaultImplementationTest {
 
     @Test
     public void testProblemDescriptionAvailableInThesaurus(){
-        when(thesaurus.getStringBeyondComponent("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("Er ist ein problem mit das Comport '{0}'");
+        when(thesaurus.getString("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("Er ist ein problem mit das Comport '{0}'");
         IssueDefaultImplementation issueDefaultImplementation = new ProblemImpl(thesaurus, Instant.now(), null, "comportXhasAnIssue", 5L);
 
         // Business method
@@ -31,7 +31,7 @@ public class IssueDefaultImplementationTest {
 
     @Test
     public void testProblemDescriptionNotAvailableInThesaurus(){
-        when(thesaurus.getStringBeyondComponent("comportXhasAnIssue","comportXhasAnIssue")).thenReturn("comportXhasAnIssue");
+        when(thesaurus.getString("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("comportXhasAnIssue");
         IssueDefaultImplementation issueDefaultImplementation = new ProblemImpl(thesaurus, Instant.now(), null, "comportXhasAnIssue", 5L);
 
         // Business method
@@ -43,7 +43,7 @@ public class IssueDefaultImplementationTest {
 
     @Test
     public void testWarningDescriptionAvailableInThesaurus(){
-        when(thesaurus.getStringBeyondComponent("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("Er ist ein warning mit das Comport '{0}'");
+        when(thesaurus.getString("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("Er ist ein warning mit das Comport '{0}'");
         IssueDefaultImplementation issueDefaultImplementation = new WarningImpl(thesaurus, Instant.now(), null, "comportXhasAnIssue", 5L);
 
         // Business method
@@ -55,7 +55,7 @@ public class IssueDefaultImplementationTest {
 
     @Test
     public void testWarningDescriptionNotAvailableInThesaurus(){
-        when(thesaurus.getStringBeyondComponent("comportXhasAnIssue","comportXhasAnIssue")).thenReturn("comportXhasAnIssue");
+        when(thesaurus.getString("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("comportXhasAnIssue");
         IssueDefaultImplementation issueDefaultImplementation = new WarningImpl(thesaurus, Instant.now(), null, "comportXhasAnIssue", 5L);
 
         // Business method
