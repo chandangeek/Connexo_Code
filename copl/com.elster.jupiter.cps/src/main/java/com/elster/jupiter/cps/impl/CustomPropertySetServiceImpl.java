@@ -411,15 +411,15 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     @Override
     public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
-        return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityFor(customPropertySet, businesObject, additionalPrimaryKeyValues));
+        return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityFor(customPropertySet, businesObject, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
     }
 
     @Override
     public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
-        return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityFor(customPropertySet, businesObject, effectiveTimestamp, additionalPrimaryKeyValues));
+        return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityFor(customPropertySet, businesObject, effectiveTimestamp, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
     }
 
-    private <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues toCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, Optional<T> customPropertyValuesEntity) {
+    private <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues toCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, Optional<T> customPropertyValuesEntity, Object... additionalPrimaryKeyValues) {
         CustomPropertySetValues properties;
         if (customPropertyValuesEntity.isPresent()) {
             if (customPropertySet.isVersioned()) {
@@ -429,7 +429,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             else {
                 properties = CustomPropertySetValues.empty();
             }
-            customPropertyValuesEntity.get().copyTo(properties);
+            customPropertyValuesEntity.get().copyTo(properties, additionalPrimaryKeyValues);
         }
         else {
             properties = CustomPropertySetValues.empty();
