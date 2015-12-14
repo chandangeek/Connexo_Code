@@ -146,9 +146,9 @@ Ext.define('Mdc.controller.Search', {
             scope: me
         });
 
-        me.service.on('searchResultsBeforeLoad', me.availableClearAll, me);
+        me.service.on('change', me.availableClearAll, me);
         widget.on('destroy', function () {
-            me.service.un('searchResultsBeforeLoad', me.availableClearAll, me);
+            me.service.un('change', me.availableClearAll, me);
         }, me)
     },
 
