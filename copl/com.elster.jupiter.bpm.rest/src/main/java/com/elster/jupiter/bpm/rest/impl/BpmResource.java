@@ -208,6 +208,12 @@ public class BpmResource {
             if (!req.equals("")) {
                 rest += req;
             }
+            List<String> deployemntIds = getProcesses(uriInfo).processes.stream()
+                    .map(s -> s.deploymentId)
+                    .collect(Collectors.toList());
+            for(String each : deployemntIds){
+                rest += "&deploymentid=" + each;
+            }
             jsonContent = bpmService.getBpmServer().doGet(rest);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
@@ -217,13 +223,10 @@ public class BpmResource {
         } catch (JSONException e) {
         } catch (RuntimeException e) {
         }
-        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
         TaskInfos infos = new TaskInfos(arr);
-        infos.tasks = infos.tasks.stream()
-                .filter(s -> activeProcesses.stream().anyMatch(a -> s.processName.split("\\.")[s.processName.split("\\.").length -1].equals(a.getProcessName())))
-                .filter(s -> activeProcesses.stream().anyMatch(a -> s.deploymentId.split(":")[s.deploymentId.split(":").length -1].equals(a.getVersion())))
-                .collect(Collectors.toList());
-        infos.total = infos.tasks.size();
+        if(total > 0){
+            infos.total = total;
+        }
         return infos;
     }
 
