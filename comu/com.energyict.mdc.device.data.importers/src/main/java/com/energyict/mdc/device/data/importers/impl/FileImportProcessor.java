@@ -6,7 +6,5 @@ public interface FileImportProcessor<T extends FileImportRecord> {
 
     void process(T data, FileImportLogger logger) throws ProcessorException;
 
-    default void complete() {
-        //nothing to do
-    }
+    void complete(FileImportLogger logger);
 }

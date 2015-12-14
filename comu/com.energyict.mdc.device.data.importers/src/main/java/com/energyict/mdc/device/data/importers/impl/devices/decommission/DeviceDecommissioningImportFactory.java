@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.FileImportRecord;
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -22,7 +21,10 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.TranslationKeys.DEVICE_COMMISSIONING_IMPORTER;
 
 @Component(name = "com.energyict.mdc.device.data.importers." + DeviceDecommissioningImportFactory.NAME,
         service = FileImporterFactory.class,
@@ -47,8 +49,9 @@ public class DeviceDecommissioningImportFactory extends AbstractDeviceDataFileIm
     }
 
     @Override
-    public String getDefaultFormat() {
-        return TranslationKeys.DEVICE_DECOMMISSIONING_IMPORTER.getDefaultFormat();
+    public String getDisplayName() {
+        return getContext().getThesaurus()
+                .getString(DEVICE_COMMISSIONING_IMPORTER.getKey(), DEVICE_COMMISSIONING_IMPORTER.getDefaultFormat());
     }
 
     @Override

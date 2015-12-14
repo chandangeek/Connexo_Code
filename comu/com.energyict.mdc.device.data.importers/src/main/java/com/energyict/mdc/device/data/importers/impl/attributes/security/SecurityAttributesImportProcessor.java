@@ -48,6 +48,11 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
         logMissingPropertiesIfIncomplete(data, logger, device, deviceConfigSecurityPropertySet, typedProperties);
     }
 
+    @Override
+    public void complete(FileImportLogger logger) {
+        // do nothing
+    }
+
     private void logMissingPropertiesIfIncomplete(SecurityAttributesImportRecord data, FileImportLogger logger, Device device, SecurityPropertySet deviceConfigSecurityPropertySet, TypedProperties typedProperties) {
         if (device.getSecurityProperties(deviceConfigSecurityPropertySet).stream().anyMatch(securityProperty -> !securityProperty.isComplete())) {
             String missingProperties = deviceConfigSecurityPropertySet.getPropertySpecs().stream()
