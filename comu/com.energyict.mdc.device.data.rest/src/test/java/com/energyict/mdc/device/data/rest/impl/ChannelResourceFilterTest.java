@@ -144,8 +144,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"channelName\",\"value\":\"*2*\"}]", "UTF-8"))
                 .request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.channels[0].id")).isEqualTo(4);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
     }
 
     @Test
@@ -182,6 +181,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.get(iterator.next()));
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
+        when(readingType.getFullAliasName()).thenReturn(alias);
         when(readingType.isCumulative()).thenReturn(true);
         return readingType;
     }

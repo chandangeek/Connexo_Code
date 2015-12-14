@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -91,16 +90,4 @@ public class ChannelResourceHelper {
     public ValidationStatusInfo determineStatus(Channel channel) {
         return new ValidationStatusInfo(isValidationActive(channel), channel.getDevice().forValidation().getLastChecked(channel), hasData(channel));
     }
-
-    public String getChannelName(Channel channel) {
-        ReadingTypeInfo readingTypeInfo = new ReadingTypeInfo(channel.getReadingType());
-        StringBuilder channelReadingTypeName = new StringBuilder();
-        channelReadingTypeName.append(readingTypeInfo.aliasName);
-        if (!readingTypeInfo.names.timeOfUse.isEmpty()) {
-            channelReadingTypeName.append(' ').append(readingTypeInfo.names.timeOfUse);
-        }
-        channelReadingTypeName.append(' ').append('(').append(readingTypeInfo.names.unitOfMeasure).append(')');
-        return channelReadingTypeName.toString();
-    }
-
 }

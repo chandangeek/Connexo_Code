@@ -1,11 +1,15 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationException;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.favorites.DeviceLabel;
@@ -28,67 +32,89 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class DeviceLabelResource {
 
     private final ResourceHelper resourceHelper;
+    private final DeviceService deviceService;
     private final FavoritesService favoritesService;
     private final ExceptionFactory exceptionFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceLabelResource(ResourceHelper resourceHelper, FavoritesService favoritesService, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
+    public DeviceLabelResource(ResourceHelper resourceHelper, DeviceService deviceService, FavoritesService favoritesService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
+        this.deviceService = deviceService;
         this.favoritesService = favoritesService;
         this.exceptionFactory = exceptionFactory;
+        this.conflictFactory = conflictFactory;
         this.thesaurus = thesaurus;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public PagedInfoList getDeviceLabels(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+    public PagedInfoList getDeviceLabels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         User user = (User) securityContext.getUserPrincipal();
         List<DeviceLabel> deviceLabels = favoritesService.getDeviceLabels(device, user);
         return PagedInfoList.fromPagedList("deviceLabels", deviceLabels.stream().map(dl -> new DeviceLabelInfo(dl, thesaurus)).collect(Collectors.toList()), queryParameters);
     }
 
     @POST
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response createDeviceLabel(@PathParam("mRID") String id, DeviceLabelInfo deviceLabelInfo, @Context SecurityContext securityContext) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+    public Response createDeviceLabel(@PathParam("mRID") String mRID, DeviceLabelInfo info, @Context SecurityContext securityContext) {
+        Device device = deviceService.findAndLockDeviceByIdAndVersion(info.parent.id, info.parent.version)
+                .orElseThrow(buildCreateFlagConflictException(mRID, info));
         User user = (User) securityContext.getUserPrincipal();
-        LabelCategory category = findLabelCategoryOrThrowException(deviceLabelInfo.category.id.toString());
-        DeviceLabel deviceLabel = favoritesService.findOrCreateDeviceLabel(device, user, category, deviceLabelInfo.comment);
+        LabelCategory category = findLabelCategoryOrThrowException(info.category.id.toString());
+        favoritesService.findDeviceLabel(device, user, category).ifPresent(label -> {
+            throw buildCreateFlagConflictException(mRID, info).get();
+        });
+        DeviceLabel deviceLabel = favoritesService.findOrCreateDeviceLabel(device, user, category, info.comment);
         return Response.ok(new DeviceLabelInfo(deviceLabel, thesaurus)).build();
+    }
+
+    private Supplier<ConcurrentModificationException> buildCreateFlagConflictException(String mRID, DeviceLabelInfo info) {
+        return conflictFactory.conflict()
+                .withActualParent(() -> resourceHelper.getCurrentDeviceVersion(mRID), info.parent.id)
+                .withMessageTitle(MessageSeeds.FLAG_DEVICE_CONCURRENT_TITLE, mRID)
+                .withMessageBody(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY, mRID)
+                .supplier();
     }
 
     @Path("/{categoryId}")
     @DELETE
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response deleteDeviceLabel(@PathParam("mRID") String id, @PathParam("categoryId") String categoryId, @Context SecurityContext securityContext, DeviceLabelInfo info) {
-        info.mRID = id;
-        Device device = resourceHelper.lockDeviceOrThrowException(info);
+    public Response deleteDeviceLabel(@PathParam("mRID") String mRID, @PathParam("categoryId") String categoryId, @Context SecurityContext securityContext, DeviceLabelInfo info) {
+        Device device = deviceService.findAndLockDeviceByIdAndVersion(info.parent.id, info.parent.version)
+                .orElseThrow(buildRemoveFlagConflictException(mRID, info));
         User user = (User) securityContext.getUserPrincipal();
         LabelCategory category = findLabelCategoryOrThrowException(categoryId);
-        Optional<DeviceLabel> deviceLabel = favoritesService.findDeviceLabel(device, user, category);
-        if (!deviceLabel.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_LABEL, thesaurus.getString(category.getName(), category.getName()), device.getmRID());
-        }
-        favoritesService.removeDeviceLabel(deviceLabel.get());
-        device.save();
+        favoritesService.findDeviceLabel(device, user, category).ifPresent(label -> favoritesService.removeDeviceLabel(label));
         return Response.ok().build();
+    }
+
+    private Supplier<ConcurrentModificationException> buildRemoveFlagConflictException(String mRID, DeviceLabelInfo info) {
+        return conflictFactory.conflict()
+                .withActualParent(() -> resourceHelper.getCurrentDeviceVersion(mRID), info.parent.id)
+                .withMessageTitle(MessageSeeds.REMOVE_FLAG_DEVICE_CONCURRENT_TITLE, mRID)
+                .withMessageBody(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY, mRID)
+                .supplier();
     }
 
     private LabelCategory findLabelCategoryOrThrowException(String categoryId) {
         Optional<LabelCategory> category = favoritesService.findLabelCategory(categoryId);
         return category.orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_LABEL_CATEGORY));
     }
-
 }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -33,7 +34,7 @@ public class DeviceSharedScheduleResource {
         this.schedulingService = schedulingService;
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -50,7 +51,6 @@ public class DeviceSharedScheduleResource {
                             throw new AlreadyLocalizedException(cve.getConstraintViolations().iterator().next().getMessage());
                         }
         });
-        device.save();
         return Response.status(Response.Status.OK).build();
     }
 

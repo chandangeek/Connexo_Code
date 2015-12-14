@@ -244,6 +244,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search.rest</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>
@@ -323,20 +327,25 @@
         <!--</dependency>-->
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.qmino</groupId>
-                <artifactId>miredot-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>restdoc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>restdoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.qmino</groupId>
+                        <artifactId>miredot-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>restdoc</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

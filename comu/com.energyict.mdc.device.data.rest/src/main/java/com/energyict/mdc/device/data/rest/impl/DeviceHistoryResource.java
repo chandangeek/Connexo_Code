@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -26,9 +27,10 @@ public class DeviceHistoryResource {
     }
 
     @GET
+    @Transactional
     @Path("/devicelifecyclechanges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({ Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE, Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE })
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public Response getDeviceLifeCycleStatesHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         return Response.ok(deviceLifeCycleHistoryInfoFactory.createDeviceLifeCycleChangeInfos(device)).build();

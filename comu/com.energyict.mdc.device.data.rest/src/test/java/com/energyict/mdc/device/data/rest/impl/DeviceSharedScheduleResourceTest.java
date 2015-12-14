@@ -44,7 +44,6 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         when(device.newScheduledComTaskExecution(schedule44)).thenReturn(builder);
         Response response = target("/devices/XAF/sharedschedules").request().put(Entity.json(scheduleIdsInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(device).save();
     }
 
     @Test

@@ -29,7 +29,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_TASK(91, "NoSucComTaskOnDevice", "No such communication task exists for device ''{0}''"),
     COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(92, "NoEnablementForDevice", "Communication task ''{0}'' is not enabled for device ''{1}''"),
     NO_SUCH_COM_TASK_EXEC_SESSION(93, "NoSuchComTaskExecSession", "The communication task logging could not be found"),
-    DEVICEGROUPNAME_ALREADY_EXISTS(94, "deviceGroupNameAlreadyExists", "A devicegroup with name {0} already exists"),
     INCOMPLETE(96, "Incomplete", "Incomplete"),
     NO_SUCH_SECURITY_PROPERTY_SET_ON_DEVICE(97, "NoSuchSecurityPropertySetOnDevice", "No security settings with id {0} exist for device ''{1}''"),
     NO_SUCH_SECURITY_PROPERTY_SET(98, "NoSuchSecurityPropertySet", "No security settings with id {0} exist"),
@@ -38,7 +37,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_MESSAGE(213, "NoSuchMessage", "No such device message exists on the device"),
     UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED(217, "UpdateSecurityPropertySetNotAllowed", "Update security property set not allowed"),
     NO_SUCH_LABEL_CATEGORY(219, "NoSuchLabelCategory", "No such label category"),
-    NO_SUCH_DEVICE_LABEL(220, "NoSuchDeviceLabel", "No such device label of category ''{0}'' on a device {1}"),
     NO_SUCH_CHANNEL_ON_DEVICE(221, "NoSuchChannelOnDevice", "Device {0} has no channel {1}"),
     RUN_CONNECTIONTASK_IMPOSSIBLE(224, "runConTaskImpossible", "Running of this connection task is impossible"),
     NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
@@ -64,8 +62,23 @@ public enum MessageSeeds implements MessageSeed {
     CONCURRENT_RUN_TITLE(245, "ConcurrentRunTitle", "Failed to run ''{0}''"),
     CONCURRENT_RUN_BODY(246, "ConcurrentRunMessage", "{0} has changed since the page was last updated."),
     NO_SUCH_CUSTOMPROPERTYSET(247, "noSuchCPS", "No custom property set with ID {0}"),
-    NO_SUCH_REQUIRED_PROPERTY(248, "noSuchProperty", "No custom property required value"),
-    ;
+    DEVICE_SEARCH_DOMAIN_NOT_REGISTERED(248, "DeviceSearchDomainNotRegistered", "Device search domain is not registered"),
+    AT_LEAST_ONE_SEARCH_CRITERIA(249, "AtLeastOneCriteria" , "At least one search criterion has to be provided"),
+    NO_SUCH_REQUIRED_PROPERTY(250, "NoSuchProperty", "No custom property required value"),
+    SEARCHABLE_PROPERTY_INVALID_VALUE(251, "SearchablePropertyInvalidValue", "Invalid value"),
+    OVERLAP_CUSTOMPROPRTTYSET(252, "overlapCPSvalue", "Custom property set conflicting with another sets in timeline"),
+    GAP_CUSTOMPROPRTTYSET(253, "gapCPSvalue", "Custom property set gap with another sets in timeline"),
+    CUSTOMPROPRTTYSET_TIMESLICED_INSERT(254, "edit.historical.values.insert", "Insert"),
+    INTERVAL_INVALID(255, "wrongInterval", "Invalid interval [{0},{1})"),
+    INTERVAL_EMPTY(256, "emptyInterval", "Empty intervals are not allowed"),
+    INTERVAL_START_EXCEEDS_END(257, "intervalStratExceedsEnd", "Start time exceeds end time"),
+    INTERVAL_END_BENEATH_START(258, "intervalEndBeneathStart", "End time beneath start time"),
+    NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER(259, "noSuchCPSforRegister", "No custom property set with ID {0} for Register with ID {1}"),
+    NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL(260, "noSuchCPSforChannel", "No custom property set with ID {0} for Channel with ID {1}"),
+    FLAG_DEVICE_CONCURRENT_TITLE(261, "FlagDeviceConcurrentTitle", "Failed to flag ''{0}''"),
+    REMOVE_FLAG_DEVICE_CONCURRENT_TITLE(262, "RemoveFlagDeviceConcurrentTitle", "Failed to remove ''{0}'' from the list of flagged devices"),
+    FLAG_DEVICE_CONCURRENT_BODY(263, "FlagDeviceConcurrentMessage", "{0} has changed since the page was last updated."),
+    VERSION_MISSING(264, "VersionInfoMissing", "Versioning information is missing in the request");
     private final int number;
     private final String key;
     private final String format;
