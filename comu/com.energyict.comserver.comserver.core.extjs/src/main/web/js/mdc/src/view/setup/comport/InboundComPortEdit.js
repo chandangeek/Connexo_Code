@@ -69,8 +69,8 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 fieldLabel: 'Communication port type',
                                 store: comporttypes,
                                 queryMode: 'local',
-                                displayField: 'comPortType',
-                                valueField: 'comPortType'
+                                displayField: 'localizedValue',
+                                valueField: 'id'
                             },
                             {
                                 xtype: 'textfield',
@@ -184,7 +184,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 store: flowControls,
                                 queryMode: 'local',
                                 displayField: 'flowControl',
-                                valueField: 'flowControl'
+                                valueField: 'id'
                             },
                             {
                                 xtype: 'combobox',
@@ -193,7 +193,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 store: parities,
                                 queryMode: 'local',
                                 displayField: 'parity',
-                                valueField: 'parity'
+                                valueField: 'id'
                             },
                             {
                                 xtype: 'fieldcontainer',

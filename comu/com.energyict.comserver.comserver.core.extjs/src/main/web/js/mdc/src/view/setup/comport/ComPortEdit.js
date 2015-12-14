@@ -40,8 +40,8 @@ Ext.define('Mdc.view.setup.comport.ComPortEdit', {
                                 fieldLabel: Uni.I18n.translate('general.type','MDC','Type'),
                                 store: comporttypes,
                                 queryMode: 'local',
-                                displayField: 'comPortType',
-                                valueField: 'comPortType'
+                                displayField: 'localizedValue',
+                                valueField: 'id'
                             },
                             {
                                 xtype: 'textfield',

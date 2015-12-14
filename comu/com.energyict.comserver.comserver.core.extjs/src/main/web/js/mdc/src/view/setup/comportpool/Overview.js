@@ -56,7 +56,10 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
                         },
                         {
                             fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                            name: 'comPortType'
+                            name: 'comPortType',
+                            renderer: function (value) {
+                                return value && value.localizedValue;
+                            }
                         },
                         {
                             fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
