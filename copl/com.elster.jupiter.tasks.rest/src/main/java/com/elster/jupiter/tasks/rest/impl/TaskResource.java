@@ -65,7 +65,7 @@ public class TaskResource {
             filterSpec.startedOnFrom = filter.getInstant("startedOnFrom");
             filterSpec.startedOnTo = filter.getInstant("startedOnTo");
         }
-        TaskFinder finder = taskService.getTaskFinder(filterSpec, params.getStartInt(), params.getLimit());
+        TaskFinder finder = taskService.getTaskFinder(filterSpec, params.getStartInt(), params.getLimit() + 1);
 
         List<? extends RecurrentTask> list = finder.find();
         Principal principal = (Principal) securityContext.getUserPrincipal();
@@ -77,6 +77,7 @@ public class TaskResource {
             }
         }
         TaskInfos infos = new TaskInfos(params.clipToLimit(list), thesaurus, timeService, locale);
+        infos.total = params.determineTotal(list.size());
         return infos;
     }
 
