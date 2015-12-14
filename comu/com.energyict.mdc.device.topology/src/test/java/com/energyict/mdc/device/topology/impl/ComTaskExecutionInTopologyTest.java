@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
@@ -9,8 +10,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 
 import org.junit.*;
 
@@ -36,13 +35,13 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         comTaskExecutionBuilder.useDefaultConnectionTask(true);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
+
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
         inMemoryPersistence.update("update " + com.energyict.mdc.device.data.impl.TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
 
         // Business method
-        comTaskExecution.makeObsolete();
+        device.removeComTaskExecution(comTaskExecution);
 
         // Asserts: see expected exception rule
     }
@@ -58,9 +57,6 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
         comTaskExecutionBuilder.connectionTask(connectionTask);
         comTaskExecutionBuilder.useDefaultConnectionTask(true);    // this call should clear the connectionTask
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-
-        // Business method
-        device.save();
 
         // Asserts
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
@@ -78,12 +74,10 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
         comTaskExecutionBuilder.useDefaultConnectionTask(false);
         comTaskExecutionBuilder.connectionTask(connectionTask);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
 
         ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.useDefaultConnectionTask(true);
         comTaskExecutionUpdater.update();
-        device.save();
 
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
@@ -101,7 +95,6 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         comTaskExecutionBuilder.useDefaultConnectionTask(true);
         comTaskExecutionBuilder.add();
-        device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
         ComTaskExecution reloadedComTaskExecution = reloadedDevice.getComTaskExecutions().get(0);
