@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
-
-import com.elster.jupiter.time.TimeDuration;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -137,7 +136,7 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
             try {
                 this.inboundComPortExecutor.execute(this.comChannel);
             } catch (Throwable t) {
-                /* Use Throwable rather than Exception or BusinessException and SQLException
+                /* Use Throwable rather than Exception and SQLException
                  * to make sure that the Semaphore#release method is called
                  * even in the worst of situations. */
                 causeOfFailure = t;

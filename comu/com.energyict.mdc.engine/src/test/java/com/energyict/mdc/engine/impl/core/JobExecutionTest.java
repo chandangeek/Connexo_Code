@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -13,7 +11,10 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
@@ -34,7 +35,10 @@ import com.energyict.mdc.engine.impl.commands.store.core.DeviceProtocolCommandCr
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -51,9 +55,11 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
-import com.google.common.base.Strings;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.google.common.base.Strings;
 import org.joda.time.DateTime;
 
 import java.time.Clock;
@@ -535,7 +541,7 @@ public class JobExecutionTest {
 
         when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
         when(protocolDialect.getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
-        when(protocolDialect.getPropertySpec(MY_PROPERTY)).thenReturn(propertySpec);
+        when(protocolDialect.getPropertySpec(MY_PROPERTY)).thenReturn(Optional.of(propertySpec));
 
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
 

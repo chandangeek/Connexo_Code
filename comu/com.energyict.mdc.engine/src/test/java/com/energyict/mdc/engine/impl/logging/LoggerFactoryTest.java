@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.logging;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.exceptions.CodingException;
 
 import org.joda.time.DateTime;
@@ -81,8 +80,8 @@ public class LoggerFactoryTest {
 
     public interface ExceptionLogger {
 
-        @Configuration(logLevel = LogLevel.ERROR, format = "An unexpected BusinessException occurred in context {0}!")
-        public void error (String context, BusinessException e);
+        @Configuration(logLevel = LogLevel.ERROR, format = "An unexpected IllegalArgumentException occurred in context {0}!")
+        public void error (String context, IllegalArgumentException e);
 
     }
 
@@ -96,7 +95,7 @@ public class LoggerFactoryTest {
     public interface MultipleExceptions {
 
         @Configuration(logLevel = LogLevel.ERROR, format = "Multiple exceptions are not supported by the LoggerFactory.")
-        public void error (BusinessException b, SQLException sql);
+        public void error (IllegalArgumentException b, SQLException sql);
 
     }
 
@@ -258,12 +257,12 @@ public class LoggerFactoryTest {
         loggerHolder.getLogger().addHandler(logHandler);
 
         // Target method
-        exceptionLogger.error(LoggerFactoryTest.class.getSimpleName(), new BusinessException("Exception expected as part of unit testing."));
+        exceptionLogger.error(LoggerFactoryTest.class.getSimpleName(), new IllegalArgumentException("Exception expected as part of unit testing."));
 
         // Asserts
         assertEquals("The number of log records does not match", 1, logHandler.getLogRecords().size());
         assertNotNull("Exception was not injected!", logHandler.getLogRecords().get(0).getThrown());
-        assertTrue("Exception class does not match", logHandler.getLogRecords().get(0).getThrown() instanceof BusinessException);
+        assertTrue("Exception class does not match", logHandler.getLogRecords().get(0).getThrown() instanceof IllegalArgumentException);
     }
 
     @Test(expected = CodingException.class)

@@ -3,12 +3,15 @@ package com.energyict.mdc.engine.impl.core.mocks;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
@@ -22,15 +25,30 @@ import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.*;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.*;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -70,47 +88,47 @@ public class MockComServerDAO implements ComServerDAO {
         comServer.setSchedulingInterPollDelay(new TimeDuration(2, TimeDuration.TimeUnit.HOURS));
     }
 
-    public MockOnlineComServer addComServer (int activeOutboundComPorts, int activeInboundComPorts) throws BusinessException, SQLException {
+    public MockOnlineComServer addComServer (int activeOutboundComPorts, int activeInboundComPorts) throws SQLException {
         MockOnlineComServer comServer = this.addEmptyComServer();
         this.addMockComPorts(comServer, activeOutboundComPorts, activeInboundComPorts);
         this.doRefresh(comServer);
         return comServer;
     }
 
-    private void addMockComPorts (MockOnlineComServer comServer, int activeOutboundComPorts, int activeInboundComPorts) throws BusinessException, SQLException {
+    private void addMockComPorts (MockOnlineComServer comServer, int activeOutboundComPorts, int activeInboundComPorts) throws SQLException {
         this.addMockInboundComPorts(comServer, activeInboundComPorts);
         this.addMockOutboundComPorts(comServer, activeOutboundComPorts);
     }
 
-    private void addMockOutboundComPorts (MockOnlineComServer comServer, int activeOutboundComPorts) throws BusinessException, SQLException {
+    private void addMockOutboundComPorts (MockOnlineComServer comServer, int activeOutboundComPorts) throws SQLException {
         for (int i = 0; i < activeOutboundComPorts; i++) {
             this.createOutbound(comServer, i, true, 1);
         }
     }
 
-    private void addMockInboundComPorts (MockOnlineComServer comServer, int activeInboundComPorts) throws BusinessException, SQLException {
+    private void addMockInboundComPorts (MockOnlineComServer comServer, int activeInboundComPorts) throws SQLException {
         for (int i = 0; i < activeInboundComPorts; i++) {
             this.createInbound(comServer, i, true, 1);
         }
     }
 
-    public OutboundComPort createOutbound (int serverIndex, boolean active, int numberOfConnections) throws BusinessException, SQLException {
+    public OutboundComPort createOutbound (int serverIndex, boolean active, int numberOfConnections) throws SQLException {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         int newPortIndex = comServer.getOutboundComPorts().size();
         return this.createOutbound(comServer, newPortIndex, active, numberOfConnections);
     }
 
-    private OutboundComPort createOutbound (MockOnlineComServer comServer, int i, boolean active, int numberOfConnections) throws BusinessException, SQLException {
+    private OutboundComPort createOutbound (MockOnlineComServer comServer, int i, boolean active, int numberOfConnections) throws SQLException {
         return comServer.createOutbound("ComPort-" + (i + 1), active, numberOfConnections);
     }
 
-    public InboundComPort createInbound (int serverIndex, boolean active, int numberOfConnections) throws BusinessException, SQLException {
+    public InboundComPort createInbound (int serverIndex, boolean active, int numberOfConnections) throws SQLException {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         int newPortIndex = comServer.getInboundComPorts().size();
         return this.createInbound(comServer, newPortIndex, active, numberOfConnections);
     }
 
-    private InboundComPort createInbound (MockOnlineComServer comServer, int i, boolean active, int numberOfConnections) throws BusinessException, SQLException {
+    private InboundComPort createInbound (MockOnlineComServer comServer, int i, boolean active, int numberOfConnections) throws SQLException {
         return comServer.createTCPBasedInbound("ComPort-" + (i + 1), active, PORT_NUMBER_START + i, numberOfConnections);
     }
 

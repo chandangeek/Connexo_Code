@@ -2,13 +2,20 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.config.*;
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.config.OfflineComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 
 import com.google.inject.Provider;
@@ -18,12 +25,10 @@ import java.net.URISyntaxException;
 
 import org.junit.*;
 import org.junit.runner.*;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -78,7 +83,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test
-    public void testEventsWithOfflineComServer () throws BusinessException {
+    public void testEventsWithOfflineComServer () {
         OfflineComServer comServer = createOfflineComServer();
 
         // Business method
@@ -97,7 +102,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test
-    public void testEventsWithOnlineComServerThatDoesNotSupportEventRegistration () throws BusinessException {
+    public void testEventsWithOnlineComServerThatDoesNotSupportEventRegistration () {
         OnlineComServer comServer = createOnlineComServer(null);
         comServer.setUsesDefaultEventRegistrationUri(false);
 
@@ -110,7 +115,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test(expected = CodingException.class)
-    public void testEventsWithOnlineComServerWithInvalidEventRegistrationURI () throws BusinessException {
+    public void testEventsWithOnlineComServerWithInvalidEventRegistrationURI () {
         OnlineComServer comServer = createOnlineComServer(INVALID_URI);
 
         // Business method
@@ -124,7 +129,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test
-    public void testEventsWithOnlineComServer () throws BusinessException {
+    public void testEventsWithOnlineComServer () {
         OnlineComServer comServer = createOnlineComServer(EVENT_REGISTRATION_URL);
 
         // Business method
@@ -141,7 +146,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test
-    public void testEventsWithRemoteComServerThatDoesNotSupportEventRegistration () throws BusinessException {
+    public void testEventsWithRemoteComServerThatDoesNotSupportEventRegistration () {
         RemoteComServer comServer = createRemoteComServerWithRegistrationUri(null);
         comServer.setUsesDefaultEventRegistrationUri(false);
 
@@ -154,7 +159,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test(expected = CodingException.class)
-    public void testEventsWithRemoteComServerWithInvalidEventRegistrationURL () throws BusinessException {
+    public void testEventsWithRemoteComServerWithInvalidEventRegistrationURL () {
         RemoteComServer comServer = createRemoteComServerWithRegistrationUri(INVALID_URI);
 
         // Business method
@@ -168,7 +173,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test
-    public void testEventsWithRemoteComServer () throws BusinessException {
+    public void testEventsWithRemoteComServer () {
         RemoteComServer comServer = createRemoteComServerWithRegistrationUri(EVENT_REGISTRATION_URL);
 
         // Business method
@@ -179,7 +184,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test
-    public void testQueriesWithOnlineComServer () throws BusinessException {
+    public void testQueriesWithOnlineComServer () {
         OnlineComServer comServer = createOnlineComServer(null);
         comServer.setQueryAPIPostUri("http://localhost/remote/query-api");
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
@@ -194,7 +199,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test(expected = CodingException.class)
-    public void testQueriesWithURISyntaxError () throws BusinessException {
+    public void testQueriesWithURISyntaxError () {
         OnlineComServer comServer = createOnlineComServer(null);
         comServer.setQueryAPIPostUri(INVALID_URI);
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
@@ -211,9 +216,9 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     @Test
-    public void testQueriesWithOnlineComServerThatDoesNotSupportRemoteQueries () throws BusinessException {
+    public void testQueriesWithOnlineComServerThatDoesNotSupportRemoteQueries () {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getQueryApiPostUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getQueryApiPostUriIfSupported();
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
@@ -14,8 +14,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
-import com.elster.jupiter.events.EventService;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -57,7 +55,7 @@ public class CollectedDeviceCacheCommandTest {
     private EngineService engineService;
 
     @Test
-    public void updateWithoutChangeTest() throws BusinessException, SQLException {
+    public void updateWithoutChangeTest() throws SQLException {
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(mock(DeviceIdentifier.class));
         DeviceProtocolCache protocolCache = new SimpleDeviceProtocolCache();
         updatedDeviceCache.setCollectedDeviceCache(protocolCache);
@@ -73,7 +71,7 @@ public class CollectedDeviceCacheCommandTest {
     }
 
     @Test
-    public void updateWithChangeTest() throws BusinessException, SQLException {
+    public void updateWithChangeTest() throws SQLException {
         final String newDescription = "laaaalallalallallllaaal";
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(getMockedDeviceIdentifier());
         SimpleDeviceProtocolCache protocolCache = new SimpleDeviceProtocolCache();

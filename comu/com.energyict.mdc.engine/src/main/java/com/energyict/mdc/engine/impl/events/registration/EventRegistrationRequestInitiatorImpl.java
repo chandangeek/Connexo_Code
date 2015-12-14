@@ -1,9 +1,8 @@
 package com.energyict.mdc.engine.impl.events.registration;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.events.EventRegistrationRequestInitiator;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.events.EventRegistrationRequestInitiator;
 
 import java.util.Optional;
 
@@ -22,10 +21,10 @@ public class EventRegistrationRequestInitiatorImpl implements EventRegistrationR
     }
 
     @Override
-    public String getRegistrationURL (String comServerName) throws BusinessException {
+    public String getRegistrationURL (String comServerName) {
         Optional<ComServer> comServer = engineConfigurationService.findComServer(comServerName);
         if (!comServer.isPresent()) {
-            throw new BusinessException("ComServerXByNameDoesNotExist", "The Comserver by the name of {0} does not exist");
+            throw new IllegalArgumentException("The Comserver by the name of {0} does not exist");
         }
         else {
             return this.getRegistrationURL(comServer.get());
@@ -33,7 +32,7 @@ public class EventRegistrationRequestInitiatorImpl implements EventRegistrationR
     }
 
     @Override
-    public String getRegistrationURL (ComServer comServer) throws BusinessException {
+    public String getRegistrationURL (ComServer comServer) {
         return comServer.getEventRegistrationUriIfSupported();
     }
 

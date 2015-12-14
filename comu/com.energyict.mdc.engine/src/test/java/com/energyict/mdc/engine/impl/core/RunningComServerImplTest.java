@@ -1,6 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
@@ -17,12 +21,6 @@ import com.energyict.mdc.engine.impl.monitor.EventAPIStatistics;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -103,9 +101,9 @@ public class RunningComServerImplTest {
     }
 
     @Test
-    public void testConstructorWithoutComPorts() throws SQLException, BusinessException {
+    public void testConstructorWithoutComPorts() throws SQLException {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getEventRegistrationUriIfSupported();
         when(comServer.getInboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getOutboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
@@ -127,11 +125,11 @@ public class RunningComServerImplTest {
     }
 
     @Test
-    public void testConstructorWithSomeComPorts() throws BusinessException {
+    public void testConstructorWithSomeComPorts() {
         int numberOfInactiveInboundComPorts = 2;
         int numberOfInactiveOutboundComPorts = 3;
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getEventRegistrationUriIfSupported();
         List<InboundComPort> inboundComPorts = new ArrayList<>();
         for (int i = 0; i < numberOfInactiveInboundComPorts; i++) {
             inboundComPorts.add(this.inboundComPort(comServer));
@@ -163,9 +161,9 @@ public class RunningComServerImplTest {
     }
 
     @Test
-    public void testStartOnlineWithoutComPortsAndRemoteComServers() throws SQLException, BusinessException {
+    public void testStartOnlineWithoutComPortsAndRemoteComServers() throws SQLException {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getEventRegistrationUriIfSupported();
         when(comServer.getInboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getOutboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
@@ -202,9 +200,9 @@ public class RunningComServerImplTest {
     }
 
     @Test
-    public void testStartOnlineWithRemoteComServers() throws SQLException, BusinessException {
+    public void testStartOnlineWithRemoteComServers() throws SQLException {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getEventRegistrationUriIfSupported();
         when(comServer.getInboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getOutboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
@@ -243,9 +241,9 @@ public class RunningComServerImplTest {
     }
 
     @Test
-    public void testShutdownWithoutComPorts() throws BusinessException {
+    public void testShutdownWithoutComPorts() {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getEventRegistrationUriIfSupported();
         when(comServer.getInboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getOutboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
@@ -275,9 +273,9 @@ public class RunningComServerImplTest {
     }
 
     @Test
-    public void testShutdownWithRemoteComServers() throws BusinessException {
+    public void testShutdownWithRemoteComServers() {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getEventRegistrationUriIfSupported();
         when(comServer.getInboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getOutboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
@@ -314,11 +312,11 @@ public class RunningComServerImplTest {
     }
 
     @Test
-    public void testStartOnlineWithSomeComPorts() throws SQLException, BusinessException {
+    public void testStartOnlineWithSomeComPorts() throws SQLException {
         int numberOfInactiveInboundComPorts = 1;
         int numberOfInactiveOutboundComPorts = 1;
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getEventRegistrationUriIfSupported();
         List<InboundComPort> inboundComPorts = new ArrayList<>();
         for (int i = 0; i < numberOfInactiveInboundComPorts; i++) {
             inboundComPorts.add(this.inboundComPort(comServer));
@@ -366,9 +364,9 @@ public class RunningComServerImplTest {
     }
 
     @Test
-    public void testStartWithCleanupFailure() throws SQLException, BusinessException {
+    public void testStartWithCleanupFailure() throws SQLException {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getEventRegistrationUriIfSupported();
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getNumberOfStoreTaskThreads()).thenReturn(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
         when(comServer.getStoreTaskThreadPriority()).thenReturn(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
@@ -403,11 +401,11 @@ public class RunningComServerImplTest {
     }
 
     @Test
-    public void testShutdownWithSomeComPorts() throws BusinessException {
+    public void testShutdownWithSomeComPorts() {
         int numberOfInactiveInboundComPorts = 1;
         int numberOfInactiveOutboundComPorts = 1;
         OnlineComServer comServer = mock(OnlineComServer.class);
-        doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
+        doThrow(UnsupportedOperationException.class).when(comServer).getEventRegistrationUriIfSupported();
         List<InboundComPort> inboundComPorts = new ArrayList<>();
         for (int i = 0; i < numberOfInactiveInboundComPorts; i++) {
             inboundComPorts.add(this.inboundComPort(comServer));

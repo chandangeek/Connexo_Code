@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.TypedProperties;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -23,8 +23,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -68,7 +66,7 @@ public class ComServerDAOImplInboundTest {
     private ComServerDAO comServerDAO;
 
     @Before
-    public void initializeMocksAndFactories() throws SQLException, BusinessException {
+    public void initializeMocksAndFactories() throws SQLException {
         TransactionService transactionService = new FakeTransactionService();
         when(this.serviceProvider.transactionService()).thenReturn(transactionService);
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);

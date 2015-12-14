@@ -1,13 +1,12 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 
 /**
  * Models the exceptional situation that occurs when
  * a parameter of a {@link Request} that is expected
- * to be the unique identifier of a {@link IdBusinessObject}
+ * to be the unique identifier of a business object
  * fails to parse to a integer.
  *
  * @author Rudi Vankeirsbilck (rudi)

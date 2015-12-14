@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -99,7 +98,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     }
 
     @Test
-    public void testComSessionStatisticsUpdatedWhenConnectionIsBeingClosed() throws ConnectionException, BusinessException, SQLException {
+    public void testComSessionStatisticsUpdatedWhenConnectionIsBeingClosed() throws ConnectionException, SQLException {
         OutboundComPort comPort = mock(OutboundComPort.class);
         OutboundConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
@@ -129,7 +128,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     }
 
     @Test
-    public void testComSessionStatisticsCounterValues() throws ConnectionException, BusinessException, SQLException {
+    public void testComSessionStatisticsCounterValues() throws ConnectionException, SQLException {
         OutboundComPort comPort = mock(OutboundComPort.class);
         OutboundConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);

@@ -1,16 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
 
 import java.sql.SQLException;
 
@@ -21,7 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
@@ -148,7 +146,7 @@ public class ComSessionRootDeviceCommandTest {
     }
 
     @Test
-    public void testExecuteForwardsToChildren () throws BusinessException, SQLException {
+    public void testExecuteForwardsToChildren () throws SQLException {
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
@@ -166,7 +164,7 @@ public class ComSessionRootDeviceCommandTest {
     }
 
     @Test
-    public void testExecuteForwardsFailureLoggerToChildren () throws BusinessException, SQLException {
+    public void testExecuteForwardsFailureLoggerToChildren () throws SQLException {
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         CreateComSessionDeviceCommand deviceCommand1 = this.mockCreateComSessionDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
@@ -185,7 +183,7 @@ public class ComSessionRootDeviceCommandTest {
     }
 
     @Test
-    public void testExecuteDoesNotForwardFailureLoggerToChildrenWhereThereIsNone () throws BusinessException, SQLException {
+    public void testExecuteDoesNotForwardFailureLoggerToChildrenWhereThereIsNone () throws SQLException {
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
@@ -205,7 +203,7 @@ public class ComSessionRootDeviceCommandTest {
     }
 
     @Test
-    public void testExecuteDuringShutdownForwardsToChildren () throws BusinessException, SQLException {
+    public void testExecuteDuringShutdownForwardsToChildren () throws SQLException {
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
@@ -226,7 +224,7 @@ public class ComSessionRootDeviceCommandTest {
     }
 
     @Test
-    public void testExecuteDuringShutdownForwardsFailureLoggerToChildren () throws BusinessException, SQLException {
+    public void testExecuteDuringShutdownForwardsFailureLoggerToChildren () throws SQLException {
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         CreateComSessionDeviceCommand deviceCommand1 = this.mockCreateComSessionDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
@@ -245,7 +243,7 @@ public class ComSessionRootDeviceCommandTest {
     }
 
     @Test
-    public void testExecuteDuringShutdownDoesNotForwardFailureLoggerToChildrenWhereThereIsNone () throws BusinessException, SQLException {
+    public void testExecuteDuringShutdownDoesNotForwardFailureLoggerToChildrenWhereThereIsNone () throws SQLException {
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
@@ -265,7 +263,7 @@ public class ComSessionRootDeviceCommandTest {
     }
 
     @Test(expected = ApplicationException.class)
-    public void testChildExecutionFailureIsPropagated () throws BusinessException, SQLException {
+    public void testChildExecutionFailureIsPropagated () throws SQLException {
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         String errorMessage = "ComSessionRootDeviceCommandTest#testChildExecutionFailureIsPropagated";
@@ -289,7 +287,7 @@ public class ComSessionRootDeviceCommandTest {
     }
 
     @Test(expected = ApplicationException.class)
-    public void testExecutionFailsAsSoonAsPossible () throws BusinessException, SQLException {
+    public void testExecutionFailsAsSoonAsPossible () throws SQLException {
         ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
