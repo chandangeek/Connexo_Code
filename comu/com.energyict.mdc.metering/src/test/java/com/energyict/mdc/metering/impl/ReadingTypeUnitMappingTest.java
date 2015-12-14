@@ -5,8 +5,8 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+
 import org.fest.assertions.Condition;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import org.junit.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -167,7 +169,7 @@ public class ReadingTypeUnitMappingTest {
                             } else if (baseUnit.getDlmsCode() == BaseUnit.SIEMENS) {
                                 return asciiSymbol.equals("S");
                             } else if (baseUnit.getDlmsCode() == BaseUnit.NOTAVAILABLE) {
-                                return asciiSymbol.equals("");
+                                return asciiSymbol.isEmpty();
                             } else if (baseUnit.getDlmsCode() == BaseUnit.MOLPERCENT) {
                                 return asciiSymbol.equals("mol");
                             } else if (baseUnit.getDlmsCode() == BaseUnit.CUBICFEET) {
@@ -177,9 +179,9 @@ public class ReadingTypeUnitMappingTest {
                             } else if (baseUnit.getDlmsCode() == BaseUnit.POUNDPERSQUAREINCH) {
                                 return asciiSymbol.equals("ps/A");
                             } else if (baseUnit.getDlmsCode() == BaseUnit.PERCENT) {
-                                return asciiSymbol.equals("");
+                                return asciiSymbol.isEmpty();
                             } else if (baseUnit.getDlmsCode() == BaseUnit.PARTSPERMILLION) {
-                                return asciiSymbol.equals("");
+                                return asciiSymbol.isEmpty();
                             } else if (baseUnit.getDlmsCode() == BaseUnit.US_GALLON) {
                                 return asciiSymbol.equals("USGal");
                             } else if (baseUnit.getDlmsCode() == BaseUnit.IMP_GALLON) {
@@ -191,7 +193,7 @@ public class ReadingTypeUnitMappingTest {
                             } else if (baseUnit.getDlmsCode() == BaseUnit.IMP_GALLONPERHOUR) {
                                 return asciiSymbol.equals("ImperialGal/h");
                             } else if (baseUnit.getDlmsCode() == BaseUnit.POUND || baseUnit.getDlmsCode() == BaseUnit.USD || baseUnit.getDlmsCode() == BaseUnit.EURO) {
-                                return asciiSymbol.equals("");
+                                return asciiSymbol.isEmpty();
                             } else {
                                 if (symbol.equals(baseUnit.toString())) {
                                     return true;
