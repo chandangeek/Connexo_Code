@@ -162,8 +162,8 @@ public class CreateG3GatewayCommand {
             .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
             .setNextExecutionSpecsFrom(null)
             .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString(), "10.0.0.135")
-            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString(), new BigDecimal(4059))
+            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "10.0.0.135")
+            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(4059))
             .setSimultaneousConnectionsAllowed(false)
             .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);

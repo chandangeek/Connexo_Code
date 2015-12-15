@@ -231,9 +231,9 @@ public class CreateA3DeviceCommand {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString(), "166.150.217.174")
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString(), new BigDecimal(1153))
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.toString(), TimeDuration.minutes(1))
+                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "166.150.217.174")
+                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(1153))
+                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName(), TimeDuration.minutes(1))
                 .setSimultaneousConnectionsAllowed(false)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);

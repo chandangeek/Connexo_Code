@@ -89,16 +89,13 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
@@ -468,8 +465,8 @@ public class DemoTest {
         assertThat(scheduledConnectionTask.isSimultaneousConnectionsAllowed()).isFalse();
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString()).getValue()).isEqualTo("10.0.0.135");
-            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString()).getValue()).isEqualTo(new BigDecimal(4059));
+            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName()).getValue()).isEqualTo("10.0.0.135");
+            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName()).getValue()).isEqualTo(new BigDecimal(4059));
             assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(3);
             for (SecurityProperty securityProperty : gateway.getSecurityProperties(securityPropertySet)) {
                 if (SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey().equals(securityProperty.getName())) {
