@@ -3,6 +3,7 @@ package com.elster.partners.connexo.filters.generic;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
@@ -55,6 +56,7 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     }
 
     protected void redirectToLogout(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+        updateToken(response, null, 0);
         response.sendRedirect(getConnexoExternalUrl() + "/apps/login/index.html?logout");
     }
 
@@ -88,6 +90,45 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
         }
 
         return false;
+    }
+
+    protected String getTokenFromCookie(HttpServletRequest request) {
+        String authorizationToken = null;
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null) {
+            for (int i = 0; i < cookies.length; i++) {
+                if (cookies[i].getName().equals("X-CONNEXO-TOKEN")) {
+                    authorizationToken = cookies[i].getValue();
+                    break;
+                }
+            }
+        }
+        return authorizationToken;
+    }
+
+    protected String getTokenFromAuthorizationHeader(HttpServletRequest request) {
+        String authorizationToken = null;
+        String authorization = request.getHeader("Authorization");
+        if(authorization != null){
+            if(authorization.startsWith("Bearer ")) {
+                authorizationToken = authorization.split(" ")[1];
+            }
+            else if (authorization.startsWith("Basic ")){
+                ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance(getConnexoInternalUrl(), authorization);
+                authorizationToken = restManager.getConnexoAuthorizationToken();
+            }
+        }
+        return authorizationToken;
+    }
+
+    protected void updateToken(HttpServletResponse response, String newValue, int maxAge) {
+        response.setHeader("X-AUTH-TOKEN", newValue);
+
+        Cookie tokenCookie = new Cookie("X-CONNEXO-TOKEN", newValue);
+        tokenCookie.setPath("/");
+        tokenCookie.setMaxAge(maxAge); // in seconds
+        tokenCookie.setHttpOnly(true);
+        response.addCookie(tokenCookie);
     }
 
     private void loadProperties() {

@@ -53,42 +53,4 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
         }
     }
 
-    private String getTokenFromCookie(HttpServletRequest request) {
-        String authorizationToken = null;
-        Cookie[] cookies = request.getCookies();
-        if(cookies != null) {
-            for (int i = 0; i < cookies.length; i++) {
-                if (cookies[i].getName().equals("X-CONNEXO-TOKEN")) {
-                    authorizationToken = cookies[i].getValue();
-                    break;
-                }
-            }
-        }
-        return authorizationToken;
-    }
-
-    private String getTokenFromAuthorizationHeader(HttpServletRequest request) {
-        String authorizationToken = null;
-        String authorization = request.getHeader("Authorization");
-        if(authorization != null){
-            if(authorization.startsWith("Bearer ")) {
-                authorizationToken = authorization.split(" ")[1];
-            }
-            else if (authorization.startsWith("Basic ")){
-                ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance(getConnexoInternalUrl(), authorization);
-                authorizationToken = restManager.getConnexoAuthorizationToken();
-            }
-        }
-        return authorizationToken;
-    }
-
-    private void updateToken(HttpServletResponse response, String newValue, int maxAge) {
-        response.setHeader("X-AUTH-TOKEN", newValue);
-
-        Cookie tokenCookie = new Cookie("X-CONNEXO-TOKEN", newValue);
-        tokenCookie.setPath("/");
-        tokenCookie.setMaxAge(maxAge); // in seconds
-        tokenCookie.setHttpOnly(true);
-        response.addCookie(tokenCookie);
-    }
 }
