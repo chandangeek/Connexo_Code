@@ -121,6 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         viewport.setLoading();
         var model = me.getModel('Mdc.model.RegisterValidationPreview');
         model.getProxy().setUrl(mRID, registerId);
+
         model.load('', {
             success: function (record) {
                 me.updateValidationData(record);
@@ -152,12 +153,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             routeParams = router.arguments;
+
         routeParams.registerId = record.getId();
         me.previewRegisterConfiguration(record);
     },
 
     previewRegisterConfiguration: function (record) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             type = record.get('type'),
             widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {router: me.getController('Uni.controller.history.Router')}),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
@@ -167,19 +170,35 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         me.registerName = record.get('name');
         previewContainer.setLoading(true);
         Ext.suspendLayouts();
-        form.loadRecord(record);
+
         widget.setTitle(record.get('readingType').fullAliasName);
         previewContainer.removeAll();
         previewContainer.add(widget);
-        widget.on('render', function () {
-            widget.down('#deviceRegisterConfigurationActionMenu').record = record;
-        }, me, {single: true});
+
+        var model = record.self;
+        model.getProxy().setUrl(router.arguments.mRID);
+        form.setLoading(true);
+        model.load(record.getId(), {
+            callback: function(record, operation, success) {
+                previewContainer.setLoading(false);
+
+                if (form.rendered) {
+                    form.loadRecord(record);
+                    form.setLoading(false);
+                }
+            }
+        });
+
         var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets');
         customAttributesStore.getProxy().setUrl(me.mRID, record.get('id'));
         customAttributesStore.load(function () {
             widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
-            previewContainer.setLoading(false);
         });
+
+        widget.on('render', function () {
+            widget.down('#deviceRegisterConfigurationActionMenu').record = record;
+        }, me, {single: true});
+
         Ext.resumeLayouts(true);
     },
 
