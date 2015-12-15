@@ -29,24 +29,31 @@ Ext.define('Cfg.view.validation.AddRule', {
     readingTypeIndex: 1,
 
 
-    content: [
-        {
-            xtype: 'panel',
-            ui: 'large',
-            itemId: 'addRuleTitle',
-            items: [
-                {
-                    xtype: 'form',
-                    itemId: 'addRuleForm',
-                    padding: '10 10 0 10',
-                    layout: {
-                        type: 'vbox'
-                    },
-                    defaults: {
-                        validateOnChange: false,
-                        validateOnBlur: false
-                    },
-                    items: [
+
+
+    initComponent: function () {
+        var me = this;
+        me.content = [
+            {
+                xtype: 'panel',
+                title: me.edit ? '&nbsp;' : Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
+                ui: 'large',
+                itemId: 'addRuleTitle',
+                items: [
+                    {
+                        xtype: 'form',
+                        itemId: 'addRuleForm',
+                        padding: '10 10 0 10',
+                        layout: {
+                            type: 'vbox'
+                        },
+                        defaults: {
+                            validateOnChange: false,
+                            validateOnBlur: false,
+                            labelWidth: 260,
+                            width: 600
+                        },
+                        items: [
                         {
                             itemId: 'form-errors',
                             xtype: 'uni-form-error-message',
@@ -85,64 +92,79 @@ Ext.define('Cfg.view.validation.AddRule', {
                             labelWidth: 260,
                             width: 600
                         },
+
+
+
                         {
                             xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
-                            itemId: 'readingTypesFieldContainer',
+                            itemId: 'reading-types-field-container',
+                            fieldLabel: Uni.I18n.translate('general.readingTypes', 'CFG', 'Reading types'),
                             required: true,
-                            msgTarget: 'under',
-                            labelWidth: 260,
-                            width: 1200,
+                            layout: 'hbox',
+                            width: 1100,
                             items: [
                                 {
-                                    xtype: 'panel',
-                                    width: 800,
-                                    items: [
+                                    xtype: 'component',
+                                    html: Uni.I18n.translate('general.noReadingTypesAvailable','CFG','No reading types have been added'),
+                                    itemId: 'noReadingTypesForValidationRuleLabel',
+                                    //hidden: true,
+                                    style: {
+                                        'font': 'italic 13px/17px Lato',
+                                        'color': '#686868',
+                                        'margin-top': '6px',
+                                        'margin-right': '10px'
+                                    }
+                                },
+
+
+                                {
+                                    xtype: 'gridpanel',
+                                    itemId: 'readingTypesForValidationRuleGridPanel',
+                                    store: 'ReadingTypesForRule',
+                                    hidden: true,
+                                    //itemId: 'reading-types-grid',
+                                    //store: 'ext-empty-store',
+                                    hideHeaders: true,
+                                    padding: 0,
+                                    scroll: 'vertical',
+                                    columns: [
                                         {
-                                            xtype: 'gridpanel',
-                                            itemId: 'readingTypesGridPanel',
-                                            store: 'ReadingTypesForRule',
-                                            hideHeaders: true,
-                                            padding: 0,
-                                            scroll: 'vertical',
-                                            columns: [
-                                                {
-                                                    xtype: 'reading-type-column',
-                                                    dataIndex: 'readingType',
-                                                    flex: 1
-                                                },
-                                                {
-                                                    xtype: 'actioncolumn',
-                                                    align: 'right',
-                                                    items: [
-                                                        {
-                                                            iconCls: 'uni-icon-delete',
-                                                            handler: function (grid, rowIndex) {
-                                                                grid.getStore().removeAt(rowIndex);
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            ],
-                                            height: 220
-                                        }
-                                    ],
-                                    rbar: [
+                                            xtype: 'reading-type-column',
+                                            dataIndex: 'readingType',
+                                            flex: 1
+                                        },
                                         {
-                                            xtype: 'container',
+                                            xtype: 'actioncolumn',
+                                            align: 'right',
                                             items: [
                                                 {
-                                                    xtype: 'button',
-                                                    itemId: 'addReadingTypeButton',
-                                                    text: Uni.I18n.translate('validation.addReadingTypes', 'CFG', 'Add reading types'),
-                                                    margin: '0 0 0 10'
+                                                    iconCls: 'uni-icon-delete',
+                                                    handler: function (grid, rowIndex) {
+                                                        grid.getStore().removeAt(rowIndex);
+                                                        if (grid.getStore().count() === 0) {
+                                                            me.updateGrid();
+                                                        }
+                                                    }
                                                 }
                                             ]
                                         }
-                                    ]
+                                    ],
+                                    height: 220,
+                                    width: 670,
+
+                                },
+                                {
+                                    xtype: 'button',
+                                    itemId: 'addReadingTypeButton',
+                                    text: Uni.I18n.translate('validation.addReadingTypes', 'CFG', 'Add reading types'),
+                                    action: 'addReadingTypes',
+                                    margin: '0 0 0 10'
                                 }
                             ]
                         },
+
+
+
                         {
                             xtype: 'label',
                             cls: 'x-form-invalid-under',
@@ -152,6 +174,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                         {
                             xtype: 'radiogroup',
                             itemId: 'dataQualityLevel',
+                            margin: '10 0 0 0',
                             required: true,
                             labelWidth: 260,
                             width: 600,
@@ -208,14 +231,30 @@ Ext.define('Cfg.view.validation.AddRule', {
                             ]
                         }
                     ]
-                }
-            ]
-        }
-    ],
+                    }
+                ]
+            }
+        ]
 
-    initComponent: function () {
+
+
+
+
+
         this.callParent(arguments);
         this.setEdit(this.edit, this.returnLink);
+    },
+    updateGrid: function() {
+        var me = this,
+            grid = me.down('#readingTypesForValidationRuleGridPanel'),
+            emptyLabel = me.down('#noReadingTypesForValidationRuleLabel');
+        if (grid.getStore().count() === 0) {
+            emptyLabel.show();
+            grid.hide();
+        } else {
+            emptyLabel.hide();
+            grid.show();
+        }
     }
 });
 
