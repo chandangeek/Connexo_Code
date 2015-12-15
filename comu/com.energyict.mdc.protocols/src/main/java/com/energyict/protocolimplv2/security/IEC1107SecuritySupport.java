@@ -165,7 +165,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus));
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -186,7 +186,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus));
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -207,7 +207,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus));
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 

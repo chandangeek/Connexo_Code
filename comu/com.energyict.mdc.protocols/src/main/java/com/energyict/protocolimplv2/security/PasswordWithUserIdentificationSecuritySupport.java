@@ -132,8 +132,8 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.propertySpec(propertySpecService),
-                    BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.propertySpec(propertySpecService));
+                    BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.propertySpec(propertySpecService, thesaurus),
+                    BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.propertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -156,8 +156,8 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.propertySpec(propertySpecService),
-                    BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.propertySpec(propertySpecService));
+                    BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.propertySpec(propertySpecService, thesaurus),
+                    BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.propertySpec(propertySpecService, thesaurus));
         }
     }
 

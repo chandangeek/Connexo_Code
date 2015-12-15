@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
-
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 
 public class MessageConverterTools {
 
@@ -61,6 +60,11 @@ public class MessageConverterTools {
         }
 
         @Override
+        public String getDisplayName() {
+            return this.getName();
+        }
+
+        @Override
         public String getDescription() {
             return "";
         }
@@ -77,6 +81,11 @@ public class MessageConverterTools {
 
         @Override
         public boolean isReference() {
+            return false;
+        }
+
+        @Override
+        public boolean supportsMultiValues() {
             return false;
         }
 

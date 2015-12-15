@@ -40,7 +40,7 @@ public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomai
         DIAL_HOME_ID {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.CTR_INBOUND_DIAL_HOME_ID.toString();
+                return ConnectionTypePropertySpecName.CTR_INBOUND_DIAL_HOME_ID.propertySpecName();
             }
 
             @Override

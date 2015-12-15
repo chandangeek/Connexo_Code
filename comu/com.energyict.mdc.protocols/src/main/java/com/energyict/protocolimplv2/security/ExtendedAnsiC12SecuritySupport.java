@@ -131,8 +131,8 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(getPropertySpecService(), this.thesaurus),
-                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(getPropertySpecService(), this.thesaurus));
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(getPropertySpecService(), thesaurus),
+                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(getPropertySpecService(), thesaurus));
         }
     }
 
@@ -154,8 +154,8 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(getPropertySpecService(), this.thesaurus),
-                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(getPropertySpecService(), this.thesaurus));
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(getPropertySpecService(), thesaurus),
+                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(getPropertySpecService(), thesaurus));
         }
     }
 

@@ -5,12 +5,11 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -76,58 +75,61 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
 
     protected PropertySpec hostPropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.HOST.propertySpecName(),
-                        true,
-                        new StringFactory());
+                .stringSpec()
+                .named(OutboundIpConnectionProperties.Fields.HOST.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_HOST)
+                .fromThesaurus(this.thesaurus)
+                .markRequired()
+                .finish();
     }
 
     protected PropertySpec portPropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.PORT_NUMBER.propertySpecName(),
-                        true,
-                        new BigDecimalFactory());
+                .bigDecimalSpec()
+                .named(OutboundIpConnectionProperties.Fields.HOST.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER)
+                .fromThesaurus(this.thesaurus)
+                .markRequired()
+                .finish();
     }
 
     protected PropertySpec connectionTimeoutPropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.propertySpecName(),
-                        false,
-                        new TimeDurationValueFactory());
+                .specForValuesOf(new TimeDurationValueFactory())
+                .named(OutboundIpConnectionProperties.Fields.HOST.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     protected PropertySpec bufferSizePropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.BUFFER_SIZE.propertySpecName(),
-                        true,
-                        new BigDecimalFactory());
+                .bigDecimalSpec()
+                .named(OutboundIpConnectionProperties.Fields.HOST.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_BUFFER_SIZE)
+                .fromThesaurus(this.thesaurus)
+                .markRequired()
+                .finish();
     }
 
     protected PropertySpec postDialDelayMillisPropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.propertySpecName(),
-                        false,
-                        new BigDecimalFactory());
+                .bigDecimalSpec()
+                .named(OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_DELAY_MILLIS)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     protected PropertySpec postDialCommandAttempsPropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName(),
-                        false,
-                        new BigDecimalFactory());
+                .bigDecimalSpec()
+                .named(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND_ATTEMPTS)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     protected PropertySpec postDialCommandPropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.propertySpecName(),
-                        false,
-                        new StringFactory());
+                .stringSpec()
+                .named(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
 }

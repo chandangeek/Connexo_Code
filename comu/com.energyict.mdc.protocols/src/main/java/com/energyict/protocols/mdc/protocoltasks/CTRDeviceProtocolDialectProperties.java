@@ -79,7 +79,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
                         .bigDecimalSpec()
-                        .named(this.propertySpecName, this.translationKey)
+                        .named(this.propertySpecName(), this.nameTranslationKey())
                         .fromThesaurus(thesaurus)
                         .finish();
             }
@@ -94,7 +94,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
                         .booleanSpec()
-                        .named(this.propertySpecName, this.translationKey)
+                        .named(this.propertySpecName(), this.nameTranslationKey())
                         .fromThesaurus(thesaurus)
                         .finish();
             }
@@ -109,7 +109,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
                         .bigDecimalSpec()
-                        .named(this.propertySpecName, this.translationKey)
+                        .named(this.propertySpecName(), this.nameTranslationKey())
                         .fromThesaurus(thesaurus)
                         .finish();
             }
@@ -131,6 +131,10 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
             return this.javaName;
         }
 
+        public TranslationKey nameTranslationKey() {
+            return translationKey;
+        }
+
         public String propertySpecName() {
             return this.propertySpecName;
         }
@@ -144,7 +148,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
         protected PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, BigDecimal defaultValue) {
             return propertySpecService
                     .bigDecimalSpec()
-                    .named(this.propertySpecName, this.translationKey)
+                    .named(this.propertySpecName(), this.nameTranslationKey())
                     .fromThesaurus(thesaurus)
                     .setDefaultValue(defaultValue)
                     .finish();
@@ -153,7 +157,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
         protected PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, TimeDuration defaultValue) {
             return propertySpecService
                     .timeDurationSpec()
-                    .named(this.propertySpecName, this.translationKey)
+                    .named(this.propertySpecName(), this.nameTranslationKey())
                     .fromThesaurus(thesaurus)
                     .setDefaultValue(defaultValue)
                     .finish();

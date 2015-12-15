@@ -7,10 +7,10 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -86,10 +86,11 @@ public class CTRInboundDialHomeIdCustomPropertySet implements CustomPropertySet<
 
     private PropertySpec dialHomeIdPropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        CTRInboundDialHomeIdConnectionProperties.Fields.DIAL_HOME_ID.propertySpecName(),
-                        true,
-                        new StringFactory());
+                .stringSpec()
+                .named(CTRInboundDialHomeIdConnectionProperties.Fields.DIAL_HOME_ID.propertySpecName(), ConnectionTypePropertySpecName.CTR_INBOUND_DIAL_HOME_ID)
+                .fromThesaurus(this.thesaurus)
+                .markRequired()
+                .finish();
     }
 
 }

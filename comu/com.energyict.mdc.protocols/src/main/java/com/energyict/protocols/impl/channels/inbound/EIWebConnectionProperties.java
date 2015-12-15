@@ -42,7 +42,7 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
         IP_ADDRESS {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.EIWEB_IP_ADDRESS.toString();
+                return ConnectionTypePropertySpecName.EIWEB_IP_ADDRESS.propertySpecName();
             }
 
             @Override
@@ -53,7 +53,7 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
         MAC_ADDRESS {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.EIWEB_MAC_ADDRESS.toString();
+                return ConnectionTypePropertySpecName.EIWEB_MAC_ADDRESS.propertySpecName();
             }
 
             @Override

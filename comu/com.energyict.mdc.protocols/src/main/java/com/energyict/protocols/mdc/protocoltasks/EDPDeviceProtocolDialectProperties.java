@@ -32,7 +32,7 @@ public class EDPDeviceProtocolDialectProperties extends SerialDeviceProtocolDial
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
                         .bigDecimalSpec()
-                        .named(this.propertySpecName, GarnetTranslationKeys.SERVER_LOWER_MAC_ADDRESS)
+                        .named(this.propertySpecName(), GarnetTranslationKeys.SERVER_LOWER_MAC_ADDRESS)
                         .fromThesaurus(thesaurus)
                         .setDefaultValue(BigDecimal.valueOf(16))
                         .finish();

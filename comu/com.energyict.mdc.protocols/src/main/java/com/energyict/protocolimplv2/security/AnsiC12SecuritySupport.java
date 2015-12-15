@@ -141,9 +141,9 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService(), this.thesaurus),
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService(), this.thesaurus),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService(), this.thesaurus)
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService(), thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService(), thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService(), thesaurus)
             );
         }
     }
@@ -166,9 +166,9 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService(), this.thesaurus),
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService(), this.thesaurus),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService(), this.thesaurus)
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService(), thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService(), thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService(), thesaurus)
             );
         }
     }
@@ -191,9 +191,9 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService(), this.thesaurus),
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService(), this.thesaurus),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService(), this.thesaurus)
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService(), thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService(), thesaurus),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService(), thesaurus)
             );
         }
     }

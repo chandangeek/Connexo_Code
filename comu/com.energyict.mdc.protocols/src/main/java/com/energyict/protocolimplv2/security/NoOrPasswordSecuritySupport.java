@@ -156,7 +156,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus));
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 

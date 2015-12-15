@@ -113,7 +113,7 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus));
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 

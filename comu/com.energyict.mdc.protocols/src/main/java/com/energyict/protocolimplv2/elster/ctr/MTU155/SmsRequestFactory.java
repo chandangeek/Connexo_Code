@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.SecureSmsConnection;
@@ -40,8 +42,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataB
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.GasQuality;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.MeterInfo;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -58,6 +58,7 @@ public class SmsRequestFactory implements RequestFactory {
 
     private final SecureSmsConnection connection;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
     private MTU155Properties properties;
     private Logger logger;
     private TimeZone timeZone;
@@ -68,8 +69,9 @@ public class SmsRequestFactory implements RequestFactory {
     private List<WriteDataBlock> writeDataBlockList;
     private boolean isEK155Protocol;
 
-    public SmsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, int writeDataBlockID, boolean isEK155Protocol, PropertySpecService propertySpecService) {
+    public SmsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, int writeDataBlockID, boolean isEK155Protocol, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
         this.connection = new SecureSmsConnection(comChannel, properties, logger);
         this.logger = logger;
         this.properties = properties;
@@ -257,7 +259,7 @@ public class SmsRequestFactory implements RequestFactory {
 
     public MTU155Properties getProperties() {
         if (properties == null) {
-            this.properties = new MTU155Properties(this.propertySpecService);
+            this.properties = new MTU155Properties(this.propertySpecService, this.thesaurus);
         }
         return properties;
     }
@@ -396,5 +398,4 @@ public class SmsRequestFactory implements RequestFactory {
         throw new CTRException("SmsRequestFactory - getGasQuality method is not supported.");
     }
 
-    /****************** METHODS NOT SUPPORTED AS SMS ******************/
 }

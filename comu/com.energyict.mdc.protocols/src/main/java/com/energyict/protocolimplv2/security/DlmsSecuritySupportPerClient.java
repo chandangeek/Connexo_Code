@@ -214,75 +214,75 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     }
 
     private PropertySpec getEncryptionKeyPublicPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyExtDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyManagementPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyFirmwarePropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyManufacturerPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyPublicPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyExtDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyManagementPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyFirmwarePropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyManufacturerPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordPublicPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.DATA_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.DATA_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordExtDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordManagementPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordFirmwarePropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordManufacturerPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     @Override

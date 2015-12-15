@@ -335,7 +335,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     public IDISGatewayDynamicPropertySupportSupport getDynamicPropertySupport() {
         if (this.dynamicPropertySupport == null) {
-            this.dynamicPropertySupport = new IDISGatewayDynamicPropertySupportSupport(propertySpecService);
+            this.dynamicPropertySupport = new IDISGatewayDynamicPropertySupportSupport(this.propertySpecService, this.thesaurus);
         }
         return this.dynamicPropertySupport;
     }

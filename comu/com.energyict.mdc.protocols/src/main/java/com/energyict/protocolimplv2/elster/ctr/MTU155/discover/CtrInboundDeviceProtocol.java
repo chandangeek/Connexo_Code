@@ -115,9 +115,11 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
             requestFactory = new GprsRequestFactory(
                     getComChannel(),
                     getContext().getLogger(),
-                    new MTU155Properties(getTypedProperties(), getPropertySpecService()),
+                    new MTU155Properties(getTypedProperties(), getPropertySpecService(), this.getThesaurus()),
                     TimeZone.getDefault(),  //Timezone not known - using the default one
-                    isEK155Device(), getPropertySpecService());
+                    isEK155Device(),
+                    getPropertySpecService(),
+                    this.getThesaurus());
         }
         return requestFactory;
     }

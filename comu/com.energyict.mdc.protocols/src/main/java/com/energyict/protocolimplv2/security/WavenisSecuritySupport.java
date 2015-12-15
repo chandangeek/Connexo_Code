@@ -144,8 +144,8 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus));
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -167,8 +167,8 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus));
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 

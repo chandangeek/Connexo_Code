@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
@@ -65,8 +66,8 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
                 .add();
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return this.deviceSecurityProperty.getPropertySpec(propertySpecService, this.thesaurus);
+        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return this.deviceSecurityProperty.getPropertySpec(propertySpecService, thesaurus);
         }
 
     }

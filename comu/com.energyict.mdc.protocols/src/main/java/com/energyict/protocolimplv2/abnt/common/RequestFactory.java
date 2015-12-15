@@ -1,8 +1,11 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
@@ -42,8 +45,6 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandR
 import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileDataSelector;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileReadSizeArgument;
-import com.energyict.mdc.io.ComChannelType;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -57,6 +58,7 @@ public class RequestFactory {
 
     private static final int NUMBER_OF_MILLIS_IN_5_MIN = 300000;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     private Connection connection;
     private ComChannel comChannel;
@@ -65,15 +67,9 @@ public class RequestFactory {
     private String meterSerialNumber;
     private ReadParametersResponse defaultParameters;
 
-    public RequestFactory(PropertySpecService propertySpecService) {
+    public RequestFactory(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
-    }
-
-    public RequestFactory(PropertySpecService propertySpecService, Connection connection, ComChannel comChannel, AbntProperties properties) {
-        this.propertySpecService = propertySpecService;
-        this.connection = connection;
-        this.comChannel = comChannel;
-        this.properties = properties;
+        this.thesaurus = thesaurus;
     }
 
     public void logOn() {
@@ -411,7 +407,7 @@ public class RequestFactory {
 
     public AbntProperties getProperties() {
         if (properties == null) {
-            properties = new AbntProperties(this.propertySpecService);
+            properties = new AbntProperties(this.propertySpecService, this.thesaurus);
         }
         return properties;
     }

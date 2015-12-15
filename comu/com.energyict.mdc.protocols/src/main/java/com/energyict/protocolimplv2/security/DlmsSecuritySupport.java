@@ -231,7 +231,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus));
+            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -254,9 +254,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, this.thesaurus));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -279,9 +279,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, this.thesaurus));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -304,9 +304,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, this.thesaurus));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -328,7 +328,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus));
+            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -351,8 +351,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -377,7 +377,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus));
+            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -401,8 +401,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -426,8 +426,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, this.thesaurus));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
 
         }
     }
@@ -452,9 +452,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, this.thesaurus));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
