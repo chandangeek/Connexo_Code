@@ -17,7 +17,6 @@ import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
 import com.elster.insight.usagepoint.data.impl.MessageSeeds;
-import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -138,25 +137,10 @@ public class UsagePointValidationImpl implements UsagePointValidation {
         return evaluator.isValidationEnabled(channel);
     }
 
-//    @Override
-//    public boolean isValidationActive(Register<?> register, Instant when) {
-//        if (!isValidationActive()) {
-//            return false;
-//        }
-//        Optional<com.elster.jupiter.metering.Channel> found = findKoreChannel(register, when);
-//        return found.isPresent() ? evaluator.isValidationEnabled(found.get()) : hasActiveRules(register);
-//    }
-
     @Override
     public boolean allDataValidated(Channel channel, Instant when) {
         return getEvaluator().isAllDataValidated(channel.getMeterActivation());
     }
-
-//    @Override
-//    public boolean allDataValidated(Register<?> register, Instant when) {
-//        Optional<com.elster.jupiter.metering.Channel> found = findKoreChannel(register, when);
-//        return !found.isPresent() || getEvaluator().isAllDataValidated(found.get().getMeterActivation());
-//    }
 
     @Override
     public Optional<Instant> getLastChecked() {
@@ -168,24 +152,11 @@ public class UsagePointValidationImpl implements UsagePointValidation {
         return getLastChecked(channel.getMainReadingType());
     }
 
-//    @Override
-//    public Optional<Instant> getLastChecked(Register<?> register) {
-//        return getLastChecked(register.getReadingType());
-//    }
-
     @Override
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
         
         return getEvaluator().getValidationStatus(channel, readings, channel.getMeterActivation().getRange().intersection(interval));
     }
-
-//    @Override
-//    public List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings, Range<Instant> interval) {
-//        return ((UsagePointImpl) register.getUsagePoint()).findKoreChannels(register).stream()
-//                .filter(k -> does(k.getMeterActivation().getRange()).overlap(interval))
-//                .flatMap(k -> getEvaluator().getValidationStatus(k, readings, k.getMeterActivation().getRange().intersection(interval)).stream())
-//                .collect(Collectors.toList());
-//    }
 
     @Override
     public void validateData() {
@@ -201,41 +172,19 @@ public class UsagePointValidationImpl implements UsagePointValidation {
         }
     }
 
-//    @Override
-//    public void validateLoadProfile(LoadProfile loadProfile) {
-//        loadProfile.getChannels().forEach(this::validateChannel);
-//    }
-
     @Override
     public void validateChannel(Channel channel) {
         validate(channel.getMainReadingType());
     }
-
-//    @Override
-//    public void validateRegister(Register<?> register) {
-//        validate(register.getReadingType());
-//    }
 
     @Override
     public void setLastChecked(Channel channel, Instant start) {
         this.validationService.updateLastChecked(channel, start);
     }
 
-//    @Override
-//    public void setLastChecked(Register<?> register, Instant start) {
-//        getUsagePoint()
-//            .findKoreChannels(register)
-//            .stream()
-//            .forEach(c -> this.validationService.updateLastChecked(c, start));
-//    }
-
     private boolean hasActiveRules(Channel channel) {
         return hasActiveRules(channel.getMainReadingType());
     }
-
-//    private boolean hasActiveRules(Register<?> register) {
-//        return hasActiveRules(register.getReadingType());
-//    }
 
     private boolean hasActiveRules(ReadingType readingType) {
         
@@ -247,23 +196,6 @@ public class UsagePointValidationImpl implements UsagePointValidation {
                 .flatMap(s -> s.getRules().stream())
                 .anyMatch(r -> r.getReadingTypes().contains(readingType));
     }
-
-//    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Instant when) {
-//        return findKoreChannel(channel.getReadingType(), when);
-//    }
-//
-//    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Instant when) {
-//        ReadingType readingType = register.getReadingType();
-//        return findKoreChannel(readingType, when);
-//    }
-
-//    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(ReadingType readingType, Instant when) {
-//        return fetchKoreMeter().getMeterActivations().stream()
-//                .filter(m -> m.getRange().contains(when)) // TODO verify with Karel
-//                .flatMap(m -> m.getChannels().stream())
-//                .filter(c -> c.getReadingTypes().contains(readingType))
-//                .findFirst();
-//    }
 
     private Optional<Instant> getLastChecked(Meter meter) {
         return getMeterActivationsMostRecentFirst(meter)

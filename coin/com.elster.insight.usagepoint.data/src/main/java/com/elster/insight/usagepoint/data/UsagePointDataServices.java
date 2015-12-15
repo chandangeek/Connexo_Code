@@ -9,6 +9,6 @@ package com.elster.insight.usagepoint.data;
  */
 public interface UsagePointDataServices {
 
-    public static String COMPONENT_NAME = "DDC";
+    public static String COMPONENT_NAME = "UDC";
 
 }
