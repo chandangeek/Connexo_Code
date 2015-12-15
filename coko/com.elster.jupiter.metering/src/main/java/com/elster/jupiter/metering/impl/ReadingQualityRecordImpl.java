@@ -174,36 +174,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     public long getVersion() {
         return version;
     }
-    
-    @Override
-    public boolean hasEditCategory() {
-    	return getType().hasEditCategory();
-    }
-    
-    @Override
-    public boolean hasReasonabilityCategory() {
-    	return getType().hasReasonabilityCategory();
-    }
-    @Override
-    public boolean hasValidationCategory() {
-    	return getType().hasValidationCategory();
-    }
-    
-    @Override
-    public boolean isSuspect() {
-    	return getType().isSuspect();
-    }
-    
-    @Override
-    public boolean isMissing() {
-    	return getType().isMissing();
-    }
-    
-    @Override
-    public boolean isError() {
-    	return getType().isError();
-    }
-    
+
     @Override
     public void makePast() {
     	this.actual = false;
@@ -224,16 +195,6 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     void copy(ReadingQualityRecord source) {
         actual = source.isActual();
         comment = source.getComment();
-    }
-
-    @Override
-    public boolean hasEstimatedCategory() {
-        return getType().hasEstimatedCategory();
-    }
-
-    @Override
-    public boolean isConfirmed() {
-        return getType().isConfirmed();
     }
 
     public class LocalEventSource {
