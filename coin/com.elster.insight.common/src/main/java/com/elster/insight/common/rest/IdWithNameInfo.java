@@ -4,7 +4,6 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
 
 /**
- * Created by bvn on 8/12/14.
  */
 public class IdWithNameInfo {
     public Object id;
