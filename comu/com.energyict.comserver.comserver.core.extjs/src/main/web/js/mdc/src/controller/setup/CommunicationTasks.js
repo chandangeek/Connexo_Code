@@ -120,10 +120,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     previewConnectionTask: function (record) {
         var me = this,
             form = me.getCommunicationTaskPreviewForm();
-        me.setPreLoader(form, Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
+        form.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         me.getCommunicationTaskPreviewPanel().setTitle(Ext.String.htmlEncode(record.getData().comTask.name));
         form.loadRecord(record);
-        me.clearPreLoader();
+        form.setLoading(false);
     },
 
     showCommunicationTasks: function (deviceTypeId, deviceConfigurationId) {
