@@ -4,6 +4,7 @@ Ext.define('Usr.model.Application', {
         'componentName',
         'translatedName',
         'description',
-        'selected'
+        'selected',
+        'sortingfield'
     ]
 });

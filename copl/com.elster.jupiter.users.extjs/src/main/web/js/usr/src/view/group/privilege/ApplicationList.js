@@ -23,6 +23,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                 {
                     header: Uni.I18n.translate('privilege.application', 'USR', 'Application'),
                     dataIndex: 'translatedName',
+                    menuDisabled: true,
                     flex: 2,
                     renderer: function (value, metadata, record) {
                         switch (record.get('selected')) {

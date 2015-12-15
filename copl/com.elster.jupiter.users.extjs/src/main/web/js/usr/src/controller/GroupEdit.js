@@ -161,6 +161,7 @@ Ext.define('Usr.controller.GroupEdit', {
             record.set('translatedName', groups[i].children[0].data.translatedName);
             var value = this.checkRights(record, groups[i].children);
             record.set('selected', value);
+            record.set('sortingfield', groups[i].children[0].data.translatedName);
             record.endEdit();
             applications.add(record);
         }

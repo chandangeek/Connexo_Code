@@ -3,7 +3,7 @@ Ext.define('Usr.store.Applications', {
     model: 'Usr.model.Application',
     pageSize: 500,
     sorters: {
-        property: 'translatedName',
+        property: 'sortingfield',
         direction: 'ASC'
     }
 });
