@@ -45,7 +45,11 @@ class SDKLoadProfileDialectProperties extends CommonDeviceProtocolDialectPropert
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertySpecName(), false, new ObisCodeValueFactory());
+            return propertySpecService
+                    .specForValuesOf(new ObisCodeValueFactory())
+                    .named(this.propertySpecName(), this.propertySpecName())
+                    .describedAs(this.propertySpecName())
+                    .finish();
         }
 
         public void addTo(Table table) {

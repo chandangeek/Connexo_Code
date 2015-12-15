@@ -1,8 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
@@ -41,16 +39,32 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
     }
 
     public static DeviceMessageTestSpec allSimpleSpecs() {
+        PropertySpecService propertySpecService = new PropertySpecServiceImpl();
         return new DeviceMessageTestSpec(
                         "TEST_SPEC_WITH_SIMPLE_SPECS",
-                        new PropertySpecServiceImpl().basicPropertySpec(SIMPLE_BIGDECIMAL_PROPERTY_SPEC_NAME, true, new BigDecimalFactory()),
-                        new PropertySpecServiceImpl().basicPropertySpec(SIMPLE_STRING_PROPERTY_SPEC_NAME, true, new StringFactory()));
+                        propertySpecService
+                                .bigDecimalSpec()
+                                .named(SIMPLE_BIGDECIMAL_PROPERTY_SPEC_NAME, SIMPLE_BIGDECIMAL_PROPERTY_SPEC_NAME)
+                                .describedAs(null)
+                                .markRequired()
+                                .finish(),
+                        propertySpecService
+                                .stringSpec()
+                                .named(SIMPLE_STRING_PROPERTY_SPEC_NAME, SIMPLE_STRING_PROPERTY_SPEC_NAME)
+                                .describedAs(null)
+                                .markRequired()
+                                .finish());
     };
 
     public static DeviceMessageTestSpec extendedSpecs(PropertySpecService propertySpecService) {
         return new DeviceMessageTestSpec(
                 "TEST_SPEC_WITH_EXTENDED_SPECS",
-                propertySpecService.basicPropertySpec(ACTIVATIONDATE_PROPERTY_SPEC_NAME, true, new DateAndTimeFactory()));
+                propertySpecService
+                        .specForValuesOf(new DateAndTimeFactory())
+                        .named(ACTIVATIONDATE_PROPERTY_SPEC_NAME, ACTIVATIONDATE_PROPERTY_SPEC_NAME)
+                        .describedAs(null)
+                        .markRequired()
+                        .finish());
     }
     public static DeviceMessageTestSpec noSpecs() {
         return new DeviceMessageTestSpec("TEST_SPEC_WITHOUT_SPECS");

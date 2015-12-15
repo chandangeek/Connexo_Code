@@ -44,7 +44,11 @@ class SDKTimeDialectProperties extends CommonDeviceProtocolDialectProperties {
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertySpecName(), false, new TimeDurationValueFactory());
+            return propertySpecService
+                    .specForValuesOf(new TimeDurationValueFactory())
+                    .named(this.propertySpecName(), this.propertySpecName())
+                    .describedAs(this.propertySpecName())
+                    .finish();
         }
 
         public void addTo(Table table) {

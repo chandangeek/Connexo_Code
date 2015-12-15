@@ -1,21 +1,20 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.TimeZoneFactory;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -38,6 +37,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.protocol.pluggable.PropertySpecMockSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
@@ -58,7 +58,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -69,7 +68,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -123,29 +121,24 @@ public class SmartMeterProtocolAdapterImplTest {
         protocolPluggableService.addCollectedDataFactory(this.collectedDataFactory);
         DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
         PropertySpecService propertySpecService = inMemoryPersistence.getPropertySpecService();
-        when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), false, new StringFactory()));
-        when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), false, new StringFactory()));
-        when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), false, new StringFactory()));
-        when(propertySpecService.timeZonePropertySpec(anyString(), anyBoolean(), any()))
-                .thenAnswer(invocationOnMock -> {
-                    String name = (String) invocationOnMock.getArguments()[0];
-                    boolean required = ((Boolean) invocationOnMock.getArguments()[1]);
-                    TimeZone defaultValue = (TimeZone) invocationOnMock.getArguments()[2];
-                    TimeZone[] possibleValues = {
-                            TimeZone.getTimeZone("GMT"),
-                            TimeZone.getTimeZone("Europe/Brussels"),
-                            TimeZone.getTimeZone("EST"),
-                            TimeZone.getTimeZone("Europe/Moscow")};
-                    PropertySpecBuilder timeZonePropertySpecBuilder = PropertySpecBuilderImpl
-                            .forClass(new TimeZoneFactory()).name(name).setDefaultValue(defaultValue).markExhaustive().addValues(possibleValues);
-                    if (required) {
-                        timeZonePropertySpecBuilder.markRequired();
-                    }
-                    return timeZonePropertySpecBuilder.finish();
-                });   SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
+        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), propertySpecService);
+        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), propertySpecService);
+        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), propertySpecService);
+        String name = any(String.class);
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
+        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
+        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        when(nlsOptions
+                .named(eq(name), any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(nlsOptions
+                .named(any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(propertySpecService.specForValuesOf(any(TimeZoneFactory.class))).thenReturn(nlsOptions);
+        SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getName()))
             .thenReturn(securitySupport);
 
@@ -156,34 +149,10 @@ public class SmartMeterProtocolAdapterImplTest {
     }
 
     private void mockPropertySpecs() {
-        PropertySpec nodeIdPropertySpec = mock(PropertySpec.class);
-        when(nodeIdPropertySpec.isRequired()).thenReturn(false);
-        when(nodeIdPropertySpec.getName()).thenReturn(MeterProtocol.NODEID);
-        when(nodeIdPropertySpec.getValueFactory()).thenReturn(new StringFactory());
-        when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(MeterProtocol.NODEID), eq(false), any(ValueFactory.class))).
-                thenReturn(nodeIdPropertySpec);
-        PropertySpec addressPropertySpec = mock(PropertySpec.class);
-        when(addressPropertySpec.isRequired()).thenReturn(false);
-        when(addressPropertySpec.getName()).thenReturn(MeterProtocol.ADDRESS);
-        when(addressPropertySpec.getValueFactory()).thenReturn(new StringFactory());
-        when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(MeterProtocol.ADDRESS), eq(false), any(ValueFactory.class))).
-                thenReturn(addressPropertySpec);
-        PropertySpec callHomeIdPropertySpec = mock(PropertySpec.class);
-        when(callHomeIdPropertySpec.isRequired()).thenReturn(false);
-        when(callHomeIdPropertySpec.getName()).thenReturn(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
-        when(callHomeIdPropertySpec.getValueFactory()).thenReturn(new StringFactory());
-        when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName()), eq(false), any(ValueFactory.class))).
-                thenReturn(callHomeIdPropertySpec);
-        PropertySpec deviceTimeZonePropertySpec = mock(PropertySpec.class);
-        when(deviceTimeZonePropertySpec.isRequired()).thenReturn(false);
-        when(deviceTimeZonePropertySpec.getName()).thenReturn(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName());
-        when(deviceTimeZonePropertySpec.getValueFactory()).thenReturn(new StringFactory());
-        when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName()), eq(false), any(ValueFactory.class))).
-                thenReturn(deviceTimeZonePropertySpec);
+        PropertySpecMockSupport.mockStringPropertySpec(MeterProtocol.NODEID, inMemoryPersistence.getPropertySpecService());
+        PropertySpecMockSupport.mockStringPropertySpec(MeterProtocol.ADDRESS, inMemoryPersistence.getPropertySpecService());
+        PropertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), inMemoryPersistence.getPropertySpecService());
+        PropertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), inMemoryPersistence.getPropertySpecService());
     }
 
     @After
@@ -278,7 +247,7 @@ public class SmartMeterProtocolAdapterImplTest {
     }
 
     private PropertySpec newStringPropertySpec(String name) {
-        return new PropertySpecServiceImpl().basicPropertySpec(name, false, new StringFactory());
+        return new PropertySpecServiceImpl().stringSpec().named(name, name).describedAs(name).finish();
     }
 
     @Test
@@ -528,7 +497,9 @@ public class SmartMeterProtocolAdapterImplTest {
         // Asserts
         assertThat(whatEverPropertySpec).isEmpty();
         assertThat(firstPropertySpec).isPresent();
-        assertThat(firstPropertySpec.get()).isEqualTo(new PropertySpecServiceImpl().basicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), false, new StringFactory()));
+        PropertySpec propertySpec = firstPropertySpec.get();
+        assertThat(propertySpec.getName()).isEqualTo(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName());
+        assertThat(propertySpec.isRequired()).isFalse();
     }
 
     @Test

@@ -19,9 +19,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.TimeService;
@@ -183,14 +181,6 @@ public class AdapterDeviceProtocolDialectTest {
                 .stream()
                 .filter(PropertySpec::isRequired)
                 .collect(Collectors.toList());
-    }
-
-    private PropertySpec getRequiredPropertySpec () {
-        return new PropertySpecServiceImpl().basicPropertySpec(REQUIRED_PROPERTY_NAME, true, new StringFactory());
-    }
-
-    private PropertySpec getOptionalPropertySpec () {
-        return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_NAME, false, new StringFactory());
     }
 
     private class MockModule extends AbstractModule {

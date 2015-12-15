@@ -4,7 +4,6 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 
@@ -66,7 +65,11 @@ public class SimpleTestDeviceSecurityProperties extends CommonBaseDeviceSecurity
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.javaName(), false, StringFactory.class);
+            return propertySpecService
+                    .stringSpec()
+                    .named(this.javaName(), this.javaName())
+                    .describedAs(this.javaName())
+                    .finish();
         }
     }
 

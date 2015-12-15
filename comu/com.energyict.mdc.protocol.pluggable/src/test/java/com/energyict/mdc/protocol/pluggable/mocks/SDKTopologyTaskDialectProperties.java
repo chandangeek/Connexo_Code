@@ -4,7 +4,6 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
@@ -45,7 +44,11 @@ class SDKTopologyTaskDialectProperties extends CommonDeviceProtocolDialectProper
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertySpecName(), false, new StringFactory());
+            return propertySpecService
+                    .stringSpec()
+                    .named(this.propertySpecName(), this.propertySpecName())
+                    .describedAs(this.propertySpecName())
+                    .finish();
         }
 
         public void addTo(Table table) {
