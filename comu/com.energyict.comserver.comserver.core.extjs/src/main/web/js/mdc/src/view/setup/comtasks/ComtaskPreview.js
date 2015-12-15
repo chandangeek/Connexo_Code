@@ -63,6 +63,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
                         Ext.Array.each(value, function (message) {
                             str += Ext.String.htmlEncode(message.name) + '<br />';
                         });
+                    }else{
+                        str = '-';
                     }
                     return str;
                 }
