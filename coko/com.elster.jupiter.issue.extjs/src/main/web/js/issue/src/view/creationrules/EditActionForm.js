@@ -161,7 +161,7 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
                 name: 'phase',
                 inputValue: record.get('uuid'),
                 itemId: 'when-to-perform-radio-button-'+record.get('uuid'),
-                afterSubTpl: '<span style="color: #686868; font-style: italic; margin-left: 19px">' + record.get('description') + '</span>'
+                afterSubTpl: '<span style="display: inline-block; color: #686868; font-style: italic; margin-left: 19px; margin-top: 6px;">' + record.get('description') + '</span>'
             });
         });
         phasesRadioGroup.setValue({phase: records[0].get('uuid')});
