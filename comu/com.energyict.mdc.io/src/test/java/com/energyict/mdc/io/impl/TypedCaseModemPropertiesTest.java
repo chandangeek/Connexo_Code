@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TypedCaseModemPropertiesTest extends TypedCaseModemProperties {
 
     public TypedCaseModemPropertiesTest() {
-        super(null, thesaurus);
+        super(null, null);
     }
 
     @Test

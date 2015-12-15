@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TypedPEMPModemPropertiesTest extends TypedPEMPModemProperties {
 
     public TypedPEMPModemPropertiesTest() {
-        super(null, thesaurus);
+        super(null, null);
     }
 
     @Test
