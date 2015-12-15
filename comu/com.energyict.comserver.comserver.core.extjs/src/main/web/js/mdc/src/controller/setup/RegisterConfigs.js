@@ -109,17 +109,22 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/add';
     },
 
-    previewRegisterConfig: function (grid, record) {
-        var me = this,
-            registerConfigs = this.getRegisterConfigGrid().getSelectionModel().getSelection();
+    previewRegisterConfig: function (selectionModel, selectedRegisterConfigs) {
+        var me = this;
 
-        if (registerConfigs.length === 1) {
-            var registerConfig = registerConfigs[0];
+        if (selectedRegisterConfigs.length === 1) {
+            var registerConfig = selectedRegisterConfigs[0];
 
-            me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+            if (me.getRegisterConfigPreview().rendered) {
+                me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+            } else {
+                me.getRegisterConfigPreview().on('afterrender', function() {
+                    me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+                }, me, {single:true});
+            }
 
             me.getRegisterConfigValidationRulesStore().getProxy().extraParams =
-                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: registerConfigs[0].getId()});
+                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: selectedRegisterConfigs[0].getId()});
 
             me.getRulesForRegisterConfigGrid().down('pagingtoolbartop').totalCount = -1;
             if (registerConfig.get('asText')) {
@@ -157,7 +162,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getRegisterConfigGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
