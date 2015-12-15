@@ -157,6 +157,7 @@ public class ChannelResource {
     @GET @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(channel, cpsId));
@@ -167,6 +168,7 @@ public class ChannelResource {
     @GET @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(channel, cpsId, resourceHelper.getTimeRange(startTime, endTime));
@@ -177,6 +179,7 @@ public class ChannelResource {
     @GET @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/conflicts/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(channel, cpsId, resourceHelper.getTimeRange(startTime, endTime), Instant.ofEpochMilli(timeStamp));

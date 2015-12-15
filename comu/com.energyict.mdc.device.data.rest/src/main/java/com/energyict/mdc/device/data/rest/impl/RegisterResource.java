@@ -128,6 +128,7 @@ public class RegisterResource {
     @GET @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId) {
         Register<?> register = doGetRegister(mRID, registerId);
         Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(register, cpsId));
@@ -138,6 +139,7 @@ public class RegisterResource {
     @GET @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
         Register<?> register = doGetRegister(mRID, registerId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(register, cpsId, resourceHelper.getTimeRange(startTime, endTime));
@@ -148,6 +150,7 @@ public class RegisterResource {
     @GET @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/conflicts/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
         Register<?> register = doGetRegister(mRID, registerId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(register, cpsId, resourceHelper.getTimeRange(startTime, endTime), Instant.ofEpochMilli(timeStamp));
