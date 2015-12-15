@@ -150,8 +150,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
                 AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
                 EndDevice endDevice = amrSystem.createEndDevice("amrID", "mRID");
-                EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
-                endDeviceEventRecord.save();
+                EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date).create();
 
                 assertThat(dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date).get()).isEqualTo(endDeviceEventRecord);
                 ArgumentCaptor<LocalEvent> localEventCapture = ArgumentCaptor.forClass(LocalEvent.class);
@@ -182,10 +181,10 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
                 AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
                 EndDevice endDevice = amrSystem.createEndDevice("amrID", "mRID");
-                EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
-                endDeviceEventRecord.addProperty("A", "C");
-                endDeviceEventRecord.addProperty("D", "C");
-                endDeviceEventRecord.save();
+                EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date)
+                        .addProperty("A", "C")
+                        .addProperty("D", "C")
+                        .create();
 
                 Optional<EndDeviceEventRecord> found = dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date);
                 assertThat(found.get()).isEqualTo(endDeviceEventRecord);

@@ -46,12 +46,16 @@ public abstract class AbstractCimChannel implements CimChannel {
 
     @Override
     public ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReading baseReading) {
-        return ReadingQualityRecordImpl.from(dataModel, type, this, baseReading);
+        ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, type, this, baseReading);
+        readingQualityRecord.doSave();
+        return readingQualityRecord;
     }
 
     @Override
     public ReadingQualityRecord createReadingQuality(ReadingQualityType type, Instant timestamp) {
-        return ReadingQualityRecordImpl.from(dataModel, type, this, timestamp);
+        ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, type, this, timestamp);
+        readingQualityRecord.doSave();
+        return readingQualityRecord;
     }
 
     @Override
@@ -235,12 +239,7 @@ public abstract class AbstractCimChannel implements CimChannel {
                 .filter(ReadingQualityRecord::isConfirmed)
                 .findFirst()
                 .map(ReadingQualityRecord.class::cast)
-                .orElseGet(() -> {
-                    ReadingQualityType qualityForUpdate = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED);
-                    ReadingQualityRecord readingQuality = this.createReadingQuality(qualityForUpdate, reading);
-                    readingQuality.save();
-                    return readingQuality;
-                });
+                .orElseGet(() -> this.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), reading));
         if (!confirmedQualityRecord.isActual()) {
             confirmedQualityRecord.makeActual();
         }
@@ -260,7 +259,7 @@ public abstract class AbstractCimChannel implements CimChannel {
             ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.ESTIMATED).or(oldReading.map(BaseReadingRecord::getProcesStatus).orElse(ProcessStatus.of()));
             reading.getReadingQualities().stream()
                     .filter(readingQuality -> currentQualityRecords.stream().map(ReadingQualityRecord::getType).noneMatch(type -> type.equals(readingQuality.getType())))
-                    .forEach(readingQuality -> createReadingQuality(readingQuality.getType(), reading).save());
+                    .forEach(readingQuality -> createReadingQuality(readingQuality.getType(), reading));
             makeNoLongerSuspect(currentQualityRecords);
             storer.addReading(this, reading, processStatus);
             derivedCimChannel.map(AbstractCimChannel.class::cast)
@@ -277,7 +276,7 @@ public abstract class AbstractCimChannel implements CimChannel {
             derived.makeNoLongerSuspect(readingQualityRecords);
             readingQualities.stream()
                     .filter(readingQuality -> readingQualityRecords.stream().map(ReadingQualityRecord::getType).noneMatch(type -> type.equals(readingQuality.getType())))
-                    .forEach(readingQuality -> derived.createReadingQuality(readingQuality.getType(), timeStamp).save());
+                    .forEach(readingQuality -> derived.createReadingQuality(readingQuality.getType(), timeStamp));
 
     }
 
@@ -295,7 +294,7 @@ public abstract class AbstractCimChannel implements CimChannel {
             Optional<BaseReadingRecord> oldReading = getChannel().getReading(reading.getTimeStamp());
             ProcessStatus processStatus = processStatusToSet.or(oldReading.map(BaseReadingRecord::getProcesStatus).orElse(ProcessStatus.of()));
             if (!alreadyHasQuality) {
-                this.createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading).save();
+                this.createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading);
             }
             makeNoLongerSuspect(currentQualityRecords);
             makeNoLongerEstimated(currentQualityRecords);

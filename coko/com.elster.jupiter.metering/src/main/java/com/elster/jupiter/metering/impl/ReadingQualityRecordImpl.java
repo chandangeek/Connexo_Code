@@ -135,7 +135,17 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         return baseReadingRecord;
     }
 
-    public void save() {
+    public void update() {
+        dataModel.mapper(ReadingQualityRecord.class).update(this);
+        eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
+    }
+
+    public void update(String... fieldNames) {
+        dataModel.mapper(ReadingQualityRecord.class).update(this, fieldNames);
+        eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
+    }
+
+    void doSave() {
         if (id == 0) {
             dataModel.mapper(ReadingQualityRecord.class).persist(this);
             eventService.postEvent(EventType.READING_QUALITY_CREATED.topic(), new LocalEventSource(this));
@@ -197,13 +207,13 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     @Override
     public void makePast() {
     	this.actual = false;
-    	this.save();
+    	this.update("actual");
     }
     
     @Override
     public void makeActual() {
     	this.actual = true;
-    	this.save();
+    	this.update("actual");
     }
     
     @Override

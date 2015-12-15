@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -288,8 +289,8 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
-    public EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Instant date) {
-        return deviceEventFactory.get().init(this, type, date);
+    public EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant date) {
+        return new EndDeviceEventRecordBuilderImpl(deviceEventFactory, this, type, date);
     }
 
     @Override

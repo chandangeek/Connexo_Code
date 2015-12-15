@@ -19,7 +19,7 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
 
     Optional<BaseReadingRecord> getBaseReadingRecord();
 
-    void save();
+    void update();
 
     Instant getReadingTimestamp();
 
