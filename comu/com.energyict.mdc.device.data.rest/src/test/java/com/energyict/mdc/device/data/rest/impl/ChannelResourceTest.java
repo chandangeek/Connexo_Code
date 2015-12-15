@@ -126,11 +126,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private ReadingQualityType readingQualityTypeEdited = new ReadingQualityType("3.7.0");
     private ReadingQualityType readingQualityTypeRejected = new ReadingQualityType("3.7.3");
     private ReadingQualityType readingQualityTypeConfirmed = new ReadingQualityType("3.10.1");
-    private ReadingQualityType readingQualityTypeValidated = new ReadingQualityType("3.0.1"),
-            readingQualityTypeEdited = new ReadingQualityType("3.7.0"),
-            readingQualityTypeAdded = new ReadingQualityType("3.7.1"),
-            readingQualityTypeRejected = new ReadingQualityType("3.7.3"),
-            readingQualityTypeConfirmed = new ReadingQualityType("3.10.1");
+    private ReadingQualityType readingQualityTypeValidated = new ReadingQualityType("3.0.1");
 
     @Before
     public void setUpStubs() {
