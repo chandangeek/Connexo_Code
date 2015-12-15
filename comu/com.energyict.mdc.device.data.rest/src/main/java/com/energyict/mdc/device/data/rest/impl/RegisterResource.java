@@ -60,12 +60,12 @@ public class RegisterResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::getRegisterComparator).from(queryParameters).stream()
+        List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r))).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", registerInfos, queryParameters);
     }
 
-    private int getRegisterComparator(Register r1, Register r2) {
+    private int compareRegisters(Register r1, Register r2) {
         ReadingType readingType1 = r1.getRegisterSpec().getRegisterType().getReadingType();
         ReadingType readingType2 = r2.getRegisterSpec().getRegisterType().getReadingType();
         return readingType1.getAliasName().compareToIgnoreCase(readingType2.getAliasName());
