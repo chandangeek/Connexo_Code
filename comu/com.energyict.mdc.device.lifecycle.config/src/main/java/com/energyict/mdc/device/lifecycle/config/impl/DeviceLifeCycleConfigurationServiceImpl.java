@@ -70,7 +70,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:44)
  */
-@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, IssueCreationValidator.class, PrivilegesProvider.class}, property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
+@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class,
+        TranslationKeyProvider.class, MessageSeedProvider.class, IssueCreationValidator.class, PrivilegesProvider.class},
+        property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
 @SuppressWarnings("unused")
 public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, InstallService, TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator, PrivilegesProvider {
 

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import java.util.logging.Level;
 
@@ -65,7 +66,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return FiniteStateMachineService.COMPONENT_NAME;
+        return DeviceLifeCycleConfigurationService.COMPONENT_NAME;
     }
 
     public static final class Keys {
