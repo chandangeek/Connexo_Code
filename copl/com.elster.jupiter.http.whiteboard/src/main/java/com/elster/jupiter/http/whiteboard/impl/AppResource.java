@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class AppResource {
 
     @Inject
-    private WhiteBoard whiteBoard;
+    private WhiteBoardImpl whiteBoard;
     @Inject
     private UserService userService;
     @Inject
@@ -72,7 +72,7 @@ public class AppResource {
         userService.removeLoggedUser(user);
 
         // Invalidate token & server side session
-        Optional<Cookie> tokenCookie = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
+        Optional<Cookie> tokenCookie = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         if(tokenCookie.isPresent()){
             SecurityToken.getInstance().removeCookie(request,response);
             SecurityToken.getInstance().invalidateSession(request);

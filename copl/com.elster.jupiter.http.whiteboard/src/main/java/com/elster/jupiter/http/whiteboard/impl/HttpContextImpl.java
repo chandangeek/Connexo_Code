@@ -2,13 +2,14 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.Resolver;
 import com.elster.jupiter.http.whiteboard.SecurityToken;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
-
+import com.elster.jupiter.http.whiteboard.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+
 
 public class HttpContextImpl implements HttpContext {
 
@@ -36,17 +38,20 @@ public class HttpContextImpl implements HttpContext {
     // Note that resources used in these files are still cached
     static final String[] RESOURCES_NOT_CACHED = {
             "index.html",
-            "index-dev.html"};
+            "index-dev.html"
+    };
 
 
     private final WhiteBoard whiteboard;
     private final Resolver resolver;
     private final UserService userService;
+    private final TransactionService transactionService;
     private final AtomicReference<EventAdmin> eventAdminHolder;
 
-    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, AtomicReference<EventAdmin> eventAdminHolder) {
+    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, AtomicReference<EventAdmin> eventAdminHolder) {
         this.resolver = resolver;
         this.userService = userService;
+        this.transactionService = transactionService;
         this.eventAdminHolder = eventAdminHolder;
         this.whiteboard = whiteboard;
     }
@@ -144,22 +149,29 @@ public class HttpContextImpl implements HttpContext {
         // REST calls will be accessed based on the Authorization header
 
 
-        Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
-        String token;
+        Optional<Cookie> xsrf = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
+        Optional<String> token;
         if (!xsrf.isPresent() || refreshCookie) {
             token = SecurityToken.getInstance().createToken(user,0);
-            response.setHeader("X-AUTH-TOKEN", token);
-            response.setHeader("Authorization", "Bearer " + token);
-            SecurityToken.getInstance().createCookie("X-CONNEXO-TOKEN", token, "/", -1, true, response);
-
+            if(token.isPresent()){
+                response.setHeader("X-AUTH-TOKEN", token.get());
+                response.setHeader("Authorization", "Bearer " + token);
+                SecurityToken.getInstance().createCookie("X-CONNEXO-TOKEN", token.get(), "/", -1, true, response);
+            }
         }else if(xsrf.isPresent() && request.getHeader("Authorization")!=null){
-            token = (request.getHeader("Authorization").lastIndexOf(" ")+1>0) ? request.getHeader("Authorization").substring(request.getHeader("Authorization").lastIndexOf(" ") + 1) : request.getHeader("Authorization");
-            response.setHeader("X-AUTH-TOKEN", token);
-            response.setHeader("Authorization", "Bearer " + token);
+            token = Optional.of((request.getHeader("Authorization").lastIndexOf(" ")+1>0) ? request.getHeader("Authorization").substring(request.getHeader("Authorization").lastIndexOf(" ") + 1) : request.getHeader("Authorization"));
+            if(token.isPresent()){
+                response.setHeader("X-AUTH-TOKEN", token.get());
+                response.setHeader("Authorization", "Bearer " + token.get());
+            }
+
         }else if(xsrf.isPresent()){
-            token = (xsrf.get().getValue().lastIndexOf(" ")+1>0) ? xsrf.get().getValue().substring(xsrf.get().getValue().lastIndexOf(" ") + 1) : xsrf.get().getValue();
-            response.setHeader("X-AUTH-TOKEN",token);
-            response.setHeader("Authorization", "Bearer " + token);
+            token = Optional.of((xsrf.get().getValue().lastIndexOf(" ")+1>0) ? xsrf.get().getValue().substring(xsrf.get().getValue().lastIndexOf(" ") + 1) : xsrf.get().getValue());
+            if(token.isPresent()){
+                response.setHeader("X-AUTH-TOKEN",token.get());
+                response.setHeader("Authorization", "Bearer " + token.get());
+            }
+
         }
             userService.addLoggedInUser(user);
         return true;
@@ -168,7 +180,7 @@ public class HttpContextImpl implements HttpContext {
 
     private boolean deny(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
+        Optional<Cookie> xsrf = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         if (xsrf.isPresent()) {
             SecurityToken.getInstance().removeCookie(request, response);
         }
