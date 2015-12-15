@@ -4,7 +4,8 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
     itemId: 'metrology-configuration-setup',
     requires: [
         'Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm'
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
+        'Imt.metrologyconfiguration.view.ActionMenu'
     ],
     router: null,
     content: [
@@ -18,11 +19,29 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
             }
         }
     ],
-
     initComponent: function () {
         var me = this,
             panel = me.content[0];
         panel.title = me.router.getRoute().getTitle();
+        panel.tools = [
+           {
+               xtype: 'toolbar',
+               items: [
+                   {
+                       xtype: 'button',
+                       style: {
+                           'background-color': '#71adc7'
+                       },
+                       text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                       privileges: Imt.privileges.MetrologyConfig.admin,
+                       iconCls: 'x-uni-action-iconD',
+                       menu: {
+                           xtype: 'metrologyConfigurationActionMenu'
+                       }
+                   }
+               ]
+           }
+        ];
         me.side = [
             {
                 xtype: 'panel',
