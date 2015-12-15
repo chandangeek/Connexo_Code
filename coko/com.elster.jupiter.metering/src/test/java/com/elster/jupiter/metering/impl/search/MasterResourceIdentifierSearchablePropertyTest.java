@@ -40,9 +40,11 @@ public class MasterResourceIdentifierSearchablePropertyTest {
     @Mock
     private PropertySpecService propertySpecService;
 
+    PropertySpecMockSupport propertySpecMockSupport = new PropertySpecMockSupport();
+
     @Before
     public void initializeMocks() {
-        PropertySpecMockSupport.mockStringPropertySpec("mRID", this.propertySpecService);
+        this.propertySpecMockSupport.mockStringPropertySpec("mRID", this.propertySpecService);
     }
 
     @Test

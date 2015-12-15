@@ -40,9 +40,11 @@ public class OutageRegionSearchablePropertyTest {
     @Mock
     private PropertySpecService propertySpecService;
 
+    private PropertySpecMockSupport propertySpecMockSupport = new PropertySpecMockSupport();
+
     @Before
     public void initializeMocks() {
-        PropertySpecMockSupport.mockStringPropertySpec("outageRegion", this.propertySpecService);
+        this.propertySpecMockSupport.mockStringPropertySpec("outageRegion", this.propertySpecService);
     }
 
     @Test
