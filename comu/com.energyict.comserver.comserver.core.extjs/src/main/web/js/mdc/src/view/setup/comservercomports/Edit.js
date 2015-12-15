@@ -65,7 +65,6 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     store: 'Mdc.store.ComPortTypes',
                     displayField: 'localizedValue',
                     valueField: 'id',
-                    value: 'TCP',
                     queryMode: 'local'
                 },
                 {

@@ -147,11 +147,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 if (!previewPanel.isDestroyed) {
                     previewPanel.setTitle(Ext.String.htmlEncode(record.get('name')));
                     previewPanel.down('menu').record = record;
-                    form = previewPanel.down('comPortForm' + record.get('comPortType').localizedValue);
+                    form = previewPanel.down('comPortForm' + record.get('comPortType').id.substring(5));
                     currentForm && currentForm.hide();
                     if (form) {
                         form.show();
-                        if (record.get('comPortType') === 'SERIAL') {
+                        if (record.get('comPortType').id.substring(5) === 'SERIAL') {
                             form.showData(record.get('direction'));
                         }
                         comServerNameField = form.down('displayfield[name=comServerName]');
@@ -160,7 +160,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                         } else {
                             comServerNameField.hide();
                         }
-                        if (record.get('comPortType') != 'SERVLET') {
+                        if (record.get('comPortType').id.substring(5) != 'SERVLET') {
                             switch (record.get('direction')) {
                                 case 'Inbound':
                                     form.down('displayfield[name=outboundComPortPoolIdsDisplay]').hide();
