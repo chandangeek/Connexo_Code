@@ -9,8 +9,12 @@ import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.TimeZoneFactory;
 
+import java.util.TimeZone;
+
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,84 +26,96 @@ import static org.mockito.Mockito.when;
  */
 public final class PropertySpecMockSupport {
 
-    public static void mockReferencePropertySpec(String name, Class referencedClass, PropertySpecService propertySpecService) {
+    private PropertySpecBuilderWizard.NlsOptions<String> stringNlsOptions;
+    private PropertySpecBuilderWizard.NlsOptions refNlsOptions;
+    private PropertySpecBuilderWizard.NlsOptions<TimeZone> timeZoneNlsOptions;
+    private PropertySpecBuilderWizard.NlsOptions<Long> longNlsOptions;
+    private PropertySpecBuilderWizard.NlsOptions<Boolean> booleanNlsOptions;
+
+    public void mockReferencePropertySpec(String name, Class referencedClass, PropertySpecService propertySpecService) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
         PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
         PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
         when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
-        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
-        when(nlsOptions
-                .named(name, any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(nlsOptions
-                .named(any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(propertySpecService.referenceSpec(referencedClass)).thenReturn(nlsOptions);
+        if (this.refNlsOptions == null) {
+            this.refNlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        }
+        doReturn(thesaurusOptions).when(this.refNlsOptions).named(eq(name), any(TranslationKey.class));
+        doReturn(thesaurusOptions).when(this.refNlsOptions).named(any(TranslationKey.class));
+        PropertySpecBuilderWizard.HardCoded hardCodedOptions = mock(PropertySpecBuilderWizard.HardCoded.class);
+        doReturn(hardCodedOptions).when(this.stringNlsOptions).named(eq(name), eq(name));
+        when(hardCodedOptions.describedAs(anyString())).thenReturn(propertySpecBuilder);
+        when(propertySpecService.referenceSpec(referencedClass)).thenReturn(this.refNlsOptions);
     }
 
-    public static void mockStringPropertySpec(String name, PropertySpecService propertySpecService) {
+    public PropertySpec mockStringPropertySpec(String name, PropertySpecService propertySpecService) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
         PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
-        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        PropertySpecBuilderWizard.ThesaurusBased<String> thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
         when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
-        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
-        when(nlsOptions
-                .named(eq(name), any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(nlsOptions
-                .named(any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(propertySpecService.stringSpec()).thenReturn(nlsOptions);
+        if (this.stringNlsOptions == null) {
+            this.stringNlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        }
+        doReturn(thesaurusOptions).when(this.stringNlsOptions).named(eq(name), any(TranslationKey.class));
+        doReturn(thesaurusOptions).when(this.stringNlsOptions).named(any(TranslationKey.class));
+        PropertySpecBuilderWizard.HardCoded<String> hardCodedOptions = mock(PropertySpecBuilderWizard.HardCoded.class);
+        doReturn(hardCodedOptions).when(this.stringNlsOptions).named(eq(name), eq(name));
+        when(hardCodedOptions.describedAs(anyString())).thenReturn(propertySpecBuilder);
+        when(propertySpecService.stringSpec()).thenReturn(this.stringNlsOptions);
+        return propertySpec;
     }
 
-    public static void mockTimeZonePropertySpec(String name, PropertySpecService propertySpecService) {
+    public void mockTimeZonePropertySpec(String name, PropertySpecService propertySpecService) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
         PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
-        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        PropertySpecBuilderWizard.ThesaurusBased<TimeZone> thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
         when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
-        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
-        when(nlsOptions
-                .named(eq(name), any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(nlsOptions
-                .named(any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(propertySpecService.specForValuesOf(any(TimeZoneFactory.class))).thenReturn(nlsOptions);
+        if (this.timeZoneNlsOptions == null) {
+            this.timeZoneNlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        }
+        doReturn(thesaurusOptions).when(this.timeZoneNlsOptions).named(eq(name), any(TranslationKey.class));
+        doReturn(thesaurusOptions).when(this.timeZoneNlsOptions).named(any(TranslationKey.class));
+        PropertySpecBuilderWizard.HardCoded<TimeZone> hardCodedOptions = mock(PropertySpecBuilderWizard.HardCoded.class);
+        doReturn(hardCodedOptions).when(this.stringNlsOptions).named(eq(name), eq(name));
+        when(hardCodedOptions.describedAs(anyString())).thenReturn(propertySpecBuilder);
+        when(propertySpecService.specForValuesOf(any(TimeZoneFactory.class))).thenReturn(this.timeZoneNlsOptions);
     }
 
-    public static void mockLongPropertySpec(String name, PropertySpecService propertySpecService) {
+    public void mockLongPropertySpec(String name, PropertySpecService propertySpecService) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
         PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
-        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        PropertySpecBuilderWizard.ThesaurusBased<Long> thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
         when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
-        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
-        when(nlsOptions
-                .named(eq(name), any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(nlsOptions
-                .named(any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(propertySpecService.longSpec()).thenReturn(nlsOptions);
+        if (this.longNlsOptions == null) {
+            this.longNlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        }
+        doReturn(thesaurusOptions).when(this.longNlsOptions).named(eq(name), any(TranslationKey.class));
+        doReturn(thesaurusOptions).when(this.longNlsOptions).named(any(TranslationKey.class));
+        PropertySpecBuilderWizard.HardCoded<Long> hardCodedOptions = mock(PropertySpecBuilderWizard.HardCoded.class);
+        doReturn(hardCodedOptions).when(this.stringNlsOptions).named(eq(name), eq(name));
+        when(hardCodedOptions.describedAs(anyString())).thenReturn(propertySpecBuilder);
+        when(propertySpecService.longSpec()).thenReturn(this.longNlsOptions);
     }
 
-    public static void mockBooleanPropertySpec(String name, PropertySpecService propertySpecService) {
+    public void mockBooleanPropertySpec(String name, PropertySpecService propertySpecService) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
         PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
-        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        PropertySpecBuilderWizard.ThesaurusBased<Boolean> thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
         when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
-        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
-        when(nlsOptions
-                .named(eq(name), any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(nlsOptions
-                .named(any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(propertySpecService.booleanSpec()).thenReturn(nlsOptions);
+        if (this.booleanNlsOptions == null) {
+            this.booleanNlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        }
+        doReturn(thesaurusOptions).when(this.booleanNlsOptions).named(eq(name), any(TranslationKey.class));
+        doReturn(thesaurusOptions).when(this.booleanNlsOptions).named(any(TranslationKey.class));
+        PropertySpecBuilderWizard.HardCoded<Boolean> hardCodedOptions = mock(PropertySpecBuilderWizard.HardCoded.class);
+        doReturn(hardCodedOptions).when(this.stringNlsOptions).named(eq(name), eq(name));
+        when(hardCodedOptions.describedAs(anyString())).thenReturn(propertySpecBuilder);
+        when(propertySpecService.booleanSpec()).thenReturn(this.booleanNlsOptions);
     }
 
 }

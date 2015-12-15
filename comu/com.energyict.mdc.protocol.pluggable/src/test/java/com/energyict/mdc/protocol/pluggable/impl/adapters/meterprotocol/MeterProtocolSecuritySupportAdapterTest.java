@@ -70,9 +70,10 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 (SecondSimpleTestMeterProtocol.class.getName())).thenReturn("com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.NotAKnownDeviceSecuritySupportClass");
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 (ThirdSimpleTestMeterProtocol.class.getName())).thenReturn(ThirdSimpleTestMeterProtocol.class.getName());
-        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), propertySpecService);
-        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), propertySpecService);
-        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), propertySpecService);
+        PropertySpecMockSupport propertySpecMockSupport = new PropertySpecMockSupport();
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), propertySpecService);
         SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         when(this.protocolPluggableService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getName())).thenReturn(securitySupport);
         doThrow(ProtocolCreationException.class).when(this.protocolPluggableService).

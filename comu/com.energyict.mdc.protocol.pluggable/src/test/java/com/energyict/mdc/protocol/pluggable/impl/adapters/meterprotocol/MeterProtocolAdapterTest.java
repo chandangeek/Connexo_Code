@@ -74,7 +74,6 @@ import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -109,6 +108,7 @@ public class MeterProtocolAdapterTest {
 
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
+    private PropertySpecMockSupport propertySpecMockSupport;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -128,18 +128,19 @@ public class MeterProtocolAdapterTest {
                 thenReturn("com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport");
         when(capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(MockDeviceProtocol.class.getCanonicalName())).thenReturn(6);  //6 = master and session capability
         PropertySpecService propertySpecService = inMemoryPersistence.getPropertySpecService();
-        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), propertySpecService);
-        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), propertySpecService);
-        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), propertySpecService);
-        String name = any(String.class);
+        this.propertySpecMockSupport = new PropertySpecMockSupport();
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.NODEID, propertySpecService);
         PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(name);
+        when(propertySpec.getName()).thenReturn("whatever");
         PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
         PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
         when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
         PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
         when(nlsOptions
-                .named(eq(name), any(TranslationKey.class)))
+                .named(any(String.class), any(TranslationKey.class)))
                 .thenReturn(thesaurusOptions);
         when(nlsOptions
                 .named(any(TranslationKey.class)))
@@ -154,10 +155,10 @@ public class MeterProtocolAdapterTest {
     }
 
     private void mockPropertySpecs() {
-        PropertySpecMockSupport.mockStringPropertySpec(MeterProtocol.NODEID, inMemoryPersistence.getPropertySpecService());
-        PropertySpecMockSupport.mockStringPropertySpec(MeterProtocol.ADDRESS, inMemoryPersistence.getPropertySpecService());
-        PropertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), inMemoryPersistence.getPropertySpecService());
-        PropertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.NODEID, inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.ADDRESS, inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), inMemoryPersistence.getPropertySpecService());
     }
 
     @After
@@ -272,26 +273,15 @@ public class MeterProtocolAdapterTest {
         String optionalPropertyName1 = "o1";
         String optionalPropertyName2 = "o2";
         String optionalPropertyName3 = "o3";
-        optionalKeys.add(inMemoryPersistence.getPropertySpecService()
-                .stringSpec()
-                .named(optionalPropertyName1, optionalPropertyName1)
-                .describedAs(optionalPropertyName1)
-                .finish());
-        optionalKeys.add(inMemoryPersistence.getPropertySpecService()
-                .stringSpec()
-                .named(optionalPropertyName2, optionalPropertyName2)
-                .describedAs(optionalPropertyName2)
-                .finish());
-        optionalKeys.add(inMemoryPersistence.getPropertySpecService()
-                .stringSpec()
-                .named(optionalPropertyName3, optionalPropertyName3)
-                .describedAs(optionalPropertyName3)
-                .finish());
+        PropertySpecService propertySpecService = inMemoryPersistence.getPropertySpecService();
+        PropertySpecMockSupport propertySpecMockSupport = new PropertySpecMockSupport();
+        PropertySpec propertySpec1 = propertySpecMockSupport.mockStringPropertySpec(optionalPropertyName1, propertySpecService);
+        PropertySpec propertySpec2 = propertySpecMockSupport.mockStringPropertySpec(optionalPropertyName2, propertySpecService);
+        PropertySpec propertySpec3 = propertySpecMockSupport.mockStringPropertySpec(optionalPropertyName3, propertySpecService);
+        optionalKeys.add(propertySpec1);
+        optionalKeys.add(propertySpec2);
+        optionalKeys.add(propertySpec3);
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
-        PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
-        PropertySpecMockSupport.mockStringPropertySpec(optionalPropertyName1, propertySpecService);
-        PropertySpecMockSupport.mockStringPropertySpec(optionalPropertyName2, propertySpecService);
-        PropertySpecMockSupport.mockStringPropertySpec(optionalPropertyName3, propertySpecService);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());

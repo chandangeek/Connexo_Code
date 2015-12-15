@@ -103,6 +103,7 @@ public class SmartMeterProtocolAdapterImplTest {
 
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
+    private PropertySpecMockSupport propertySpecMockSupport;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -121,9 +122,10 @@ public class SmartMeterProtocolAdapterImplTest {
         protocolPluggableService.addCollectedDataFactory(this.collectedDataFactory);
         DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
         PropertySpecService propertySpecService = inMemoryPersistence.getPropertySpecService();
-        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), propertySpecService);
-        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), propertySpecService);
-        PropertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), propertySpecService);
+        this.propertySpecMockSupport = new PropertySpecMockSupport();
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), propertySpecService);
         String name = any(String.class);
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
@@ -149,10 +151,10 @@ public class SmartMeterProtocolAdapterImplTest {
     }
 
     private void mockPropertySpecs() {
-        PropertySpecMockSupport.mockStringPropertySpec(MeterProtocol.NODEID, inMemoryPersistence.getPropertySpecService());
-        PropertySpecMockSupport.mockStringPropertySpec(MeterProtocol.ADDRESS, inMemoryPersistence.getPropertySpecService());
-        PropertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), inMemoryPersistence.getPropertySpecService());
-        PropertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.NODEID, inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.ADDRESS, inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), inMemoryPersistence.getPropertySpecService());
     }
 
     @After
