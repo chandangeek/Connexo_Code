@@ -10,6 +10,9 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
     text: Uni.I18n.translate('search.overview.searchDomains.emptyText', 'UNI', 'Search domains'),
     arrowAlign: 'right',
     menuAlign: 'tl-bl',
+    config: {
+        service: null
+    },
 
     setValue: function(value, suspendEvent) {
         this.value = value;
@@ -33,7 +36,9 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            service = this.getService();
+
         me.menu = {
             plain: true,
             enableScrolling: true,
@@ -49,6 +54,20 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
         me.callParent(arguments);
         me.bindStore('Uni.store.search.Domains' || 'ext-empty-store', true);
         me.on('beforedestroy', me.onBeforeDestroy, me);
+
+        var listeners = service.on({
+            setDomain:  me.onDomainChange,
+            scope: me,
+            destroyable: true
+        });
+
+        me.on('destroy', function () {
+            listeners.destroy();
+        });
+    },
+
+    onDomainChange: function(domain) {
+        this.setValue(domain.getId(), true);
     },
 
     getStoreListeners: function () {
