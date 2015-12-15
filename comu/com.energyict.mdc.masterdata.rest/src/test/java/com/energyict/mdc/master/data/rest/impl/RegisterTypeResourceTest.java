@@ -96,7 +96,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("obisCode")
             .containsKey("isLinkedByDeviceType")
             .containsKey("readingType");
-        assertThat((Map)map.get("readingType")).hasSize(22)
+        assertThat((Map)map.get("readingType")).hasSize(23)
             .containsKey("mRID")
             .containsKey("aliasName")
             .containsKey("macroPeriod")
