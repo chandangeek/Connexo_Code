@@ -71,9 +71,10 @@ public class UsagePointProcessorTest {
         UsagePointProcessor usagePointProcessor = new UsagePointProcessor(clock, thesaurus, meteringService);
         usagePointFileInfo.setmRID("test");
         usagePointFileInfo.setServiceKind("GAS");
+        usagePointFileInfo.setAllowUpdate("false");
         usagePointFileInfo.setServiceLocationID(23L);
         when(serviceCategoryOne.getId()).thenReturn(34L);
-        assertTrue(usagePointProcessor.validateData(usagePointFileInfo, logger, 5).isPresent());
+        assertTrue(usagePointProcessor.createOrUpdateUsagePoint(usagePointFileInfo, logger, 5));
     }
 
     @Test
@@ -82,7 +83,8 @@ public class UsagePointProcessorTest {
         UsagePointProcessor usagePointProcessor = new UsagePointProcessor(clock, thesaurus, meteringService);
         usagePointFileInfo.setmRID("test");
         usagePointFileInfo.setServiceKind("GAS");
+        usagePointFileInfo.setAllowUpdate("false");
         when(serviceCategoryOne.getId()).thenReturn(54L);
-        assertFalse(usagePointProcessor.validateData(usagePointFileInfo, logger, 5).isPresent());
+        assertFalse(usagePointProcessor.createOrUpdateUsagePoint(usagePointFileInfo, logger, 5));
     }
 }

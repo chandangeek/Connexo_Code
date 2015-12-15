@@ -2,7 +2,13 @@ package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -32,9 +38,8 @@ public class UsagePointProcessor {
         try {
             for (UsagePointFileInfo usagePointFileInfo : usagePointFileInfos) {
                 lineNumber++;
-                Optional<UsagePoint> usagePoint = validateData(usagePointFileInfo, logger, lineNumber);
-                if (usagePoint.isPresent()) {
-                    saveData(usagePoint, usagePointFileInfo);
+                boolean isUsagePointCreatedOrUpdated = createOrUpdateUsagePoint(usagePointFileInfo, logger, lineNumber);
+                if (isUsagePointCreatedOrUpdated) {
                     succeeded++;
                 } else {
                     failures++;
@@ -55,31 +60,64 @@ public class UsagePointProcessor {
         }
     }
 
-    private void saveData(Optional<UsagePoint> usagePoint, UsagePointFileInfo usagePointFileInfo) {
-        if (!meteringService.findUsagePoint(usagePoint.get().getMRID()).isPresent() || usagePointFileInfo.getAllowUpdate().equalsIgnoreCase("true")) {
-            usagePoint.get().setSdp(false);
+    public boolean createOrUpdateUsagePoint(UsagePointFileInfo usagePointFileInfo, Logger logger, int lineNumber) {
+        if (usagePointFileInfo.getServiceKind().isEmpty()) {
+            MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID.log(logger, thesaurus, lineNumber);
+            return false;
+        }
+        if (usagePointFileInfo.getmRID().isEmpty()) {
+            MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID.log(logger, thesaurus, lineNumber);
+            return false;
+        }
+        UsagePoint usagePoint;
+        boolean isUpdatable = usagePointFileInfo.getAllowUpdate().equalsIgnoreCase("true");
+        Optional<UsagePoint> usagePointOptional = meteringService.findUsagePoint(usagePointFileInfo.getmRID());
+        Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.valueOf(usagePointFileInfo.getServiceKind()));
+        if (usagePointOptional.isPresent()) {
+            usagePoint = usagePointOptional.get();
+            if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
+                MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID.log(logger, thesaurus, lineNumber);
+                return false;
+            }
+        } else {
+            usagePoint = serviceCategory.get().newUsagePoint(usagePointFileInfo.getmRID()).create();
+            isUpdatable = true;
+        }
+        if (isUpdatable) {
+            usagePoint.setSdp(false);
+            if (usagePointFileInfo.getServiceLocationID() > 0) {
+                Optional<ServiceLocation> serviceLocation = meteringService.findServiceLocation(usagePointFileInfo.getServiceLocationID());
+                if (serviceLocation.isPresent()) {
+                    usagePoint.setVirtual(false);
+                    usagePoint.setServiceLocation(serviceLocation.get());
+                } else {
+                    usagePoint.setVirtual(true);
+                    usagePoint.setServiceLocation(null);
+                    MessageSeeds.IMPORT_USAGEPOINT_SERVICELOCATION_INVALID.log(logger, thesaurus, lineNumber);
+                }
+            }
             if (!usagePointFileInfo.getName().isEmpty()) {
-                usagePoint.get().setName(usagePointFileInfo.getName());
+                usagePoint.setName(usagePointFileInfo.getName());
             }
             if (!usagePointFileInfo.getAliasName().isEmpty()) {
-                usagePoint.get().setAliasName(usagePointFileInfo.getAliasName());
+                usagePoint.setAliasName(usagePointFileInfo.getAliasName());
             }
             if (!usagePointFileInfo.getDescription().isEmpty()) {
-                usagePoint.get().setDescription(usagePointFileInfo.getDescription());
+                usagePoint.setDescription(usagePointFileInfo.getDescription());
             }
             if (!usagePointFileInfo.getOutageregion().isEmpty()) {
-                usagePoint.get().setOutageRegion(usagePointFileInfo.getOutageregion());
+                usagePoint.setOutageRegion(usagePointFileInfo.getOutageregion());
             }
             if (!usagePointFileInfo.getReadcycle().isEmpty()) {
-                usagePoint.get().setReadCycle(usagePointFileInfo.getReadcycle());
+                usagePoint.setReadCycle(usagePointFileInfo.getReadcycle());
             }
             if (!usagePointFileInfo.getReadroute().isEmpty()) {
-                usagePoint.get().setReadRoute(usagePointFileInfo.getReadroute());
+                usagePoint.setReadRoute(usagePointFileInfo.getReadroute());
             }
             if (!usagePointFileInfo.getReadcycle().isEmpty()) {
-                usagePoint.get().setServicePriority(usagePointFileInfo.getReadcycle());
+                usagePoint.setServicePriority(usagePointFileInfo.getReadcycle());
             }
-            UsagePointDetail usagePointDetail = usagePoint.get().getServiceCategory().newUsagePointDetail(usagePoint.get(), clock.instant());
+            UsagePointDetail usagePointDetail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant());
             if (usagePointDetail instanceof ElectricityDetail) {
                 ElectricityDetail eDetail = (ElectricityDetail) usagePointDetail;
                 eDetail.setGrounded(usagePointFileInfo.getGrounded().equalsIgnoreCase("true"));
@@ -98,38 +136,10 @@ public class UsagePointProcessor {
                 if (!usagePointFileInfo.getNominalVoltageValue().isEmpty()) {
                     eDetail.setNominalServiceVoltage(Quantity.create(new BigDecimal(usagePointFileInfo.getNominalVoltageValue()), usagePointFileInfo.getNominalVoltageMultiplier(), usagePointFileInfo.getNominalVoltageUnit()));
                 }
-                usagePoint.get().addDetail(usagePointDetail);
+                usagePoint.addDetail(usagePointDetail);
             }
+            usagePoint.update();
         }
-        usagePoint.get().update();
-    }
-
-    public Optional<UsagePoint> validateData(UsagePointFileInfo usagePointFileInfo, Logger logger, int lineNumber) {
-        UsagePoint usagePoint = null;
-        if (usagePointFileInfo.getServiceKind().isEmpty()) {
-            MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID.log(logger, thesaurus, lineNumber);
-        } else if (usagePointFileInfo.getmRID().isEmpty()) {
-            MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID.log(logger, thesaurus, lineNumber);
-        } else {
-            Optional<UsagePoint> usagePointOptional = meteringService.findUsagePoint(usagePointFileInfo.getmRID());
-            Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.valueOf(usagePointFileInfo.getServiceKind()));
-            usagePoint = usagePointOptional.isPresent() ? usagePointOptional.get() : serviceCategory.get().newUsagePoint(usagePointFileInfo.getmRID()).create();
-            if (usagePointFileInfo.getServiceLocationID() > 0) {
-                Optional<ServiceLocation> serviceLocation = meteringService.findServiceLocation(usagePointFileInfo.getServiceLocationID());
-                if (serviceLocation.isPresent()) {
-                    usagePoint.setVirtual(false);
-                    usagePoint.setServiceLocation(serviceLocation.get());
-                } else {
-                    usagePoint.setVirtual(true);
-                    usagePoint.setServiceLocation(null);
-                    MessageSeeds.IMPORT_USAGEPOINT_SERVICELOCATION_INVALID.log(logger, thesaurus, lineNumber);
-                }
-            }
-            if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
-                MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID.log(logger, thesaurus, lineNumber);
-                return Optional.ofNullable(null);
-            }
-        }
-        return Optional.ofNullable(usagePoint);
+        return true;
     }
 }
