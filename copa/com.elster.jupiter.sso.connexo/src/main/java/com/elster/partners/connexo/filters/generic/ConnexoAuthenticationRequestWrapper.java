@@ -10,13 +10,15 @@ import java.security.Principal;
 
 public class ConnexoAuthenticationRequestWrapper extends HttpServletRequestWrapper {
 
-    ConnexoPrincipal principal;
-    HttpServletRequest realRequest;
+    private ConnexoPrincipal principal;
+    private HttpServletRequest realRequest;
+    private String authorizationToken;
 
-    public ConnexoAuthenticationRequestWrapper(ConnexoPrincipal principal, HttpServletRequest request) {
+    public ConnexoAuthenticationRequestWrapper(ConnexoPrincipal principal, HttpServletRequest request, String authorizationToken) {
         super(request);
         this.principal = principal;
         this.realRequest = request;
+        this.authorizationToken = authorizationToken;
     }
 
     @Override
@@ -34,5 +36,17 @@ public class ConnexoAuthenticationRequestWrapper extends HttpServletRequestWrapp
         }
 
         return this.principal;
+    }
+
+    @Override
+    public String getHeader(String name){
+        if(authorizationToken != null && name.equals("Authorization")){
+            String realAuthorization = realRequest.getHeader(name);
+            if(realAuthorization == null || !realAuthorization.startsWith("Bearer ")) {
+                return "Bearer " + authorizationToken;
+            }
+        }
+
+        return realRequest.getHeader(name);
     }
 }
