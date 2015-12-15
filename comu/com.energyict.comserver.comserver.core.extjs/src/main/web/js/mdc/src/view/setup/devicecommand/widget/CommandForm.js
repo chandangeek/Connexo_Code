@@ -7,11 +7,12 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
     ],
     layout: {
         type: 'vbox',
-        align: 'stretchmax'
+        align: 'stretch'
     },
     defaults: {
         xtype: 'combobox',
         labelWidth: 250,
+        maxWidth: 577,
         minWidth: 400,
         allowBlank: false,
         validateOnBlur: false,
@@ -44,17 +45,20 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
             required: true,
             fieldLabel: Uni.I18n.translate('deviceCommand.add.releaseDate', 'MDC', 'Release date'),
             dateConfig: {
-                width: 155
+                width: 128,
+                flex: 2
             },
             hoursConfig: {
-                width: 60
+                width: 60,
+                flex: 1
             },
             minutesConfig: {
-                width: 60
+                width: 60,
+                flex:1
             },
             dateTimeSeparatorConfig: {
                 html: Uni.I18n.translate('deviceCommand.add.at', 'MDC', 'at'),
-                margin: '0 10 0 10'
+                margin: '0 6 0 6'
             }
         }
     ],

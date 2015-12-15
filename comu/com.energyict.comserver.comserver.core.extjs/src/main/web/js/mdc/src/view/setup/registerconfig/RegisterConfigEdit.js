@@ -101,11 +101,11 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         fieldLabel: Uni.I18n.translate('registerConfig.numberOfDigits', 'MDC', 'Number of digits'),
                         itemId: 'editNumberOfDigitsField',
                         maxValue: 20,
-                        minValue: 0,
+                        minValue: 1,
                         enforceMaxLength: true,
                         maxLength: 2,
-                        width: 450
-                        //width: 64
+                        width: 450,
+                        allowBlank: false
                     },
                     {
                         xtype: 'numberfield',
@@ -117,8 +117,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         minValue: 0,
                         maxLength: 1,
                         enforceMaxLength: true,
-                        width: 450
-                        //width: 64
+                        width: 450,
+                        allowBlank: false
                     },
                     {
                         xtype: 'numberfield',
@@ -133,7 +133,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         maxLength: 22,
                         enforceMaxLength: true,
                         required: true,
-                        minValue: 1
+                        minValue: 1,
+                        allowBlank: false
                     },
                     {
                         xtype: 'fieldcontainer',
