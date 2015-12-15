@@ -1,27 +1,28 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests the {@link OutageRegionSearchableProperty} component
@@ -41,8 +42,7 @@ public class OutageRegionSearchablePropertyTest {
 
     @Before
     public void initializeMocks() {
-        when(this.propertySpecService.basicPropertySpec(eq("outageRegion"), eq(false), any(ValueFactory.class)))
-                .thenReturn(new BasicPropertySpec("outageRegion", "Search by Outage Region", false, new StringFactory()));
+        PropertySpecMockSupport.mockStringPropertySpec("outageRegion", this.propertySpecService);
     }
 
     @Test

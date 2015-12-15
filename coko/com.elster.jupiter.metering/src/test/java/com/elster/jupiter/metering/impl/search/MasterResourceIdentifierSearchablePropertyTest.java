@@ -1,11 +1,8 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -22,12 +19,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link MasterResourceIdentifierSearchableProperty} component
@@ -47,8 +42,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Before
     public void initializeMocks() {
-        when(this.propertySpecService.basicPropertySpec(eq("mRID"), eq(false), any(ValueFactory.class)))
-                .thenReturn(new BasicPropertySpec("mRID", "Search by mRID", false, new StringFactory()));
+        PropertySpecMockSupport.mockStringPropertySpec("mRID", this.propertySpecService);
     }
 
     @Test
