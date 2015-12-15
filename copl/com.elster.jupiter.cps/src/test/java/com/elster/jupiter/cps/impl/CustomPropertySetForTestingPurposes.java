@@ -8,7 +8,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 
 import com.google.inject.Module;
 
@@ -86,15 +85,17 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
     @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec billingCyclePropertySpec = this.propertySpecService
-                .bigDecimalPropertySpec(
-                        DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(),
-                        true,
-                        BigDecimal.ONE);
+                .bigDecimalSpec()
+                .named(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName())
+                .describedAs("Description")
+                .markRequired()
+                .setDefaultValue(BigDecimal.ONE)
+                .finish();
         PropertySpec contractNumberPropertySpec = this.propertySpecService
-                .basicPropertySpec(
-                        DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(),
-                        false,
-                        new StringFactory());
+                .stringSpec()
+                .named(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName())
+                .describedAs("Description")
+                .finish();
         return Arrays.asList(billingCyclePropertySpec, contractNumberPropertySpec);
     }
 
