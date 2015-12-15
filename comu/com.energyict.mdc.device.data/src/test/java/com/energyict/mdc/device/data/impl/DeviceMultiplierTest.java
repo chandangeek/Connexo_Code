@@ -144,9 +144,8 @@ public class DeviceMultiplierTest {
     }
 
     private Device createMockedDevice() {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
-                connectionTaskService, communicationTaskService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
-                connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, protocolPluggableService, manuallyScheduledComTaskExecutionProvider,
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
+                scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
                 firmwareComTaskExecutionProvider, meteringGroupsService, readingTypeUtilService);
         setId(device, ID);
         return device;

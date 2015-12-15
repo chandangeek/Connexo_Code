@@ -105,7 +105,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).setOverruledObisCode(overruledObisCode).overflow(overflow).nbrOfFractionDigits(2);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overruledObisCode(overruledObisCode).overflow(overflow).nbrOfFractionDigits(2);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
