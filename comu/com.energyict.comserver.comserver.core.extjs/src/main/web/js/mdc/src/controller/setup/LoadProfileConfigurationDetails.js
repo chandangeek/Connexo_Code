@@ -535,7 +535,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         var channel = Ext.JSON.decode(response.responseText),
                                             widget = Ext.widget('loadProfileConfigurationDetailForm',
                                                 {
-                                                    loadProfileConfigurationChannelAction: Uni.I18n.translate('general.add','MDC','Save'),
+                                                    loadProfileConfigurationChannelAction: Uni.I18n.translate('general.save','MDC','Save'),
                                                     deviceTypeId: deviceTypeId,
                                                     deviceConfigurationId: deviceConfigurationId,
                                                     loadProfileConfigurationId: loadProfileConfigurationId
