@@ -147,6 +147,7 @@ Ext.define('Uni.service.Search', {
             && Ext.isDefined(domain)
             && Ext.getClassName(domain) == "Uni.model.search.Domain"
         ) {
+            me.fireEvent('setDomain', domain);
             me.searchDomain = domain;
 
             me.filters.removeAll();
