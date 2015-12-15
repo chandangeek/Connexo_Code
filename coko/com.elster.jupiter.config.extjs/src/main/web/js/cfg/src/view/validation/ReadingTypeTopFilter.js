@@ -1,6 +1,7 @@
 Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     alias: 'widget.readingTypesToAddForRule',
+    itemId: 'reading-types-to-add-for-rule',
     requires: [
         'Cfg.store.ReadingTypesToAddForRule',
         'Cfg.store.UnitsOfMeasure',
