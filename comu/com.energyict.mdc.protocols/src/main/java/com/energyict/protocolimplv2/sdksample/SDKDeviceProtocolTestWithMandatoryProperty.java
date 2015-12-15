@@ -134,6 +134,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
                                 ObisCode.fromString("1.0.2.8.0.255"),
                                 ObisCode.fromString("1.0.2.8.1.255"),
                                 ObisCode.fromString("1.0.2.8.2.255"))
+                        .markExhaustive()
                         .finish());
         return propertySpecs;
     }
