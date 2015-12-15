@@ -19,7 +19,7 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
             },
             items: [
                 {
-                    xtype: 'readingTypesToAddForRule',
+                    xtype: 'readingTypesToAddForRule'
                 },
                 {
                     xtype: 'preview-container',
