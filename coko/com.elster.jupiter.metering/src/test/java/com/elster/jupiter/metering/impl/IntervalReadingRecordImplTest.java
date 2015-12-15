@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
 import org.junit.Before;
@@ -55,8 +56,7 @@ public class IntervalReadingRecordImplTest {
     private EventService eventService;
     @Mock
     private MeterActivation meterActivation;
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private Vault vault;
     @Mock

@@ -266,7 +266,7 @@ public class ReadingStorerImplIT {
         ReadingType deltaReadingType = meteringService.getReadingType(PRIMARY_DELTA).get();
         ReadingType pulseDeltaReadingType = meteringService.getReadingType(SECONDARY_PULSE_DELTA).get();
 
-        Channel channel = createMeterAndChannelWithMultiplier2(pulseDeltaReadingType, deltaReadingType);
+        Channel channel = createMeterAndChannelWithMultplier(pulseDeltaReadingType, deltaReadingType, BigDecimal.valueOf(50, 0));
 
         transactionService.run(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -474,10 +474,6 @@ public class ReadingStorerImplIT {
             assertThat(baseReadingRecord.getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(10000 + i * 1000, 2), 3, "Wh"));
             assertThat(baseReadingRecord.getTimeStamp()).isEqualTo(BASE.plusMinutes(15 * i).toInstant());
         }
-    }
-
-    private Channel createMeterAndChannelWithMultiplier2(ReadingType measured, ReadingType calculated) {
-        return createMeterAndChannelWithMultplier(measured, calculated, BigDecimal.valueOf(50, 0));
     }
 
     private Channel createMeterAndChannelWithMultplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {

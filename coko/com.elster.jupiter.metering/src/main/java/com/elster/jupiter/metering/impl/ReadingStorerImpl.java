@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.Predicates;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -46,14 +48,18 @@ class ReadingStorerImpl implements ReadingStorer {
     private final Map<Pair<ChannelContract, Instant>, BaseReading> readings = new HashMap<>();
     private final StorerProcess storerProcess;
     private final IdsService idsService;
-    private Map<Pair<ChannelContract, Instant>, Object[]> previous;
+    private Map<Pair<ChannelContract, Instant>, Object[]> previousReadings;
+    private Map<ChannelContract, List<Derivation>> deltaDerivations;
+    private Map<ChannelContract, List<Derivation>> multipliedDerivations;
 
     private static class Derivation {
+        private final ChannelContract channel;
         private final IReadingType readingType;
         private final DerivationRule derivationRule;
         private final int index;
 
-        public Derivation(IReadingType readingType, DerivationRule derivationRule, int index) {
+        public Derivation(ChannelContract channel, IReadingType readingType, DerivationRule derivationRule, int index) {
+            this.channel = channel;
             this.readingType = readingType;
             this.derivationRule = derivationRule;
             this.index = index;
@@ -70,6 +76,11 @@ class ReadingStorerImpl implements ReadingStorer {
         public int getIndex() {
             return index;
         }
+
+        public ChannelContract getChannel() {
+            return channel;
+        }
+
     }
 
     private ReadingStorerImpl(IdsService idsService, EventService eventService, UpdateBehaviour updateBehaviour, StorerProcess storerProcess) {
@@ -166,8 +177,7 @@ class ReadingStorerImpl implements ReadingStorer {
 
     @Override
     public void execute() {
-
-        doDerivations();
+        doDeltas();
         doMultiplications();
         consolidatedValues.entrySet().stream()
                 .forEach(entry -> {
@@ -181,39 +191,45 @@ class ReadingStorerImpl implements ReadingStorer {
         eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
     }
 
-    private void doDerivations() {
-        previous = new HashMap<>();
-
+    private void doDeltas() {
         Map<Pair<ChannelContract, Instant>, Object[]> valuesView = Maps.filterKeys(this.consolidatedValues, pair -> pair.getFirst().isRegular());
+        deltaDerivations = valuesView.keySet()
+                .stream()
+                .map(Pair::getFirst)
+                .distinct()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        this::getDerivations
+                ));
+
+        previousReadings = new HashMap<>();
         List<Pair<ChannelContract, Instant>> needed = valuesView.keySet()
                 .stream()
                 .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
                 .collect(Collectors.toList());
-
-        previous.putAll(Maps.filterKeys(valuesView, needed::contains));
-        previous.putAll(readFromDb(needed));
+        previousReadings.putAll(Maps.filterKeys(valuesView, needed::contains));
+        previousReadings.putAll(readFromDb(needed));
 
         // ok we've got all the previous readings that are available
-        Map<ChannelContract, List<Derivation>> deltaDerivations = valuesView.keySet()
-                .stream()
-                .map(Pair::getFirst)
-                .distinct()
-                .collect(Collectors
-                        .toMap(
-                                Function.identity(),
-                                channelContract -> decorate(channelContract.getReadingTypes().stream())
-                                        .zipWithIndex()
-                                        .map(pair -> new Derivation(pair.getFirst(), channelContract.getDerivationRule(pair.getFirst()), pair.getLast().intValue()))
-                                        .filter(derivation -> derivation.getDerivationRule().isDelta())
-                                        .collect(Collectors.toList())
-                        ));
 
         valuesView.keySet()
                 .stream()
                 .map(Pair::getFirst)
                 .distinct()
-                .forEach(perform(this::calculateDelta).with(deltaDerivations));
+                .forEach(this::calculateDelta);
 
+        updateExistingRecords(valuesView);
+    }
+
+    private List<Derivation> getDerivations(ChannelContract channel) {
+        return decorate(channel.getReadingTypes().stream())
+                .zipWithIndex()
+                .map(pair -> new Derivation(channel, pair.getFirst(), channel.getDerivationRule(pair.getFirst()), pair.getLast().intValue()))
+                .filter(derivation -> derivation.getDerivationRule().isDelta())
+                .collect(Collectors.toList());
+    }
+
+    private void updateExistingRecords(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
         List<Pair<ChannelContract, Instant>> mayNeedToUpdateTimes = valuesView.keySet()
                 .stream()
                 .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getNextDateTime(pair.getLast())))
@@ -223,40 +239,46 @@ class ReadingStorerImpl implements ReadingStorer {
         TimeSeriesDataStorer updatingStorer = Behaviours.UPDATE.createTimeSeriesStorer(idsService);
         mayNeedToUpdate.entrySet()
                 .stream()
-                .filter(entry -> {
-                    Instant instant = entry.getKey().getLast();
-                    ChannelContract channel = entry.getKey().getFirst();
-                    Object[] toUpdate = entry.getValue();
-                    Instant previousInstant = channel.getPreviousDateTime(instant);
-                    Object[] previous = consolidatedValues.get(Pair.of(channel, previousInstant));
-                    if (previous != null) {
-                        return deltaDerivations.get(channel)
-                                .stream()
-                                .map(derivation -> {
-                                    int index = derivation.getIndex() + channel.getRecordSpecDefinition().slotOffset();
-                                    BigDecimal previousBulk = getBigDecimal(previous[index + 1]);
-                                    BigDecimal currentBulk = getBigDecimal(toUpdate[index + 1]);
-                                    if (currentBulk != null && previousBulk != null) {
-                                        BigDecimal delta = currentBulk.subtract(previousBulk);
-                                        if (derivation.getDerivationRule().isMultiplied()) {
-                                            BigDecimal multiplier = getMultiplier(channel, instant, (IReadingType) derivation.getReadingType().getBulkReadingType().get());
-                                            delta = delta.multiply(multiplier);
-                                        }
-                                        toUpdate[index] = delta;
-                                        return true;
-                                    }
-                                    return false;
-                                })
-                                .reduce(false, (a, b) -> a | b);
-                    }
-                    return false;
-                })
+                .filter(this::updateEntryIfNeeded)
                 .forEach(entry -> updatingStorer.add(entry.getKey().getFirst().getTimeSeries(), entry.getKey().getLast(), entry.getValue()));
         updatingStorer.execute();
     }
 
+    private boolean updateEntryIfNeeded(Map.Entry<Pair<ChannelContract, Instant>, Object[]> entry) {
+        ChannelContract channel = entry.getKey().getFirst();
+        Instant instant = entry.getKey().getLast();
+        Object[] toUpdate = entry.getValue();
+        Instant previousInstant = channel.getPreviousDateTime(instant);
+        Object[] previous = consolidatedValues.get(Pair.of(channel, previousInstant));
+        return previous != null && doDeltaUpdates(channel, instant, toUpdate, previous);
+    }
+
+    private boolean doDeltaUpdates(ChannelContract channel, Instant instant, Object[] toUpdate, Object[] previous) {
+        return deltaDerivations.get(channel)
+                .stream()
+                .map(derivation -> doDeltaUpdate(channel, instant, toUpdate, previous, derivation))
+                .reduce(false, (a, b) -> a | b);
+    }
+
+    private boolean doDeltaUpdate(ChannelContract channel, Instant instant, Object[] toUpdate, Object[] previous, Derivation derivation) {
+        int index = derivation.getIndex() + channel.getRecordSpecDefinition().slotOffset();
+        BigDecimal previousBulk = getBigDecimal(previous[index + 1]);
+        BigDecimal currentBulk = getBigDecimal(toUpdate[index + 1]);
+        if (currentBulk != null && previousBulk != null) {
+            BigDecimal delta = currentBulk.subtract(previousBulk);
+            if (derivation.getDerivationRule().isMultiplied()) {
+                IReadingType bulkReadingType = (IReadingType) derivation.getReadingType().getBulkReadingType().get();
+                BigDecimal multiplier = getMultiplier(channel, instant, bulkReadingType);
+                delta = delta.multiply(multiplier);
+            }
+            toUpdate[index] = delta;
+            return true;
+        }
+        return false;
+    }
+
     private void doMultiplications() {
-        Map<ChannelContract, List<Derivation>> multipliedDerivations = this.consolidatedValues.keySet()
+        multipliedDerivations = this.consolidatedValues.keySet()
                 .stream()
                 .map(Pair::getFirst)
                 .distinct()
@@ -265,7 +287,7 @@ class ReadingStorerImpl implements ReadingStorer {
                                 Function.identity(),
                                 channelContract -> decorate(channelContract.getReadingTypes().stream())
                                         .zipWithIndex()
-                                        .map(pair -> new Derivation(pair.getFirst(), channelContract.getDerivationRule(pair.getFirst()), pair.getLast().intValue()))
+                                        .map(pair -> new Derivation(channelContract, pair.getFirst(), channelContract.getDerivationRule(pair.getFirst()), pair.getLast().intValue()))
                                         .filter(derivation -> derivation.getDerivationRule().isMultiplied())
                                         .collect(Collectors.toList())
                         ));
@@ -273,36 +295,35 @@ class ReadingStorerImpl implements ReadingStorer {
             return;
         }
 
-        multipliedDerivations.forEach((channelContract, derivations) -> {
-                    List<IReadingType> readingTypes = channelContract.getReadingTypes();
-                    derivations.forEach(derivation -> {
-                        consolidatedValues.entrySet()
-                                .stream()
-                                .filter(entry -> entry.getKey().getFirst().equals(channelContract))
-                                .forEach(entry -> {
-                                    int slotOffset = channelContract.getRecordSpecDefinition().slotOffset();
-                                    int index = derivation.getIndex();
-                                    Object[] values = entry.getValue();
-                                    if (DerivationRule.MULTIPLIED.equals(derivation.getDerivationRule())) {
-                                        if (values[index + slotOffset + 1] != storer.doNotUpdateMarker()) {
-                                            Instant instant = entry.getKey().getLast();
-                                            BigDecimal multiplier = getMultiplier(channelContract, instant, readingTypes.get(index + 1), readingTypes.get(index));
-                                            values[index + slotOffset] = ((BigDecimal) values[index + slotOffset + 1]).multiply(multiplier);
-                                        }
-                                    } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())) {
-                                        if (values[index + slotOffset] != storer.doNotUpdateMarker()) {
-                                            Instant instant = entry.getKey().getLast();
-                                            IReadingType target = (IReadingType) readingTypes.get(index).getBulkReadingType().get();
-                                            BigDecimal multiplier = getMultiplier(channelContract, instant, target);
-                                            values[index + slotOffset] = ((BigDecimal) values[index + slotOffset]).multiply(multiplier);
-                                        }
-                                    }
-                                });
+        multipliedDerivations.forEach(this::doMultiplications);
+
+    }
+
+    private void doMultiplications(ChannelContract channelContract, List<Derivation> derivations) {
+        List<IReadingType> readingTypes = channelContract.getReadingTypes();
+        derivations.forEach(derivation -> {
+            consolidatedValues.entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey().getFirst().equals(channelContract))
+                    .forEach(entry -> {
+                        Object[] values = entry.getValue();
+                        Instant instant = entry.getKey().getLast();
+                        int slotOffset = channelContract.getRecordSpecDefinition().slotOffset();
+                        int index = derivation.getIndex();
+                        if (DerivationRule.MULTIPLIED.equals(derivation.getDerivationRule())) {
+                            if (values[index + slotOffset + 1] != storer.doNotUpdateMarker()) {
+                                BigDecimal multiplier = getMultiplier(channelContract, instant, readingTypes.get(index + 1), readingTypes.get(index));
+                                values[index + slotOffset] = ((BigDecimal) values[index + slotOffset + 1]).multiply(multiplier);
+                            }
+                        } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())) {
+                            if (values[index + slotOffset] != storer.doNotUpdateMarker()) {
+                                IReadingType target = (IReadingType) readingTypes.get(index).getBulkReadingType().get();
+                                BigDecimal multiplier = getMultiplier(channelContract, instant, target);
+                                values[index + slotOffset] = ((BigDecimal) values[index + slotOffset]).multiply(multiplier);
+                            }
+                        }
                     });
-                }
-
-        );
-
+        });
     }
 
     private BigDecimal getBigDecimal(Object object) {
@@ -319,7 +340,7 @@ class ReadingStorerImpl implements ReadingStorer {
 
     private BigDecimal getMultiplier(ChannelContract channelContract, Instant instant, IReadingType target) {
         MultiplierType multiplierType = getMultiplierType(channelContract, target, instant).get();
-        return channelContract.getMeterActivation().getMultiplier(multiplierType).get();
+        return channelContract.getMeterActivation().getMultiplier(multiplierType).orElse(BigDecimal.ONE);
     }
 
     private Optional<MultiplierType> getMultiplierType(ChannelContract channel, ReadingType source, ReadingType target, Instant instant) {
@@ -341,7 +362,7 @@ class ReadingStorerImpl implements ReadingStorer {
                 .map(MultiplierUsage::getMultiplierType);
     }
 
-    private void calculateDelta(ChannelContract channel, Map<ChannelContract, List<Derivation>> deltaDerivations) {
+    private void calculateDelta(ChannelContract channel) {
         deltaDerivations.get(channel)
                 .stream()
                 .forEach(perform(this::applyDerivation).on(channel));
@@ -354,7 +375,7 @@ class ReadingStorerImpl implements ReadingStorer {
                 .filter(entry -> entry.getKey().getFirst().equals(channel))
                 .forEach(entry -> {
                     if (Objects.equals(entry.getValue()[slotOffset + derivation.index], storer.doNotUpdateMarker())) {
-                        Object[] previousReading = previous.get(entry.getKey().withLast(Channel::getPreviousDateTime));
+                        Object[] previousReading = previousReadings.get(entry.getKey().withLast(Channel::getPreviousDateTime));
                         if (previousReading != null) {
                             int bulkIndex = slotOffset + derivation.index + 1;
                             BigDecimal previous = (BigDecimal) previousReading[bulkIndex];

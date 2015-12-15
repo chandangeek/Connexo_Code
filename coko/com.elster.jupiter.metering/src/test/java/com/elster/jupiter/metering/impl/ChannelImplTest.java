@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -87,8 +88,7 @@ public class ChannelImplTest extends EqualsContractTest {
     private DataModel dataModel;
     @Mock
     private Clock clock;
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private EventService eventService;
 

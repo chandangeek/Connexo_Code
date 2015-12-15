@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
 import org.junit.Before;
@@ -62,8 +63,7 @@ public abstract class AbstractBaseReadingImplTest {
     private MeteringService meteringService;
     @Mock
     private EventService eventService;
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private Vault vault;
     @Mock

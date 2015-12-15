@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
@@ -39,8 +40,7 @@ public class FilteredReadingTest {
     private IntervalReadingRecordImpl source;
     @Mock
     private DataModel dataModel;
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     
     private ReadingTypeImpl readingType1, readingType2, readingType3, readingType4;
 
