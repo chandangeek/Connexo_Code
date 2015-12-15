@@ -11,11 +11,9 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when validation
- * is activated on a {@link Device} but the specified last checked
+ * is activated on a {@link UsagePoint} but the specified last checked
  * timestamp is invalid.
  *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-20 (10:28)
  */
 public class InvalidLastCheckedException extends RuntimeException {
 

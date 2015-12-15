@@ -16,7 +16,6 @@ import com.google.common.collect.Range;
 import aQute.bnd.annotation.ProviderType;
 
 /**
- * Created by tgr on 9/09/2014.
  */
 @ProviderType
 public interface UsagePointValidation {

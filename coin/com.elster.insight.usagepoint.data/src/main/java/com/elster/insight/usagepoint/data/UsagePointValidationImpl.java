@@ -34,7 +34,6 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
 /**
- * Created by tgr on 9/09/2014.
  */
 public class UsagePointValidationImpl implements UsagePointValidation {
 
