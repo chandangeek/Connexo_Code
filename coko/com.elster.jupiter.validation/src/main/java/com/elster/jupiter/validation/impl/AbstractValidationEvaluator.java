@@ -132,7 +132,7 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
     private void addValidatedAndOkReadingQuality(Instant readingTimeStamp, CimChannel channel, List<ReadingQualityRecord> qualities) {
         if (qualities.stream().noneMatch(ReadingQualityRecord::isSuspect)) {
-            qualities.add(channel.createReadingQuality(VALIDATED_AND_OK, readingTimeStamp));
+            qualities.add(new TransientReadingQuality(channel, VALIDATED_AND_OK, readingTimeStamp));
         }
     }
 
@@ -173,5 +173,103 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
     boolean wasValidated(Instant lastChecked, Instant readingTimestamp) {
         return lastChecked != null && readingTimestamp.compareTo(lastChecked) <= 0;
+    }
+
+    private static final class TransientReadingQuality implements ReadingQualityRecord {
+
+        private final CimChannel cimChannel;
+        private final ReadingQualityType readingQualityType;
+        private final Instant readingTimestamp;
+
+        private TransientReadingQuality(CimChannel cimChannel, ReadingQualityType readingQualityType, Instant readingTimestamp) {
+            this.cimChannel = cimChannel;
+            this.readingQualityType = readingQualityType;
+            this.readingTimestamp = readingTimestamp;
+        }
+
+        @Override
+        public Instant getTimestamp() {
+            return readingTimestamp;
+        }
+
+        @Override
+        public Channel getChannel() {
+            return cimChannel.getChannel();
+        }
+
+        @Override
+        public CimChannel getCimChannel() {
+            return cimChannel;
+        }
+
+        @Override
+        public ReadingType getReadingType() {
+            return cimChannel.getReadingType();
+        }
+
+        @Override
+        public long getId() {
+            return 0;
+        }
+
+        @Override
+        public void setComment(String comment) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Optional<BaseReadingRecord> getBaseReadingRecord() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void update() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Instant getReadingTimestamp() {
+            return readingTimestamp;
+        }
+
+        @Override
+        public void delete() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public long getVersion() {
+            return 0;
+        }
+
+        @Override
+        public boolean isActual() {
+            return true;
+        }
+
+        @Override
+        public void makePast() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void makeActual() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getComment() {
+            return "";
+        }
+
+        @Override
+        public String getTypeCode() {
+            return getType().getCode();
+        }
+
+        @Override
+        public ReadingQualityType getType() {
+            return readingQualityType;
+        }
     }
 }
