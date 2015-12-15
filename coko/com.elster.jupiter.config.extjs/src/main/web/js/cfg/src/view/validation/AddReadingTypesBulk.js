@@ -11,7 +11,6 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
         ptype: 'bufferedrenderer'
     },
 
-    hiddenSelection: [],
     blockSelectEvent: false,
 
     counterTextFn: function (count) {
@@ -32,7 +31,7 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
 
     initComponent: function () {
         var me = this;
-
+        me.hiddenSelection = [];
         me.callParent(arguments);
 
         me.on('select', function (grid, record) {
@@ -100,7 +99,7 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
         var me = this;
         me.blockSelectEvent = true;
         me.view.getSelectionModel().deselectAll();
-        me.hiddenSelection = [];
+        me.clearSelection();
         me.blockSelectEvent = false;
         me.overriddenOnSelectionChange();
         button.setDisabled(true);
@@ -117,6 +116,11 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
     getSelectedRecords: function() {
         return this.hiddenSelection
     },
+
+    clearSelection: function() {
+        this.hiddenSelection = [];
+    },
+
 
     onSelectionChange: function () {
     }
