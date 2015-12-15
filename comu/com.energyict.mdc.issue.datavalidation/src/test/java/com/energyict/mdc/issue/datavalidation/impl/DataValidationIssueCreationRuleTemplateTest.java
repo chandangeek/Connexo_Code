@@ -125,7 +125,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     @Transactional
     public void testCreateIssue() {
         Instant now = Instant.now();
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now).save();
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now);
         Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
         
@@ -166,7 +166,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     @Transactional
     public void testNotDuplicateIssueButUpdate() {
         Instant now = Instant.now();
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now).save();
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now);
         Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
         
@@ -175,7 +175,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         IssueDataValidation issueDataValidation = issues.get(0);
         assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(1);
 
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now.plus(2, ChronoUnit.MINUTES)).save();
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now.plus(2, ChronoUnit.MINUTES));
         message = mockCanntEstimateDataMessage(now.plus(2, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
         
@@ -189,7 +189,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     @Transactional
     public void testCreateNewIssueWhileHistoricalExists() {
         Instant now = Instant.now();
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now).save();
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now);
         Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
         
@@ -219,8 +219,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         Message message;
         //create issue
         ReadingQualityRecord readingQuality = channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime);
-        readingQuality.save();
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime.plus(1, ChronoUnit.MINUTES)).save();
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime.plus(1, ChronoUnit.MINUTES));
         message = mockCanntEstimateDataMessage(fixedTime, fixedTime.plus(1, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
