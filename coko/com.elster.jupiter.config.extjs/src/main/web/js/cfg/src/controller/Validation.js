@@ -71,7 +71,8 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'ruleSetEdit', selector: 'validationrulesetEdit'},
         {ref: 'newRuleSetForm', selector: 'createRuleSet > #newRuleSetForm'},
         {ref: 'createRuleSet', selector: 'createRuleSet'},
-        {ref: 'addRule', selector: 'addRule'},
+        {ref: 'addRuleTitle', selector: "#addRuleTitle"},
+        {ref: 'addRule', selector: '#addRuleForm'},
         {ref: 'addReadingTypesGrid', selector: '#addRule #addReadingTypesGrid'},
         {ref: 'readingValuesTextFieldsContainer', selector: 'addRule #readingValuesTextFieldsContainer'},
         {ref: 'propertiesContainer', selector: 'addRule #propertiesContainer'},
@@ -768,6 +769,7 @@ Ext.define('Cfg.controller.Validation', {
     modelToForm: function (ruleSetId, versionId, ruleId, record, isEdit) {
         var me = this,
             rulesStore = me.getStore('Cfg.store.ValidationRules'),
+            ruleTitle = me.getAddRuleTitle(),
             editRulePanel = me.getAddRule(),
             form = editRulePanel,
             grid = editRulePanel.down('#readingTypesForValidationRuleGridPanel'),
@@ -779,7 +781,7 @@ Ext.define('Cfg.controller.Validation', {
 
         loadRecordToForm = function (rule) {
             if (isEdit) {
-                editRulePanel.setTitle(me.ruleTitle);
+                ruleTitle.setTitle(me.ruleTitle);
                 validatorField.disable();
             }
 
