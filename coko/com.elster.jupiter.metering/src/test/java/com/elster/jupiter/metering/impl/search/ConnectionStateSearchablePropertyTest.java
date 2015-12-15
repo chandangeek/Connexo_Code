@@ -1,13 +1,14 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.impl.PropertySpecBuilderImpl;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -49,8 +50,19 @@ public class ConnectionStateSearchablePropertyTest {
 
     @Before
     public void initializeMocks() {
-        when(this.propertySpecService.specForValuesOf(any(ValueFactory.class)))
-                .thenReturn(PropertySpecBuilderImpl.forClass(new EnumFactory(ServiceKind.class)));
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("detail.connectionState");
+        PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
+        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
+        when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
+        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
+        when(nlsOptions
+                .named("detail.connectionState", any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(nlsOptions
+                .named(any(TranslationKey.class)))
+                .thenReturn(thesaurusOptions);
+        when(this.propertySpecService.specForValuesOf(any(EnumFactory.class))).thenReturn(nlsOptions);
     }
 
     @Test
