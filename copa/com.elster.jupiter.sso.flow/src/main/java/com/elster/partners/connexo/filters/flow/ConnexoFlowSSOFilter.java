@@ -3,6 +3,7 @@ package com.elster.partners.connexo.filters.flow;
 import com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthorizationManager;
 import com.elster.partners.connexo.filters.flow.identity.ConnexoFlowRestProxyManager;
 import com.elster.partners.connexo.filters.generic.ConnexoAbstractSSOFilter;
+import com.elster.partners.connexo.filters.generic.ConnexoAuthenticationRequestWrapper;
 import com.elster.partners.connexo.filters.generic.ConnexoPrincipal;
 import org.jboss.solder.core.Veto;
 import org.uberfire.security.Role;
@@ -35,14 +36,7 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        String token = null;
-        Cookie cookies[] = request.getCookies();
-        for(Cookie cookie : cookies) {
-            if(cookie.getName().equals("X-CONNEXO-TOKEN")) {
-                token = cookie.getValue();
-                break;
-            }
-        }
+        String token = getConnexoToken(request);
 
         ConnexoPrincipal principal = (ConnexoPrincipal) request.getUserPrincipal();
 
@@ -75,6 +69,26 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                 filterChain.doFilter(new ConnexoFlowRequestWrapper(subject, request), response);
             }
         }
+    }
+
+    private String getConnexoToken(HttpServletRequest request) {
+        String token = null;
+        String authorization = request.getHeader("Authorization");
+        if(authorization != null && authorization.startsWith("Bearer ")){
+            token = authorization.split(" ")[1];
+        }
+        else {
+            Cookie cookies[] = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("X-CONNEXO-TOKEN")) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        return token;
     }
 
     private boolean isLogoutRequest( final HttpServletRequest request ) {
