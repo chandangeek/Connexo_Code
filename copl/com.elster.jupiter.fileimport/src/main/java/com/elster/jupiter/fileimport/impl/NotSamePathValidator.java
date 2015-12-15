@@ -36,6 +36,6 @@ public class NotSamePathValidator implements ConstraintValidator<NotSamePath, Im
             return importDirectory.equals(importSchedule.getInProcessDirectory()) || importDirectory.equals(importSchedule.getSuccessDirectory()) ||
                     importDirectory.equals(importSchedule.getFailureDirectory());
         }
-        return true;
+        return false;
     }
 }
