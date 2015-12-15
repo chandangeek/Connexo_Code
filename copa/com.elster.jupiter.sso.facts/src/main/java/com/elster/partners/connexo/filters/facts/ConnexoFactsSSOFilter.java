@@ -34,6 +34,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
         }
         else {
             if (isLogoutRequest(request)) {
+                clearSession(request);
                 redirectToLogout(request, response);
             } else {
                 if (!isLoggedIn(request) && !isLoginRequest(request)) {
@@ -43,6 +44,10 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
                 }
             }
         }
+    }
+
+    private void clearSession(HttpServletRequest request){
+        request.getSession().setAttribute("SessionData", null);
     }
 
     private boolean isLoggedIn(HttpServletRequest request) {
