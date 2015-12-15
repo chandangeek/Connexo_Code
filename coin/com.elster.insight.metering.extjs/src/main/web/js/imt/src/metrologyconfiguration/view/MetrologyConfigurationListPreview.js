@@ -18,7 +18,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview', 
                 items: [
                     {
                         xtype:'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.label.general', 'IMT', 'General'),
                         labelAlign: 'top',
                         layout: 'vbox',
                         defaults: {
