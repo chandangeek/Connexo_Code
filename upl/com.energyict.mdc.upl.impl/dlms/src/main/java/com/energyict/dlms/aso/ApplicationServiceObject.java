@@ -176,6 +176,7 @@ public class ApplicationServiceObject {
                     decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
+                    disconnect();
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
                 }
@@ -188,6 +189,7 @@ public class ApplicationServiceObject {
                     decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
+                    disconnect();
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
                 }
@@ -200,6 +202,7 @@ public class ApplicationServiceObject {
                     decryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
+                    disconnect();
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
                 }
@@ -207,6 +210,7 @@ public class ApplicationServiceObject {
             break;
             default: {
                 // should never get here
+                disconnect();
                 throw new ConnectionException("Unknown authenticationLevel: " + this.securityContext.getAuthenticationLevel());
             }
         }
@@ -229,6 +233,7 @@ public class ApplicationServiceObject {
             cToSEncrypted = this.securityContext.createHighLevelAuthenticationGMACResponse(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), encryptedResponse);
         }
         if (!Arrays.equals(cToSEncrypted, encryptedResponse)) {
+            disconnect();
             throw new ProtocolException("HighLevelAuthentication failed, client and server challenges do not match.");
         } else {
             this.associationStatus = ASSOCIATION_CONNECTED;
@@ -239,6 +244,7 @@ public class ApplicationServiceObject {
         try {
             return this.securityContext.associationEncryption(plainText);
         } catch (NoSuchAlgorithmException e) {
+            disconnect();
             throw new ProtocolException(this.securityContext.getAuthenticationType() + " algorithm isn't a valid algorithm type." + e.getMessage());
         }
     }
@@ -310,5 +316,14 @@ public class ApplicationServiceObject {
         StringBuilder sb = new StringBuilder();
         sb.append("ApplicationServiceObject:").append(crlf);
         return sb.toString();
+    }
+
+    private void disconnect(){
+        try {
+            releaseAssociation();
+            getDlmsConnection().disconnectMAC();
+        } catch (Exception e) {
+           //do nothing
+        }
     }
 }
