@@ -369,8 +369,7 @@ public class MeteringCommands {
                     protected void doPerform() {
                         EndDeviceEventRecord endDeviceEventRecord = null;
                         try {
-                            endDeviceEventRecord = meter.addEventRecord(type.get(), Instant.from(dateTimeFormat.parse(dateTime)));
-                            endDeviceEventRecord.save();
+                            endDeviceEventRecord = meter.addEventRecord(type.get(), Instant.from(dateTimeFormat.parse(dateTime))).create();
                         } catch (RuntimeException e) {
                             e.printStackTrace();
                         }
@@ -443,7 +442,7 @@ public class MeteringCommands {
             executeTransaction(new VoidTransaction() {
                 @Override
                 protected void doPerform() {
-                    channel.get().createReadingQuality(readingQualityType, readingType.get(), timeStamp.toInstant()).save();
+                    channel.get().createReadingQuality(readingQualityType, readingType.get(), timeStamp.toInstant());
                 }
             });
         } catch (Exception e) {
