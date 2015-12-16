@@ -1,14 +1,5 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
@@ -24,6 +15,14 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements EnumeratedUsagePointGroup {
 
@@ -174,10 +173,10 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
     @Override
     public void save() {
-        if (id == 0) {
+        if (getId() == 0) {
             factory().persist(this);
             for (EntryImpl entry : getEntries()) {
-                entry.groupId = id;
+                entry.groupId = getId();
             }
             ArrayList<Entry> result = new ArrayList<>();
             for (EntryImpl entry : getEntries()) {

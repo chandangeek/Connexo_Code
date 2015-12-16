@@ -13,8 +13,8 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -61,22 +60,18 @@ public class ConsoleCommands {
     }
     
     public void createEnumeratedUsagePointGroup(String name, long... ids) {
-        final EnumeratedUsagePointGroup group = meteringGroupsService.createEnumeratedUsagePointGroup(name);
-        final List<EnumeratedUsagePointGroup.Entry> entries = new ArrayList<>();
-        for (long id : ids) {
-            Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(id);
-            if (usagePoint.isPresent()) {
-                EnumeratedUsagePointGroup.Entry entry = group.add(usagePoint.get(), Range.atLeast(clock.instant()));
-                entries.add(entry);
-            }
-        }
-        threadPrincipalService.set(() -> "console");
         try {
-            transactionService.execute(VoidTransaction.of(group::save));
+            transactionService.builder()
+                    .principal(() -> "console")
+                    .run(() -> meteringGroupsService.createEnumeratedUsagePointGroup()
+                                    .setName(name)
+                                    .containing(Arrays.stream(ids)
+                                            .mapToObj(meteringService::findUsagePoint)
+                                            .flatMap(Functions.asStream())
+                                            .toArray(UsagePoint[]::new))
+                                    .create());
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            threadPrincipalService.clear();
         }
     }
 

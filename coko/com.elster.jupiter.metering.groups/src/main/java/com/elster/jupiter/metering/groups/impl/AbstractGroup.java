@@ -6,10 +6,11 @@ import com.elster.jupiter.orm.Table;
 
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Objects;
 
 public class AbstractGroup {
 
-    protected long id;
+    private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
@@ -70,5 +71,18 @@ public class AbstractGroup {
 
     public long getVersion() {
         return this.version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractGroup)) return false;
+        AbstractGroup that = (AbstractGroup) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
