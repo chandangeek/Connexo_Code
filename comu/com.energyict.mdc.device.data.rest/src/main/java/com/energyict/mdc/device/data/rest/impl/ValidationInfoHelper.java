@@ -28,10 +28,14 @@ public class ValidationInfoHelper {
     }
 
     public DetailedValidationInfo getRegisterValidationInfo(Register<?> register) {
-        boolean validationActive = validationActive(register.getDevice().forValidation());
-
-        Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
+        DeviceValidation deviceValidation = register.getDevice().forValidation();
+        boolean validationActive = validationActive(deviceValidation);
+        Optional<Instant> lastChecked = deviceValidation.getLastChecked(register);
         return validationInfoFactory.createDetailedValidationInfo(validationActive, statuses(register), lastChecked);
+    }
+
+    public DetailedValidationInfo getMinimalRegisterValidationInfo(Register<?> register) {
+        return validationInfoFactory.createMinimalValidationInfo(register.getDevice().forValidation().isValidationActive());
     }
 
     private List<DataValidationStatus> statuses(Register<?> register) {
@@ -52,5 +56,4 @@ public class ValidationInfoHelper {
         ZonedDateTime start = end.minusYears(1);
         return Interval.of(start.toInstant(), end.toInstant());
     }
-
 }

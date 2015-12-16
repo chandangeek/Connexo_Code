@@ -186,7 +186,7 @@ public class DeviceComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response run(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info.device==null) {
+        if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -208,7 +208,7 @@ public class DeviceComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response runnow(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info.device==null) {
+        if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -310,7 +310,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info.device==null) {
+        if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -337,7 +337,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response deactivateComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info.device==null) {
+        if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -364,7 +364,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateAllComTasks(@PathParam("mRID") String mrid, ComTaskConnectionMethodInfo info) {
-        if (info.device==null) {
+        if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -382,7 +382,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response deactivateAllComTasks(@PathParam("mRID") String mrid, ComTaskConnectionMethodInfo info) {
-        if (info.device==null) {
+        if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
