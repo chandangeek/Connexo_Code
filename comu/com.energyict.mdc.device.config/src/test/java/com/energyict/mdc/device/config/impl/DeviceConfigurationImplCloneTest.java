@@ -36,11 +36,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigurationImplCloneTest extends PersistenceTest {
 
-    private final String DEVICE_TYPE_NAME = DeviceConfigurationImplCloneTest.class.getName() + "Type";
-    private final String propertyName1 = "PropName";
-    private final String propertyName2 = "OtherPropName";
-    private final String protocolDialectName1 = "Dialect1";
-    private final String protocolDialectName2 = "Dialect2";
+    private static final String DEVICE_TYPE_NAME = DeviceConfigurationImplCloneTest.class.getName() + "Type";
+    private static final String propertyName1 = "PropName";
+    private static final String propertyName2 = "OtherPropName";
+    private static final String protocolDialectName1 = "Dialect1";
+    private static final String protocolDialectName2 = "Dialect2";
 
     @Test
     @Transactional
@@ -159,8 +159,8 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
                                 .finish());
         DeviceProtocolDialect dialect2 =
                 mockDeviceProtocolDialect(
-                        propertyName1,
-                        protocolDialectName1,
+                        propertyName2,
+                        protocolDialectName2,
                         inMemoryPersistence.getPropertySpecService()
                                 .longSpec()
                                 .named(propertyName2, propertyName2)
