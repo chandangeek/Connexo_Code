@@ -47,7 +47,7 @@ public class BpmAppInstaller implements InstallService{
     private void createDefaultRoles() {
         try {
             Group group = userService.createGroup(BPM_DESIGNER_ROLE, BPM_DESIGNER_ROLE_DESCRIPTION);
-            userService.getPrivilege("privilege.design.bpm").ifPresent(p -> group.grant(BpmService.COMPONENTNAME, p.getName()));
+            userService.grantGroupWithPrivilege(group.getName(), BpmService.COMPONENTNAME, new String[] {"privilege.design.bpm"});
             //TODO: workaround: attached Bpm designer to user admin !!! to remove this line when the user can be created/added to system
             userService.getUser(1).ifPresent(u -> u.join(group));
         } catch (Exception e) {
