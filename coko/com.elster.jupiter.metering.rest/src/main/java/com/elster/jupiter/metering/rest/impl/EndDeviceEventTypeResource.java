@@ -4,8 +4,10 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -27,6 +29,7 @@ public class EndDeviceEventTypeResource {
      */
     @GET
     @Path("/devicetypes")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public EndDeviceEventTypePartInfos getDeviceTypes() {
         EndDeviceEventTypePartInfos result = new EndDeviceEventTypePartInfos();
@@ -39,6 +42,7 @@ public class EndDeviceEventTypeResource {
      */
     @GET
     @Path("/devicedomains")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public EndDeviceEventTypePartInfos getDomains() {
         EndDeviceEventTypePartInfos result = new EndDeviceEventTypePartInfos();
@@ -51,6 +55,7 @@ public class EndDeviceEventTypeResource {
      */
     @GET
     @Path("/devicesubdomains")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public EndDeviceEventTypePartInfos getSubDomains() {
         EndDeviceEventTypePartInfos result = new EndDeviceEventTypePartInfos();
@@ -63,6 +68,7 @@ public class EndDeviceEventTypeResource {
      */
     @GET
     @Path("/deviceeventoractions")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public EndDeviceEventTypePartInfos getEventOrActions() {
         EndDeviceEventTypePartInfos result = new EndDeviceEventTypePartInfos();

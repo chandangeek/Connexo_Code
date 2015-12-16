@@ -50,7 +50,7 @@ public class ReadingTypeResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypes(ReadingTypeFilterFactory.from(jsonQueryFilter))
@@ -64,6 +64,7 @@ public class ReadingTypeResource {
     
     @GET
 	@Path("/{mRID}/")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
 	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public ReadingTypeInfos getReadingType(@PathParam("mRID") String mRID) {
     	return meteringService.getReadingType(mRID)
@@ -73,6 +74,7 @@ public class ReadingTypeResource {
 
     @GET
     @Path("/{mRID}/calculated")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingTypeInfos getCalculatedReadingType(@PathParam("mRID") String mRID) {
         return meteringService.getReadingType(mRID)

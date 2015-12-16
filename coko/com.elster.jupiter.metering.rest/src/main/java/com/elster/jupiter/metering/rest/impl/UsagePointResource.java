@@ -179,6 +179,7 @@ public class UsagePointResource {
 
     @GET
     @Path("/readingtypes")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingTypeInfos getReadingTypes(@Context UriInfo uriInfo) {
         return new ReadingTypeInfos(meteringService.getAvailableReadingTypes());
