@@ -16,5 +16,5 @@ Specific Facts configuration needs to be updated as follows:
     com.elster.jupiter.url=http://hostname:8080
     com.elster.jupiter.externalurl=http://hostname
 4. Add the public key in the connexo.properties file as well
-    com.elster.jupiter.public.key=<key value copied from the Gogo command output>
+    com.elster.jupiter.sso.public.key=<key value copied from the Gogo command output>
 5. Start Apache Tomcat 7.0 ConnexoTomcat10.1 service
