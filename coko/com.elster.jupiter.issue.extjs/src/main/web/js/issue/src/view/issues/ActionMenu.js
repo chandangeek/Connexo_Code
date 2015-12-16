@@ -28,14 +28,12 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
                 me.removeAll();
                 if (me.record) {
+                    me.setLoading(true);
                     me.store.getProxy().url = me.record.getProxy().url + '/' + me.record.getId() + '/actions';
                     me.store.load(function () {
                         me.onLoad();
                         me.setLoading(false);
                     });
-                    setTimeout(function () {
-                        me.setLoading(true);
-                    }, 1)
                 } else {
                     //<debug>
                     console.error('Record for \'' + me.xtype + '\' is not defined');
