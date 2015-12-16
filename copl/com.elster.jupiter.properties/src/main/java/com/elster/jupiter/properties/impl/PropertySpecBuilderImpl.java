@@ -201,6 +201,7 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
             PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
             if (xPossibleValues == null) {
                 PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(true, new ArrayList<>());
+                possibleValues.setExhaustive(true);
                 possibleValues.setSelectionMode(selectionMode);
                 this.propertySpec.setPossibleValues(possibleValues);
             }
