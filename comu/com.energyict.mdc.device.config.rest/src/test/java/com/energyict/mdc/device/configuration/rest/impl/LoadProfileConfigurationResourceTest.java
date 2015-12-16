@@ -153,4 +153,9 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
         Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
+
+    @Test
+    public void getAvailableMeasurementTypesForChannelTest() {
+
+    }
 }

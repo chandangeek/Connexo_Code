@@ -1,16 +1,13 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -20,15 +17,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
@@ -40,13 +29,15 @@ public class LoadProfileConfigurationResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final MasterDataService masterDataService;
     private final Thesaurus thesaurus;
+    private MdcReadingTypeUtilService readingTypeUtilService;
 
     @Inject
-    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus) {
+    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService readingTypeUtilService) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.masterDataService = masterDataService;
         this.thesaurus = thesaurus;
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     @GET @Transactional
@@ -154,7 +145,7 @@ public class LoadProfileConfigurationResource {
         List<ChannelSpecInfo> channelSpecInfos = channelSpecs.stream().map(channelSpec -> ChannelSpecFullInfo.from(
                 channelSpec,
                 channelSpec.getReadingType(),
-                getPossibleMultiplyReadingTypesFor(getCollectedReadingTypeFromChannelSpec(channelSpec)),
+                getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(channelSpec.getReadingType())),
                 loadProfileSpec.getDeviceConfiguration().isActive())).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("data", channelSpecInfos, queryParameters)).build();
     }
@@ -174,12 +165,8 @@ public class LoadProfileConfigurationResource {
         return Response.ok(ChannelSpecFullInfo.from(
                 channelSpec,
                 channelSpec.getReadingType(),
-                getPossibleMultiplyReadingTypesFor(getCollectedReadingTypeFromChannelSpec(channelSpec)),
+                getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(channelSpec.getReadingType())),
                 deviceConfiguration.isActive())).build();
-    }
-
-    private ReadingType getCollectedReadingTypeFromChannelSpec(ChannelSpec channelSpec) {
-        return channelSpec.getReadingType().getCalculatedReadingType().orElse(channelSpec.getReadingType());
     }
 
     @POST @Transactional
@@ -209,7 +196,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(ChannelSpecFullInfo.from(
                 newChannelSpec,
                 newChannelSpec.getReadingType(),
-                getPossibleMultiplyReadingTypesFor(getCollectedReadingTypeFromChannelSpec(newChannelSpec)),
+                getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(newChannelSpec.getReadingType())),
                 deviceConfiguration.isActive())).build();
     }
 
@@ -247,7 +234,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(ChannelSpecFullInfo.from(
                 channelSpec,
                 channelSpec.getReadingType(),
-                getPossibleMultiplyReadingTypesFor(getCollectedReadingTypeFromChannelSpec(channelSpec)),
+                getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(channelSpec.getReadingType())),
                 deviceConfiguration.isActive())).build();
     }
 
@@ -282,15 +269,25 @@ public class LoadProfileConfigurationResource {
             channelTypes.remove(channelSpec.getChannelType().getId());
         }
         List<ChannelSpecShortInfo> channelSpecShortInfos = channelTypes.values().stream()
-                .map(channelType -> {
-                    ReadingType readingTypeForMultiplyCalculation = channelType.getReadingType().getCalculatedReadingType().orElse(channelType.getReadingType());
-                    return new ChannelSpecShortInfo(
-                            channelType,
-                            channelType.getReadingType(),
-                            getPossibleMultiplyReadingTypesFor(readingTypeForMultiplyCalculation)
-                    );
-                }).collect(Collectors.toList());
+                .map(channelType -> new ChannelSpecShortInfo(
+                        channelType,
+                        channelType.getReadingType(),
+                        getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(channelType.getReadingType()))
+                )).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("data", channelSpecShortInfos, queryParameters)).build();
+    }
+
+    private ReadingType getReadingTypeForMultiplyCalculation(ReadingType readingType) {
+        if(readingType.isCumulative()){
+            Optional<ReadingType> calculatedReadingType = readingType.getCalculatedReadingType();
+            if(calculatedReadingType.isPresent()){
+                return calculatedReadingType.get();
+            } else {
+                return readingTypeUtilService.findOrCreateReadingType(readingTypeUtilService.createReadingTypeCodeBuilderFrom(readingType).accumulate(Accumulation.DELTADELTA).code(), readingType.getAliasName());
+            }
+        } else {
+            return readingType;
+        }
     }
 
     private List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType) {
@@ -300,15 +297,15 @@ public class LoadProfileConfigurationResource {
     public Collection<LoadProfileType> findAvailableLoadProfileTypesForDeviceConfiguration(DeviceType deviceType, DeviceConfiguration deviceConfiguration){
         // Put all load profile types which exist on device type
         List<LoadProfileType> deviceTypeLoadProfileTypes = deviceType.getLoadProfileTypes();
-        Map<Long, LoadProfileType> availableLoadProfileTypesForDeviceConfiguartion = new HashMap<>(deviceTypeLoadProfileTypes.size());
+        Map<Long, LoadProfileType> availableLoadProfileTypesForDeviceConfiguration = new HashMap<>(deviceTypeLoadProfileTypes.size());
         for (LoadProfileType loadProfileType : deviceTypeLoadProfileTypes) {
-            availableLoadProfileTypesForDeviceConfiguartion.put(loadProfileType.getId(), loadProfileType);
+            availableLoadProfileTypesForDeviceConfiguration.put(loadProfileType.getId(), loadProfileType);
         }
         // Remove already assigned
         List<LoadProfileSpec> deviceConfigurationLoadProfileSpecs = deviceConfiguration.getLoadProfileSpecs();
         for (LoadProfileSpec loadProfileSpec : deviceConfigurationLoadProfileSpecs) {
-            availableLoadProfileTypesForDeviceConfiguartion.remove(loadProfileSpec.getLoadProfileType().getId());
+            availableLoadProfileTypesForDeviceConfiguration.remove(loadProfileSpec.getLoadProfileType().getId());
         }
-        return availableLoadProfileTypesForDeviceConfiguartion.values();
+        return availableLoadProfileTypesForDeviceConfiguration.values();
     }
 }
