@@ -315,6 +315,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         var optionalFiltersPanel = step2.down('#report-optional-filters');
         optionalFiltersPanel.removeAll();
         optionalFiltersPanel.setVisible(false);
+        var optionalFiltersPanelTitle = step2.down('#report-optional-filters-title');
+        optionalFiltersPanelTitle.setVisible(false);
 
 
         me.reportFilters = Ext.JSON.decode(decodeURIComponent(router.queryParams.filter)) || {};
@@ -363,6 +365,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         hasFilters = true;
                         optionalFiltersPanel.add(fieldContainer);
                         optionalFiltersPanel.setVisible(true);
+                        optionalFiltersPanelTitle.setVisible(true);
                     }
                     else {
                         hasPrompts = true;
