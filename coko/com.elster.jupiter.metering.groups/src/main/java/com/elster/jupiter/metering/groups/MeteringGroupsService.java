@@ -15,9 +15,9 @@ public interface MeteringGroupsService {
 
     String COMPONENTNAME = "MTG";
 
-    QueryUsagePointGroup createQueryUsagePointGroup(Condition condition);
+    UsagePointGroupBuilder.QueryUsagePointGroupBuilder createQueryUsagePointGroup(Condition condition);
 
-    EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name);
+    UsagePointGroupBuilder.EnumeratedUsagePointGroupBuilder createEnumeratedUsagePointGroup();
 
     Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id);
 

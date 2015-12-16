@@ -27,7 +27,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -131,10 +130,12 @@ public class EnumeratedUsagePointGroupImplIT {
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedUsagePointGroup enumeratedUsagePointGroup = meteringGroupsService.createEnumeratedUsagePointGroup("Mine");
-            enumeratedUsagePointGroup.setMRID("mine");
-            enumeratedUsagePointGroup.add(usagePoint, Range.atLeast(Instant.EPOCH));
-            enumeratedUsagePointGroup.save();
+            meteringGroupsService.createEnumeratedUsagePointGroup()
+                    .setName("Mine")
+                    .setMRID("mine")
+                    .at(Instant.EPOCH)
+                    .containing(usagePoint)
+                    .create();
             ctx.commit();
         }
 

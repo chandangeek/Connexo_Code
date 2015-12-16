@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroupBuilder;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -133,10 +134,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Override
-    public QueryUsagePointGroup createQueryUsagePointGroup(Condition condition) {
-        QueryUsagePointGroupImpl queryUsagePointGroup = new QueryUsagePointGroupImpl(dataModel, meteringService);
-        queryUsagePointGroup.setCondition(condition);
-        return queryUsagePointGroup;
+    public UsagePointGroupBuilder.QueryUsagePointGroupBuilder createQueryUsagePointGroup(Condition condition) {
+        return getUsagePointGroupBuilder().withConditions(condition);
     }
 
     @Override
@@ -145,10 +144,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Override
-    public EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name) {
-        EnumeratedUsagePointGroup group = new EnumeratedUsagePointGroupImpl(dataModel);
-        group.setName(name);
-        return group;
+    public UsagePointGroupBuilder.EnumeratedUsagePointGroupBuilder createEnumeratedUsagePointGroup() {
+        return getUsagePointGroupBuilder().enumerated();
     }
 
     @Override
@@ -176,18 +173,22 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
         return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUALIGNORECASE.compare("name", name)).stream().findFirst();
     }
 
-    private EndDeviceGroupBuilderImpl getBuilder() {
+    private EndDeviceGroupBuilderImpl getEndDeviceGroupBuilder() {
         return dataModel.getInstance(EndDeviceGroupBuilderImpl.class);
+    }
+
+    private UsagePointGroupBuilderImpl getUsagePointGroupBuilder() {
+        return dataModel.getInstance(UsagePointGroupBuilderImpl.class);
     }
 
     @Override
     public EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder createQueryEndDeviceGroup(SearchablePropertyValue... conditions) {
-        return getBuilder().withConditions(conditions);
+        return getEndDeviceGroupBuilder().withConditions(conditions);
     }
 
     @Override
     public EndDeviceGroupBuilder.EnumeratedEndDeviceGroupBuilder createEnumeratedEndDeviceGroup(EndDevice... endDevices) {
-        return getBuilder().containing(endDevices);
+        return getEndDeviceGroupBuilder().containing(endDevices);
     }
 
     @Override
