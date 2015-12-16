@@ -37,8 +37,9 @@ Ext.define('Uni.property.view.property.BaseCombo', {
     },
 
     getComboCmp: function () {
-        var me = this;
-        var sortedStore = me.getProperty().getPossibleValues().sort();
+        var me = this,
+            sortedStore = me.getProperty().getPossibleValues().sort(),
+            propertyValue = me.getProperty().get('value');
         return {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
@@ -47,7 +48,7 @@ Ext.define('Uni.property.view.property.BaseCombo', {
             queryMode: 'local',
             displayField: 'value',
             valueField: 'key',
-            value: me.getProperty().get('value'),
+            value: (!propertyValue ? undefined : propertyValue),
             width: me.width,
             forceSelection: me.getProperty().getExhaustive(),
             readOnly: me.isReadOnly,
