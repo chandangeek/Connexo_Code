@@ -25,14 +25,14 @@ Ext.define('Isu.view.issues.bulk.Step2', {
 
                     items: [
                         { itemId: 'Assign',
-                            boxLabel: 'Assign issues',
+                            boxLabel: Uni.I18n.translate('issue.assignIssues','ISU','Assign issues'),
                             name: 'operation',
                             inputValue: 'assign',
                             checked: true,
                             privileges: Isu.privileges.Issue.assign
                         },
                         { itemId: 'Close',
-                            boxLabel: 'Close issues',
+                            boxLabel: Uni.I18n.translate('issue.closeIssues','ISU','Close issues'),
                             name: 'operation',
                             inputValue: 'close',
                             privileges: Isu.privileges.Issue.close
