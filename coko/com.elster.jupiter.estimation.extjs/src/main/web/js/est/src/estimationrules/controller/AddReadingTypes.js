@@ -119,7 +119,7 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
     addSelectedReadingTypes: function () {
         var me = this;
 
-        me.getStore('Est.main.store.Clipboard').get('estimationRule').readingTypes().add(me.getGrid().getSelectionModel().getSelection());
+        me.getStore('Est.main.store.Clipboard').get('estimationRule').readingTypes().add(me.getGrid().getSelectedRecords());
         window.location.href = me.getPage().returnLink;
     }
 });

@@ -26,12 +26,7 @@ Ext.define('Est.main.view.AddReadingTypes', {
                         itemId: 'reading-types-empty-grid-container',
                         grid: {
                             xtype: 'reading-types-grid',
-                            itemId: 'reading-types-grid',
-                            listeners: {
-                                selectionchange: {
-                                    fn: Ext.bind(me.onSelectionChange, me)
-                                }
-                            }
+                            itemId: 'reading-types-grid'
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -70,9 +65,5 @@ Ext.define('Est.main.view.AddReadingTypes', {
         ];
 
         me.callParent(arguments);
-    },
-
-    onSelectionChange: function (selectionModel, selected) {
-        this.down('[action=addReadingTypes]').setDisabled(!selected.length);
     }
 });
