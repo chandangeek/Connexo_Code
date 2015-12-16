@@ -33,6 +33,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.nls.impl.NlsServiceImpl;
@@ -56,14 +57,10 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Order;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBase;
@@ -72,7 +69,6 @@ import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -82,23 +78,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.rules.*;
+import org.mockito.Matchers;
+
 import static com.elster.jupiter.util.conditions.Where.where;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("deprecation")
 public abstract class BaseTest {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "datacollection";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
-    public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new TranslationKey() {
-        @Override
-        public String getKey() {
-            return "issue.entity.default.translation";
-        }
-        @Override
-        public String getDefaultFormat() {
-            return "Default entity";
-        }
-    };
+    public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new SimpleTranslationKey("issue.entity.default.translation", "Default entity");
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();

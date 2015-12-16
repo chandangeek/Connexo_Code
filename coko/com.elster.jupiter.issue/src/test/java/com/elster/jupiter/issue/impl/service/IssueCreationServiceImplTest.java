@@ -22,15 +22,8 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.conditions.Condition;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -40,6 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,49 +45,51 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueCreationServiceImplTest extends BaseTest {
-    
+
+    public static final String DECIMAL_PROPERTY_NAME = "decimal_property";
+    public static final String STRING_PROPERTY_NAME = "string_property";
     private Map<String, PropertySpec> propertySpecs;
     private PropertySpec decimalProp;
     private PropertySpec stringProp;
-    
+
     private CreationRuleTemplate template;
-    
+
     private IssueActionType actionType;
-    
+
     @Before
     public void setUp() throws Exception {
-        decimalProp = getPropertySpecService().basicPropertySpec("decimal_property", true, new BigDecimalFactory());
-        stringProp = getPropertySpecService().basicPropertySpec("string_property", false, new StringFactory());
+        decimalProp = getPropertySpecService().bigDecimalSpec().named(DECIMAL_PROPERTY_NAME, DECIMAL_PROPERTY_NAME).describedAs(DECIMAL_PROPERTY_NAME).markRequired().finish();
+        stringProp = getPropertySpecService().stringSpec().named(STRING_PROPERTY_NAME, STRING_PROPERTY_NAME).describedAs(STRING_PROPERTY_NAME).finish();
         propertySpecs = new HashMap<>();
         propertySpecs.put(decimalProp.getName(), decimalProp);
         propertySpecs.put(stringProp.getName(), stringProp);
-        
+
         template = mockCreationRuleTemplate();
         ((IssueServiceImpl)getIssueService()).addCreationRuleTemplate(template);
         IssueActionFactory issueActionFactory = mockIssueActionFactory("action");
         ((IssueServiceImpl)getIssueService()).addIssueActionFactory(issueActionFactory);
         mockIssueAction();
-        
+
         IssueActionTypeImpl actionTypeImpl = getDataModel().getInstance(IssueActionTypeImpl.class);
         actionTypeImpl.init(issueActionFactory.getId(), "action", getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).get(), CreationRuleActionPhase.CREATE);
         actionTypeImpl.save();
         actionType = actionTypeImpl;
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "name", strict = true)
     public void testCreateRuleNoName() {
         getSimpleCreationRule(null, template);
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80+ "}", property = "name", strict = true)
     public void testCreateRuleWithTooLongName() {
         getSimpleCreationRule("-aaaaaaaaaabbbbbbbbbbccccccccccddddddddddaaaaaaaaaabbbbbbbbbbccccccccccdddddddddd", template);
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "reason", strict = true)
@@ -99,12 +99,12 @@ public class IssueCreationServiceImplTest extends BaseTest {
         builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setTemplate(template.getName());
         Map<String, Object> props = new HashMap<>();
-        props.put("decimal_property", BigDecimal.valueOf(10));
-        props.put("string_property", "string");
+        props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10));
+        props.put(STRING_PROPERTY_NAME, "string");
         builder.setProperties(props);
         builder.complete();
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "template", strict = true)
@@ -116,7 +116,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         builder.setTemplate(null);
         builder.complete();
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING +"}", property = "properties.decimal_property", strict = true)
@@ -128,14 +128,14 @@ public class IssueCreationServiceImplTest extends BaseTest {
         builder.setTemplate(template.getName());
         builder.complete();
     }
-    
+
     @Test
     @Transactional
     public void testFindCreationRule() {
         CreationRule creationRule = getSimpleCreationRule("Creation Rule", template);
-        
+
         Optional<CreationRule> foundCreationRule = getIssueCreationService().findCreationRuleById(creationRule.getId());
-        
+
         assertThat(foundCreationRule.isPresent()).isTrue();
         assertThat(foundCreationRule.get().getId()).isEqualTo(creationRule.getId());
         assertThat(foundCreationRule.get().getName()).isEqualTo("Creation Rule");
@@ -152,79 +152,79 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(foundCreationRule.get().getActions()).isEmpty();
         assertThat(foundCreationRule.get().getObsoleteTime()).isNull();
     }
-    
+
     @Test
     @Transactional
     public void testEditProperties() {
         //create rule with two properties
         CreationRule rule = getSimpleCreationRule("Creation Rule", template);
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
-        
+
         List<CreationRuleProperty> properties = rule.getCreationRuleProperties();
-        
+
         assertThat(properties).hasSize(2);
-        assertThat(properties.get(0).getName()).isEqualTo("string_property");
+        assertThat(properties.get(0).getName()).isEqualTo(STRING_PROPERTY_NAME);
         assertThat(properties.get(0).getValue()).isEqualTo("string");
-        assertThat(properties.get(1).getName()).isEqualTo("decimal_property");
+        assertThat(properties.get(1).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
         assertThat(properties.get(1).getValue()).isEqualTo(BigDecimal.valueOf(10));
 
         //update both properties
         Map<String, Object> props = new HashMap<>();
-        props.put("string_property", "new string");
-        props.put("decimal_property", BigDecimal.valueOf(12));
+        props.put(STRING_PROPERTY_NAME, "new string");
+        props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(12));
         rule.startUpdate().setProperties(props).complete();
-        
+
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         properties = rule.getCreationRuleProperties();
         assertThat(properties).hasSize(2);
-        assertThat(properties.get(0).getName()).isEqualTo("string_property");
+        assertThat(properties.get(0).getName()).isEqualTo(STRING_PROPERTY_NAME);
         assertThat(properties.get(0).getValue()).isEqualTo("new string");
-        assertThat(properties.get(1).getName()).isEqualTo("decimal_property");
+        assertThat(properties.get(1).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
         assertThat(properties.get(1).getValue()).isEqualTo(BigDecimal.valueOf(12));
-        
+
         //update one property and remove another one
         props = new HashMap<>();
-        props.put("decimal_property", BigDecimal.valueOf(15));
-        
+        props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(15));
+
         rule.startUpdate().setProperties(props).complete();
-        
+
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         properties = rule.getCreationRuleProperties();
         assertThat(properties).hasSize(1);
-        assertThat(properties.get(0).getName()).isEqualTo("decimal_property");
+        assertThat(properties.get(0).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
         assertThat(properties.get(0).getValue()).isEqualTo(BigDecimal.valueOf(15));
-        
+
         //add property
         props = new HashMap<>();
-        props.put("decimal_property", BigDecimal.valueOf(17));
-        props.put("string_property", "string again");
-        
+        props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(17));
+        props.put(STRING_PROPERTY_NAME, "string again");
+
         rule.startUpdate().setProperties(props).complete();
-        
+
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         properties = rule.getCreationRuleProperties();
         assertThat(properties).hasSize(2);
-        assertThat(properties.get(0).getName()).isEqualTo("string_property");
+        assertThat(properties.get(0).getName()).isEqualTo(STRING_PROPERTY_NAME);
         assertThat(properties.get(0).getValue()).isEqualTo("string again");
-        assertThat(properties.get(1).getName()).isEqualTo("decimal_property");
+        assertThat(properties.get(1).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
         assertThat(properties.get(1).getValue()).isEqualTo(BigDecimal.valueOf(17));
     }
-    
+
     @Test
     @Transactional
     public void testUpdateContent() {
         CreationRule rule = getSimpleCreationRule("Creation rule", template);
-        
+
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         assertThat(rule.getContent()).isEqualTo("bla bla bla 10 bla bla string bla " + rule.getId());
 
         Map<String, Object> props = new HashMap<>();
-        props.put("string_property", "new string");
-        props.put("decimal_property", BigDecimal.valueOf(12));
+        props.put(STRING_PROPERTY_NAME, "new string");
+        props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(12));
         rule.startUpdate().setProperties(props).complete();
-        
+
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
-        assertThat(rule.getContent()).isEqualTo("bla bla bla 12 bla bla new string bla " + rule.getId());        
+        assertThat(rule.getContent()).isEqualTo("bla bla bla 12 bla bla new string bla " + rule.getId());
     }
 
     @Test
@@ -287,8 +287,8 @@ public class IssueCreationServiceImplTest extends BaseTest {
             .newCreationRuleAction()
             .setActionType(actionType)
             .setPhase(CreationRuleActionPhase.CREATE)
-            .addProperty("decimal_property", BigDecimal.valueOf(10))
-            .addProperty("string_property", "string")
+            .addProperty(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10))
+            .addProperty(STRING_PROPERTY_NAME, "string")
             .complete();
         rule.update();
 
@@ -299,12 +299,12 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(creationRuleAction.getRule().getId()).isEqualTo(rule.getId());
         assertThat(creationRuleAction.getAction().getId()).isEqualTo(actionType.getId());
         assertThat(creationRuleAction.getProperties()).hasSize(2);
-        assertThat(creationRuleAction.getCreationRuleActionProperties().get(0).getName()).isEqualTo("decimal_property");
+        assertThat(creationRuleAction.getCreationRuleActionProperties().get(0).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
         assertThat(creationRuleAction.getCreationRuleActionProperties().get(0).getValue()).isEqualTo(BigDecimal.valueOf(10));
-        assertThat(creationRuleAction.getCreationRuleActionProperties().get(1).getName()).isEqualTo("string_property");
+        assertThat(creationRuleAction.getCreationRuleActionProperties().get(1).getName()).isEqualTo(STRING_PROPERTY_NAME);
         assertThat(creationRuleAction.getCreationRuleActionProperties().get(1).getValue()).isEqualTo("string");
     }
-    
+
     @Test
     @Transactional
     public void testEditActions() {
@@ -314,24 +314,24 @@ public class IssueCreationServiceImplTest extends BaseTest {
             .newCreationRuleAction()
             .setPhase(CreationRuleActionPhase.CREATE)
             .setActionType(actionType)
-            .addProperty("decimal_property", BigDecimal.valueOf(10))
-            .addProperty("string_property", "string")
+            .addProperty(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10))
+            .addProperty(STRING_PROPERTY_NAME, "string")
             .complete();
         rule.update();
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         assertThat(rule.getActions()).hasSize(1);
-        
+
         rule.startUpdate()
             .removeActions()
             .complete();
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         assertThat(rule.getActions()).isEmpty();
-        
+
         rule.startUpdate()
             .newCreationRuleAction()
             .setActionType(actionType)
             .setPhase(CreationRuleActionPhase.OVERDUE)
-            .addProperty("decimal_property", BigDecimal.valueOf(10))
+            .addProperty(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10))
             .complete();
         rule.update();
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
@@ -346,34 +346,34 @@ public class IssueCreationServiceImplTest extends BaseTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "actions[0].phase", strict = true)
     public void testRuleActionNoPhase() {
         CreationRule rule = getSimpleCreationRule("Creation rule", template);
-        
+
         rule.startUpdate()
             .newCreationRuleAction()
             .setActionType(actionType)
-            .addProperty("decimal_property", BigDecimal.valueOf(10))
+            .addProperty(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10))
             .complete();
         rule.update();
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "actions[0].type", strict = true)
     public void testRuleActionNoActionType() {
         CreationRule rule = getSimpleCreationRule("Creation rule", template);
-        
+
         rule.startUpdate()
             .newCreationRuleAction()
             .setPhase(CreationRuleActionPhase.CREATE)
             .complete();
         rule.update();
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING +"}", property = "actions[0].properties.decimal_property", strict = true)
     public void testRuleActionNoProperties() {
         CreationRule rule = getSimpleCreationRule("Creation rule", template);
-        
+
         rule.startUpdate()
             .newCreationRuleAction()
             .setActionType(actionType)
@@ -381,19 +381,19 @@ public class IssueCreationServiceImplTest extends BaseTest {
             .complete();
         rule.update();
     }
-    
+
     @Test
     @Transactional
     public void testCreationRuleTemplates() {
         assertThat(getIssueCreationService().getCreationRuleTemplates()).hasSize(1);
-        
+
         Optional<CreationRuleTemplate> fakeTemplate = getIssueCreationService().findCreationRuleTemplate("fake");
         assertThat(fakeTemplate.isPresent()).isFalse();
 
         assertThat(getIssueCreationService().reReadRules()).isTrue();
 
         ((IssueServiceImpl)getIssueService()).removeCreationRuleTemplate(template);
-        
+
         assertThat(getIssueCreationService().getCreationRuleTemplates()).isEmpty();
     }
 
@@ -401,7 +401,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
     @Transactional
     public void testCreationEvents() {
         CreationRule rule = getSimpleCreationRule("Creation Rule", template);
-        
+
         IssueCreationServiceImpl impl = IssueCreationServiceImpl.class.cast(getIssueCreationService());
         IssueEvent event = getMockIssueEvent();
         when(event.findExistingIssue()).thenReturn(Optional.empty());
@@ -415,7 +415,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(list.size()).isEqualTo(1);
         assertThat(list.get(0).getRule().getId()).isEqualTo(rule.getId());
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY +"}", property = "phase", strict = true)
@@ -423,11 +423,11 @@ public class IssueCreationServiceImplTest extends BaseTest {
         getIssueCreationService().newCreationRule()
                                  .newCreationRuleAction()
                                  .setActionType(actionType)
-                                 .addProperty("decimal_property", BigDecimal.valueOf(10))
+                                 .addProperty(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10))
                                  .complete()
                                  .validate();
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY +"}", property = "type", strict = true)
@@ -438,7 +438,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
                                  .complete()
                                  .validate();
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING +"}", property = "properties.decimal_property", strict = true)
@@ -450,7 +450,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
                                  .complete()
                                  .validate();
     }
-    
+
     private CreationRuleTemplate mockCreationRuleTemplate() {
         CreationRuleTemplate template = mock(CreationRuleTemplate.class);
         when(template.getName()).thenReturn("Creation rule template");
@@ -461,7 +461,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         when(template.createIssue(Matchers.any(), Matchers.any())).thenAnswer(invocation -> invocation.getArgumentAt(0, OpenIssue.class));
         return template;
     }
-    
+
     private IssueActionFactory mockIssueActionFactory(String actionName) {
         IssueActionFactory issueActionFactory = mock(IssueActionFactory.class);
         when(issueActionFactory.getId()).thenReturn("test issue action factory");
@@ -469,13 +469,13 @@ public class IssueCreationServiceImplTest extends BaseTest {
         when(issueActionFactory.createIssueAction(actionName)).thenReturn(issueAction);
         return issueActionFactory;
     }
-    
+
     private IssueAction mockIssueAction() {
         IssueAction issueAction = mock(IssueAction.class);
         when(issueAction.getPropertySpecs()).thenReturn(Arrays.asList(decimalProp, stringProp));
         return issueAction;
     }
-    
+
     private CreationRule getSimpleCreationRule(String name, CreationRuleTemplate template) {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName(name);
@@ -485,8 +485,8 @@ public class IssueCreationServiceImplTest extends BaseTest {
         builder.setDueInTime(DueInType.DAY, 15L);
         builder.setTemplate(template.getName());
         Map<String, Object> props = new HashMap<>();
-        props.put("decimal_property", BigDecimal.valueOf(10));
-        props.put("string_property", "string");
+        props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10));
+        props.put(STRING_PROPERTY_NAME, "string");
         builder.setProperties(props);
         return builder.complete();
     }

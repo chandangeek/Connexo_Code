@@ -135,9 +135,8 @@ public class IssueActionServiceImplTest extends BaseTest {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Arrays.asList(
-                    getPropertySpecService().stringPropertySpec("property1", true, "default"),
-                    getPropertySpecService().stringPropertySpec("property2", false, "default")
-            );
+                    getPropertySpecService().stringSpec().named("property1", "property1").describedAs(null).markRequired().setDefaultValue("default").finish(),
+                    getPropertySpecService().stringSpec().named("property2", "property2").describedAs(null).markRequired().setDefaultValue("default").finish());
         }
 
         @Override
