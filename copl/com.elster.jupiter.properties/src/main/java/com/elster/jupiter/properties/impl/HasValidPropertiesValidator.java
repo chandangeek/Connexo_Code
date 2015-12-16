@@ -1,23 +1,22 @@
 package com.elster.jupiter.properties.impl;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
 import com.elster.jupiter.properties.HasDynamicPropertiesWithValues;
 import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.List;
+import java.util.Map;
+
 public class HasValidPropertiesValidator implements ConstraintValidator<HasValidProperties, HasDynamicPropertiesWithValues> {
 
     private static final String PROPERTIES_NODE = "properties";
-    
+
     private HasValidProperties annotation;
     private boolean valid;
-    
+
     @Override
     public void initialize(HasValidProperties constraintAnnotation) {
         this.annotation = constraintAnnotation;
@@ -70,7 +69,12 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         PropertySpec propertySpec = null;
         try {
             propertySpec = getPropertySpec(propertySpecs, propertyName);
-            propertySpec.validateValue(propertyValue);
+            /* It is possible that there is not spec for this property.
+             * This will have been reported by validateRequiredPropertiesArePresent
+             * but we still get there to gather as many validation errors as possible. */
+            if (propertySpec != null) {
+                propertySpec.validateValue(propertyValue);
+            }
         } catch (InvalidValueException e) {
             context.buildConstraintViolationWithTemplate("{" + e.getMessageId() + "}")
                    .addPropertyNode(PROPERTIES_NODE)
@@ -80,7 +84,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             this.valid = false;
         }
     }
-    
+
     private PropertySpec getPropertySpec(List<PropertySpec> propertySpecs, String name) {
         return propertySpecs.stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
