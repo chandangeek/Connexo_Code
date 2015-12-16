@@ -25,6 +25,7 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
         }
 
         ConnexoSecurityTokenManager securityManager = ConnexoSecurityTokenManager.getInstance(this.properties);
+        ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance(getConnexoInternalUrl());
 
         String authorizationToken = getTokenFromCookie(request);
 

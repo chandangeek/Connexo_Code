@@ -114,7 +114,8 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
                 authorizationToken = authorization.split(" ")[1];
             }
             else if (authorization.startsWith("Basic ")){
-                ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance(getConnexoInternalUrl(), authorization);
+                ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance();
+                restManager.setAuthorization(authorization);
                 authorizationToken = restManager.getConnexoAuthorizationToken();
             }
         }

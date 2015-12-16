@@ -1,8 +1,6 @@
 package com.elster.partners.connexo.filters.generic;
 
 import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -11,25 +9,25 @@ import com.nimbusds.jwt.SignedJWT;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.security.*;
+import java.security.interfaces.RSAKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class ConnexoSecurityTokenManager {
 
     private final long MAX_COUNT;
     private final int TIMEOUT;
     private final int TOKEN_EXPTIME;
+    private final String PUBLIC_KEY;
 
     private String token = null;
     private ConnexoPrincipal principal = null;
@@ -54,35 +52,43 @@ public class ConnexoSecurityTokenManager {
 
         String tokenExpTime = properties.getProperty("com.elster.jupiter.token.expirationtime");
         TOKEN_EXPTIME = (tokenExpTime != null) ? Integer.parseInt(tokenExpTime) : 300;
+
+        String publicKey = properties.getProperty("com.elster.jupiter.sso.public.key");
+        PUBLIC_KEY = (publicKey != null) ? publicKey : "";
     }
 
     public boolean verifyToken(String token) {
         try {
             this.tokenUpdated = false;
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            String publicKey = String.valueOf(signedJWT.getJWTClaimsSet().getCustomClaim("publicKey"));
-            String issuer = signedJWT.getJWTClaimsSet().getIssuer();
-            Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
-            Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-            long count = (Long)signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
-            long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
-            BigInteger modulus = new BigInteger(publicKey.split(" ")[0]);
-            BigInteger exp = new BigInteger(publicKey.split(" ")[1]);
-            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus,exp);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
 
-            JWSVerifier verifier = new RSASSAVerifier(pubKey);
+            RSAKey rsaKey = getRSAKey(PUBLIC_KEY, "PUB");
+            if (rsaKey != null) {
+                SignedJWT signedJWT = SignedJWT.parse(token);
+                String publicKey = String.valueOf(signedJWT.getJWTClaimsSet().getCustomClaim("publicKey"));
+                String issuer = signedJWT.getJWTClaimsSet().getIssuer();
+                Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
+                Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+                long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
+                long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
+                BigInteger modulus = new BigInteger(publicKey.split(" ")[0]);
+                BigInteger exp = new BigInteger(publicKey.split(" ")[1]);
+                RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exp);
+                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+
+                JWSVerifier verifier = new RSASSAVerifier(pubKey);
 
 
-            if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
-                    issueTime.before(expirationTime) && count == tokenNumericTermination) {
-                if (count < MAX_COUNT) {
-                    constructPrincipal(signedJWT);
-                    if (new Date().before(new Date(expirationTime.getTime())) && this.principal != null) {
-                        return true;
-                    } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT*1000))) {
-                        return createToken(signedJWT.getJWTClaimsSet());
+                if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
+                        issueTime.before(expirationTime) && count == tokenNumericTermination) {
+                    if (count < MAX_COUNT) {
+                        constructPrincipal(signedJWT);
+                        if (new Date().before(new Date(expirationTime.getTime())) && this.principal != null) {
+                            return true;
+                        } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT * 1000))) {
+                            //return createToken(signedJWT.getJWTClaimsSet());
+                            return updateToken(token);
+                        }
                     }
                 }
             }
@@ -95,6 +101,15 @@ public class ConnexoSecurityTokenManager {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+
+        return false;
+    }
+
+    private boolean updateToken(String token) {
+        ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance();
+        restManager.setAuthorization("Bearer " + token);
+        this.token = restManager.getConnexoAuthorizationToken();
+        this.tokenUpdated = true;
 
         return false;
     }
@@ -139,7 +154,7 @@ public class ConnexoSecurityTokenManager {
         }
     }
 
-    private boolean createToken(ReadOnlyJWTClaimsSet claimsSet) {
+    /*private boolean createToken(ReadOnlyJWTClaimsSet claimsSet) {
         if(this.principal != null) {
             long count = (Long) claimsSet.getCustomClaim("cnt");
 
@@ -176,5 +191,20 @@ public class ConnexoSecurityTokenManager {
         }
 
         return false;
+    }*/
+
+    private RSAKey getRSAKey(String key, String keyType) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        RSAKey rsaKey = null;
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        if(key!=null && !key.isEmpty() && keyType.equals("PRV")) {
+            PKCS8EncodedKeySpec encodedKeySpec = new PKCS8EncodedKeySpec(DatatypeConverter.parseBase64Binary(key));
+            rsaKey = (RSAPrivateKey)keyFactory.generatePrivate(encodedKeySpec);
+
+        }else if(key!=null && !key.isEmpty() && keyType.equals("PUB")){
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(DatatypeConverter.parseBase64Binary(key));
+            rsaKey = (RSAPublicKey )keyFactory.generatePublic(keySpec);
+        }
+        return rsaKey;
+
     }
 }

@@ -13,15 +13,19 @@ import java.util.Map;
  */
 public class ConnexoRestProxyManager {
     private final String url;
-    private final String authorization;
+    private String authorization;
 
     private static ConnexoRestProxyManager instance = null;
 
-    public static synchronized ConnexoRestProxyManager getInstance(String url, String authorization) {
+    public static synchronized ConnexoRestProxyManager getInstance(String url) {
         if(instance == null) {
-            instance = new ConnexoRestProxyManager(url, authorization);
+            instance = new ConnexoRestProxyManager(url);
         }
 
+        return instance;
+    }
+
+    public static synchronized ConnexoRestProxyManager getInstance() {
         return instance;
     }
 
@@ -29,9 +33,12 @@ public class ConnexoRestProxyManager {
         return doPost("/api/apps/apps/login");
     }
 
-    private ConnexoRestProxyManager(String url, String authorization) {
-        this.url = url;
+    public void setAuthorization(String authorization){
         this.authorization = authorization;
+    }
+
+    private ConnexoRestProxyManager(String url) {
+        this.url = url;
     }
 
     private String doPost(String targetURL) {
