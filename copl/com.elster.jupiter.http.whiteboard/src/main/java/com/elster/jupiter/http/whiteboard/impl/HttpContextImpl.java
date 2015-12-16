@@ -190,7 +190,7 @@ public class HttpContextImpl implements HttpContext {
 
     private boolean unsecureAllowed(String uri) {
         for (String resource : RESOURCES_NOT_SECURED) {
-            if (uri.contains(resource)) {
+            if (uri.startsWith(resource)) {
                 return true;
             }
         }
