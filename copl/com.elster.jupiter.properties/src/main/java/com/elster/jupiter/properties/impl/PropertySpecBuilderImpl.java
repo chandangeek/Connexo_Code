@@ -175,14 +175,16 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
         @Override
         public void addValues (Object... values) {
-            PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
-            if (xPossibleValues == null) {
-                PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(false, Arrays.asList(values));
-                this.propertySpec.setPossibleValues(possibleValues);
-            }
-            else {
-                PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
-                possibleValues.add(values);
+            if (values.length > 0) {
+                PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
+                if (xPossibleValues == null) {
+                    PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(false, Arrays.asList(values));
+                    this.propertySpec.setPossibleValues(possibleValues);
+                }
+                else {
+                    PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
+                    possibleValues.add(values);
+                }
             }
         }
 

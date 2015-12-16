@@ -19,6 +19,10 @@ public interface ValueFactory<T> {
 
     String toStringValue(T object);
 
+    default boolean isReference() {
+        return false;
+    }
+
     Class<T> getValueType();
 
     T valueFromDatabase(Object object);
