@@ -368,15 +368,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
-        doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], (ValueFactory)invocationOnMock.getArguments()[2])).
-                when(propertySpecService).basicPropertySpec(any(String.class), any(Boolean.class), any(ValueFactory.class));
-        doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], new BigDecimalFactory())).
-                when(propertySpecService).bigDecimalPropertySpecWithValues(any(String.class), any(Boolean.class), any(BigDecimal.class), any(BigDecimal.class));
+// Todo: figure out how to mock this with the new PropertySpecService api
+//        doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], (ValueFactory)invocationOnMock.getArguments()[2])).
+//                when(propertySpecService).basicPropertySpec(any(String.class), any(Boolean.class), any(ValueFactory.class));
+//        doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], new BigDecimalFactory())).
+//                when(propertySpecService).bigDecimalPropertySpecWithValues(any(String.class), any(Boolean.class), any(BigDecimal.class), any(BigDecimal.class));
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
 
         // User has access to 2 device messages
         EnumSet<DeviceMessageId> userAuthorizedDeviceMessages = EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT);
-
 
         DeviceMessageEnablement deviceMessageEnablement1 = mock(DeviceMessageEnablement.class);
         when(deviceMessageEnablement1.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT);
