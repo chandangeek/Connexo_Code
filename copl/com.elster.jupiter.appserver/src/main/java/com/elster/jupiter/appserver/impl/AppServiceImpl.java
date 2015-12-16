@@ -450,7 +450,9 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
             if (allServerDestination.isPresent()) {
                 allServerDestination.get().message(jsonService.serialize(command)).send();
             } else {
-                LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
+                if (dataModel.isInstalled()) {
+                    LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
+                }
             }
         }
 
@@ -599,7 +601,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
 
     @Override
     public Layer getLayer() {
-         return Layer.DOMAIN;
+        return Layer.DOMAIN;
     }
 
     @Override
