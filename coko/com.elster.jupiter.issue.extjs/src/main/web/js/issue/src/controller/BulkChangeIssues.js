@@ -133,7 +133,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             record = me.getBulkRecord(),
             requestData = me.getRequestData(record),
             operation = record.get('operation'),
-            requestUrl = '/api/' + me.bundlePrefix.toLowerCase() + '/issue/' + operation,
+            requestUrl = '/api/' + me.bundlePrefix.toLowerCase() + '/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
             params = [],
