@@ -61,22 +61,16 @@ public class ConnexoSecurityTokenManager {
         try {
             this.tokenUpdated = false;
 
-            RSAKey rsaKey = getRSAKey(PUBLIC_KEY, "PUB");
+            RSAKey rsaKey = getRSAKey(PUBLIC_KEY);
             if (rsaKey != null) {
                 SignedJWT signedJWT = SignedJWT.parse(token);
-                String publicKey = String.valueOf(signedJWT.getJWTClaimsSet().getCustomClaim("publicKey"));
                 String issuer = signedJWT.getJWTClaimsSet().getIssuer();
                 Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
                 Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
                 long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
                 long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
-                BigInteger modulus = new BigInteger(publicKey.split(" ")[0]);
-                BigInteger exp = new BigInteger(publicKey.split(" ")[1]);
-                RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exp);
-                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
 
-                JWSVerifier verifier = new RSASSAVerifier(pubKey);
+                JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey)rsaKey);
 
 
                 if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
@@ -193,18 +187,13 @@ public class ConnexoSecurityTokenManager {
         return false;
     }*/
 
-    private RSAKey getRSAKey(String key, String keyType) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private RSAKey getRSAKey(String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
         RSAKey rsaKey = null;
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        if(key!=null && !key.isEmpty() && keyType.equals("PRV")) {
-            PKCS8EncodedKeySpec encodedKeySpec = new PKCS8EncodedKeySpec(DatatypeConverter.parseBase64Binary(key));
-            rsaKey = (RSAPrivateKey)keyFactory.generatePrivate(encodedKeySpec);
-
-        }else if(key!=null && !key.isEmpty() && keyType.equals("PUB")){
+        if(key != null && !key.isEmpty()){
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(DatatypeConverter.parseBase64Binary(key));
             rsaKey = (RSAPublicKey )keyFactory.generatePublic(keySpec);
         }
         return rsaKey;
-
     }
 }
