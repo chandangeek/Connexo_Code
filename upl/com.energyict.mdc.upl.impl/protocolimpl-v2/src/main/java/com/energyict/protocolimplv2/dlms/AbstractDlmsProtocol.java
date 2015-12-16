@@ -65,7 +65,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         getDlmsSession().connect();
         checkCacheObjects();
         if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
-            getMeterTopology().searchForSlaveDevices();
+            getMeterTopology();
         }
     }
 
@@ -163,8 +163,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     public AbstractMeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
             this.meterTopology = new MeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
-        meterTopology.searchForSlaveDevices();
         return meterTopology;
     }
 

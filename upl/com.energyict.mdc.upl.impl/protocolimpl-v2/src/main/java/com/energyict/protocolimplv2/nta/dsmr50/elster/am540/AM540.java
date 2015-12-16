@@ -362,8 +362,8 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public IDISMeterTopology getMeterTopology() {
         if (meterTopology == null) {
             meterTopology = new IDISMeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
-        meterTopology.searchForSlaveDevices();
         return meterTopology;
     }
 

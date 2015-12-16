@@ -304,8 +304,8 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
             meterTopology = new IDISMeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
-        meterTopology.searchForSlaveDevices();
         return meterTopology;
     }
 
