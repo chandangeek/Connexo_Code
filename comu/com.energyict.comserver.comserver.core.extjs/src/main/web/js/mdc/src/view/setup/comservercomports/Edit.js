@@ -106,19 +106,19 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
         switch (portDirection) {
             case 'inbound' :
                 switch (portType) {
-                    case 'TCP':
+                    case 'TYPE_TCP':
                         nest.removeAll();
                         form = nest.add({xtype: 'tcpForm'});
                         break;
-                    case 'UDP':
+                    case 'TYPE_UDP':
                         nest.removeAll();
                         form = nest.add({xtype: 'udpForm'});
                         break;
-                    case 'SERVLET':
+                    case 'TYPE_SERVLET':
                         nest.removeAll();
                         form = nest.add({xtype: 'servletForm'});
                         break;
-                    case 'SERIAL':
+                    case 'TYPE_SERIAL':
                         nest.removeAll();
                         form = nest.add({xtype: 'serialForm'});
                         break;
@@ -127,19 +127,19 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                 break;
             case 'outbound' :
                 switch (portType) {
-                    case 'TCP':
+                    case 'TYPE_TCP':
                         nest.removeAll();
                         form = nest.add({xtype: 'tcpForm'});
                         break;
-                    case 'UDP':
+                    case 'TYPE_UDP':
                         nest.removeAll();
                         form = nest.add({xtype: 'udpForm'});
                         break;
-                    case 'SERVLET':
+                    case 'TYPE_SERVLET':
                         nest.removeAll();
                         form = nest.add({xtype: 'servletForm'});
                         break;
-                    case 'SERIAL':
+                    case 'TYPE_SERIAL':
                         nest.removeAll();
                         form = nest.add({xtype: 'serialForm'});
                         break;

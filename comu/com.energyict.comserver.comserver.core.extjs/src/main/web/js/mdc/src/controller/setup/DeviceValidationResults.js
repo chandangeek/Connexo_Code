@@ -67,13 +67,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 tabChange: this.changeTab
             },
             '#con-configuration-view-validation-results-browse #rule-set-list': {
-                selectionchange: this.onRuleSetGridSelectionChange
+                select: this.onRuleSetGridSelectionChange
             },
             '#con-configuration-view-validation-results-browse #rule-set-version-list': {
-                selectionchange: this.onRuleSetVersionGridSelectionChange
+                select: this.onRuleSetVersionGridSelectionChange
             },
             '#con-configuration-view-validation-results-browse #rule-set-version-rule-list': {
-                selectionchange: this.onRuleSetVersionRuleGridSelectionChange
+                select: this.onRuleSetVersionRuleGridSelectionChange
             },
             'mdc-device-validation-results-ruleset #btn-configuration-view-validate-now': {
                 click: this.validateNow
@@ -466,7 +466,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             ruleSetVersionGrid.getSelectionModel().select(0);
             return true;
         }, this);
-        ruleSetVersionGrid.getStore().loadData(record[0].get('detailedRuleSetVersions'));
+        ruleSetVersionGrid.getStore().loadData(record.get('detailedRuleSetVersions'));
     },
 
     onRuleSetVersionGridSelectionChange: function (grid, record) {
@@ -477,13 +477,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             ruleSetVersionRuleGrid.getSelectionModel().select(0);
             return true;
         }, this);
-        ruleSetVersionRuleGrid.getStore().loadData(record[0].get('detailedRules'));
+        ruleSetVersionRuleGrid.getStore().loadData(record.get('detailedRules'));
     },
 
     onRuleSetVersionRuleGridSelectionChange: function (grid, record) {
         var me = this,
             rulePreview = me.getRuleSetVersionRulePreview(),
-            validationRule = record[0],
+            validationRule = record,
             readingTypes = validationRule.data.readingTypes;
 
         rulePreview.loadRecord(validationRule);
