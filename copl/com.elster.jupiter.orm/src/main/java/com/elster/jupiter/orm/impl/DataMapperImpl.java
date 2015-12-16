@@ -242,7 +242,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Override
 	public List<T> find(String[] fieldNames, Object[] values, Order... orders) {
 		try {
-			return reader.find(fieldNames,values,orders);
+			return reader.find(fieldNames, values, orders);
 		} catch(SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -307,7 +307,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 	@Override
 	public void update(T object , String... fieldNames)  {
-		update(object,getUpdateColumns(fieldNames));
+		update(object, getUpdateColumns(fieldNames));
 	}
 	
 	public void touch(T object) {
@@ -343,11 +343,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return columns;
 	}
 	
-	private void update(T object,List<ColumnImpl> columns) {
-		//  remove object from cache, as we do not know if tx will commit or rollback
-		getCache().remove(object);
+	private void update(T object, List<ColumnImpl> columns) {
 		try {
 			writer.update(object,columns);
+			//remove object from cache, as we do not know if tx will commit or rollback
+			getCache().remove(object);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -362,17 +362,17 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			update(objects.get(0),fieldNames);
 			return;
 		}
-		update(objects,getUpdateColumns(fieldNames));
+		update(objects, getUpdateColumns(fieldNames));
 	}
 	
 
 	private void update(List<T> objects,List<ColumnImpl> columns){
-		//remove objects from cache, as we do not know if tx will commit or rollback
-		for (T each : objects) {
-			getCache().remove(each);
-		}
 		try {
-			writer.update(objects,columns);
+			writer.update(objects, columns);
+			//remove objects from cache, as we do not know if tx will commit or rollback
+			for (T each : objects) {
+				getCache().remove(each);
+			}
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		} 	
@@ -419,7 +419,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return result;
 	}
 	
-	public QueryExecutorImpl<T> query(Class<?>... eagers) {		
+	public QueryExecutorImpl<T> query(Class<?>... eagers) {
 		return getDataModel().query(this, eagers);
 	}
 	
