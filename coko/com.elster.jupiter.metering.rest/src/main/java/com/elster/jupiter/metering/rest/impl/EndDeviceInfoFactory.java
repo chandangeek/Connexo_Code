@@ -62,26 +62,8 @@ public class EndDeviceInfoFactory implements InfoFactory<EndDevice> {
                 info.retiredDate = mRetiredDate.get().getEpochSecond();
             }
         }
-        
-//        UsagePoint usagePoint = getUsagePoint(endDevice);
-//        if (usagePoint != null) {
-//            usagePointName = usagePoint.getName();
-//            usagePointMRId = usagePoint.getMRID();
-//        }
         return info;
     }
-    
-//    private UsagePoint getUsagePoint(EndDevice endDevice) {
-//         Optional<? extends MeterActivation> activations = endDevice.getCurrentMeterActivation();
-//         if (activations.isPresent()) {
-//            Optional<UsagePoint> ausagePoint = activations.get().getUsagePoint();
-//            if (ausagePoint.isPresent()) {
-//                return ausagePoint.get();
-//            }
-//         }
-//         return null;
-//    }
-       
 
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
