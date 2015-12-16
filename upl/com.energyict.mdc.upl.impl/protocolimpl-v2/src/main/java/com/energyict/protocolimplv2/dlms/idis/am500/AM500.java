@@ -100,9 +100,6 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     public void logOn() {
         connectWithRetries(getDlmsSession());
         checkCacheObjects();
-        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
-            getMeterTopology().searchForSlaveDevices();
-        }
     }
 
     /**
@@ -304,8 +301,8 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
             meterTopology = new IDISMeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
-        meterTopology.searchForSlaveDevices();
         return meterTopology;
     }
 
