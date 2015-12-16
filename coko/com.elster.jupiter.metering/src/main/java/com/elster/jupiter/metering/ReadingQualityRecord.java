@@ -19,7 +19,7 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
 
     Optional<BaseReadingRecord> getBaseReadingRecord();
 
-    void save();
+    void update();
 
     Instant getReadingTimestamp();
 
@@ -29,23 +29,39 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
 
 	boolean isActual();
 
-    boolean hasEditCategory();
+    default boolean hasEditCategory() {
+    	return getType().hasEditCategory();
+    }
 
-    boolean hasValidationCategory();
+    default boolean hasValidationCategory() {
+    	return getType().hasValidationCategory();
+    }
 
-    boolean isSuspect();
+    default boolean isSuspect() {
+    	return getType().isSuspect();
+    }
 
-    boolean isMissing();
-    
-    boolean isError();
+    default boolean isMissing() {
+    	return getType().isMissing();
+    }
+
+    default boolean isError() {
+    	return getType().isError();
+    }
 
     void makePast();
 
     void makeActual();
 
-	boolean hasReasonabilityCategory();
+    default boolean hasReasonabilityCategory() {
+    	return getType().hasReasonabilityCategory();
+    }
 
-    boolean hasEstimatedCategory();
+    default boolean hasEstimatedCategory() {
+        return getType().hasEstimatedCategory();
+    }
 
-    boolean isConfirmed();
+    default boolean isConfirmed() {
+        return getType().isConfirmed();
+    }
 }

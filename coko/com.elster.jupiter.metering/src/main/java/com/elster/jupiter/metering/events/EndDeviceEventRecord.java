@@ -25,8 +25,6 @@ public interface EndDeviceEventRecord extends EndDeviceEvent {
 
     EndDeviceEventType getEventType();
 
-    void save();
-
     void setAliasName(String aliasName);
 
     void setDescription(String description);

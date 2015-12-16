@@ -194,9 +194,7 @@ public class ReadingQualityImplIT {
         regularStorer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(date, BigDecimal.valueOf(561561, 2)));
         regularStorer.execute();
         BaseReadingRecord reading = channel.getReading(date).get();
-        ReadingQualityRecord readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), readingType, reading);
-        readingQuality.save();
-        return readingQuality;
+        return channel.createReadingQuality(new ReadingQualityType("6.1"), readingType, reading);
     }
 
 }

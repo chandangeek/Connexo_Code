@@ -132,8 +132,7 @@ public class EndDeviceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             List<EndDeviceEventType> availableEndDeviceEventTypes = meteringService.getAvailableEndDeviceEventTypes();
             endDevice = meteringService.findAmrSystem(1).get().createEndDevice("1", "1");
-            eventRecord = endDevice.addEventRecord(availableEndDeviceEventTypes.get(0), date);
-            eventRecord.save();
+            eventRecord = endDevice.addEventRecord(availableEndDeviceEventTypes.get(0), date).create();
             context.commit();
         }
         List<EndDeviceEventRecord> deviceEvents = endDevice.getDeviceEvents(Range.atLeast(date));
