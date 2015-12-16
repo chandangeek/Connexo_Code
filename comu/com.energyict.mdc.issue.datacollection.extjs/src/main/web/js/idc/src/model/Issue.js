@@ -11,7 +11,7 @@ Ext.define('Idc.model.Issue', {
 
     proxy: {
         type: 'rest',
-        url: '/api/idc/issue',
+        url: '/api/idc/issues',
         reader: {
             type: 'json',
             root: 'data'
