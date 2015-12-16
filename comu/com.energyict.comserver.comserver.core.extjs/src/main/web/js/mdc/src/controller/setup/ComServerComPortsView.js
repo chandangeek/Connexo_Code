@@ -111,6 +111,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 menu.comServerId = id;
             });
             me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portModel && (delete me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portModel);
+            me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portType && (delete me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portType);
             addComPortPoolsStore.removeAll();
             comServerModel.load(id, {
                 success: function (record) {
