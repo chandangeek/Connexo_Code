@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -386,9 +385,7 @@ public final class MeterActivationImpl implements MeterActivation {
         List<ReadingQualityRecord> newReadingQualities = sourceQualities.stream()
                 .map(targetChannel::copyReadingQuality)
                 .collect(Collectors.toList());
-        DataMapper<ReadingQualityRecord> qualityMapper = dataModel.mapper(ReadingQualityRecord.class);
-        qualityMapper.persist(newReadingQualities);
-        qualityMapper.remove(sourceQualities);
+        dataModel.mapper(ReadingQualityRecord.class).remove(sourceQualities);
     }
 
     private void moveReadings(ChannelImpl sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {

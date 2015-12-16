@@ -135,7 +135,17 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         return baseReadingRecord;
     }
 
-    public void save() {
+    public void update() {
+        dataModel.mapper(ReadingQualityRecord.class).update(this);
+        eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
+    }
+
+    public void update(String... fieldNames) {
+        dataModel.mapper(ReadingQualityRecord.class).update(this, fieldNames);
+        eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
+    }
+
+    void doSave() {
         if (id == 0) {
             dataModel.mapper(ReadingQualityRecord.class).persist(this);
             eventService.postEvent(EventType.READING_QUALITY_CREATED.topic(), new LocalEventSource(this));
@@ -164,46 +174,17 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     public long getVersion() {
         return version;
     }
-    
-    @Override
-    public boolean hasEditCategory() {
-    	return getType().hasEditCategory();
-    }
-    
-    @Override
-    public boolean hasReasonabilityCategory() {
-    	return getType().hasReasonabilityCategory();
-    }
-    @Override
-    public boolean hasValidationCategory() {
-    	return getType().hasValidationCategory();
-    }
-    
-    @Override
-    public boolean isSuspect() {
-    	return getType().isSuspect();
-    }
-    
-    @Override
-    public boolean isMissing() {
-    	return getType().isMissing();
-    }
-    
-    @Override
-    public boolean isError() {
-    	return getType().isError();
-    }
-    
+
     @Override
     public void makePast() {
     	this.actual = false;
-    	this.save();
+    	this.update("actual");
     }
     
     @Override
     public void makeActual() {
     	this.actual = true;
-    	this.save();
+    	this.update("actual");
     }
     
     @Override
@@ -214,16 +195,6 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     void copy(ReadingQualityRecord source) {
         actual = source.isActual();
         comment = source.getComment();
-    }
-
-    @Override
-    public boolean hasEstimatedCategory() {
-        return getType().hasEstimatedCategory();
-    }
-
-    @Override
-    public boolean isConfirmed() {
-        return getType().isConfirmed();
     }
 
     public class LocalEventSource {
