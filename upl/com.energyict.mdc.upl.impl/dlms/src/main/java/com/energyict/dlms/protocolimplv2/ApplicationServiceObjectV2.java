@@ -16,6 +16,7 @@ import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -69,7 +70,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 analyzeAARE(response);
                 getSecurityContext().setResponseSystemTitle(this.acse.getRespondingAPTtitle());
                 if (this.acse.hlsChallengeMatch()) {
-                    releaseAssociation();
+                    disconnect();
                     ConnectionException connectionException = new ConnectionException("Invalid responding authenticationValue.");
                     throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
                 }
@@ -96,8 +97,17 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             this.acse.analyzeAARE(response);
         } catch (ConnectionException e) {                        //Decryption failed
             throw DataEncryptionException.dataEncryptionException(e);
-        } catch (IOException e) {                                //Association failed
-            throw ConnectionCommunicationException.protocolConnectFailed(e);
+        } catch (IOException e) {
+            if (e.getMessage().contains(AssociationControlServiceElement.REFUSED_BY_THE_VDE_HANDLER)
+                    || e.getMessage().contains(AssociationControlServiceElement.ACSE_SERVICE_PROVIDER_NO_REASON_GIVEN)
+                    || e.getMessage().contains(AssociationControlServiceElement.ACSE_SERVICE_USER_NO_REASON_GIVEN)
+                    ) {
+                //Association already open, retry mechanism in the protocols will be used
+                throw CommunicationException.unexpectedResponse(e);
+            } else {
+                //Association failed, abort
+                throw ConnectionCommunicationException.protocolConnectFailed(e);
+            }
         } catch (DLMSConnectionException e) {                    //Invalid frame counter
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }
@@ -149,6 +159,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     }
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
+                    disconnect();
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
                     throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
@@ -166,6 +177,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     }
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
+                    disconnect();
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
                     throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
@@ -179,6 +191,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     decryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
+                    disconnect();
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
                     throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
@@ -212,6 +225,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             cToSEncrypted = this.securityContext.createHighLevelAuthenticationGMACResponse(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), encryptedResponse);
         }
         if (!Arrays.equals(cToSEncrypted, encryptedResponse)) {
+            disconnect();
             IOException ioException = new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
             throw ConnectionCommunicationException.protocolConnectFailed(ioException);
         } else {
@@ -235,6 +249,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 berEncodedData = aln.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
+                disconnect();
                 throw ConnectionCommunicationException.protocolConnectFailed(e);
             } catch (IOException e) {
                 throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
@@ -242,6 +257,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 decryptedResponse = new OctetString(berEncodedData, 0);
             } catch (IOException e) {
+                disconnect();
                 throw ConnectionCommunicationException.protocolConnectFailed(e);
             }
         } else if ((this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING)
@@ -251,6 +267,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 response = asn.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
+                disconnect();
                 throw ConnectionCommunicationException.protocolConnectFailed(e);
             } catch (IOException e) {
                 throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
@@ -261,6 +278,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 decryptedResponse = new OctetString(response, 0);
             } catch (IOException e) {
+                disconnect();
                 throw ConnectionCommunicationException.protocolConnectFailed(e);
             }
         } else {
@@ -293,6 +311,15 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             this.acse.analyzeRLRE(response);
         } catch (DLMSConnectionException | AssociationControlServiceElement.ACSEParsingException e) {
             throw ConnectionCommunicationException.protocolDisconnectFailed(e);    //Association release failed
+        }
+    }
+
+    private void disconnect(){
+        try {
+            releaseAssociation();
+            getDlmsV2Connection().disconnectMAC();
+        } catch (Exception e) {
+            // Absorb exception
         }
     }
 }
