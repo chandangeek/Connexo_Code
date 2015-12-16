@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.export.processor.StandardCsvEventDataFormatterFactory",
         property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_EVENT_DATA_TYPE},
@@ -72,13 +73,20 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .finish());
+        Stream<String> separatorValues =
+                FormatterProperties
+                        .separatorValues()
+                        .stream()
+                        .map(p -> this.thesaurus.getFormat(p).format());
         propertySpecs.add(
                 propertySpecService
                         .stringSpec()
                         .named(FormatterProperties.SEPARATOR)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
-                        .setDefaultValue(this.thesaurus.getFormat(FormatterProperties.SEPARATOR_DEFAULT).format())
+                        .addValues(separatorValues.toArray(String[]::new))
+                        .markExhaustive()
+                        .setDefaultValue(this.thesaurus.getFormat(FormatterProperties.defaultSeparator()).format())
                         .finish());
         return propertySpecs;
     }

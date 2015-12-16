@@ -2,6 +2,9 @@ package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum FormatterProperties implements TranslationKey {
     FORMATTER("fileFormat", "File format"),
     UPDATEDDATA("updatedData", "Updated data"),
@@ -10,7 +13,8 @@ public enum FormatterProperties implements TranslationKey {
     UPDATE_FILE_EXTENSION(FORMATTER.getKey() + '.' + UPDATEDDATA.getKey() + ".updateFileExtension", "File extension"),
     FORMATTER_PROPERTIES("formatterProperties", "Formatter properties"),
     SEPARATOR(FORMATTER_PROPERTIES.getKey() + ".separator", "Separator"),
-    SEPARATOR_DEFAULT(FORMATTER_PROPERTIES.getKey() + ".separator.default", "Comma (,)\", \"Semicolon (;)"),
+    SEPARATOR_COMMA(FORMATTER_PROPERTIES.getKey() + ".separator.comma", "Comma (,)"),
+    SEPARATOR_SEMICOLON(FORMATTER_PROPERTIES.getKey() + ".separator.semicolon", "Semicolon (;)"),
     TAG(FORMATTER_PROPERTIES.getKey() + '.' + "tag", "Identifier"),
     UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Update identifier");
 
@@ -23,6 +27,13 @@ public enum FormatterProperties implements TranslationKey {
         this.defaultTranslation = defaultTranslation;
     }
 
+    public static FormatterProperties defaultSeparator() {
+        return SEPARATOR_COMMA;
+    }
+
+    public static List<FormatterProperties> separatorValues() {
+        return Arrays.asList(SEPARATOR_COMMA, SEPARATOR_SEMICOLON);
+    }
 
     @Override
     public String getKey() {

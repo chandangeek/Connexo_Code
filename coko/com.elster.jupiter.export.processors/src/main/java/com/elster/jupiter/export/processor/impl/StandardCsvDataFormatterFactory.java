@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.export.processor.StandardCsvDataProcessorFactory",
         property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_READING_DATA_TYPE},
@@ -45,6 +46,7 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     // Tests
     @Inject
     public StandardCsvDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, NlsService nlsService, MeteringService meteringService) {
+        this();
         setPropertySpecService(propertySpecService);
         setDataExportService(dataExportService);
         setValidationService(validationService);
@@ -95,13 +97,20 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .finish());
+        Stream<String> separatorValues =
+                FormatterProperties
+                        .separatorValues()
+                        .stream()
+                        .map(p -> this.thesaurus.getFormat(p).format());
         propertySpecs.add(
                 propertySpecService
                         .stringSpec()
                         .named(FormatterProperties.SEPARATOR)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
-                        .setDefaultValue(this.thesaurus.getFormat(FormatterProperties.SEPARATOR_DEFAULT).format())
+                        .addValues(separatorValues.toArray(String[]::new))
+                        .markExhaustive()
+                        .setDefaultValue(this.thesaurus.getFormat(FormatterProperties.defaultSeparator()).format())
                         .finish());
         return propertySpecs;
     }
