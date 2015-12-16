@@ -68,14 +68,14 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
 
     @Override
     public void save() {
-        if (id == 0) {
+        if (getId() == 0) {
             groupFactory().persist(this);
         } else {
             groupFactory().update(this);
             operationFactory().remove(readOperations());
         }
         for (UsagePointQueryBuilderOperation operation : getOperations()) {
-            operation.setGroupId(id);
+            operation.setGroupId(getId());
             operationFactory().persist(operation);
         }
     }
@@ -103,6 +103,6 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
     }
 
     private List<UsagePointQueryBuilderOperation> readOperations() {
-        return operationFactory().find("groupId", id);
+        return operationFactory().find("groupId", getId());
     }
 }
