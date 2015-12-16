@@ -1,11 +1,5 @@
 package com.energyict.mdc.issue.datavalidation.rest.impl;
 
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
@@ -29,14 +23,18 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Order;
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -57,6 +55,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
@@ -204,7 +203,17 @@ public class IssueResource {
     }
 
     private List<? extends IssueDataValidation> getIssuesForBulk(JsonQueryFilter filter) {
-        return issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(filter)).find();
+        return issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(filter)).stream()
+                .map(issue -> {
+                    if (issue.getStatus().isHistorical()) {
+                        return issueDataValidationService.findHistoricalIssue(issue.getId());
+                    } else {
+                        return issueDataValidationService.findOpenIssue(issue.getId());
+                    }
+                })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     private List<? extends Issue> getUserSelectedIssues(BulkIssueRequest request, ActionInfo bulkResult) {
