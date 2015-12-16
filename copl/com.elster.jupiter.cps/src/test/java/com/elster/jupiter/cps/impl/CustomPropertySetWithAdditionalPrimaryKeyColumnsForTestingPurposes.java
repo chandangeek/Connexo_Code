@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -142,6 +143,7 @@ public class CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes 
                     table
                         .column(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.databaseName())
                         .number()
+                        .conversion(ColumnConversion.NUMBER2ENUM)
                         .map(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName())
                         .notNull()
                         .add());

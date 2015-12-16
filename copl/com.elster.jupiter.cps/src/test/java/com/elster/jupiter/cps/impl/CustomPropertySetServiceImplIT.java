@@ -32,11 +32,14 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -54,8 +57,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -695,7 +696,7 @@ public class CustomPropertySetServiceImplIT {
     }
 
     @Test
-    public void removeNonVersionedValues() {
+         public void removeNonVersionedValues() {
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
         OrmService ormService = injector.getInstance(OrmService.class);
@@ -725,6 +726,42 @@ public class CustomPropertySetServiceImplIT {
 
             // Asserts
             CustomPropertySetValues valuesAfterRemove = this.testInstance.getUniqueValuesFor(customPropertySet, testDomain);
+            assertThat(valuesAfterRemove.isEmpty()).isTrue();
+        }
+    }
+
+    @Test
+    public void removeNonVersionedValuesOfCustomPropertySetWithAdditionalPrimaryKeys() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes customPropertySet = new CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("removeNonVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        ServiceCategoryForTestingPurposes electricityAdditionalPK = ServiceCategoryForTestingPurposes.ELECTRICITY;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), electricityAdditionalPK);
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "createNonVersionedValues";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, electricityAdditionalPK);
+
+            // Business method
+            this.testInstance.removeValuesFor(customPropertySet, testDomain, electricityAdditionalPK);
+
+            // Asserts
+            CustomPropertySetValues valuesAfterRemove = this.testInstance.getUniqueValuesFor(customPropertySet, testDomain, electricityAdditionalPK);
             assertThat(valuesAfterRemove.isEmpty()).isTrue();
         }
     }
@@ -1033,7 +1070,42 @@ public class CustomPropertySetServiceImplIT {
             CustomPropertySetValues valuesAfterRemove = this.testInstance.getUniqueValuesFor(customPropertySet, testDomain, Instant.now());
             assertThat(valuesAfterRemove.isEmpty()).isTrue();
         }
+    }
 
+    @Test
+    public void removeVersionedValuesOfCustomPropertySetWithAdditionalPrimaryKeys() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes customPropertySet = new VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        ServiceCategoryForTestingPurposes electricityAdditionalPK = ServiceCategoryForTestingPurposes.ELECTRICITY;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), electricityAdditionalPK);
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "createVersionedValues";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, Instant.now(), electricityAdditionalPK);
+
+            // Business method
+            this.testInstance.removeValuesFor(customPropertySet, testDomain, electricityAdditionalPK);
+
+            // Asserts
+            CustomPropertySetValues valuesAfterRemove = this.testInstance.getUniqueValuesFor(customPropertySet, testDomain, Instant.now(), electricityAdditionalPK);
+            assertThat(valuesAfterRemove.isEmpty()).isTrue();
+        }
     }
 
     private void addAllViewAndEditPrivileges(CustomPropertySet customPropertySet) {
