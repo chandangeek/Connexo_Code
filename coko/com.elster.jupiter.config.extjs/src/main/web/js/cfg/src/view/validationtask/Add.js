@@ -84,14 +84,14 @@ Ext.define('Cfg.view.validationtask.Add', {
                                     {
                                         itemId: 'rbtn-device-group',
                                         name: 'grouptype',
-                                        boxLabel: Uni.I18n.translate('general.group.device', 'CFG', 'End Device'),
-                                        inputValue: 'End Device',
+                                        boxLabel: Uni.I18n.translate('general.group.device', 'CFG', 'End device'),
+                                        inputValue: 'End Device'
                                     },
                                     {
                                         itemId: 'rbtn-usagepoint-group',
                                         name: 'grouptype',
-                                        boxLabel: Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage Point'),
-                                        inputValue: 'Usage Point',
+                                        boxLabel: Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage point'),
+                                        inputValue: 'Usage Point'
                                     }
                                 ],
                                 listeners: {
@@ -108,7 +108,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         }
                                     }
                                 }
-                            },
+                            }
                         ]
                     },
                     {

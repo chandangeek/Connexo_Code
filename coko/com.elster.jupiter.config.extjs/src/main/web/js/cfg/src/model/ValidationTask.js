@@ -121,9 +121,9 @@ Ext.define('Cfg.model.ValidationTask', {
         	persist: false,
         	mapping: function(data) {
         		if (data.deviceGroup) {
-        			return 'End Device';
+        			return Uni.I18n.translate('general.group.device', 'CFG', 'End device');
         		} else if (data.usagePointGroup) {
-        			return 'Usage Point';
+        			return Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage point');
         		} else {
         			return '-';
         		}
