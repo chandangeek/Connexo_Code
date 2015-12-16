@@ -207,7 +207,7 @@ Ext.define('Dsh.controller.Communications', {
             fieldValue = undefined,
             filters = me.getFilterPanel().filters;
 
-        fieldsToFilterNameMap['deviceGroup'] = 'GROUPNAME';
+        fieldsToFilterNameMap['deviceGroups'] = 'GROUPNAME';
         fieldsToFilterNameMap['currentStates'] = 'STATUS';
         fieldsToFilterNameMap['latestResults'] = null;
         fieldsToFilterNameMap['comSchedules'] = 'SCHEDULENAME';
@@ -217,35 +217,25 @@ Ext.define('Dsh.controller.Communications', {
         // TODO Check if finished interval is even supported by the Yellowfin report.
         //fieldsToFilterNameMap['finishInterval'] = 'CONNECTIONDATE-FINISH';
 
-        filters.each(function (filter) {
-            filterName = fieldsToFilterNameMap[filter.dataIndex];
-            reportFilter = reportFilter || {};
-            fieldValue = undefined;
+        var reportFilter = {};
 
-            switch (filter.getXType()) {
-                case 'uni-grid-filtertop-interval':
-                    var fromValue = filter.getFromDateValue(),
-                        toValue = filter.getToDateValue();
+        Ext.iterate(me.getFilterPanel().getFilterDisplayParams(), function (filterKey, filterValue) {
+            var filterName = fieldsToFilterNameMap[filterKey];
 
-                    if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
-                        fieldValue = {
-                            from: Ext.Date.format(fromValue, "Y-m-d H:i:s"),
-                            to: Ext.Date.format(toValue, "Y-m-d H:i:s")
-                        };
-                    }
-                    break;
-                default:
-                    fieldValue = filter.getParamValue();
-                    break;
+            if (filterName && !Ext.isEmpty(filterValue)) {
+                reportFilter[filterName] = filterValue;
+            } else if (filterKey === 'startIntervalFrom' || filterKey === 'finishIntervalTo') {
+                if (!reportFilter['CONNECTIONDATE']) {
+                    reportFilter['CONNECTIONDATE'] = {};
+                }
+                reportFilter['CONNECTIONDATE'][filterKey === 'startIntervalFrom' ? 'from' : 'to'] = Ext.Date.format(new Date(filterValue), 'Y-m-d H:i:s');
             }
-
-            reportFilter[filterName] = fieldValue;
-        }, me);
+        });
 
         router.getRoute('generatereport').forward(null, {
             category: 'MDC',
             subCategory: 'Device Communication',
-            filter: reportFilter
+            filter: Ext.JSON.encode(reportFilter)
         });
     },
 

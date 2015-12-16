@@ -228,12 +228,12 @@ Ext.define('Dsh.controller.Connections', {
 
         var reportFilter = {};
 
-        Ext.iterate(me.getFilterPanel().getFilterParams(), function (filterKey, filterValue) {
+        Ext.iterate(me.getFilterPanel().getFilterDisplayParams(), function (filterKey, filterValue) {
             var filterName = fieldsToFilterNameMap[filterKey];
 
             if (filterName && !Ext.isEmpty(filterValue)) {
                 reportFilter[filterName] = filterValue;
-            } else if (filterKey === 'startIntervalFrom' || filterKey === 'startIntervalTo') {
+            } else if (filterKey === 'startIntervalFrom' || filterKey === 'finishIntervalTo') {
                 if (!reportFilter['CONNECTIONDATE']) {
                     reportFilter['CONNECTIONDATE'] = {};
                 }
