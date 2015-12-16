@@ -27,7 +27,7 @@ import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,7 +88,7 @@ public class AssignIssueAction extends AbstractIssueAction {
                 .stream()
                 .map(Assignee::new)
                 .toArray(Assignee[]::new);
-        return Collections.singletonList(
+        return Arrays.asList(
             getPropertySpecService()
                     .specForValuesOf(new AssigneeValueFactory())
                     .named(ASSIGNEE, TranslationKeys.ASSIGNACTION_PROPERTY_ASSIGNEE)
@@ -96,6 +96,11 @@ public class AssignIssueAction extends AbstractIssueAction {
                     .markRequired()
                     .addValues(possibleAssignees)
                     .markExhaustive()
+                    .finish(),
+            getPropertySpecService()
+                    .stringSpec()
+                    .named(COMMENT, TranslationKeys.ASSIGNEACTION_PROPERTY_COMMENT)
+                    .fromThesaurus(this.getThesaurus())
                     .finish());
     }
 
