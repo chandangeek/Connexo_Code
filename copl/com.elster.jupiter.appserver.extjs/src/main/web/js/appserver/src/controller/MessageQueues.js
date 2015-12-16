@@ -59,9 +59,8 @@ Ext.define('Apr.controller.MessageQueues',{
             view = Ext.widget('monitor-setup', {
                 router: router
             });
+        me.getApplication().fireEvent('changecontentevent', view);
         this.getStore('Apr.store.MessageQueuesWithState').load(function(){
-            me.getApplication().fireEvent('changecontentevent', view);
-            view.down('preview-container').updateOnChange(!me.getStore('Apr.store.MessageQueuesWithState').getCount());
             mainView.setLoading(false);
         });
     },
