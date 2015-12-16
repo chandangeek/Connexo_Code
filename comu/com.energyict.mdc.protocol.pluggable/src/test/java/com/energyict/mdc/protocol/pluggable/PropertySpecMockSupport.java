@@ -20,6 +20,19 @@ import static org.mockito.Mockito.when;
 
 /**
  * Provides mock support for {@link PropertySpec}s.
+ * Implementation note:
+ * The fact that the NlsOptions are created only once per
+ * {@link com.elster.jupiter.properties.ValueFactory} is
+ * essential. If that is removed, the order in which this
+ * class is called by the test class also determines the
+ * order in which the tested component is calling the
+ * {@link com.elster.jupiter.properties.PropertySpecService}.
+ * With the cache of NlsOptions in place, the methods
+ * {@link PropertySpecBuilderWizard.NlsOptions#named(String, String)},
+ * {@link PropertySpecBuilderWizard.NlsOptions#named(String, TranslationKey)} and
+ * {@link PropertySpecBuilderWizard.NlsOptions#named(TranslationKey)}
+ * become the discriminating factor that instruct Mockito to produce which
+ * PropertySpec for which name (be it a String or a TranslationKey).
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-12-15 (09:29)
