@@ -288,7 +288,7 @@ public class WhiteBoardImpl extends Application implements BinderProvider, Insta
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT");
+        return Arrays.asList("ORM", "EVT", "DVA");
     }
 
     @Override
