@@ -54,7 +54,7 @@ public class EstimationStatusSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.ESTIMATION_STATUS.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.ESTIMATION_STATUS)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, ormService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         this.estimationSearchablePropertyGroup = new EstimationSearchablePropertyGroup(thesaurus);
     }

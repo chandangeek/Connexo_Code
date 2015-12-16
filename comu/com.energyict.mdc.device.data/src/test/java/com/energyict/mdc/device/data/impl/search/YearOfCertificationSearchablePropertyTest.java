@@ -5,22 +5,14 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.device.data.DeviceFields;
-
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.AdditionalMatchers;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -28,8 +20,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,15 +46,13 @@ public class YearOfCertificationSearchablePropertyTest {
     private OrmService ormService;
     @Mock
     private DataVaultService dataVaultService;
-    @Mock
+
     private PropertySpecService propertySpecService;
 
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-
-        when(this.propertySpecService.longPropertySpecWithValues(eq(DeviceFields.CERT_YEAR.fieldName()), eq(false), Matchers.anyVararg()))
-                .thenReturn(new BasicPropertySpec(DeviceFields.CERT_YEAR.fieldName(), false, new LongFactory()));
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
     }
 
     @Test

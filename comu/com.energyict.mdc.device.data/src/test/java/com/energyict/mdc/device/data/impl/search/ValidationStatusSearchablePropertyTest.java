@@ -54,7 +54,7 @@ public class ValidationStatusSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.VALIDATION_STATUS.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.VALIDATION_STATUS)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         this.validationSearchablePropertyGroup = new ValidationSearchablePropertyGroup(thesaurus);
     }

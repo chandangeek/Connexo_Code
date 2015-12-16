@@ -652,8 +652,17 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         public List<PropertySpec> getPropertySpecs() {
             PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl();
             return Arrays.asList(
-                propertySpecService.basicPropertySpec(REQUIRED_PROPERTY_NAME, true,  new StringFactory()),
-                propertySpecService.basicPropertySpec(OPTIONAL_PROPERTY_NAME, false,  new StringFactory()));
+                propertySpecService
+                        .stringSpec()
+                        .named(REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_NAME)
+                        .describedAs("Description for required property")
+                        .markRequired()
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_NAME)
+                        .describedAs("Description for optional property")
+                        .finish());
         }
     }
 

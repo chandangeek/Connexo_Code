@@ -59,7 +59,7 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchablePropertyTest {
         ReadingType rt2 = mockReadingType(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
         ReadingType rt3 = mockReadingType(MetricMultiplier.KILO, ReadingTypeUnit.WATT);
         when(meteringService.getAvailableNonEquidistantReadingTypes()).thenReturn(Arrays.asList(rt1, rt2, rt3));
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
     }
 

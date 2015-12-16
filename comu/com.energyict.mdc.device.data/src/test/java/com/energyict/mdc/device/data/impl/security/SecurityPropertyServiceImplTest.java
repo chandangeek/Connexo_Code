@@ -144,7 +144,7 @@ public class SecurityPropertyServiceImplTest {
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet = TestProtocolWithOnlySecurityProperties.getCustomPropertySet(
                 new PropertySpecServiceImpl(
-                        new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService),
+                        new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService),
                         this.dataVaultService,
                         this.ormService));
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));

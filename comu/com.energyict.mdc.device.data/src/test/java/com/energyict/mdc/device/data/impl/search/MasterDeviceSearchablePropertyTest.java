@@ -56,7 +56,7 @@ public class MasterDeviceSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_MASTER_MRID.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_MASTER_MRID)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         this.topologySearchablePropertyGroup = new TopologySearchablePropertyGroup(thesaurus);
     }

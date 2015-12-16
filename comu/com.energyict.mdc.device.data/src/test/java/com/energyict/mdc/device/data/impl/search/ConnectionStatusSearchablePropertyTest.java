@@ -59,7 +59,7 @@ public class ConnectionStatusSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.CONNECTION_STATUS.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_STATUS)).thenReturn(messageFormat);
 
-        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService), dataVaultService, ormService);
+        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService, this.ormService), dataVaultService, ormService);
         this.parentGroup = new ConnectionSearchablePropertyGroup(this.thesaurus);
     }
 

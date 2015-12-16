@@ -45,7 +45,7 @@ public abstract class AbstractDateSearchablePropertyTest {
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService), this.dataVaultService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService), this.dataVaultService, this.ormService);
     }
 
     @Test

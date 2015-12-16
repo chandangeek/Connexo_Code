@@ -12,14 +12,14 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.masterdata.MasterDataService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -54,7 +54,7 @@ public class ChannelIntervalSearchablePropertyTest {
         when(this.thesaurus.getFormat(PropertyTranslationKeys.CHANNEL_INTERVAL)).thenReturn(messageFormat);
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(this.timeService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
         this.channelGroup = new ChannelSearchablePropertyGroup(this.thesaurus);
     }
 

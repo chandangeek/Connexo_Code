@@ -70,7 +70,7 @@ public class ProtocolDialectSearchablePropertyTest {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.PROTOCOL_DIALECT.getDefaultFormat());
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(this.timeService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
         when(this.thesaurus.getFormat(PropertyTranslationKeys.PROTOCOL_DIALECT)).thenReturn(messageFormat);
         com.energyict.mdc.dynamic.PropertySpecService mdcPropertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(this.propertySpecService, dataVaultService, ormService);
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);

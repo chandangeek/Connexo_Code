@@ -59,7 +59,7 @@ public class ComTaskScheduleTypeSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.COMTASK_SCHEDULE_TYPE.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_SCHEDULE_TYPE)).thenReturn(messageFormat);
 
-        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService), dataVaultService, ormService);
+        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService, this.ormService), dataVaultService, ormService);
         this.parentGroup = new ComTaskSearchablePropertyGroup(this.thesaurus);
     }
 

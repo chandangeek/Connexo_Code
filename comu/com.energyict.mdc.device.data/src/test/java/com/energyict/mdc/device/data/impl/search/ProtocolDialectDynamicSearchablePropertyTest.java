@@ -3,14 +3,12 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.search.SearchableProperty;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import org.junit.*;
 
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ProtocolDialectDynamicSearchablePropertyTest extends AbstractDynamicSearchablePropertyTest{
+public class ProtocolDialectDynamicSearchablePropertyTest extends AbstractDynamicSearchablePropertyTest {
 
     private ProtocolDialectSearchableProperty.ProtocolDialect protocolDialect;
 
@@ -20,7 +18,8 @@ public class ProtocolDialectDynamicSearchablePropertyTest extends AbstractDynami
     }
 
     protected SearchableProperty getTestInstance() {
-        return new ProtocolDialectDynamicSearchableProperty()
+        return new ProtocolDialectDynamicSearchableProperty(this.getThesaurus())
                 .init(this.domain, this.group, this.propertySpec, this.protocolDialect, "some_table");
     }
+
 }

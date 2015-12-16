@@ -1,30 +1,55 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import org.junit.Test;
-import org.mockito.Mock;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractDynamicSearchablePropertyTest {
 
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat messageFormat;
     @Mock
     DeviceSearchDomain domain;
     @Mock
     SearchablePropertyGroup group;
     @Mock
     PropertySpec propertySpec;
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+    }
 
     @Test
     public void testGetDomain() {

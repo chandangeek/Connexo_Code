@@ -144,7 +144,7 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
         //nothing to refresh
     }
 
-    private class TimeDurationWrapperValueFactory extends SearchHelperValueFactory<TimeDurationWrapper> {
+    class TimeDurationWrapperValueFactory extends SearchHelperValueFactory<TimeDurationWrapper> {
         private TimeDurationWrapperValueFactory() {
             super(TimeDurationWrapper.class);
         }
@@ -160,7 +160,7 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
         }
     }
 
-    private static class TimeDurationWrapper extends HasIdAndName {
+    static class TimeDurationWrapper extends HasIdAndName {
         private TimeDuration timeDuration;
 
         TimeDurationWrapper(TimeDuration timeDuration) {

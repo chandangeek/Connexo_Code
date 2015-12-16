@@ -5,10 +5,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -20,7 +17,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,10 +27,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,14 +52,13 @@ public class BatchSearchablePropertyTest {
     @Mock
     private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private PropertySpecService propertySpecService;
+    private PropertySpecMockSupport propertySpecMockSupport = new PropertySpecMockSupport();
 
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        when(this.jupiterPropertySpecService.basicPropertySpec(eq(DeviceFields.BATCH.fieldName()), eq(false), any(ValueFactory.class)))
-                .thenReturn(new BasicPropertySpec(DeviceFields.BATCH.fieldName(), false, new StringFactory()));
+        this.propertySpecMockSupport.mockStringPropertySpec(DeviceFields.BATCH.fieldName(), this.jupiterPropertySpecService);
         this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
-
         when(batch.getName()).thenReturn("displayValue");
     }
 
@@ -181,7 +174,7 @@ public class BatchSearchablePropertyTest {
         SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(searchableProperty);
 
         // Business method
-        property.refreshWithConstrictions(Arrays.asList(constriction));
+        property.refreshWithConstrictions(Collections.singletonList(constriction));
 
         // Asserts: see expected exception rule
     }
