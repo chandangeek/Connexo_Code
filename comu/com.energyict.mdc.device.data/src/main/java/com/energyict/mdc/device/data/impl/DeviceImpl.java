@@ -158,6 +158,12 @@ public class DeviceImpl implements Device {
     private transient DeviceValidationImpl deviceValidation;
     private final Reference<DeviceEstimation> deviceEstimation = ValueReference.absent();
 
+    private transient Optional<Meter> meter = Optional.empty();
+    private transient AmrSystem amrSystem;
+    private transient Optional<MeterActivation> currentMeterActivation = Optional.empty();
+    private transient MultiplierType multiplierType;
+    private transient BigDecimal multiplier;
+
     @Inject
     public DeviceImpl(
             DataModel dataModel,
@@ -526,12 +532,15 @@ public class DeviceImpl implements Device {
 
     @Override
     public BigDecimal getMultiplier() {
-        Optional<MeterActivation> optionalCurrentMeterActivation = getCurrentMeterActivation();
-        if (optionalCurrentMeterActivation.isPresent()) {
-            return optionalCurrentMeterActivation.get().getMultiplier(getDefaultMultiplierType()).orElse(MULTIPLIER_ONE);
-        } else {
-            return MULTIPLIER_ONE;
+        if(this.multiplier == null){
+            Optional<MeterActivation> optionalCurrentMeterActivation = getCurrentMeterActivation();
+            if (optionalCurrentMeterActivation.isPresent()) {
+                this.multiplier = optionalCurrentMeterActivation.get().getMultiplier(getDefaultMultiplierType()).orElse(MULTIPLIER_ONE);
+            } else {
+                this.multiplier = MULTIPLIER_ONE;
+            }
         }
+        return this.multiplier;
     }
 
     @Override
@@ -553,12 +562,15 @@ public class DeviceImpl implements Device {
     }
 
     private MultiplierType getDefaultMultiplierType() {
-        Optional<MultiplierType> multiplierType = meteringService.getMultiplierType(MULTIPLIER_TYPE);
-        if (multiplierType.isPresent()) {
-            return multiplierType.get();
-        } else {
-            return createDefaultMultiplierType();
+        if(this.multiplierType == null){
+            Optional<MultiplierType> multiplierType = meteringService.getMultiplierType(MULTIPLIER_TYPE);
+            if (multiplierType.isPresent()) {
+                this.multiplierType = multiplierType.get();
+            } else {
+                this.multiplierType = createDefaultMultiplierType();
+            }
         }
+        return this.multiplierType;
     }
 
     private MultiplierType createDefaultMultiplierType() {
@@ -581,6 +593,7 @@ public class DeviceImpl implements Device {
             if(multiplier.compareTo(BigDecimal.ONE) == 1){
                 newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
             }
+            this.multiplier = multiplier;
         }
     }
 
@@ -888,7 +901,10 @@ public class DeviceImpl implements Device {
     }
 
     Optional<Meter> findKoreMeter(AmrSystem amrSystem) {
-        return amrSystem.findMeter(String.valueOf(getId()));
+        if(!this.meter.isPresent()){
+            this.meter = amrSystem.findMeter(String.valueOf(getId()));
+        }
+        return this.meter;
     }
 
     Meter findOrCreateKoreMeter(AmrSystem amrSystem) {
@@ -914,14 +930,15 @@ public class DeviceImpl implements Device {
 
     Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
-        Meter meter = amrSystem.newMeter(String.valueOf(getId()))
+        Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
                 .setMRID(getmRID())
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
                 .create();
-        meter.getLifecycleDates().setReceivedDate(this.clock.instant());
-        meter.update();
-        return meter;
+        newMeter.getLifecycleDates().setReceivedDate(this.clock.instant());
+        newMeter.update();
+        this.meter = Optional.of(newMeter);
+        return newMeter;
     }
 
     private Optional<AmrSystem> findMdcAmrSystem() {
@@ -929,7 +946,10 @@ public class DeviceImpl implements Device {
     }
 
     private AmrSystem getMdcAmrSystem() {
-        return findMdcAmrSystem().orElseThrow(mdcAMRSystemDoesNotExist());
+        if(this.amrSystem == null){
+            this.amrSystem = findMdcAmrSystem().orElseThrow(mdcAMRSystemDoesNotExist());
+        }
+        return this.amrSystem;
     }
 
     List<ReadingRecord> getReadingsFor(Register<?, ?> register, Range<Instant> interval) {
@@ -1293,10 +1313,11 @@ public class DeviceImpl implements Device {
         AmrSystem amrSystem = getMdcAmrSystem();
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
         if (currentMeterActivation.isPresent()) {
-            return endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation.get());
+            this.currentMeterActivation = Optional.of(endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation.get()));
         } else {
-            return meter.activate(start);
+            this.currentMeterActivation = Optional.of(meter.activate(start)) ;
         }
+        return this.currentMeterActivation.get();
     }
 
     private MeterActivation endMeterActivationAndCreateNewWithCurrentAsTemplate(Instant start, Meter meter, MeterActivation meterActivation) {
@@ -1314,6 +1335,11 @@ public class DeviceImpl implements Device {
     @Override
     public void deactivate(Instant when) {
         this.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(when));
+        removeCachedCurrentMeterActivation();
+    }
+
+    private void removeCachedCurrentMeterActivation() {
+        this.currentMeterActivation = Optional.empty();
     }
 
     @Override
@@ -1323,7 +1349,10 @@ public class DeviceImpl implements Device {
 
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
-        return this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
+        if(!this.currentMeterActivation.isPresent()){
+            this.currentMeterActivation = this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
+        }
+        return this.currentMeterActivation;
     }
 
     private <AT> Optional<AT> getOptionalMeterAspect(Function<Meter, Optional<AT>> aspectFunction) {
