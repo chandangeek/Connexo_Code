@@ -111,9 +111,6 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public void logOn() {
         connectWithRetries();
         checkCacheObjects();
-        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
-            getMeterTopology().searchForSlaveDevices();
-        }
     }
 
     @Override

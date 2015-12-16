@@ -100,9 +100,6 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     public void logOn() {
         connectWithRetries(getDlmsSession());
         checkCacheObjects();
-        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
-            getMeterTopology().searchForSlaveDevices();
-        }
     }
 
     /**
