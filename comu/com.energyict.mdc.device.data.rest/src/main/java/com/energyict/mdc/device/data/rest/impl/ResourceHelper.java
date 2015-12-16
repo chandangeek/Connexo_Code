@@ -824,12 +824,16 @@ public class ResourceHelper {
     private CustomPropertySetValues getCustomPropertySetValues(CustomPropertySetInfo info) {
         CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
         info.properties.forEach(property -> {
-            if (property.getPropertyValueInfo() != null && property.getPropertyValueInfo().getValue() != null) {
-                customPropertySetValues.setProperty(property.key, property.getPropertyValueInfo().getValue());
-            } else {
-                if (property.required) {
+            if (property.getPropertyValueInfo() != null) {
+                if (property.getPropertyValueInfo().getValue() != null && !property.getPropertyValueInfo().getValue().toString().isEmpty()) {
+                    customPropertySetValues.setProperty(property.key, property.getPropertyValueInfo().getValue());
+                } else if (property.getPropertyValueInfo().defaultValue != null && !property.getPropertyValueInfo().defaultValue.toString().isEmpty()) {
+                    customPropertySetValues.setProperty(property.key, property.getPropertyValueInfo().defaultValue);
+                } else if (property.required) {
                     throw exceptionFactory.newException(MessageSeeds.NO_SUCH_REQUIRED_PROPERTY);
                 }
+            } else if (property.required) {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_REQUIRED_PROPERTY);
             }
         });
         return customPropertySetValues;
