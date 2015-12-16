@@ -2,7 +2,6 @@ Ext.define('Cfg.view.validation.VersionsPreviewContainerPanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.versions-preview-container-panel',
     itemId: 'versionsPreviewContainerPanel',
-    title: Uni.I18n.translate('validation.versions', 'CFG', 'Versions'),
     ui: 'medium',
     padding: 0,
     ruleSetId: null,

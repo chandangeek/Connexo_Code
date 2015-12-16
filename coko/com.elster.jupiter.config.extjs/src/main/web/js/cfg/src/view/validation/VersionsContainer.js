@@ -1,6 +1,7 @@
 Ext.define('Cfg.view.validation.VersionsContainer', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.versionsContainer',
+
     ruleSetId: null,
     requires: [
         'Cfg.view.validation.VersionsPreviewContainerPanel',
@@ -11,12 +12,19 @@ Ext.define('Cfg.view.validation.VersionsContainer', {
         var me = this;
         me.content = [
             {
-                xtype: 'versions-preview-container-panel',
-                ruleSetId: me.ruleSetId
+                ui: 'large',
+                xtype: 'panel',
+                title: Uni.I18n.translate('validation.versions', 'CFG', 'Versions'),
+                items: [
+                    {
+                        xtype: 'versions-preview-container-panel',
+                        ruleSetId: me.ruleSetId
+                    }
+                ]
             }
         ];
 
-        this.side = [
+        me.side = [
             {
                 ui: 'medium',
                 items: [
