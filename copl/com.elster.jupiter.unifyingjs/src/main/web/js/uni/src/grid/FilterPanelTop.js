@@ -437,6 +437,36 @@ Ext.define('Uni.grid.FilterPanelTop', {
         return params;
     },
 
+    getFilterDisplayParams: function (includeUndefined, flattenObjects) {
+        var me = this,
+            params = {};
+
+        includeUndefined = includeUndefined || false;
+        flattenObjects = flattenObjects || false;
+
+        me.filters.each(function (filter) {
+            if (!flattenObjects && Ext.isDefined(filter.applyParamValue)) {
+                filter.applyParamValue(params, includeUndefined, flattenObjects);
+            } else {
+                var dataIndex = filter.dataIndex,
+                    paramValue = typeof filter.getParamDisplayValue == 'function' ?
+                        filter.getParamDisplayValue() :
+                        filter.getParamValue();
+
+                if (!includeUndefined && Ext.isDefined(paramValue) && !Ext.isEmpty(paramValue)) {
+                    params[dataIndex] = paramValue;
+                } else {
+                    params[dataIndex] = paramValue;
+                }
+
+                if (flattenObjects && Ext.isObject(paramValue)) {
+                    me.populateParamsFromObject(params, dataIndex, paramValue);
+                }
+            }
+        }, me);
+        return params;
+    },
+
     populateParamsFromObject: function (params, dataIndex, paramValue) {
         var me = this;
 
