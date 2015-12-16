@@ -99,8 +99,6 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
-//                ,
-//                new EndDeviceNameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
         ));
     }
 
