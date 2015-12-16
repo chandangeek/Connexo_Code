@@ -385,14 +385,15 @@ public class BpmResource {
         try (TransactionContext context = transactionService.getContext()) {
             BpmProcessDefinition bpmProcessDefinition = bpmService.findOrCreateBpmProcessDefinition(info.name, "Device", info.version, info.active);
             bpmProcessDefinition.save();
-            if(info.deviceStates.isEmpty() && info.privileges.isEmpty()){
-                throw  new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "noDeviceStates");
-            }
+            List<Errors> err = new ArrayList<>();
             if(info.deviceStates.isEmpty()){
-                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "noDeviceStates");
+                err.add(new Errors("noDeviceStates", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
             }
             if(info.privileges.isEmpty()){
-                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "noPrivileges");
+                err.add(new Errors("noPrivileges", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+            }
+            if(!err.isEmpty()){
+                return Response.status(400).entity(new LocalizedFieldException(err)).build();
             }
             doUpdatePrivileges(bpmProcessDefinition, info);
             doUpdateProcessDeviceStates(bpmProcessDefinition, info);
@@ -674,7 +675,34 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id, @PathParam("deploymentId") String deploymentId) {
         Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id);
+        List<Errors> err = new ArrayList<>();
+        TaskContentInfos taskContents = getProcessContent(id,deploymentId);
+        taskContentInfos.properties.stream()
+                .forEach(s -> {
+                    if (s.propertyValueInfo.value == null) {
+                        Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
+                                .filter(x -> x.key.equals(s.key))
+                                .findFirst();
+                        if (taskContentInfo.isPresent()) {
+                            if (taskContentInfo.get().required) {
+                                err.add(new Errors("properties." + s.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+                            }
+                        }
+                    } else if (s.propertyValueInfo.value.equals("")) {
+                        Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
+                                .filter(x -> x.key.equals(s.key))
+                                .findFirst();
+                        if (taskContentInfo.isPresent()) {
+                            if (taskContentInfo.get().required) {
+                                err.add(new Errors("properties." + s.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+                            }
+                        }
+                    }
+                });
         id = id.replace(taskContentInfos.deploymentId,"");
+        if(!err.isEmpty()){
+            return Response.status(400).entity(new LocalizedFieldException(err)).build();
+        }
         if(taskContentInfos.deploymentId != null && taskContentInfos.mrid != null) {
             expectedParams.put("mrid", taskContentInfos.mrid);
             bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams);
@@ -687,6 +715,7 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response postTaskContent(TaskContentInfos taskContentInfos, @PathParam("id") long id, @Context SecurityContext securityContext) {
         long postResult = -1;
+        List<Errors> err = new ArrayList<>();
         String userName = securityContext.getUserPrincipal().getName();
         if(!taskContentInfos.action.equals("startTask")) {
             TaskContentInfos taskContents = getTaskContent(id);
@@ -698,7 +727,7 @@ public class BpmResource {
                                     .findFirst();
                             if (taskContentInfo.isPresent()) {
                                 if (taskContentInfo.get().required) {
-                                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "properties." + s.key);
+                                    err.add(new Errors("properties." + s.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
                                 }
                             }
                         } else if (s.propertyValueInfo.value.equals("")) {
@@ -707,11 +736,14 @@ public class BpmResource {
                                     .findFirst();
                             if (taskContentInfo.isPresent()) {
                                 if (taskContentInfo.get().required) {
-                                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "properties." + s.key);
+                                    err.add(new Errors("properties." + s.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
                                 }
                             }
                         }
                     });
+        }
+        if(!err.isEmpty()){
+          return  Response.status(400).entity(new LocalizedFieldException(err)).build();
         }
         JSONObject obj = null;
         if(taskContentInfos.action.equals("startTask")){
@@ -743,10 +775,9 @@ public class BpmResource {
             }
         }
         if(postResult == -1) {
-            return Response.status(400).build();
+            return Response.status(403).build();
         }
         return Response.ok().build();
-
     }
 
     private Map<String, Object> getOutputContent(TaskContentInfos taskContentInfos, long taskId, String processId){
