@@ -100,9 +100,11 @@ Ext.define('Uni.view.search.field.Selection', {
             criteria: value
         }) : null);
 
-        if (me.rendered) {
-            me.down('#filter-selected').setDisabled(!me.selection.length);
+        if (me.grid.rendered) {
+            me.viewSync();
         }
+
+        me.selection.sort();
     },
 
     reset: function () {
@@ -129,7 +131,12 @@ Ext.define('Uni.view.search.field.Selection', {
                         fn: me.onChange,
                         scope: me
                     }
-                }
+                },
+                sorters: [{
+                    direction: 'ASC',
+                    property: 'displayValue',
+                    root: 'data'
+                }]
             });
 
         me.items = {
@@ -222,6 +229,7 @@ Ext.define('Uni.view.search.field.Selection', {
                             }
                             selection.resumeEvents();
                             me.onChange();
+
                             delete selectionModel.preventFocus;
                         }
                     },
@@ -237,32 +245,34 @@ Ext.define('Uni.view.search.field.Selection', {
                         boxLabel: Uni.I18n.translate('search.field.selection.checkbox.show-selected', 'UNI', 'Show all selected values'),
                         disabled: true,
                         hidden: !me.multiSelect,
-                        handler: function () {
-                            var store = me.grid.getStore(),
-                                input = me.down('#filter-input');
+                        listeners: {
+                            change: function () {
+                                var store = me.grid.getStore(),
+                                    input = me.down('#filter-input');
 
-                            Ext.suspendLayouts();
+                                Ext.suspendLayouts();
 
-                            input.suspendEvent('change');
-                            input.reset();
-                            input.resumeEvent('change');
-                            store.filters.removeAtKey(me.displayField);
+                                input.suspendEvent('change');
+                                input.reset();
+                                input.resumeEvent('change');
+                                store.filters.removeAtKey(me.displayField);
 
-                            if (this.checked) {
-                                if (store.remoteFilter) {
-                                    store.removeAll();
-                                    store.add(selection.getRange());
+                                if (this.checked) {
+                                    if (store.remoteFilter) {
+                                        store.removeAll();
+                                        store.add(selection.getRange());
+                                    } else {
+                                        store.filter({
+                                            filterFn: function (item) {
+                                                return selection.getRange().indexOf(item) >= 0;
+                                            }
+                                        });
+                                    }
                                 } else {
-                                    store.filter({
-                                        filterFn: function (item) {
-                                            return selection.getRange().indexOf(item) >= 0;
-                                        }
-                                    });
+                                    store.load();
                                 }
-                            } else {
-                                store.load();
+                                Ext.resumeLayouts(true);
                             }
-                            Ext.resumeLayouts(true);
                         }
                     }
                 ]
@@ -327,18 +337,24 @@ Ext.define('Uni.view.search.field.Selection', {
     viewSync: function() {
         var me = this,
             model = me.grid.getSelectionModel(),
-            count = me.store.getCount();
+            count = me.store.getCount(),
+            filterSelected = me.down('#filter-selected');
 
         model.deselectAll(true);
         model.select(me.getStoreRecords(), true, true);
         model.updateHeaderState();
 
         me.down('#select-all').setDisabled(!count);
-        me.down('#filter-selected').setValue(
+
+        // "show selected" button is disabled when there is no selection or when selection is all available store items
+        filterSelected.setDisabled(!me.selection.getCount() || me.selection.getCount() == me.store.getTotalCount());
+        filterSelected.suspendEvent('change');
+        filterSelected.setValue(
                 count > 0
             &&  count === model.getCount()
             &&  count === me.selection.getCount()
         );
+        filterSelected.resumeEvent('change');
     },
 
     getStoreRecords: function() {
