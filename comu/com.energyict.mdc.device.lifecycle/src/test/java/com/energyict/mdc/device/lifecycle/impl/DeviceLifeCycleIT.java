@@ -69,17 +69,20 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.ACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
         ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
-        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
-                .basicPropertySpec(
-                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
-                        true,
-                        new InstantFactory());
+        PropertySpec lastCheckedPropertySpec =
+                inMemoryPersistence
+                        .getPropertySpecService()
+                        .specForValuesOf(new InstantFactory())
+                        .named(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key())
+                        .describedAs("Last checked")
+                        .markRequired()
+                        .finish();
         when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
         when(lastCheckedProperty.getValue()).thenReturn(activationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        installAndActivateAction.execute(activationTime, Arrays.asList(lastCheckedProperty));
+        installAndActivateAction.execute(activationTime, Collections.singletonList(lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -102,17 +105,20 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.DEACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
         ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
-        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
-                .basicPropertySpec(
-                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
-                        true,
-                        new InstantFactory());
+        PropertySpec lastCheckedPropertySpec =
+                inMemoryPersistence
+                        .getPropertySpecService()
+                        .specForValuesOf(new InstantFactory())
+                        .named(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key())
+                        .describedAs("Last checked")
+                        .markRequired()
+                        .finish();
         when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
         when(lastCheckedProperty.getValue()).thenReturn(activationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        installAndActivateAction.execute(activationTime, Arrays.asList(lastCheckedProperty));
+        installAndActivateAction.execute(activationTime, Collections.singletonList(lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -161,17 +167,20 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.ACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
         ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
-        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
-                .basicPropertySpec(
-                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
-                        true,
-                        new InstantFactory());
+        PropertySpec lastCheckedPropertySpec =
+                inMemoryPersistence
+                        .getPropertySpecService()
+                        .specForValuesOf(new InstantFactory())
+                        .named(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key())
+                        .describedAs("Last checked")
+                        .markRequired()
+                        .finish();
         when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
         when(lastCheckedProperty.getValue()).thenReturn(activationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        installAndActivateAction.execute(activationTime, Arrays.asList(lastCheckedProperty));
+        installAndActivateAction.execute(activationTime, Collections.singletonList(lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -195,17 +204,20 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.DEACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
         ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
-        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
-                .basicPropertySpec(
-                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
-                        true,
-                        new InstantFactory());
+        PropertySpec lastCheckedPropertySpec =
+                inMemoryPersistence
+                        .getPropertySpecService()
+                        .specForValuesOf(new InstantFactory())
+                        .named(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key())
+                        .describedAs("Last checked")
+                        .markRequired()
+                        .finish();
         when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
         when(lastCheckedProperty.getValue()).thenReturn(activationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        installAndActivateAction.execute(activationTime, Arrays.asList(lastCheckedProperty));
+        installAndActivateAction.execute(activationTime, Collections.singletonList(lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
@@ -255,15 +267,18 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         when(inMemoryPersistence.getClock().instant()).thenReturn(initialActivationTime);
         CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.ACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
         ExecutableActionProperty lastCheckedProperty = mock(ExecutableActionProperty.class);
-        PropertySpec lastCheckedPropertySpec = inMemoryPersistence.getPropertySpecService()
-                .basicPropertySpec(
-                        DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(),
-                        true,
-                        new InstantFactory());
+        PropertySpec lastCheckedPropertySpec =
+                inMemoryPersistence
+                        .getPropertySpecService()
+                        .specForValuesOf(new InstantFactory())
+                        .named(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key())
+                        .describedAs("Last checked")
+                        .markRequired()
+                        .finish();
         when(lastCheckedProperty.getPropertySpec()).thenReturn(lastCheckedPropertySpec);
         when(lastCheckedProperty.getValue()).thenReturn(initialActivationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
-        installAndActivateAction.execute(initialActivationTime, Arrays.asList(lastCheckedProperty));
+        installAndActivateAction.execute(initialActivationTime, Collections.singletonList(lastCheckedProperty));
         device = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
         State state = device.getState();
         assertThat(DefaultState.from(state)).isPresent();
@@ -286,7 +301,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         ExecutableAction activateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
 
         // Business method
-        activateAction.execute(activationTime, Arrays.asList(lastCheckedProperty));
+        activateAction.execute(activationTime, Collections.singletonList(lastCheckedProperty));
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
