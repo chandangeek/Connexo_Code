@@ -286,17 +286,14 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         form.down('[name=obisCode]').disable();
                         form.down('#register-types-fieldcontainer').disable();
                         form.down('#register-types-grid').disable();
-                        router.getRoute(currentRoute).forward();
                     }
                 },
                 callback: function (record) {
-                    Ext.suspendLayouts();
                     if (router.currentRoute !== 'administration/loadprofiletypes/edit/addregistertypes') {
                         me.getEditPage().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]));
                     }
-                    form.setEdit(true, returnLink, addRegisterTypesLink);
-                    Ext.resumeLayouts(true);
                     widget.setLoading(false);
+                    form.setEdit(true, returnLink, addRegisterTypesLink);
                 }
             });
         } else {
