@@ -13,14 +13,16 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.impl.RelativePeriodFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -46,6 +48,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -199,7 +202,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
     @Test
     public void testGetValidatorsNoValidators() {
-        when(validationService.getAvailableValidators()).thenReturn(Arrays.asList());
+        when(validationService.getAvailableValidators()).thenReturn(Collections.emptyList());
 
         ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
 
@@ -689,7 +692,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
                 mockPropertySpec(BasicPropertyTypes.NULLABLE_BOOLEAN, "nullableboolean", true),
                 mockPropertySpec(BasicPropertyTypes.BOOLEAN, "boolean", true),
                 mockPropertySpec(BasicPropertyTypes.TEXT, "text", true),
-                mockPropertySpec(BasicPropertyTypes.LISTVALUE, "listvalue", true));
+                mockListValueBeanPropertySpec("listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
 
         Map<String, Object> props = new HashMap<>();
@@ -748,34 +751,61 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     }
 
     private PropertySpec mockPropertySpec(BasicPropertyTypes propertyType, String name, boolean isRequired) {
-        PropertySpec propertySpec = null;
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        when(propertySpec.isRequired()).thenReturn(isRequired);
+        when(propertySpec.getValueFactory()).thenReturn(this.getValueFactoryFor(propertyType));
+        return propertySpec;
+    }
+
+    private PropertySpec mockListValueBeanPropertySpec(String name, boolean isRequired) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
+        when(possibleValues.getSelectionMode()).thenReturn(PropertySelectionMode.LIST);
+        when(possibleValues.getAllValues()).thenReturn(Arrays.asList(Finder.bean1, Finder.bean2));
+        when(possibleValues.isExhaustive()).thenReturn(true);
+        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
+        when(propertySpec.isRequired()).thenReturn(isRequired);
+        when(propertySpec.getValueFactory()).thenReturn(new Finder());
+        return propertySpec;
+    }
+
+    private ValueFactory getValueFactoryFor(BasicPropertyTypes propertyType) {
+        ValueFactory valueFactory = null;
         switch (propertyType) {
-            case NUMBER:
-                propertySpec = new BasicPropertySpec(name, isRequired, new BigDecimalFactory());
+            case UNKNOWN:
                 break;
-            case NULLABLE_BOOLEAN:
-                propertySpec = new BasicPropertySpec(name, isRequired, new ThreeStateFactory());
+            case NUMBER: {
+                valueFactory = new BigDecimalFactory();
                 break;
-            case BOOLEAN:
-                propertySpec = new BasicPropertySpec(name, isRequired, new BooleanFactory());
+            }
+            case NULLABLE_BOOLEAN: {
+                valueFactory = new ThreeStateFactory();
                 break;
-            case TEXT:
-                propertySpec = new BasicPropertySpec(name, isRequired, new StringFactory());
+            }
+            case BOOLEAN: {
+                valueFactory = new BooleanFactory();
                 break;
-            case LISTVALUE:
-                propertySpec = new ListValuePropertySpec<>(name, isRequired, new Finder(), Finder.bean1, Finder.bean2);
+            }
+            case TEXT: {
+                valueFactory = new StringFactory();
                 break;
+            }
+            case RELATIVEPERIOD: {
+                valueFactory = new RelativePeriodFactory(this.timeService);
+                break;
+            }
             default:
                 break;
         }
-        return propertySpec;
+        return valueFactory;
     }
 
     private Validator mockValidator(String displayName) {
         Validator validator = mock(Validator.class);
         when(validator.getDisplayName()).thenReturn(displayName);
-
-        List<PropertySpec> propertySpecs = Arrays.asList(mockPropertySpec(BasicPropertyTypes.LISTVALUE, "listvalue", false));
+        List<PropertySpec> propertySpecs = Collections.singletonList(mockListValueBeanPropertySpec("listvalue", false));
         when(validator.getPropertySpecs()).thenReturn(propertySpecs);
 
         return validator;
