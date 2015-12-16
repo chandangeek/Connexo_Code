@@ -1,5 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
@@ -8,12 +14,6 @@ import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 
-import com.elster.jupiter.properties.BasicPropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
@@ -86,7 +86,10 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
     }
 
     private DeviceConfiguration mockDeviceConfiguration(DeviceProtocolConfigurationProperties properties) {
-        BasicPropertySpec propertySpec = new BasicPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), new StringFactory());
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
+        when(propertySpec.isRequired()).thenReturn(false);
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         DeviceType deviceType = mockDeviceType("device", 11, Arrays.asList(propertySpec));
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfigurationId);
         when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -105,4 +108,5 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(deviceConfigurationId, 1L)).thenReturn(Optional.of(deviceConfiguration));
         return deviceConfiguration;
     }
+
 }

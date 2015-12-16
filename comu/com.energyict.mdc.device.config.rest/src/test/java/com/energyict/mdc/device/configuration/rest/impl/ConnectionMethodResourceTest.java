@@ -134,7 +134,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         super.setup();
         DeviceType deviceType = mockDeviceType("device", 11);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 12);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         partialInboundConnectionTask = mockPartialInboundConnectionTask(13L, "partial inbound");
         when(partialInboundConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
@@ -152,7 +152,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         RegisterType registerType = mock(RegisterType.class);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerType.getId()).thenReturn(101L);
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Collections.singletonList(registerSpec));
         when(deviceConfigurationService.findDeviceConfiguration(id)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
@@ -170,8 +170,11 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggableClass.getName()).thenReturn("pluggableClass");
 
-        PropertySpec propertySpec = new BasicPropertySpec("connectionTimeOut",false, new TimeDurationValueFactory());
-        when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("connectionTimeOut");
+        when(propertySpec.isRequired()).thenReturn(false);
+        when(propertySpec.getValueFactory()).thenReturn(new TimeDurationValueFactory());
+        when(pluggableClass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
         when(deviceConfigurationService.findPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
         when(deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(partialConnectionTask));
