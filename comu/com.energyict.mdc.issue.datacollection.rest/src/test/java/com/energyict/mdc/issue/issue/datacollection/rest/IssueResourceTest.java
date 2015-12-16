@@ -7,8 +7,11 @@ import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -23,7 +26,11 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,19 +41,19 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
 
     @Test
     public void testGetAllIssuesWithoutParameters() {
-        Response response = target("/issue").request().get();
+        Response response = target("/issues").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void testGetAllIssuesWithoutStartParamter() {
-        Response response = target("/issue").queryParam(LIMIT, "10").request().get();
+        Response response = target("/issues").queryParam(LIMIT, "10").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void testGetAllIssuesWithoutLimitParamter() {
-        Response response = target("/issue").queryParam(START, "0").request().get();
+        Response response = target("/issues").queryParam(START, "0").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -66,7 +73,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         doReturn(issues).when(issueFinder).find();
 
         String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\"]}]");
-        Map<?, ?> map = target("/issue").queryParam(FILTER, filter).queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
+        Map<?, ?> map = target("/issues").queryParam(FILTER, filter).queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(2);
 
         List<?> data = (List<?>) map.get("data");
@@ -82,7 +89,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
         doReturn(issue).when(issueDataCollectionService).findIssue(1);
 
-        Map<?, ?> map = target("/issue/1").request().get(Map.class);
+        Map<?, ?> map = target("/issues/1").request().get(Map.class);
         Map<?, ?> issueMap = (Map<?, ?>) map.get("data");
         assertDefaultIssueMap(issueMap);
     }
@@ -91,7 +98,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
     public void testGetUnexistingIssueById() {
         when(issueDataCollectionService.findIssue(1)).thenReturn(Optional.empty());
 
-        Response response = target("/issue/1").request().get();
+        Response response = target("/issues/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
@@ -106,7 +113,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         when(commentsQuery.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyVararg())).thenReturn(comments);
 
         when(issueService.query(IssueComment.class, User.class)).thenReturn(commentsQuery);
-        Map<?, ?> map = target("/issue/1/comments").request().get(Map.class);
+        Map<?, ?> map = target("/issues/1/comments").request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(1);
 
@@ -137,7 +144,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         params.put("comment", "Comment");
         Entity<Map<String, String>> json = Entity.json(params);
 
-        Response response = target("/issue/1/comments").request().post(json);
+        Response response = target("/issues/1/comments").request().post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
@@ -151,7 +158,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         Map<String, String> params = new HashMap<>(0);
         Entity<Map<String, String>> json = Entity.json(params);
 
-        Response response = target("/issue/1/comments").request().post(json);
+        Response response = target("/issues/1/comments").request().post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -171,14 +178,14 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         
 
         Entity<CloseIssueRequest> json = Entity.json(request);
-        Response response = target("issue/close").request().put(json);
+        Response response = target("issues/close").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
     public void testAssignAction() {
         Entity<AssignIssueRequest> json = Entity.json(new AssignIssueRequest());
-        Response response = target("issue/assign").request().put(json);
+        Response response = target("issues/assign").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -196,7 +203,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         request.issue = new IssueShortInfo();
         request.issue.version = 1L;
 
-        Response response = target("issue/1/actions/1").request().put(Entity.json(request));
+        Response response = target("issues/1/actions/1").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -208,7 +215,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         PerformActionRequest info = new PerformActionRequest();
         info.issue = new IssueShortInfo();
         info.issue.version = 1L;
-        Response response = target("issue/1123/actions/1").request().put(Entity.json(info));
+        Response response = target("issues/1123/actions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
@@ -221,7 +228,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         PerformActionRequest request = new PerformActionRequest();
         request.id = 1;
 
-        Response response = target("issue/1/action").request().put(Entity.json(request));
+        Response response = target("issues/1/action").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 

@@ -1,13 +1,5 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
-
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
@@ -32,13 +24,19 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Order;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -59,15 +57,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 
-@Path("/issue")
+@Path("/issues")
 public class IssueResource extends BaseResource {
 
     private final IssueService issueService;
@@ -104,8 +100,17 @@ public class IssueResource extends BaseResource {
     }
 
     private List<? extends IssueDataCollection> getIssuesForBulk(JsonQueryFilter filter) {
-        return issueDataCollectionService.findIssues(buildFilterFromQueryParameters(filter), EndDevice.class, User.class, IssueReason.class,
-                IssueStatus.class, IssueType.class).find();
+        return issueDataCollectionService.findIssues(buildFilterFromQueryParameters(filter), EndDevice.class, User.class, IssueReason.class, IssueStatus.class, IssueType.class).stream()
+                .map(issue -> {
+                    if (issue.getStatus().isHistorical()) {
+                        return issueDataCollectionService.findHistoricalIssue(issue.getId());
+                    } else {
+                        return issueDataCollectionService.findOpenIssue(issue.getId());
+                    }
+                })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     @GET @Transactional
