@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.rest.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -24,6 +25,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.rest.UsagePointGroupInfo;
+import com.elster.jupiter.validation.security.Privileges;
 
 @Path("/usagepointgroups")
 public class UsagePointGroupsResource {
@@ -40,6 +42,8 @@ public class UsagePointGroupsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getUsagePointGroups(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters params) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<UsagePointGroupInfo> infos = queryUsagePointGroups(queryParameters).stream().map(UsagePointGroupInfo::new).collect(Collectors.toList());
