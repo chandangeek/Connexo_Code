@@ -1,18 +1,18 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.EnumFactory;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.time.TimeService;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -27,6 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -46,24 +47,19 @@ public class ServiceCategorySearchablePropertyTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
+    private NlsMessageFormat messageFormat;
+    @Mock
+    private TimeService timeService;
+    @Mock
+    private OrmService ormService;
+
     private PropertySpecService propertySpecService;
 
     @Before
     public void initializeMocks() {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn("whatever");
-        when(propertySpec.getDisplayName()).thenReturn("com.elster.jupiter.metering.impl.search.ServiceCategorySearchablePropertyTest.initializeMocks");
-        PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
-        PropertySpecBuilderWizard.ThesaurusBased thesaurusOptions = mock(PropertySpecBuilderWizard.ThesaurusBased.class);
-        when(thesaurusOptions.fromThesaurus(any(Thesaurus.class))).thenReturn(propertySpecBuilder);
-        PropertySpecBuilderWizard.NlsOptions nlsOptions = mock(PropertySpecBuilderWizard.NlsOptions.class);
-        when(nlsOptions
-                .named(anyString(), any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(nlsOptions
-                .named(any(TranslationKey.class)))
-                .thenReturn(thesaurusOptions);
-        when(propertySpecService.specForValuesOf(any(EnumFactory.class))).thenReturn(nlsOptions);
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
     }
 
     @Test

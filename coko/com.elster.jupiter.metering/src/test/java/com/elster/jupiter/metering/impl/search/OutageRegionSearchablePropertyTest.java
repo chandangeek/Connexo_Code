@@ -1,12 +1,17 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.time.TimeService;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -19,10 +24,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link OutageRegionSearchableProperty} component
@@ -38,13 +46,19 @@ public class OutageRegionSearchablePropertyTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private PropertySpecService propertySpecService;
+    private NlsMessageFormat messageFormat;
+    @Mock
+    private TimeService timeService;
+    @Mock
+    private OrmService ormService;
 
-    private PropertySpecMockSupport propertySpecMockSupport = new PropertySpecMockSupport();
+    private PropertySpecService propertySpecService;
 
     @Before
     public void initializeMocks() {
-        this.propertySpecMockSupport.mockStringPropertySpec("outageRegion", this.propertySpecService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
     }
 
     @Test
