@@ -115,7 +115,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(ISSUE_REST_COMPONENT, Layer.REST);
     }
 
     @Override
