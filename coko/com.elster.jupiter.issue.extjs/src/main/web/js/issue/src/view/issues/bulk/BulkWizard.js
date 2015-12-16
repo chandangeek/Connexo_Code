@@ -2,7 +2,7 @@ Ext.define('Isu.view.issues.bulk.BulkWizard', {
     extend: 'Isu.view.issues.bulk.Wizard',
     alias: 'widget.bulk-wizard',
     itemId: 'bulk-wizard',
-    titlePrefix: 'Bulk action',
+    titlePrefix: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
     includeSubTitle: true,
 
     requires: [
