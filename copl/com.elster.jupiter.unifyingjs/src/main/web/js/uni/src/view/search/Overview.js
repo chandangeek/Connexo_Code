@@ -81,7 +81,8 @@ Ext.define('Uni.view.search.Overview', {
                                     },
                                     {
                                         itemId: 'search-object-selector',
-                                        xtype: 'search-object-selector'
+                                        xtype: 'search-object-selector',
+                                        service: me.getService()
                                     },
                                     '->',
                                     {
