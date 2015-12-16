@@ -4,10 +4,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.*;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -42,12 +39,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -77,6 +69,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
 
     private static final String JUPITER_REALM = "Local";
+
+    private class PrivilegeAssociation{
+        public String group;
+        public String application;
+        PrivilegeAssociation(String group, String application){
+            this.group = group;
+            this.application = application;
+        }
+    }
+    private final Map<String, List<PrivilegeAssociation>> privilegesNotYetRegistered = new HashMap<>();
 
     @GuardedBy("privilegeProviderRegistrationLock")
     private final List<PrivilegesProvider> privilegesProviders = new ArrayList<>();
@@ -257,10 +259,21 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public void grantGroupWithPrivilege(String groupName, String applicationName, String[] privileges) {
-        Optional<Group> group = findGroup(groupName);
-        if (group.isPresent()) {
-            for (String privilege : privileges) {
-                group.get().grant(applicationName, privilege);
+        synchronized (priviligeProviderRegistrationLock) {
+            Optional<Group> group = findGroup(groupName);
+            if (group.isPresent()) {
+                for (String privilege : privileges) {
+                    try {
+                        group.get().grant(applicationName, privilege);
+                    }
+                    catch(DoesNotExistException e){
+                        System.out.println("Privilege " + privilege + " not yet registered; grant is delayed");
+                        if(!privilegesNotYetRegistered.containsKey(privilege)){
+                            privilegesNotYetRegistered.put(privilege, new ArrayList<>());
+                        }
+                        privilegesNotYetRegistered.get(privilege).add(new PrivilegeAssociation(groupName, applicationName));
+                    }
+                }
             }
         }
     }
@@ -606,6 +619,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 try {
                     transactionService.builder().principal(() -> "Jupiter Installer").action("INSTALL-privilege").module(getModuleName()).run(() -> {
                         doInstallPrivileges(privilegesProvider);
+                        doAssignPrivileges(privilegesProvider);
                     });
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
@@ -662,6 +676,26 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                     resource.getName(),
                     resource.getDescription(),
                     resource.getPrivilegeNames().stream().toArray(String[]::new));
+        }
+    }
+
+    private void doAssignPrivileges(PrivilegesProvider privilegesProvider) {
+        System.out.println("Verifying privileges not yet registered");
+        if(!privilegesNotYetRegistered.isEmpty()) {
+            privilegesProvider.getModuleResources().stream()
+                    .map(resource -> resource.getPrivilegeNames())
+                    .flatMap(privileges -> privileges.stream())
+                    .filter(item -> privilegesNotYetRegistered.containsKey(item))
+                    .forEach(privilege -> {
+                        for(PrivilegeAssociation association : privilegesNotYetRegistered.get(privilege)) {
+                            System.out.println("Granting privilege " + privilege + " to group " + association.group + " on application " + association.application);
+                            Optional<Group> group = findGroup(association.group);
+                            if (group.isPresent()) {
+                                group.get().grant(association.application, privilege);
+                            }
+                        }
+                        privilegesNotYetRegistered.remove(privilege);
+                    });
         }
     }
 
