@@ -4,8 +4,10 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 
 
-
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 public class TaskSummary {
 
@@ -50,6 +52,24 @@ public class TaskSummary {
             this.actualOwner = "";
         }
         this.processInstanceId = task.getTaskData().getProcessInstanceId();
+
+    }
+
+    public TaskSummary(Object[] obj){
+        if(obj != null) {
+            this.id = obj[0] == null ? -1 : ((BigDecimal) obj[0]).longValue();
+            this.actualOwner = obj[1] == null ? "" : (String) obj[1];
+            this.processName = obj[2] == null ? "" : (String) obj[2];
+            this.createdOn = obj[3] == null ? null : (Timestamp) obj[3];
+            String sts = obj[4] == null ? "" : (String) obj[4];
+            if (!sts.equals("")) {
+                for (int i = 0; i < Status.values().length; i++) {
+                    if (Status.values()[i].toString().equals(sts)) {
+                        this.status = Status.values()[i];
+                    }
+                }
+            }
+        }
 
     }
 

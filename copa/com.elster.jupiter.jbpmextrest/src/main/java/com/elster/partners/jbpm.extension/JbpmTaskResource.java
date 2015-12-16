@@ -278,8 +278,11 @@ public class JbpmTaskResource {
     @Produces("application/json")
     public TaskSummary getTask(@PathParam("taskId") long taskid){
         Task task = internalTaskService.getTaskById(taskid);
-        TaskSummary taskSummary = new TaskSummary(task);
-        return taskSummary;
+        if(task == null){
+            return new TaskSummary(getAuditTask(taskid));
+        }else {
+            return new TaskSummary(task);
+        }
     }
 
     @POST
@@ -553,56 +556,57 @@ public class JbpmTaskResource {
         if(internalTaskService != null && runtimeDataService != null) {
             String template = "";
             Task task = internalTaskService.getTaskById(taskId);
-
-            ProcessAssetDesc process = null;
-            Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
-            for(ProcessAssetDesc each: processesList){
-                if(each.getDeploymentId().equals(task.getTaskData().getDeploymentId())){
-                    process = each;
-                }
-            }
-            if(process != null) {
-                String lookupName = "";
-                String formName = ((InternalTask) task).getFormName();
-                if (formName != null && !formName.equals("")) {
-                    lookupName = formName;
-                } else {
-                    lookupName = ((I18NText) task.getNames().get(0)).getText();
-                }
-
-                if (process.getForms().containsKey(lookupName)) {
-                    template = process.getForms().get(lookupName);
-                }
-                if (template.isEmpty() && process.getForms().containsKey(lookupName.replace(" ", "") + "-taskform")) {
-                    template = process.getForms().get(lookupName.replace(" ", "") + "-taskform");
-                }
-                if (template.isEmpty() && process.getForms().containsKey(lookupName.replace(" ", "") + "-taskform.form")) {
-                    template = process.getForms().get(lookupName.replace(" ", "") + "-taskform.form");
-                }
-                if (template.isEmpty() && process.getForms().containsKey("DefaultTask")) {
-                    template = process.getForms().get("DefaultTask");
-                }
-
-                if (!template.isEmpty()) {
-                    try {
-                        JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
-                        Unmarshaller unmarshaller = jc.createUnmarshaller();
-
-                        StringReader reader = new StringReader(template);
-                        form = (ConnexoForm) unmarshaller.unmarshal(reader);
-
-                    } catch (JAXBException e) {
-                        e.printStackTrace();
+            if (task != null) {
+                ProcessAssetDesc process = null;
+                Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
+                for (ProcessAssetDesc each : processesList) {
+                    if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
+                        process = each;
                     }
                 }
+                if (process != null) {
+                    String lookupName = "";
+                    String formName = ((InternalTask) task).getFormName();
+                    if (formName != null && !formName.equals("")) {
+                        lookupName = formName;
+                    } else {
+                        lookupName = ((I18NText) task.getNames().get(0)).getText();
+                    }
+
+                    if (process.getForms().containsKey(lookupName)) {
+                        template = process.getForms().get(lookupName);
+                    }
+                    if (template.isEmpty() && process.getForms().containsKey(lookupName.replace(" ", "") + "-taskform")) {
+                        template = process.getForms().get(lookupName.replace(" ", "") + "-taskform");
+                    }
+                    if (template.isEmpty() && process.getForms().containsKey(lookupName.replace(" ", "") + "-taskform.form")) {
+                        template = process.getForms().get(lookupName.replace(" ", "") + "-taskform.form");
+                    }
+                    if (template.isEmpty() && process.getForms().containsKey("DefaultTask")) {
+                        template = process.getForms().get("DefaultTask");
+                    }
+
+                    if (!template.isEmpty()) {
+                        try {
+                            JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
+                            Unmarshaller unmarshaller = jc.createUnmarshaller();
+
+                            StringReader reader = new StringReader(template);
+                            form = (ConnexoForm) unmarshaller.unmarshal(reader);
+
+                        } catch (JAXBException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                form.content = internalTaskService.getTaskContent(taskId);
+                long contentId = internalTaskService.getTaskById(taskId).getTaskData().getOutputContentId();
+                if (contentId != -1) {
+                    byte[] outContent = internalTaskService.getContentById(contentId).getContent();
+                    form.outContent = (Map<String, Object>) ContentMarshallerHelper.unmarshall(outContent, null);
+                }
+                form.taskStatus = internalTaskService.getTaskById(taskId).getTaskData().getStatus();
             }
-            form.content = internalTaskService.getTaskContent(taskId);
-            long contentId = internalTaskService.getTaskById(taskId).getTaskData().getOutputContentId();
-            if(contentId != -1) {
-                byte[] outContent = internalTaskService.getContentById(contentId).getContent();
-                form.outContent = (Map<String, Object>) ContentMarshallerHelper.unmarshall(outContent, null);
-            }
-            form.taskStatus = internalTaskService.getTaskById(taskId).getTaskData().getStatus();
         }
         // TODO throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
         return form;
@@ -801,6 +805,18 @@ public class JbpmTaskResource {
                 }
             }
         return true;
+    }
+
+    private Object[] getAuditTask(long taskid){
+        EntityManager em = emf.createEntityManager();
+        String queryString = "Select TASKID , ACTUALOWNER, PROCESSID, CREATEDON, STATUS from AUDITTASKIMPL where TASKID = :taskId";
+        Query query = em.createNativeQuery(queryString);
+        query.setParameter("taskId", taskid);
+        List<Object[]> list = query.getResultList();
+        if(!list.isEmpty()){
+            return list.get(0);
+        }
+        return null;
     }
 
     private void setDueDate(Date dueDate, long taskId){
