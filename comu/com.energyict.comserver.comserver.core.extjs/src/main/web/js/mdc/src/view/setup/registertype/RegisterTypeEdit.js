@@ -66,6 +66,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                     {
                         itemId: 'readingTypeCombo',
                         xtype: 'reading-type-combo',
+                        tpl: null,
+                        displayTpl: null,
                         name: 'readingType',
                         fieldLabel: Uni.I18n.translate('general.readingtype', 'MDC', 'Reading type'),
                         displayField: 'fullAliasName',
