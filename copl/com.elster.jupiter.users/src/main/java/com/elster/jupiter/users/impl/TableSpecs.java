@@ -4,13 +4,18 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserPreference;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 public enum TableSpecs {
     USR_RESOURCE {
@@ -30,6 +35,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<Privilege> table = dataModel.addTable(name(), Privilege.class);
             table.map(PrivilegeImpl.class);
+            table.cache();
             Column idColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column resourceColumn = table.column("RESOURCEID").type("number").notNull().add();
             table.primaryKey("USR_PK_PRIVILEGES").on(idColumn).add();
