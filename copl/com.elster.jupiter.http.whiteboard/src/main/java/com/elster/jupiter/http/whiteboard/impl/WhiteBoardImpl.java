@@ -7,13 +7,10 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
@@ -197,11 +194,11 @@ public class WhiteBoardImpl extends Application implements BinderProvider, Insta
                 bind(WhiteBoard.class).toInstance(WhiteBoardImpl.this);
             }
         });
+        if(dataModel.isInstalled() && !getKeyPairDecrypted().isEmpty()){
+                publicKey = getKeyPairDecrypted().get("PUB");
+                privateKey = getKeyPairDecrypted().get("PRV");
+            }
 
-        if(!getKeyPairDecrypted().isEmpty()) {
-            publicKey = getKeyPairDecrypted().get("PUB");
-            privateKey = getKeyPairDecrypted().get("PRV");
-        }
     }
 
     public static int getTimeout() {
@@ -310,12 +307,10 @@ public class WhiteBoardImpl extends Application implements BinderProvider, Insta
     }
 
     public Optional<KeyStore> getKeyPair() {
-         try {
             List<KeyStore> keys = new ArrayList<>(dataModel.mapper(KeyStore.class).find());
-            if (!keys.isEmpty()) return Optional.of(keys.get(0));
-        }catch(UnderlyingSQLFailedException e){
-            return Optional.empty();
-        }
+            if (!keys.isEmpty()) {
+                return Optional.of(keys.get(0));
+            }
         return Optional.empty();
     }
 
