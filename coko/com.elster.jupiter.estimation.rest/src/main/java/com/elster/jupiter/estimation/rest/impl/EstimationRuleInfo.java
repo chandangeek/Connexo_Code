@@ -4,7 +4,6 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 
 import java.util.ArrayList;
@@ -20,8 +19,8 @@ public class EstimationRuleInfo {
     public String implementation; //estimator classname
     public String displayName; // readable name
     public String name;
-    public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
-    public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
+    public List<PropertyInfo> properties = new ArrayList<>();
+    public List<ReadingTypeInfo> readingTypes = new ArrayList<>();
     public EstimationRuleSetInfo ruleSet;
     public long version;
     public EstimationRuleSetInfo parent = new EstimationRuleSetInfo();

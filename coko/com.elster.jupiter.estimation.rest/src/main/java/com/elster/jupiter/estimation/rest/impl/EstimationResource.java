@@ -41,6 +41,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -232,7 +233,10 @@ public class EstimationResource {
         List<Estimator> toAdd = estimationService.getAvailableEstimators();
         Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
         for (Estimator estimator : toAdd) {
-            infos.add(estimator.getClass().getName(), estimator.getDisplayName(), propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs()));
+            infos.add(
+                    estimator.getClass().getName(),
+                    estimator.getDisplayName(),
+                    propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs()));
         }
         infos.total = toAdd.size();
         return infos;

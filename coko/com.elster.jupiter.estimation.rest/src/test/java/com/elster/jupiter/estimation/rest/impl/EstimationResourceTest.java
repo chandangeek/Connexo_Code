@@ -12,19 +12,24 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
+import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.impl.RelativePeriodFactory;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -297,7 +302,6 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         verify(rule).addProperty("nullableboolean", false);
         verify(rule).addProperty("boolean", true);
         verify(rule).addProperty("text", "string");
-        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(List.class));
     }
 
     @Test
@@ -364,7 +368,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     public void testGetEstimationRuleInfo() throws Exception {
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
         EstimationRule estimationRule = mockEstimationRuleInRuleSet(RULE_ID, ruleSet);
-        doReturn(Arrays.asList(estimationRule)).when(ruleSet).getRules();
+        doReturn(Collections.singletonList(estimationRule)).when(ruleSet).getRules();
         Response response = target("/estimation/"+RULE_SET_ID+"/rules/"+RULE_ID).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
@@ -477,7 +481,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         EstimationRuleSet estimationRuleSet = mockDefaultRuleSet();
         EstimationRule estimationRule = mockEstimationRuleInRuleSet(RULE_ID, estimationRuleSet);
         ReadingType readingType = mockReadingType();
-        when(estimationRule.getReadingTypes()).thenReturn(new HashSet<>(Arrays.asList(readingType)));
+        when(estimationRule.getReadingTypes()).thenReturn(new HashSet<>(Collections.singletonList(readingType)));
         Response response = target("/estimation/"+RULE_SET_ID+"/rule/"+RULE_ID+"/readingtypes").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
@@ -529,7 +533,8 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 mockPropertySpec(PropertyType.NUMBER, "number", true),
                 mockPropertySpec(PropertyType.NULLABLE_BOOLEAN, "nullableboolean", true),
                 mockPropertySpec(PropertyType.BOOLEAN, "boolean", true),
-                mockPropertySpec(PropertyType.TEXT, "text", true));
+                mockPropertySpec(PropertyType.TEXT, "text", true),
+                mockListValueBeanPropertySpec("listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
 
         Map<String, Object> props = new HashMap<>();
@@ -542,7 +547,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         listValue.add(Finder.bean2);
         props.put("listvalue", listValue);
         when(rule.getProps()).thenReturn(props);
-        List helper = new ArrayList<>();
+        List helper = new ArrayList();
         helper.add(rule);
         ruleSet.getRules().addAll(helper);
 
@@ -590,34 +595,73 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     }
 
     private PropertySpec mockPropertySpec(PropertyType propertyType, String name, boolean isRequired) {
-        PropertySpec propertySpec = null;
-        switch (propertyType) {
-        case NUMBER:
-            propertySpec = new BasicPropertySpec(name, isRequired, new BigDecimalFactory());
-            break;
-        case NULLABLE_BOOLEAN:
-            propertySpec = new BasicPropertySpec(name, isRequired, new ThreeStateFactory());
-            break;
-        case BOOLEAN:
-            propertySpec = new BasicPropertySpec(name, isRequired, new BooleanFactory());
-            break;
-        case TEXT:
-            propertySpec = new BasicPropertySpec(name, isRequired, new StringFactory());
-            break;
-        case LISTVALUE:
-            propertySpec = new ListValuePropertySpec<>(name, isRequired, new Finder(), Finder.bean1, Finder.bean2);
-            break;
-        default:
-            break;
-        }
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        when(propertySpec.isRequired()).thenReturn(isRequired);
+        when(propertySpec.getValueFactory()).thenReturn(this.getValueFactoryFor(propertyType));
         return propertySpec;
+    }
+
+    private PropertySpec mockListValueBeanPropertySpec(String name, boolean isRequired) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
+        when(possibleValues.getSelectionMode()).thenReturn(PropertySelectionMode.LIST);
+        when(possibleValues.getAllValues()).thenReturn(Arrays.asList(Finder.bean1, Finder.bean2));
+        when(possibleValues.isExhaustive()).thenReturn(true);
+        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
+        when(propertySpec.isRequired()).thenReturn(isRequired);
+        when(propertySpec.getValueFactory()).thenReturn(new Finder());
+        return propertySpec;
+    }
+
+    private ValueFactory getValueFactoryFor(PropertyType propertyType) {
+        ValueFactory valueFactory = null;
+        switch (propertyType) {
+            case UNKNOWN:
+                break;
+            case NUMBER: {
+                valueFactory = new BigDecimalFactory();
+                break;
+            }
+            case NULLABLE_BOOLEAN: {
+                valueFactory = new ThreeStateFactory();
+                break;
+            }
+            case BOOLEAN: {
+                valueFactory = new BooleanFactory();
+                break;
+            }
+            case TEXT: {
+                valueFactory = new StringFactory();
+                break;
+            }
+            case RELATIVEPERIOD: {
+                valueFactory = new RelativePeriodFactory(this.timeService);
+                break;
+            }
+            case ADVANCEREADINGSSETTINGS: {
+                valueFactory = new AdvanceReadingsSettingsFactory(this.meteringService);
+                break;
+            }
+            case ADVANCEREADINGSSETTINGSWITHOUTNONE: {
+                valueFactory = new AdvanceReadingsSettingsWithoutNoneFactory(this.meteringService);
+                break;
+            }
+            case LONG: {
+                valueFactory = new LongFactory();
+                break;
+            }
+            default:
+                break;
+        }
+        return valueFactory;
     }
 
     private Estimator mockEstimator(String displayName) {
         Estimator estimator = mock(Estimator.class);
         when(estimator.getDisplayName()).thenReturn(displayName);
-
-        List<PropertySpec> propertySpecs = Collections.singletonList(mockPropertySpec(PropertyType.LISTVALUE, "listvalue", false));
+        List<PropertySpec> propertySpecs = Collections.singletonList(mockListValueBeanPropertySpec("listvalue", false));
         when(estimator.getPropertySpecs()).thenReturn(propertySpecs);
 
         return estimator;

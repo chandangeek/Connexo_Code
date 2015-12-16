@@ -67,7 +67,7 @@ public class PropertyUtils {
         if (propertyValue == null && defaultValue == null) {
             return null;
         }
-        if(Objects.equals(propertySpec.getValueFactory().getValueType(), AdvanceReadingsSettings.class)) {
+        if (Objects.equals(propertySpec.getValueFactory().getValueType(), AdvanceReadingsSettings.class)) {
             Map <String, Boolean> defaultValueMap = new HashMap<>();
             if (defaultValue != null) {
                 defaultValueMap.put(defaultValue.toString(), true);
@@ -77,7 +77,7 @@ public class PropertyUtils {
             }
             return new PropertyValueInfo<>(propertyValue, defaultValueMap);
         }
-        if(Objects.equals(propertySpec.getValueFactory().getValueType(), RelativePeriod.class)) {
+        if (Objects.equals(propertySpec.getValueFactory().getValueType(), RelativePeriod.class)) {
             Map <String, Integer> defaultValueMap = new HashMap<>();
             if (defaultValue != null) {
                 defaultValueMap.put("id", 0);
