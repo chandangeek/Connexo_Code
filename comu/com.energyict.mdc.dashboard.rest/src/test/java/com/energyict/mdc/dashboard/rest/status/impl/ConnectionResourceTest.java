@@ -508,8 +508,14 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
     private ConnectionTypePluggableClass mockConnectionType() {
         ConnectionTypePluggableClass mock = mock(ConnectionTypePluggableClass.class);
-        BasicPropertySpec name = new BasicPropertySpec("name", new StringFactory());
-        BasicPropertySpec id = new BasicPropertySpec("id", new StringFactory());
+        PropertySpec name = mock(PropertySpec.class);
+        when(name.getName()).thenReturn("name");
+        when(name.isRequired()).thenReturn(false);
+        when(name.getValueFactory()).thenReturn(new StringFactory());
+        PropertySpec id = mock(PropertySpec.class);
+        when(id.getName()).thenReturn("id");
+        when(id.isRequired()).thenReturn(false);
+        when(id.getValueFactory()).thenReturn(new StringFactory());
 
         when(mock.getPropertySpecs()).thenReturn(Arrays.asList(id, name));
         TypedProperties inheritedProperties = TypedProperties.empty();
