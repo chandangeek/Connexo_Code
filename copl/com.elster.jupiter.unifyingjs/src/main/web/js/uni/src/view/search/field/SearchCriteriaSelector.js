@@ -166,13 +166,13 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             groups = _.sortBy(store.getGroups(), function (item) {
                 var group = item.children[0].get('group');
 
-                return group.displayValue || group;
+                return (group.displayValue || group).toLowerCase();
             });
             groups.map(function(group) {
                 var items = [];
 
                 _.sortBy(group.children, function (item) {
-                    return item.get('displayValue');
+                    return item.get('displayValue').toLowerCase();
                 }).map(function(item) {
                     items.push(me.createMenuItem(item));
                 });
