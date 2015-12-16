@@ -36,6 +36,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     route: 'logbooktypes',
                     privileges: Mdc.privileges.MasterData.view,
                     controller: 'Mdc.controller.setup.SetupOverview',
+                    action: 'showLogbookTypes',
                     items: {
                         create: {
                             title: Uni.I18n.translate('general.addLogbookType', 'MDC', 'Add logbook type'),
