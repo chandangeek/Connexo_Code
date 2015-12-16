@@ -226,7 +226,7 @@ public class ValidationServiceImplTest {
         validationService = new ValidationServiceImpl(clock,messageService , eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
-        DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel,taskService,validationService, thesaurus);
+        DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel,taskService,validationService, thesaurus, () -> destinationSpec);
         newDataValidationTask.setRecurrentTask(recurrentTask);
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));

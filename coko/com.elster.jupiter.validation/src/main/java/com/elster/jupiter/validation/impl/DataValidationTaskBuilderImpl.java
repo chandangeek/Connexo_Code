@@ -1,7 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import java.time.Instant;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -9,6 +7,8 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
+
+import java.time.Instant;
 
 public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder {
 
@@ -74,7 +74,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
 
     @Override
     public DataValidationTask build() {
-        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, dataValidationService, application);
+        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, application);
         task.setScheduleImmediately(scheduleImmediately);
         task.setScheduleExpression(scheduleExpression);
         task.setEndDeviceGroup(endDeviceGroup);
