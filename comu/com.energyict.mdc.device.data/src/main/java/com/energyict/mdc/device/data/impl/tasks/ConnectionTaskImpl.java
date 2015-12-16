@@ -795,6 +795,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.doNotTouchParentDevice = true;
     }
 
+    @Override
+    public void notifyDelete() {
+        this.removeAllProperties();
+    }
+
     /**
      * Validates that {@link ConnectionTaskProperty connection task properties}
      * that are provided at connection time, were originally returned by

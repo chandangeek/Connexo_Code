@@ -210,9 +210,9 @@ public class DeviceImpl implements Device {
     @Valid
     private List<DeviceMessageImpl> deviceMessages = new ArrayList<>();
 
-    private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
-    private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
-    private List<ProtocolDialectProperties> dirtyDialectProperties = new ArrayList<>();
+    private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
+    private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
+    private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
 
     private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
@@ -338,8 +338,8 @@ public class DeviceImpl implements Device {
         this.dirtyDialectProperties = new ArrayList<>();
     }
 
-    private void saveDialectProperties(List<ProtocolDialectProperties> dialectProperties) {
-        dialectProperties.stream().map(ProtocolDialectPropertiesImpl.class::cast).forEach(ProtocolDialectPropertiesImpl::save);
+    private void saveDialectProperties(List<ProtocolDialectPropertiesImpl> dialectProperties) {
+        dialectProperties.stream().forEach(ProtocolDialectPropertiesImpl::save);
     }
 
     private void notifyUpdated() {
@@ -377,6 +377,7 @@ public class DeviceImpl implements Device {
         deleteConnectionTasks();
         deleteDeviceMessages();
         deleteSecuritySettings();
+        deleteProtocolDialects();
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
         this.obsoleteKoreDevice();
@@ -404,7 +405,7 @@ public class DeviceImpl implements Device {
             .stream()
             .filter(each -> each.getEndDevice().getId() == endDevice.getId())
             .findFirst()
-            .ifPresent(group::remove);
+                .ifPresent(group::remove);
     }
 
     private void deleteAllIssues() {
@@ -424,6 +425,10 @@ public class DeviceImpl implements Device {
         this.securityPropertyService.deleteSecurityPropertiesFor(this);
     }
 
+    private void deleteProtocolDialects() {
+        this.dialectPropertiesList.forEach(PersistentIdObject::delete);
+    }
+
     private void closeCurrentMeterActivation() {
         getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(clock.instant()));
     }
@@ -433,6 +438,7 @@ public class DeviceImpl implements Device {
     }
 
     private void deleteConnectionTasks() {
+        this.connectionTasks.forEach(ServerConnectionTask::notifyDelete);
         this.connectionTasks.clear();
     }
 
@@ -659,10 +665,11 @@ public class DeviceImpl implements Device {
         }
     }
 
-    private Optional<ProtocolDialectProperties> getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectProperties> propertiesList) {
+    private Optional<ProtocolDialectProperties> getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectPropertiesImpl> propertiesList) {
         return propertiesList
                 .stream()
                 .filter(properties -> properties.getDeviceProtocolDialectName().equals(dialectName))
+                .map(ProtocolDialectProperties.class::cast)
                 .findAny();
     }
 
@@ -674,12 +681,12 @@ public class DeviceImpl implements Device {
             newDialectProperties.setProperty(propertyName, value);
         } else {
             dialectProperties.get().setProperty(propertyName, value);
-            this.dirtyDialectProperties.add(dialectProperties.get());
+            this.dirtyDialectProperties.add((ProtocolDialectPropertiesImpl) dialectProperties.get());
         }
     }
 
     private ProtocolDialectProperties createNewLocalDialectProperties(String dialectName) {
-        ProtocolDialectProperties dialectProperties;
+        ProtocolDialectPropertiesImpl dialectProperties;
         ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties(dialectName);
         if (configurationProperties != null) {
             dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
@@ -705,12 +712,13 @@ public class DeviceImpl implements Device {
     public void removeProtocolDialectProperty(String dialectName, String propertyName) {
         Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
         if (dialectProperties.isPresent()) {
-            dialectProperties.get().removeProperty(propertyName);
+            ProtocolDialectProperties props = dialectProperties.get();
+            props.removeProperty(propertyName);
+            if (!this.dirtyDialectProperties.contains(props)) {
+                this.dirtyDialectProperties.add((ProtocolDialectPropertiesImpl) props);
+            }
         } else {
             createNewLocalDialectProperties(dialectName);
-        }
-        if ((dialectProperties.isPresent()) && !this.dirtyDialectProperties.contains(dialectProperties.get())) {
-            this.dirtyDialectProperties.add(dialectProperties.get());
         }
     }
 
