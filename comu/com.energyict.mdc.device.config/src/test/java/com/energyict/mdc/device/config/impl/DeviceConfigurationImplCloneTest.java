@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -9,10 +13,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import org.fest.assertions.core.Condition;
 
 import java.util.Arrays;
@@ -148,8 +148,24 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
         String propertyValue1 = "PropValue";
         long propertyValue2 = 123455L;
 
-        DeviceProtocolDialect dialect1 = mockDeviceProtocolDialect(propertyName1, protocolDialectName1, inMemoryPersistence.getPropertySpecService().stringPropertySpec(propertyName1, false, null));
-        DeviceProtocolDialect dialect2 = mockDeviceProtocolDialect(propertyName2, protocolDialectName2, inMemoryPersistence.getPropertySpecService().longPropertySpec(propertyName2, false, null));
+        DeviceProtocolDialect dialect1 =
+                mockDeviceProtocolDialect(
+                        propertyName1,
+                        protocolDialectName1,
+                        inMemoryPersistence.getPropertySpecService()
+                                .stringSpec()
+                                .named(propertyName1, propertyName1)
+                                .describedAs(propertyName1)
+                                .finish());
+        DeviceProtocolDialect dialect2 =
+                mockDeviceProtocolDialect(
+                        propertyName1,
+                        protocolDialectName1,
+                        inMemoryPersistence.getPropertySpecService()
+                                .longSpec()
+                                .named(propertyName2, propertyName2)
+                                .describedAs(propertyName2)
+                                .finish());
 
         when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(dialect1, dialect2));
 
@@ -312,8 +328,20 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
 
 
     private void enhanceDeviceProtocolWithPropertySpecs(String propertyName1, String propertyName2) {
-        PropertySpec propertySpec1 = inMemoryPersistence.getPropertySpecService().stringPropertySpec(propertyName1, false, null);
-        PropertySpec propertySpec2 = inMemoryPersistence.getPropertySpecService().longPropertySpec(propertyName2, false, null);
+        PropertySpec propertySpec1 =
+                inMemoryPersistence
+                        .getPropertySpecService()
+                        .stringSpec()
+                        .named(propertyName1, propertyName1)
+                        .describedAs("Description for " + propertyName1)
+                        .finish();
+        PropertySpec propertySpec2 =
+                inMemoryPersistence
+                        .getPropertySpecService()
+                        .longSpec()
+                        .named(propertyName2, propertyName2)
+                        .describedAs("Description for: " + propertyName2)
+                        .finish();
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec1, propertySpec2));
     }
 
