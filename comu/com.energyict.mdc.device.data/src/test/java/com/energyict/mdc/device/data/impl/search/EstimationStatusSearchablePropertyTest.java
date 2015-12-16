@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,6 +11,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
@@ -22,9 +24,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,16 +45,22 @@ public class EstimationStatusSearchablePropertyTest {
     private DeviceSearchDomain domain;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat messageFormat;
 
     private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private PropertySpecService propertySpecService;
     private EstimationSearchablePropertyGroup estimationSearchablePropertyGroup;
 
     @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+    }
+
+    @Before
     public void initializeMocks() {
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.ESTIMATION_STATUS.getDefaultFormat());
-        when(thesaurus.getFormat(PropertyTranslationKeys.ESTIMATION_STATUS)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, ormService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
@@ -136,7 +144,7 @@ public class EstimationStatusSearchablePropertyTest {
         PropertySpec specification = property.getSpecification();
 
         // Asserts
-        assertThat(specification.getPossibleValues().getAllValues()).isEmpty();
+        assertThat(specification.getPossibleValues()).isNull();
     }
 
     @Test
@@ -153,4 +161,5 @@ public class EstimationStatusSearchablePropertyTest {
     private EstimationStatusSearchableProperty getTestInstance() {
         return new EstimationStatusSearchableProperty(propertySpecService, thesaurus).init(this.domain, estimationSearchablePropertyGroup);
     }
+
 }

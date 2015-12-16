@@ -1,13 +1,19 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -46,6 +52,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +70,12 @@ public class DeviceSearchDomainTest {
     @Mock
     private DataModel dataModel;
     @Mock
+    private DataVaultService dataVaultService;
+    @Mock
+    private OrmService ormService;
+    @Mock
+    private TimeService timeService;
+    @Mock
     private DeviceDataModelService deviceDataModelService;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
@@ -69,6 +83,8 @@ public class DeviceSearchDomainTest {
     private Clock clock;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat messageFormat;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -88,10 +104,18 @@ public class DeviceSearchDomainTest {
 
     private Injector injector;
 
+    @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+    }
+
     @SuppressWarnings("unchecked")
     @Before
     public void initializeMocks() {
         this.injector = Guice.createInjector(this.getModule());
+        when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         when(this.deviceDataModelService.dataModel()).thenReturn(this.dataModel);
         when(this.dataModel.getInstance(any(Class.class))).then(invocationOnMock -> {
             Class zClass = (Class) invocationOnMock.getArguments()[0];
@@ -259,6 +283,9 @@ public class DeviceSearchDomainTest {
                 bind(Clock.class).toInstance(clock);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataModel.class).toInstance(dataModel);
+                bind(DataVaultService.class).toInstance(dataVaultService);
+                bind(OrmService.class).toInstance(ormService);
+                bind(TimeService.class).toInstance(timeService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceService.class).toInstance(deviceService);

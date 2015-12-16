@@ -4,6 +4,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -13,6 +14,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -32,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
@@ -45,6 +48,8 @@ public class ComTaskSecuritySettingsSearchablePropertyTest {
     private DeviceSearchDomain domain;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat messageFormat;
     @Mock
     private DataVaultService dataVaultService;
     @Mock
@@ -69,13 +74,16 @@ public class ComTaskSecuritySettingsSearchablePropertyTest {
     private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
 
     @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+    }
+
+    @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService), this.dataVaultService, this.ormService);
-
-        NlsMessageFormat propertyName = mock(NlsMessageFormat.class);
-        when(propertyName.format(anyVararg())).thenReturn(PropertyTranslationKeys.COMTASK_SECURITY_SETTING.getDefaultFormat());
-        when(this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_SECURITY_SETTING)).thenReturn(propertyName);
 
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);

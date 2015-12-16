@@ -101,7 +101,7 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     protected TranslationKey getNameTranslationKey() {
-        return null;
+        return PropertyTranslationKeys.ESTIMATION_STATUS;
     }
 
     @Override
@@ -113,4 +113,5 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         //nothing to refresh
     }
+
 }

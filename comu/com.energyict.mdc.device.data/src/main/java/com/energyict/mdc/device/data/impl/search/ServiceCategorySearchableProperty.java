@@ -111,6 +111,7 @@ public class ServiceCategorySearchableProperty extends AbstractSearchableDeviceP
                             .map(meteringService::getServiceCategory)
                             .flatMap(Functions.asStream())
                             .toArray(ServiceCategory[]::new))
+                .markExhaustive()
                 .finish();
     }
 

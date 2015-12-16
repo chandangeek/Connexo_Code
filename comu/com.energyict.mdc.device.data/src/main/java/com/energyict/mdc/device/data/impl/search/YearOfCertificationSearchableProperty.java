@@ -31,6 +31,9 @@ public class YearOfCertificationSearchableProperty extends AbstractSearchableDev
     public YearOfCertificationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(thesaurus);
         this.propertySpecService = propertySpecService;
+        for (int i=0; i < YEARS_IN_LIST_NUMBER; i++) {
+            this.years[i] = Long.valueOf(String.valueOf(ZonedDateTime.now().getYear() - i));
+        }
     }
 
     YearOfCertificationSearchableProperty init(DeviceSearchDomain domain) {
@@ -80,9 +83,6 @@ public class YearOfCertificationSearchableProperty extends AbstractSearchableDev
 
     @Override
     public PropertySpec getSpecification() {
-        for (int i=0; i < YEARS_IN_LIST_NUMBER; i++) {
-            this.years[i] = Long.valueOf(String.valueOf(ZonedDateTime.now().getYear() - i));
-        }
         return this.propertySpecService
                 .longSpec()
                 .named(DeviceFields.CERT_YEAR.fieldName(), this.getNameTranslationKey())

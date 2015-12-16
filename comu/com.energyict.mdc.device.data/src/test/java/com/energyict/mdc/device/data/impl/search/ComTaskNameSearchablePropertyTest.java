@@ -4,6 +4,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -11,6 +12,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.tasks.ComTask;
@@ -27,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
@@ -42,6 +45,8 @@ public class ComTaskNameSearchablePropertyTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
+    private NlsMessageFormat messageFormat;
+    @Mock
     private DataVaultService dataVaultService;
     @Mock
     private TimeService timeService;
@@ -53,7 +58,6 @@ public class ComTaskNameSearchablePropertyTest {
     private TaskService taskService;
     @Mock
     private SearchablePropertyGroup parentGroup;
-
     @Mock
     private ComTask comTask1;
     @Mock
@@ -62,13 +66,16 @@ public class ComTaskNameSearchablePropertyTest {
     private PropertySpecService propertySpecService;
 
     @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+    }
+
+    @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService), this.dataVaultService, this.ormService);
-
-        NlsMessageFormat propertyName = mock(NlsMessageFormat.class);
-        when(propertyName.format(anyVararg())).thenReturn(PropertyTranslationKeys.COMTASK_NAME.getDefaultFormat());
-        when(this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_NAME)).thenReturn(propertyName);
 
         Finder taskFinder = mock(Finder.class);
         when(taskFinder.paged(anyInt(), anyInt())).thenReturn(taskFinder);
@@ -156,7 +163,7 @@ public class ComTaskNameSearchablePropertyTest {
         assertThat(specification.getPossibleValues()).isNotNull();
         assertThat(specification.getPossibleValues().getAllValues()).hasSize(2);
         assertThat(specification.getPossibleValues().getAllValues()).containsExactly(comTask1, comTask2);
-        assertThat(specification.getPossibleValues().isExhaustive()).isTrue();
+        assertThat(specification.getPossibleValues().isExhaustive()).isFalse();
     }
 
     @Test

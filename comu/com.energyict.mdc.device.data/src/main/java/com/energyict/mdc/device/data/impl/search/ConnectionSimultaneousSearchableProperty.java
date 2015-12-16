@@ -83,7 +83,8 @@ public class ConnectionSimultaneousSearchableProperty extends AbstractSearchable
         return this.propertySpecService
                 .booleanSpec()
                 .named(PROPERTY_NAME, this.getNameTranslationKey())
-                .fromThesaurus(this.getThesaurus()).finish();
+                .fromThesaurus(this.getThesaurus())
+                .finish();
     }
 
     @Override

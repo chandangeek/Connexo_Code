@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -130,7 +131,11 @@ public abstract class AbstractDynamicSearchablePropertyTest {
         when(propertySpec.getName()).thenReturn(expected);
         SearchableProperty property = this.getTestInstance();
 
-        assertThat(property.getDisplayName()).startsWith(expected);
+        // Business method
+        property.getDisplayName();
+
+        // Asserts
+        verify(this.propertySpec).getDisplayName();
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.junit.*;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ProtocolDialectDynamicSearchablePropertyTest extends AbstractDynamicSearchablePropertyTest {
 
@@ -20,6 +21,14 @@ public class ProtocolDialectDynamicSearchablePropertyTest extends AbstractDynami
     protected SearchableProperty getTestInstance() {
         return new ProtocolDialectDynamicSearchableProperty(this.getThesaurus())
                 .init(this.domain, this.group, this.propertySpec, this.protocolDialect, "some_table");
+    }
+
+    @Override
+    public void testTranslation() {
+        super.testTranslation();
+
+        // Additional asserts
+        verify(this.protocolDialect.getProtocolDialect()).getDisplayName();
     }
 
 }
