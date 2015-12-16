@@ -35,7 +35,7 @@ Ext.define('Isu.view.issues.CommentsList', {
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
                 '{[xindex > 1 ? "<hr>" : ""]}',
-                '<p><span class="isu-icon-USER"></span><b>{author.name}</b> added a comment - {[values.creationDate ? this.formatCreationDate(values.creationDate) : ""]}</p>',
+                '<p><span class="isu-icon-USER"></span><b>{author.name}</b> ' + Uni.I18n.translate('general.addedcomment.lowercase','ISU','added a comment') + ' - {[values.creationDate ? this.formatCreationDate(values.creationDate) : ""]}</p>',
                 '<p><tpl for="splittedComments">',
                 '{.}</br>',
                 '</tpl></p>',
