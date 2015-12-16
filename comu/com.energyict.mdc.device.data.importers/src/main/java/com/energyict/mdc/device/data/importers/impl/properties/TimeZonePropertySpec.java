@@ -25,6 +25,14 @@ public class TimeZonePropertySpec extends BasicPropertySpec {
         this.thesaurus = thesaurus;
     }
 
+    // For testing purposes
+    TimeZonePropertySpec(String name, Thesaurus thesaurus, Clock clock) {
+        super(new StringFactory());
+        setPossibleValues(new PropertySpecPossibleValuesImpl(getDefaultTimeZone(clock), false));
+        this.setName(name);
+        this.thesaurus = thesaurus;
+    }
+
     public String getDefaultTimeZone(Clock clock) {
         TimeZone timeZone = TimeZone.getTimeZone(clock.getZone());
         int rawOffset = timeZone.getOffset(clock.millis());

@@ -21,6 +21,14 @@ public class DateFormatPropertySpec extends BasicPropertySpec {
         this.thesaurus = thesaurus;
     }
 
+    // For testing purposes
+    DateFormatPropertySpec(String name, Thesaurus thesaurus) {
+        super(new StringFactory());
+        setPossibleValues(new PropertySpecPossibleValuesImpl(DEFAULT, false));
+        this.setName(name);
+        this.thesaurus = thesaurus;
+    }
+
     @Override
     public boolean validateValue(Object objectValue) throws InvalidValueException {
         if (objectValue instanceof String && super.validateValueIgnoreRequired(objectValue)) {

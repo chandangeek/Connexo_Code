@@ -30,7 +30,7 @@ public class DateFormatPropertySpecTest {
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
-        propertySpec = new DateFormatPropertySpec("name");
+        propertySpec = new DateFormatPropertySpec("name", this.thesaurus);
     }
 
     @Test

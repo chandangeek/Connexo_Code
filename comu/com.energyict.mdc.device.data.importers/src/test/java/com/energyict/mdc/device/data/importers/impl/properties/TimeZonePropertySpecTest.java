@@ -6,6 +6,8 @@ import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 
+import java.time.Clock;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -22,6 +24,7 @@ public class TimeZonePropertySpecTest {
     @Mock
     private Thesaurus thesaurus;
 
+    private Clock clock = Clock.systemUTC();
     private TimeZonePropertySpec propertySpec;
 
     @Before
@@ -30,7 +33,7 @@ public class TimeZonePropertySpecTest {
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
-        propertySpec = new TimeZonePropertySpec("name");
+        this.propertySpec = new TimeZonePropertySpec("name", this.thesaurus, this.clock);
     }
 
     @Test
