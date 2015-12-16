@@ -141,6 +141,11 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         })
     },
 
+    showLogbookTypes: function () {
+        var widget = Ext.widget('logbookTypeSetup');
+        this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
     showLogbookTypeCreateView: function () {
         var widget = Ext.widget('logbookTypeEdit', {
             edit: false,
