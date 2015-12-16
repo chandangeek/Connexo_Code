@@ -621,7 +621,10 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
                     if (allServerDestination.isPresent()) {
                         allServerDestination.get().message(jsonService.serialize(new AppServerCommand(Command.CONFIG_CHANGED))).send();
                     } else {
-                        LOGGER.log(Level.SEVERE, "Could not notify other servers of Config Change. AllServers queue does not exist!");
+                        if (dataModel.isInstalled()) {
+                            LOGGER.log(Level.SEVERE, "Could not notify other servers of Config Change. AllServers queue does not exist!");
+                        }
+
                     }
                 });
     }
