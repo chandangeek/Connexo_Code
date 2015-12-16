@@ -111,6 +111,8 @@ Ext.define('Idv.controller.Detail', {
                 panel.removeAll();
                 panel.add(widget);
             }
+        }, me, {
+            single: true
         });
     }
 });
