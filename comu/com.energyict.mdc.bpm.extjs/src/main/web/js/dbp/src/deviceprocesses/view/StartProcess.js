@@ -45,7 +45,7 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                     {
                         xtype: 'form',
                         itemId: 'frm-process-start',
-                        margin: '0 0 0 0',
+                        margin: '0 50 10 0',
                         layout: {
                             type: 'vbox',
                             align: 'left'
@@ -69,8 +69,8 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                                 valueField: 'id',
                                 itemId: 'cbo-processes-definition',
                                 allowBlank: false,
-                                width: 600,
-                                labelWidth: 250,
+                                width: 500,
+                                labelWidth: 150,
                                 queryMode: 'local',
                                 name: 'startProcessCombo',
                                 required: true
@@ -78,37 +78,49 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                         ]
                     },
                     {
-                        xtype: 'container',
-                        margin: '20 0 0 0',
+                        xtype: 'form',
+                        ui: 'medium',
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
                         },
-                        itemId: 'process-start-content',
+                        privileges: Bpm.privileges.BpmManagement.execute,
+                        itemId: 'process-start-form',
                         items: [
                             {
-                                xtype: 'property-form'
-                            },
-                            {
                                 xtype: 'container',
-                                margin: '10 0 0 265',
-                                layout: 'hbox',
+                                margin: '20 0 0 0',
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'stretch'
+                                },
+                                itemId: 'process-start-content',
                                 items: [
                                     {
-                                        text: Uni.I18n.translate('dbp.process.action', 'DBP', 'Start'),
-                                        xtype: 'button',
-                                        ui: 'action',
-                                        itemId: 'btn-start',
-                                        action: 'startProcess',
-                                        startProcessRecord: me.startProcessRecord
-
+                                        xtype: 'property-form'
                                     },
                                     {
-                                        xtype: 'button',
-                                        text: Uni.I18n.translate('general.cancel', 'DBP', 'Cancel'),
-                                        itemId: 'btn-cancel-link',
-                                        action: 'cancelStartProcess',
-                                        ui: 'link'
+                                        xtype: 'container',
+                                        margin: '10 0 0 165',
+                                        layout: 'hbox',
+                                        items: [
+                                            {
+                                                text: Uni.I18n.translate('dbp.process.action', 'DBP', 'Start'),
+                                                xtype: 'button',
+                                                ui: 'action',
+                                                itemId: 'btn-start',
+                                                action: 'startProcess',
+                                                startProcessRecord: me.startProcessRecord
+
+                                            },
+                                            {
+                                                xtype: 'button',
+                                                text: Uni.I18n.translate('general.cancel', 'DBP', 'Cancel'),
+                                                itemId: 'btn-cancel-link',
+                                                action: 'cancelStartProcess',
+                                                ui: 'link'
+                                            }
+                                        ]
                                     }
                                 ]
                             }

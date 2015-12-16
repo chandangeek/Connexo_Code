@@ -16,6 +16,8 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
         {ref: 'mainPage', selector: 'dbp-device-processes-main-view'},
         {ref: 'openTasksDisplay', selector: '#dbp-preview-running-process-open-tasks'},
         {ref: 'startProcess', selector: 'dbp-start-processes'},
+        {ref: 'startProcessForm', selector: 'dbp-start-processes #process-start-form'},
+
         {ref: 'processStartContent',selector: 'dbp-start-processes #process-start-content'},
     ],
     mRID: null,
@@ -151,6 +153,7 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
         var me=this,
             processStartContent = me.getProcessStartContent(),
             router = this.getController('Uni.controller.history.Router'),
+            startProcessForm = me.getStartProcessForm(),
             startProcessRecord = processStartContent.startProcessRecord,
             widget = me.getStartProcess(),
             form = widget.down('#frm-process-start'),
@@ -175,7 +178,7 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
                     if (operation.response.status == 400) {
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {
-                            processStartContent.getForm().markInvalid(json.errors);
+                            startProcessForm.getForm().markInvalid(json.errors);
                         }
                     }
                 }
