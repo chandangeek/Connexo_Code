@@ -626,17 +626,15 @@ public class BpmResource {
             if (!"".equals(jsonContent)) {
                 if(!jsonContent.equals("Connection refused: connect")){
                     obj = new JSONObject(jsonContent);
+                }else {
+                    throw new NoBpmConnectionException(thesaurus);
                 }
-
             }
 
         } catch (JSONException e) {
-        } catch (RuntimeException e) {
         }
         if(obj != null) {
             taskContentInfos = new TaskContentInfos(obj);
-        }else {
-            throw new NoBpmConnectionException(thesaurus);
         }
         return taskContentInfos;
     }
