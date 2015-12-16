@@ -51,6 +51,9 @@ Ext.define('Apr.controller.MessageQueues',{
     },
 
     showMessageQueuesMonitor: function(){
+        var mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+        mainView.setLoading(Uni.I18n.translate('general.loading', 'APR', 'Loading...'));
+
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             view = Ext.widget('monitor-setup', {
@@ -59,6 +62,7 @@ Ext.define('Apr.controller.MessageQueues',{
         this.getStore('Apr.store.MessageQueuesWithState').load(function(){
             me.getApplication().fireEvent('changecontentevent', view);
             view.down('preview-container').updateOnChange(!me.getStore('Apr.store.MessageQueuesWithState').getCount());
+            mainView.setLoading(false);
         });
     },
 
