@@ -9,22 +9,22 @@ Ext.define('Isu.view.issues.bulk.Navigation', {
     items: [
         {
             itemId: 'SelectIssues',
-            text: 'Select issues'
+            text: Uni.I18n.translate('issues.selectIssues','ISU','Select issues')
         },
         {
             itemId: 'SelectAction',
-            text: 'Select action'
+            text: Uni.I18n.translate('issue.selectAction','ISU','Select action')
         },
         {
             itemId: 'actionDetails',
-            text: 'Action details'
+            text: Uni.I18n.translate('issue.actionDetails','ISU','Action details')
         },
         {   itemId: 'Confirmation',
-            text: 'Confirmation'
+            text: Uni.I18n.translate('issue.confirmation','ISU','Confirmation')
         },
         {
             itemId: 'Status',
-            text: 'Status'
+            text: Uni.I18n.translate('issue.status','ISU','Status')
         }
     ]
 });

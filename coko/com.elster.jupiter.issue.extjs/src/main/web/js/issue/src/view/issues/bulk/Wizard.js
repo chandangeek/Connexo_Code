@@ -16,9 +16,9 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
     listeners: {
         render: function () {
             if (this.includeSubTitle) {
-                this.setTitle('<b>' + this.titlePrefix + ' &#62;</b>' + ' Step 1 of ' + this.items.length + ': ' + this.getActiveItem().title);
+                this.setTitle('<b>' + this.titlePrefix + ' &#62;</b>' + Uni.I18n.translate('issue.steps', 'ISU', ' Step {0} of ', 1) + this.items.length + ' : ' + this.getActiveItem().title);
             } else {
-                this.setTitle('<b>' + this.titlePrefix + ' &#62;</b>' + ' Step 1 of ' + this.items.length);
+                this.setTitle('<b>' + this.titlePrefix + ' &#62;</b>' + Uni.I18n.translate('issue.steps', 'ISU', ' Step {0} of ', 1) + this.items.length);
             }
             this.inWizard = true;
             this.setButtonsState(this);
@@ -39,9 +39,9 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
     onWizardPageChangeEvent: function (wizard) {
         if (this.includeSubTitle) {
             wizard.getActiveItem().preventHeader = true;
-            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + ' Step ' + (wizard.activeItemId + 1) + ' of ' + this.items.length + ': ' + this.getActiveItem().title);
+            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + Uni.I18n.translate('issue.steps', 'ISU', ' Step {0} of ', wizard.activeItemId + 1) + this.items.length + ' : ' + this.getActiveItem().title);
         } else {
-            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + ' Step ' + (wizard.activeItemId + 1) + ' of ' + this.items.length);
+            wizard.setTitle('<b>' + wizard.titlePrefix + ' &#62;</b>' + Uni.I18n.translate('issue.steps', 'ISU', ' Step {0} of ', wizard.activeItemId + 1) + this.items.length);
         }
 
         this.setButtonsState(wizard);
@@ -95,7 +95,7 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
     onConfirmButtonClick: function (finish) {
         var wizard = finish.up('wizard');
         if (!wizard.getForm().isValid()) {
-            var invalidFields = 'Please correct the following errors before resumitting<br>';
+            var invalidFields = Uni.I18n.translate('issue.correctErrors.beforeResume','ISU','Please correct the following errors before resumitting<br>');
             wizard.getForm().getFields().each(function (field) {
                 if (!field.isValid()) {
                     invalidFields += '<br><b>' + field.getFieldLabel() + '</b>';
@@ -122,7 +122,7 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
             Ext.Msg.show({
                 scope: this,
                 title: Uni.I18n.translate('issue.cancellingWizard','ISU','Cancelling Wizard'),
-                msg: 'All changes will be lost. Are you sure you want to cancel?',
+                msg: Uni.I18n.translate('issue.cancellingWizard.msg', 'ISU', 'All changes will be lost. Are you sure you want to cancel?'),
                 buttons: Ext.Msg.YESNO,
                 icon: Ext.Msg.QUESTION,
                 fn: function (buttonId, text, opt) {
@@ -160,7 +160,7 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
                     items: [
                         {
                             xtype: 'button',
-                            text: 'Back',
+                            text: Uni.I18n.translate('general.back', 'ISU', 'Back'),
                             itemId: 'prev',
                             action: 'prevWizard',
                             scope: this,
@@ -168,7 +168,7 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
                         },
                         {
                             xtype: 'button',
-                            text: 'Next',
+                            text: Uni.I18n.translate('general.next', 'ISU', 'Next'),
                             itemId: 'next',
                             action: 'nextWizard',
                             scope: this,
@@ -178,7 +178,7 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
                         },
                         {
                             xtype: 'button',
-                            text: 'Confirm',
+                            text: Uni.I18n.translate('general.confirm', 'ISU', 'Confirm'),
                             itemId: 'finish',
                             action: 'finishWizard',
                             hidden: true,
@@ -188,7 +188,7 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
                         },
                         {
                             xtype: 'button',
-                            text: 'Cancel',
+                            text: Uni.I18n.translate('general.cancel', 'ISU', 'Cancel'),
                             ui: 'link',
                             itemId: 'cancel',
                             action: 'cancelWizard',
