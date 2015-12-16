@@ -346,10 +346,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	private void update(T object, List<ColumnImpl> columns) {
 		try {
 			writer.update(object,columns);
-			//remove object from cache, as we do not know if tx will commit or rollback
-			getCache().remove(object);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
+		} finally {
+			//remove object from cache, as we do not know if tx will commit or rollback
+			getCache().remove(object);
 		}
 	}
 	
@@ -364,18 +365,18 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 		update(objects, getUpdateColumns(fieldNames));
 	}
-	
 
 	private void update(List<T> objects,List<ColumnImpl> columns){
 		try {
 			writer.update(objects, columns);
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		} finally {
 			//remove objects from cache, as we do not know if tx will commit or rollback
 			for (T each : objects) {
 				getCache().remove(each);
 			}
-		} catch (SQLException ex) {
-			throw new UnderlyingSQLFailedException(ex);
-		} 	
+		}
 	}
 	
 	@Override
@@ -383,9 +384,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		preventIfChild();
 		try {
 			writer.remove(object);
-			getCache().remove(object);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
+		} finally {
+			getCache().remove(object);
 		}
 	}
 	
@@ -397,11 +399,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 		try {
 			writer.remove(objects);
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		} finally {
 			for (T each : objects) {
 				getCache().remove(each);
 			}
-		} catch (SQLException ex) {
-			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
