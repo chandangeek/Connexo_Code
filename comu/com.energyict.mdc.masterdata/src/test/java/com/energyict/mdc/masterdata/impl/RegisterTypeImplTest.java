@@ -263,57 +263,6 @@ public class RegisterTypeImplTest {
         registerType.save();
     }
 
-    @Test
-    @Transactional
-    public void getPossibleMultiplyReadingTypesForSecondaryElectricityTest() {
-        createAllRegisterTypes();
-        MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
-                .findMeasurementTypeByReadingType(
-                        inMemoryPersistence.getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get()).get();
-
-        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
-        assertThat(possibleMultiplyRegisterTypesFor).hasSize(1);
-        assertThat(possibleMultiplyRegisterTypesFor.get(0).getMRID()).isEqualTo("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
-    }
-
-    @Test
-    @Transactional
-    public void getPossibleMultiplyReadingTypesForPrimaryElectricityTest() {
-        createAllRegisterTypes();
-        MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
-                .findMeasurementTypeByReadingType(
-                        inMemoryPersistence.getMeteringService().getReadingType("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0").get()).get();
-
-        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
-        assertThat(possibleMultiplyRegisterTypesFor).isEmpty();
-    }
-
-    @Test
-    @Transactional
-    public void getPossibleMultiplyReadingTypesForCountersTest() {
-        createAllRegisterTypes();
-        MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
-                .findMeasurementTypeByReadingType(
-                        inMemoryPersistence.getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0").get()).get();
-
-        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
-        assertThat(possibleMultiplyRegisterTypesFor).hasSize(1);
-        assertThat(possibleMultiplyRegisterTypesFor).haveExactly(1, new Condition<ReadingType>() {
-            @Override
-            public boolean matches(ReadingType measurementType) {
-                return measurementType.getMRID().equals("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
-            }
-        });
-    }
-
-    private void createAllRegisterTypes() {
-        Stream.of(availableReadingTypes).forEach(code -> {
-            ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-            if(!readingType.isRegular()){
-                inMemoryPersistence.getMasterDataService().newRegisterType(readingType, ObisCode.fromString("1.2.3.4.5.6")).save();
-            }
-        });
-    }
 
     private void setupReadingTypesInExistingTransaction() {
         String code = ReadingTypeCodeBuilder
