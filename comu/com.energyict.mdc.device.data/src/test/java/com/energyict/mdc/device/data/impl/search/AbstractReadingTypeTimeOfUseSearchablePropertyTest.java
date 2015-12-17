@@ -9,6 +9,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
@@ -39,6 +41,7 @@ public abstract class AbstractReadingTypeTimeOfUseSearchablePropertyTest {
     @Mock
     Thesaurus thesaurus;
 
+    private BeanService beanService = new DefaultBeanService();
     com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     PropertySpecService propertySpecService;
 
@@ -48,7 +51,7 @@ public abstract class AbstractReadingTypeTimeOfUseSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.READING_TYPE_TOU.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.READING_TYPE_TOU)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService);
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
     }
 

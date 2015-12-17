@@ -16,6 +16,8 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -68,6 +70,7 @@ public class ProtocolDialectSearchablePropertyTest {
     private Finder deviceTypeFinder;
 
     private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
 
     @Before
@@ -80,7 +83,7 @@ public class ProtocolDialectSearchablePropertyTest {
     @Before
     public void initializeMocks() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         com.energyict.mdc.dynamic.PropertySpecService mdcPropertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(this.propertySpecService, dataVaultService, ormService);
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, mdcPropertySpecService, this.thesaurus);

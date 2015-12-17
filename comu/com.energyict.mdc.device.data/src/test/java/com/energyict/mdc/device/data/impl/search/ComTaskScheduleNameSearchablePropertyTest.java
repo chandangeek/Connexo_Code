@@ -11,6 +11,8 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -54,6 +56,7 @@ public class ComTaskScheduleNameSearchablePropertyTest {
     @Mock
     private ComSchedule comSchedule;
 
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
 
     @Before
@@ -65,7 +68,7 @@ public class ComTaskScheduleNameSearchablePropertyTest {
         when(this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_SCHEDULE_NAME)).thenReturn(messageFormat);
 
         when(this.schedulingService.getAllSchedules()).thenReturn(Collections.singletonList(comSchedule));
-        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService, this.ormService), dataVaultService, ormService);
+        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService, this.ormService, this.beanService), dataVaultService, ormService);
         this.parentGroup = new ComTaskSearchablePropertyGroup(this.thesaurus);
     }
 

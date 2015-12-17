@@ -16,6 +16,8 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -71,6 +73,7 @@ public class StateNameSearchablePropertyTest {
     private DeviceConfigurationService deviceConfigurationService;
 
     private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
 
     @Before
@@ -83,7 +86,7 @@ public class StateNameSearchablePropertyTest {
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService);
+        com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, this.dataVaultService, this.ormService);
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.emptyList());

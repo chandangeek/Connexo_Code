@@ -11,6 +11,8 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.masterdata.MasterDataService;
 
 import java.util.List;
@@ -44,6 +46,7 @@ public class ChannelIntervalSearchablePropertyTest {
     @Mock
     private MasterDataService masterDataService;
 
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
     private SearchablePropertyGroup channelGroup;
 
@@ -54,7 +57,7 @@ public class ChannelIntervalSearchablePropertyTest {
         when(this.thesaurus.getFormat(PropertyTranslationKeys.CHANNEL_INTERVAL)).thenReturn(messageFormat);
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         this.channelGroup = new ChannelSearchablePropertyGroup(this.thesaurus);
     }
 

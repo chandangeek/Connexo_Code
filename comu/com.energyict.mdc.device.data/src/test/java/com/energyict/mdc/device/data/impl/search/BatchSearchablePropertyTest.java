@@ -12,6 +12,8 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -54,6 +56,7 @@ public class BatchSearchablePropertyTest {
     @Mock
     private Batch batch;
 
+    private BeanService beanService = new DefaultBeanService();
     private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private PropertySpecService propertySpecService;
 
@@ -67,7 +70,7 @@ public class BatchSearchablePropertyTest {
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService);
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
         when(batch.getName()).thenReturn("displayValue");
     }

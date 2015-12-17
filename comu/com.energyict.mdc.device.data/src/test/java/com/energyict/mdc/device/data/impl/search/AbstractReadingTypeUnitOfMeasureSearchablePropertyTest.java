@@ -13,6 +13,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
@@ -46,6 +48,7 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchablePropertyTest {
     @Mock
     MeteringService meteringService;
 
+    private BeanService beanService = new DefaultBeanService();
     com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     PropertySpecService propertySpecService;
 
@@ -59,7 +62,7 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchablePropertyTest {
         ReadingType rt2 = mockReadingType(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
         ReadingType rt3 = mockReadingType(MetricMultiplier.KILO, ReadingTypeUnit.WATT);
         when(meteringService.getAvailableNonEquidistantReadingTypes()).thenReturn(Arrays.asList(rt1, rt2, rt3));
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService);
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
     }
 

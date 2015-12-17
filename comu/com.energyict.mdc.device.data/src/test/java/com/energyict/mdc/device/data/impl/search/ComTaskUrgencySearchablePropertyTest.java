@@ -11,6 +11,8 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +43,7 @@ public class ComTaskUrgencySearchablePropertyTest {
     @Mock
     private OrmService ormService;
 
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
     private SearchablePropertyGroup parentGroup;
 
@@ -51,7 +54,7 @@ public class ComTaskUrgencySearchablePropertyTest {
         when(this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_URGENCY)).thenReturn(messageFormat);
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         this.parentGroup = new ComTaskSearchablePropertyGroup(this.thesaurus);
     }
 
