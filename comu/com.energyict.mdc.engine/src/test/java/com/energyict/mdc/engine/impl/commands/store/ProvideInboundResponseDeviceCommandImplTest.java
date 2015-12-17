@@ -40,7 +40,11 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -90,7 +94,7 @@ public class ProvideInboundResponseDeviceCommandImplTest {
     @Before
     public void setup() {
         when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
-        when(thesaurus.getStringBeyondComponent(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(thesaurus.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
         DeviceService deviceService = mock(DeviceService.class, RETURNS_DEEP_STUBS);
         IssueServiceImpl issueService = new IssueServiceImpl(this.clock, this.nlsService);
         when(executionContextServiceProvider.clock()).thenReturn(this.clock);

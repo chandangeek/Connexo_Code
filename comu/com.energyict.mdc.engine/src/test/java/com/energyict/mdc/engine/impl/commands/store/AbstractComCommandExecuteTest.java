@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -17,19 +19,16 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Logger;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
@@ -73,7 +72,7 @@ public abstract class AbstractComCommandExecuteTest {
     @Before
     public void setupServiceProvider() {
         when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
-        when(thesaurus.getStringBeyondComponent(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(thesaurus.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
         DeviceService deviceService = mock(DeviceService.class, RETURNS_DEEP_STUBS);
         IssueServiceImpl issueService = new IssueServiceImpl(this.clock, this.nlsService);
         when(executionContextServiceProvider.clock()).thenReturn(this.clock);
