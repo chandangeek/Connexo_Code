@@ -71,11 +71,8 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
-                        var deviceTypeName = deviceType.get('name');
-                        var deviceConfigName = deviceConfig.get('name');
                         //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getProtocolDialectsGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -83,21 +80,27 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     },
 
     previewProtocolDialect: function (grid, record) {
-        var protocolDialect = this.getProtocolDialectsGrid().getSelectionModel().getSelection();
+        var me = this,
+            protocolDialect = record;
         if (protocolDialect.length === 1) {
-            this.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
+
             var protocolDialectName = protocolDialect[0].get('name');
-            this.getProtocolDialectPreview().getLayout().setActiveItem(1);
             if (protocolDialect[0].propertiesStore.data.items.length > 0) {
-                this.getProtocolDialectsDetailsTitle().setVisible(true);
+                me.getProtocolDialectsDetailsTitle().setVisible(true);
             } else {
-                this.getProtocolDialectsDetailsTitle().setVisible(false);
+                me.getProtocolDialectsDetailsTitle().setVisible(false);
             }
 
-            this.getProtocolDialectPreview().down('property-form').loadRecord(protocolDialect[0]);
-            this.getProtocolDialectPreview().setTitle(protocolDialectName);
-        } else {
-            this.getProtocolDialectPreview().getLayout().setActiveItem(0);
+            if (me.getProtocolDialectPreview().rendered) {
+                me.getProtocolDialectPreview().down('property-form').loadRecord(protocolDialect[0]);
+                me.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
+            } else {
+                me.getProtocolDialectPreview().on('afterrender', function() {
+                    me.getProtocolDialectPreview().down('property-form').loadRecord(protocolDialect[0]);
+                    me.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
+                }, me, {single:true});
+            }
+            me.getProtocolDialectPreview().setTitle(protocolDialectName);
         }
     },
 
