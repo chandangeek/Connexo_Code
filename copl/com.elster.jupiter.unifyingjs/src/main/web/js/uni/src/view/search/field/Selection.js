@@ -90,10 +90,12 @@ Ext.define('Uni.view.search.field.Selection', {
     },
 
     onChange: function () {
-        var me = this,
-            value = me.selection.getRange().map(function (item) {
-                return item.get(me.valueField)
-            });
+        var me = this, value;
+
+        me.selection.sort();
+        value = me.selection.getRange().map(function (item) {
+            return item.get(me.valueField)
+        });
 
         me.setValue(value.length ? Ext.create('Uni.model.search.Value', {
             operator: this.down('#filter-operator').getValue(),
@@ -103,8 +105,6 @@ Ext.define('Uni.view.search.field.Selection', {
         if (me.grid.rendered) {
             me.viewSync();
         }
-
-        me.selection.sort();
     },
 
     reset: function () {
