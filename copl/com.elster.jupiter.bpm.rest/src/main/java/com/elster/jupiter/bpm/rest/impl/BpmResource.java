@@ -424,6 +424,24 @@ public class BpmResource {
             if (bpmProcessDefinition.isPresent()) {
                 List<Group> groups = this.userService.getGroups();
                 return new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
+            }else{
+                String jsonContent;
+                JSONArray arr = null;
+                try {
+                    jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+                    if (!"".equals(jsonContent)) {
+                        JSONObject jsnobject = new JSONObject(jsonContent);
+                        arr = jsnobject.getJSONArray("processDefinitionList");
+                    }
+                } catch (JSONException e) {
+                }
+                ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
+                boolean check = processDefinitionInfos.processes.stream()
+                        .anyMatch(s -> s.name.equals(id) && s.version.equals(queryParameters.get("version").get(0)));
+                if(!check){
+                    throw new BpmProcessNotAvailable(thesaurus, id+":"+queryParameters.get("version").get(0));
+                }
+
             }
         }
         return null;
