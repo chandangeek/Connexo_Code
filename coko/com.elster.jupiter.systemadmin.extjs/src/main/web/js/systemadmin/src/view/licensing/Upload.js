@@ -20,13 +20,19 @@ Ext.define('Sam.view.licensing.Upload', {
             },
             items: [
                 {
+                    itemId: 'form-errors',
+                    xtype: 'uni-form-error-message',
+                    name: 'form-errors',
+                    hidden: true
+                },
+                {
                     itemId: 'uploadfileField',
                     xtype: 'filefield',
                     name: 'uploadField',
                     fieldLabel: Uni.I18n.translate('licensing.licenseFile', 'SAM', 'License file'),
                     emptyText: Uni.I18n.translate('general.chooseLicense','SAM','Choose license file *.lic'),
                     text: Uni.I18n.translate('general.browse','SAM','Browse') + '...',
-                    msgTarget: 'side',
+                    msgTarget: 'under',
                     vtype: 'fileUpload',
                     width: 450
                 },

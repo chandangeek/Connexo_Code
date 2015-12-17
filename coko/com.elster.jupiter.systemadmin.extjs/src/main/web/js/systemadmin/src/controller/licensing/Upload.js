@@ -56,10 +56,13 @@ Ext.define('Sam.controller.licensing.Upload', {
     onChange: function (fileField, value) {
         var uploadView = this.getUploadPanel(),
             uploadButton = uploadView.down('button[name=upload]'),
-            form = uploadView.down('form').getForm();
+            form = uploadView.down('form').getForm(),
+            errorForm = uploadView.down('uni-form-error-message');
         if (value !== "" && form.isValid()) {
             uploadButton.enable();
+            errorForm.hide()
         } else {
+            errorForm.show();
             uploadButton.disable();
         }
     },
