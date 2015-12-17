@@ -168,7 +168,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
                 ruleSetVersionRuleGrid.getSelectionModel().deselectAll();
                 ruleSetPanel.show();
                 ruleSetsGrid.getSelectionModel().select(0);
-            } else {
+            } else if (ruleSetPanel) {
                 ruleSetPanel.hide();
             }
             Ext.resumeLayouts(true);
