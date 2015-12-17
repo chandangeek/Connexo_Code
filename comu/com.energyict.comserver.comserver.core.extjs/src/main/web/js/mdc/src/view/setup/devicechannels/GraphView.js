@@ -123,11 +123,11 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     }
 
                     if (point.collectedValue) {
-                        calculatedValue = point.y ? point.y + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
-                        collectedValue = point.collectedValue ? point.collectedValue + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                        calculatedValue = point.y ? point.y + ' ' + point.calculatedUnitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                        collectedValue = point.collectedValue ? point.collectedValue + ' ' + point.collectedUnitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                     } else {
                         // If there's a value (point.y) but no point.collectedValue, then we should call the value "Collected value" (and there's no "Calculated value")
-                        collectedValue = point.y ? point.y + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                        collectedValue = point.y ? point.y + ' ' + point.collectedUnitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                         calculatedValue = null;
                     }
                     html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
