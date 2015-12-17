@@ -130,10 +130,13 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        DeviceConfigurationInfo[] possibleValues = deviceConfigurationService.findAllDeviceTypes().stream()
-                .flatMap(type -> type.getConfigurations().stream())
-                .map(DeviceConfigurationInfo::new)
-                .toArray(DeviceConfigurationInfo[]::new);
+        DeviceConfigurationInfo[] possibleValues =
+                deviceConfigurationService
+                        .findAllDeviceTypes()
+                        .stream()
+                        .flatMap(type -> type.getConfigurations().stream())
+                        .map(DeviceConfigurationInfo::new)
+                        .toArray(DeviceConfigurationInfo[]::new);
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(
                 propertySpecService
@@ -141,6 +144,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                         .named(DEVICE_CONFIGURATIONS, DEVICE_CONFIGURATIONS)
                         .describedAs(DEVICE_CONFIGURATIONS)
                         .markRequired()
+                        .markMultiValued(",")
                         .addValues(possibleValues)
                         .markExhaustive(PropertySelectionMode.LIST)
                         .finish());
@@ -173,9 +177,9 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         return issue;
     }
 
-    private class DeviceConfigurationInfoValueFactory implements ValueFactory<DeviceConfigurationInfo> {
+    private class DeviceConfigurationInfoValueFactory implements ValueFactory<HasIdAndName> {
         @Override
-        public DeviceConfigurationInfo fromStringValue(String stringValue) {
+        public HasIdAndName fromStringValue(String stringValue) {
             return deviceConfigurationService
                     .findDeviceConfiguration(Long.parseLong(stringValue))
                     .map(DeviceConfigurationInfo::new)
@@ -183,27 +187,27 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         }
 
         @Override
-        public String toStringValue(DeviceConfigurationInfo object) {
+        public String toStringValue(HasIdAndName object) {
             return String.valueOf(object.getId());
         }
 
         @Override
-        public Class<DeviceConfigurationInfo> getValueType() {
-            return DeviceConfigurationInfo.class;
+        public Class<HasIdAndName> getValueType() {
+            return HasIdAndName.class;
         }
 
         @Override
-        public DeviceConfigurationInfo valueFromDatabase(Object object) {
+        public HasIdAndName valueFromDatabase(Object object) {
             return this.fromStringValue((String) object);
         }
 
         @Override
-        public Object valueToDatabase(DeviceConfigurationInfo object) {
+        public Object valueToDatabase(HasIdAndName object) {
             return this.toStringValue(object);
         }
 
         @Override
-        public void bind(PreparedStatement statement, int offset, DeviceConfigurationInfo value) throws SQLException {
+        public void bind(PreparedStatement statement, int offset, HasIdAndName value) throws SQLException {
             if (value != null) {
                 statement.setObject(offset, valueToDatabase(value));
             }
@@ -213,7 +217,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         }
 
         @Override
-        public void bind(SqlBuilder builder, DeviceConfigurationInfo value) {
+        public void bind(SqlBuilder builder, HasIdAndName value) {
             if (value != null) {
                 builder.addObject(valueToDatabase(value));
             }
@@ -252,6 +256,31 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
         public boolean isActive() {
             return deviceConfiguration.isActive();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
+
+            DeviceConfigurationInfo that = (DeviceConfigurationInfo) o;
+
+            return deviceConfiguration.getId() == that.deviceConfiguration.getId();
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + Long.hashCode(deviceConfiguration.getId());
+            return result;
         }
     }
 }

@@ -11,6 +11,8 @@ import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
@@ -35,6 +37,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -49,6 +53,7 @@ import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHand
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -59,15 +64,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.*;
+import org.junit.rules.*;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DataValidationIssueCreationRuleTemplateTest extends PersistenceIntegrationTest {
+public class DataValidationIssueCreationRuleTemplateTest {
 
     private static final Instant fixedTime = LocalDateTime.of(2015, 6, 16, 0, 0).toInstant(ZoneOffset.UTC);
+    protected static InMemoryIntegrationPersistence inMemoryPersistence;
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(DataValidationIssueCreationRuleTemplateTest.getTransactionService());
 
     private DataValidationIssueCreationRuleTemplate template;
     private IssueService issueService;
@@ -79,6 +88,27 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     private Meter meter;
     private Channel channel;
     private ReadingType readingType;
+
+    @BeforeClass
+    public static void initialize() throws SQLException {
+        inMemoryPersistence = new InMemoryIntegrationPersistence();
+        inMemoryPersistence.initializeDatabase("DataValidationIssueCreationRuleTemplateTest", false);
+
+        try (TransactionContext ctx = inMemoryPersistence.getTransactionService().getContext()) {
+            inMemoryPersistence.getService(FiniteStateMachineService.class);
+            inMemoryPersistence.getService(IssueDataValidationService.class);
+            ctx.commit();
+        }
+    }
+
+    @AfterClass
+    public static void cleanUpDataBase() throws SQLException {
+        inMemoryPersistence.cleanUpDataBase();
+    }
+
+    public static TransactionService getTransactionService() {
+        return inMemoryPersistence.getTransactionService();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -318,7 +348,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         CreationRuleBuilder ruleBuilder = issueCreationService.newCreationRule();
         Map<String, Object> props = new HashMap<>();
         List<HasIdAndName> value = new ArrayList<>();
-        for(DeviceConfiguration config : deviceConfiguration) {
+        for (DeviceConfiguration config : deviceConfiguration) {
             HasIdAndName deviceConfig = mock(HasIdAndName.class);
             when(deviceConfig.getId()).thenReturn(config.getId());
             value.add(deviceConfig);
@@ -332,4 +362,5 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
                    .setProperties(props)
                    .complete();
     }
+
 }

@@ -31,6 +31,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -44,22 +45,28 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import org.drools.compiler.builder.impl.KnowledgeBuilderFactoryServiceImpl;
 import org.drools.core.impl.KnowledgeBaseFactoryServiceImpl;
 import org.drools.core.io.impl.ResourceFactoryServiceImpl;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.mockito.Matchers;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -69,15 +76,31 @@ public class InMemoryIntegrationPersistence {
     private TransactionService transactionService;
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
+    private DeviceConfigurationService deviceConfigurationService;
 
     public InMemoryIntegrationPersistence() {
         super();
     }
 
+    public InMemoryIntegrationPersistence(DeviceConfigurationService deviceConfigurationService) {
+        this();
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
     public void initializeDatabase(String testName, boolean showSqlLogging) throws SQLException {
-        this.initializeMocks(testName);
         this.bootstrapModule = new InMemoryBootstrapModule();
-        this.injector = Guice.createInjector(
+        this.injector = Guice.createInjector(this.getModules(showSqlLogging));
+        this.transactionService = this.injector.getInstance(TransactionService.class);
+        try (TransactionContext ctx = this.transactionService.getContext()) {
+            injector.getInstance(CustomPropertySetService.class);
+            this.transactionService = this.injector.getInstance(TransactionService.class);
+            ctx.commit();
+        }
+    }
+
+    private Module[] getModules(boolean showSqlLogging) {
+        List<Module> modules = new ArrayList<>();
+        Collections.addAll(modules,
                 new MockModule(),
                 bootstrapModule,
                 new CustomPropertySetsModule(),
@@ -113,24 +136,16 @@ public class InMemoryIntegrationPersistence {
                 new SchedulingModule(),
                 new TimeModule(),
                 new DeviceLifeCycleConfigurationModule(),
-                new DeviceConfigurationModule(),
                 new ProtocolApiModule(),
                 new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new IssueModule(),
-                new IssueDataValidationModule()
-                );
-        this.transactionService = this.injector.getInstance(TransactionService.class);
-        try (TransactionContext ctx = this.transactionService.getContext()) {
-            injector.getInstance(CustomPropertySetService.class);
-            this.transactionService = this.injector.getInstance(TransactionService.class);
-            ctx.commit();
+                new IssueDataValidationModule());
+        if (this.deviceConfigurationService == null) {
+            modules.add(new DeviceConfigurationModule());
         }
-    }
-
-    private void initializeMocks(String testName) {
-
+        return modules.toArray(new Module[modules.size()]);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -162,6 +177,10 @@ public class InMemoryIntegrationPersistence {
 
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            if (deviceConfigurationService != null) {
+                bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+            }
         }
     }
+
 }

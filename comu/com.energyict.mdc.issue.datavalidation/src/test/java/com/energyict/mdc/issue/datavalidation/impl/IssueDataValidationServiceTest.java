@@ -1,6 +1,9 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
@@ -28,20 +31,24 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -50,31 +57,71 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.*;
+import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
+public class IssueDataValidationServiceTest {
 
+    protected static InMemoryIntegrationPersistence inMemoryPersistence;
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(DataValidationIssueCreationRuleTemplateTest.getTransactionService());
     private IssueService issueService;
     private IssueCreationService issueCreationService;
     private IssueDataValidationService issueDataValidationService;
     private CreationRule issueCreationRule;
 
+    @BeforeClass
+    public static void initialize() throws SQLException {
+        DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence = new InMemoryIntegrationPersistence(mock(DeviceConfigurationService.class));
+        DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.initializeDatabase("IssueDataValidationServiceTest", false);
+
+        try (TransactionContext ctx = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getTransactionService().getContext()) {
+            DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(FiniteStateMachineService.class);
+            DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueDataValidationService.class);
+            ctx.commit();
+        }
+    }
+
+    @AfterClass
+    public static void cleanUpDataBase() throws SQLException {
+        DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.cleanUpDataBase();
+    }
+
+    public static TransactionService getTransactionService() {
+        return DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getTransactionService();
+    }
+
     @Before
     public void setUp() throws Exception {
-        issueService = inMemoryPersistence.getService(IssueService.class);
-        DataValidationIssueCreationRuleTemplate template = inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
+        issueService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueService.class);
+        DataValidationIssueCreationRuleTemplate template = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
         ((IssueServiceImpl)issueService).addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
-        issueDataValidationService = inMemoryPersistence.getService(IssueDataValidationService.class);
+        issueDataValidationService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueDataValidationService.class);
+        DeviceConfigurationService deviceConfigurationService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(DeviceConfigurationService.class);
+        Finder deviceTypeFinder = mock(Finder.class);
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        long deviceConfigurationId = 1L;
+        when(deviceConfiguration.getId()).thenReturn(deviceConfigurationId);
+        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
+        deviceConfigurations.add(deviceConfiguration);
+        when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
+        when(deviceTypeFinder.stream()).thenAnswer(invocationOnMock -> Stream.of(deviceType));
+        when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
+        when(deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId)).thenReturn(Optional.of(deviceConfiguration));
 
         CreationRuleBuilder ruleBuilder = issueCreationService.newCreationRule();
         Map<String, Object> props = new HashMap<>();
         List<HasIdAndName> value = new ArrayList<>();
         HasIdAndName deviceConfig = mock(HasIdAndName.class);
-        when(deviceConfig.getId()).thenReturn(1L);
+        when(deviceConfig.getId()).thenReturn(deviceConfigurationId);
         value.add(deviceConfig);
         props.put(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, value);
         issueCreationRule = ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
@@ -141,14 +188,14 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
 
-        LdapUserDirectory local = inMemoryPersistence.getService(UserService.class).createApacheDirectory("APD");
+        LdapUserDirectory local = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).createApacheDirectory("APD");
         local.setSecurity("sec");
         local.setUrl("url");
         local.setDirectoryUser("dirUser");
         local.setPassword("pass");
         local.update();
 
-        User assignee = inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "APD", "APD");
+        User assignee = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "APD", "APD");
         assignee.update();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
         issue.assignTo(IssueAssignee.Types.USER, assignee.getId());
@@ -171,7 +218,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         assertThat(issue.getAssignee().getId()).isEqualTo(assignee.getId());
 
         filter = new DataValidationIssueFilter();
-        User anotherAssignee = inMemoryPersistence.getService(UserService.class).findOrCreateUser("AnotherUser", "APD", "APD");
+        User anotherAssignee = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("AnotherUser", "APD", "APD");
         anotherAssignee.update();
         filter.setAssignee(anotherAssignee);
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
@@ -217,7 +264,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
         assertThat(baseIssues).hasSize(1);
 
-        AmrSystem amrSystem = inMemoryPersistence.getService(MeteringService.class).findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        AmrSystem amrSystem = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class).findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         EndDevice endDevice = amrSystem.createEndDevice("METER");
         endDevice.update();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
@@ -286,7 +333,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
     public void testCreateIssueWithNonEstimatedBlocks() {
         Instant now = Instant.now();
 
-        MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
+        MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
@@ -348,7 +395,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
     public void testUpdateIssueWithNonEstimatedBlocks() {
         Instant now = Instant.now();
 
-        MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
+        MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType readingType = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
@@ -410,7 +457,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
     public void testUpdateIssueWithNonEstimatedBlocksOnRegister() {
         Instant now = Instant.now();
 
-        MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
+        MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
@@ -514,7 +561,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCloseIssue() {
-        MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
+        MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");

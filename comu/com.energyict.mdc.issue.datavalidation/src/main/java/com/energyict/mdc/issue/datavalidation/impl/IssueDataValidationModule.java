@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -29,4 +30,5 @@ public class IssueDataValidationModule extends AbstractModule {
         bind(IssueDataValidationService.class).to(IssueDataValidationServiceImpl.class).in(Scopes.SINGLETON);
         bind(DataValidationEventHandlerFactory.class).in(Scopes.SINGLETON);
     }
+
 }
