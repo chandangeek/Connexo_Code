@@ -71,28 +71,40 @@ class ThesaurusImpl implements IThesaurus {
         return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition);
     }
 
+    private Optional<NlsKeyImpl> getAdditionalKey(String key) {
+        Condition condition = Operator.EQUAL.compare("key", key);
+        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition).stream().findFirst();
+    }
+
     @Override
     public String getStringBeyondComponent(String key, String defaultMessage) {
         if (translations.containsKey(key)) {
             return translations.get(key).translate(getLocale()).orElse(defaultMessage);
+        } else {
+            Optional<NlsKeyImpl> first = getAdditionalKey(key);
+            if (first.isPresent()) {
+                translations.put(key, first.get());
+                return translations.get(key).translate(getLocale()).orElse(defaultMessage);
+            } else {
+                return defaultMessage;
+            }
         }
-        Condition condition = Operator.EQUAL.compare("key", key);
-        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition).stream()
-                .findFirst()
-                .flatMap(k -> k.translate(getLocale()))
-                .orElse(defaultMessage);
     }
+
 
     @Override
     public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
         if (translations.containsKey(key)) {
             return translations.get(key).translate(locale).orElse(defaultMessage);
+        } else {
+            Optional<NlsKeyImpl> first = getAdditionalKey(key);
+            if (first.isPresent()) {
+                translations.put(key, first.get());
+                return translations.get(key).translate(locale).orElse(defaultMessage);
+            } else {
+                return defaultMessage;
+            }
         }
-        Condition condition = Operator.EQUAL.compare("key", key);
-        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition).stream()
-                .findFirst()
-                .flatMap(k -> k.translate(locale))
-                .orElse(defaultMessage);
     }
 
     @Override
