@@ -18,4 +18,12 @@ public final class NoSuchPropertyException extends BaseException {
         super(MessageSeeds.NO_SUCH_PROPERTY, e, bean, property);
     }
 
+	public NoSuchPropertyException(Class beanClass, String property) {
+        super(MessageSeeds.NO_SUCH_PROPERTY_ON_CLASS, beanClass, property);
+    }
+
+	public NoSuchPropertyException(Class beanClass, String property, Throwable e) {
+        super(MessageSeeds.NO_SUCH_PROPERTY_ON_CLASS, e, beanClass, property);
+    }
+
 }
