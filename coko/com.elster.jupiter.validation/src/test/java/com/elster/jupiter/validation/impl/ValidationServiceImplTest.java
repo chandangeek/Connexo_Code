@@ -52,6 +52,16 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import javax.inject.Provider;
 import java.lang.reflect.Field;
@@ -71,28 +81,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationServiceImplTest {
@@ -231,7 +226,7 @@ public class ValidationServiceImplTest {
         validationService = new ValidationServiceImpl(clock,messageService , eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
-        DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel,taskService,validationService, thesaurus);
+        DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel,taskService,validationService, thesaurus, () -> destinationSpec);
         newDataValidationTask.setRecurrentTask(recurrentTask);
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
@@ -509,11 +504,9 @@ public class ValidationServiceImplTest {
         // reading1 is ok
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isTrue();
-        assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
+        assertThat(validationStatus.get(1).getReadingQualities()).hasSize(1);
+        assertThat(validationStatus.get(1).getReadingQualities().iterator().next().getTypeCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
-        ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
-        verify(cimChannel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
-        assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
     }
 
     @Test
@@ -550,11 +543,9 @@ public class ValidationServiceImplTest {
         // reading1 is ok
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isTrue();
-        assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
+        assertThat(validationStatus.get(1).getReadingQualities()).hasSize(1);
+        assertThat(validationStatus.get(1).getReadingQualities().iterator().next().getTypeCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
-        ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
-        verify(cimChannel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
-        assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
     }
 
     @Test
@@ -634,10 +625,8 @@ public class ValidationServiceImplTest {
         // reading2 is OK
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
         assertThat(validationStatus.get(0).completelyValidated()).isTrue();
-        assertThat((Collection<ReadingQuality>) validationStatus.get(0).getReadingQualities()).containsExactly(readingDate2ReadingQuality);
-        ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
-        verify(cimChannel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate2));
-        assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+        assertThat(validationStatus.get(0).getReadingQualities()).hasSize(1);
+        assertThat(validationStatus.get(0).getReadingQualities().iterator().next().getTypeCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         // reading1 has suspects
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isTrue();

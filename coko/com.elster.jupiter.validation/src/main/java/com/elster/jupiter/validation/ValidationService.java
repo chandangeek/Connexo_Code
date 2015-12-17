@@ -2,9 +2,10 @@ package com.elster.jupiter.validation;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -22,8 +23,6 @@ public interface ValidationService {
     /**
      * Management of ruleSets and rules *
      */
-
-    DestinationSpec getDestination();
 
     ValidationRuleSet createValidationRuleSet(String name);
 

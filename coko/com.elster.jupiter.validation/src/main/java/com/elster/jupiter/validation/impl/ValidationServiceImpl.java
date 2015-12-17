@@ -140,6 +140,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
+                bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
             }
         });
     }
@@ -224,8 +225,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         this.messageService = messageService;
     }
 
-    @Override
-    public DestinationSpec getDestination() {
+    private DestinationSpec getDestination() {
         if (!destinationSpec.isPresent()) {
             destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
         }

@@ -1,27 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Optional;
-
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -39,6 +17,23 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Optional;
+
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataValidationTaskImplTest extends EqualsContractTest {
@@ -74,7 +69,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     private Validator validator;
 
     private DataValidationTaskImpl newTask() {
-        DataValidationTaskImpl newTask = new DataValidationTaskImpl(dataModel,taskService,dataValidationService,thesaurus);
+        DataValidationTaskImpl newTask = new DataValidationTaskImpl(dataModel,taskService,dataValidationService,thesaurus, () -> destinationSpec);
         newTask.setRecurrentTask(recurrentTask);
         return newTask;
     }
@@ -87,14 +82,14 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationTask == null) {
-            validationTask = setId(newTask().init("taskname", Instant.now() ,dataValidationService, "MultiSense"), ID);
+            validationTask = setId(newTask().init("taskname", Instant.now() , "MultiSense"), ID);
         }
         return validationTask;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return setId(newTask().init("taskname", Instant.now(), dataValidationService,"MultiSense"), ID);
+        return setId(newTask().init("taskname", Instant.now(), "MultiSense"), ID);
     }
 
     @Override
@@ -132,8 +127,6 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
-
-        when(dataValidationService.getDestination()).thenReturn(destinationSpec);
 
     }
 

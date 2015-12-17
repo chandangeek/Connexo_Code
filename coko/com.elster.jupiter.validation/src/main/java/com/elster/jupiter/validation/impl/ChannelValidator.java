@@ -175,7 +175,6 @@ class ChannelValidator {
     private ReadingQualityRecord saveNewReadingQuality(Channel channel, ValidatedResult target, ReadingQualityType readingQualityType) {
         ReadingQualityRecord readingQuality = target.getReadingRecord().map(r -> channel.createReadingQuality(readingQualityType, target.getReadingType(), r))
                 .orElseGet(() -> channel.createReadingQuality(readingQualityType, target.getReadingType(), target.getTimestamp()));
-        readingQuality.save();
         existingReadingQualities.put(readingQuality.getReadingTimestamp(), readingQuality);
         return readingQuality;
     }

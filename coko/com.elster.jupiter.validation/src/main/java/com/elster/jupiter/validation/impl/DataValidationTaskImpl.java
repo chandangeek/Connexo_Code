@@ -1,14 +1,13 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -26,23 +25,11 @@ import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.inject.Provider;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
-
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import javax.inject.Inject;
-import javax.validation.constraints.Size;
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -61,7 +48,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private String userName;
     private final Thesaurus thesaurus;
     private transient Instant nextExecution;
-    private ValidationService dataValidationService;
+    private final ValidationService dataValidationService;
 
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
@@ -70,6 +57,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
 
     private final DataModel dataModel;
+    private final Provider<DestinationSpec> destinationSpecProvider;
 
     private transient boolean recurrentTaskDirty;
     private boolean scheduleImmediately;
@@ -78,21 +66,21 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private String application;
 
     @Inject
-    DataValidationTaskImpl(DataModel dataModel, TaskService taskService, ValidationService dataValidationService, Thesaurus thesaurus) {
+    DataValidationTaskImpl(DataModel dataModel, TaskService taskService, ValidationService dataValidationService, Thesaurus thesaurus, Provider<DestinationSpec> destinationSpecProvider) {
         this.taskService = taskService;
         this.dataModel = dataModel;
         this.dataValidationService = dataValidationService;
         this.thesaurus = thesaurus;
+        this.destinationSpecProvider = destinationSpecProvider;
     }
 
-    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, ValidationService dataValidationService, String application) {
-        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, dataValidationService, application);
+    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, String application) {
+        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, application);
     }
 
-    DataValidationTaskImpl init(String name, Instant nextExecution, ValidationService dataValidationService, String application) {
+    DataValidationTaskImpl init(String name, Instant nextExecution, String application) {
         this.nextExecution = nextExecution;
         this.name = name.trim();
-        this.dataValidationService = dataValidationService;
         this.application = application;
         return this;
     }
@@ -301,7 +289,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
                 .setApplication(application)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
-                .setDestination(dataValidationService.getDestination())
+                .setDestination(destinationSpecProvider.get())
                 .setPayLoad(getName())
                 .scheduleImmediately(scheduleImmediately)
                 .setFirstExecution(nextExecution).build();
