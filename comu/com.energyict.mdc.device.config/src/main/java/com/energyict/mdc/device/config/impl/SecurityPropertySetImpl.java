@@ -1,20 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySetWhileInUseException;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -27,7 +12,18 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
-import com.google.common.collect.Range;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySetWhileInUseException;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -36,7 +32,6 @@ import javax.validation.constraints.Size;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -181,26 +176,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         this.deviceConfiguration.set(deviceConfiguration);
         this.setName(name);
         return this;
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete) {
-        return attrib.getRelations(this, date, includeObsolete, 0, 0);
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Instant date, boolean includeObsolete, int fromRow, int toRow) {
-        return attrib.getRelations(this, date, includeObsolete, fromRow, toRow);
-    }
-
-    @Override
-    public List<Relation> getAllRelations(RelationAttributeType attrib) {
-        return attrib.getAllRelations(this);
-    }
-
-    @Override
-    public List<Relation> getRelations(RelationAttributeType attrib, Range<Instant> period, boolean includeObsolete) {
-        return attrib.getRelations(this, period, includeObsolete);
     }
 
     @Override
@@ -394,7 +369,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private final Thesaurus thesaurus;
 
-        public NoAuthentication(Thesaurus thesaurus) {
+        private NoAuthentication(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -478,7 +453,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<EncryptionDeviceAccessLevel> supportedEncryptionlevels(SecurityPropertySetImpl value) {
             List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels();
-            return levels.isEmpty() ? Arrays.<EncryptionDeviceAccessLevel>asList(new NoEncryption(thesaurus)) : levels;
+            if (levels.isEmpty()) {
+                return Collections.<EncryptionDeviceAccessLevel>singletonList(new NoEncryption(thesaurus));
+            }
+            else {
+                return levels;
+            }
         }
 
         private boolean authLevelSupported(SecurityPropertySetImpl value) {
@@ -492,7 +472,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<AuthenticationDeviceAccessLevel> supportedAutheticationLevels(SecurityPropertySetImpl value) {
             List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
-            return levels.isEmpty() ? Arrays.<AuthenticationDeviceAccessLevel>asList(new NoAuthentication(thesaurus)) : levels;
+            if (levels.isEmpty()) {
+                return Collections.<AuthenticationDeviceAccessLevel>singletonList(new NoAuthentication(thesaurus));
+            }
+            else {
+                return levels;
+            }
         }
     }
 

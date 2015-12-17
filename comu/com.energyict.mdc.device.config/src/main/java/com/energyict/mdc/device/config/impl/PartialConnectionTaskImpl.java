@@ -1,5 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -9,14 +18,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -31,7 +32,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.device.config.PartialConnectionTask} interface.
@@ -261,7 +262,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         @Override
         public boolean isValid(PartialConnectionTaskPropertyImpl value, ConstraintValidatorContext context) {
             ConnectionTypePluggableClass connectionTypePluggableClass = value.getPartialConnectionTask().getPluggableClass();
-            return connectionTypePluggableClass.getPropertySpec(value.getName()) != null;
+            return connectionTypePluggableClass.getPropertySpec(value.getName()).isPresent();
         }
     }
 
@@ -274,8 +275,8 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         @Override
         public boolean isValid(PartialConnectionTaskPropertyImpl value, ConstraintValidatorContext context) {
             ConnectionTypePluggableClass connectionTypePluggableClass = value.getPartialConnectionTask().getPluggableClass();
-            PropertySpec propertySpec = connectionTypePluggableClass.getPropertySpec(value.getName());
-            return propertySpec == null || value.getValue() == null || propertySpec.getValueFactory().getValueType().isInstance(value.getValue());
+            Optional<PropertySpec> propertySpec = connectionTypePluggableClass.getPropertySpec(value.getName());
+            return !propertySpec.isPresent() || value.getValue() == null || propertySpec.get().getValueFactory().getValueType().isInstance(value.getValue());
         }
     }
 

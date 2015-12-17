@@ -25,9 +25,7 @@ import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -51,7 +49,6 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -94,28 +91,16 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.assertj.core.api.Condition;
 import org.joda.time.DateTimeConstants;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -123,9 +108,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.api.Condition;
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialOutboundConnectionTaskCrudIT {
@@ -164,11 +163,7 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Mock
     private DeviceProtocol deviceProtocol;
 
-    @Mock
-    private IdBusinessObjectFactory businessObjectFactory;
-
     private static class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
@@ -178,7 +173,7 @@ public class PartialOutboundConnectionTaskCrudIT {
     }
 
     @BeforeClass
-    public static void initializeDatabase() throws SQLException {
+    public static void initializeDatabase() {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn(PartialOutboundConnectionTaskCrudIT.class.getSimpleName());
@@ -231,6 +226,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             OrmService ormService = injector.getInstance(OrmService.class);
+            DummyConnectionProvider.install(ormService);
             eventService = new SpyEventService(injector.getInstance(EventService.class));
             NlsService nlsService = injector.getInstance(NlsService.class);
             PropertySpecServiceImpl propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
@@ -265,8 +261,6 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(MasterDataService.class),
                     finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class));
-            DataModel dataModel = deviceConfigurationService.getDataModel();
-            createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
         }
         setupMasterData();
@@ -610,7 +604,7 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP + "}", property = "nextExecutionSpecs")
-    public void testCanNotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
+    public void testCannotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
         deviceType.save();
@@ -858,7 +852,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                .addProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, BigDecimal.valueOf(140024, 2))
+                .addProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), BigDecimal.valueOf(140024, 2))
                 .asDefault(true).build();
         deviceConfiguration.save();
     }
@@ -879,7 +873,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
-                .addProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, "127.0.0.1")
+                .addProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), "127.0.0.1")
                 .asDefault(true).build();
         deviceConfiguration.save();
 
@@ -889,8 +883,8 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialConnectionTask partialConnectionTask = found.get();
 
         TypedProperties typedProperties = partialConnectionTask.getTypedProperties();
-        assertThat(typedProperties.hasValueFor(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isTrue();
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo("127.0.0.1");
+        assertThat(typedProperties.hasValueFor(IpConnectionProperties.IP_ADDRESS.propertyName())).isTrue();
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo("127.0.0.1");
 
     }
 
@@ -1170,25 +1164,4 @@ public class PartialOutboundConnectionTaskCrudIT {
 
     }
 
-    private static void createOracleAliases(Connection connection) {
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(
-                    "CREATE VIEW IF NOT EXISTS USER_TABLES AS select table_name from INFORMATION_SCHEMA.TABLES where table_schema = 'PUBLIC'"
-            )) {
-                preparedStatement.execute();
-            }
-            try (PreparedStatement preparedStatement = connection.prepareStatement(
-                    "CREATE VIEW IF NOT EXISTS USER_IND_COLUMNS AS select index_name, table_name, column_name, ordinal_position AS column_position from INFORMATION_SCHEMA.INDEXES where table_schema = 'PUBLIC'"
-            )) {
-                preparedStatement.execute();
-            }
-            try (PreparedStatement preparedStatement = connection.prepareStatement(
-                    "CREATE TABLE IF NOT EXISTS USER_SEQUENCES ( SEQUENCE_NAME VARCHAR2 (30) NOT NULL, MIN_VALUE NUMBER, MAX_VALUE NUMBER, INCREMENT_BY NUMBER NOT NULL, CYCLE_FLAG VARCHAR2 (1), ORDER_FLAG VARCHAR2 (1), CACHE_SIZE NUMBER NOT NULL, LAST_NUMBER NUMBER NOT NULL)"
-            )) {
-                preparedStatement.execute();
-            }
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
 }

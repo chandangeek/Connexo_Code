@@ -1,6 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -18,16 +26,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.ValidationRuleSet;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -694,7 +692,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    public void isLogicalSlaveDelegatesToDeviceProtocolClass() throws SQLException, BusinessException {
+    public void isLogicalSlaveDelegatesToDeviceProtocolClass() throws SQLException {
         String deviceTypeName = "isLogicalSlaveDelegatesToDeviceProtocolClass";
         DeviceType deviceType;
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
@@ -710,7 +708,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    public void isLogicalSlaveWhenProtocolClassSaysSo() throws SQLException, BusinessException {
+    public void isLogicalSlaveWhenProtocolClassSaysSo() throws SQLException {
         when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(new ArrayList<>(EnumSet.of(DeviceProtocolCapabilities.PROTOCOL_SLAVE)));
         String deviceTypeName = "isLogicalSlaveWhenProtocolClassSaysSo";
         DeviceType deviceType;
@@ -727,7 +725,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    public void isLogicalSlaveWhenProtocolClassHasMultipleCapabilities() throws SQLException, BusinessException {
+    public void isLogicalSlaveWhenProtocolClassHasMultipleCapabilities() throws SQLException {
         when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(new ArrayList<>(EnumSet.allOf(DeviceProtocolCapabilities.class)));
         String deviceTypeName = "isLogicalSlaveWhenProtocolClassHasMultipleCapabilities";
         DeviceType deviceType;

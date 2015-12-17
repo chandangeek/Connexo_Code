@@ -44,7 +44,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
@@ -84,6 +83,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
@@ -151,9 +151,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -189,8 +197,6 @@ public abstract class AbstractConflictIT {
     DeviceProtocol deviceProtocol;
 
     @Mock
-    IdBusinessObjectFactory businessObjectFactory;
-    @Mock
     DeviceProtocolPluggableClass deviceProtocolPluggableClass;
 
     public DeviceType getReloadedDeviceType(ServerDeviceType deviceType) {
@@ -208,7 +214,7 @@ public abstract class AbstractConflictIT {
     }
 
     @BeforeClass
-    public static void initializeDatabase() throws SQLException {
+    public static void initializeDatabase() {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn(PartialOutboundConnectionTaskCrudIT.class.getSimpleName());
