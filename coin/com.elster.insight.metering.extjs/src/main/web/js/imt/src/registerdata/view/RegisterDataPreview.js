@@ -38,7 +38,7 @@ Ext.define('Imt.registerdata.view.RegisterDataPreview', {
                                         renderer: function (value) {
                                             if (!Ext.isEmpty(value)) {
                                                 return Uni.DateTime.formatDateLong(new Date(value))
-                                                    + ' ' + Uni.I18n.translate('general.label.at', 'IMT', 'At').toLowerCase() + ' '
+                                                    + ' ' + Uni.I18n.translate('general.label.at', 'IMT', 'at') + ' '
                                                     + Uni.DateTime.formatTimeLong(new Date(value));
                                             }
                                             return '-';

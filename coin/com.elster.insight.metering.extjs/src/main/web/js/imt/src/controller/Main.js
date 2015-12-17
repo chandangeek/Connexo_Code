@@ -13,7 +13,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.devicemanagement.model.Device',
         'Imt.channeldata.controller.Channels',
         'Imt.channeldata.controller.ChannelData',
-        'Imt.registerdata.controller.View'
+        'Imt.registerdata.controller.View',
+        'Imt.validation.controller.UsagePointDataValidation'
     ],
 
     privileges: [],
@@ -35,7 +36,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.metrologyconfiguration.controller.Edit',
         'Imt.metrologyconfiguration.controller.ViewList',
         'Imt.controller.History',
-        'Imt.controller.Search'
+        'Imt.controller.Search',
+        'Imt.validation.controller.UsagePointDataValidation'
     ],
 
     refs: [
