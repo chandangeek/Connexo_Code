@@ -39,24 +39,24 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
 
     private final String plainAlias = "PlainAlias";
-    private final String aliasWithMacroPeriod = "[Daily] PlainAlias";
-    private final String primaryAliasWithMacroPeriod = "[Daily] Primary PlainAlias";
-    private final String secondaryAliasWithMacroPeriod = "[Daily] Secondary PlainAlias";
-    private final String aliasWithMeasuringPeriod = "[15-minute] PlainAlias";
-    private final String primaryAliasWithMeasuringPeriod = "[15-minute] Primary PlainAlias";
-    private final String secondaryAliasWithMeasuringPeriod = "[15-minute] Secondary PlainAlias";
-    private final String aliasWithUnit = "PlainAlias (Wh)";
-    private final String primaryAliasWithUnit = "Primary PlainAlias (Wh)";
-    private final String secondaryAliasWithUnit = "Secondary PlainAlias (Wh)";
-    private final String aliasWithPhase = "PlainAlias Phase-A";
-    private final String primaryAliasWithPhase = "Primary PlainAlias Phase-A";
-    private final String secondaryAliasWithPhase = "Secondary PlainAlias Phase-A";
-    private final String aliasWithTOU = "PlainAlias ToU 3";
-    private final String primaryAliasWithTOU = "Primary PlainAlias ToU 3";
-    private final String secondaryAliasWithTOU = "Secondary PlainAlias ToU 3";
-    private final String aliasWithAll = "[Monthly] PlainAlias (kWh) Phase-B ToU 3";
-    private final String primaryAliasWithAll = "[Monthly] Primary PlainAlias (kWh) Phase-B ToU 3";
-    private final String secondaryAliasWithAll = "[Monthly] Secondary PlainAlias (kWh) Phase-B ToU 3";
+    private final String aliasWithMacroPeriod = "[Daily] Delta PlainAlias";
+    private final String primaryAliasWithMacroPeriod = "[Daily] Primary Delta PlainAlias";
+    private final String secondaryAliasWithMacroPeriod = "[Daily] Secondary Delta PlainAlias";
+    private final String aliasWithMeasuringPeriod = "[15-minute] Delta PlainAlias";
+    private final String primaryAliasWithMeasuringPeriod = "[15-minute] Primary Delta PlainAlias";
+    private final String secondaryAliasWithMeasuringPeriod = "[15-minute] Secondary Delta PlainAlias";
+    private final String aliasWithUnit = "Delta PlainAlias (Wh)";
+    private final String primaryAliasWithUnit = "Primary Delta PlainAlias (Wh)";
+    private final String secondaryAliasWithUnit = "Secondary Delta PlainAlias (Wh)";
+    private final String aliasWithPhase = "Delta PlainAlias Phase-A";
+    private final String primaryAliasWithPhase = "Primary Delta PlainAlias Phase-A";
+    private final String secondaryAliasWithPhase = "Secondary Delta PlainAlias Phase-A";
+    private final String aliasWithTOU = "Delta PlainAlias ToU 3";
+    private final String primaryAliasWithTOU = "Primary Delta PlainAlias ToU 3";
+    private final String secondaryAliasWithTOU = "Secondary Delta PlainAlias ToU 3";
+    private final String aliasWithAll = "[Monthly] Delta PlainAlias (kWh) Phase-B ToU 3";
+    private final String primaryAliasWithAll = "[Monthly] Primary Delta PlainAlias (kWh) Phase-B ToU 3";
+    private final String secondaryAliasWithAll = "[Monthly] Secondary Delta PlainAlias (kWh) Phase-B ToU 3";
 
     @Mock
     private DataModel dataModel;
@@ -217,19 +217,19 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     @Test
     public void simpleReadingTypeWithPlainAliasTest() {
         ReadingType readingType = mockSimpleReadingTypeWithPlainAlias();
-        assertThat(readingType.getFullAliasName()).isEqualTo(plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo("Delta " + plainAlias);
     }
 
     @Test
     public void simplePrimaryReadingTypeWithPlainAliasTest() {
         ReadingType readingType = mockReadingType("0.0.0.4.1.2.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
-        assertThat(readingType.getFullAliasName()).isEqualTo("Primary " + plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo("Primary Delta " + plainAlias);
     }
 
     @Test
     public void simpleSecondaryReadingTypeWithPlainAliasTest() {
         ReadingType readingType = mockReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
-        assertThat(readingType.getFullAliasName()).isEqualTo("Secondary " + plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo("Secondary Delta " + plainAlias);
     }
 
     @Test

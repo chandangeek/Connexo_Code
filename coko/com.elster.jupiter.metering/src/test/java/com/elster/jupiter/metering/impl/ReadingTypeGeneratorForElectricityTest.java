@@ -126,11 +126,11 @@ public class ReadingTypeGeneratorForElectricityTest {
                 getMeteringService().getAvailableReadingTypes().stream().forEach(readingType ->
                 {
                     if(readingType.getAccumulation().equals(Accumulation.DELTADELTA)){
-                        assertThat(readingType.getAliasName().startsWith("Delta "));
+                        assertThat(readingType.getFullAliasName().contains("Delta ")).isTrue();
                     } else if(readingType.getAccumulation().equals(Accumulation.BULKQUANTITY)){
-                        assertThat(readingType.getAliasName().startsWith("Bulk "));
+                        assertThat(readingType.getFullAliasName().contains("Bulk ")).isTrue();
                     } else if(readingType.getAccumulation().equals(Accumulation.SUMMATION)){
-                        assertThat(readingType.getAliasName().startsWith("Sum "));
+                        assertThat(readingType.getFullAliasName().contains("Sum ")).isTrue();
                     }
                 });
             }

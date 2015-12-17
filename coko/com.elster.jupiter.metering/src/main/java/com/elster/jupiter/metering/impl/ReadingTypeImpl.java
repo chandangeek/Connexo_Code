@@ -30,6 +30,7 @@ import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.Currency;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
 
@@ -94,7 +95,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
-	private transient Optional<ReadingType> calculatedReadingType;
+	private transient Optional<ReadingType> calculatedReadingType = Optional.empty();
 
     @Inject
 	ReadingTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
@@ -326,14 +327,10 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 
 	@Override
 	public Optional<ReadingType> getCalculatedReadingType() {
-		if (calculatedReadingType == null) {
-			if (isCumulative()) {
-				ReadingTypeCodeBuilder builder = this.builder();
-				builder.accumulate(Accumulation.DELTADELTA);
-                calculatedReadingType = dataModel.mapper(ReadingType.class).getOptional(builder.code());
-			} else {
-                calculatedReadingType = Optional.empty();
-            }
+		if (isCumulative() && !calculatedReadingType.isPresent()) {
+			ReadingTypeCodeBuilder builder = this.builder();
+			builder.accumulate(Accumulation.DELTADELTA);
+			calculatedReadingType = dataModel.mapper(ReadingType.class).getOptional(builder.code());
 		}
 		return calculatedReadingType;
 	}
@@ -509,7 +506,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 				fullAlias.append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.SECONDARY).format()).append(" ");
 				break;
 		}
-		fullAlias.append(this.getAliasName());
+		fullAlias.append(getAliasWithAccumulationPrefix(this.getAliasName(), getAccumulation()));
 		if (this.getUnit().isApplicable()) {
 			fullAlias.append(" (").append(getTranslationWithDefault(this.getMultiplier().getSymbol())).append(getTranslationWithDefault(this.getUnit().getSymbol())).append(")");
 		}
@@ -522,7 +519,36 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
         fullAliasName =  fullAlias.toString();
     }
 
-    @Override
+
+	private String getAliasWithAccumulationPrefix(String alias, Accumulation accumulation) {
+		return AccumulationAliasPrefix.getPrefix(accumulation) + alias;
+	}
+
+	/**
+	 * Adds the proper prefix
+	 */
+	private enum AccumulationAliasPrefix {
+		BULK("Bulk ", Accumulation.BULKQUANTITY),
+		SUM("Sum ", Accumulation.SUMMATION),
+		DELTA("Delta ", Accumulation.DELTADELTA),
+		NONE("", Accumulation.NOTAPPLICABLE);
+
+		private final String prefix;
+		private final Accumulation accumulation;
+
+		AccumulationAliasPrefix(String prefix, Accumulation accumulation) {
+			this.prefix = prefix;
+			this.accumulation = accumulation;
+		}
+
+		static String getPrefix(Accumulation accumulation) {
+			return Stream.of(values()).filter(accumulationAliasPrefix -> accumulationAliasPrefix.accumulation.equals(accumulation)).findFirst().orElseGet(() -> NONE).prefix;
+		}
+
+	}
+
+
+	@Override
     public String getFullAliasName() {
 		setFullAliasName();
         return fullAliasName;
