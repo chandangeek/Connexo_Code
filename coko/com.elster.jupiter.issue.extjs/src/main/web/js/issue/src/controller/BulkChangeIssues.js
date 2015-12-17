@@ -156,7 +156,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             pb.wait({
                 interval: 50,
                 increment: 20,
-                text: (operation === 'assign' ? 'Assigning ' : 'Closing ') + requestData.issues.length + ' issue(s). Please wait...'
+                text: (operation === 'assign' ? Uni.I18n.translate('issues.processing.assign', 'ISU', 'Assigning {0} issue(s). Please wait...', [requestData.issues.length]) :  Uni.I18n.translate('issues.processing.close', 'ISU', 'Closing {0} issue(s). Please wait...', [requestData.issues.length]))
             })
         );
         Ext.resumeLayouts(true);
@@ -181,13 +181,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     switch (operation) {
                         case 'assign':
                             if (successCount > 0) {
-                                successMessage = '<h3>Successfully assigned ' + successCount + (successCount > 1 ? ' issues' : ' issue')
-                                    + ' to ' + record.get('assignee').title + '</h3><br>';
+                                successMessage = Uni.I18n.translatePlural('issues.assign.success.result', successCount, 'ISU', '-', '<h3>Successfully assigned one issue to ', '<h3>Successfully assigned {0} issues to ')
+                                    + record.get('assignee').title + '</h3><br>';
                             }
                             break;
                         case 'close':
                             if (successCount > 0) {
-                                successMessage = '<h3>Successfully closed ' + successCount + (successCount > 1 ? ' issues' : ' issue') + '</h3><br>';
+                                successMessage = Uni.I18n.translatePlural('issues.close.success.result', successCount, 'ISU', '-', '<h3>Successfully closed issue</h3><br>', '<h3>Successfully closed issues</h3><br>');
                             }
                     }
                 }
@@ -218,18 +218,18 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     switch (operation) {
                         case 'assign':
                             if (warnCount > 0) {
-                                warnMessage = '<h3>Unable to assign ' + warnCount + (warnCount > 1 ? ' issues' : ' issue') + '</h3><br>' + warnList;
+                                warnMessage = Uni.I18n.translatePlural('issues.assign.unable.result', warnCount, 'ISU', '-','<h3>Unable to assign one issue</h3><br>', '<h3>Unable to assign {0} issues</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
-                                failedMessage = '<h3>Failed to assign ' + failedCount + (failedCount > 1 ? ' issues' : ' issue') + '</h3><br>' + failList;
+                                failedMessage = Uni.I18n.translatePlural('issues.assign.failed.result', failedCount, 'ISU', '-', '<h3>Failed to assign one issue</h3><br>', '<h3>Failed to assign {0} issues</h3><br>') + failList;
                             }
                             break;
                         case 'close':
                             if (warnCount > 0) {
-                                warnMessage = '<h3>Unable to close ' + warnCount + (warnCount > 1 ? ' issues' : ' issue') + '</h3><br>' + warnList;
+                                warnMessage = Uni.I18n.translatePlural('issues.close.unable.result', warnCount, 'ISU', '-','<h3>Unable to close one issue</h3><br>', '<h3>Unable to close {0} issues</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
-                                failedMessage = '<h3>Failed to close ' + failedCount + (failedCount > 1 ? ' issues' : ' issue') + '</h3><br>' + failList;
+                                failedMessage = Uni.I18n.translatePlural('issues.close.failed.result', failedCount, 'ISU', '-', '<h3>Failed to close one issue</h3><br>', '<h3>Failed to close {0} issues</h3><br>') + failList;
                             }
                     }
                 }
@@ -246,7 +246,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     };
                     if (failedCount == 0) {
                         successMsgParams.btns = [
-                            {text: "OK", hnd: function () {
+                            {text: Uni.I18n.translate('general.ok', 'ISU', 'OK'), hnd: function () {
                                 step5panel.removeAll(true);
                                 Ext.History.back();
                             }}
@@ -463,21 +463,21 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         title: activeCombo.rawValue
                     });
                     if (!record.get('allIssues')) {
-                        message = '<h3>Assign ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + ' to ' + record.get('assignee').title + '?</h3><br>'
+                        message = Uni.I18n.translatePlural('issues.selectedIssues.assign.withCount', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
                         + 'The selected issue(s) will be assigned to ' + record.get('assignee').title;
                     } else {
-                        message = '<h3>Assign all issues to ' + record.get('assignee').title + '?</h3><br>'
-                        + 'All issues will be assigned to ' + record.get('assignee').title;
+                        message = Uni.I18n.translate('issues.allIssues.willBeAssigned.title', 'ISU', '<h3>Assign all issues to {0}?</h3><br>', [record.get('assignee').title])
+                        + Uni.I18n.translate('issues.allIssues.willBeAssigned', 'ISU','All issues will be assigned to {0}',[record.get('assignee').title]);
                     }
                     break;
 
                 case 'close':
                     if (!record.get('allIssues')) {
-                        message = '<h3>Close ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + '?</h3><br>'
-                        + 'The selected issue(s) will be closed with status "<b>' + record.get('statusName') + '</b>"';
+                        message = Uni.I18n.translatePlural('issues.selectedIssues.close.withCount', record.get('issues').length, 'ISU', '-', '<h3>Close one issue?</h3><br>', '<h3>Close {0} issues?</h3><br>')
+                        + Uni.I18n.translate('issues.selectedIssues.willBeClosed','ISU', 'The selected issue(s) will be closed with status "<b>{0}</b>"', [record.get('statusName')]);
                     } else {
-                        message = '<h3>Close all issues?</h3><br>'
-                        + 'All issues will be closed with status "<b>' + record.get('statusName') + '</b>"';
+                        message = Uni.I18n.translate('issues.allIssues.willBeClosed.title', 'ISU', '<h3>Close all issues?</h3><br>')
+                        + Uni.I18n.translate('issues.allIssues.willBeClosed', 'ISU', 'All issues will be closed with status "<b>{0}</b>"',[record.get('statusName')]);
                     }
                     break;
             }

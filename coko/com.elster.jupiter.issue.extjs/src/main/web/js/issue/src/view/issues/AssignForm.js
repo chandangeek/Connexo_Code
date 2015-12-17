@@ -37,7 +37,8 @@ Ext.define('Isu.view.issues.AssignForm', {
                     validateOnChange: false,
                     name: 'assigneeCombo',
                     emptyText: Uni.I18n.translate('issues.startTypingForUsers','ISU','Start typing for users'),
-                    displayField: 'name'
+                    displayField: 'name',
+                    msgTarget: 'under'
                 },
                 {
                     itemId: 'commentarea',

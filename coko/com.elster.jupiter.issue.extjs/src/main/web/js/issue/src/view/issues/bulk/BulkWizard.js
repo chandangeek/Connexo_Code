@@ -156,7 +156,7 @@ Ext.define('Isu.view.issues.bulk.BulkWizard', {
             formErrorsPanel.hide();
             comboBox = wizard.down('bulk-step3 issues-assign-form combobox[name=assigneeCombo]');
             if (Ext.isEmpty(comboBox.getValue())) {
-                formErrorsPanel.setText('You must choose user before you can proceed');
+                comboBox.markInvalid(Uni.I18n.translate('issues.chooseUserToProceed','ISU', 'You must choose user before you can proceed'));
                 formErrorsPanel.show();
                 return false;
             }
