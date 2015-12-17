@@ -101,7 +101,7 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
 
             if (Dbp.privileges.DeviceProcesses.canAssignOrExecute()) {
                 openTasksValue += Ext.String.format('<a href =\"{0}\">{1}</a> ({2}, {3})',
-                    router.getRoute('workspace/tasks/openTask').buildUrl({taskId: rec.get('id')}, {showNavigation: false}),
+                    router.getRoute('workspace/tasks/performTask').buildUrl({taskId: rec.get('id')}, {showNavigation: false}),
                     Ext.String.htmlEncode(taskName), status, assign);
             }
             else {
