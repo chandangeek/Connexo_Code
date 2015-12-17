@@ -31,7 +31,7 @@ public class FirmwareCampaignsAttributesValidator implements ConstraintValidator
     @Override
     public boolean isValid(FirmwareCampaignImpl firmwareCampaign, ConstraintValidatorContext context) {
         Optional<DeviceMessageSpec> firmwareMessageSpec = firmwareCampaign.getFirmwareMessageSpec();
-        if(firmwareMessageSpec.isPresent()){
+        if (firmwareMessageSpec.isPresent()) {
             List<PropertySpec> propertySpecs = firmwareMessageSpec.get().getPropertySpecs();
             Map<String, Object> savedProperties = firmwareCampaign.getProperties();
             this.validatePropertiesAreLinkedToAttributeSpecs(savedProperties, propertySpecs, context);
@@ -77,7 +77,7 @@ public class FirmwareCampaignsAttributesValidator implements ConstraintValidator
         Optional<PropertySpec> propertySpecRef = getPropertySpec(propertySpecs, propertyName);
         if (propertySpecRef.isPresent()) {
             try {
-                    propertySpecRef.get().validateValue(propertyValue);
+                propertySpecRef.get().validateValue(propertyValue);
             } catch (InvalidValueException e) {
                 context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
                         .addPropertyNode("properties")

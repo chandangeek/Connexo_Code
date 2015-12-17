@@ -59,6 +59,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -70,7 +71,10 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -90,7 +94,7 @@ public class InMemoryPersistence {
     private LicenseService licenseService;
     private Thesaurus thesaurus;
 
-    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults) {
+    public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
         this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
@@ -177,6 +181,10 @@ public class InMemoryPersistence {
 
     public Injector getInjector() {
         return injector;
+    }
+
+    public TransactionService getTransactionService() {
+        return transactionService;
     }
 
     private class MockModule extends AbstractModule {
