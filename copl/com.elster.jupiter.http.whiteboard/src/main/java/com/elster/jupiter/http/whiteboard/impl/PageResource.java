@@ -14,7 +14,7 @@ import java.util.List;
 @Path("/pages")
 public class PageResource {
 	@Inject
-	private WhiteBoard whiteBoard;
+	private WhiteBoardImpl whiteBoard;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

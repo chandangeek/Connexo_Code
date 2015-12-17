@@ -1,6 +1,6 @@
 package com.elster.jupiter.http.whiteboard;
 
-import com.elster.jupiter.http.whiteboard.impl.WhiteBoard;
+import com.elster.jupiter.http.whiteboard.impl.WhiteBoardImpl;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -9,32 +9,31 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.math.BigInteger;
+import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
+import java.security.interfaces.RSAKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.*;
 import java.text.ParseException;
 import java.util.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 
 
 
 public class SecurityToken {
 
-    private final long MAX_COUNT = WhiteBoard.getTokenRefreshMaxCnt();
-    private final int TIMEOUT = WhiteBoard.getTimeout();
-    private final int TOKEN_EXPTIME = WhiteBoard.getTokenExpTime();
+    private final long MAX_COUNT = WhiteBoardImpl.getTokenRefreshMaxCount();
+    private final int TIMEOUT = WhiteBoardImpl.getTimeout();
+    private final int TOKEN_EXPTIME = WhiteBoardImpl.getTokenExpTime();
+    private final String PUBLIC_KEY = WhiteBoardImpl.getPublicKey();
+    private final String PRIVATE_KEY = WhiteBoardImpl.getPrivateKey();
 
     private static SecurityToken instance = new SecurityToken();
 
@@ -46,67 +45,66 @@ public class SecurityToken {
     private SecurityToken() {
     }
 
-    public String createToken(User user, long count) {
+    public Optional<String> createToken(User user, long count) {
+        Optional<String> token = Optional.empty();
         try {
-            KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
-            SecureRandom random = new SecureRandom();
-            keyGenerator.initialize(1024,random);
-            KeyPair keyPair = keyGenerator.genKeyPair();
-            RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-            RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-            JWSSigner signer = new RSASSASigner(privateKey);
+            Optional<RSAKey> rsaKey = getRSAKey(PRIVATE_KEY, "PRV");
+            if(rsaKey.isPresent()){
+                RSAPrivateKey privateKey = (RSAPrivateKey)rsaKey.get();
+                JWSSigner signer = new RSASSASigner(privateKey);
 
-            List<Group> userGroups = user.getGroups();
-            List<RoleClaimInfo> roles = new ArrayList<>();
+                List<Group> userGroups = user.getGroups();
+                List<RoleClaimInfo> roles = new ArrayList<>();
+                for (Group group : userGroups) {
+                    roles.add(new RoleClaimInfo(group.getId(), group.getName()));
+                }
 
-            for (Group group : userGroups) {
-                roles.add(new RoleClaimInfo(group.getId(), group.getName()));
+                JWTClaimsSet claimsSet = new JWTClaimsSet();
+                claimsSet.setCustomClaim("username", user.getName());
+                claimsSet.setSubject(Long.toString(user.getId()));
+                claimsSet.setCustomClaim("roles", roles);
+                claimsSet.setIssuer("Elster Connexo");
+                claimsSet.setCustomClaim("cnt", count);
+                claimsSet.setJWTID("token" + count);
+                claimsSet.setIssueTime(new Date());
+                claimsSet.setExpirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPTIME * 1000));
+
+                SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+
+                signedJWT.sign(signer);
+                token = Optional.of(signedJWT.serialize());
+
             }
-
-           String pk =  publicKey.getModulus().toString() + " " +
-                    publicKey.getPublicExponent().toString();
-            JWTClaimsSet claimsSet = new JWTClaimsSet();
-            claimsSet.setCustomClaim("username", user.getName());
-            claimsSet.setSubject(Long.toString(user.getId()));
-            claimsSet.setCustomClaim("roles", roles);
-            claimsSet.setIssuer("Elster Connexo");
-            claimsSet.setCustomClaim("cnt", count);
-            claimsSet.setJWTID("token" + count);
-            claimsSet.setIssueTime(new Date());
-            claimsSet.setExpirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPTIME * 1000));
-            claimsSet.setCustomClaim("publicKey", pk);
-
-            SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
-
-            signedJWT.sign(signer);
-            return signedJWT.serialize();
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-            return null;
         } catch (JOSEException e) {
+            e.printStackTrace();;
+        } catch (InvalidKeySpecException e) {
             e.printStackTrace();
-            return null;
         }
+        return token;
 
     }
 
     public Optional<User> verifyToken(String token, HttpServletRequest request, HttpServletResponse response, UserService userService) {
         try {
-            SignedJWT signedJWT = checkTokenIntegrity(token);
-                if (signedJWT!=null && (Long)signedJWT.getJWTClaimsSet().getCustomClaim("cnt") < MAX_COUNT) {
-                    long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
+            Optional<SignedJWT> signedJWT = checkTokenIntegrity(token);
+                if (signedJWT.isPresent() && (Long)signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt") < MAX_COUNT) {
+                    long userId = Long.valueOf(signedJWT.get().getJWTClaimsSet().getSubject());
                     Optional<User> user = userService.getLoggedInUser(userId);
-                    if (new Date().before(new Date(signedJWT.getJWTClaimsSet().getExpirationTime().getTime()))) {
+                    if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {
                         return user;
-                    } else if (new Date().before(new Date(signedJWT.getJWTClaimsSet().getExpirationTime().getTime() + TIMEOUT*1000))) {
+                    } else if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime() + TIMEOUT*1000))) {
                         if(!userService.findUser(user.get().getName(), user.get().getDomain()).isPresent()) return Optional.empty();
-                        long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
-                        String newToken = createToken(userService.getLoggedInUser(userId).get(),++count);
-                        response.setHeader("X-AUTH-TOKEN", newToken);
-                        response.setHeader("Authorization", "Bearer " + newToken);
-                        createCookie("X-CONNEXO-TOKEN",newToken,"/",-1,true,response);
-                        return user;
+                        long count = (Long) signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt");
+                        Optional<String> newToken = createToken(userService.getLoggedInUser(userId).get(),++count);
+                        if(newToken.isPresent()){
+                            response.setHeader("X-AUTH-TOKEN", newToken.get());
+                            response.setHeader("Authorization", "Bearer " + newToken);
+                            createCookie("X-CONNEXO-TOKEN",newToken.get(),"/",-1,true,response);
+                            return user;
+                        }
                     }
                 }
             removeCookie(request, response);
@@ -119,16 +117,16 @@ public class SecurityToken {
     }
 
     public boolean doComparison(Cookie cookie, String token){
-        SignedJWT jwtCookie = checkTokenIntegrity(cookie.getValue());
-        SignedJWT jwtToken = checkTokenIntegrity(token);
+        Optional<SignedJWT> jwtCookie = checkTokenIntegrity(cookie.getValue());
+        Optional<SignedJWT> jwtToken = checkTokenIntegrity(token);
 
         try {
-            if(jwtCookie !=null && jwtToken !=null){
-                if(new String(jwtCookie.getSigningInput(), StandardCharsets.UTF_8).equals(new String(jwtToken.getSigningInput(),StandardCharsets.UTF_8))) return true;
-                else if(jwtCookie.getJWTClaimsSet().getSubject().equals(jwtToken.getJWTClaimsSet().getSubject())
-                        && (jwtCookie.getJWTClaimsSet().getIssueTime().after(jwtToken.getJWTClaimsSet().getIssueTime()) || jwtCookie.getJWTClaimsSet().getIssueTime().equals(jwtToken.getJWTClaimsSet().getIssueTime()))
-                        && (jwtCookie.getJWTClaimsSet().getExpirationTime().after(jwtToken.getJWTClaimsSet().getExpirationTime()) || jwtCookie.getJWTClaimsSet().getExpirationTime().equals(jwtToken.getJWTClaimsSet().getExpirationTime()))
-                        && (Long)jwtCookie.getJWTClaimsSet().getCustomClaim("cnt") >= (Long)jwtToken.getJWTClaimsSet().getCustomClaim("cnt")) return true;
+            if(jwtCookie.isPresent() && jwtToken.isPresent()){
+                if(new String(jwtCookie.get().getSigningInput(), StandardCharsets.UTF_8).equals(new String(jwtToken.get().getSigningInput(),StandardCharsets.UTF_8))) return true;
+                else if(jwtCookie.get().getJWTClaimsSet().getSubject().equals(jwtToken.get().getJWTClaimsSet().getSubject())
+                        && (jwtCookie.get().getJWTClaimsSet().getIssueTime().after(jwtToken.get().getJWTClaimsSet().getIssueTime()) || jwtCookie.get().getJWTClaimsSet().getIssueTime().equals(jwtToken.get().getJWTClaimsSet().getIssueTime()))
+                        && (jwtCookie.get().getJWTClaimsSet().getExpirationTime().after(jwtToken.get().getJWTClaimsSet().getExpirationTime()) || jwtCookie.get().getJWTClaimsSet().getExpirationTime().equals(jwtToken.get().getJWTClaimsSet().getExpirationTime()))
+                        && (Long)jwtCookie.get().getJWTClaimsSet().getCustomClaim("cnt") >= (Long)jwtToken.get().getJWTClaimsSet().getCustomClaim("cnt")) return true;
             }else{
                 return false;
             }
@@ -140,29 +138,27 @@ public class SecurityToken {
         return false;
     }
 
-    private SignedJWT checkTokenIntegrity(String token) {
-        if (token != null && !token.equals("null")) {
-            try {
+    private Optional<SignedJWT> checkTokenIntegrity(String token) {
+        try {
+            Optional<RSAKey> rsaKey = getRSAKey(PUBLIC_KEY, "PUB");
+            if (token != null && !(token.equals("null") || token.equals("undefined"))
+                    && rsaKey.isPresent()) {
+
                 SignedJWT signedJWT = SignedJWT.parse(token);
-                String publicKey = String.valueOf(signedJWT.getJWTClaimsSet().getCustomClaim("publicKey"));
                 String issuer = signedJWT.getJWTClaimsSet().getIssuer();
                 Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
                 Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
                 long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
                 long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
-                BigInteger modulus = new BigInteger(publicKey.split(" ")[0]);
-                BigInteger exp = new BigInteger(publicKey.split(" ")[1]);
-                RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exp);
-                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
-
-                JWSVerifier verifier = new RSASSAVerifier(pubKey);
+                JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) rsaKey.get());
 
                 if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
                         issueTime.before(expirationTime) && count == tokenNumericTermination) {
-                    return signedJWT;
+                    return Optional.of(signedJWT);
                 }
-            } catch (ParseException e) {
+            }
+        }
+        catch (ParseException e) {
                 e.printStackTrace();
             } catch (JOSEException e) {
                 e.printStackTrace();
@@ -171,8 +167,7 @@ public class SecurityToken {
             } catch (InvalidKeySpecException e) {
                 e.printStackTrace();
             }
-        }
-            return null;
+            return Optional.empty();
         }
 
 
@@ -197,5 +192,20 @@ public class SecurityToken {
         tokenCookie.setMaxAge(maxAge); //seconds
         tokenCookie.setHttpOnly(isHTTPOnly);
         response.addCookie(tokenCookie);
+    }
+
+    private Optional<RSAKey> getRSAKey(String key, String keyType) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        Optional<RSAKey> rsaKey = Optional.empty();
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        if(key!=null && !key.isEmpty() && keyType.equals("PRV")) {
+            PKCS8EncodedKeySpec encodedKeySpec = new PKCS8EncodedKeySpec(DatatypeConverter.parseBase64Binary(key));
+            rsaKey = Optional.of((RSAPrivateKey)keyFactory.generatePrivate(encodedKeySpec));
+
+        }else if(key!=null && !key.isEmpty() && keyType.equals("PUB")){
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(DatatypeConverter.parseBase64Binary(key));
+            rsaKey = Optional.of((RSAPublicKey )keyFactory.generatePublic(keySpec));
+        }
+        return rsaKey;
+
     }
 }
