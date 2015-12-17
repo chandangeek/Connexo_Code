@@ -17,12 +17,12 @@ Ext.define('Imt.service.Search', {
             if (me.searchDomain.getId() === 'com.elster.jupiter.metering.UsagePoint') {
                 column.renderer = function (value) {
                     var url = me.router.getRoute('usagepoints/view').buildUrl({mRID: value});
-                    return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
+                    return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                 }
             } else if (me.searchDomain.getId() === 'com.elster.jupiter.metering.EndDevice') {
                 column.renderer = function(value) {
                     var url = me.router.getRoute('usagepoints/device').buildUrl({deviceMRID: value});
-                    return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
+                    return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                 }
             }
         }
