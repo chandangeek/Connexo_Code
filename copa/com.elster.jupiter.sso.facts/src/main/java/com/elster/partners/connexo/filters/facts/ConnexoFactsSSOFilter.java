@@ -40,10 +40,24 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
                 if (!isLoggedIn(request) && !isLoginRequest(request)) {
                     authenticate(principal, request, response);
                 } else {
-                    filterChain.doFilter(request, response);
+                    // When navigating to root, Yellowfin always assumes logon, so we need to get around that
+                    if(isRootRequest(request)){
+                        redirectToEntry(request, response);
+                    }
+                    else {
+                        filterChain.doFilter(request, response);
+                    }
                 }
             }
         }
+    }
+
+    private void redirectToEntry(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.sendRedirect(request.getRequestURL() + "logon.i4");
+    }
+
+    private boolean isRootRequest(HttpServletRequest request) {
+        return request.getRequestURI().replace('/', ' ').trim().equals("facts");
     }
 
     private void clearSession(HttpServletRequest request){
