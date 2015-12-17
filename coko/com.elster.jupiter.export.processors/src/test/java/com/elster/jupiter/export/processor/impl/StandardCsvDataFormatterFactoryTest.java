@@ -12,6 +12,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -47,6 +49,7 @@ public class StandardCsvDataFormatterFactoryTest {
     private OrmService ormService;
     @Mock
     private TimeService timeService;
+    private BeanService beanService = new DefaultBeanService();
 
     @Before
     public void initializeThesaurus() {
@@ -58,7 +61,7 @@ public class StandardCsvDataFormatterFactoryTest {
 
     @Test
     public void testGetProperties() throws Exception {
-        PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
+        PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         StandardCsvDataFormatterFactory factory = new StandardCsvDataFormatterFactory(propertySpecService, this.dataExportService, this.validationService, this.nlsService, this.meteringService);
 
         List<PropertySpec> properties = factory.getPropertySpecs();
