@@ -168,7 +168,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
     changeType: function (combo) {
         var me = this;
-        if (!Ext.isObject(combo.getValue())) {
+        if (!Ext.isObject(combo.getValue()) && !combo.suspendChangeEvent) {
             this.portType = combo.getValue();
             this.saveState();
             this.comportEdit.showForm(this.portDirection, this.portType);
@@ -297,7 +297,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             record.set('modemInitStrings', modemInit);
             record.set('globalModemInitStrings', globalModemInitStrings);
             ids && (record.set('outboundComPortPoolIds', ids));
-            if (comPortTypeField.getValue() == 'TYPE_SERIAL') {
+            if (comPortTypeField.getValue() == 'TYPE_SERIAL' && this.portDirection == 'inbound') {
                 record.set('flowControl', form.down('#flowControl').findRecordByValue(form.down('#flowControl').getValue()).getData());
                 record.set('parity', form.down('#parity').findRecordByValue(form.down('#parity').getValue()).getData());
             }
@@ -459,7 +459,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     switch (recordData.direction) {
                         case 'inbound':
                             addForm.loadRecord(record);
+                            comportTypeSelectCombo.suspendChangeEvent = true;
                             comportTypeSelectCombo.setValue(recordData.comPortType.id);
+                            comportTypeSelectCombo.suspendChangeEvent = false;
                             inboundStore.load({
                                 callback: function () {
                                     me.filterStoreByType(inboundStore, me.portType);
@@ -495,13 +497,17 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                         case 'outbound':
                             if (me.portModel) {
                                 me.portModel.set('comPortType', me.portType);
+                                comportTypeSelectCombo.suspendChangeEvent = true;
                                 me.restoreState();
                                 comportTypeSelectCombo.setValue(recordData.comPortType.id);
+                                comportTypeSelectCombo.suspendChangeEvent = false;
                                 preloader.destroy();
                             } else {
                                 me.portModel = record;
                                 addForm.loadRecord(record);
+                                comportTypeSelectCombo.suspendChangeEvent = true;
                                 comportTypeSelectCombo.setValue(recordData.comPortType.id);
+                                comportTypeSelectCombo.suspendChangeEvent = false;
                                 addComPortPoolsStore.removeAll();
                                 comPortPoolsGrid = me.getComPortPoolsGrid();
                                 outboundComPortPoolsStore.load({
