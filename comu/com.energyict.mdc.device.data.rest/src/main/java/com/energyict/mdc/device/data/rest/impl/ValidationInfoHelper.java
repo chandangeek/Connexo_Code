@@ -27,14 +27,18 @@ public class ValidationInfoHelper {
         this.validationInfoFactory = validationInfoFactory;
     }
 
-    public DetailedValidationInfo getRegisterValidationInfo(Register<?,?> register) {
-        boolean validationActive = validationActive(register.getDevice().forValidation());
-
-        Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
+    public DetailedValidationInfo getRegisterValidationInfo(Register<?, ?> register) {
+        DeviceValidation deviceValidation = register.getDevice().forValidation();
+        boolean validationActive = validationActive(deviceValidation);
+        Optional<Instant> lastChecked = deviceValidation.getLastChecked(register);
         return validationInfoFactory.createDetailedValidationInfo(validationActive, statuses(register), lastChecked);
     }
 
-    private List<DataValidationStatus> statuses(Register<?,?> register) {
+    public DetailedValidationInfo getMinimalRegisterValidationInfo(Register<?, ?> register) {
+        return validationInfoFactory.createMinimalValidationInfo(register.getDevice().forValidation().isValidationActive());
+    }
+
+    private List<DataValidationStatus> statuses(Register<?, ?> register) {
         List<? extends Reading> readings = getReadingsForOneYear(register);
         return readings.stream().map(Reading::getValidationStatus).flatMap(Functions.asStream()).collect(Collectors.toList());
     }
@@ -52,5 +56,4 @@ public class ValidationInfoHelper {
         ZonedDateTime start = end.minusYears(1);
         return Interval.of(start.toInstant(), end.toInstant());
     }
-
 }

@@ -296,9 +296,14 @@ public class ValidationInfoFactory {
                 qualities.stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.ACCEPTED);
     }
 
-    DetailedValidationInfo createDetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
+    DetailedValidationInfo createMinimalValidationInfo(Boolean active) {
         DetailedValidationInfo detailedValidationInfo = new DetailedValidationInfo();
         detailedValidationInfo.validationActive = active;
+        return detailedValidationInfo;
+    }
+
+    DetailedValidationInfo createDetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
+        DetailedValidationInfo detailedValidationInfo = createMinimalValidationInfo(active);
         detailedValidationInfo.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
         detailedValidationInfo.suspectReason = getSuspectReasonMap(dataValidationStatuses).entrySet();
         if (lastChecked.isPresent()) {
