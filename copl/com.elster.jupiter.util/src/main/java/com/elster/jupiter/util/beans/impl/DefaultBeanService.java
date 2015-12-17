@@ -63,6 +63,22 @@ public class DefaultBeanService implements BeanService {
         BeanInfo info = getAllBeanInfo(beanClass);
         PropertyDescriptor descriptor = this.descriptor(info, property);
         if (descriptor == null) {
+            if (!beanClass.isInterface()) {
+                Class superclass = beanClass.getSuperclass();
+                if (superclass != null) {
+                    return this.descriptor(superclass, property);
+                }
+            }
+            // Try the interfaces
+            for (Class interfaze : beanClass.getInterfaces()) {
+                try {
+                    return this.descriptor(interfaze, property);
+                }
+                catch (NoSuchPropertyException e) {
+                    // Try the next interface
+                }
+            }
+            // None of the superclasses or interface has the property
             throw new NoSuchPropertyException(beanClass, property);
         }
         return descriptor;

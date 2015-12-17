@@ -32,6 +32,24 @@ public class DefaultBeanServiceTest {
         assertThat(propertyType).isEqualTo(String.class);
     }
 
+    @Test
+    public void testPropertyTypeForInterfaceHierarchy() {
+        // Business method
+        Class<?> propertyType = beanService.getPropertyType(HasThat.class, "this");
+
+        // Asserts
+        assertThat(propertyType).isEqualTo(String.class);
+    }
+
+    @Test
+    public void testPropertyTypeForClassHierarchy() {
+        // Business method
+        Class<?> propertyType = beanService.getPropertyType(HasThisAndThat.class, "this");
+
+        // Asserts
+        assertThat(propertyType).isEqualTo(String.class);
+    }
+
     @Test(expected = NoSuchPropertyException.class)
     public void testPropertyTypeForNonExistingPropertyOnClass() {
         // Business method
