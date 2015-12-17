@@ -267,7 +267,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
             if (me.rendered) {
                 gridView.getSelectionModel().select(0);
             } else {
-                gridView.on('render', function() {
+                gridView.on('afterrender', function() {
                     gridView.getSelectionModel().select(0);
                 }, me, {single:true});
             }

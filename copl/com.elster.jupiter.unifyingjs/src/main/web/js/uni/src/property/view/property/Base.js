@@ -158,7 +158,7 @@ Ext.define('Uni.property.view.property.Base', {
         if (property) {
             this.setKey(property.get('key'));
             this.setLocalizedName(property.get('name'));
-            this.setValue(property.get('value'));
+            this.setValue(!property.get('value') ? undefined : property.get('value'));
             this.updateResetButton();
             this.updateEditButton();
         }

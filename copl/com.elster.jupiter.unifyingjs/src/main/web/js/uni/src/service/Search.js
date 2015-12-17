@@ -147,6 +147,7 @@ Ext.define('Uni.service.Search', {
             && Ext.isDefined(domain)
             && Ext.getClassName(domain) == "Uni.model.search.Domain"
         ) {
+            me.fireEvent('setDomain', domain);
             me.searchDomain = domain;
 
             me.filters.removeAll();
@@ -303,7 +304,7 @@ Ext.define('Uni.service.Search', {
         }
     },
 
-    applyState: function (state) {
+    applyState: function (state, callback) {
         var me = this,
             propertiesStore = me.getSearchPropertiesStore(),
             resultsStore = me.getSearchResultsStore();
@@ -334,13 +335,15 @@ Ext.define('Uni.service.Search', {
                     }
                 });
 
-                me.isStateLoad = false;
                 Ext.resumeLayouts(true);
                 resultsStore.load();
             } else {
                 resultsStore.removeAll();
                 resultsStore.fireEvent('load', resultsStore, [], true);
             }
+
+            me.isStateLoad = false;
+            callback ? callback() : null;
         });
     },
 
@@ -464,6 +467,7 @@ Ext.define('Uni.service.Search', {
             });
         }
 
+        me.fireEvent('change', widget);
         return widget;
     },
 

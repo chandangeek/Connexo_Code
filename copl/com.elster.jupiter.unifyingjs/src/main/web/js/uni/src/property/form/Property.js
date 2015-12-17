@@ -93,7 +93,7 @@ Ext.define('Uni.property.form.Property', {
                 ? property.initInheritedValues()
                 : property.initValues();
 
-            properties.commitChanges();
+            property.commit(true, []);
 
             type = property.getType();
             fieldType = registry.getProperty(type);

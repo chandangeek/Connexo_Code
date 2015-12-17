@@ -40,7 +40,7 @@ Ext.define('Uni.controller.Navigation', {
 
     applicationTitle: 'Connexo',
     applicationTitleSeparator: '-',
-    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']),
+    searchEnabled: true, //Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']),
     onlineHelpEnabled: false,
     skipRefresh: false,
 
@@ -145,8 +145,8 @@ Ext.define('Uni.controller.Navigation', {
 
     initSearch: function () {
         var me = this;
-        me.getSearchButton().setVisible(me.searchEnabled &&
-        Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']));
+        me.getSearchButton().setVisible(me.searchEnabled);// &&
+//        Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']));
     },
 
     onAfterRenderNavigationMenu: function () {
