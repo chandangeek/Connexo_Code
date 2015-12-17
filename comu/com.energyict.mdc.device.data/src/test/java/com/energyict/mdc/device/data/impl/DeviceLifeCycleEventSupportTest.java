@@ -1,24 +1,22 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.fsm.CurrentStateExtractor;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.fsm.CurrentStateExtractor;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.State;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
-
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -36,7 +34,7 @@ public class DeviceLifeCycleEventSupportTest {
 
     private static final long FINITE_STATE_MACHINE_ID = 11L;
     private static final long STATE_ID = 121L;
-    private static final long DECICE_ID = 212L;
+    private static final String DEVICE_MRID = "MRID";
     private static final String STATE_NAME = "TheOneAndOnly";
 
     @Mock
@@ -76,7 +74,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.otherFiniteStateMachine.getStates()).thenReturn(Arrays.asList(this.otherState));
         when(this.otherFiniteStateMachine.getState(anyString())).thenReturn(Optional.empty());
         when(this.otherFiniteStateMachine.getState(STATE_NAME)).thenReturn(Optional.of(this.otherState));
-        when(this.device.getId()).thenReturn(DECICE_ID);
+        when(this.device.getmRID()).thenReturn(DEVICE_MRID);
         when(this.device.getState()).thenReturn(this.state);
         when(this.comTaskExecution.getDevice()).thenReturn(this.device);
         when(this.protocolDialectProperties.getDevice()).thenReturn(this.device);
@@ -137,7 +135,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -170,7 +168,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -203,7 +201,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -236,7 +234,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -269,7 +267,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -302,7 +300,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -335,7 +333,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -368,7 +366,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -401,7 +399,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -434,7 +432,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -467,7 +465,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -500,7 +498,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -533,7 +531,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -566,7 +564,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -599,7 +597,7 @@ public class DeviceLifeCycleEventSupportTest {
         // Asserts
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
-        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DECICE_ID));
+        assertThat(currentState.sourceId).isEqualTo(DEVICE_MRID);
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
