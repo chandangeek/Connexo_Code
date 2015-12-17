@@ -109,15 +109,14 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
         {
             xtype: 'dataview',
             itemId: 'issues-dataview',
-            overflowY: 'auto',
             itemSelector: 'a.x-btn.flag-toggle',
 
             tpl: new Ext.XTemplate(
-                '<table  style="margin: 5px 0 10px 0">',
+                '<table style="margin: 5px 0 10px 0; table-layout: fixed; width: 100%;">',
                 '<tpl for=".">',
                 '<tr id="{id}" class="issue">',
-                '<td height="26" width="40" data-qtip="{tooltip}"><img style="margin: 5px 5px 0 0" src="{icon}" /></td>',
-                '<td width="100%"><a href="{href}">{title}</a></td>',
+                '<td height="26" width="20" data-qtip="{tooltip}"><img style="margin: 5px 5px 0 0" src="{icon}" /></td>',
+                '<td data-qtip="{title}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><a href="{href}">{title}</a></td>',
                 '</tr>',
                 '</tpl>',
                 '</table>'
