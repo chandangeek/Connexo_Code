@@ -29,6 +29,8 @@ Ext.define('Mdc.controller.setup.Messages', {
     ],
     deviceTypeId: null,
     deviceConfigId: null,
+    recordName: '',
+    isCategory: false,
 
     init: function () {
         this.callParent(arguments);
@@ -220,8 +222,11 @@ Ext.define('Mdc.controller.setup.Messages', {
     },
 
     onMessagesCategoriesActionMenuClick: function (menu, item) {
-        var messagesCategory = this.getMessagesCategoriesGrid().getSelectionModel().getSelection()[0];
+        var me = this,
+            messagesCategory = this.getMessagesCategoriesGrid().getSelectionModel().getSelection()[0];
         if (messagesCategory) {
+            me.recordName = !Ext.isEmpty(messagesCategory.get('DeviceMessageCategory')) ? messagesCategory.get('DeviceMessageCategory') : messagesCategory.get('name');
+            me.isCategory = true;
             switch (item.action) {
                 case 'deactivateAll':
                     this.deactivateAll(messagesCategory);
@@ -233,8 +238,11 @@ Ext.define('Mdc.controller.setup.Messages', {
     },
 
     onMessagesActionMenuClick: function (menu, item) {
-        var message = this.getMessagesGrid().getSelectionModel().getSelection()[0];
+        var me = this,
+            message = this.getMessagesGrid().getSelectionModel().getSelection()[0];
         if (message) {
+            me.recordName = !Ext.isEmpty(message.get('DeviceMessageCategory')) ? message.get('DeviceMessageCategory') : message.get('name');
+            me.isCategory = false;
             switch (item.action) {
                 case 'deactivate':
                     this.deactivate(message);
@@ -391,6 +399,11 @@ Ext.define('Mdc.controller.setup.Messages', {
         model.save({
             isNotEdit: true,
             success: function () {
+                if (me.isCategory) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConfig.commands.activateCategory.acknowledge', 'MDC', "Privileges of '{0}' commands activated", [me.recordName]));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConfig.commands.activateCommand.acknowledge', 'MDC', "Privileges for command '{0}' activated", [me.recordName]));
+                }
                 router.getRoute().forward();
             },
             callback: function () {
@@ -416,6 +429,11 @@ Ext.define('Mdc.controller.setup.Messages', {
                 deviceConfiguration: me.getMessagesOverview().deviceConfiguration.getRecordData()
             },
             success: function () {
+                if (me.isCategory) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConfig.commands.deactivateCategory.acknowledge', 'MDC', "Privileges of '{0}' commands deactivated", [me.recordName]));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConfig.commands.deactivateCommand.acknowledge', 'MDC', "Privileges for command '{0}' deactivated", [me.recordName]));
+                }
                 router.getRoute().forward();
             },
             failure: function (response) {
@@ -474,6 +492,11 @@ Ext.define('Mdc.controller.setup.Messages', {
         model.save({
             isNotEdit: true,
             success: function () {
+                if (me.isCategory) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConfig.commands.activateCategory.acknowledge', 'MDC', "Privileges of '{0}' commands activated", [me.recordName]));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConfig.commands.activateCommand.acknowledge', 'MDC', "Privileges for command '{0}' activated", [me.recordName]));
+                }
                 router.getRoute().forward();
             },
             callback: function () {
@@ -515,6 +538,11 @@ Ext.define('Mdc.controller.setup.Messages', {
             },
             waitMsg: 'Changing privileges...',
             success: function () {
+                if (me.isCategory) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConfig.commands.changeCategory.acknowledge', 'MDC', "Privileges of '{0}' commands changed", [me.recordName]));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConfig.commands.changeCommand.acknowledge', 'MDC', "Privileges for command '{0}' changed", [me.recordName]));
+                }
                 router.getRoute().forward();
             },
             failure: function (response) {
