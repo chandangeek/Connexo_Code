@@ -22,10 +22,6 @@ Ext.define('Bpm.controller.OpenTask', {
             selector: 'bpm-task-perform-task'
         },
         {
-            ref: 'formContent',
-            selector: 'bpm-task-edit-task #formContent'
-        },
-        {
             ref: 'assigneeUserForm',
             selector: 'bpm-task-edit-task #frm-assignee-user'
         },
@@ -46,8 +42,12 @@ Ext.define('Bpm.controller.OpenTask', {
             selector: 'bpm-task-edit-task #frm-about-task'
         },
         {
-            ref: 'formContainer',
-            selector: 'bpm-task-edit-task #frm-form-container'
+            ref: 'performEditTaskForm',
+            selector: 'bpm-task-perform-task #frm-edit-task'
+        },
+        {
+            ref: 'performAboutTaskForm',
+            selector: 'bpm-task-perform-task #frm-about-task'
         },
         {
             ref: 'taskExecutionContent',
@@ -56,6 +56,10 @@ Ext.define('Bpm.controller.OpenTask', {
         {
             ref: 'taskExecutionForm',
             selector: 'bpm-task-perform-task #task-execution-form'
+        },
+        {
+            ref: 'priority',
+            selector: 'bpm-task-perform-task #priority'
         },
         {
             ref: 'btnStart',
@@ -185,6 +189,8 @@ Ext.define('Bpm.controller.OpenTask', {
                 topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.performTaskTitle', 'BPM', "Perform '{0}'"), taskRecord.get('name')));
 
                 me.getApplication().fireEvent('changecontentevent', editTaskView);
+                me.getPriority().setVisible(taskRecord.get('status') != 'Completed');
+                me.getTaskExecutionForm().setVisible(taskRecord.get('status') != 'Completed');
                 editTaskView.down('#frm-assignee-user').loadRecord(taskRecord);
                 editTaskView.down('#frm-edit-task').loadRecord(taskRecord);
                 editTaskView.down('#frm-about-task').loadRecord(taskRecord);
@@ -199,7 +205,7 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             assigneeForm = me.getAssigneeUserForm();
 
-        if (assigneeForm == undefined){
+        if (assigneeForm == undefined) {
             return;
         }
 
@@ -213,8 +219,7 @@ Ext.define('Bpm.controller.OpenTask', {
 
     loadEditTaskForm: function (taskRecord) {
         var me = this,
-            editTaskForm = me.getEditTaskForm(),
-            numPriority = me.getNumPriority();
+            editTaskForm = me.getEditTaskForm() || me.getPerformEditTaskForm();
 
         editTaskForm && editTaskForm.loadRecord(taskRecord);
     },
@@ -289,9 +294,9 @@ Ext.define('Bpm.controller.OpenTask', {
 
     loadAboutTaskForm: function (taskRecord) {
         var me = this,
-            aboutTaskForm = me.getAboutTaskForm();
+            aboutTaskForm = me.getAboutTaskForm() || me.getPerformAboutTaskForm();
 
-        if (aboutTaskForm == undefined){
+        if (aboutTaskForm == undefined) {
             return;
         }
 
@@ -323,7 +328,7 @@ Ext.define('Bpm.controller.OpenTask', {
             openTask = me.getModel('Bpm.model.task.OpenTask'),
             propertyForm;
 
-        if (taskExecutionContent == undefined){
+        if (taskExecutionContent == undefined) {
             return;
         }
         propertyForm = taskExecutionContent.down('property-form');
@@ -386,25 +391,24 @@ Ext.define('Bpm.controller.OpenTask', {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.completed', 'BPM', 'Task completed.'));
                 }
 
-                if (button.action === 'completeTask'){
-                    var store = Ext.getStore('Bpm.store.task.Tasks');
-                    var rowIndex = store.findExact('id',parseInt(openTaskRecord.get('id')));
-                    if (rowIndex != -1) {
-                        store.removeAt(rowIndex);
-                    }
-                }
-                else {
-                    var task = me.getModel('Bpm.model.task.Task');
-                    task.load(openTaskRecord.get('id'), {
-                        success: function (taskRecord) {
-                            me.loadAssigneeForm(taskRecord);
-                            me.loadEditTaskForm(taskRecord);
-                            me.loadAboutTaskForm(taskRecord);
+                var task = me.getModel('Bpm.model.task.Task');
+                task.load(openTaskRecord.get('id'), {
+                    success: function (taskRecord) {
+                        me.loadAssigneeForm(taskRecord);
+                        me.loadEditTaskForm(taskRecord);
+                        me.loadAboutTaskForm(taskRecord);
+
+                        if (button.action === 'completeTask') {
+                            me.getPriority().setVisible(false);
+                            me.getTaskExecutionForm().setVisible(false);
+                        }
+                        else {
+                            me.getPriority().setVisible(true);
+                            me.getTaskExecutionForm().setVisible(true);
                             me.loadJbpmForm(taskRecord);
                         }
-                    });
-                }
-
+                    }
+                });
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {
