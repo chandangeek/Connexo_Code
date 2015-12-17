@@ -25,7 +25,7 @@ Ext.define('Mdc.privileges.Device', {
     viewOrAdministrateOrOperateDeviceCommunication: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
     editDeviceAttributes: ['privilege.administrate.attribute.device'],
     deviceProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
-
+    viewProcesses: ['privilege.view.bpm'],
     deviceExecuteProcesses: ['privilege.execute.processes.lvl.1',
                     'privilege.execute.processes.lvl.2',
                     'privilege.execute.processes.lvl.3',
@@ -78,5 +78,8 @@ Ext.define('Mdc.privileges.Device', {
     },
     canViewDevices: function() {
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewDevices);
+    },
+    canViewProcessMenu: function() {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewProcesses) && Uni.Auth.checkPrivileges(Mdc.privileges.Device.deviceExecuteProcesses);
     }
 });

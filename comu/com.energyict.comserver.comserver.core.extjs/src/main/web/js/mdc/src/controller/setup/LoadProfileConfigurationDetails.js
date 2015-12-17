@@ -494,7 +494,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             success: function (response) {
                                 var widget = Ext.widget('loadProfileConfigurationDetailForm',
                                         {
-                                            loadProfileConfigurationChannelAction: 'Add',
+                                            loadProfileConfigurationChannelAction: Uni.I18n.translate('general.add','MDC','Add'),
                                             deviceTypeId: deviceTypeId,
                                             deviceConfigurationId: deviceConfigurationId,
                                             loadProfileConfigurationId: loadProfileConfigurationId

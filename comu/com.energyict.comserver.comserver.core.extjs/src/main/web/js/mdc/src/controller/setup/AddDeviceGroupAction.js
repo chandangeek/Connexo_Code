@@ -354,15 +354,23 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             selectionGroupType[staticGrid.radioGroupName] = staticGrid.allInputValue;
             staticGrid.getSelectionGroupType().setValue(selectionGroupType);
         } else {
+            staticGrid = step2.down('dynamic-group-devices-grid');
+            staticGrid.down('pagingtoolbartop').resetPaging();
+            staticGrid.down('pagingtoolbarbottom').resetPaging();
             me.service.excludedCriteria = 'deviceGroup';
         }
 
+        wizard.setLoading(true);
         if (domainsStore.isLoading()) {
             domainsStore.on('load', function () {
-                me.service.applyState(state || defaultState);
+                me.service.applyState(state || defaultState, function(){
+                    wizard.setLoading(false);
+                });
             }, me, {single: true});
         } else {
-            me.service.applyState(state || defaultState);
+            me.service.applyState(state || defaultState, function(){
+                wizard.setLoading(false);
+            });
         }
     },
 

@@ -19,6 +19,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
             items: [
                 {
                     xtype: 'preview-container',
+                    selectByDefault: false,
                     grid: {
                         xtype: 'add-logbook-configurations-grid',
                         itemId: 'add-logbook-configurations-grid'

@@ -16,27 +16,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
         'Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer'
     ],
 
-    content: [
-        {
-            ui: 'large',
-            xtype: 'panel',
-            title: Uni.I18n.translate('registerConfig.registerConfigs', 'MDC', 'Register configurations'),
-            items: [
-                {
-                    xtype: 'container',
-                    items: [],
-                    itemId: 'registerConfigGridContainer'
-                },
-                {
-                    xtype: 'container',
-                    items: [],
-                    itemId: 'registerConfigPreviewContainer'
-
-                }
-            ]
-        }
-    ],
-
     initComponent: function () {
         this.side = [
             {

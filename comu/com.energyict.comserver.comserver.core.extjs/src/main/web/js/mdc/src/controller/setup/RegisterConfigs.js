@@ -141,10 +141,16 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         if (selectedRegisterConfigs.length === 1) {
             var registerConfig = selectedRegisterConfigs[0];
 
-            me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+            if (me.getRegisterConfigPreview().rendered) {
+                me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+            } else {
+                me.getRegisterConfigPreview().on('afterrender', function() {
+                    me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+                }, me, {single:true});
+            }
 
             me.getRegisterConfigValidationRulesStore().getProxy().extraParams =
-                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: registerConfig.getId()});
+                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: selectedRegisterConfigs[0].getId()});
 
             me.getRulesForRegisterConfigGrid().down('pagingtoolbartop').totalCount = -1;
             if (registerConfig.get('asText')) {

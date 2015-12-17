@@ -130,7 +130,7 @@ Ext.define('Mdc.model.ComServerComPort', {
                 return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
             }
         },
-        'flowControl',
+        {name:'flowControl',useNull: true, defaultValue: null},
         {
             name: 'maximumNumberOfDialErrors',
             type: 'int'
@@ -143,7 +143,7 @@ Ext.define('Mdc.model.ComServerComPort', {
             name: 'nrOfStopBits',
             type: 'string'
         },
-        'parity',
+        {name:'parity',useNull: true, defaultValue: null},
         {
             name: 'ringCount',
             type: 'int'
