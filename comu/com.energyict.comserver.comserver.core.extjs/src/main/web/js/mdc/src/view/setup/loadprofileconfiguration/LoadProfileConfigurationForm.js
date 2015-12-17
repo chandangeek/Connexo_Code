@@ -23,8 +23,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                 defaults: {
                     labelWidth: 150,
                     validateOnChange: false,
-                    validateOnBlur: false,
-                    anchor: '50%'
+                    validateOnBlur: false
                 },
                 items: [
                     {
@@ -54,6 +53,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                         valueField: 'id',
                         queryMode: 'local',
                         hidden: me.edit,
+                        width: 650,
                         listeners: {
                             change: {
                                 fn: me.edit ? undefined : function (combo, newValue) {
