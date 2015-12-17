@@ -348,6 +348,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 me.getAddPropertyForm().show();
             } else {
                 me.getAddPropertyForm().hide();
+                propertyHeader.hide();
             }
             if (!command.get('willBePickedUpByComTask')) {
                 combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))
