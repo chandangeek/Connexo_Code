@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.google.common.collect.Range;
 
@@ -27,7 +28,7 @@ public interface EndDevice extends IdentifiedObject {
     long getVersion();
     void delete();
 
-    EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Instant instant);
+    EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range);
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes);

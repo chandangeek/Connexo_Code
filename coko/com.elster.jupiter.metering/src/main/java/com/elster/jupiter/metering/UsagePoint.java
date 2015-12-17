@@ -90,7 +90,7 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     UsagePointDetail terminateDetail(UsagePointDetail detail, Instant date);
 
-    Optional<? extends MeterActivation> getMeterActivation(Instant when);
+    Optional<MeterActivation> getMeterActivation(Instant when);
 
     ElectricityDetailBuilder newElectricityDetailBuilder(Instant start);
 

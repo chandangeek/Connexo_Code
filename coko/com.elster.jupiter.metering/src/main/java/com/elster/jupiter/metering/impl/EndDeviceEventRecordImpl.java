@@ -208,8 +208,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         return userName;
     }
 
-    @Override
-    public void save() {
+    void save() {
         dataModel.mapper(EndDeviceEventRecord.class).persist(this);
         eventService.postEvent(EventType.END_DEVICE_EVENT_CREATED.topic(), this);
     }

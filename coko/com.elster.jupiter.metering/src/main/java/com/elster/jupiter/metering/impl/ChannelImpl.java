@@ -537,17 +537,22 @@ public final class ChannelImpl implements ChannelContract {
 
     @Override
     public ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, BaseReading baseReading) {
-        return ReadingQualityRecordImpl.from(dataModel, type, getCimChannel(readingType).orElseThrow(IllegalArgumentException::new), baseReading);
+        ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, type, getCimChannel(readingType).orElseThrow(IllegalArgumentException::new), baseReading);
+        readingQualityRecord.doSave();
+        return readingQualityRecord;
     }
 
     @Override
     public ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, Instant timestamp) {
-        return ReadingQualityRecordImpl.from(dataModel, type, getCimChannel(readingType).orElseThrow(IllegalArgumentException::new), timestamp);
+        ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, type, getCimChannel(readingType).orElseThrow(IllegalArgumentException::new), timestamp);
+        readingQualityRecord.doSave();
+        return readingQualityRecord;
     }
 
     ReadingQualityRecord copyReadingQuality(ReadingQualityRecord source) {
         ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, source.getType(), getCimChannel(source.getReadingType()).get(), source.getReadingTimestamp());
         readingQualityRecord.copy(source);
+        readingQualityRecord.doSave();
         return readingQualityRecord;
     }
 
@@ -700,8 +705,8 @@ public final class ChannelImpl implements ChannelContract {
                 .forEach(qualityRecord -> qualityRecord.delete());
         ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED);
         readingTimes.forEach(readingTime -> {
-            createReadingQuality(rejected, mainReadingType.get(), readingTime).save();
-            getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime).save());
+            createReadingQuality(rejected, mainReadingType.get(), readingTime);
+            getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime));
         });
         eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
     }
