@@ -20,15 +20,15 @@ public final class IssueReasonImpl extends EntityImpl implements IssueReason{
     public static final String ISSUE_REASON_DESCRIPTION_TRANSLATION_SUFFIX = "Description";
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String key;
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String translationKey;
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String descrTranslationKey;
 
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")

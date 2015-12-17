@@ -85,7 +85,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80+ "}", property = "name", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name", strict = true)
     public void testCreateRuleWithTooLongName() {
         getSimpleCreationRule("-aaaaaaaaaabbbbbbbbbbccccccccccddddddddddaaaaaaaaaabbbbbbbbbbccccccccccdddddddddd", template);
     }

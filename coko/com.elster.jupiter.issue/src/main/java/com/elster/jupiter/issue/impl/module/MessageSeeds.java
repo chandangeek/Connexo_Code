@@ -13,12 +13,7 @@ public enum MessageSeeds implements MessageSeed {
 // 0001 - 1000 General validation messages
     FIELD_CAN_NOT_BE_EMPTY (1, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
 
-    FIELD_SIZE_BETWEEN_1_AND_80(2, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_128(3, Keys.FIELD_SIZE_BETWEEN_1_AND_128, "Field's text length should be between 1 and 128 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_200(4, Keys.FIELD_SIZE_BETWEEN_1_AND_200, "Field's text length should be between 1 and 200 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_256(5, Keys.FIELD_SIZE_BETWEEN_1_AND_256, "Field's text length should be between 1 and 256 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_400(6, Keys.FIELD_SIZE_BETWEEN_1_AND_400, "Field's text length should be between 1 and 400 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_1024(7, Keys.FIELD_SIZE_BETWEEN_1_AND_1024, "Field's text length should be between 1 and 1024 symbols", Level.SEVERE),
+    FIELD_TOO_LONG(2, Keys.FIELD_TOO_LONG, "Field's text length should be between 1 and {max} symbols", Level.SEVERE),
 
 // Domain record specific
     ISSUE_COMMENT_COMMENT_SIZE(1001, Keys.ISSUE_COMMENT_COMMENT_SIZE, "Comment length should be more than 1 symbol", Level.SEVERE),
@@ -101,12 +96,7 @@ public enum MessageSeeds implements MessageSeed {
         private Keys() {}
 
         public static final String FIELD_CAN_NOT_BE_EMPTY       = "FieldCanNotBeEmpty";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_80  = "FieldSizeBetween1and80";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_128 = "FieldSizeBetween1and128";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_200 = "FieldSizeBetween1and200";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_256 = "FieldSizeBetween1and256";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_400 = "FieldSizeBetween1and400";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_1024= "FieldSizeBetween1and1024";
+        public static final String FIELD_TOO_LONG = "FieldTooLong";
 
         public static final String ISSUE_COMMENT_COMMENT_SIZE   = "IssueCommentCommentSize";
         public static final String ACTION_TYPE_DESCRIPTION_SIZE = "ActionTypeDescriptionSize";

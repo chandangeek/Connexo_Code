@@ -1,14 +1,5 @@
 package com.elster.jupiter.issue.impl.records;
 
-import java.nio.charset.Charset;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
@@ -17,14 +8,22 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.nio.charset.Charset;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class AssignmentRuleImpl extends EntityImpl implements AssignmentRule {
     private static final Logger LOG = Logger.getLogger(AssignmentRuleImpl.class.getName());
 
     private int priority;
-    @Size(min = 1, max = 400, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_400 + "}")
+    @Size(min = 1, max = 400, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 400, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_400 + "}")
+    @Size(min = 1, max = 400, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String title;
     private boolean enabled = true;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")

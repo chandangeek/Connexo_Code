@@ -94,7 +94,7 @@ public class IssueStatusTest extends BaseTest{
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     public void checkLongKeyValidation(){
         StringBuilder key = new StringBuilder();
         for (int i=0; i < 90; i++){

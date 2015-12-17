@@ -19,11 +19,11 @@ import java.util.Optional;
 public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 1024, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_1024 + "}")
+    @Size(min = 1, max = 1024, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String className;
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String factoryId;
 
     private Reference<IssueType> issueType = ValueReference.absent();
@@ -31,7 +31,7 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
     private CreationRuleActionPhase phase;
 
     private IssueActionService issueActionService;
-    
+
     @Inject
     public IssueActionTypeImpl(DataModel dataModel, IssueActionService issueActionService) {
         super(dataModel);
@@ -83,7 +83,7 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
     public Optional<IssueAction> createIssueAction() {
         return issueActionService.createIssueAction(factoryId, className);
     }
-    
+
     @Override
     public CreationRuleActionPhase getPhase() {
         return phase;

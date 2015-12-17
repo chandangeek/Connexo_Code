@@ -8,11 +8,12 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.transaction.TransactionContext;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -80,7 +81,7 @@ public class IssueReasonTest extends BaseTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     public void checkLongKeyValidation(){
         StringBuilder key = new StringBuilder();
         for (int i=0; i < 90; i++){

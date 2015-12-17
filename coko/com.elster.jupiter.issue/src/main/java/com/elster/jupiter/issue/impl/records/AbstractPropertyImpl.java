@@ -1,21 +1,21 @@
 package com.elster.jupiter.issue.impl.records;
 
-import java.time.Instant;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.share.entity.PersistentProperty;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySpec;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.entity.PersistentProperty;
-import com.elster.jupiter.properties.PropertySpec;
+import java.time.Instant;
 
 public abstract class AbstractPropertyImpl implements PersistentProperty {
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 256, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_256 + "}")
+    @Size(min = 1, max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String value;
 
     // Audit fields

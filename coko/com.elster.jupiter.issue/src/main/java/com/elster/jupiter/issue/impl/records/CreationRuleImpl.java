@@ -47,7 +47,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     private static final String PARAM_RULE_ID = "ruleId";
 
     @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     private String comment;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
