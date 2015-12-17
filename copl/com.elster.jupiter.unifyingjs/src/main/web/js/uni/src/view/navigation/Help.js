@@ -29,18 +29,6 @@ Ext.define('Uni.view.navigation.Help', {
                 itemId: 'global-online-help',
                 xtype: 'online-help-btn'
             }
-        ],
-        listeners: {
-            mouseover: function () {
-                this.focus();
-            },
-            mouseleave: function () {
-                this.focus();
-            },
-            mouseenter: function () {
-                debugger
-                this.focus();
-            }
-        }
+        ]
     }
 });
