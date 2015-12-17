@@ -543,7 +543,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append("select count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte");
-        sqlBuilder.append(" inner join ddc_device device on cte.device = device.id");
+        sqlBuilder.append(" inner join ddc_device device on cte.device = device.id and device.deviceconfigid = ");
+        sqlBuilder.addLong(comTaskEnablement.getDeviceConfiguration().getId());
         sqlBuilder.append(" inner join dtc_comtaskenablement ctn on ctn.devicecomconfig = device.deviceconfigid");
         sqlBuilder.append(" where ((cte.discriminator = ");
         sqlBuilder.addObject(ComTaskExecutionImpl.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);

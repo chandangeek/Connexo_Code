@@ -139,6 +139,7 @@ public class ProtocolDialectPropertiesImpl
     @Override
     protected void doDelete() {
         this.removeAllProperties();
+        getDataMapper().remove(this);
     }
 
     @Override

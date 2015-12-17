@@ -32,4 +32,10 @@ public interface ServerConnectionTask<CPPT extends ComPortPool, PCTT extends Par
      */
     void revalidatePropertiesAndAdjustStatus();
 
+    /**
+     * Notifies this ConnectionTask that it is about to be deleted
+     * as part of the delete of the {@link com.energyict.mdc.device.data.Device}.
+     */
+    void notifyDelete ();
+
 }
