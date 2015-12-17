@@ -12,6 +12,8 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -52,11 +54,12 @@ public class OutageRegionSearchablePropertyTest {
     @Mock
     private OrmService ormService;
 
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
 
     @Before
     public void initializeMocks() {
-        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
         when(this.messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
     }
