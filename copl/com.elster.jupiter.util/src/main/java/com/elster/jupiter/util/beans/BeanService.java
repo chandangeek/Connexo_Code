@@ -1,8 +1,11 @@
 package com.elster.jupiter.util.beans;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The BeanService is responsible for interacting dynamically with beans. Specifically it can get and set properties of a given bean.
  */
+@ProviderType
 public interface BeanService {
 
     /**
