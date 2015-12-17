@@ -1,8 +1,9 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.properties.impl.ListValueFactory;
+
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Iterator;
 
 public class BasicPropertySpec implements PropertySpec, Serializable {
 
@@ -64,8 +65,10 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     }
 
     // Allow subclasses or friendly builders to specify required or optional
-    public void setMultiValued(boolean multiValued) {
+    @SuppressWarnings("unchecked")
+    public void setMultiValued(boolean multiValued, String separator) {
         this.multiValued = multiValued;
+        this.valueFactory = new ListValueFactory<>(this.valueFactory, separator);
     }
 
     @Override
@@ -107,33 +110,12 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
             throw new ValueRequiredException("XisARequiredAttribute", "\"{0}\" is a required message attribute", this.getName());
         } else if (this.isNull(value)) {
             return true; // All non required properties support null values
-        } else if (value instanceof Collection) {
-            this.validateMultiValues((Collection) value, required);
         } else if (!this.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
             throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{1}\" is not compatible with the attribute specification {0}.", this.getName(), value);
         } else {
             this.validateSimpleValue(value);
         }
         return true;
-    }
-
-    private void validateMultiValues(Collection values, boolean required) throws InvalidValueException {
-        if (this.supportsMultiValues()) {
-            if (!values.isEmpty()) {
-                Iterator iterator = values.iterator();
-                while (iterator.hasNext()) {
-                    Object next = iterator.next();
-                    this.validateValue(next, required);
-                }
-            }
-            else {
-                /* No way to determine if the elements of the colletion are compatible since the type erasure is
-                 * is not available at runtime but since the collection is empty, no values will be assigned anyway. */
-            }
-        }
-        else {
-            throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{1}\" is not compatible with the attribute specification {0}.", this.getName(), values);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -149,8 +131,15 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     protected boolean isValuePossible(Object value) {
-        return possibleValues.getAllValues().contains(value);
+        if (value instanceof Collection && this.supportsMultiValues()) {
+            Collection valueCollection = (Collection) value;
+            return valueCollection.stream().anyMatch(this::isValuePossible);
+        }
+        else {
+            return possibleValues.getAllValues().contains(value);
+        }
     }
 
     @SuppressWarnings("unchecked")

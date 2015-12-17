@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
@@ -81,6 +82,36 @@ public class PropertySpecServiceImplTest {
     }
 
     @Test
+    public void multiValuedStringSpecForThesaurusBasedApproach() {
+        PropertySpec propertySpec =
+                this.getTestInstance()
+                        .stringSpec()
+                        .named(this.nameTranslationKey)
+                        .describedAs(this.descriptionTranslationKey)
+                        .fromThesaurus(this.thesaurus)
+                        .markRequired()
+                        .markMultiValued()
+                        .addValues("One", "Two", "Three")
+                        .markExhaustive()
+                        .setDefaultValue("One")
+                        .finish();
+
+        // Asserts
+        assertThat(propertySpec).isNotNull();
+        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        ValueFactory valueFactory = propertySpec.getValueFactory();
+        assertThat(valueFactory).isInstanceOf(ListValueFactory.class);
+        ListValueFactory listValueFactory = (ListValueFactory) valueFactory;
+        assertThat(listValueFactory.getActualFactory()).isInstanceOf(StringFactory.class);
+        assertThat(propertySpec.isRequired()).isTrue();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
+        assertThat(possibleValues).isNotNull();
+        assertThat(possibleValues.isExhaustive()).isTrue();
+        assertThat(possibleValues.getDefault()).isEqualTo("One");
+        assertThat(possibleValues.getAllValues()).containsOnly("One", "Two", "Three");
+    }
+
+    @Test
     public void stringSpecForThesaurusBasedApproach() {
         PropertySpec propertySpec =
             this.getTestInstance()
@@ -89,7 +120,6 @@ public class PropertySpecServiceImplTest {
                 .describedAs(this.descriptionTranslationKey)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
-                .markMultiValued()
                 .addValues("One", "Two", "Three")
                 .markExhaustive()
                 .setDefaultValue("One")
@@ -103,7 +133,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getDescription()).isEqualTo(TRANSLATION_NOT_SUPPORTED_IN_UNIT_TESTS);
         verify(this.thesaurus).getFormat(this.descriptionTranslationKey);
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -130,7 +160,7 @@ public class PropertySpecServiceImplTest {
     }
 
     @Test
-    public void stringSpecForHardCodedApproach() {
+    public void multiValuedStringSpecForHardCodedApproach() {
         PropertySpec propertySpec = this.getTestInstance()
                 .stringSpec()
                 .named("hardcoded", "display name")
@@ -144,10 +174,37 @@ public class PropertySpecServiceImplTest {
 
         // Asserts
         assertThat(propertySpec).isNotNull();
+        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        ValueFactory valueFactory = propertySpec.getValueFactory();
+        assertThat(valueFactory).isInstanceOf(ListValueFactory.class);
+        ListValueFactory listValueFactory = (ListValueFactory) valueFactory;
+        assertThat(listValueFactory.getActualFactory()).isInstanceOf(StringFactory.class);
+        assertThat(propertySpec.isRequired()).isTrue();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
+        assertThat(possibleValues).isNotNull();
+        assertThat(possibleValues.isExhaustive()).isTrue();
+        assertThat(possibleValues.getDefault()).isEqualTo("One");
+        assertThat(possibleValues.getAllValues()).containsOnly("One", "Two", "Three");
+    }
+
+    @Test
+    public void stringSpecForHardCodedApproach() {
+        PropertySpec propertySpec = this.getTestInstance()
+                .stringSpec()
+                .named("hardcoded", "display name")
+                .describedAs("hardcoded description")
+                .markRequired()
+                .addValues("One", "Two", "Three")
+                .markExhaustive()
+                .setDefaultValue("One")
+                .finish();
+
+        // Asserts
+        assertThat(propertySpec).isNotNull();
         assertThat(propertySpec.getName()).isEqualTo("hardcoded");
         assertThat(propertySpec.getDisplayName()).isEqualTo("display name");
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -164,7 +221,6 @@ public class PropertySpecServiceImplTest {
                         .describedAs(this.descriptionTranslationKey)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
-                        .markMultiValued()
                         .addValues(true, false)
                         .markExhaustive()
                         .setDefaultValue(true)
@@ -178,7 +234,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getDescription()).isEqualTo(TRANSLATION_NOT_SUPPORTED_IN_UNIT_TESTS);
         verify(this.thesaurus).getFormat(this.descriptionTranslationKey);
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -193,7 +249,6 @@ public class PropertySpecServiceImplTest {
                 .named("hardcoded", "display name")
                 .describedAs("hardcoded description")
                 .markRequired()
-                .markMultiValued()
                 .addValues(true, false)
                 .markExhaustive()
                 .setDefaultValue(true)
@@ -204,7 +259,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getName()).isEqualTo("hardcoded");
         assertThat(propertySpec.getDisplayName()).isEqualTo("display name");
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -221,7 +276,6 @@ public class PropertySpecServiceImplTest {
                         .describedAs(this.descriptionTranslationKey)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
-                        .markMultiValued()
                         .addValues(1L, 5L, 10L)
                         .markExhaustive()
                         .setDefaultValue(100L)
@@ -235,7 +289,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getDescription()).isEqualTo(TRANSLATION_NOT_SUPPORTED_IN_UNIT_TESTS);
         verify(this.thesaurus).getFormat(this.descriptionTranslationKey);
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -250,7 +304,6 @@ public class PropertySpecServiceImplTest {
                 .named("hardcoded", "display name")
                 .describedAs("hardcoded description")
                 .markRequired()
-                .markMultiValued()
                 .addValues(1L, 5L, 10L)
                 .markExhaustive()
                 .setDefaultValue(100L)
@@ -261,7 +314,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getName()).isEqualTo("hardcoded");
         assertThat(propertySpec.getDisplayName()).isEqualTo("display name");
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -278,7 +331,6 @@ public class PropertySpecServiceImplTest {
                         .describedAs(this.descriptionTranslationKey)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
-                        .markMultiValued()
                         .addValues(BigDecimal.ONE, new BigDecimal(5), BigDecimal.TEN)
                         .markExhaustive()
                         .setDefaultValue(new BigDecimal(100))
@@ -292,7 +344,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getDescription()).isEqualTo(TRANSLATION_NOT_SUPPORTED_IN_UNIT_TESTS);
         verify(this.thesaurus).getFormat(this.descriptionTranslationKey);
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -307,7 +359,6 @@ public class PropertySpecServiceImplTest {
                 .named("hardcoded", "display name")
                 .describedAs("hardcoded description")
                 .markRequired()
-                .markMultiValued()
                 .addValues(BigDecimal.ONE, new BigDecimal(5), BigDecimal.TEN)
                 .markExhaustive()
                 .setDefaultValue(new BigDecimal(100))
@@ -318,7 +369,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getName()).isEqualTo("hardcoded");
         assertThat(propertySpec.getDisplayName()).isEqualTo("display name");
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -421,7 +472,6 @@ public class PropertySpecServiceImplTest {
                         .describedAs(this.descriptionTranslationKey)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
-                        .markMultiValued()
                         .addValues(new ExampleEntity(1L), new ExampleEntity(5L), new ExampleEntity(10L))
                         .markExhaustive()
                         .setDefaultValue(new ExampleEntity(100L))
@@ -438,7 +488,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getDescription()).isEqualTo(TRANSLATION_NOT_SUPPORTED_IN_UNIT_TESTS);
         verify(this.thesaurus).getFormat(this.descriptionTranslationKey);
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -453,7 +503,6 @@ public class PropertySpecServiceImplTest {
                 .named("hardcoded", "display name")
                 .describedAs("hardcoded description")
                 .markRequired()
-                .markMultiValued()
                 .addValues(new ExampleEntity(1L), new ExampleEntity(5L), new ExampleEntity(10L))
                 .markExhaustive()
                 .setDefaultValue(new ExampleEntity(100L))
@@ -467,7 +516,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getName()).isEqualTo("hardcoded");
         assertThat(propertySpec.getDisplayName()).isEqualTo("display name");
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
@@ -484,7 +533,6 @@ public class PropertySpecServiceImplTest {
                         .describedAs(this.descriptionTranslationKey)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
-                        .markMultiValued()
                         .setDefaultValue(TimeZone.getDefault())
                         .finish();
 
@@ -496,7 +544,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getDescription()).isEqualTo(TRANSLATION_NOT_SUPPORTED_IN_UNIT_TESTS);
         verify(this.thesaurus).getFormat(this.descriptionTranslationKey);
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(TimeZone.getDefault());
@@ -509,7 +557,6 @@ public class PropertySpecServiceImplTest {
                 .named("hardcoded", "display name")
                 .describedAs("hardcoded description")
                 .markRequired()
-                .markMultiValued()
                 .setDefaultValue(TimeZone.getDefault())
                 .finish();
 
@@ -518,7 +565,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getName()).isEqualTo("hardcoded");
         assertThat(propertySpec.getDisplayName()).isEqualTo("display name");
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(TimeZone.getDefault());
@@ -534,7 +581,6 @@ public class PropertySpecServiceImplTest {
                         .describedAs(this.descriptionTranslationKey)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
-                        .markMultiValued()
                         .setDefaultValue(relativePeriod)
                         .finish();
 
@@ -546,7 +592,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getDescription()).isEqualTo(TRANSLATION_NOT_SUPPORTED_IN_UNIT_TESTS);
         verify(this.thesaurus).getFormat(this.descriptionTranslationKey);
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(relativePeriod);
@@ -560,7 +606,6 @@ public class PropertySpecServiceImplTest {
                 .named("hardcoded", "display name")
                 .describedAs("hardcoded description")
                 .markRequired()
-                .markMultiValued()
                 .setDefaultValue(relativePeriod)
                 .finish();
 
@@ -569,7 +614,7 @@ public class PropertySpecServiceImplTest {
         assertThat(propertySpec.getName()).isEqualTo("hardcoded");
         assertThat(propertySpec.getDisplayName()).isEqualTo("display name");
         assertThat(propertySpec.isRequired()).isTrue();
-        assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.supportsMultiValues()).isFalse();
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(relativePeriod);

@@ -26,6 +26,8 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public interface PropertySpecBuilder<T> {
 
+    static final String DEFAULT_MULTI_VALUE_SEPARATOR = "::";
+
     /**
      * Sets a default value for the {@link PropertySpec} under construction.
      * Setting a default value implies that the default value
@@ -58,13 +60,27 @@ public interface PropertySpecBuilder<T> {
     PropertySpecBuilder<T> markExhaustive (PropertySelectionMode selectionMode);
 
     /**
-     * Marks the {@link PropertySpec} that is under construction as supporting multi values.
+     * Marks the {@link PropertySpec} that is under construction as supporting multi values,
+     * using the default separator
      * The resulting PropertySpec will therefore return <code>true</code>
      * for the {@link PropertySpec#supportsMultiValues()} method.
      *
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    PropertySpecBuilder<T> markMultiValued();
+    default PropertySpecBuilder<T> markMultiValued() {
+        return markMultiValued(DEFAULT_MULTI_VALUE_SEPARATOR);
+    }
+
+    /**
+     * Marks the {@link PropertySpec} that is under construction as supporting multi values
+     * and uses the specified separator to separate the results of calling
+     * {@link ValueFactory#toStringValue(Object)}.
+     * The resulting PropertySpec will therefore return <code>true</code>
+     * for the {@link PropertySpec#supportsMultiValues()} method.
+     *
+     * @return This PropertySpecBuilder to support method chaining while constructing
+     */
+    PropertySpecBuilder<T> markMultiValued(String separator);
 
     /**
      * Marks the {@link PropertySpec} that is under construction as required.

@@ -85,8 +85,8 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
     }
 
     @Override
-    public PropertySpecBuilder<T> markMultiValued() {
-        this.propertySpecAccessor.markMultiValued();
+    public PropertySpecBuilder<T> markMultiValued(String separator) {
+        this.propertySpecAccessor.markMultiValued(separator);
         return this;
     }
 
@@ -125,7 +125,7 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
         void markRequired();
 
-        void markMultiValued();
+        void markMultiValued(String separator);
 
         void markExhaustive(PropertySelectionMode selectionMode);
 
@@ -194,8 +194,8 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
         }
 
         @Override
-        public void markMultiValued() {
-            this.propertySpec.setMultiValued(true);
+        public void markMultiValued(String separator) {
+            this.propertySpec.setMultiValued(true, separator);
         }
 
         @Override
@@ -265,7 +265,7 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
         }
 
         @Override
-        public void markMultiValued() {
+        public void markMultiValued(String separator) {
             this.notifyBuildingProcessComplete();
         }
 
