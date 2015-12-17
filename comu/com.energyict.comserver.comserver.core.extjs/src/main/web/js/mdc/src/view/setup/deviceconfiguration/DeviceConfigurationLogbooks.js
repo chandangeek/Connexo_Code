@@ -145,19 +145,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                             },
                                             {
                                                 xtype: 'obis-displayfield',
-                                                fieldLabel: Uni.I18n.translate('general.overruledObisCode', 'MDC', 'Overruled OBIS code'),
+                                                fieldLabel: Uni.I18n.translate('general.obisCode', 'MDC', 'OBIS code'),
                                                 name: "overruledObisCode",
                                                 labelWidth: 160
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        items: [
-                                            {
-                                                xtype: 'obis-displayfield',
-                                                fieldLabel: Uni.I18n.translate('general.logbookObisCode', 'MDC', 'Logbook OBIS code'),
-                                                labelWidth: 160,
-                                                name: 'obisCode'
                                             }
                                         ]
                                     }
