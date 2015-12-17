@@ -24,6 +24,7 @@ public interface Column {
 	boolean isVersion();
 	String getInsertValue();
 	String getUpdateValue();
+	Object getDatabaseValue(Object target);
 	boolean skipOnUpdate();
 	boolean hasUpdateValue();
 	boolean hasInsertValue();

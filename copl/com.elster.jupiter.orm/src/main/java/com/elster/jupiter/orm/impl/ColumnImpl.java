@@ -283,6 +283,11 @@ public class ColumnImpl implements Column {
         return getTable().getDomainMapper();
     }
 
+    @Override
+    public Object getDatabaseValue(Object target) {
+        return this.convertToDb(this.domainValue(target));
+    }
+
     Object domainValue(Object target) {
         if (isDiscriminator()) {
             return getTable().getMapperType().getDiscriminator(target.getClass());
@@ -319,7 +324,7 @@ public class ColumnImpl implements Column {
     }
 
     void setObject(PreparedStatement statement, int index, Object target) throws SQLException {
-        statement.setObject(index, convertToDb(domainValue(target)));
+        statement.setObject(index, this.getDatabaseValue(target));
     }
 
     String getFormula() {
