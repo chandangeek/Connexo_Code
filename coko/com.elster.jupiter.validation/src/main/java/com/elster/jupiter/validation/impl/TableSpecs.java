@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
@@ -107,15 +108,16 @@ public enum TableSpecs {
             Table<IMeterActivationValidation> table = dataModel.addTable(name(), IMeterActivationValidation.class);
             table.map(MeterActivationValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column ruleSetIdColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
-            Column meterActivationId = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).add();
+            Column ruleSetColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
+            Column meterActivationColumn = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.column("ACTIVE").bool().map("active").add();
-            table.column("OBSOLETETIME").number().conversion(NUMBER2INSTANT).map("obsoleteTime").add();
+            Column obsoleteColumn = table.column("OBSOLETETIME").number().conversion(NUMBER2INSTANT).map("obsoleteTime").add();
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
-            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(MeteringService.COMPONENTNAME, "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
-            table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).on(ruleSetIdColumn).onDelete(DeleteRule.RESTRICT)
+            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(MeterActivation.class).onDelete(RESTRICT).map("meterActivation").on(meterActivationColumn).add();
+            table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).on(ruleSetColumn).onDelete(DeleteRule.RESTRICT)
                     .map("ruleSet", ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
+            table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, meterActivationColumn, obsoleteColumn).add();
         }
     },
     VAL_CH_VALIDATION {

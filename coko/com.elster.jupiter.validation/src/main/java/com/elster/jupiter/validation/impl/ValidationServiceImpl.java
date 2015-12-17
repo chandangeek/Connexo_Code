@@ -452,10 +452,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         return getUpdatedMeterActivationValidations(meterActivation);
     }
 
-    public List<? extends IMeterActivationValidation> getActiveMeterActivationValidations(MeterActivation meterActivation) {
-        return getActiveIMeterActivationValidations(meterActivation);
-    }
-
     @Override
     public Validator getValidator(String implementation) {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
