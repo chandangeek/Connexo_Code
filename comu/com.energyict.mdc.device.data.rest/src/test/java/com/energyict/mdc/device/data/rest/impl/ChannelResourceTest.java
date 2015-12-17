@@ -520,9 +520,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         customPropertySetValues.setProperty("testname", "testValue1");
         CustomPropertySetValues customPropertySetValues2 = CustomPropertySetValues.emptyDuring(Interval.of(Range.closedOpen(Instant.ofEpochMilli(endTimeFirst), Instant.ofEpochMilli(endTimeSecond))));
         customPropertySetValues2.setProperty("testname2", "testValue2");
-        when(customPropertySetService.getValuesFor(customPropertySet, channelSpec)).thenReturn(customPropertySetValues);
-        when(customPropertySetService.getValuesFor(eq(customPropertySet), eq(channelSpec), any(Instant.class))).thenReturn(customPropertySetValuesNoTimesliced);
-        when(customPropertySetService.getAllVersionedValuesFor(customPropertySet, channelSpec)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
+        when(customPropertySetService.getUniqueValuesFor(eq(customPropertySet), eq(channelSpec), anyObject())).thenReturn(customPropertySetValues);
+        when(customPropertySetService.getUniqueValuesFor(eq(customPropertySet), eq(channelSpec), any(Instant.class), anyObject())).thenReturn(customPropertySetValuesNoTimesliced);
+        when(customPropertySetService.getAllVersionedValuesFor(eq(customPropertySet), eq(channelSpec), anyObject())).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
         ValuesRangeConflict conflict1 = mock(ValuesRangeConflict.class);
         when(conflict1.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeFirst),Instant.ofEpochMilli(endTimeFirst)));
         when(conflict1.getMessage()).thenReturn("testMessage");
@@ -541,7 +541,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         OverlapCalculatorBuilder overlapCalculatorBuilder = mock(OverlapCalculatorBuilder.class);
         when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
         when(overlapCalculatorBuilder.whenUpdating(any(Instant.class),any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
-        when(customPropertySetService.calculateOverlapsFor(anyObject(),anyObject())).thenReturn(overlapCalculatorBuilder);
+        when(customPropertySetService.calculateOverlapsFor(anyObject(),anyObject(),anyObject())).thenReturn(overlapCalculatorBuilder);
         return customPropertySet;
     }
 

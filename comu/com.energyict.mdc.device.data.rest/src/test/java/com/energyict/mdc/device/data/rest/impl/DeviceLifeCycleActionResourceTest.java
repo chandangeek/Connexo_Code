@@ -40,10 +40,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplicationJerseyTest {
     private static final String MAIN_DEVICE_MRID = "device1";
@@ -80,7 +77,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         return Arrays.asList(propertySpec);
     }
 
-    private ExecutableAction mockExecutableAction(Device device, AuthorizedAction authorizedAction){
+    private ExecutableAction mockExecutableAction(Device device, AuthorizedAction authorizedAction) {
         ExecutableAction action = mock(ExecutableAction.class);
         when(action.getDevice()).thenReturn(device);
         when(action.getAction()).thenReturn(authorizedAction);
@@ -88,7 +85,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
     }
 
     @Test
-    public void testGetAllAvailableTransitions(){
+    public void testGetAllAvailableTransitions() {
         AuthorizedTransitionAction action1 = mock(AuthorizedTransitionAction.class);
         when(action1.getId()).thenReturn(1L);
         when(action1.getName()).thenReturn("Z-Transition name 1");
@@ -98,18 +95,18 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         List<ExecutableAction> executableActions = Arrays.asList(mockExecutableAction(device, action1), mockExecutableAction(device, action2));
         when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(executableActions);
 
-        String response = target("/devices/"+MAIN_DEVICE_MRID+"/transitions").request().get(String.class);
+        String response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions").request().get(String.class);
         JsonModel model = JsonModel.model(response);
-        assertThat(model.<Number> get("$.total")).isEqualTo(2);
-        assertThat(model.<List<?>> get("$.transitions")).isNotEmpty();
-        assertThat(model.<Number> get("$.transitions[0].id")).isEqualTo(2);
-        assertThat(model.<String> get("$.transitions[0].name")).isEqualTo("A-Transition name 2");
-        assertThat(model.<Number> get("$.transitions[1].id")).isEqualTo(1);
-        assertThat(model.<String> get("$.transitions[1].name")).isEqualTo("Z-Transition name 1");
+        assertThat(model.<Number>get("$.total")).isEqualTo(2);
+        assertThat(model.<List<?>>get("$.transitions")).isNotEmpty();
+        assertThat(model.<Number>get("$.transitions[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.transitions[0].name")).isEqualTo("A-Transition name 2");
+        assertThat(model.<Number>get("$.transitions[1].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.transitions[1].name")).isEqualTo("Z-Transition name 1");
     }
 
     @Test
-    public void testGetPropertiesForAction(){
+    public void testGetPropertiesForAction() {
         AuthorizedTransitionAction action1 = mock(AuthorizedTransitionAction.class);
         when(action1.getId()).thenReturn(1L);
         when(action1.getName()).thenReturn("Transition name 1");
@@ -125,7 +122,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
 
-        String response = target("/devices/"+MAIN_DEVICE_MRID+"/transitions/1").request().get(String.class);
+        String response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().get(String.class);
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.id")).isEqualTo(1);
         assertThat(model.<String>get("$.name")).isEqualTo("Transition name 1");
@@ -134,7 +131,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
     }
 
     @Test
-    public void testExecuteBadVersion(){
+    public void testExecuteBadVersion() {
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
@@ -152,7 +149,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
     }
 
     @Test
-    public void testExecuteAndThrowSecurityException() throws Exception{
+    public void testExecuteAndThrowSecurityException() throws Exception {
         AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
@@ -196,10 +193,12 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         assertThat(wizardResult.message).isEqualTo("Security exception");
         assertThat(wizardResult.targetState).isEqualTo("Target state");
         assertThat(wizardResult.result).isFalse();
+
+        verify(transactionContext, never()).commit();
     }
 
     @Test
-    public void testExecuteAndWrongState() throws Exception{
+    public void testExecuteAndWrongState() throws Exception {
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
         AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
         when(action.getId()).thenReturn(1L);
@@ -247,10 +246,12 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         assertThat(wizardResult.message).isNotEmpty();
         assertThat(wizardResult.targetState).isEqualTo("Target state");
         assertThat(wizardResult.result).isFalse();
+
+        verify(transactionContext, never()).commit();
     }
 
     @Test
-    public void testExecuteAndCheckFailed() throws Exception{
+    public void testExecuteAndCheckFailed() throws Exception {
         AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
@@ -299,10 +300,12 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         assertThat(wizardResult.message).isNotEmpty();
         assertThat(wizardResult.targetState).isEqualTo("Target state");
         assertThat(wizardResult.result).isFalse();
+
+        verify(transactionContext, never()).commit();
     }
 
     @Test
-    public void testExecuteSuccessful() throws Exception{
+    public void testExecuteSuccessful() throws Exception {
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
         AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
         when(action.getId()).thenReturn(1L);
@@ -344,5 +347,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         assertThat(wizardResult.message).isNull();
         assertThat(wizardResult.targetState).isEqualTo("Target state");
         assertThat(wizardResult.result).isTrue();
+
+        verify(transactionContext).commit();
     }
 }
