@@ -3,13 +3,12 @@ package com.elster.jupiter.properties.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
-import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -32,12 +31,14 @@ import java.sql.SQLException;
 class ReferenceValueFactory<T> implements ValueFactory<T> {
 
     private final OrmService ormService;
+    private final BeanService beanService;
     private Class<T> domainClass;
     private Mapping mapping;
 
-    ReferenceValueFactory(OrmService ormService) {
+    ReferenceValueFactory(OrmService ormService, BeanService beanService) {
         super();
         this.ormService = ormService;
+        this.beanService = beanService;
     }
 
     ReferenceValueFactory<T> init(Class<T> domainClass) {
@@ -171,7 +172,7 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
         private Table<T> table;
         private DataMapper<T> dataMapper;
         private Column primaryKeyColumn;
-        private Field primaryKeyField;
+        private Class primaryKeyType;
         private StringConverter converter;
         private PrimaryKeyChecker primaryKeyChecker;
 
@@ -190,13 +191,13 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
                 throw new IllegalArgumentException(ReferenceValueFactory.class.getSimpleName() + " does not support persistent entities with multi valued primary keys");
             }
             this.primaryKeyColumn = this.table.getPrimaryKeyColumns().get(0);
-            this.primaryKeyField = this.getField(domainClass, this.primaryKeyColumn.getFieldName());
+            this.primaryKeyType = this.getPropertyType(domainClass, this.primaryKeyColumn.getFieldName());
             this.initConverterAndPrimaryKeyCheckerIfSupported();
             return true;
         }
 
         private void initConverterAndPrimaryKeyCheckerIfSupported() {
-            switch (this.primaryKeyField.getType().getName()) {
+            switch (this.primaryKeyType.getName()) {
                 case "java.lang.Long": {
                     this.converter = new LongConverter();
                     this.primaryKeyChecker = new LongPrimaryKeyChecker();
@@ -223,23 +224,13 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
                     break;
                 }
                 default: {
-                    throw new IllegalArgumentException("Primary key column type " + this.primaryKeyField.getType().getName() + " is currently not supported by " + ReferenceValueFactory.class.getSimpleName());
+                    throw new IllegalArgumentException("Primary key column type " + this.primaryKeyType.getName() + " is currently not supported by " + ReferenceValueFactory.class.getSimpleName());
                 }
             }
         }
 
-        private Field getField(Class<?> clazz, String fieldName) {
-            Class<?> current = clazz;
-            do {
-                for (Field field : current.getDeclaredFields()) {
-                    if (field.getName().equals(fieldName)) {
-                        field.setAccessible(true);
-                        return field;
-                    }
-                }
-                current = current.getSuperclass();
-            } while (current != null);
-            throw new MappingException(clazz, fieldName);
+        private Class<?> getPropertyType(Class<?> clazz, String fieldName) {
+            return beanService.getPropertyType(clazz, fieldName);
         }
 
         public T fromStringValue(String stringValue) {
@@ -256,12 +247,7 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
         }
 
         public Object valueToDatabase(T object) {
-            try {
-                return this.primaryKeyField.get(object);
-            }
-            catch (IllegalAccessException e) {
-                throw new MappingException(e);
-            }
+            return this.primaryKeyColumn.getDatabaseValue(object);
         }
 
         public boolean isPersistent(T object) {

@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
@@ -575,7 +576,7 @@ public class PropertySpecServiceImplTest {
     }
 
     private PropertySpecService getTestInstance() {
-        return new PropertySpecServiceImpl(this.timeService, this.ormService);
+        return new PropertySpecServiceImpl(this.timeService, this.ormService, new DefaultBeanService());
     }
 
     private class ExampleEntity {

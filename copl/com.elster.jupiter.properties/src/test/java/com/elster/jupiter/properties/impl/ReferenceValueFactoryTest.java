@@ -6,7 +6,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -24,6 +28,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -34,6 +39,7 @@ public class ReferenceValueFactoryTest {
 
     @Mock
     private OrmService ormService;
+    private BeanService beanService = new DefaultBeanService();
     @Mock
     private DataModel dataModel;
     @Mock
@@ -51,8 +57,13 @@ public class ReferenceValueFactoryTest {
     }
 
     @Test
+    public void isReference() {
+        assertThat(this.getTestInstance().isReference()).isTrue();
+    }
+
+    @Test
     public void testDomainClass() {
-        assertThat(this.getTestInstance(DomainWithLongPrimaryKey.class).getValueType()).isEqualTo(DomainWithLongPrimaryKey.class);
+        assertThat(this.getTestInstance(DomainWithRawLongPrimaryKey.class).getValueType()).isEqualTo(DomainWithRawLongPrimaryKey.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -60,7 +71,7 @@ public class ReferenceValueFactoryTest {
         when(this.ormService.getDataModels()).thenReturn(Collections.emptyList());
 
         // Business method
-        this.getTestInstanceWithValidation(DomainWithLongPrimaryKey.class);
+        this.getTestInstanceWithValidation(DomainWithRawLongPrimaryKey.class);
 
         // Asserts: see expected exception rule
     }
@@ -70,7 +81,7 @@ public class ReferenceValueFactoryTest {
         doThrow(IllegalArgumentException.class).when(this.dataModel).mapper(any(Class.class));
 
         // Business method
-        this.getTestInstanceWithValidation(DomainWithLongPrimaryKey.class);
+        this.getTestInstanceWithValidation(DomainWithRawLongPrimaryKey.class);
 
         // Asserts: see expected exception rule
     }
@@ -100,6 +111,30 @@ public class ReferenceValueFactoryTest {
     }
 
     @Test
+    public void rawLongPrimaryKeyTypeIsSupported() {
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+
+        // Business method
+        this.getTestInstanceWithValidation(DomainWithRawLongPrimaryKey.class);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void rawLongPrimaryKeyTypeIsSupportedOnInterface() {
+        when(this.table.maps(HasRawLongId.class)).thenReturn(true);
+        when(this.dataModel.mapper(HasRawLongId.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+
+        // Business method
+        this.getTestInstanceWithValidation(HasRawLongId.class);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
     public void longPrimaryKeyTypeIsSupported() {
         when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
@@ -107,6 +142,42 @@ public class ReferenceValueFactoryTest {
 
         // Business method
         this.getTestInstanceWithValidation(DomainWithLongPrimaryKey.class);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void longPrimaryKeyTypeIsSupportedOnInterface() {
+        when(this.table.maps(HasLongId.class)).thenReturn(true);
+        when(this.dataModel.mapper(HasLongId.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+
+        // Business method
+        this.getTestInstanceWithValidation(HasLongId.class);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void intPrimaryKeyTypeIsSupported() {
+        when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+
+        // Business method
+        this.getTestInstanceWithValidation(DomainWithIntPrimaryKey.class);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void intPrimaryKeyTypeIsSupportedOnInterface() {
+        when(this.table.maps(HasRawIntId.class)).thenReturn(true);
+        when(this.dataModel.mapper(HasRawIntId.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+
+        // Business method
+        this.getTestInstanceWithValidation(HasRawIntId.class);
 
         // Asserts: see expected exception rule
     }
@@ -124,6 +195,18 @@ public class ReferenceValueFactoryTest {
     }
 
     @Test
+    public void integerPrimaryKeyTypeIsSupportedOnIntegererface() {
+        when(this.table.maps(HasIntegerId.class)).thenReturn(true);
+        when(this.dataModel.mapper(HasIntegerId.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+
+        // Business method
+        this.getTestInstanceWithValidation(HasIntegerId.class);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
     public void stringPrimaryKeyTypeIsSupported() {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
@@ -136,17 +219,29 @@ public class ReferenceValueFactoryTest {
     }
 
     @Test
-    public void fromStringValueForLongPrimaryKeyThatExists() {
-        when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
+    public void stringPrimaryKeyTypeIsSupportedOnInterface() {
+        when(this.table.maps(HasStringId.class)).thenReturn(true);
+        when(this.dataModel.mapper(HasStringId.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithLongPrimaryKey> testInstance = this.getTestInstance(DomainWithLongPrimaryKey.class);
-        DomainWithLongPrimaryKey persistentValue = new DomainWithLongPrimaryKey();
+
+        // Business method
+        this.getTestInstanceWithValidation(HasStringId.class);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void fromStringValueForLongPrimaryKeyThatExists() {
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
+        DomainWithRawLongPrimaryKey persistentValue = new DomainWithRawLongPrimaryKey();
         persistentValue.id = 3L;
         when(this.dataMapper.getOptional(3L)).thenReturn(Optional.of(persistentValue));
 
         // Business method
-        DomainWithLongPrimaryKey value = testInstance.fromStringValue("3");
+        DomainWithRawLongPrimaryKey value = testInstance.fromStringValue("3");
 
         // Asserts
         assertThat(value).isEqualTo(persistentValue);
@@ -154,14 +249,14 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void fromStringValueForLongPrimaryKeyThatDoesNotExist() {
-        when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithLongPrimaryKey> testInstance = this.getTestInstance(DomainWithLongPrimaryKey.class);
+        ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
         when(this.dataMapper.getOptional(anyLong())).thenReturn(Optional.empty());
 
         // Business method
-        DomainWithLongPrimaryKey value = testInstance.fromStringValue("3");
+        DomainWithRawLongPrimaryKey value = testInstance.fromStringValue("3");
 
         // Asserts
         assertThat(value).isNull();
@@ -169,16 +264,16 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void fromStringValueForIntegerPrimaryKeyThatExists() {
-        when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithIntegerPrimaryKey> testInstance = this.getTestInstance(DomainWithIntegerPrimaryKey.class);
-        DomainWithIntegerPrimaryKey persistentValue = new DomainWithIntegerPrimaryKey();
+        ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
+        DomainWithIntPrimaryKey persistentValue = new DomainWithIntPrimaryKey();
         persistentValue.id = 3;
         when(this.dataMapper.getOptional(3)).thenReturn(Optional.of(persistentValue));
 
         // Business method
-        DomainWithIntegerPrimaryKey value = testInstance.fromStringValue("3");
+        DomainWithIntPrimaryKey value = testInstance.fromStringValue("3");
 
         // Asserts
         assertThat(value).isEqualTo(persistentValue);
@@ -186,14 +281,14 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void fromStringValueForIntegerPrimaryKeyThatDoesNotExist() {
-        when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithIntegerPrimaryKey> testInstance = this.getTestInstance(DomainWithIntegerPrimaryKey.class);
+        ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
         when(this.dataMapper.getOptional(anyInt())).thenReturn(Optional.empty());
 
         // Business method
-        DomainWithIntegerPrimaryKey value = testInstance.fromStringValue("3");
+        DomainWithIntPrimaryKey value = testInstance.fromStringValue("3");
 
         // Asserts
         assertThat(value).isNull();
@@ -233,12 +328,13 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void toStringValueForLongPrimaryKey() {
-        when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
-        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithLongPrimaryKey> testInstance = this.getTestInstance(DomainWithLongPrimaryKey.class);
-        DomainWithLongPrimaryKey persistentValue = new DomainWithLongPrimaryKey();
+        DomainWithRawLongPrimaryKey persistentValue = new DomainWithRawLongPrimaryKey();
         persistentValue.id = 3L;
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
+        ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
 
         // Business method
         String value = testInstance.toStringValue(persistentValue);
@@ -249,12 +345,13 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void toStringValueForIntegerPrimaryKey() {
-        when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
-        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithIntegerPrimaryKey> testInstance = this.getTestInstance(DomainWithIntegerPrimaryKey.class);
-        DomainWithIntegerPrimaryKey persistentValue = new DomainWithIntegerPrimaryKey();
+        DomainWithIntPrimaryKey persistentValue = new DomainWithIntPrimaryKey();
         persistentValue.id = 3;
+        when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
+        ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
 
         // Business method
         String value = testInstance.toStringValue(persistentValue);
@@ -265,12 +362,13 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void toStringValueForStringPrimaryKey() {
+        DomainWithStringPrimaryKey persistentValue = new DomainWithStringPrimaryKey();
+        persistentValue.id = "3";
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
-        DomainWithStringPrimaryKey persistentValue = new DomainWithStringPrimaryKey();
-        persistentValue.id = "3";
 
         // Business method
         String value = testInstance.toStringValue(persistentValue);
@@ -281,16 +379,16 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void valueFromDatabaseForLongPrimaryKeyThatExists() {
-        when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithLongPrimaryKey> testInstance = this.getTestInstance(DomainWithLongPrimaryKey.class);
-        DomainWithLongPrimaryKey persistentValue = new DomainWithLongPrimaryKey();
+        ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
+        DomainWithRawLongPrimaryKey persistentValue = new DomainWithRawLongPrimaryKey();
         persistentValue.id = 3L;
         when(this.dataMapper.getOptional(3L)).thenReturn(Optional.of(persistentValue));
 
         // Business method
-        DomainWithLongPrimaryKey value = testInstance.valueFromDatabase(3L);
+        DomainWithRawLongPrimaryKey value = testInstance.valueFromDatabase(3L);
 
         // Asserts
         assertThat(value).isEqualTo(persistentValue);
@@ -298,14 +396,14 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void valueFromDatabaseForLongPrimaryKeyThatDoesNotExist() {
-        when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithLongPrimaryKey> testInstance = this.getTestInstance(DomainWithLongPrimaryKey.class);
+        ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
         when(this.dataMapper.getOptional(anyLong())).thenReturn(Optional.empty());
 
         // Business method
-        DomainWithLongPrimaryKey value = testInstance.valueFromDatabase(3L);
+        DomainWithRawLongPrimaryKey value = testInstance.valueFromDatabase(3L);
 
         // Asserts
         assertThat(value).isNull();
@@ -313,16 +411,16 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void valueFromDatabaseForIntegerPrimaryKeyThatExists() {
-        when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithIntegerPrimaryKey> testInstance = this.getTestInstance(DomainWithIntegerPrimaryKey.class);
-        DomainWithIntegerPrimaryKey persistentValue = new DomainWithIntegerPrimaryKey();
+        ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
+        DomainWithIntPrimaryKey persistentValue = new DomainWithIntPrimaryKey();
         persistentValue.id = 3;
         when(this.dataMapper.getOptional(3)).thenReturn(Optional.of(persistentValue));
 
         // Business method
-        DomainWithIntegerPrimaryKey value = testInstance.valueFromDatabase(3);
+        DomainWithIntPrimaryKey value = testInstance.valueFromDatabase(3);
 
         // Asserts
         assertThat(value).isEqualTo(persistentValue);
@@ -330,14 +428,14 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void valueFromDatabaseForIntegerPrimaryKeyThatDoesNotExist() {
-        when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithIntegerPrimaryKey> testInstance = this.getTestInstance(DomainWithIntegerPrimaryKey.class);
+        ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
         when(this.dataMapper.getOptional(anyInt())).thenReturn(Optional.empty());
 
         // Business method
-        DomainWithIntegerPrimaryKey value = testInstance.valueFromDatabase(3);
+        DomainWithIntPrimaryKey value = testInstance.valueFromDatabase(3);
 
         // Asserts
         assertThat(value).isNull();
@@ -377,12 +475,13 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void valueToDatabaseForLongPrimaryKey() {
-        when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
-        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithLongPrimaryKey> testInstance = this.getTestInstance(DomainWithLongPrimaryKey.class);
-        DomainWithLongPrimaryKey persistentValue = new DomainWithLongPrimaryKey();
+        DomainWithRawLongPrimaryKey persistentValue = new DomainWithRawLongPrimaryKey();
         persistentValue.id = 3L;
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
+        ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
 
         // Business method
         Object value = testInstance.valueToDatabase(persistentValue);
@@ -393,12 +492,13 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void valueToDatabaseForIntegerPrimaryKey() {
-        when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
-        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithIntegerPrimaryKey> testInstance = this.getTestInstance(DomainWithIntegerPrimaryKey.class);
-        DomainWithIntegerPrimaryKey persistentValue = new DomainWithIntegerPrimaryKey();
+        DomainWithIntPrimaryKey persistentValue = new DomainWithIntPrimaryKey();
         persistentValue.id = 3;
+        when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
+        ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
 
         // Business method
         Object value = testInstance.valueToDatabase(persistentValue);
@@ -409,12 +509,13 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void valueToDatabaseForStringPrimaryKey() {
+        DomainWithStringPrimaryKey persistentValue = new DomainWithStringPrimaryKey();
+        persistentValue.id = "3";
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
-        DomainWithStringPrimaryKey persistentValue = new DomainWithStringPrimaryKey();
-        persistentValue.id = "3";
 
         // Business method
         Object value = testInstance.valueToDatabase(persistentValue);
@@ -425,11 +526,11 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void isValidForNonPersistentEntityWithLongPrimaryKey() {
-        when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithLongPrimaryKey> testInstance = this.getTestInstance(DomainWithLongPrimaryKey.class);
-        DomainWithLongPrimaryKey value = new DomainWithLongPrimaryKey();
+        ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
+        DomainWithRawLongPrimaryKey value = new DomainWithRawLongPrimaryKey();
 
         // Business method
         boolean isValid = testInstance.isValid(value);
@@ -440,12 +541,13 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void isValidForPersistentEntityWithLongPrimaryKey() {
-        when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
-        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithLongPrimaryKey> testInstance = this.getTestInstance(DomainWithLongPrimaryKey.class);
-        DomainWithLongPrimaryKey value = new DomainWithLongPrimaryKey();
+        DomainWithRawLongPrimaryKey value = new DomainWithRawLongPrimaryKey();
         value.id = 3L;
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(value)).thenReturn(value.id);
+        ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
 
         // Business method
         boolean isValid = testInstance.isValid(value);
@@ -456,11 +558,11 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void isValidForNonPersistentEntityWithIntegerPrimaryKey() {
-        when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithIntegerPrimaryKey> testInstance = this.getTestInstance(DomainWithIntegerPrimaryKey.class);
-        DomainWithIntegerPrimaryKey value = new DomainWithIntegerPrimaryKey();
+        ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
+        DomainWithIntPrimaryKey value = new DomainWithIntPrimaryKey();
 
         // Business method
         boolean isValid = testInstance.isValid(value);
@@ -471,12 +573,13 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void isValidForPersistentEntityWithIntegerPrimaryKey() {
-        when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
-        when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
-        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
-        ReferenceValueFactory<DomainWithIntegerPrimaryKey> testInstance = this.getTestInstance(DomainWithIntegerPrimaryKey.class);
-        DomainWithIntegerPrimaryKey value = new DomainWithIntegerPrimaryKey();
+        DomainWithIntPrimaryKey value = new DomainWithIntPrimaryKey();
         value.id = 3;
+        when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(value)).thenReturn(value.id);
+        ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
 
         // Business method
         boolean isValid = testInstance.isValid(value);
@@ -502,12 +605,13 @@ public class ReferenceValueFactoryTest {
 
     @Test
     public void isValidForPersistentEntityWithStringPrimaryKey() {
+        DomainWithStringPrimaryKey value = new DomainWithStringPrimaryKey();
+        value.id = "3";
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(value)).thenReturn(value.id);
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
-        DomainWithStringPrimaryKey value = new DomainWithStringPrimaryKey();
-        value.id = "3";
 
         // Business method
         boolean isValid = testInstance.isValid(value);
@@ -516,37 +620,120 @@ public class ReferenceValueFactoryTest {
         assertThat(isValid).isTrue();
     }
 
+    @Test
+    public void bindPreparedStatement() throws SQLException {
+        DomainWithStringPrimaryKey value = new DomainWithStringPrimaryKey();
+        value.id = "3";
+        when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(this.primaryKeyColumn.getFieldName()).thenReturn("id");
+        when(this.primaryKeyColumn.getDatabaseValue(value)).thenReturn(value.id);
+        ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
+        PreparedStatement preparedStatement = mock(PreparedStatement.class);
+
+        // Business method
+        testInstance.bind(preparedStatement, 1, value);
+
+        // Asserts
+        verify(preparedStatement).setObject(1, value.id);
+    }
+
+    private interface HasRawLongId {
+        long getId();
+    }
+
+    private interface HasRawIntId {
+        int getId();
+    }
+
+    private interface HasLongId {
+        Long getId();
+    }
+
+    private interface HasIntegerId {
+        Integer getId();
+    }
+
+    private interface HasStringId {
+        String getId();
+    }
+
     private class DomainWithMultiValuePrimaryKey {
         private String processId;
         private String deploymentId;
+
+        public String getProcessId() {
+            return processId;
+        }
+
+        public String getDeploymentId() {
+            return deploymentId;
+        }
     }
 
     private class DomainWithUnsupportedPrimaryKey {
         private Reference<Table> id;
+
+        public Reference<Table> getId() {
+            return id;
+        }
     }
 
-    private class DomainWithLongPrimaryKey {
+    private class DomainWithRawLongPrimaryKey implements HasRawLongId {
         private long id;
+
+        @Override
+        public long getId() {
+            return id;
+        }
     }
 
-    private class DomainWithIntegerPrimaryKey {
+    private class DomainWithIntPrimaryKey implements HasRawIntId {
         private int id;
+
+        @Override
+        public int getId() {
+            return id;
+        }
     }
 
-    private class DomainWithStringPrimaryKey {
+    private class DomainWithLongPrimaryKey implements HasLongId {
+        private Long id;
+
+        @Override
+        public Long getId() {
+            return id;
+        }
+    }
+
+    private class DomainWithIntegerPrimaryKey implements HasIntegerId {
+        private Integer id;
+
+        @Override
+        public Integer getId() {
+            return id;
+        }
+    }
+
+    private class DomainWithStringPrimaryKey implements HasStringId {
         private String id;
+
+        @Override
+        public String getId() {
+            return id;
+        }
     }
 
     private ReferenceValueFactory getTestInstance() {
-        return new ReferenceValueFactory(this.ormService);
+        return new ReferenceValueFactory(this.ormService, beanService);
     }
 
     private <T> ReferenceValueFactory<T> getTestInstance(Class<T> domainClass) {
-        return new ReferenceValueFactory<T>(this.ormService).init(domainClass);
+        return new ReferenceValueFactory<T>(this.ormService, beanService).init(domainClass);
     }
 
     private <T> ReferenceValueFactory<T> getTestInstanceWithValidation(Class<T> domainClass) {
-        return new ReferenceValueFactory<T>(this.ormService).initWithValidation(domainClass);
+        return new ReferenceValueFactory<T>(this.ormService, beanService).initWithValidation(domainClass);
     }
 
 }

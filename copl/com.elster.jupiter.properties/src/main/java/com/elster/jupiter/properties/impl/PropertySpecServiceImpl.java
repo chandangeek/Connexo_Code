@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -31,6 +32,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     private volatile TimeService timeService;
     private volatile OrmService ormService;
+    private volatile BeanService beanService;
 
     // For OSGi purposes
     public PropertySpecServiceImpl() {
@@ -39,10 +41,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     // For testing purposes
     @Inject
-    public PropertySpecServiceImpl(TimeService timeService, OrmService ormService) {
+    public PropertySpecServiceImpl(TimeService timeService, OrmService ormService, BeanService beanService) {
         this();
         this.setTimeService(timeService);
         this.setOrmService(ormService);
+        this.setBeanService(beanService);
     }
 
     @Reference
@@ -53,6 +56,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
+    }
+
+    @Reference
+    public void setBeanService(BeanService beanService) {
+        this.beanService = beanService;
     }
 
     @Override
@@ -92,7 +100,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass) {
-        ReferenceValueFactory<T> valueFactory = new ReferenceValueFactory<T>(this.ormService).init(apiClass);
+        ReferenceValueFactory<T> valueFactory = new ReferenceValueFactory<T>(this.ormService, beanService).init(apiClass);
         return this.specForValuesOf(valueFactory);
     }
 
