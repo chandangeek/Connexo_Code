@@ -65,209 +65,210 @@ public class JbpmTaskResource {
             endIndex++;
         }catch (NumberFormatException e){
         }
-        if(emf != null) {
-            EntityManager em = emf.createEntityManager();
-            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        if(deploymentIds != null) {
+            if (emf != null) {
+                EntityManager em = emf.createEntityManager();
+                CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
-            final CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(TaskSummary.class);
-            final Root taskRoot = criteriaQuery.from(TaskImpl.class);
-            if(!filterProperties.isEmpty()){
-                List<Predicate> predicatesUser = new ArrayList<Predicate>();
-                List<Predicate> predicatesDueDate = new ArrayList<Predicate>();
-                List<Predicate> predicatesProcess = new ArrayList<Predicate>();
-                List<Predicate> predicatesStatus = new ArrayList<Predicate>();
-                List<Predicate> predicatesDeploymentId = new ArrayList<Predicate>();
-                Iterator<String> it = filterProperties.keySet().iterator();
-                while(it.hasNext()){
-                    String theKey = (String)it.next();
-                    if(theKey.equals("status")) {
-                        for(int i=0;i<filterProperties.get("status").size();i++) {
-                            if (filterProperties.get("status").get(i).toString().contains("OPEN")) {
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Created));
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Ready));
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Reserved));
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Suspended));
+                final CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(TaskSummary.class);
+                final Root taskRoot = criteriaQuery.from(TaskImpl.class);
+                if (!filterProperties.isEmpty()) {
+                    List<Predicate> predicatesUser = new ArrayList<Predicate>();
+                    List<Predicate> predicatesDueDate = new ArrayList<Predicate>();
+                    List<Predicate> predicatesProcess = new ArrayList<Predicate>();
+                    List<Predicate> predicatesStatus = new ArrayList<Predicate>();
+                    List<Predicate> predicatesDeploymentId = new ArrayList<Predicate>();
+                    Iterator<String> it = filterProperties.keySet().iterator();
+                    while (it.hasNext()) {
+                        String theKey = (String) it.next();
+                        if (theKey.equals("status")) {
+                            for (int i = 0; i < filterProperties.get("status").size(); i++) {
+                                if (filterProperties.get("status").get(i).toString().contains("OPEN")) {
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Created));
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Ready));
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Reserved));
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Suspended));
+                                }
+                                if (filterProperties.get("status").get(i).toString().contains("INPROGRESS")) {
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.InProgress));
+                                }
+                                if (filterProperties.get("status").get(i).toString().contains("COMPLETED")) {
+                                    predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
+                                }
+                                if (filterProperties.get("status").get(i).toString().contains("FAILED")) {
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Failed));
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Exited));
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Obsolete));
+                                }
                             }
-                            if (filterProperties.get("status").get(i).toString().contains("INPROGRESS")) {
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.InProgress));
+                        }
+                        if (theKey.equals("user")) {
+                            for (int i = 0; i < filterProperties.get("user").size(); i++) {
+                                if (filterProperties.get("user").get(i).toString().replace("\"", "").equals("Unassigned")) {
+                                    predicatesUser.add(criteriaBuilder.and(taskRoot.get("taskData").get("actualOwner").isNull()));
+                                } else {
+                                    predicatesUser.add(criteriaBuilder.equal(taskRoot.get("taskData").get("actualOwner").get("id"), filterProperties.get("user").get(i).toString().replace("\"", "")));
+                                }
                             }
-                            if (filterProperties.get("status").get(i).toString().contains("COMPLETED")) {
-                                predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
+                        }
+                        if (theKey.equals("dueDate")) {
+                            for (int i = 0; i < filterProperties.get("dueDate").size(); i++) {
+                                if (filterProperties.get("dueDate").get(i).toString().replace("\"", "").equals("OVERDUE")) {
+                                    Calendar cal = Calendar.getInstance();
+                                    cal.add(Calendar.DATE, -1);
+                                    cal.set(Calendar.HOUR, 11);
+                                    cal.set(Calendar.MINUTE, 59);
+                                    cal.set(Calendar.SECOND, 59);
+                                    cal.set(Calendar.AM_PM, Calendar.PM);
+                                    predicatesDueDate.add(criteriaBuilder.lessThanOrEqualTo(taskRoot.<Date>get("taskData").get("expirationTime"), cal.getTime()));
+                                }
+                                if (filterProperties.get("dueDate").get(i).toString().replace("\"", "").equals("TODAY")) {
+                                    Calendar cal = Calendar.getInstance();
+                                    cal.add(Calendar.DATE, -1);
+                                    cal.set(Calendar.HOUR, 11);
+                                    cal.set(Calendar.MINUTE, 59);
+                                    cal.set(Calendar.SECOND, 59);
+                                    cal.set(Calendar.AM_PM, Calendar.PM);
+                                    Calendar cal2 = Calendar.getInstance();
+                                    cal2.add(Calendar.DATE, 0);
+                                    cal2.set(Calendar.HOUR, 11);
+                                    cal2.set(Calendar.MINUTE, 59);
+                                    cal2.set(Calendar.SECOND, 59);
+                                    cal2.set(Calendar.AM_PM, Calendar.PM);
+                                    predicatesDueDate.add(criteriaBuilder.between(taskRoot.<Date>get("taskData").get("expirationTime"), cal.getTime(), cal2.getTime()));
+                                }
+                                if (filterProperties.get("dueDate").get(i).toString().replace("\"", "").equals("UPCOMING")) {
+                                    Calendar cal = Calendar.getInstance();
+                                    cal.add(Calendar.DATE, 0);
+                                    cal.set(Calendar.HOUR, 11);
+                                    cal.set(Calendar.MINUTE, 59);
+                                    cal.set(Calendar.SECOND, 59);
+                                    cal.set(Calendar.AM_PM, Calendar.PM);
+                                    predicatesDueDate.add(criteriaBuilder.greaterThanOrEqualTo(taskRoot.<Date>get("taskData").get("expirationTime"), cal.getTime()));
+                                }
                             }
-                            if (filterProperties.get("status").get(i).toString().contains("FAILED")) {
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Failed));
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Exited));
-                                predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Obsolete));
+                        }
+                        if (theKey.equals("process")) {
+                            for (int i = 0; i < filterProperties.get("process").size(); i++) {
+                                if (filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(").length > 0) {
+                                    String processId = filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(")[0];
+                                    String deploymentId = filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(")[1].replace(") ", "");
+                                    predicatesProcess.add(criteriaBuilder.equal(taskRoot.get("taskData").get("processId"), processId));
+                                    predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), deploymentId));
+                                }
                             }
                         }
                     }
-                    if(theKey.equals("user")) {
-                        for (int i = 0; i < filterProperties.get("user").size(); i++) {
-                            if(filterProperties.get("user").get(i).toString().replace("\"", "").equals("Unassigned")){
-                                predicatesUser.add(criteriaBuilder.and(taskRoot.get("taskData").get("actualOwner").isNull()));
-                            }else {
-                                predicatesUser.add(criteriaBuilder.equal(taskRoot.get("taskData").get("actualOwner").get("id"), filterProperties.get("user").get(i).toString().replace("\"", "")));
-                            }
-                        }
-                    }
-                    if(theKey.equals("dueDate")) {
-                        for (int i = 0; i < filterProperties.get("dueDate").size(); i++) {
-                            if(filterProperties.get("dueDate").get(i).toString().replace("\"", "").equals("OVERDUE")){
-                                Calendar cal = Calendar.getInstance();
-                                cal.add(Calendar.DATE, -1);
-                                cal.set(Calendar.HOUR, 11);
-                                cal.set(Calendar.MINUTE, 59);
-                                cal.set(Calendar.SECOND, 59);
-                                cal.set(Calendar.AM_PM, Calendar.PM);
-                                predicatesDueDate.add(criteriaBuilder.lessThanOrEqualTo(taskRoot.<Date>get("taskData").get("expirationTime") , cal.getTime()));
-                            }
-                            if(filterProperties.get("dueDate").get(i).toString().replace("\"", "").equals("TODAY")){
-                                Calendar cal = Calendar.getInstance();
-                                cal.add(Calendar.DATE, -1);
-                                cal.set(Calendar.HOUR, 11);
-                                cal.set(Calendar.MINUTE, 59);
-                                cal.set(Calendar.SECOND, 59);
-                                cal.set(Calendar.AM_PM, Calendar.PM);
-                                Calendar cal2 = Calendar.getInstance();
-                                cal2.add(Calendar.DATE, 0);
-                                cal2.set(Calendar.HOUR, 11);
-                                cal2.set(Calendar.MINUTE, 59);
-                                cal2.set(Calendar.SECOND, 59);
-                                cal2.set(Calendar.AM_PM, Calendar.PM);
-                                predicatesDueDate.add(criteriaBuilder.between(taskRoot.<Date>get("taskData").get("expirationTime"), cal.getTime(), cal2.getTime()));
-                            }
-                            if(filterProperties.get("dueDate").get(i).toString().replace("\"", "").equals("UPCOMING")){
-                                Calendar cal = Calendar.getInstance();
-                                cal.add(Calendar.DATE, 0);
-                                cal.set(Calendar.HOUR, 11);
-                                cal.set(Calendar.MINUTE, 59);
-                                cal.set(Calendar.SECOND, 59);
-                                cal.set(Calendar.AM_PM, Calendar.PM);
-                                predicatesDueDate.add(criteriaBuilder.greaterThanOrEqualTo(taskRoot.<Date>get("taskData").get("expirationTime"), cal.getTime()));
-                            }
-                        }
-                    }
-                    if(theKey.equals("process")) {
-                        for (int i = 0; i < filterProperties.get("process").size(); i++) {
-                            if(filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(").length > 0) {
-                                String processId = filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(")[0];
-                                String deploymentId = filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(")[1].replace(") ", "");
-                                predicatesProcess.add(criteriaBuilder.equal(taskRoot.get("taskData").get("processId"), processId));
-                                predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), deploymentId));
-                            }
-                        }
-                    }
-                }
 
-                List<Predicate> predicateList = new ArrayList<Predicate>();
-                Predicate p1 = criteriaBuilder.disjunction();
-                if(!predicatesStatus.isEmpty()) {
+                    List<Predicate> predicateList = new ArrayList<Predicate>();
+                    Predicate p1 = criteriaBuilder.disjunction();
+                    if (!predicatesStatus.isEmpty()) {
+                        p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
+                        predicateList.add(p1);
+                    }
+
+                    Predicate p2 = criteriaBuilder.disjunction();
+                    if (!predicatesUser.isEmpty()) {
+                        p2 = criteriaBuilder.or(predicatesUser.toArray(new Predicate[predicatesUser.size()]));
+                        predicateList.add(p2);
+                    }
+
+                    Predicate p3 = criteriaBuilder.disjunction();
+                    if (!predicatesDueDate.isEmpty()) {
+                        p3 = criteriaBuilder.or(predicatesDueDate.toArray(new Predicate[predicatesDueDate.size()]));
+                        predicateList.add(p3);
+                    }
+
+                    Predicate p4 = criteriaBuilder.disjunction();
+                    if (!predicatesProcess.isEmpty()) {
+                        p4 = criteriaBuilder.or(predicatesProcess.toArray(new Predicate[predicatesProcess.size()]));
+                        predicateList.add(p4);
+
+                    }
+                    Predicate p5 = criteriaBuilder.disjunction();
+                    if (!predicatesDeploymentId.isEmpty()) {
+                        p5 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
+                        predicateList.add(p5);
+                    }
+                    criteriaQuery.where(criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()])));
+                } else {
+                    List<Predicate> predicateList = new ArrayList<Predicate>();
+                    List<Predicate> predicatesStatus = new ArrayList<>();
+                    List<Predicate> predicatesDeploymentId = new ArrayList<>();
+                    for (String each : deploymentIds) {
+                        predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), each));
+                    }
+                    predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
+                    predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Exited));
+                    Predicate p1 = criteriaBuilder.disjunction();
+                    if (!predicatesDeploymentId.isEmpty()) {
+                        p1 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
+                        predicateList.add(p1);
+                    }
                     p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
                     predicateList.add(p1);
+                    criteriaQuery.where(criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()])));
                 }
+                criteriaQuery.select(criteriaBuilder.construct(TaskSummary.class,
+                        taskRoot.get("id"),
+                        taskRoot.get("name"),
+                        taskRoot.get("taskData").get("processId"),
+                        taskRoot.get("taskData").get("deploymentId"),
+                        taskRoot.get("taskData").get("expirationTime"),
+                        taskRoot.get("taskData").get("createdOn"),
+                        taskRoot.get("priority"),
+                        taskRoot.get("taskData").get("status"),
+                        taskRoot.get("taskData").get("actualOwner").get("id"),
+                        taskRoot.get("taskData").get("processInstanceId")
+                ));
 
-                Predicate p2 = criteriaBuilder.disjunction();
-                if(!predicatesUser.isEmpty()) {
-                    p2 = criteriaBuilder.or(predicatesUser.toArray(new Predicate[predicatesUser.size()]));
-                    predicateList.add(p2);
-                }
-
-                Predicate p3 = criteriaBuilder.disjunction();
-                if(!predicatesDueDate.isEmpty()) {
-                    p3 = criteriaBuilder.or(predicatesDueDate.toArray(new Predicate[predicatesDueDate.size()]));
-                    predicateList.add(p3);
-                }
-
-                Predicate p4 = criteriaBuilder.disjunction();
-                if(!predicatesProcess.isEmpty()) {
-                    p4 = criteriaBuilder.or(predicatesProcess.toArray(new Predicate[predicatesProcess.size()]));
-                    predicateList.add(p4);
-
-                }
-                Predicate p5 = criteriaBuilder.disjunction();
-                if(!predicatesDeploymentId.isEmpty()) {
-                    p5 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
-                    predicateList.add(p5);
-                }
-                criteriaQuery.where(criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()])));
-            }else{
-                List<Predicate> predicateList = new ArrayList<Predicate>();
-                List<Predicate> predicatesStatus = new ArrayList<>();
-                List<Predicate> predicatesDeploymentId = new ArrayList<>();
-                if(deploymentIds != null){
-                    for(String each : deploymentIds)
-                        predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), each));
-                }
-                predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
-                predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Exited));
-                Predicate p1 = criteriaBuilder.disjunction();
-                if(!predicatesDeploymentId.isEmpty()){
-                    p1 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
-                    predicateList.add(p1);
-                }
-                p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
-                predicateList.add(p1);
-                criteriaQuery.where(criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()])));
-            }
-            criteriaQuery.select(criteriaBuilder.construct(TaskSummary.class,
-                    taskRoot.get("id"),
-                    taskRoot.get("name"),
-                    taskRoot.get("taskData").get("processId"),
-                    taskRoot.get("taskData").get("deploymentId"),
-                    taskRoot.get("taskData").get("expirationTime"),
-                    taskRoot.get("taskData").get("createdOn"),
-                    taskRoot.get("priority"),
-                    taskRoot.get("taskData").get("status"),
-                    taskRoot.get("taskData").get("actualOwner").get("id"),
-                    taskRoot.get("taskData").get("processInstanceId")
-            ));
-
-            if(!sortProperties.isEmpty()) {
-                List<Order> orders = new ArrayList<Order>();
-                Iterator<String> it = sortProperties.keySet().iterator();
-                while (it.hasNext()) {
-                    String theKey = (String) it.next();
-                    if (theKey.equals("dueDate")) {
-                        if (sortProperties.get("dueDate").toString().replace("\"", "").equals("asc")) {
-                            orders.add(criteriaBuilder.asc(taskRoot.get("taskData").get("expirationTime")));
-                        } else {
-                            orders.add(criteriaBuilder.desc(taskRoot.get("taskData").get("expirationTime")));
+                if (!sortProperties.isEmpty()) {
+                    List<Order> orders = new ArrayList<Order>();
+                    Iterator<String> it = sortProperties.keySet().iterator();
+                    while (it.hasNext()) {
+                        String theKey = (String) it.next();
+                        if (theKey.equals("dueDate")) {
+                            if (sortProperties.get("dueDate").toString().replace("\"", "").equals("asc")) {
+                                orders.add(criteriaBuilder.asc(taskRoot.get("taskData").get("expirationTime")));
+                            } else {
+                                orders.add(criteriaBuilder.desc(taskRoot.get("taskData").get("expirationTime")));
+                            }
+                        }
+                        if (theKey.equals("creationDate")) {
+                            if (sortProperties.get("creationDate").toString().replace("\"", "").equals("asc")) {
+                                orders.add(criteriaBuilder.asc(taskRoot.get("taskData").get("createdOn")));
+                            } else {
+                                orders.add(criteriaBuilder.desc(taskRoot.get("taskData").get("createdOn")));
+                            }
+                        }
+                        if (theKey.equals("priority")) {
+                            if (sortProperties.get("priority").toString().replace("\"", "").equals("asc")) {
+                                orders.add(criteriaBuilder.desc(taskRoot.get("priority")));
+                            } else {
+                                orders.add(criteriaBuilder.asc(taskRoot.get("priority")));
+                            }
                         }
                     }
-                    if (theKey.equals("creationDate")) {
-                        if (sortProperties.get("creationDate").toString().replace("\"", "").equals("asc")) {
-                            orders.add(criteriaBuilder.asc(taskRoot.get("taskData").get("createdOn")));
-                        } else {
-                            orders.add(criteriaBuilder.desc(taskRoot.get("taskData").get("createdOn")));
-                        }
-                    }
-                    if (theKey.equals("priority")) {
-                        if (sortProperties.get("priority").toString().replace("\"", "").equals("asc")) {
-                            orders.add(criteriaBuilder.desc(taskRoot.get("priority")));
-                        } else {
-                            orders.add(criteriaBuilder.asc(taskRoot.get("priority")));
-                        }
-                    }
+                    criteriaQuery.orderBy(orders);
+                } else {
+                    criteriaQuery.orderBy(criteriaBuilder.asc(taskRoot.get("name")));
                 }
-                criteriaQuery.orderBy(orders);
-            }else{
-                criteriaQuery.orderBy(criteriaBuilder.asc(taskRoot.get("name")));
+
+                final TypedQuery query = em.createQuery(criteriaQuery);
+
+                query.setFirstResult(startIndex);
+                query.setMaxResults(endIndex);
+
+                TaskSummaryList taskSummaryList = new TaskSummaryList(query.getResultList());
+                if (taskSummaryList.getTotal() == endIndex) {
+                    int total = startIndex + endIndex;
+                    taskSummaryList.removeLast(total);
+                } else {
+                    int total = startIndex + taskSummaryList.getTotal();
+                    taskSummaryList.setTotal(total);
+                }
+                return taskSummaryList;
             }
-
-            final TypedQuery query = em.createQuery(criteriaQuery);
-
-            query.setFirstResult(startIndex);
-            query.setMaxResults(endIndex);
-
-            TaskSummaryList taskSummaryList = new TaskSummaryList(query.getResultList());
-            if(taskSummaryList.getTotal() == endIndex){
-                int total = startIndex+ endIndex;
-                taskSummaryList.removeLast(total);
-            }else{
-                int total = startIndex + taskSummaryList.getTotal();
-                taskSummaryList.setTotal(total);
-            }
-            return taskSummaryList;
         }
         // TODO throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
         return null;
@@ -425,127 +426,6 @@ public class JbpmTaskResource {
             return processHistoryInfos;
         }
         return null;
-    }
-
-    private List<TaskSummary> getTaskForProceessInstance(long processInstanceId){
-        if(emf != null) {
-            EntityManager em = emf.createEntityManager();
-            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-
-            final CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(TaskSummary.class);
-            final Root taskRoot = criteriaQuery.from(TaskImpl.class);
-
-            criteriaQuery.select(criteriaBuilder.construct(TaskSummary.class,
-                    taskRoot.get("id"),
-                    taskRoot.get("name"),
-                    taskRoot.get("taskData").get("processId"),
-                    taskRoot.get("taskData").get("deploymentId"),
-                    taskRoot.get("taskData").get("expirationTime"),
-                    taskRoot.get("taskData").get("createdOn"),
-                    taskRoot.get("priority"),
-                    taskRoot.get("taskData").get("status"),
-                    taskRoot.get("taskData").get("actualOwner").get("id"),
-                    taskRoot.get("taskData").get("processInstanceId")
-            ));
-            Predicate p1 = criteriaBuilder.equal(taskRoot.get("taskData").get("processInstanceId"), processInstanceId);
-            criteriaQuery.where(criteriaBuilder.and(p1));
-            final TypedQuery query = em.createQuery(criteriaQuery);
-            TaskSummaryList taskSummaryList = new TaskSummaryList(query.getResultList());
-            return taskSummaryList.getTasks();
-        }
-        return null;
-    }
-
-
-    private Map<String, JsonNode> getFilterProperties(String source, String value){
-        LinkedHashMap<String, JsonNode> filterProperties = new LinkedHashMap<String, JsonNode>();
-        try {
-            if (source != null) {
-                JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
-                if (node != null && node.isArray()) {
-                    for (JsonNode singleFilter : node) {
-                        JsonNode property = singleFilter.get(PROPERTY);
-                        if (property != null && property.getTextValue() != null)
-                            filterProperties.put(property.getTextValue(), singleFilter.get(value));
-                    }
-                }
-            }
-        }catch (Exception e){
-
-        }
-        return filterProperties;
-    }
-
-    private String getQueryValue(UriInfo uriInfo,String key){
-        return uriInfo.getQueryParameters().getFirst(key);
-    }
-
-    private String addFilterToQuery(Map<String, JsonNode> filterProperties){
-        String process = "";
-        String startedOnFrom = "";
-        String startedOnTo = "";
-        String status = "";
-        String startedBy = "";
-        String order = " order by p.START_DATE";
-        String filter = "";
-        Iterator<String> it = filterProperties.keySet().iterator();
-        while(it.hasNext()) {
-            String theKey = (String) it.next();
-            if (theKey.equals("process")) {
-                for(int i=0;i<filterProperties.get("process").size();i++) {
-                    if(process.equals("")) {
-                        process += "p.PROCESSID = " + filterProperties.get("process").get(i).toString().replace("\"","'");
-                    }else{
-                        process += " OR p.PROCESSID = " + filterProperties.get("process").get(i).toString().replace("\"", "'");;
-                    }
-                }
-            }
-            if (theKey.equals("status")) {
-                for(int i=0;i<filterProperties.get("status").size();i++) {
-                    if(status.equals("")) {
-                        status += "p.STATUS = " + filterProperties.get("status").get(i).toString().replace("\"","'");
-                    }else{
-                        status += " OR p.STATUS = " + filterProperties.get("status").get(i).toString().replace("\"", "'");;
-                    }
-                }
-            }
-            if (theKey.equals("user")) {
-                for(int i=0;i<filterProperties.get("user").size();i++) {
-                    if(startedBy.equals("")) {
-                        startedBy += "p.USER_IDENTITY = " + filterProperties.get("user").get(i).toString().replace("\"","'");
-                    }else{
-                        startedBy += " OR p.USER_IDENTITY = " + filterProperties.get("user").get(i).toString().replace("\"", "'");;
-                    }
-                }
-            }
-            if (theKey.equals("startedOnFrom")) {
-                startedOnFrom = "AND (p.START_DATE > FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnFrom").toString() +"/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
-            }
-            if (theKey.equals("startedOnTo")) {
-                startedOnTo = "AND (p.START_DATE < FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnTo").toString() +"/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
-            }
-        }
-
-
-        if(!process.equals("")){
-            filter += "AND ( " + process + ")";
-        }
-        if(!status.equals("")){
-            filter += "AND ( " + status + ")";
-        }else{
-            filter += "AND(p.STATUS = 2 OR p.STATUS = 3 )";
-        }
-        if(!startedBy.equals("")){
-            filter += "AND ( " + startedBy + ")";
-        }
-        if(!startedOnFrom.equals("")){
-            filter += startedOnFrom;
-        }
-        if(!startedOnTo.equals("")){
-            filter += startedOnTo;
-        }
-        filter += order;
-        return filter;
     }
 
     @GET
@@ -809,7 +689,7 @@ public class JbpmTaskResource {
 
     private Object[] getAuditTask(long taskid){
         EntityManager em = emf.createEntityManager();
-        String queryString = "Select TASKID , ACTUALOWNER, PROCESSID, CREATEDON, STATUS from AUDITTASKIMPL where TASKID = :taskId";
+        String queryString = "Select TASKID , ACTUALOWNER, PROCESSID, CREATEDON, STATUS, NAME from AUDITTASKIMPL where TASKID = :taskId";
         Query query = em.createNativeQuery(queryString);
         query.setParameter("taskId", taskid);
         List<Object[]> list = query.getResultList();
@@ -826,4 +706,127 @@ public class JbpmTaskResource {
     private void setPriority(int priority, long taskId){
         internalTaskService.setPriority(taskId, priority);
     }
+
+    private List<TaskSummary> getTaskForProceessInstance(long processInstanceId){
+        if(emf != null) {
+            EntityManager em = emf.createEntityManager();
+            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+
+            final CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(TaskSummary.class);
+            final Root taskRoot = criteriaQuery.from(TaskImpl.class);
+
+            criteriaQuery.select(criteriaBuilder.construct(TaskSummary.class,
+                    taskRoot.get("id"),
+                    taskRoot.get("name"),
+                    taskRoot.get("taskData").get("processId"),
+                    taskRoot.get("taskData").get("deploymentId"),
+                    taskRoot.get("taskData").get("expirationTime"),
+                    taskRoot.get("taskData").get("createdOn"),
+                    taskRoot.get("priority"),
+                    taskRoot.get("taskData").get("status"),
+                    taskRoot.get("taskData").get("actualOwner").get("id"),
+                    taskRoot.get("taskData").get("processInstanceId")
+            ));
+            Predicate p1 = criteriaBuilder.equal(taskRoot.get("taskData").get("processInstanceId"), processInstanceId);
+            criteriaQuery.where(criteriaBuilder.and(p1));
+            final TypedQuery query = em.createQuery(criteriaQuery);
+            TaskSummaryList taskSummaryList = new TaskSummaryList(query.getResultList());
+            return taskSummaryList.getTasks();
+        }
+        return null;
+    }
+
+
+    private Map<String, JsonNode> getFilterProperties(String source, String value){
+        LinkedHashMap<String, JsonNode> filterProperties = new LinkedHashMap<String, JsonNode>();
+        try {
+            if (source != null) {
+                JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
+                if (node != null && node.isArray()) {
+                    for (JsonNode singleFilter : node) {
+                        JsonNode property = singleFilter.get(PROPERTY);
+                        if (property != null && property.getTextValue() != null)
+                            filterProperties.put(property.getTextValue(), singleFilter.get(value));
+                    }
+                }
+            }
+        }catch (Exception e){
+
+        }
+        return filterProperties;
+    }
+
+    private String getQueryValue(UriInfo uriInfo,String key){
+        return uriInfo.getQueryParameters().getFirst(key);
+    }
+
+    private String addFilterToQuery(Map<String, JsonNode> filterProperties){
+        String process = "";
+        String startedOnFrom = "";
+        String startedOnTo = "";
+        String status = "";
+        String startedBy = "";
+        String order = " order by p.START_DATE";
+        String filter = "";
+        Iterator<String> it = filterProperties.keySet().iterator();
+        while(it.hasNext()) {
+            String theKey = (String) it.next();
+            if (theKey.equals("process")) {
+                for(int i=0;i<filterProperties.get("process").size();i++) {
+                    if(process.equals("")) {
+                        process += "p.PROCESSID = " + filterProperties.get("process").get(i).toString().replace("\"","'");
+                    }else{
+                        process += " OR p.PROCESSID = " + filterProperties.get("process").get(i).toString().replace("\"", "'");;
+                    }
+                }
+            }
+            if (theKey.equals("status")) {
+                for(int i=0;i<filterProperties.get("status").size();i++) {
+                    if(status.equals("")) {
+                        status += "p.STATUS = " + filterProperties.get("status").get(i).toString().replace("\"","'");
+                    }else{
+                        status += " OR p.STATUS = " + filterProperties.get("status").get(i).toString().replace("\"", "'");;
+                    }
+                }
+            }
+            if (theKey.equals("user")) {
+                for(int i=0;i<filterProperties.get("user").size();i++) {
+                    if(startedBy.equals("")) {
+                        startedBy += "p.USER_IDENTITY = " + filterProperties.get("user").get(i).toString().replace("\"","'");
+                    }else{
+                        startedBy += " OR p.USER_IDENTITY = " + filterProperties.get("user").get(i).toString().replace("\"", "'");;
+                    }
+                }
+            }
+            if (theKey.equals("startedOnFrom")) {
+                startedOnFrom = "AND (p.START_DATE > FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnFrom").toString() +"/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
+            }
+            if (theKey.equals("startedOnTo")) {
+                startedOnTo = "AND (p.START_DATE < FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnTo").toString() +"/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
+            }
+        }
+
+
+        if(!process.equals("")){
+            filter += "AND ( " + process + ")";
+        }
+        if(!status.equals("")){
+            filter += "AND ( " + status + ")";
+        }else{
+            filter += "AND(p.STATUS = 2 OR p.STATUS = 3 )";
+        }
+        if(!startedBy.equals("")){
+            filter += "AND ( " + startedBy + ")";
+        }
+        if(!startedOnFrom.equals("")){
+            filter += startedOnFrom;
+        }
+        if(!startedOnTo.equals("")){
+            filter += startedOnTo;
+        }
+        filter += order;
+        return filter;
+    }
+
+
 }

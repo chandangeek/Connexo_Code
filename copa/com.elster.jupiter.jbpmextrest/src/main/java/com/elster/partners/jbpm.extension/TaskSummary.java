@@ -69,6 +69,7 @@ public class TaskSummary {
                     }
                 }
             }
+            this.name = obj[5] == null ? "" : (String) obj[5];
         }
 
     }
