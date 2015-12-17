@@ -104,7 +104,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             serverId: id
         });
         me.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
         Uni.util.Common.loadNecessaryStores(storesArr, function () {
             addMenus = widget.query('comServerComPortsAddMenu');
             addMenus && Ext.Array.each(addMenus, function (menu) {
@@ -115,15 +114,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             addComPortPoolsStore.removeAll();
             comServerModel.load(id, {
                 success: function (record) {
-                    comPortsStore.load({
-                        callback: function () {
-                            widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
-                            widget.setLoading(false);
-                            me.getApplication().fireEvent('comServerOverviewLoad', record);
-                            widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
-                        }
-                    })
-
+                    widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
+                    me.getApplication().fireEvent('comServerOverviewLoad', record);
+                    widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
                 }
             });
         }, false);
