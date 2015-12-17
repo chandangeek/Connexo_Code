@@ -80,7 +80,6 @@ public class ConnexoSecurityTokenManager {
                         if (new Date().before(new Date(expirationTime.getTime())) && this.principal != null) {
                             return true;
                         } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT * 1000))) {
-                            //return createToken(signedJWT.getJWTClaimsSet());
                             return updateToken(token);
                         }
                     }
@@ -103,7 +102,10 @@ public class ConnexoSecurityTokenManager {
         ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance();
         restManager.setAuthorization("Bearer " + token);
         this.token = restManager.getConnexoAuthorizationToken();
-        this.tokenUpdated = true;
+        if(this.token != null && !this.token.isEmpty()) {
+            this.tokenUpdated = true;
+            return true;
+        }
 
         return false;
     }
@@ -147,45 +149,6 @@ public class ConnexoSecurityTokenManager {
             e.printStackTrace();
         }
     }
-
-    /*private boolean createToken(ReadOnlyJWTClaimsSet claimsSet) {
-        if(this.principal != null) {
-            long count = (Long) claimsSet.getCustomClaim("cnt");
-
-            try {
-                KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
-                SecureRandom random = new SecureRandom();
-                keyGenerator.initialize(1024, random);
-                KeyPair keyPair = keyGenerator.genKeyPair();
-                RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-                RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-                JWSSigner signer = new RSASSASigner(privateKey);
-
-                String pk =  publicKey.getModulus().toString() + " " +
-                        publicKey.getPublicExponent().toString();
-
-                JWTClaimsSet newClaimsSet = new JWTClaimsSet(claimsSet);
-                newClaimsSet.setIssueTime(new Date());
-                newClaimsSet.setExpirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPTIME * 1000));
-                newClaimsSet.setCustomClaim("cnt", count + 1);
-                newClaimsSet.setCustomClaim("publicKey", pk);
-
-                SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), newClaimsSet);
-
-                signedJWT.sign(signer);
-                this.tokenUpdated = true;
-                this.token = signedJWT.serialize();
-                return true;
-
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (JOSEException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return false;
-    }*/
 
     private RSAKey getRSAKey(String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
         RSAKey rsaKey = null;

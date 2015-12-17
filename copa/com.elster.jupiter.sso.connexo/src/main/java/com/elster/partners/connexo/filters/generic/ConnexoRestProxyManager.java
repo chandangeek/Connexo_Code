@@ -50,8 +50,7 @@ public class ConnexoRestProxyManager {
             httpConnection.setRequestProperty("Authorization", this.authorization);
             httpConnection.setRequestProperty("Accept", "application/json");
             if (httpConnection.getResponseCode() != 204) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + httpConnection.getResponseCode());
+                return null;
             }
 
             return httpConnection.getHeaderField("X-AUTH-TOKEN");
