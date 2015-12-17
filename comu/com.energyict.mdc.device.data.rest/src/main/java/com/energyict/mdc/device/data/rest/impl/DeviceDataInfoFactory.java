@@ -307,7 +307,6 @@ public class DeviceDataInfoFactory {
     }
 
     private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister){
-    public TextRegisterInfo createTextRegisterInfo(TextRegister textRegister) {
         TextRegisterInfo textRegisterInfo = new TextRegisterInfo();
         addCommonRegisterInfo(textRegister, textRegisterInfo);
         return textRegisterInfo;
@@ -316,7 +315,7 @@ public class DeviceDataInfoFactory {
     public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister) {
         NumericalRegisterInfo numericalRegisterInfo = new NumericalRegisterInfo();
         addCommonRegisterInfo(numericalRegister, numericalRegisterInfo);
-        NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)numericalRegister.getRegisterSpec();
+        NumericalRegisterSpec registerSpec = numericalRegister.getRegisterSpec();
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         numericalRegisterInfo.overflow = registerSpec.getOverflowValue();
         numericalRegister.getCalculatedReadingType().ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
