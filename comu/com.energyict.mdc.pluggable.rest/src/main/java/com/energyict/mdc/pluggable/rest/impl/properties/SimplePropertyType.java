@@ -14,6 +14,7 @@ import com.energyict.mdc.common.ean.Ean18;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -22,7 +23,6 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
 
@@ -41,7 +41,7 @@ public enum SimplePropertyType implements PropertyType {
     BOOLEAN(Boolean.class),
     TIMEDURATION(TimeDuration.class),
     TIMEOFDAY(TimeOfDay.class),
-    CLOCK(Clock.class),
+    CLOCK(DateAndTimeFactory.class),
     CODETABLE(Code.class, true),
     TIMEZONEINUSE(TimeZoneInUse.class, true),
     USERFILEREFERENCE(UserFile.class, true),
