@@ -1,10 +1,9 @@
 package com.energyict.mdc.firmware;
 
-import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
-public interface FirmwareVersion extends HasId, BaseFirmwareVersion {
+public interface FirmwareVersion extends BaseFirmwareVersion {
 
     FirmwareType getFirmwareType();
 

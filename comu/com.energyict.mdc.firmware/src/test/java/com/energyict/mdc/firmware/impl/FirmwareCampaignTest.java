@@ -16,6 +16,7 @@ import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -87,7 +88,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
-        firmwareCampaign.addProperty("FirmwareDeviceMessage.upgrade.firwareversion", "1");
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, "1");
         Save.UPDATE.validate(firmwareService.getDataModel(), firmwareCampaign);
         //assert mo errors
     }
@@ -144,7 +145,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
-        firmwareCampaign.addProperty("FirmwareDeviceMessage.upgrade.firwareversion", "1");
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, "1");
         Save.CREATE.validate(firmwareService.getDataModel(), firmwareCampaign);
         // assert no errors
     }
@@ -169,7 +170,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
-        firmwareCampaign.addProperty("FirmwareDeviceMessage.upgrade.firwareversion", "1");
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, "1");
         doReturn(Optional.of(firmwareCampaign)).when(inMemoryPersistence.getFirmwareService()).getFirmwareCampaignById(1L);
         MeteringGroupsService meteringGroupsService = mock(MeteringGroupsService.class);
         when(meteringGroupsService.findEndDeviceGroup(1L)).thenReturn(Optional.of(deviceGroup));
@@ -214,7 +215,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
-        firmwareCampaign.addProperty("FirmwareDeviceMessage.upgrade.firwareversion", "1");
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, "1");
         doReturn(Optional.of(firmwareCampaign)).when(inMemoryPersistence.getFirmwareService()).getFirmwareCampaignById(1L);
         MeteringGroupsService meteringGroupsService = mock(MeteringGroupsService.class);
         when(meteringGroupsService.findEndDeviceGroup(1L)).thenReturn(Optional.of(deviceGroup));
