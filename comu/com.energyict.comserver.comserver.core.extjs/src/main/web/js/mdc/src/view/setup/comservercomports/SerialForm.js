@@ -163,7 +163,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     name: 'parity',
                     itemId: 'parity',
                     store: 'Mdc.store.Parities',
-                    valueField: 'parity',
+                    valueField: 'id',
+                    queryMode: 'local',
                     displayField: 'localizedValue',
                     emptyText: Uni.I18n.translate('comServerComPorts.form.parity', 'MDC', 'Parity')
                 },
@@ -176,7 +177,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     validateOnBlur : false,
                     name: 'flowControl',
                     itemId: 'flowControl',
-                    valueField: 'flowControl',
+                    valueField: 'id',
+                    queryMode: 'local',
                     displayField: 'localizedValue',
                     store: 'Mdc.store.FlowControls',
                     emptyText: Uni.I18n.translate('comServerComPorts.form.flowControl', 'MDC', 'Flow control')

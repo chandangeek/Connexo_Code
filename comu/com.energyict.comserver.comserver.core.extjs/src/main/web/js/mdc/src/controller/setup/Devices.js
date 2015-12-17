@@ -236,6 +236,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 transitionsStore.load({
                     callback: function () {
                         me.getDeviceActionsMenu().setActions(this, router);
+                        me.getDeviceActionsMenu().setProcessMenu(mRID, router);
                     }
                 });
 

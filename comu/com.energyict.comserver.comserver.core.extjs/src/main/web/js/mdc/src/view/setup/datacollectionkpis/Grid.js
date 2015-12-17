@@ -68,6 +68,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                privileges: Mdc.privileges.DataCollectionKpi.admin,
                 menu: {
                     xtype: 'dataCollectionKpisActionMenu',
                     itemId: 'dataCollectionKpisGridActionMenu'
@@ -88,6 +89,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
                     {
                         xtype: 'button',
                         itemId: 'btn-data-collection-kpi',
+                        privileges: Mdc.privileges.DataCollectionKpi.admin,
                         text: Uni.I18n.translate('datacollectionkpis.add', 'MDC', 'Add data collection KPI'),
                         action: 'addDataCollectionKpi'
                     }

@@ -1,7 +1,7 @@
 Ext.define('Mdc.store.LogLevels',{
     extend: 'Ext.data.Store',
     autoLoad: false,
-    fields: ['logLevel'],
+    fields: ['logLevel', 'localizedValue'],
     storeId: 'loglevels',
 
     proxy: {

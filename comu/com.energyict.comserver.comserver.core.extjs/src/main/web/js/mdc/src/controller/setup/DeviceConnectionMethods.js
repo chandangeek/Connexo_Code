@@ -223,12 +223,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
                 me.getApplication().fireEvent('loadDevice', device);
-                connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
-                connectionMethodsStore.getProxy().setExtraParam('available', true);
-                connectionMethodsStore.getProxy().setExtraParam('mrId', encodeURIComponent(mrid));
+                connectionMethodsStore.getProxy().setUrl(device.get('deviceTypeId'),device.get('deviceConfigurationId'));
                 connectionMethodsStore.clearFilter(true);
                 connectionMethodsStore.filter('direction', direction);
                 connectionMethodsStore.load({
+                    params:{
+                        available: true,
+                        mrId: mrid
+                    },
                     callback: function () {
                         connectionStrategiesStore.load({
                             callback: function () {
@@ -413,7 +415,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield').clearInvalid();
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutcombobox').clearInvalid();
         }
-        record.getProxy().extraParams = ({mrid: me.mrid});
+        record.getProxy().extraParams = ({mrid: encodeURIComponent(me.mrid)});
         record.save({
             backUrl: backUrl,
             success: function (record) {
@@ -528,7 +530,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(true);
-                        connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
+                        connectionMethodsStore.getProxy().setUrl(device.get('deviceTypeId'),device.get('deviceConfigurationId'));
                         connectionMethodsStore.clearFilter(true);
                         connectionMethodsStore.filter('direction', connectionMethod.get('direction'));
                         connectionMethodsStore.load({

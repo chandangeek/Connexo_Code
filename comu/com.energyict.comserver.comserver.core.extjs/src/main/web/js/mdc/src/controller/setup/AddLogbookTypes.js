@@ -54,20 +54,6 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                     router.getRoute('administration/devicetypes/view/logbooktypes').forward();
                     self.getApplication().fireEvent('acknowledge', 'Logbook type(s) added');
                 },
-                failure: function (response) {
-                    if (response.status == 400) {
-                        var result = Ext.decode(response.responseText, true),
-                            errorTitle = 'Failed to add',
-                            errorText = 'Logbook types could not be added. There was a problem accessing the database';
-
-                        if (result !== null) {
-                            errorTitle = result.error;
-                            errorText = result.message;
-                        }
-
-                        self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
-                    }
-                },
                 callback: function () {
                     preloader.destroy();
                 }

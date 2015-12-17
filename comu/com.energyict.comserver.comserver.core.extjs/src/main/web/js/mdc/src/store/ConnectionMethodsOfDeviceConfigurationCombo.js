@@ -8,6 +8,7 @@ Ext.define('Mdc.store.ConnectionMethodsOfDeviceConfigurationCombo', {
     storeId: 'ConnectionMethodsOfDeviceConfigurationCombo',
     proxy: {
         type: 'rest',
+        urlTpl: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods',
         url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods',
         pageParam: false,
         limitParam: false,
@@ -15,6 +16,10 @@ Ext.define('Mdc.store.ConnectionMethodsOfDeviceConfigurationCombo', {
         reader: {
             type: 'json',
             root: 'data'
+        },
+
+        setUrl: function(deviceType, deviceConfig) {
+          this.url = this.urlTpl.replace('{deviceType}', deviceType).replace('{deviceConfig}', deviceConfig);
         }
     }
 });

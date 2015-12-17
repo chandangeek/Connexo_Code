@@ -12,21 +12,24 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
 
     deviceTypeId: null,
 
-    content: [
-        {
+    content: {
             xtype: 'panel',
             ui: 'large',
             itemId: 'addRegisterTypePanel',
             title: Uni.I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
+            layout: {
+                type: 'vbox',
+                align: 'left'
+            },
             items: [
                 {
                     itemId: 'add-register-type-errors',
                     xtype: 'uni-form-error-message',
-                    hidden: true,
-                    width: 380
+                    hidden: true
                 },
                 {
                     xtype: 'preview-container',
+                    width: '100%',
                     selectByDefault: false,
                     grid: {
                         xtype: 'registerMappingAddGrid',
@@ -40,7 +43,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                             Uni.I18n.translate('registermappings.empty.list.item2', 'MDC', 'All register types are already added to the device type.')
                         ]
                     }
-
                 },
                 {
                     xtype: 'container',
@@ -49,53 +51,39 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                     html: '<span style="color: #eb5642">' + Uni.I18n.translate('registertypes.no.registertypes.selected', 'MDC', 'Select at least 1 register type') + '</span>'
                 },
                 {
-                    xtype: 'form',
-                    border: false,
+                    xtype: 'toolbar',
+                    fieldLabel: '&nbsp',
                     layout: {
-                        type: 'vbox',
+                        type: 'hbox',
                         align: 'stretch'
                     },
                     width: '100%',
-                    defaults: {
-                        labelWidth: 250
-                    },
                     items: [
                         {
-                            xtype: 'toolbar',
-                            fieldLabel: '&nbsp',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
-                            width: '100%',
-                            items: [
-                                {
-                                    text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                                    xtype: 'button',
-                                    action: 'addRegisterMappingAction',
-                                    ui: 'action',
-                                    itemId: 'addButton'
-                                },
-                                {
-                                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                    action: 'cancel',
-                                    xtype: 'button',
-                                    ui: 'link',
-                                    listeners: {
-                                        click: {
-                                            fn: function () {
-                                                window.location.href = '#/administration/devicetypes/' + this.up('registerMappingAdd').deviceTypeId + '/registertypes'
-                                            }
-                                        }
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            xtype: 'button',
+                            action: 'addRegisterMappingAction',
+                            ui: 'action',
+                            itemId: 'addButton'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            action: 'cancel',
+                            xtype: 'button',
+                            itemId: 'cancelButton',
+                            ui: 'link',
+                            listeners: {
+                                click: {
+                                    fn: function () {
+                                        window.location.href = '#/administration/devicetypes/' + this.up('registerMappingAdd').deviceTypeId + '/registertypes'
                                     }
                                 }
-                            ]
+                            }
                         }
                     ]
                 }
             ]
-        }
-    ],
+    },
 
     side: [
 

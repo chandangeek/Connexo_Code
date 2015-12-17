@@ -109,17 +109,22 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/add';
     },
 
-    previewRegisterConfig: function (grid, record) {
-        var me = this,
-            registerConfigs = this.getRegisterConfigGrid().getSelectionModel().getSelection();
+    previewRegisterConfig: function (selectionModel, selectedRegisterConfigs) {
+        var me = this;
 
-        if (registerConfigs.length === 1) {
-            var registerConfig = registerConfigs[0];
+        if (selectedRegisterConfigs.length === 1) {
+            var registerConfig = selectedRegisterConfigs[0];
 
-            me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+            if (me.getRegisterConfigPreview().rendered) {
+                me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+            } else {
+                me.getRegisterConfigPreview().on('afterrender', function() {
+                    me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+                }, me, {single:true});
+            }
 
             me.getRegisterConfigValidationRulesStore().getProxy().extraParams =
-                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: registerConfigs[0].getId()});
+                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: selectedRegisterConfigs[0].getId()});
 
             me.getRulesForRegisterConfigGrid().down('pagingtoolbartop').totalCount = -1;
             if (registerConfig.get('asText')) {
@@ -157,7 +162,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getRegisterConfigGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -241,33 +245,37 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         baseForm.clearInvalid();
         warningMsg.hide();
         Ext.resumeLayouts(true);
-        if (record) {
-            record.set(values);
-            if (newObisCode === originalObisCode) {
-                record.overruledObisCode = null;
-            }
-            record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
-            form.setLoading();
-            record.save({
-                success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.added', 'MDC', 'Register configuration added'));
-                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText, true);
-
-                    if (json && !Ext.isEmpty(json.errors)) {
-                        Ext.suspendLayouts();
-                        warningMsg.show();
-                        baseForm.markInvalid(json.errors);
-                        Ext.resumeLayouts(true);
-                    }
-                },
-                callback: function () {
-                    form.setLoading(false);
+        if (baseForm.isValid()) {
+            if (record) {
+                record.set(values);
+                if (newObisCode === originalObisCode) {
+                    record.overruledObisCode = null;
                 }
-            });
+                record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
+                form.setLoading();
+                record.save({
+                    success: function () {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.added', 'MDC', 'Register configuration added'));
+                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
+                    },
+                    failure: function (record, operation) {
+                        var json = Ext.decode(operation.response.responseText, true);
 
+                        if (json && !Ext.isEmpty(json.errors)) {
+                            Ext.suspendLayouts();
+                            warningMsg.show();
+                            baseForm.markInvalid(json.errors);
+                            Ext.resumeLayouts(true);
+                        }
+                    },
+                    callback: function () {
+                        form.setLoading(false);
+                    }
+                });
+
+            }
+        } else {
+            warningMsg.show();
         }
     },
 
@@ -365,38 +373,46 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     },
 
     editRegisterConfiguration: function () {
-        var record = this.getRegisterConfigEditForm().getRecord(),
-            values = this.getRegisterConfigEditForm().getValues(),
-            router = this.getController('Uni.controller.history.Router');
+        var me = this,
+            view = me.getRegisterConfigEditForm(),
+            record = view.getRecord(),
+            values = view.getValues(),
+            baseForm = view.getForm(),
+            router = this.getController('Uni.controller.history.Router'),
+            newObisCode = view.down('#editObisCodeField').getValue(),
+            originalObisCode = view.down('#editOverruledObisCodeField').getValue(),
+            warningMsg = view.down('uni-form-error-message');
 
-        var me = this;
-
-        var view = this.getRegisterConfigEditForm();
-        var newObisCode = view.down('#editObisCodeField').getValue();
-        var originalObisCode = view.down('#editOverruledObisCodeField').getValue();
-
-        if (record) {
-            record.set(values);
-            if (newObisCode === originalObisCode) {
-                record.overruledObisCode = null;
-            }
-            record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
-            record.save({
-                backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').buildUrl(),
-                success: function (record) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.saved', 'MDC', 'Register configuration saved'));
-                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
-                },
-                failure: function (record, operation) {
-                    if (operation.response.status === 400) {
-                        return
-                    }
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        me.getRegisterConfigEditForm().getForm().markInvalid(json.errors);
-                    }
+        Ext.suspendLayouts();
+        baseForm.clearInvalid();
+        warningMsg.hide();
+        Ext.resumeLayouts(true);
+        if (baseForm.isValid()) {
+            if (record) {
+                record.set(values);
+                if (newObisCode === originalObisCode) {
+                    record.overruledObisCode = null;
                 }
-            });
+                record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
+                record.save({
+                    backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').buildUrl(),
+                    success: function (record) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.saved', 'MDC', 'Register configuration saved'));
+                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
+                    },
+                    failure: function (record, operation) {
+                        if (operation.response.status === 400) {
+                            return
+                        }
+                        var json = Ext.decode(operation.response.responseText);
+                        if (json && json.errors) {
+                            baseForm.markInvalid(json.errors);
+                        }
+                    }
+                });
+            }
+        } else {
+            warningMsg.show();
         }
     },
 

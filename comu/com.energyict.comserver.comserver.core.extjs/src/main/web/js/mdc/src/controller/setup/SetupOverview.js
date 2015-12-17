@@ -15,6 +15,11 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'setup.deviceconnectionmethod.DeviceConnectionMethodSetup'
     ],
 
+    stores: [
+        'Mdc.store.LogLevels',
+        'Mdc.store.TimeUnitsWithoutMilliseconds'
+    ],
+
     init: function () {
 
     },
@@ -25,8 +30,22 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     },
 
     showComServers: function () {
-        var widget = Ext.widget('comServersSetup');
-        this.getApplication().fireEvent('changecontentevent', widget);
+        var me = this,
+            widget = Ext.widget('comServersSetup'),
+            logLevelsStore = me.getStore('Mdc.store.LogLevels'),
+            timeUnitsStore = me.getStore('Mdc.store.TimeUnitsWithoutMilliseconds'),
+            counter = 0,
+            callback;
+
+        callback = function() {
+            counter += 1;
+            if (counter === 2) {
+                me.getApplication().fireEvent('changecontentevent', widget);
+            }
+        };
+
+        logLevelsStore.load(callback);
+        timeUnitsStore.load(callback);
     },
     showDeviceCommunicationProtocols: function () {
         var widget = Ext.widget('deviceCommunicationProtocolSetup');

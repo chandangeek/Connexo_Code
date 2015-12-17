@@ -128,11 +128,12 @@ Ext.define('Mdc.controller.Search', {
                 isStateChange = !!(state && state.domain);
             }
 
-
-            if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
-                selector.setValue(value, isStateChange);
-            } else if (selector && !Ext.isEmpty(records)) {
-                selector.setValue(records[0].get('id'), isStateChange);
+            if (!isStateChange) {
+                if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
+                    me.service.setDomain(searchDomains.getById(value));
+                } else if (selector && !Ext.isEmpty(records)) {
+                    me.service.setDomain(records[0]);
+                }
             }
         }});
 
@@ -146,9 +147,9 @@ Ext.define('Mdc.controller.Search', {
             scope: me
         });
 
-        me.service.on('searchResultsBeforeLoad', me.availableClearAll, me);
+        me.service.on('change', me.availableClearAll, me);
         widget.on('destroy', function () {
-            me.service.un('searchResultsBeforeLoad', me.availableClearAll, me);
+            me.service.un('change', me.availableClearAll, me);
         }, me)
     },
 

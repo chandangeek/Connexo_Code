@@ -26,15 +26,14 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
             },
             '#centerContainer': {
                 moveToVersionsPage: this.moveToVersionsPage,
-                exceedstime: this.showExceedsMessage
+                exceedstime: this.showExceedsMessage,
+                gaperror: this.showGapErrorMessage
             }
         });
     },
 
-    showExceedsMessage: function () {
-        var title = Uni.I18n.translate('general.error', 'MDC', 'Error'),
-            message = Uni.I18n.translate('timesliced.customattributtesets.timeexceeds', 'MDC', 'Start time exceeds end time'),
-            box = Ext.create('Ext.window.MessageBox', {
+    showErrorMessage: function(title, message) {
+        var box = Ext.create('Ext.window.MessageBox', {
                 buttons: [
                     {
                         xtype: 'button',
@@ -61,6 +60,18 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
         box.show(config);
     },
+
+    showExceedsMessage: function () {
+        var title = Uni.I18n.translate('general.error', 'MDC', 'Error'),
+            message = Uni.I18n.translate('timesliced.customattributtesets.timeexceeds', 'MDC', 'Start time exceeds end time');
+
+        this.showErrorMessage(title, message);
+    },
+
+    showGapErrorMessage: function(title, message) {
+        this.showErrorMessage(title, message);
+    },
+
     moveToVersionsPage: function (type, isSave, acknowledgement) {
         var route = Mdc.customattributesonvaluesobjects.service.RouteMap.getRoute(type, true, 'version');
         this.navigateToRoute(route, type, null, true);

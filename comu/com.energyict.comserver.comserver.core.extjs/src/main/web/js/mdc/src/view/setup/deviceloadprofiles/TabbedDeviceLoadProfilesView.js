@@ -39,6 +39,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TabbedDeviceLoadProfilesView', {
                                 itemId: 'tabbed-device-loadProfiles-view-previous-next-navigation-toolbar',
                                 store: 'Mdc.store.LoadProfilesOfDevice',
                                 router: me.router,
+                                clearQueryParams: true,
                                 routerIdArgument: 'loadProfileId',
                                 itemsName: '<a href="' + me.router.getRoute('devices/device/loadprofiles').buildUrl() + '">' + Uni.I18n.translate('deviceloadprofiles.loadProfiles', 'MDC', 'Load profiles').toLowerCase() + '</a>'
                             }

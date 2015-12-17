@@ -19,16 +19,19 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                 xtype: 'panel',
                 ui: 'large',
                 itemId: 'addLogbookPanel',
+                layout: {
+                    type: 'vbox',
+                    align: 'left'
+                },
                 items: [
-
                     {
                         itemId: 'add-logbook-type-errors',
                         xtype: 'uni-form-error-message',
-                        hidden: true,
-                        width: 380
+                        hidden: true
                     },
                     {
                         xtype: 'emptygridcontainer',
+                        width: '100%',
                         grid: {
                             xtype: 'add-logbook-types-grid',
                             itemId: 'logbook-type-add-grid'
@@ -61,46 +64,32 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                         html: '<span style="color: #eb5642">' + Uni.I18n.translate('logbooktypes.no.logbooktype.selected', 'MDC', 'Select at least 1 logbook type') + '</span>'
                     },
                     {
-                        xtype: 'form',
-                        border: false,
+                        xtype: 'toolbar',
+                        fieldLabel: '&nbsp',
                         layout: {
-                            type: 'vbox',
+                            type: 'hbox',
                             align: 'stretch'
                         },
                         width: '100%',
-                        defaults: {
-                            labelWidth: 250
-                        },
                         items: [
                             {
-                                xtype: 'toolbar',
-                                fieldLabel: '&nbsp',
-                                layout: {
-                                    type: 'hbox',
-                                    align: 'stretch'
-                                },
-                                width: '100%',
-                                items: [
-                                    {
-                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                                        itemId: 'logbook-type-add-btn',
-                                        xtype: 'button',
-                                        action: 'add',
-                                        ui: 'action'
-                                    },
-                                    {
-                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                        action: 'cancel',
-                                        ui: 'link',
-                                        listeners: {
-                                            click: {
-                                                fn: function () {
-                                                    window.location.href = '#/administration/devicetypes/' + this.up('add-logbook-types').deviceTypeId + '/logbooktypes';
-                                                }
-                                            }
+                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                itemId: 'logbook-type-add-btn',
+                                xtype: 'button',
+                                action: 'add',
+                                ui: 'action'
+                            },
+                            {
+                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                action: 'cancel',
+                                ui: 'link',
+                                listeners: {
+                                    click: {
+                                        fn: function () {
+                                            window.location.href = '#/administration/devicetypes/' + this.up('add-logbook-types').deviceTypeId + '/logbooktypes';
                                         }
                                     }
-                                ]
+                                }
                             }
                         ]
                     }

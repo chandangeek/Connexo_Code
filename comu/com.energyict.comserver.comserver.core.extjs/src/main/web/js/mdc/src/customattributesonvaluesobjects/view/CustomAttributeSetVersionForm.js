@@ -35,14 +35,20 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
         switch (me.pageType) {
             case 'add':
                 saveBtnText = Uni.I18n.translate('general.add', 'MDC', 'Add');
+                me.gapErrorTitle = Uni.I18n.translate('customattributeset.timesliced.add.gap.title', 'MDC', 'Failed to add version');
+                me.gapErrorText = Uni.I18n.translate('customattributeset.timesliced.add.gap.text', 'MDC', 'The version could not be added. There are gaps between versions.');
                 me.successAcknowledgement = Uni.I18n.translate('general.version.added', 'MDC', 'Version added');
                 break;
             case 'edit':
                 saveBtnText = Uni.I18n.translate('general.save', 'MDC', 'Save');
+                me.gapErrorTitle = Uni.I18n.translate('customattributeset.timesliced.edit.gap.title', 'MDC', 'Failed to edit version');
+                me.gapErrorText = Uni.I18n.translate('customattributeset.timesliced.edit.gap.text', 'MDC', 'The version could not be edited. There are gaps between versions.');
                 me.successAcknowledgement = Uni.I18n.translate('general.version.saved', 'MDC', 'Version saved');
                 break;
             case 'clone':
                 saveBtnText = Uni.I18n.translate('general.clone', 'MDC', 'Clone');
+                me.gapErrorTitle = Uni.I18n.translate('customattributeset.timesliced.clone.gap.title', 'MDC', 'Failed to clone version');
+                me.gapErrorText = Uni.I18n.translate('customattributeset.timesliced.clone.gap.text', 'MDC', 'The version could not be cloned. There are gaps between versions.');
                 me.successAcknowledgement = Uni.I18n.translate('general.version.cloned', 'MDC', 'Version cloned');
                 break;
         }
@@ -123,7 +129,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 itemId: 'overlap-grid-field-container',
                 margin: '40 0 0 0',
                 hidden: true,
-                width: 900,
+                width: 950,
                 items: [
                     {
                         xtype: 'custom-attribute-set-versions-overlap-grid',
@@ -177,7 +183,19 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
             startDateField = me.down('#custom-attribute-set-version-start-date-field'),
             endDateField = me.down('#custom-attribute-set-version-end-date-field'),
             startDate = startDateField.getValue(),
-            endDate = endDateField.getValue();
+            endDate = endDateField.getValue(),
+            showOverlap;
+
+        showOverlap = function(scope, startDateField, endDateField, overlapContainer) {
+            Ext.suspendLayouts();
+            overlapContainer.show();
+            startDateField.disableWithText();
+            endDateField.disableWithText();
+            scope.isForcedSave = true;
+            scope.suspendCheckVersion = false;
+            Ext.resumeLayouts(true);
+            scope.checkRecord();
+        };
 
         Ext.suspendLayouts();
         me.setLoading(true);
@@ -208,26 +226,30 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
 
                 me.down('uni-form-error-message').show();
                 if (response.errors && response.errors.length > 0) {
-                    me.isForcedSave = false;
                     Ext.each(response.errors, function (error) {
                         switch (error.id) {
                             case 'startTime':
                                 startDateField.markInvalid(error.msg);
+                                me.isForcedSave = false;
                                 break;
                             case 'endTime':
                                 endDateField.markInvalid(error.msg);
+                                me.isForcedSave = false;
+                                break;
+                            case 'RANGE_GAP_AFTER':
+                            case 'RANGE_GAP_BEFORE':
+                                if (me.isForcedSave) {
+                                    me.fireEvent('gaperror', me.gapErrorTitle, me.gapErrorText);
+                                }
+                                showOverlap(me, startDateField, endDateField, overlapContainer);
+                                break;
+                            case 'RANGE_OVERLAP_UPDATE_END':
+                            case 'RANGE_OVERLAP_UPDATE_START':
+                            case 'RANGE_OVERLAP_DELETE':
+                                showOverlap(me, startDateField, endDateField, overlapContainer);
                                 break;
                         }
                     });
-                } else {
-                    Ext.suspendLayouts();
-                    overlapContainer.show();
-                    startDateField.disableWithText();
-                    endDateField.disableWithText();
-                    me.isForcedSave = true;
-                    me.suspendCheckVersion = false;
-                    Ext.resumeLayouts(true);
-                    me.checkRecord();
                 }
             },
             callback: function () {

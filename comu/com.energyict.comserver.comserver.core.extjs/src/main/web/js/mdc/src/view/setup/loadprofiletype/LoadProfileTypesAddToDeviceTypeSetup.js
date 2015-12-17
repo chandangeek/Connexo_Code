@@ -16,16 +16,17 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
             ui: 'large',
             title: Uni.I18n.translate('loadprofiletype.addloadprofiletypes', 'MDC', 'Add load profile types'),
             itemId: 'addLoadProfileTypePanel',
+            layout: {
+                type: 'vbox',
+                align: 'left'
+            },
             items: [
                 {
                     itemId: 'add-loadprofile-type-errors',
                     xtype: 'uni-form-error-message',
-                    hidden: true,
-                    width: 380
+                    hidden: true
                 }
-
             ]
-
         }
     ],
 
@@ -36,6 +37,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
         me.down('panel').add(
             {
                 xtype: 'emptygridcontainer',
+                width: '100%',
                 grid: {
                     xtype: 'loadProfileTypesAddToDeviceTypeGrid',
                     itemId: 'loadprofile-type-add-grid',
@@ -63,47 +65,33 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
                 html: '<span style="color: #eb5642">' + Uni.I18n.translate('loadProfileTypes.no.loadprofiletypes.selected', 'MDC', 'Select at least 1 load profile type') + '</span>'
             },
             {
-                xtype: 'form',
-                border: false,
+                xtype: 'toolbar',
+                fieldLabel: '&nbsp',
                 layout: {
-                    type: 'vbox',
+                    type: 'hbox',
                     align: 'stretch'
                 },
                 width: '100%',
-                defaults: {
-                    labelWidth: 250
-                },
                 items: [
                     {
-                        xtype: 'toolbar',
-                        fieldLabel: '&nbsp',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        width: '100%',
-                        items: [
-                            {
-                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                                xtype: 'button',
-                                action: 'addLoadProfileTypeAction',
-                                ui: 'action',
-                                itemId: 'addButton'
-                            },
-                            {
-                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                action: 'cancel',
-                                xtype: 'button',
-                                ui: 'link',
-                                listeners: {
-                                    click: {
-                                        fn: function () {
-                                            window.location.href = '#/administration/devicetypes/' + this.up('loadProfileTypesAddToDeviceTypeSetup').deviceTypeId + '/loadprofiles'
-                                        }
-                                    }
+                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                        xtype: 'button',
+                        action: 'addLoadProfileTypeAction',
+                        ui: 'action',
+                        itemId: 'addButton'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                        action: 'cancel',
+                        xtype: 'button',
+                        ui: 'link',
+                        listeners: {
+                            click: {
+                                fn: function () {
+                                    window.location.href = '#/administration/devicetypes/' + this.up('loadProfileTypesAddToDeviceTypeSetup').deviceTypeId + '/loadprofiles'
                                 }
                             }
-                        ]
+                        }
                     }
                 ]
             }

@@ -56,12 +56,18 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
     updateValidationRuleSet: function (validationRuleSet) {
         var me = this,
             grid = me.down('validation-versions-grid'),
-            addButton = me.down('button[action=addValidationVersion]');
-			
+            addButton = me.down('button[action=addValidationVersion]'),
+            href = '#/administration/validation/rulesets/' + validationRuleSet.get('id') + '/versions/add';
+
         me.setTitle(validationRuleSet.get('name'));
-        me.validationRuleSetId = validationRuleSet.get('id');		
-        addButton.setHref('#/administration/validation/rulesets/' + me.validationRuleSetId + '/versions/add');
-    //    grid.updateValidationRuleSetId(me.validationRuleSetId);
+        me.validationRuleSetId = validationRuleSet.get('id');
+        if (addButton.rendered) {
+            addButton.setHref(href);
+        } else {
+            addButton.on('afterrender', function() {
+                addButton.setHref(href);
+            }, me, {single:true});
+        }
 
         grid.store.load({params: {
             ruleSetId: me.validationRuleSetId

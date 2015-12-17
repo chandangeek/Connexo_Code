@@ -144,6 +144,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
             dataViewValidateNowBtn = me.down('#btn-configuration-view-validate-now'),
             ruleSetPanel = me.down('#con-configuration-view-validation-results-browse'),
             ruleSetsGrid = me.down('#rule-set-list'),
+            ruleSetVersionGrid = me.down('#rule-set-version-list'),
+            ruleSetVersionRuleGrid = me.down('#rule-set-version-rule-list'),
             ruleSets;
 
         me.mainView.setLoading(false);
@@ -161,8 +163,13 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
             ruleSets = record.get('detailedRuleSets');
             if (ruleSets && ruleSets.length && ruleSetsGrid) {
                 ruleSetsGrid.bindStore(record.detailedRuleSets());
+                ruleSetsGrid.getSelectionModel().deselectAll();
+                ruleSetVersionGrid.getSelectionModel().deselectAll();
+                ruleSetVersionRuleGrid.getSelectionModel().deselectAll();
                 ruleSetPanel.show();
                 ruleSetsGrid.getSelectionModel().select(0);
+            } else {
+                ruleSetPanel.hide();
             }
             Ext.resumeLayouts(true);
         }

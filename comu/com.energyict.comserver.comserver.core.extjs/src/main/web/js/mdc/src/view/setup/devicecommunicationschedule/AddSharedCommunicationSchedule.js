@@ -28,6 +28,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                     },
                     {
                         xtype: 'preview-container',
+                        selectByDefault: false,
                         grid: {
                             xtype: 'addSharedCommunicationScheduleGrid'
                         },

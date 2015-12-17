@@ -95,35 +95,38 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
 
         widget.setLoading(true);
 
-        model.load(id, {
-            success: function (record) {
-                var comServerType = record.get('comServerType'),
-                    form = widget.down('form'),
-                    isInbound = (record.get('direction').toLowerCase() === 'inbound'),
-                    protocolDetectionCombo = form.down('combobox[name=discoveryProtocolPluggableClassId]'),
-                    title;
+        widget.down('#cbo-comportpool-type').store.load(function () {
+            model.load(id, {
+                success: function (record) {
+                    var comServerType = record.get('comServerType'),
+                        form = widget.down('form'),
+                        isInbound = (record.get('direction').toLowerCase() === 'inbound'),
+                        protocolDetectionCombo = form.down('combobox[name=discoveryProtocolPluggableClassId]'),
+                        title;
 
-                me.getApplication().fireEvent('loadComPortPool', record);
+                    me.getApplication().fireEvent('loadComPortPool', record);
 
-                title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]);
+                    title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]);
 
-                form.setTitle(title);
-                if (isInbound) {
-                    protocolDetectionCombo.show();
-                    protocolDetectionCombo.enable();
-                    protocolDetectionCombo.getStore().load();
-                } else {
-                    protocolDetectionCombo.hide();
-                    protocolDetectionCombo.disable();
+                    form.setTitle(title);
+                    if (isInbound) {
+                        protocolDetectionCombo.show();
+                        protocolDetectionCombo.enable();
+                        protocolDetectionCombo.getStore().load();
+                    } else {
+                        protocolDetectionCombo.hide();
+                        protocolDetectionCombo.disable();
+                    }
+
+                    form.down('[name=direction_visual]').show();
+                    form.down('[name=comPortType]').setDisabled(true);
+                    form.loadRecord(record);
+                    form.down('[name=comPortType]').setValue(record.get('comPortType').id);
+                },
+                callback: function () {
+                    widget.setLoading(false);
                 }
-
-                form.down('[name=direction_visual]').show();
-                form.down('[name=comPortType]').setDisabled(true);
-                form.loadRecord(record);
-            },
-            callback: function () {
-                widget.setLoading(false);
-            }
+            });
         });
     },
 
@@ -138,7 +141,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         record = form.getRecord();
         button.setDisabled(true);
         page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
-
+        record.set('comPortType', form.down('#cbo-comportpool-type').findRecordByValue(form.down('#cbo-comportpool-type').getValue()).getData());
         record.save({
             backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comportpools').buildUrl(),
             callback: function (model, operation, success) {
