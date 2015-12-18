@@ -13,6 +13,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -286,6 +288,7 @@ public class DeviceSearchDomainTest {
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(OrmService.class).toInstance(ormService);
                 bind(TimeService.class).toInstance(timeService);
+                bind(BeanService.class).toInstance(new DefaultBeanService());
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceService.class).toInstance(deviceService);
