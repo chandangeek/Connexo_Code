@@ -2,15 +2,20 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -80,10 +85,8 @@ import org.mockito.ArgumentCaptor;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessageResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -94,13 +97,16 @@ import static org.mockito.Mockito.when;
  */
 public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    private final DeviceMessageCategoryImpl deviceMessageCategoryDeviceActions = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS, thesaurus, propertySpecService);
-    private final DeviceMessageCategoryImpl deviceMessageCategoryActivityCalendar = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR,thesaurus, propertySpecService);
-    private final DeviceMessageCategoryImpl deviceMessageCategoryClock = new DeviceMessageCategoryImpl(DeviceMessageCategories.CLOCK,thesaurus, propertySpecService);
+    private DeviceMessageCategoryImpl deviceMessageCategoryDeviceActions;
+    private DeviceMessageCategoryImpl deviceMessageCategoryActivityCalendar;
+    private DeviceMessageCategoryImpl deviceMessageCategoryClock;
 
     @Before
-    public void initBefore() {
+    public void initDependenciesOnPropertySpecService() {
         when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService)).collect(Collectors.toList()));
+        deviceMessageCategoryDeviceActions = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS, thesaurus, propertySpecService);
+        deviceMessageCategoryActivityCalendar = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR, thesaurus, propertySpecService);
+        deviceMessageCategoryClock = new DeviceMessageCategoryImpl(DeviceMessageCategories.CLOCK, thesaurus, propertySpecService);
     }
 
     @Test
@@ -367,12 +373,13 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         int categoryId = 1011;
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        DataModel dataModel = mock(DataModel.class);
+        OrmService ormService = mock(OrmService.class);
+        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
+        com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService = new PropertySpecServiceImpl(mock(TimeService.class), ormService, mock(BeanService.class));
+        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(jupiterPropertySpecService, mock(DataVaultService.class), ormService);
+        this.initDependenciesOnPropertySpecService();
 
-// Todo: figure out how to mock this with the new PropertySpecService api
-//        doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], (ValueFactory)invocationOnMock.getArguments()[2])).
-//                when(propertySpecService).basicPropertySpec(any(String.class), any(Boolean.class), any(ValueFactory.class));
-//        doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], new BigDecimalFactory())).
-//                when(propertySpecService).bigDecimalPropertySpecWithValues(any(String.class), any(Boolean.class), any(BigDecimal.class), any(BigDecimal.class));
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
 
         // User has access to 2 device messages
@@ -386,14 +393,14 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessageEnablement3.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM);
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement1));
         // 3 device messages are enabled on the device config
         when(deviceConfiguration.getDeviceMessageEnablements()).thenReturn(Arrays.asList(deviceMessageEnablement1, deviceMessageEnablement2, deviceMessageEnablement3));
         when(deviceConfiguration.isAuthorized(anyObject())).thenAnswer(invocationOnMock -> userAuthorizedDeviceMessages.contains(invocationOnMock.getArguments()[0]));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId, true, true);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution1));
 
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);

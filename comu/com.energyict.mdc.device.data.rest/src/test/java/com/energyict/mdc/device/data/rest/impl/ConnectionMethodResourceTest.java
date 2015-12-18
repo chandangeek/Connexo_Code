@@ -288,10 +288,9 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionType.getDirection()).thenReturn(Direction.OUTBOUND);
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
         PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn("connectionTimeOut");
+        when(propertySpec.getName()).thenReturn("connectionTimeout");
         when(propertySpec.isRequired()).thenReturn(false);
         when(propertySpec.getValueFactory()).thenReturn(new TimeDurationValueFactory());
-        when(pluggableClass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(pluggableClass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
         when(connectionTask.isDefault()).thenReturn(true);
