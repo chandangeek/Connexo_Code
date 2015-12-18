@@ -2,10 +2,10 @@ package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.impl.RelativePeriodFactory;
 import com.elster.jupiter.rest.util.properties.PropertyType;
 
 public enum BasicPropertyTypes implements PropertyType {
