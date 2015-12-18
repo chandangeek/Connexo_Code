@@ -86,7 +86,7 @@ Ext.define('Sam.view.licensing.Upload', {
                 var fileName = /^.*\.(lic)$/i;
                 return fileName.test(val);
             },
-            fileUploadText: 'License must be in .lic format'
+            fileUploadText: Uni.I18n.translate('licensing.validationFailed.msg', 'SAM', 'License must be in .lic format')
         });
     }
 });
