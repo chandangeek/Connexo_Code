@@ -22,7 +22,12 @@ public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidG
     public boolean isValid(DataValidationTask validationTask, ConstraintValidatorContext context) {
         Optional<EndDeviceGroup> deviceGroup = validationTask.getEndDeviceGroup();
         Optional<UsagePointGroup> upGroup = validationTask.getUsagePointGroup();
-        
+        if (!bothNotNull(deviceGroup, upGroup)) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.REQUIRES_EXACTLY_ONE_GROUP + "}")
+                    .addPropertyNode("groupTypeField").addConstraintViolation();
+            return false;
+        }
         return bothNotNull(deviceGroup, upGroup) && bothNotSet(deviceGroup, upGroup);
     }
 

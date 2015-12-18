@@ -33,7 +33,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@HasValidGroup(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRES_EXACTLY_ONE_GROUP + "}")
+@HasValidGroup(groups = {Save.Create.class, Save.Update.class})
 public final class DataValidationTaskImpl implements DataValidationTask {
 
     private long id;
