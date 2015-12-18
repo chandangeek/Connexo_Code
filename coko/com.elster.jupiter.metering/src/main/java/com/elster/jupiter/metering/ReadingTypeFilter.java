@@ -33,7 +33,7 @@ public class ReadingTypeFilter {
     }
 
     public void addSelectedReadingTypesCondition(List<String> values) {
-        values.forEach(e -> condition = condition.and(Operator.LIKE.compare("mRID", e)).not());
+        condition = condition.and(where("mRID").in(values).not());
     }
 
     public void addEquidistantCondition(boolean equidistant) {
