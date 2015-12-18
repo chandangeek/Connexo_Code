@@ -81,7 +81,7 @@ public final class ComScheduleImpl implements ComSchedule {
     }
 
     private long id;
-    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.FIELD_IS_REQUIRED+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
     private String name;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")

@@ -24,7 +24,8 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_ADD_COM_TASK_TO_COMSCHEDULE_THAT_IS_IN_USE(15, Keys.CANNOT_ADD_COM_TASK_TO_COMSCHEDULE_THAT_IS_IN_USE, "ComTasks cannot be added to communication schedules that are already linked to devices"),
     COM_TASK_USAGES_NOT_FOUND(16, Keys.COM_TASK_USAGES_NOT_FOUND, "Communication schedule should have at least one communication task"),
     VETO_COMTASK_DELETION(17, "communicationTaskXstillInUse", "Communication task ''{0}'' is still in use by the following communication schedule(s): ''{1}''"),
-    TEMPORAL_EXPRESSION_NOT_REGULAR(18, Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR, "The temporal expression is not regular");
+    TEMPORAL_EXPRESSION_NOT_REGULAR(18, Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR, "The temporal expression is not regular"),
+    FIELD_IS_REQUIRED(19, Keys.FIELD_IS_REQUIRED, "This field is required");
 
     private final int number;
     private final String key;
@@ -71,6 +72,7 @@ public enum MessageSeeds implements MessageSeed {
 
         public static final String VALUE_TOO_SMALL = "ValueTooSmall";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
+        public static final String FIELD_IS_REQUIRED = "FieldIsRequired";
         public static final String VALUE_NOT_IN_RANGE = "ValueNotInRange";
         public static final String INVALID_URL = "InvalidURL";
         public static final String INVALID_CHARS = "InvalidChars";

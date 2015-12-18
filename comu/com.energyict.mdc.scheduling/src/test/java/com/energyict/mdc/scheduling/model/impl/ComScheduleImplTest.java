@@ -216,7 +216,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "name")
     public void testCanNotCreateWithoutName() throws Exception {
         inMemoryPersistence.getSchedulingService()
                 .newComSchedule(null, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
@@ -226,7 +226,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "name")
     public void testCanNotUpdateWithoutName() throws Exception {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
                 .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
