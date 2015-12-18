@@ -134,6 +134,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         this.getRulesSetVersionPreviewCt().removeAll(true);
         var selectedRuleSetVersion = grid.lastSelected,
             rulesSetVersionPreview = Ext.widget('deviceDataValidationRulesSetVersionPreview', {
+                ruleSetId: selectedRuleSetVersion.get('ruleSetId'),
                 versionId: selectedRuleSetVersion.get('id'),
                 title: selectedRuleSetVersion.get('name')
             });
