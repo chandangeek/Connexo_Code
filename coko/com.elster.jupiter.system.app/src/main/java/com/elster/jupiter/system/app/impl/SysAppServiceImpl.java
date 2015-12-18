@@ -1,12 +1,21 @@
 package com.elster.jupiter.system.app.impl;
 
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.extjs.AppServerUIInstaller;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.data.lifecycle.LifeCycleService;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.http.whiteboard.*;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.system.app.SysAppService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -67,7 +76,18 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "APS", "LIC", "TME", "BPM", "APR", "LFC", "YFN", "BPM", "FIM", "CPS", "MTR");
+        return Arrays.asList(UserService.COMPONENTNAME,
+                AppService.COMPONENT_NAME,
+                LicenseService.COMPONENTNAME,
+                TimeService.COMPONENT_NAME,
+                "BPM",
+                AppServerUIInstaller.COMPONENT_NAME,
+                LifeCycleService.COMPONENTNAME,
+                "YFN",
+                FileImportService.COMPONENT_NAME,
+                CustomPropertySetService.COMPONENT_NAME,
+                MeteringService.COMPONENTNAME,
+                SubsystemService.COMPONENTNAME);
     }
 
     @Reference
