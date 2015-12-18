@@ -3,18 +3,17 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -275,20 +274,15 @@ public class EstimationResource {
         EstimationRuleInfo result =
                 transactionService.execute(() -> {
                     EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-                    EstimationRule rule = set.addRule(info.implementation, info.name);
-                    for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
-                        rule.addReadingType(readingTypeInfo.mRID);
-                    }
-                    try {
-                        for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                            Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                            rule.addProperty(propertySpec.getName(), value);
-                        }
-
-                    } catch (EstimatorNotFoundException ex) {
-                    } finally {
-                        set.save();
-                    }
+                    EstimationRuleBuilder estimationRuleBuilder = set.addRule(info.implementation, info.name)
+                            .withReadingType(info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).toArray(String[]::new));
+                    Estimator estimator = estimationService.getEstimator(info.implementation).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                    estimator.getPropertySpecs()
+                            .forEach(propertySpec -> {
+                                Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                                estimationRuleBuilder.havingProperty(propertySpec.getName()).withValue(value);
+                            });
+                    EstimationRule rule = estimationRuleBuilder.create();
                     return new EstimationRuleInfo(rule, propertyUtils);
                 });
         return Response.status(Response.Status.CREATED).entity(result).build();
@@ -309,7 +303,6 @@ public class EstimationResource {
                     Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
                     propertyMap.put(propertySpec.getName(), value);
                 }
-            } catch (EstimatorNotFoundException ex) {
             } finally {
                 rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap);
             }
@@ -406,18 +399,17 @@ public class EstimationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response addEstimationTask(EstimationTaskInfo info) {
-        EstimationTask dataExportTask = estimationService.newBuilder()
-                .setName(info.name)
-                .setApplication(info.application)
-                .setScheduleExpression(getScheduleExpression(info))
-                .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
-                .setPeriod(getRelativePeriod(info.period))
-                .setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id)).build();
         try (TransactionContext context = transactionService.getContext()) {
-            dataExportTask.save();
+            EstimationTask dataExportTask = estimationService.newBuilder()
+                    .setName(info.name)
+                    .setApplication(info.application)
+                    .setScheduleExpression(getScheduleExpression(info))
+                    .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
+                    .setPeriod(getRelativePeriod(info.period))
+                    .setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id)).create();
             context.commit();
+            return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(dataExportTask, thesaurus)).build();
         }
-        return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(dataExportTask, thesaurus)).build();
     }
 
     @DELETE
@@ -457,7 +449,7 @@ public class EstimationResource {
             task.setPeriod(getRelativePeriod(info.period));
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
 
-            task.save();
+            task.update();
             context.commit();
             return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(task, thesaurus)).build();
         }
@@ -548,7 +540,7 @@ public class EstimationResource {
         } else { // no changes in parent
             actualParentVersion = ruleSet.get().getVersion();
             Optional<? extends EstimationRule> estimationRule = estimationService.findAndLockEstimationRule(info.id, info.version);
-            if (!estimationRule.isPresent()){ // but rule itself was changed
+            if (!estimationRule.isPresent()) { // but rule itself was changed
                 actualRuleVersion = getCurrentEstimationRuleVersion(info, ruleSet);
             } else { // no changes in rule
                 return estimationRule.get();
