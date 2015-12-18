@@ -19,10 +19,8 @@ import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
-import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
-import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.TranslationKeys;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
@@ -128,7 +126,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
                 MapEntry.entry("portNumber", 8),
 
-                MapEntry.entry("direction", "inbound")
+                MapEntry.entry("direction", TranslationKeys.COMPORT_INBOUND.getDefaultFormat())
         );
         assertThat(response).containsKey("comPortPool_id");
         try {
@@ -189,7 +187,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("keyStorePassword", "keypwd"),
                 MapEntry.entry("portNumber", 8),
                 MapEntry.entry("contextPath", "/context/path"),
-                MapEntry.entry("direction", "inbound")
+                MapEntry.entry("direction", TranslationKeys.COMPORT_INBOUND.getDefaultFormat())
         );
         assertThat(response).containsKey("comPortPool_id");
         try {
@@ -241,7 +239,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("portNumber", 8),
                 MapEntry.entry("bufferSize", 9),
 
-                MapEntry.entry("direction", "inbound")
+                MapEntry.entry("direction", TranslationKeys.COMPORT_INBOUND.getDefaultFormat())
         );
         assertThat(response).containsKey("comPortPool_id");
         try {
@@ -337,7 +335,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("baudrate", "1200"),
                 MapEntry.entry("nrOfDataBits", "5"),
                 MapEntry.entry("nrOfStopBits", "2"),
-                MapEntry.entry("direction", "inbound")
+                MapEntry.entry("direction", TranslationKeys.COMPORT_INBOUND.getDefaultFormat())
         );
         assertThat(response).containsKey("comPortPool_id");
         try {

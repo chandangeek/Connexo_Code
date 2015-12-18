@@ -13,7 +13,9 @@ public enum TranslationKeys implements TranslationKey {
     TRACE("Trace", "Trace"),
     COMSERVER_ONLINE("comserver.online", "Online"),
     COMSERVER_OFFLINE("comserver.offline", "Offline"),
-    COMSERVER_REMOTE("comserver.remote", "Remote");
+    COMSERVER_REMOTE("comserver.remote", "Remote"),
+    COMPORT_INBOUND("comport.inbound", "Inbound"),
+    COMPORT_OUTBOUND("comport.outbound", "Outbound");
 
     private final String displayName;
     private final String defaultFormat;

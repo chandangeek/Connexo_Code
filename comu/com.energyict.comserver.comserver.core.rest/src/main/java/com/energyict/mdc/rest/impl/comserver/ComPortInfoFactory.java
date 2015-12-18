@@ -22,9 +22,13 @@ public class ComPortInfoFactory {
 
     public ComPortInfo asInfo(ComPort comPort, EngineConfigurationService engineConfigurationService) {
         if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
-            return asInboundInfo(comPort);
+            InboundComPortInfo comPortInfo =  asInboundInfo(comPort);
+            comPortInfo.direction = TranslationKeys.COMPORT_INBOUND.getDisplayName(thesaurus);
+            return comPortInfo;
         } else {
-            return asOutboundInfo(comPort, engineConfigurationService);
+            OutboundComPortInfo comPortInfo =  asOutboundInfo(comPort, engineConfigurationService);
+            comPortInfo.direction = TranslationKeys.COMPORT_OUTBOUND.getDisplayName(thesaurus);
+            return comPortInfo;
         }
     }
 
