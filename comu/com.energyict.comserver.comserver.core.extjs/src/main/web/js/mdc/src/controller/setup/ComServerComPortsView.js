@@ -228,12 +228,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             failure: function (record, options) {
                 var title,
                     errorsArray,
+                    errorsObj,
                     message;
 
                 record.reject();
                 if (options && options.response.status === 400) {
                     title = Uni.I18n.translate('comServerComPorts.activation.failurex', 'MDC', "Failed to activate '{0}'",record.get('name'));
-                    errorsArray = Ext.decode(options.response.responseText);
+                    errorsObj = Ext.decode(options.response.responseText);
+                    errorsArray = errorsObj.errors;
                     message = '';
                     Ext.Array.each(errorsArray, function (obj) {
                         message += obj.msg + '.'
