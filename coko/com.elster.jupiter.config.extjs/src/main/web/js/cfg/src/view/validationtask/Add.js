@@ -176,6 +176,13 @@ Ext.define('Cfg.view.validationtask.Add', {
                         ]
                     },
                     {
+                        xtype: 'container',
+                        itemId: 'group-type-field-error-container',
+                        padding: '10 0 0 265',
+                        hidden: true,
+                        cls: 'x-form-invalid-under'
+                    },
+                    {
                         title: Uni.I18n.translate('validationTasks.general.schedule', 'CFG', 'Schedule'),
                         ui: 'medium'
                     },
@@ -322,5 +329,20 @@ Ext.define('Cfg.view.validationtask.Add', {
         if (Ext.isEmpty(value) || value < field.minValue) {
             field.setValue(field.minValue);
         }
+    },
+
+    getErrorContainer: function () {
+        return this.down('#group-type-field-error-container');
+    },
+
+    markInvalid: function (msg) {
+        Ext.suspendLayouts();
+        this.getErrorContainer().update(msg);
+        this.getErrorContainer().show();
+        Ext.resumeLayouts(true);
+    },
+
+    clearInvalid: function () {
+        this.getErrorContainer().hide();
     }
 });

@@ -541,6 +541,7 @@ Ext.define('Cfg.controller.Tasks', {
             hours,
             minutes;
 
+        page.clearInvalid();
         if (form.isValid()) {
             var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
 
@@ -659,6 +660,11 @@ Ext.define('Cfg.controller.Tasks', {
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
                         form.getForm().markInvalid(json.errors);
+                        Ext.Array.each(json.errors, function (error) {
+                            if (error.id == 'groupTypeField') {
+                                page.markInvalid(error.msg);
+                            }
+                        });
                         formErrorsPanel.show();
                     }
                 }
