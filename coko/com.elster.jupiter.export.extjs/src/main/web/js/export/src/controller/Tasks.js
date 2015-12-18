@@ -1277,7 +1277,7 @@ Ext.define('Dxp.controller.Tasks', {
         });
     },
 
-    updateDataSelectorProperties: function (field, newValue) {
+    updateDataSelectorProperties: function (field, newValue, oldValue) {
         if (newValue == "") {
             return;
         }
@@ -1288,17 +1288,23 @@ Ext.define('Dxp.controller.Tasks', {
             formatterContainer = page.down('#formatter-container'),
             formatterTitle = page.down('#file-formatter-title'),
             propertyForm = page.down('#data-selector-properties');
-        formatterCombo.store.load({
-            scope: me,
-            params: {
-                selector: newValue
-            },
-            callback: function (record) {
-                if (!page.edit) {
-                    formatterCombo.setValue(formatterCombo.store.getCount()==1 ? formatterCombo.store.getAt(0) : null);
-                }
-            }
-        });
+
+        debugger;
+        if (!me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues') ||
+            me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')['readingTypeDataSelector.value.dataSelector'] != newValue) {
+                me.getStore('Dxp.store.Clipboard').removeAll(true);
+                formatterCombo.store.load({
+                    scope: me,
+                    params: {
+                        selector: newValue
+                    },
+                    callback: function (record) {
+                        if (!page.edit) {
+                            formatterCombo.setValue(formatterCombo.store.getCount() == 1 ? formatterCombo.store.getAt(0) : null);
+                        }
+                    }
+                });
+        };
         formatterContainer.show();
         formatterTitle.show();
         formatterCombo.show();
@@ -1316,6 +1322,10 @@ Ext.define('Dxp.controller.Tasks', {
                 propertyForm.hide();
             }
         }
+    },
+
+    xOrFunction: function(a,b) {
+        return ( a || b ) && !( a && b );
     },
 
     changeFormatterTooltip: function(tooltip, formatterType) {
@@ -1947,6 +1957,7 @@ Ext.define('Dxp.controller.Tasks', {
         formValues.readingTypes = arrReadingTypes;
         formValues.destinations = storeDestinations;
         formValues.eventTypes = eventTypes;
+        formValues.dataProcessor = page.down('#file-formatter-combo').getValue();
         me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
     },
 
@@ -1955,7 +1966,7 @@ Ext.define('Dxp.controller.Tasks', {
             obj = me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues'),
             page = me.getAddPage(),
             readingTypesArray = obj.readingTypes,
-            destinationsArray = obj.destinations,
+            destinationsArray = obj.destinations
             eventTypesArray = obj.eventTypes,
             readingTypesGrid = page.down('#readingTypesGridPanel'),
             destinationsGrid = page.down('#task-destinations-grid'),
@@ -1964,12 +1975,18 @@ Ext.define('Dxp.controller.Tasks', {
             emptyReadingTypesLabel = page.down('#noReadingTypesLabel'),
             destinationsStore = destinationsGrid.getStore(),
             gridStore = readingTypesGrid.getStore(),
-            evenTypesStore = eventTypesGrid.getStore();
+            evenTypesStore = eventTypesGrid.getStore(),
+            formatterStore = page.down('#file-formatter-combo').getStore();
 
 
         gridStore.removeAll();
         destinationsStore.removeAll();
         evenTypesStore.removeAll();
+
+       /* formatterStore.addListener('load', function() {
+            debugger;
+            me.view.down('#file-formatter-combo').setValue(obj.dataProcessor);
+        },me);*/
 
         if (me.readingTypesArray) {
             Ext.each(me.readingTypesArray, function (record) {
@@ -2048,10 +2065,10 @@ Ext.define('Dxp.controller.Tasks', {
         }
         view.down('#continuous-data-radiogroup').setValue({exportContinuousData:formModel.get('exportContinuousData')});
 
-
         Ext.suspendLayouts();
         Ext.Array.each(view.down('#data-selector-properties').query('[isFormField=true]'), function (formItem) {
             if (formItem.name in obj) {
+                debugger;
                 formItem.setValue(obj[formItem.name]);
             }
         });
