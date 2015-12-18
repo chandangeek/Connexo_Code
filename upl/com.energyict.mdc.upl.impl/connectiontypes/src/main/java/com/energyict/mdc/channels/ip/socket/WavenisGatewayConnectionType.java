@@ -48,4 +48,9 @@ public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
             throw new ConnectionException(e);
         }
     }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2015-12-18 09:25:29 +0100 (Fri, 18 Dec 2015)$";
+    }
 }
