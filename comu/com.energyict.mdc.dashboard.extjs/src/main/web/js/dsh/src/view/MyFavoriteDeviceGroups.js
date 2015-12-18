@@ -11,20 +11,17 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
     ],
     initComponent: function () {
         var me = this;
-        me.callParent(arguments);
-        me.add({
+        me.items = {
             xtype: 'emptygridcontainer',
             grid: {
                 xtype: 'grid',
                 itemId: 'my-favorite-device-groups-grid',
-                extend: 'Uni.view.grid.SelectionGrid',
                 store: 'Dsh.store.FavoriteDeviceGroups',
                 margin: '0 40 0 0',
-                disableSelection: true,
-                overflowY: 'auto',
                 maxHeight: 450,
                 viewConfig: {
-                    markDirty: false
+                    markDirty: false,
+                    preserveScrollOnRefresh: true
                 },
                 tbar: [
                     {
@@ -48,7 +45,6 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
                             }
                         ]
                     }
-
                 ],
                 columns: [
                     {
@@ -101,6 +97,8 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
                     }
                 ]
             }
-        });
+        };
+
+        me.callParent(arguments);
     }
 });

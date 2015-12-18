@@ -41,6 +41,9 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                 render: this.afterFavoriteDeviceGroupsGridRender
             },
             '#my-favorite-device-groups-grid checkcolumn': {
+                beforecheckchange: function() {
+                    this.getFavoriteDeviceGroupsGrid().getView().saveScrollState();
+                },
                 checkchange: this.onFavoriteGroupsGridSelectionChange
             },
             '#my-favorite-device-groups button[action=uncheckall]': {
@@ -88,6 +91,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
         );
 
         this.getUncheckAllBtn().setDisabled(selectedGroupsQty < 1);
+        this.getFavoriteDeviceGroupsGrid().getView().restoreScrollState();
     },
 
     uncheckAllSelectedGroups: function () {
