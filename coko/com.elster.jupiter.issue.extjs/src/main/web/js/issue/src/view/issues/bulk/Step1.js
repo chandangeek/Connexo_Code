@@ -22,6 +22,14 @@ Ext.define('Isu.view.issues.bulk.Step1', {
         },
         {
             xtype: 'issues-selection-grid'
+        },
+        {
+            xtype: 'component',
+            itemId: 'selection-grid-error',
+            cls: 'x-form-invalid-under',
+            margin: '-30 0 0 0',
+            html: Uni.I18n.translate('issues.selectIssues.selectionGridError', 'ISU', 'Select at least one issue'),
+            hidden: true
         }
     ],
 
