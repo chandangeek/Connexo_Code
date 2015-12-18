@@ -127,7 +127,7 @@ Ext.define('Uni.property.view.property.DateTime', {
             hours = 0,
             minutes = 0;
 
-        if (value !== null && value !== '') {
+        if (value !== null && value !== '' && value !== undefined) {
             var date = new Date(value);
             dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
             hours = date.getHours();
