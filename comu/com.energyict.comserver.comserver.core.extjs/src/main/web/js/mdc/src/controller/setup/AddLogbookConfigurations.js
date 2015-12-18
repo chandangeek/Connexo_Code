@@ -29,48 +29,30 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
     },
 
     addLogbookType: function (btn) {
-        var self = this,
+        var me = this,
             addView = Ext.ComponentQuery.query('add-logbook-configurations')[0],
             grid = addView.down('grid'),
-            url = '/api/dtc/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations',
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
-                target: addView
-            }),
             records = grid.getSelectionModel().getSelection(),
-            ids = [];
+            url = '/api/dtc/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations',
+            ids = [],
+            router = me.getController('Uni.controller.history.Router');
 
         Ext.Array.each(records, function (item) {
             ids.push(item.internalId);
         });
         var jsonIds = Ext.encode(ids);
-        var router = this.getController('Uni.controller.history.Router');
 
-        preloader.show();
+        addView.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         Ext.Ajax.request({
             url: url,
             method: 'POST',
             jsonData: jsonIds,
             success: function () {
                 router.getRoute('administration/devicetypes/view/deviceconfigurations/view/logbookconfigurations').forward();
-                self.getApplication().fireEvent('acknowledge', 'Logbook configurations added');
-            },
-            failure: function (response) {
-                if(response.status == 400) {
-                    var result = Ext.decode(response.responseText, true),
-                        errorTitle = 'Failed to add',
-                        errorText = 'Logbook configuration could not be added. There was a problem accessing the database';
-
-                    if (result !== null) {
-                        errorTitle = result.error;
-                        errorText = result.message;
-                    }
-
-                    self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
-                }
+                me.getApplication().fireEvent('acknowledge', 'Logbook configurations added');
             },
             callback: function () {
-                preloader.destroy();
+                addView.setLoading(false);
             }
         });
     }
