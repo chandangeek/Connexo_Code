@@ -11,10 +11,12 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.ReadingType;
@@ -63,12 +65,7 @@ import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class EstimationResourceTest extends EstimationApplicationJerseyTest {
 
@@ -290,7 +287,8 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
 
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
         EstimationRule rule = mockEstimationRuleInRuleSet(RULE_ID, ruleSet);
-        when(ruleSet.addRule(Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
+        EstimationRuleBuilder estimationRuleBuilder = FakeBuilder.initBuilderStub(rule, EstimationRuleBuilder.class, EstimationRuleBuilder.PropertyBuilder.class);
+        when(ruleSet.addRule(Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(estimationRuleBuilder);
 
         Response response = target("/estimation/" + RULE_SET_ID + "/rules").request().post(entity);
 
@@ -298,10 +296,16 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         EstimationRuleInfo resultInfo = response.readEntity(EstimationRuleInfo.class);
         assertThat(resultInfo.name).isEqualTo("MyRule");
 
-        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
-        verify(rule).addProperty("nullableboolean", false);
-        verify(rule).addProperty("boolean", true);
-        verify(rule).addProperty("text", "string");
+        verify(estimationRuleBuilder).havingProperty("number");
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(BigDecimal.valueOf(10.0));
+        verify(estimationRuleBuilder).havingProperty("nullableboolean");
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(false);
+        verify(estimationRuleBuilder).havingProperty("boolean");
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(true);
+        verify(estimationRuleBuilder).havingProperty("text");
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue("string");
+        verify(estimationRuleBuilder).havingProperty(Matchers.eq("listvalue"));
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(isA(ListValue.class));
     }
 
     @Test
@@ -516,6 +520,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     }
 
     private EstimationRule mockEstimationRuleInRuleSet(long id, EstimationRuleSet ruleSet) {
+        Estimator estimator = mock(Estimator.class);
         EstimationRule rule = mock(EstimationRule.class);
         when(rule.getName()).thenReturn("MyRule");
         when(rule.getId()).thenReturn(id);
@@ -523,6 +528,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(rule.getDisplayName()).thenReturn("My rule");
         when(rule.isActive()).thenReturn(true);
         when(rule.getRuleSet()).thenReturn(ruleSet);
+        when(estimationService.getEstimator("com.blablabla.Estimator")).thenReturn(Optional.of(estimator));
 
         ReadingType readingType = mockReadingType();
         Set<ReadingType> readingTypes = new HashSet<>();
@@ -536,6 +542,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 mockPropertySpec(PropertyType.TEXT, "text", true),
                 mockListValueBeanPropertySpec("listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
+        when(estimator.getPropertySpecs()).thenReturn(propertySpes);
 
         Map<String, Object> props = new HashMap<>();
         props.put("number", 13);
