@@ -71,41 +71,38 @@ Ext.define('Cfg.view.validationtask.Add', {
                         layout: 'hbox',
                         items: [
                             {
-                                itemId: 'rgr-validation-tasks-grouptype-trigger',
-                                xtype: 'radiogroup',
+                                itemId: 'cbo-validation-tasks-grouptype-trigger',
+                                xtype: 'combobox',
                                 name: 'grouptypeTrigger',
-                                columns: 1,
-                                vertical: true,
-                                width: 100,
-                                defaults: {
-                                    name: 'grouptype'
-                                },
-                                items: [
-                                    {
-                                        itemId: 'rbtn-device-group',
-                                        name: 'grouptype',
-                                        boxLabel: Uni.I18n.translate('general.group.device', 'CFG', 'End device'),
-                                        inputValue: 'End Device'
-                                    },
-                                    {
-                                        itemId: 'rbtn-usagepoint-group',
-                                        name: 'grouptype',
-                                        boxLabel: Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage point'),
-                                        inputValue: 'Usage Point'
-                                    }
-                                ],
+                                width: 235,
+                                store: ['End Device', 'Usage Point'],
+                                queryMode: 'local',
                                 listeners: {
-                                    change: function(field, newValue, oldVallue) {
-                                        
-                                        if (newValue['grouptype'] == 'End Device') {
-                                        	me.down('#cbo-validation-task-usagepoint-group').hide();
-                                            me.down('#cbo-validation-task-device-group').show();
-                                            me.down('#cbo-validation-task-usagepoint-group').clearValue();
-                                          } else if (newValue['grouptype'] == 'Usage Point') {
-                                            me.down('#cbo-validation-task-device-group').hide();
-                                        	me.down('#cbo-validation-task-usagepoint-group').show();
-                                        	me.down('#cbo-validation-task-device-group').clearValue();
-                                        }
+                                    change: function(field, newValue, oldVallue) {   
+                                        var container = me.down('#cbo-validation-task-group-container');
+                                        Ext.suspendLayouts();
+                                        container.removeAll();
+                                        if (newValue == 'End Device') {
+                                            var store = Ext.getStore('Cfg.store.DeviceGroups');
+                                            store.load(function() {
+                                                if (store.getCount() == 0) {
+                                                    container.add(me.groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.')));
+                                                } else {
+                                                    container.add(me.groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...')));
+                                                }                                                
+                                            });
+                                          } else if (newValue == 'Usage Point') {
+                                              var store = Ext.getStore('Cfg.store.UsagePointGroups');
+                                              store.load(function() {
+                                                  if (store.getCount() == 0) {
+                                                      container.add(me.groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.')));
+                                                  } else {
+                                                      container.add(me.groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...')));
+                                                  }
+                                              });
+                                          }
+                                          container.show();
+                                          Ext.resumeLayouts();
                                     }
                                 }
                             }
@@ -113,66 +110,20 @@ Ext.define('Cfg.view.validationtask.Add', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: ' ',
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.group', 'CFG', 'Group'),
                         required: true,
                         layout: 'hbox',
+                        itemId: 'cbo-validation-task-group-container',
+                        hidden: false,
                         items: [
                             {
-                                xtype: 'combobox',
-                                itemId: 'cbo-validation-task-device-group',
-                                name: 'endDeviceGroup',
-                                width: 235,
-                                store: 'Cfg.store.DeviceGroups',
-                                editable: false,
-                                disabled: false,
-                                emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
-                                //allowBlank: false,
-                                queryMode: 'local',
-                                displayField: 'name',
-                                valueField: 'id'
-                            },
-                            {
                                 xtype: 'displayfield',
-                                itemId: 'no-device',
-                                hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</div>',
+                                itemId: 'no-group',
+                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.selectGroupType', 'CFG', 'No group type selected.') + '</div>',
                                 htmlEncode: false,
                                 labelwidth: 500,
                                 width: 235
-                            },
-                            
-                        ]
-                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: ' ',
-                        required: true,
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'combobox',
-                                itemId: 'cbo-validation-task-usagepoint-group',
-                                name: 'usagePointGroup',
-                                width: 235,
-                                store: 'Cfg.store.UsagePointGroups',
-                                editable: false,
-                                disabled: false,
-                                emptyText: Uni.I18n.translate('validationTasks.addValidationTask.usagepointGroupPrompt', 'CFG', 'Select a usage point group...'),
-                                //allowBlank: false,
-                                queryMode: 'local',
-                                displayField: 'name',
-                                valueField: 'id'
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'no-usagepoint',
-                                hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.') + '</div>',
-                                htmlEncode: false,
-                                labelwidth: 500,
-                                width: 235
-                            },
-                            
+                            }
                         ]
                     },
                     {
@@ -322,5 +273,31 @@ Ext.define('Cfg.view.validationtask.Add', {
         if (Ext.isEmpty(value) || value < field.minValue) {
             field.setValue(field.minValue);
         }
+    },
+    groupComboBox(store, prompt) {
+        return {
+            xtype: 'combobox',
+            itemId: 'cbo-validation-task-group',
+            name: 'group',
+            width: 235,
+            style: {marginBottom: '6px'},
+            store: store,
+            editable: false,
+            disabled: false,
+            emptyText: prompt,
+            queryMode: 'local',
+            displayField: 'name',
+            valueField: 'id'
+        };
+    },
+    groupEmptyMessage(text) {
+        return {
+            xtype: 'displayfield',
+            itemId: 'no-group',
+            value: '<div style="color: #FF0000">' + text + '</div>',
+            htmlEncode: false,
+            labelwidth: 500,
+            width: 235
+        };
     }
 });

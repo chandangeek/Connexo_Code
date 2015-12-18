@@ -201,20 +201,20 @@ Ext.define('Cfg.controller.Tasks', {
         me.taskModel = null;
         me.taskId = null;
         me.fromEdit = false;
-        view.down('#cbo-validation-task-device-group').hide();
-        view.down('#cbo-validation-task-usagepoint-group').hide();
-        deviceGroupCombo.store.load(function () {
-        	view.down('#cbo-validation-task-device-group').hide();
-            if (this.getCount() === 0) {
-                deviceGroupCombo.allowBlank = true;
-            }
-        });
-        usagepointGroupCombo.store.load(function () {
-        	view.down('#cbo-validation-task-usagepoint-group').hide();
-             if (this.getCount() === 0) {
-                usagepointGroupCombo.allowBlank = true;
-            }
-        });
+//        view.down('#cbo-validation-task-device-group').hide();
+//        view.down('#cbo-validation-task-usagepoint-group').hide();
+//        deviceGroupCombo.store.load(function () {
+//        	view.down('#cbo-validation-task-device-group').hide();
+//            if (this.getCount() === 0) {
+//                deviceGroupCombo.allowBlank = true;
+//            }
+//        });
+//        usagepointGroupCombo.store.load(function () {
+//        	view.down('#cbo-validation-task-usagepoint-group').hide();
+//             if (this.getCount() === 0) {
+//                usagepointGroupCombo.allowBlank = true;
+//            }
+//        });
         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
 
     },
