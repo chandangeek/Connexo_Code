@@ -156,7 +156,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             pb.wait({
                 interval: 50,
                 increment: 20,
-                text: (operation === 'assign' ? Uni.I18n.translate('issues.processing.assign', 'ISU', 'Assigning {0} issue(s). Please wait...', [requestData.issues.length]) :  Uni.I18n.translate('issues.processing.close', 'ISU', 'Closing {0} issue(s). Please wait...', [requestData.issues.length]))
+                text: (operation === 'assign' ? Uni.I18n.translate('issues.processing.assign', 'ISU', 'Assigning {0} issue(s). Please wait...', (requestData.allIssues ? Uni.I18n.translate('general.all', 'ISU', 'all') : requestData.issues.length)) :  Uni.I18n.translate('issues.processing.close', 'ISU', 'Closing {0} issue(s). Please wait...', (requestData.allIssues ? Uni.I18n.translate('general.all', 'ISU', 'all') : requestData.issues.length)))
             })
         );
         Ext.resumeLayouts(true);
