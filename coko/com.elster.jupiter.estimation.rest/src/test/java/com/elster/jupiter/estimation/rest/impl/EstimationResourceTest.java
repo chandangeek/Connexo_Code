@@ -60,12 +60,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class EstimationResourceTest extends EstimationApplicationJerseyTest {
 
@@ -296,11 +291,16 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         EstimationRuleInfo resultInfo = response.readEntity(EstimationRuleInfo.class);
         assertThat(resultInfo.name).isEqualTo("MyRule");
 
-        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
-        verify(rule).addProperty("nullableboolean", false);
-        verify(rule).addProperty("boolean", true);
-        verify(rule).addProperty("text", "string");
-        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
+        verify(estimationRuleBuilder).havingProperty("number");
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(BigDecimal.valueOf(10.0));
+        verify(estimationRuleBuilder).havingProperty("nullableboolean");
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(false);
+        verify(estimationRuleBuilder).havingProperty("boolean");
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(true);
+        verify(estimationRuleBuilder).havingProperty("text");
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue("string");
+        verify(estimationRuleBuilder).havingProperty(Matchers.eq("listvalue"));
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(isA(ListValue.class));
     }
 
     @Test
@@ -515,6 +515,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     }
 
     private EstimationRule mockEstimationRuleInRuleSet(long id, EstimationRuleSet ruleSet) {
+        Estimator estimator = mock(Estimator.class);
         EstimationRule rule = mock(EstimationRule.class);
         when(rule.getName()).thenReturn("MyRule");
         when(rule.getId()).thenReturn(id);
@@ -522,6 +523,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(rule.getDisplayName()).thenReturn("My rule");
         when(rule.isActive()).thenReturn(true);
         when(rule.getRuleSet()).thenReturn(ruleSet);
+        when(estimationService.getEstimator("com.blablabla.Estimator")).thenReturn(Optional.of(estimator));
 
         ReadingType readingType = mockReadingType();
         Set<ReadingType> readingTypes = new HashSet<>();
@@ -535,6 +537,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 mockPropertySpec(PropertyType.TEXT, "text", true),
                 mockPropertySpec(PropertyType.LISTVALUE, "listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
+        when(estimator.getPropertySpecs()).thenReturn(propertySpes);
 
         Map<String, Object> props = new HashMap<>();
         props.put("number", 13);
