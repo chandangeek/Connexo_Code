@@ -164,7 +164,9 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()), new TcpDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()));
+        return Arrays.<DeviceProtocolDialect>asList(
+                new SerialDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()),
+                new TcpDeviceProtocolDialect(this.getThesaurus(), this.getPropertySpecService()));
     }
 
     @Override

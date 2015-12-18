@@ -85,7 +85,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec portPropertySpec() {
         return this.getPropertySpecService()
                 .bigDecimalSpec()
-                .named(OutboundIpConnectionProperties.Fields.HOST.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER)
+                .named(OutboundIpConnectionProperties.Fields.PORT_NUMBER.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .finish();
@@ -94,7 +94,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec connectionTimeoutPropertySpec() {
         return this.getPropertySpecService()
                 .specForValuesOf(new TimeDurationValueFactory())
-                .named(OutboundIpConnectionProperties.Fields.HOST.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT)
+                .named(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT)
                 .fromThesaurus(this.thesaurus)
                 .finish();
     }
@@ -102,7 +102,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec bufferSizePropertySpec() {
         return this.getPropertySpecService()
                 .bigDecimalSpec()
-                .named(OutboundIpConnectionProperties.Fields.HOST.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_BUFFER_SIZE)
+                .named(OutboundIpConnectionProperties.Fields.BUFFER_SIZE.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_BUFFER_SIZE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .finish();

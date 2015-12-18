@@ -40,7 +40,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return propertySpecService
-                    .passwordSpec()
+                    .encryptedStringSpec()
                     .named(SecurityPropertySpecName.ENCRYPTION_KEY)
                     .fromThesaurus(thesaurus)
                     .markRequired()
@@ -59,7 +59,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return propertySpecService
-                    .passwordSpec()
+                    .encryptedStringSpec()
                     .named(SecurityPropertySpecName.AUTHENTICATION_KEY)
                     .fromThesaurus(thesaurus)
                     .markRequired()

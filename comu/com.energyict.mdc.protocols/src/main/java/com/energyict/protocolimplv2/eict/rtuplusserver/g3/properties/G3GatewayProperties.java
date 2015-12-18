@@ -6,6 +6,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.DlmsTranslationKeys;
 import com.energyict.protocolimplv2.edp.EDPProperties;
 import com.energyict.protocolimplv2.g3.common.G3Properties;
@@ -53,7 +54,7 @@ public class G3GatewayProperties extends G3Properties {
     private PropertySpec validateInvokeIdPropertySpec() {
         return getPropertySpecService()
                 .booleanSpec()
-                .named(VALIDATE_INVOKE_ID, DlmsTranslationKeys.VALIDATE_INVOKE_ID)
+                .named(DlmsProtocolProperties.VALIDATE_INVOKE_ID, DlmsTranslationKeys.VALIDATE_INVOKE_ID)
                 .fromThesaurus(this.getThesaurus())
                 .setDefaultValue(true)
                 .finish();
@@ -80,7 +81,7 @@ public class G3GatewayProperties extends G3Properties {
     private PropertySpec maxRecPduSizePropertySpec() {
         return getPropertySpecService()
                 .bigDecimalSpec()
-                .named(EDPProperties.MAX_REC_PDU_SIZE, DlmsTranslationKeys.MAX_REC_PDU_SIZE)
+                .named(DlmsProtocolProperties.MAX_REC_PDU_SIZE, DlmsTranslationKeys.MAX_REC_PDU_SIZE)
                 .fromThesaurus(this.getThesaurus())
                 .setDefaultValue(DEFAULT_MAX_REC_PDU_SIZE)
                 .finish();

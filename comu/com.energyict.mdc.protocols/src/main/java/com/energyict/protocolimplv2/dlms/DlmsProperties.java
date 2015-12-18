@@ -17,6 +17,7 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
@@ -39,19 +40,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     public static final String SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
     public static final String SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
-    public static final String ADDRESSING_MODE = "AddressingMode";
-    public static final String MANUFACTURER = "Manufacturer";
-    public static final String INFORMATION_FIELD_SIZE = "InformationFieldSize";
-    public static final String WAKE_UP = "WakeUp";
     public static final String DEVICE_ID = "DeviceId";
-    public static final String CIPHERING_TYPE = "CipheringType";
-    public static final String NTA_SIMULATION_TOOL = "NTASimulationTool";
-    public static final String BULK_REQUEST = "BulkRequest";
-    public static final String CONFORMANCE_BLOCK_VALUE = "ConformanceBlockValue";
-    public static final String VALIDATE_INVOKE_ID = "ValidateInvokeId";
-    public static final String MAX_REC_PDU_SIZE = "MaxRecPDUSize";
-    public static final String REQUEST_TIMEZONE = "RequestTimeZone";
-    public static final String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
 
     public static final BigDecimal DEFAULT_UPPER_SERVER_MAC_ADDRESS = BigDecimal.ONE;
@@ -79,19 +68,19 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     public enum TranslationKeys implements TranslationKey {
         SERVER_UPPER_MAC_ADDRESS_TK(SERVER_UPPER_MAC_ADDRESS, "Server upper mac address"),
         SERVER_LOWER_MAC_ADDRESS_TK(SERVER_LOWER_MAC_ADDRESS, "Server lower mac address"),
-        ADDRESSING_MODE_TK(ADDRESSING_MODE, "Addressing mode"),
-        MANUFACTURER_TK(MANUFACTURER, "Manufacturer"),
-        INFORMATION_FIELD_SIZE_TK(INFORMATION_FIELD_SIZE, "Information field size"),
-        WAKE_UP_TK(WAKE_UP, "WakeUp"),
+        ADDRESSING_MODE_TK(DlmsProtocolProperties.ADDRESSING_MODE, "Addressing mode"),
+        MANUFACTURER_TK(DlmsProtocolProperties.MANUFACTURER, "Manufacturer"),
+        INFORMATION_FIELD_SIZE_TK(DlmsProtocolProperties.INFORMATION_FIELD_SIZE, "Information field size"),
+        WAKE_UP_TK(DlmsProtocolProperties.WAKE_UP, "WakeUp"),
         DEVICE_ID_TK(DEVICE_ID, "DeviceId"),
-        CIPHERING_TYPE_TK(CIPHERING_TYPE, "Ciphering type"),
-        NTA_SIMULATION_TOOL_TK(NTA_SIMULATION_TOOL, "NTA simulation tool"),
-        BULK_REQUEST_TK(BULK_REQUEST, "Bulk request"),
-        CONFORMANCE_BLOCK_VALUE_TK(CONFORMANCE_BLOCK_VALUE, "Conformance block value"),
-        VALIDATE_INVOKE_ID_TK(VALIDATE_INVOKE_ID, "Validate invokeId"),
-        MAX_REC_PDU_SIZE_TK(MAX_REC_PDU_SIZE, "Max rec PDU size"),
-        REQUEST_TIMEZONE_TK(REQUEST_TIMEZONE, "Request timezone"),
-        ROUND_TRIP_CORRECTION_TK(ROUND_TRIP_CORRECTION, "Roundtrip correction"),
+        CIPHERING_TYPE_TK(DlmsProtocolProperties.CIPHERING_TYPE, "Ciphering type"),
+        NTA_SIMULATION_TOOL_TK(DlmsProtocolProperties.NTA_SIMULATION_TOOL, "NTA simulation tool"),
+        BULK_REQUEST_TK(DlmsProtocolProperties.BULK_REQUEST, "Bulk request"),
+        CONFORMANCE_BLOCK_VALUE_TK(DlmsProtocolProperties.CONFORMANCE_BLOCK_VALUE, "Conformance block value"),
+        VALIDATE_INVOKE_ID_TK(DlmsProtocolProperties.VALIDATE_INVOKE_ID, "Validate invokeId"),
+        MAX_REC_PDU_SIZE_TK(DlmsProtocolProperties.MAX_REC_PDU_SIZE, "Max rec PDU size"),
+        REQUEST_TIMEZONE_TK(DlmsProtocolProperties.REQUEST_TIMEZONE, "Request timezone"),
+        ROUND_TRIP_CORRECTION_TK(DlmsProtocolProperties.ROUND_TRIP_CORRECTION, "Roundtrip correction"),
         FIX_MBUS_HEX_SHORT_ID_TK(FIX_MBUS_HEX_SHORT_ID, "Fix Mbus hex shortId"),
         NODEID_TK(MeterProtocol.NODEID, "Node id"),
         CALLING_AP_TITLE_TK(IDIS.CALLING_AP_TITLE, "Calling AP title"),
@@ -201,22 +190,22 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public int getAddressingMode() {
-        return parseBigDecimalProperty(ADDRESSING_MODE, DEFAULT_ADDRESSING_MODE);
+        return parseBigDecimalProperty(DlmsProtocolProperties.ADDRESSING_MODE, DEFAULT_ADDRESSING_MODE);
     }
 
     @Override
     public String getManufacturer() {
-        return properties.getTypedProperty(MANUFACTURER, DEFAULT_MANUFACTURER);
+        return properties.getTypedProperty(DlmsProtocolProperties.MANUFACTURER, DEFAULT_MANUFACTURER);
     }
 
     @Override
     public int getInformationFieldSize() {
-        return parseBigDecimalProperty(INFORMATION_FIELD_SIZE, DEFAULT_INFORMATION_FIELD_SIZE);
+        return parseBigDecimalProperty(DlmsProtocolProperties.INFORMATION_FIELD_SIZE, DEFAULT_INFORMATION_FIELD_SIZE);
     }
 
     @Override
     public boolean isWakeUp() {
-        return properties.getTypedProperty(WAKE_UP, DEFAULT_WAKE_UP);
+        return properties.getTypedProperty(DlmsProtocolProperties.WAKE_UP, DEFAULT_WAKE_UP);
     }
 
     @Override
@@ -226,17 +215,17 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public CipheringType getCipheringType() {
-        return CipheringType.fromValue(parseBigDecimalProperty(CIPHERING_TYPE, DEFAULT_CIPHERING_TYPE));
+        return CipheringType.fromValue(parseBigDecimalProperty(DlmsProtocolProperties.CIPHERING_TYPE, DEFAULT_CIPHERING_TYPE));
     }
 
     @Override
     public boolean isNtaSimulationTool() {
-        return properties.getTypedProperty(NTA_SIMULATION_TOOL, DEFAULT_NTA_SIMULATION_TOOL);
+        return properties.getTypedProperty(DlmsProtocolProperties.NTA_SIMULATION_TOOL, DEFAULT_NTA_SIMULATION_TOOL);
     }
 
     @Override
     public boolean isBulkRequest() {
-        return getProperties().getTypedProperty(BULK_REQUEST, DEFAULT_BULK_REQUEST);
+        return getProperties().getTypedProperty(DlmsProtocolProperties.BULK_REQUEST, DEFAULT_BULK_REQUEST);
     }
 
     @Override
@@ -245,7 +234,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
         if (getReference().equals(DLMSReference.SN)) {
             defaultValue = DEFAULT_CONFORMANCE_BLOCK_VALUE_SN;
         }
-        return new ConformanceBlock(parseBigDecimalProperty(CONFORMANCE_BLOCK_VALUE, defaultValue));
+        return new ConformanceBlock(parseBigDecimalProperty(DlmsProtocolProperties.CONFORMANCE_BLOCK_VALUE, defaultValue));
     }
 
     @Override
@@ -256,7 +245,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     @Override
     public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
         byte invokeIdAndPriority = (byte) (DEFAULT_INVOKE_ID_AND_PRIORITY.intValue());
-        if (properties.<Boolean>getTypedProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) {
+        if (properties.<Boolean>getTypedProperty(DlmsProtocolProperties.VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) {
             return new IncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
         } else {
             return new NonIncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
@@ -265,7 +254,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public int getMaxRecPDUSize() {
-        return parseBigDecimalProperty(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
+        return parseBigDecimalProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
     @Override
@@ -280,12 +269,12 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public boolean isRequestTimeZone() {
-        return properties.<Boolean>getTypedProperty(REQUEST_TIMEZONE, DEFAULT_REQUEST_TIMEZONE);
+        return properties.<Boolean>getTypedProperty(DlmsProtocolProperties.REQUEST_TIMEZONE, DEFAULT_REQUEST_TIMEZONE);
     }
 
     @Override
     public int getRoundTripCorrection() {
-        return parseBigDecimalProperty(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
+        return parseBigDecimalProperty(DlmsProtocolProperties.ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
     }
 
     /**
