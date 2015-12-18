@@ -2,66 +2,29 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.offline.OfflineLoadProfile;
 import com.energyict.mdw.offline.OfflineLogBook;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterData;
-import com.energyict.protocol.MeterDataMessageResult;
-import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocolimplv2.ace4000.requests.ContactorCommand;
-import com.energyict.protocolimplv2.ace4000.requests.FirmwareUpgrade;
-import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
-import com.energyict.protocolimplv2.ace4000.requests.ReadMeterEvents;
-import com.energyict.protocolimplv2.ace4000.requests.WriteConfiguration;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimplv2.ace4000.requests.*;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ACE4000MessageExecutor implements MessageProtocol {
-
-    private static final String READ_EVENTS = "ReadEvents";
-    private static final String READ_PROFILE_DATA = "ReadProfileData";
-    private static final String FIRMWARE_UPGRADE = "FirmwareUpgrade";
-    private static final String CONNECT = "CloseContactor";
-    private static final String DISCONNECT = "Disconnect";
-    private static final String SHORT_DISPLAY_MESSAGE = "ShortDisplayMessage";
-    private static final String LONG_DISPLAY_MESSAGE = "LongDisplayMessage";
-    private static final String NO_DISPLAY_MESSAGE = "NoDisplayMessage";
-    private static final String DISPLAY_CONFIG = "DisplayConfiguration";
-    private static final String CONFIG_LOADPROFILE = "ConfigureLoadProfile";
-    private static final String CONFIG_SPECIAL_DATA_MODE = "ConfigureSpecialDataMode";
-    private static final String CONFIG_MAX_DEMAND = "ConfigureMaxDemand";
-    private static final String CONFIG_CONSUMPTION_LIMITATION = "ConfigureConsumptionLimitation";
-    private static final String CONFIG_EMERGENCY_CONSUMPTION_LIMITATION = "ConfigureEmergencyConsumptionLimitation";
-    private static final String CONFIG_TARIFF = "TariffConfig";
+public class ACE4000MessageExecutor extends MessageParser {
 
     private ACE4000Outbound ace4000;
 
@@ -69,77 +32,27 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         this.ace4000 = ace4000;
     }
 
-    /**
-     * Execute a message. The request is wrapped with a retry mechanism and proper timeout handling.
-     * If a NAK is received, it is logged in the issue/problem.
-     */
-    public MessageResult executeMessage(MessageEntry messageEntry) {
-        String messageContent = messageEntry.getContent();
-        try {
-            if (messageContent.contains(READ_EVENTS)) {
-                //TODO what if the offline device has no logbooks configured??
-                ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000);
-                OfflineLogBook offlineLogBook = ace4000.getOfflineDevice().getAllOfflineLogBooks().get(0);
-                List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(new LogBookIdentifierById(offlineLogBook.getLogBookId(), offlineLogBook.getOfflineLogBookSpec().getDeviceObisCode()));
-                MeterData meterData = new MeterData();
-                for (MeterProtocolEvent collectedMeterEvent : collectedLogBooks.get(0).getCollectedMeterEvents()) {
-                    meterData.addMeterEvent(collectedMeterEvent);
-                }
-                return MeterDataMessageResult.createSuccess(messageEntry, "", meterData);
-            } else if (messageContent.contains(READ_PROFILE_DATA)) {
-                List<CollectedLoadProfile> collectedLoadProfiles = readProfileData(messageContent);
-                CollectedLoadProfile collectedLoadProfile = collectedLoadProfiles.get(0);
-                MeterData meterData = new MeterData();
-                ProfileData profileData = new ProfileData();
-                for (ChannelInfo channelInfo : collectedLoadProfile.getChannelInfo()) {
-                    profileData.addChannel(channelInfo);
-                }
-                for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
-                    profileData.addInterval(intervalData);
-                }
-                meterData.addProfileData(profileData);
-                return MeterDataMessageResult.createSuccess(messageEntry, "", meterData);
-            } else if (messageContent.contains(FIRMWARE_UPGRADE)) {
-                FirmwareUpgrade firmwareUpgrade = new FirmwareUpgrade(ace4000);
-                return firmwareUpgrade.request(messageEntry);
-            } else if (messageContent.contains(CONNECT)) {
-                ContactorCommand contactorCommand = new ContactorCommand(ace4000);
-                contactorCommand.setCommand(0);
-                return contactorCommand.request(messageEntry);
-            } else if (messageContent.contains(DISCONNECT)) {
-                ContactorCommand contactorCommand = new ContactorCommand(ace4000);
-                contactorCommand.setCommand(1);
-                return contactorCommand.request(messageEntry);
-            } else {
-                WriteConfiguration writeConfiguration = new WriteConfiguration(ace4000);
-                return writeConfiguration.request(messageEntry);
-            }
-        } catch (Exception e) {
-            return MessageResult.createFailed(messageEntry, "Error parsing/executing message: " + e.getMessage());
-        }
-    }
-
     public Integer sendConfigurationMessage(MessageEntry messageEntry) {
         String messageContent = messageEntry.getContent();
-        if (messageContent.contains(SHORT_DISPLAY_MESSAGE)) {
+        if (messageContent.contains(RtuMessageConstant.SHORT_DISPLAY_MESSAGE)) {
             sendDisplayMessage(messageContent, 1);
-        } else if (messageContent.contains(LONG_DISPLAY_MESSAGE)) {
+        } else if (messageContent.contains(RtuMessageConstant.LONG_DISPLAY_MESSAGE)) {
             sendDisplayMessage(messageContent, 2);
-        } else if (messageContent.contains(NO_DISPLAY_MESSAGE)) {
+        } else if (messageContent.contains(RtuMessageConstant.NO_DISPLAY_MESSAGE)) {
             sendDisplayMessage(messageContent, 0);
-        } else if (messageContent.contains(DISPLAY_CONFIG)) {
+        } else if (messageContent.contains(RtuMessageConstant.DISPLAY_CONFIG)) {
             sendDisplayConfigRequest(messageContent);
-        } else if (messageContent.contains(CONFIG_LOADPROFILE)) {
+        } else if (messageContent.contains(RtuMessageConstant.CONFIG_LOADPROFILE)) {
             sendLoadProfileConfigurationRequest(messageContent);
-        } else if (messageContent.contains(CONFIG_SPECIAL_DATA_MODE)) {
+        } else if (messageContent.contains(RtuMessageConstant.CONFIG_SPECIAL_DATA_MODE)) {
             sendSDMConfigurationRequest(messageContent);
-        } else if (messageContent.contains(CONFIG_MAX_DEMAND)) {
+        } else if (messageContent.contains(RtuMessageConstant.CONFIG_MAX_DEMAND)) {
             sendMaxDemandConfigurationRequest(messageContent);
-        } else if (messageContent.contains(CONFIG_CONSUMPTION_LIMITATION)) {
+        } else if (messageContent.contains(RtuMessageConstant.CONFIG_CONSUMPTION_LIMITATION)) {
             sendConsumptionLimitationConfiguration(messageContent);
-        } else if (messageContent.contains(CONFIG_EMERGENCY_CONSUMPTION_LIMITATION)) {
+        } else if (messageContent.contains(RtuMessageConstant.CONFIG_EMERGENCY_CONSUMPTION_LIMITATION)) {
             sendEmergencyConsumptionLimitationConfiguration(messageContent);
-        } else if (messageContent.contains(CONFIG_TARIFF)) {
+        } else if (messageContent.contains(RtuMessageConstant.CONFIG_TARIFF)) {
             sendTariffConfiguration(messageContent);
         } else {
             return null;         //Unknown message, handle properly later on
@@ -147,116 +60,8 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         return ace4000.getObjectFactory().getTrackingID();
     }
 
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
-
-        MessageCategorySpec cat1 = new MessageCategorySpec("ACE4000 general messages");
-        cat1.addMessageSpec(addBasicMsgWithValues("Firmware upgrade", FIRMWARE_UPGRADE, false, "URL path (start with http://)", "Size of the JAR file (bytes)", "Size of the JAD file (bytes)"));
-        cat1.addMessageSpec(addBasicMsgWithValues("Connect (close contactor)", CONNECT, false, "Optional date (dd/mm/yyyy hh:mm:ss)"));
-        cat1.addMessageSpec(addBasicMsgWithValues("Disconnect (open contactor)", DISCONNECT, false, "Optional date (dd/mm/yyyy hh:mm:ss)"));
-        categories.add(cat1);
-
-        MessageCategorySpec cat2 = new MessageCategorySpec("ACE4000 configuration messages");
-        cat2.addMessageSpec(addBasicMsgWithValue("Send short display message (max 8 chars)", SHORT_DISPLAY_MESSAGE, false));
-        cat2.addMessageSpec(addBasicMsgWithValue("Send long display message (max 1024 chars)", LONG_DISPLAY_MESSAGE, false));
-        cat2.addMessageSpec(addBasicMsg("Disable the display message", NO_DISPLAY_MESSAGE, false));
-        cat2.addMessageSpec(addBasicMsgWithValues("Configure LCD display", DISPLAY_CONFIG, false, "Number of digits before comma (allowed: 5, 6 or 7)", "Number of digits after comma (allowed: 0, 1, 2 or 3)", "Display sequence (comma separated hex values, e.g.: 1,2,E,12,1A)", "Display cycle time (seconds)"));
-        cat2.addMessageSpec(addBasicMsgWithValues("Configure load profile data recording", CONFIG_LOADPROFILE, false, "Enable (1) or disable (0)", "Interval (1, 2, 3, 5, 6, 10, 12, 15, 20, 30, 60, 120 or 240 minutes)", "Maximum number of records (min 1, max 65535)"));
-        cat2.addMessageSpec(addBasicMsgWithValues("Configure special data mode", CONFIG_SPECIAL_DATA_MODE, false, "Special data mode duration (days)", "Special data mode activation date (dd/mm/yyyy)", "Special billing register recording: enable (1) or disable (0)", "Special billing register recording: interval (0: hourly, 1: daily, 2: monthly)", "Special billing register recording: max number of records (min 1, max 65535)", "Special load profile: enable (1) or disable (0)", "Special load profile: interval (1, 2, 3, 5, 6, 10, 12, 15, 20, 30, 60, 120 or 240 minutes)", "Special load profile: max number of records (min 1, max 65535)"));
-        cat2.addMessageSpec(addBasicMsgWithValues("Configure maximum demand settings", CONFIG_MAX_DEMAND, false, "Active registers (0) or reactive registers (1)", "Number of sub intervals (0, 1, 2, 3, 4, 5, 10 or 15)", "Sub interval duration (30, 60, 300, 600, 900, 1200, 1800 or 3600 seconds)"));
-        cat2.addMessageSpec(addBasicMsgWithValues("Configure consumption limitation settings", CONFIG_CONSUMPTION_LIMITATION, false, "Number of sub intervals (0, 1, 2, 3, 4, 5, 10 or 15)", "Sub interval duration (30, 60, 300, 600, 900, 1200, 1800 or 3600 seconds)", "Override rate (0: disabled)", "Allowed excess tolerance (0 - 100 %)", "Threshold selection (0: day profile, 1: maximum threshold)", "8 switching moments for daily profile 0 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 0 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 0 (comma separated)", "8 switching moments for daily profile 1 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 1 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 1 (comma separated)", "Day profiles used for each day of the week (comma separated)", "Activation date (dd/mm/yyyy hh:mm:ss) (optional)"));
-        cat2.addMessageSpec(addBasicMsgWithValues("Configure emergency consumption limitation settings", CONFIG_EMERGENCY_CONSUMPTION_LIMITATION, false, "Duration (minutes)", "Threshold value", "Threshold unit (0: Watt, 1: Ampere)", "Override rate (0: disabled)"));
-        cat2.addMessageSpec(addBasicMsgWithValues("Configure tariff settings", CONFIG_TARIFF, false, "Unique tariff ID number", "Number of tariff rates (max 4)", "Code table ID"));
-        categories.add(cat2);
-
-        return categories;
-    }
-
-    protected MessageSpec addBasicMsgWithValue(final String keyId, final String tagName, final boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        tagSpec.add(new MessageValueSpec());
-        msgSpec.add(tagSpec);
-        return msgSpec;
-    }
-
-    protected MessageSpec addBasicMsg(final String keyId, final String tagName, final boolean advanced) {
-        final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-    }
-
-    protected MessageSpec addBasicMsgWithValues(final String keyId, final String tagName, final boolean advanced, String... attributes) {
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        for (String attribute : attributes) {
-            tagSpec.add(new MessageAttributeSpec(attribute, true));
-        }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-    }
-
     private String stripOffTag(String content) {
         return content.substring(content.indexOf(">") + 1, content.lastIndexOf("<"));
-    }
-
-    public String writeMessage(Message msg) {
-        return msg.write(this);
-    }
-
-    public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
-
-        // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
-
-        // b. Attributes
-        for (Object o1 : msgTag.getAttributes()) {
-            MessageAttribute att = (MessageAttribute) o1;
-            if (att.getValue() == null || att.getValue().length() == 0) {
-                continue;
-            }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
-        }
-        buf.append(">");
-
-        // c. sub elements
-        for (Object o : msgTag.getSubElements()) {
-            MessageElement elt = (MessageElement) o;
-            if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
-            } else if (elt.isValue()) {
-                String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
-                    return "";
-                }
-                buf.append(value);
-            }
-        }
-
-        // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
-
-        return buf.toString();
-    }
-
-    public String writeValue(MessageValue value) {
-        return value.getValue();
-    }
-
-    public void applyMessages(List messageEntries) throws IOException {
-    }
-
-    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        return null;    //Not used
     }
 
     private void sendTariffConfiguration(String messageContent) {
@@ -737,5 +542,116 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         map.put(10, 6);
         map.put(15, 7);
         return map.get(numberOfSubIntervals);
+    }
+
+    public MessageResult executeMessageEntry(final MessageEntry messageEntry) throws IOException {
+        boolean success = false;
+        String content = messageEntry.getContent();
+        MessageHandler messageHandler = new MessageHandler();
+        try {
+            importMessage(content, messageHandler);
+            boolean isReadEvents = messageHandler.getType().equals(RtuMessageConstant.READ_EVENTS);
+            boolean isReadProfileData = messageHandler.getType().equals(RtuMessageConstant.READ_PROFILE_DATA);
+            boolean isFirmwareUpgrade = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
+            boolean isConnect = messageHandler.getType().equals(RtuMessageConstant.CONNECT);
+            boolean isDisconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT);
+            boolean isShortDisplayMessage = messageHandler.getType().equals(RtuMessageConstant.SHORT_DISPLAY_MESSAGE);
+            boolean isLongDisplayMessage = messageHandler.getType().equals(RtuMessageConstant.LONG_DISPLAY_MESSAGE);
+            boolean isNoDisplayMessage = messageHandler.getType().equals(RtuMessageConstant.NO_DISPLAY_MESSAGE);
+            boolean isDisplayConfig = messageHandler.getType().equals(RtuMessageConstant.DISPLAY_CONFIG);
+            boolean isConfigLoadProfile = messageHandler.getType().equals(RtuMessageConstant.CONFIG_LOADPROFILE);
+            boolean isConfigSpecialDataMode = messageHandler.getType().equals(RtuMessageConstant.CONFIG_SPECIAL_DATA_MODE);
+            boolean isConfigMaxDemand = messageHandler.getType().equals(RtuMessageConstant.CONFIG_MAX_DEMAND);
+            boolean isConfigConsumptionLimitation = messageHandler.getType().equals(RtuMessageConstant.CONFIG_CONSUMPTION_LIMITATION);
+            boolean isConfigEmergencyConsumptionLimitation = messageHandler.getType().equals(RtuMessageConstant.CONFIG_EMERGENCY_CONSUMPTION_LIMITATION);
+            boolean isConfigTariff = messageHandler.getType().equals(RtuMessageConstant.CONFIG_TARIFF);
+
+            if (isReadEvents) {
+                //TODO what if the offline device has no logbooks configured??
+                ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000);
+                OfflineLogBook offlineLogBook = ace4000.getOfflineDevice().getAllOfflineLogBooks().get(0);
+                List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(new LogBookIdentifierById(offlineLogBook.getLogBookId(), offlineLogBook.getOfflineLogBookSpec().getDeviceObisCode()));
+                MeterData meterData = new MeterData();
+                for (MeterProtocolEvent collectedMeterEvent : collectedLogBooks.get(0).getCollectedMeterEvents()) {
+                    meterData.addMeterEvent(collectedMeterEvent);
+                }
+                return MeterDataMessageResult.createSuccess(messageEntry, "", meterData);
+            } else if (isReadProfileData) {
+                List<CollectedLoadProfile> collectedLoadProfiles = readProfileData(content);
+                CollectedLoadProfile collectedLoadProfile = collectedLoadProfiles.get(0);
+                MeterData meterData = new MeterData();
+                ProfileData profileData = new ProfileData();
+                for (ChannelInfo channelInfo : collectedLoadProfile.getChannelInfo()) {
+                    profileData.addChannel(channelInfo);
+                }
+                for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
+                    profileData.addInterval(intervalData);
+                }
+                meterData.addProfileData(profileData);
+                return MeterDataMessageResult.createSuccess(messageEntry, "", meterData);
+            } else if (isFirmwareUpgrade) {
+                FirmwareUpgrade firmwareUpgrade = new FirmwareUpgrade(ace4000);
+                return firmwareUpgrade.request(messageEntry);
+            } else if (isConnect) {
+                ContactorCommand contactorCommand = new ContactorCommand(ace4000);
+                contactorCommand.setCommand(0);
+                return contactorCommand.request(messageEntry);
+            } else if (isDisconnect) {
+                ContactorCommand contactorCommand = new ContactorCommand(ace4000);
+                contactorCommand.setCommand(1);
+                return contactorCommand.request(messageEntry);
+            } else if (isShortDisplayMessage) {
+                sendDisplayMessage(content, 1);
+            } else if (isLongDisplayMessage) {
+                sendDisplayMessage(content, 2);
+            } else if (isNoDisplayMessage) {
+                sendDisplayMessage(content, 0);
+            } else if (isDisplayConfig) {
+                sendDisplayConfigRequest(content);
+            } else if (isConfigLoadProfile) {
+                sendLoadProfileConfigurationRequest(content);
+            } else if (isConfigSpecialDataMode) {
+                sendSDMConfigurationRequest(content);
+            } else if (isConfigMaxDemand) {
+                sendMaxDemandConfigurationRequest(content);
+            } else if (isConfigConsumptionLimitation) {
+                sendConsumptionLimitationConfiguration(content);
+            } else if (isConfigEmergencyConsumptionLimitation) {
+                sendEmergencyConsumptionLimitationConfiguration(content);
+            } else if (isConfigTariff) {
+                sendTariffConfiguration(content);
+            }else {
+                WriteConfiguration writeConfiguration = new WriteConfiguration(ace4000);
+                return writeConfiguration.request(messageEntry);
+            }
+
+        } catch (BusinessException e) {
+            log(Level.INFO, "Message has failed. " + e.getMessage());
+        } catch (ConnectionException e) {
+            log(Level.INFO, "Message has failed. " + e.getMessage());
+        } catch (IOException e) {
+            log(Level.INFO, "Message has failed. " + e.getMessage());
+        } catch (SQLException e) {
+            log(Level.INFO, "Message has failed. " + e.getMessage());
+        }
+        if (success) {
+            log(Level.INFO, "Message has finished.");
+            return MessageResult.createSuccess(messageEntry);
+        } else {
+            return MessageResult.createFailed(messageEntry);
+        }
+    }
+
+    private Logger getLogger() {
+        return this.ace4000.getLogger();
+    }
+
+    private void log(Level level, String msg) {
+        getLogger().log(level, msg);
+    }
+
+    @Override
+    protected TimeZone getTimeZone() {
+        return this.ace4000.getTimeZone();
     }
 }
