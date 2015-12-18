@@ -331,7 +331,9 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public EstimationRuleSet createEstimationRuleSet(String name) {
-        return dataModel.getInstance(EstimationRuleSetImpl.class).init(name);
+        EstimationRuleSetImpl set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name);
+        set.save();
+        return set;
     }
 
     @Override

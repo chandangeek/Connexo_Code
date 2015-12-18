@@ -9,7 +9,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
 
-public class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
+class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
 
     private final DataModel dataModel;
 
@@ -50,12 +50,13 @@ public class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     }
 
     @Override
-    public EstimationTask build() {
+    public EstimationTask create() {
         IEstimationTask task = EstimationTaskImpl.from(dataModel, name, endDeviceGroup, scheduleExpression, nextExecution, application);
         task.setScheduleImmediately(scheduleImmediately);
         if (period != null) {
             task.setPeriod(period);
         }
+        task.doSave();
         return task;
     }
 

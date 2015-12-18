@@ -24,6 +24,7 @@ import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
@@ -126,29 +127,34 @@ public class ConsoleCommands {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(IllegalArgumentException::new);
-            EstimationRule estimationRule = set.addRule(implementation, name);
-
-            Stream.of(readingTypesCommaSeparated.split(","))
-                    .map(meteringService::getReadingType)
-                    .flatMap(Functions.asStream())
-                    .forEach(estimationRule::addReadingType);
-            Stream.of(properties)
-                    .map(string -> string.split(":"))
-                    .forEach(split -> {
-                        estimationRule.getPropertySpecs().stream()
-                                .filter(spec -> spec.getName().equals(split[0]))
-                                .findFirst()
-                                .ifPresent(spec -> {
-                                    Object value = spec.getValueFactory().fromStringValue(split[1]);
-                                    estimationRule.addProperty(split[0], value);
-                                });
-                    });
-            set.save();
+            EstimationRule estimationRule = set.addRule(implementation, name)
+                    .withReadingTypes(Stream.of(readingTypesCommaSeparated.split(","))
+                            .map(meteringService::getReadingType)
+                            .flatMap(Functions.asStream())
+                            .collect(Collectors.toSet()))
+                    .withProperties(toPropertyMap(implementation, properties))
+                    .create();
             System.out.println(print(set));
             context.commit();
         } finally {
             threadPrincipalService.clear();
         }
+    }
+
+    private Map<String, Object> toPropertyMap(String implementation, String[] properties) {
+        Estimator estimator = estimationService.getEstimator(implementation).orElseThrow(IllegalArgumentException::new);
+        return Arrays.stream(properties)
+                .map(string -> string.split(":"))
+                .map(array -> Pair.of(array[0], array[1]))
+                .map(pair -> pair.<Object>withLast((property, stringValue) ->
+                        estimator.getPropertySpecs().stream()
+                                .filter(spec -> spec.getName().equals(property))
+                                .findFirst()
+                                .map(spec -> spec.getValueFactory().fromStringValue(stringValue))
+                                .orElseThrow(IllegalArgumentException::new)
+
+                ))
+                .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
     }
 
     public void updateRule(long ruleSetId, long ruleId, String name, String implementation, String readingTypesCommaSeparated, String... properties) {
@@ -342,8 +348,7 @@ public class ConsoleCommands {
                     .setApplication("Admin")
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setEndDeviceGroup(endDeviceGroup(groupId))
-                    .setScheduleExpression(parse(scheduleExpression)).build();
-            estimationTask.save();
+                    .setScheduleExpression(parse(scheduleExpression)).create();
             context.commit();
         } catch (RuntimeException e) {
             e.printStackTrace();

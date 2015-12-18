@@ -1,25 +1,8 @@
 package com.elster.jupiter.estimation.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.impl.MessageSeeds.Constants;
@@ -33,6 +16,23 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_ESTIMATION_RULE_SET + "}")
 class EstimationRuleSetImpl implements IEstimationRuleSet {
@@ -229,7 +229,11 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     }
 
     @Override
-    public IEstimationRule addRule(String implementation, String name) {
+    public EstimationRuleBuilder addRule(String implementation, String name) {
+        return new EstimationRuleBuilderImpl(this, implementation, name);
+    }
+
+    IEstimationRule newRule(String implementation, String name) {
         EstimationRuleImpl newRule = validationRuleProvider.get().init(this, implementation, name);
         rulesToSave.add(newRule);
         return newRule;

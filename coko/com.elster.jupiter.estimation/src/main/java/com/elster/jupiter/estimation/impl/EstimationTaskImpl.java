@@ -21,12 +21,12 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class EstimationTaskImpl implements IEstimationTask {
+final class EstimationTaskImpl implements IEstimationTask {
 
     private final IEstimationService estimationService;
     private final TaskService taskService;
@@ -93,7 +93,7 @@ public class EstimationTaskImpl implements IEstimationTask {
     }
 
     @Override
-    public void save() {
+    public void doSave() {
         if (id == 0) {
             persist();
         } else {
@@ -115,7 +115,7 @@ public class EstimationTaskImpl implements IEstimationTask {
         Save.CREATE.save(dataModel, this);
     }
 
-    private void update() {
+    public void update() {
         if (recurrentTaskDirty) {
             if (!recurrentTask.get().getName().equals(this.name)) {
                 recurrentTask.get().setName(name);
@@ -258,5 +258,18 @@ public class EstimationTaskImpl implements IEstimationTask {
     @Override
     public RecurrentTask getRecurrentTask() {
         return recurrentTask.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EstimationTaskImpl that = (EstimationTaskImpl) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

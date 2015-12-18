@@ -33,7 +33,7 @@ public interface EstimationRuleSet extends IdentifiedObject {
 
     List<? extends EstimationRule> getRules(int start, int limit);
 
-    EstimationRule addRule(String implementation, String name);
+    EstimationRuleBuilder addRule(String implementation, String name);
 
     EstimationRule updateRule(long id, String name, boolean active, List<String> mRIDs, Map<String, Object> properties);
 
