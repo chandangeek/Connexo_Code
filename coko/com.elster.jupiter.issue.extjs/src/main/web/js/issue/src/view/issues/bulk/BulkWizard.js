@@ -135,13 +135,16 @@ Ext.define('Isu.view.issues.bulk.BulkWizard', {
 
     processValidateOnStep1: function (wizard) {
         var issuesGrid = wizard.down('issues-selection-grid'),
-            step1ErrorPanel = wizard.down('[name=step1-errors]');
+            step1ErrorPanel = wizard.down('[name=step1-errors]'),
+            gridError = wizard.down('#selection-grid-error');
 
         if (!issuesGrid.isAllSelected() && Ext.isEmpty(issuesGrid.view.getSelectionModel().getSelection())) {
+            gridError.show();
             step1ErrorPanel.setVisible(true);
             return false;
         } else {
             step1ErrorPanel.setVisible(false);
+            gridError.hide();
             return true;
         }
     },
