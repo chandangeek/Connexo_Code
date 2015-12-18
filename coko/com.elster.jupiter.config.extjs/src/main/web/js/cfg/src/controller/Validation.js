@@ -501,7 +501,6 @@ Ext.define('Cfg.controller.Validation', {
                     me.showReadingTypesGrid(editRulePanel, false);
                 }
 
-                editRulePanel.setTitle(Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'));
                 me.ruleModel = null;
 
                 ruleSetsStore.load({
