@@ -31,6 +31,7 @@ import java.util.logging.Logger;
                 "osgi.command.function=drain", "osgi.command.function=subscribe", "osgi.command.function=createQueue",
                 "osgi.command.function=destinations", "osgi.command.function=activate", "osgi.command.function=resubscribe",
                 "osgi.command.function=drainToException", "osgi.command.function=enqueue",
+                "osgi.command.function=enqueueMultipleMessages",
                 "osgi.command.function=numberOfMessages",
                 "osgi.command.function=numberOfErrors",
                 "osgi.command.function=retries",
@@ -204,6 +205,22 @@ public class ConsoleCommandsImpl {
         } finally {
             threadPrincipalService.clear();
         }
+
+    }
+
+    public void enqueueMultipleMessages(String destination, String message, int numberOfmessages) {
+        DestinationSpec destinationSpec = messageService.getDestinationSpec(destination).orElseThrow(IllegalArgumentException::new);
+        threadPrincipalService.set(() -> "console");
+        try {
+            transactionService.execute(VoidTransaction.of(() -> {
+                for (int i = 0; i < numberOfmessages; i++) {
+                    destinationSpec.message(message).send();
+                }
+            }));
+        } finally {
+            threadPrincipalService.clear();
+        }
+
 
     }
 
