@@ -22,7 +22,7 @@ public class EstimationRuleSetBuilder extends NamedBuilder<EstimationRuleSet, Es
         this.timeService = timeService;
     }
 
-    public EstimationRuleSetBuilder withDescription(String description){
+    public EstimationRuleSetBuilder withDescription(String description) {
         this.description = description;
         return this;
     }
@@ -45,28 +45,28 @@ public class EstimationRuleSetBuilder extends NamedBuilder<EstimationRuleSet, Es
     }
 
     private void addEstimateWithSamplesEstimationRule(EstimationRuleSet ruleSet) {
-        EstimationRule rule = ruleSet.addRule("com.elster.jupiter.estimators.impl.AverageWithSamplesEstimator", "Estimate with samples");
-        rule.addReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addProperty("averagewithsamples.maxNumberOfConsecutiveSuspects", 10L);
-        rule.addProperty("averagewithsamples.minNumberOfSamples", 1L);
-        rule.addProperty("averagewithsamples.maxNumberOfSamples", 5L);
-        rule.addProperty("averagewithsamples.allowNegativeValues",false);
-        rule.addProperty("averagewithsamples.relativePeriod", timeService.getAllRelativePeriod());
-        rule.addProperty("averagewithsamples.advanceReadingsSettings",NoneAdvanceReadingsSettings.INSTANCE);
-        rule.activate();
+        EstimationRule rule = ruleSet.addRule("com.elster.jupiter.estimators.impl.AverageWithSamplesEstimator", "Estimate with samples")
+                .withReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .withReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .withReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .withReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .havingProperty("averagewithsamples.maxNumberOfConsecutiveSuspects").withValue(10L)
+                .havingProperty("averagewithsamples.minNumberOfSamples").withValue(1L)
+                .havingProperty("averagewithsamples.maxNumberOfSamples").withValue(5L)
+                .havingProperty("averagewithsamples.allowNegativeValues").withValue(false)
+                .havingProperty("averagewithsamples.relativePeriod").withValue(timeService.getAllRelativePeriod())
+                .havingProperty("averagewithsamples.advanceReadingsSettings").withValue(NoneAdvanceReadingsSettings.INSTANCE)
+                .create();
     }
 
     private void addValueFillEstimationRule(EstimationRuleSet ruleSet) {
-        EstimationRule rule = ruleSet.addRule("com.elster.jupiter.estimators.impl.ValueFillEstimator", "Value fill");
-        rule.addReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addProperty("valuefill.maxNumberOfConsecutiveSuspects", 5L);
-        rule.addProperty("valuefill.fillValue", new BigDecimal(900));
-        rule.activate();
+        EstimationRule rule = ruleSet.addRule("com.elster.jupiter.estimators.impl.ValueFillEstimator", "Value fill")
+                .withReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .withReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .withReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .withReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .havingProperty("valuefill.maxNumberOfConsecutiveSuspects").withValue(5L)
+                .havingProperty("valuefill.fillValue").withValue(new BigDecimal(900))
+                .create();
     }
 }
