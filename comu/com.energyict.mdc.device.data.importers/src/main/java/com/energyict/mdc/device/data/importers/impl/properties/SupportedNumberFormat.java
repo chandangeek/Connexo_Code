@@ -53,7 +53,7 @@ public enum SupportedNumberFormat {
         return Arrays.asList(values()).stream().map(SupportedNumberFormatInfo::new).toArray(SupportedNumberFormatInfo[]::new);
     }
 
-    public static class SupportedNumberFormatValueFactory implements ValueFactory<SupportedNumberFormatInfo> {
+    public static class SupportedNumberFormatValueFactory implements ValueFactory<HasIdAndName> {
         @Override
         public SupportedNumberFormatInfo fromStringValue(String stringValue) {
             return Arrays.asList(values()).stream()
@@ -64,13 +64,13 @@ public enum SupportedNumberFormat {
         }
 
         @Override
-        public String toStringValue(SupportedNumberFormatInfo object) {
-            return object.getId();
+        public String toStringValue(HasIdAndName object) {
+            return String.valueOf(object.getId());
         }
 
         @Override
-        public Class<SupportedNumberFormatInfo> getValueType() {
-            return SupportedNumberFormatInfo.class;
+        public Class<HasIdAndName> getValueType() {
+            return HasIdAndName.class;
         }
 
         @Override
@@ -79,12 +79,12 @@ public enum SupportedNumberFormat {
         }
 
         @Override
-        public Object valueToDatabase(SupportedNumberFormatInfo object) {
+        public Object valueToDatabase(HasIdAndName object) {
             return this.toStringValue(object);
         }
 
         @Override
-        public void bind(PreparedStatement statement, int offset, SupportedNumberFormatInfo value) throws SQLException {
+        public void bind(PreparedStatement statement, int offset, HasIdAndName value) throws SQLException {
             if (value != null) {
                 statement.setObject(offset, valueToDatabase(value));
             }
@@ -94,7 +94,7 @@ public enum SupportedNumberFormat {
         }
 
         @Override
-        public void bind(SqlBuilder builder, SupportedNumberFormatInfo value) {
+        public void bind(SqlBuilder builder, HasIdAndName value) {
             if (value != null) {
                 builder.addObject(valueToDatabase(value));
             }

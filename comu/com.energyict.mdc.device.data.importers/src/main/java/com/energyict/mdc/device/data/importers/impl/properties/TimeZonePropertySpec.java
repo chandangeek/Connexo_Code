@@ -26,10 +26,10 @@ public class TimeZonePropertySpec extends BasicPropertySpec {
         this.thesaurus = thesaurus;
     }
 
-    public TimeZonePropertySpec(TranslationKey name, Thesaurus thesaurus, Clock clock) {
+    public TimeZonePropertySpec(String name, TranslationKey displayName, Thesaurus thesaurus, Clock clock) {
         this(thesaurus, clock);
-        this.setName(name.getKey());
-        this.setDisplayName(thesaurus.getFormat(name).format());
+        this.setName(name);
+        this.setDisplayName(thesaurus.getFormat(displayName).format());
     }
 
     public String getDefaultTimeZone(Clock clock) {

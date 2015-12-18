@@ -34,7 +34,7 @@ public class TimeZonePropertySpecTest {
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
-        this.propertySpec = new TimeZonePropertySpec(TranslationKeys.DEVICE_DATA_IMPORTER_TIMEZONE, this.thesaurus, this.clock);
+        this.propertySpec = new TimeZonePropertySpec("name", TranslationKeys.DEVICE_DATA_IMPORTER_TIMEZONE, this.thesaurus, this.clock);
     }
 
     @Test

@@ -22,7 +22,7 @@ public enum DeviceDataImporterProperty {
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
             return context.getPropertySpecService()
                     .stringSpec()
-                    .named(this.getNameTranslationKey())
+                    .named(this.getPropertyKey(), this.getNameTranslationKey())
                     .describedAs(this.getDescriptionTranslationKey())
                     .fromThesaurus(context.getThesaurus())
                     .markRequired()
@@ -37,13 +37,13 @@ public enum DeviceDataImporterProperty {
     DATE_FORMAT(TranslationKeys.DEVICE_DATA_IMPORTER_DATE_FORMAT, TranslationKeys.DEVICE_DATA_IMPORTER_DATE_FORMAT_DESCRIPTION) {
         @Override
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
-            return new DateFormatPropertySpec(this.getNameTranslationKey(), context.getThesaurus());
+            return new DateFormatPropertySpec(this.getPropertyKey(), this.getNameTranslationKey(), context.getThesaurus());
         }
     },
     TIME_ZONE(TranslationKeys.DEVICE_DATA_IMPORTER_TIMEZONE, TranslationKeys.DEVICE_DATA_IMPORTER_TIMEZONE_DESCRIPTION) {
         @Override
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
-            return new TimeZonePropertySpec(this.getNameTranslationKey(), context.getThesaurus(), context.getClock());
+            return new TimeZonePropertySpec(this.getPropertyKey(), this.getNameTranslationKey(), context.getThesaurus(), context.getClock());
         }
     },
     NUMBER_FORMAT(TranslationKeys.DEVICE_DATA_IMPORTER_NUMBER_FORMAT, TranslationKeys.DEVICE_DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION) {
@@ -52,7 +52,7 @@ public enum DeviceDataImporterProperty {
             PropertySpecBuilder builder =
                 context.getPropertySpecService()
                     .specForValuesOf(new SupportedNumberFormat.SupportedNumberFormatValueFactory())
-                    .named(this.getNameTranslationKey())
+                    .named(this.getPropertyKey(), this.getNameTranslationKey())
                     .describedAs(this.getDescriptionTranslationKey())
                     .fromThesaurus(context.getThesaurus())
                     .markRequired()
@@ -95,7 +95,7 @@ public enum DeviceDataImporterProperty {
                 SupportedNumberFormat numberFormatValue = ((SupportedNumberFormat.SupportedNumberFormatInfo) numberFormat.get().getValue()).getFormat();
                 if (delimiterValue == numberFormatValue.getDecimalSeparator() ||
                         (numberFormatValue.getGroupSeparator() != null && delimiterValue == numberFormatValue.getGroupSeparator().charValue())) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.NUMBER_FORMAT_IS_INCOMPATIBLE_WITH_DELIMITER, "properties." + this.getNameTranslationKey().getKey());
+                    throw new LocalizedFieldValidationException(MessageSeeds.NUMBER_FORMAT_IS_INCOMPATIBLE_WITH_DELIMITER, "properties." + this.getPropertyKey());
                 }
             }
         }
@@ -118,7 +118,7 @@ public enum DeviceDataImporterProperty {
     }
 
     public String getPropertyKey() {
-        return this.nameTranslationKey.getKey();
+        return AbstractDeviceDataFileImporterFactory.IMPORTER_FACTORY_PROPERTY_PREFIX + "." + this.nameTranslationKey.getKey();
     }
 
     public boolean isMatchKey(String candidate) {

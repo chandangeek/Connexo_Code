@@ -44,7 +44,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_DATA_IMPORTER_DATE_FORMAT_DESCRIPTION("dateFormat.description", "The format that is used for date properties"),
     DEVICE_DATA_IMPORTER_TIMEZONE("timeZone", "Time zone"),
     DEVICE_DATA_IMPORTER_TIMEZONE_DESCRIPTION("timeZone.description", "The unique identifier of the Timezone in which date properties are specified"),
-    DEVICE_DATA_IMPORTER_NUMBER_FORMAT("numberFormat.description", "Number format"),
+    DEVICE_DATA_IMPORTER_NUMBER_FORMAT("numberFormat", "Number format"),
     DEVICE_DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION("numberFormat.description", "The format that is used for numerical properties"),
 
     MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (MRID: {1}) was overridden by new one (MRID: {2})"),

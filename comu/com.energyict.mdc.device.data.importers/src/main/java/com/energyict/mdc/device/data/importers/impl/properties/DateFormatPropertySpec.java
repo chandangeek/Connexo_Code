@@ -22,10 +22,10 @@ public class DateFormatPropertySpec extends BasicPropertySpec {
         this.thesaurus = thesaurus;
     }
 
-    public DateFormatPropertySpec(TranslationKey name, Thesaurus thesaurus) {
+    public DateFormatPropertySpec(String name, TranslationKey displayName, Thesaurus thesaurus) {
         this(thesaurus);
-        this.setName(name.getKey());
-        this.setDisplayName(thesaurus.getFormat(name).format());
+        this.setName(name);
+        this.setDisplayName(thesaurus.getFormat(displayName).format());
     }
 
     @Override
