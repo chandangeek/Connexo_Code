@@ -65,7 +65,13 @@ import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class EstimationResourceTest extends EstimationApplicationJerseyTest {
 
@@ -305,7 +311,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         verify(estimationRuleBuilder).havingProperty("text");
         verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue("string");
         verify(estimationRuleBuilder).havingProperty(Matchers.eq("listvalue"));
-        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(isA(ListValue.class));
+        verify((EstimationRuleBuilder.PropertyBuilder) estimationRuleBuilder).withValue(isA(List.class));
     }
 
     @Test
