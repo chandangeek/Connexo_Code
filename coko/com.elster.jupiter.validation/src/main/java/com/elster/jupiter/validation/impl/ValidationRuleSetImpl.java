@@ -65,7 +65,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private final Provider<ValidationRuleSetVersionImpl> validationRuleSetVersionProvider;
 
     @Inject
-    ValidationRuleSetImpl(DataModel dataModel, EventService eventService,  Provider<ValidationRuleSetVersionImpl> validationRuleSetValidationProvider) {
+    ValidationRuleSetImpl(DataModel dataModel, EventService eventService, Provider<ValidationRuleSetVersionImpl> validationRuleSetValidationProvider) {
         // for persistence
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -73,7 +73,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     ValidationRuleSetImpl init(String name) {
-    	return init(name,null);
+        return init(name, null);
     }
 
     ValidationRuleSetImpl init(String name, String description) {
@@ -175,7 +175,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
-        doGetVersions().forEach( version -> version.save());
+        doGetVersions().forEach(version -> version.save());
         eventService.postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
     }
 
@@ -195,8 +195,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public List<IValidationRule> getRules() {
         return doGetRules()
-        	.sorted(Comparator.comparing(rule -> rule.getName().toUpperCase()))
-        	.collect(Collectors.toList());
+                .sorted(Comparator.comparing(rule -> rule.getName().toUpperCase()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -213,7 +213,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private void addNewVersion() {
-        versionToSave.forEach( newVersion -> {
+        versionToSave.forEach(newVersion -> {
             newVersion.save();
             versions.add(newVersion);
         });
@@ -249,7 +249,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private void updateVersionsEndDate(List<IValidationRuleSetVersion> versions) {
         versions.stream()
-            .sequential()
+                .sorted(Comparator.comparing(IValidationRuleSetVersion::getStartDate))
+                .sequential()
                 .reduce((a, b) -> {
                     a.setEndDate(b.getStartDate()); // set End Date;
                     return b;
@@ -279,15 +280,16 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public void deleteRuleSetVersion(ValidationRuleSetVersion version) {
         IValidationRuleSetVersion iVersion = (IValidationRuleSetVersion) version;
-        if (doGetVersions().anyMatch( candidate -> candidate.equals(iVersion))) {
+        if (doGetVersions().anyMatch(candidate -> candidate.equals(iVersion))) {
             iVersion.delete();
             dataModel.touch(this);
         } else {
             throw new IllegalArgumentException("The ruleset " + this.getId() + " doesn't contain provided rule set version Id: " + version.getId());
         }
     }
+
     @Override
-    public ValidationRuleSetVersion cloneRuleSetVersion(long ruleSetVersionId, String description, Instant startDate){
+    public ValidationRuleSetVersion cloneRuleSetVersion(long ruleSetVersionId, String description, Instant startDate) {
 
         IValidationRuleSetVersion existingVersion = doGetVersions()
                 .filter(v -> v.getId() == ruleSetVersionId)
@@ -296,9 +298,9 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
         IValidationRuleSetVersion clonedVersion = addRuleSetVersion(description, startDate);
         existingVersion
-            .getRules()
-            .stream()
-            .forEach(clonedVersion::cloneRule);
+                .getRules()
+                .stream()
+                .forEach(clonedVersion::cloneRule);
         return clonedVersion;
     }
 

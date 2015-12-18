@@ -1,17 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -23,8 +11,31 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.elster.jupiter.validation.impl.MessageSeeds.Constants;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueStartDate(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.OVERLAPPED_PERIOD + "}")
 public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
@@ -33,7 +44,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant startDate;
-    private Instant endDate;
+    private transient Instant endDate;
     private Instant obsoleteTime;
 
     private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();
