@@ -8,9 +8,9 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
     alias: 'widget.issues-creation-rules-edit-action-form',
     isEdit: false,
     returnLink: null,
+    ui: 'large',
     defaults: {
         labelWidth: 260,
-        width: 595
     },
     initComponent: function () {
         var me = this;
@@ -29,7 +29,6 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
                 required: true,
                 columns: 1,
                 vertical: true,
-                width: 700,
                 listeners: {
                     change: {
                         fn: Ext.bind(me.onPhaseChange, me)
@@ -45,6 +44,7 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
                 store: 'Isu.store.CreationRuleActions',
                 queryMode: 'local',
                 displayField: 'name',
+                width: 595,
                 valueField: 'id',
                 forceSelection: true,
                 allowBlank: false,
