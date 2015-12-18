@@ -116,7 +116,7 @@ public class IntervalStateValidatorTest {
         PropertySpec propertySpec = propertySpecs.get(0);
         assertThat(propertySpec.getName()).isEqualTo(INTERVAL_FLAGS);
         assertThat(propertySpec.supportsMultiValues()).isTrue();
-        assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(IntervalFlag.class);
+        assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(List.class);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class IntervalStateValidatorTest {
         PropertySpec propertySpec = validator.getPropertySpec(INTERVAL_FLAGS).get();
 
         assertThat(propertySpec.getName()).isEqualTo(INTERVAL_FLAGS);
-        assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(IntervalFlag.class);
+        assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(List.class);
 
         assertThat(validator.getPropertySpec("flags~")).isEmpty();
     }
