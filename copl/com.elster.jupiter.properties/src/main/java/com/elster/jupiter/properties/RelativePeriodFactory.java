@@ -1,7 +1,5 @@
-package com.elster.jupiter.properties.impl;
+package com.elster.jupiter.properties;
 
-import com.elster.jupiter.properties.AbstractValueFactory;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 
