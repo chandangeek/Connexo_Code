@@ -147,7 +147,7 @@ Ext.define('Dxp.controller.Tasks', {
                 render: this.populateStores
             },
             'data-export-tasks-add #recurrence-trigger': {
-                change: this.onRecurrenceTriggerChange
+                change: this.recurrenceChange
             },
             'data-export-tasks-add #start-on': {
                 change: this.fillScheduleGridOrNot
@@ -165,10 +165,13 @@ Ext.define('Dxp.controller.Tasks', {
                 change: this.fillScheduleGridOrNot
             },
             'data-export-tasks-add #updated-data-trigger': {
-                change: this.fillScheduleGridOrNot
+                change: this.updatedDataChange
             },
             'data-export-tasks-add #add-export-task-button': {
                 click: this.addTask
+            },
+            'data-export-tasks-add #export-updated': {
+                change: this.exportUpdatedEnableDisabled
             },
             'data-export-tasks-add #add-destination-button': {
                 click: this.showAddDestination
@@ -739,7 +742,7 @@ Ext.define('Dxp.controller.Tasks', {
                 me.setFormValues(view);
             }
         });
-
+        me.recurrenceEnableDisable();
     },
 
     showEditExportTask: function (taskId) {
@@ -948,7 +951,11 @@ Ext.define('Dxp.controller.Tasks', {
                                 taskForm.down('grouped-property-form').loadRecord(record.getDataProcessor());
                             }
 
+
                         }
+                        me.recurrenceEnableDisable();
+                        me.updatedDataEnableDisable();
+                        m.exportUpdatedEnableDisabled();
                         view.setLoading(false);
                     }
 
@@ -1360,6 +1367,9 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#data-selector-export-complete').setVisible(true);
         page.down('#updated-data-container').setVisible(true);
         page.down('#continuous-data-container').setVisible(true);
+
+        me.updatedDataEnableDisable();
+        me.exportUpdatedEnableDisabled();
     },
 
     showEventTypeDataSelectorProperties: function (hidden) {
@@ -2103,6 +2113,8 @@ Ext.define('Dxp.controller.Tasks', {
         if (recurrenceTriggerValue.recurrence && exportPeriodValue) {
             me.fillGrid(0, scheduleRecords, arguments);
         }
+
+
     },
 
     fillGrid: function (i, scheduleRecords, fieldEventParams) {
@@ -2265,6 +2277,47 @@ Ext.define('Dxp.controller.Tasks', {
             return '?';
         }
         return record.get('displayName');
-    }
+    },
 
+    exportUpdatedEnableDisabled: function() {
+        var me = this,
+            page = me.getAddPage();
+        if(!page.down('#export-updated').getValue().updatedDataAndOrAdjacentData) {
+            page.down('#timeFrame').disable();
+        } else {
+            page.down('#timeFrame').enable();
+        }
+    },
+
+    updatedDataEnableDisable: function() {
+        var me = this,
+            page = me.getAddPage();
+        if(!page.down('#updated-data-trigger').getValue().exportUpdate) {
+            page.down('#update-window').disable();
+        } else {
+            page.down('#update-window').enable();
+        }
+    },
+
+    recurrenceEnableDisable: function() {
+        var me = this,
+            page = me.getAddPage();
+        if(!page.down('#recurrence-trigger').getValue().recurrence) {
+            page.down('#recurrence-values').disable();
+        } else {
+            page.down('#recurrence-values').enable();
+        }
+    },
+
+    recurrenceChange: function(field, newValue, oldValue) {
+        var me = this;
+        me.onRecurrenceTriggerChange(field, newValue, oldValue);
+        me.recurrenceEnableDisable();
+    },
+
+    updatedDataChange: function() {
+        var me = this;
+        me.updatedDataEnableDisable();
+        me.fillScheduleGridOrNot();
+    }
 });
