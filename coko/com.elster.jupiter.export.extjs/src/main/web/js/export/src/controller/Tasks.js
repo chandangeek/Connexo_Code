@@ -1289,7 +1289,6 @@ Ext.define('Dxp.controller.Tasks', {
             formatterTitle = page.down('#file-formatter-title'),
             propertyForm = page.down('#data-selector-properties');
 
-        debugger;
         if (!me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues') ||
             me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')['readingTypeDataSelector.value.dataSelector'] != newValue) {
                 me.getStore('Dxp.store.Clipboard').removeAll(true);
@@ -2068,7 +2067,6 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.suspendLayouts();
         Ext.Array.each(view.down('#data-selector-properties').query('[isFormField=true]'), function (formItem) {
             if (formItem.name in obj) {
-                debugger;
                 formItem.setValue(obj[formItem.name]);
             }
         });
