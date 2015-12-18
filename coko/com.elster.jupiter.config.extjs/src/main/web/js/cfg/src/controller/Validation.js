@@ -246,7 +246,6 @@ Ext.define('Cfg.controller.Validation', {
 
         form.getForm().clearInvalid();
         form.down('#readingTypesErrorLabel').hide();
-        form.down('#propertiesErrorLabel').hide();
         form.down('#readingTypesForValidationRuleGridPanel').removeCls('error-border');
 
         formErrorsPanel.hide();
@@ -307,10 +306,6 @@ Ext.define('Cfg.controller.Validation', {
                             form.down('#readingTypesForValidationRuleGridPanel').addCls('error-border');
                             form.down('#readingTypesErrorLabel').setText(item.msg);
                             form.down('#readingTypesErrorLabel').show();
-                        }
-                        if (item.id.indexOf("properties") !== -1) {
-                            form.down('#propertiesErrorLabel').setText(item.msg);
-                            form.down('#propertiesErrorLabel').show();
                         }
                     });
                     form.getForm().markInvalid(json.errors);
@@ -501,7 +496,6 @@ Ext.define('Cfg.controller.Validation', {
                     me.showReadingTypesGrid(editRulePanel, false);
                 }
 
-                editRulePanel.setTitle(Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'));
                 me.ruleModel = null;
 
                 ruleSetsStore.load({
