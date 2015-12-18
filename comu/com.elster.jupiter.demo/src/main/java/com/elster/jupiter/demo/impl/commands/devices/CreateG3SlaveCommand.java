@@ -243,7 +243,7 @@ public class CreateG3SlaveCommand {
 
         @Override
         public void accept(Device device) {
-            device.setProtocolProperty("MAC_address", meterConfig.getProperty("MAC_address"));
+            device.setProtocolProperty("DlmsProperties.MAC_address", meterConfig.getProperty("MAC_address"));
             device.setProtocolProperty("TimeZone", meterConfig.getProperty("TimeZone"));
             device.save();
         }

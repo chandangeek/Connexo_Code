@@ -7,7 +7,9 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -84,11 +86,11 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
 
     public static final String DATE_AND_TIME_PATTERN = "yyyy-MM-dd HH:mm";
 
-    private final static String DEFAULT_PROCESSING_DIRECTORY = "progress";
-    private final static String DEFAULT_SUCCESS_DIRECTORY = "success";
-    private final static String DEFAULT_FAILURE_DIRECTORY = "failure";
-    private final static String DEFAULT_PATH_MATCHER = "*.csv";
-    private final static PeriodicalScheduleExpression DEFAULT_SCHEDULED_EXPRESSION = PeriodicalScheduleExpression.every(1).minutes().at(0).build();
+    private static final String DEFAULT_PROCESSING_DIRECTORY = "progress";
+    private static final String DEFAULT_SUCCESS_DIRECTORY = "success";
+    private static final String DEFAULT_FAILURE_DIRECTORY = "failure";
+    private static final String DEFAULT_PATH_MATCHER = "*.csv";
+    private static final PeriodicalScheduleExpression DEFAULT_SCHEDULED_EXPRESSION = PeriodicalScheduleExpression.every(1).minutes().at(0).build();
 
     private String importerName;
     private String factoryName;
@@ -101,7 +103,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
     }
 
     protected Map<String, Object> getImporterProperties() {
-        HashMap<String, Object> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
         properties.put("DeviceDataFileImporterFactory.delimiter", ";");
         return properties;
     }
@@ -132,7 +134,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
         return String.format("GMT%s%02d:%02d", rawOffset >= 0 ? "+" : "-", hours, minutes);
     }
 
-    private static HasIdAndName defaultNumberFormat(){
+    private static HasIdAndName defaultNumberFormat() {
         return  new HasIdAndName() {
                         @Override
                         public Object getId() {

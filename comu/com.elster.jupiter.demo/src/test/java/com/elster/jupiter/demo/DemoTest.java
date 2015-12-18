@@ -44,6 +44,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -361,7 +362,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
-        assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
+        assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("DlmsProperties.NTASimulationTool")).isEqualTo(true);
     }
 
     @Test
@@ -479,7 +480,7 @@ public class DemoTest {
             }
             ctx.commit();
         }
-        assertThat(gateway.getDeviceProtocolProperties().getProperty("Short_MAC_address")).isEqualTo(BigDecimal.ZERO);
+        assertThat(gateway.getDeviceProtocolProperties().getProperty("DlmsProperties.Short_MAC_address")).isEqualTo(BigDecimal.ZERO);
         assertThat(gateway.getComTaskExecutions()).hasSize(1);
     }
 
@@ -604,7 +605,7 @@ public class DemoTest {
             }
             ctx.commit();
         }
-        assertThat(device.getDeviceProtocolProperties().getProperty("MAC_address")).isEqualTo(MAC_ADDRESS);
+        assertThat(device.getDeviceProtocolProperties().getProperty("DlmsProperties.MAC_address")).isEqualTo(MAC_ADDRESS);
     }
 
     @Test
@@ -817,9 +818,13 @@ public class DemoTest {
 
     private void fixEstimators(PropertySpecService propertySpecService, TimeService timeService){
         EstimationServiceImpl estimationService = (EstimationServiceImpl) injector.getInstance(EstimationService.class);
-        DefaultEstimatorFactory estimatorFactory = new DefaultEstimatorFactory();
-        estimatorFactory.setPropertySpecService(propertySpecService);
-        estimatorFactory.setTimeService(timeService);
+        DefaultEstimatorFactory estimatorFactory =
+                new DefaultEstimatorFactory(
+                        injector.getInstance(NlsService.class),
+                        propertySpecService,
+                        injector.getInstance(ValidationService.class),
+                        injector.getInstance(MeteringService.class),
+                        timeService);
         estimationService.addEstimatorFactory(estimatorFactory);
 
     }

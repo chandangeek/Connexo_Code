@@ -122,22 +122,6 @@ public class CreateG3GatewayCommand {
         return comTasks.put(comTaskTpl, Builders.from(comTaskTpl).get());
     }
 
-//    private void addComTasksToDeviceConfiguration(DeviceConfiguration configuration, ComTaskTpl... names) {
-//        if (names == null) {
-//            return;
-//        }
-//        for (ComTaskTpl comTaskTpl : names) {
-//            configuration.enableComTask(
-//                comTasks.get(comTaskTpl),
-//                configuration.getSecurityPropertySets().get(0),
-//                configuration.getProtocolDialectConfigurationPropertiesList().get(0))
-//                    .setIgnoreNextExecutionSpecsForInbound(true)
-//                    .setPriority(100)
-//                    .add()
-//                    .save();
-//        }
-//    }
-
     private Device createG3GatewayDevice(DeviceConfiguration configuration) {
         Device device = deviceBuilderProvider.get()
             .withMrid(mRID)
@@ -148,7 +132,7 @@ public class CreateG3GatewayCommand {
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
         addComTaskToDevice(device, ComTaskTpl.TOPOLOGY_UPDATE);
-        device.setProtocolProperty("Short_MAC_address", new BigDecimal(0));
+        device.setProtocolProperty("DlmsProperties.Short_MAC_address", BigDecimal.ZERO);
         device.save();
         return device;
     }
