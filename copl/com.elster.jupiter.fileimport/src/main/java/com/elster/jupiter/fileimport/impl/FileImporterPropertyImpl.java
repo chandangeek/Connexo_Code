@@ -47,7 +47,7 @@ final class FileImporterPropertyImpl implements FileImporterProperty, Persistenc
 
     @Override
     public void postLoad() {
-        propertySpec = ((ImportSchedule) importScheduleReference.get()).getPropertySpec(name);
+        propertySpec = importScheduleReference.get().getPropertySpec(name);
     }
 
     @Override

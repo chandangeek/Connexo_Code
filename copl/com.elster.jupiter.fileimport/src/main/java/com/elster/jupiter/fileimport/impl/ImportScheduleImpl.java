@@ -214,8 +214,9 @@ final class ImportScheduleImpl implements ServerImportSchedule {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        if (fileImportService.getImportFactory(importerName).isPresent())
+        if (fileImportService.getImportFactory(importerName).isPresent()) {
             return fileImportService.getImportFactory(importerName).get().getPropertySpecs();
+        }
         return Collections.emptyList();
     }
 
