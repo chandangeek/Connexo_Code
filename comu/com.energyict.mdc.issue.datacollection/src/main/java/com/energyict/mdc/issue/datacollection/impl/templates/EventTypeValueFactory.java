@@ -39,7 +39,7 @@ public class EventTypeValueFactory implements ValueFactory<EventTypes.EventType>
 
     @Override
     public Class<EventTypes.EventType> getValueType() {
-        return null;
+        return EventTypes.EventType.class;
     }
 
     @Override
