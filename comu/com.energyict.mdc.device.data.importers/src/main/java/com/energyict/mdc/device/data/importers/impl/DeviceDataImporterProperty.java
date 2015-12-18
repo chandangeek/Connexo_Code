@@ -4,7 +4,6 @@ import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
@@ -22,7 +21,7 @@ public enum DeviceDataImporterProperty {
         @Override
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
             return context.getPropertySpecService()
-                    .specForValuesOf(new StringFactory())
+                    .stringSpec()
                     .named(this.getNameTranslationKey())
                     .describedAs(this.getDescriptionTranslationKey())
                     .fromThesaurus(context.getThesaurus())
@@ -38,13 +37,13 @@ public enum DeviceDataImporterProperty {
     DATE_FORMAT(TranslationKeys.DEVICE_DATA_IMPORTER_DATE_FORMAT, TranslationKeys.DEVICE_DATA_IMPORTER_DATE_FORMAT_DESCRIPTION) {
         @Override
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
-            return new DateFormatPropertySpec(context.getThesaurus());
+            return new DateFormatPropertySpec(this.getNameTranslationKey(), context.getThesaurus());
         }
     },
     TIME_ZONE(TranslationKeys.DEVICE_DATA_IMPORTER_TIMEZONE, TranslationKeys.DEVICE_DATA_IMPORTER_TIMEZONE_DESCRIPTION) {
         @Override
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
-            return new TimeZonePropertySpec(context.getThesaurus(), context.getClock());
+            return new TimeZonePropertySpec(this.getNameTranslationKey(), context.getThesaurus(), context.getClock());
         }
     },
     NUMBER_FORMAT(TranslationKeys.DEVICE_DATA_IMPORTER_NUMBER_FORMAT, TranslationKeys.DEVICE_DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION) {
@@ -110,11 +109,11 @@ public enum DeviceDataImporterProperty {
         this.descriptionTranslationKey = descriptionTranslationKey;
     }
 
-    protected TranslationKeys getNameTranslationKey() {
+    public TranslationKeys getNameTranslationKey() {
         return nameTranslationKey;
     }
 
-    protected TranslationKeys getDescriptionTranslationKey() {
+    public TranslationKeys getDescriptionTranslationKey() {
         return descriptionTranslationKey;
     }
 

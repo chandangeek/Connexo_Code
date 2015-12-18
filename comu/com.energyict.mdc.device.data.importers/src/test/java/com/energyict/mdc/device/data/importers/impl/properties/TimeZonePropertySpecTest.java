@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import java.time.Clock;
 
@@ -33,7 +34,7 @@ public class TimeZonePropertySpecTest {
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
-        this.propertySpec = new TimeZonePropertySpec("name", this.thesaurus, this.clock);
+        this.propertySpec = new TimeZonePropertySpec(TranslationKeys.DEVICE_DATA_IMPORTER_TIMEZONE, this.thesaurus, this.clock);
     }
 
     @Test

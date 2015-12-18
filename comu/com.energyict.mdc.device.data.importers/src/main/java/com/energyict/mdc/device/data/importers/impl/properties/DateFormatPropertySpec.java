@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl.properties;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.StringFactory;
@@ -21,12 +22,10 @@ public class DateFormatPropertySpec extends BasicPropertySpec {
         this.thesaurus = thesaurus;
     }
 
-    // For testing purposes
-    DateFormatPropertySpec(String name, Thesaurus thesaurus) {
-        super(new StringFactory());
-        setPossibleValues(new PropertySpecPossibleValuesImpl(DEFAULT, false));
-        this.setName(name);
-        this.thesaurus = thesaurus;
+    public DateFormatPropertySpec(TranslationKey name, Thesaurus thesaurus) {
+        this(thesaurus);
+        this.setName(name.getKey());
+        this.setDisplayName(thesaurus.getFormat(name).format());
     }
 
     @Override

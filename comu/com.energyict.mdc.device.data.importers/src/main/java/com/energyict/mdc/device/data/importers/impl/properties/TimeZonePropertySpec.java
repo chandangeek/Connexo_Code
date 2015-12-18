@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl.properties;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.StringFactory;
@@ -25,12 +26,10 @@ public class TimeZonePropertySpec extends BasicPropertySpec {
         this.thesaurus = thesaurus;
     }
 
-    // For testing purposes
-    TimeZonePropertySpec(String name, Thesaurus thesaurus, Clock clock) {
-        super(new StringFactory());
-        setPossibleValues(new PropertySpecPossibleValuesImpl(getDefaultTimeZone(clock), false));
-        this.setName(name);
-        this.thesaurus = thesaurus;
+    public TimeZonePropertySpec(TranslationKey name, Thesaurus thesaurus, Clock clock) {
+        this(thesaurus, clock);
+        this.setName(name.getKey());
+        this.setDisplayName(thesaurus.getFormat(name).format());
     }
 
     public String getDefaultTimeZone(Clock clock) {
