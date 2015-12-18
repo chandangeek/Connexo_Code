@@ -205,7 +205,11 @@ public class DynamicSearchResource {
         } else {
             nameFilterPredicate = dv-> true;
         }
-        List allJsonValues = possibleValues.stream().map(v -> asJsonValueObject(searchableProperty.toDisplay(v), v)).filter(nameFilterPredicate).collect(toList());
+        List allJsonValues = possibleValues.stream()
+                .map(v -> asJsonValueObject(searchableProperty.toDisplay(v), v))
+                .filter(nameFilterPredicate)
+                .sorted((v1, v2) -> v1.displayValue.compareToIgnoreCase(v2.displayValue))
+                .collect(toList());
         return Response.ok().entity(PagedInfoList.fromCompleteList("values", allJsonValues, jsonQueryParameters)).build();
     }
 

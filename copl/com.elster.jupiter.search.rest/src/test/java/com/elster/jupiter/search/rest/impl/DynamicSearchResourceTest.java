@@ -30,9 +30,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by bvn on 6/1/15.
- */
 public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     private SearchDomain devicesDomain;
@@ -129,7 +126,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         DeviceConfig deviceConfig2 = mock(DeviceConfig.class);
         when(deviceConfig2.getName()).thenReturn("device config 2");
         when(deviceConfig2.getId()).thenReturn(2L);
-        when(possibleValue.getAllValues()).thenReturn(Arrays.asList(deviceConfig1, deviceConfig2));
+        when(possibleValue.getAllValues()).thenReturn(Arrays.asList(deviceConfig2, deviceConfig1));
         when(possibleValue.isExhaustive()).thenReturn(true);
         when(propertySpec.getPossibleValues()).thenReturn(possibleValue);
         when(deviceConfig.getName()).thenReturn("deviceConfig");
@@ -225,6 +222,16 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         assertThat(model.<List>get("$.values")).hasSize(1);
         assertThat(model.<Integer>get("$.values[0].id")).isEqualTo(2);
         assertThat(model.<String>get("$.values[0].displayValue")).isEqualTo("device config 2");
+    }
+
+    @Test
+    public void testGetDomainPropertyValuesSortedByName() throws Exception {
+        String response = target("/search/com.devices/searchcriteria/deviceConfig").request().get(String.class);
+
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(model.<String>get("$.values[0].displayValue")).isEqualTo("device config 1");
+        assertThat(model.<String>get("$.values[1].displayValue")).isEqualTo("device config 2");
     }
 
     @Test
