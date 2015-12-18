@@ -25,8 +25,9 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
