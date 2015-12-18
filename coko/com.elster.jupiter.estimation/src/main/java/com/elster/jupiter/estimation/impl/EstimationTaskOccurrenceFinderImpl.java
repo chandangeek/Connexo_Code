@@ -12,7 +12,7 @@ import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class EstimationTaskOccurrenceFinderImpl implements EstimationTaskOccurrenceFinder {
+class EstimationTaskOccurrenceFinderImpl implements EstimationTaskOccurrenceFinder {
     private TaskService taskService;
     private Condition condition;
     private Order[] orders;

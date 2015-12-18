@@ -253,7 +253,7 @@ public class EstimationTaskImplIT {
             task.setScheduleExpression(Never.NEVER);
             task.setEndDeviceGroup(anotherEndDeviceGroup);
             task.setName("New name!");
-            task.save();
+            task.update();
             context.commit();
         }
 
@@ -291,8 +291,6 @@ public class EstimationTaskImplIT {
         EstimationTask exportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createEstimationTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
-
-            exportTask.save();
             context.commit();
         }
         return exportTask;
@@ -306,7 +304,7 @@ public class EstimationTaskImplIT {
                 .setApplication("Admin")
                 .setEndDeviceGroup(endDeviceGroup)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
-                .build();
+                .create();
     }
 
 }

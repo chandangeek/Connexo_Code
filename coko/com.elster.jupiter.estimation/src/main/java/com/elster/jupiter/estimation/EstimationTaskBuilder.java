@@ -16,7 +16,7 @@ public interface EstimationTaskBuilder {
 
     EstimationTaskBuilder scheduleImmediately();
 
-    EstimationTask build();
+    EstimationTask create();
 
     EstimationTaskBuilder setName(String string);
 

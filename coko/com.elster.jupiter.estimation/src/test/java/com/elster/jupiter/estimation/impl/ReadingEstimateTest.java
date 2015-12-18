@@ -84,6 +84,8 @@ import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.MetricMultiplier.quantity;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingEstimateTest {
@@ -194,6 +196,8 @@ public class ReadingEstimateTest {
 
     @Before
     public void setUp() throws SQLException {
+        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
+
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -271,8 +275,8 @@ public class ReadingEstimateTest {
             ctx.commit();
         }
         Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isTrue();
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), existDate).isPresent()).isTrue();
+        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"), existDate).get().isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
         // added a value adds an added rq
 
@@ -282,10 +286,10 @@ public class ReadingEstimateTest {
         EstimationRule rule = null;
         try (TransactionContext ctx = transactionService.getContext()) {
             ruleSet = estimationService.createEstimationRuleSet("testRuleSet");
-            rule = ruleSet.addRule(IMPLEMENTATION, "testRule");
-            rule.addReadingType(readingType);
-            rule.activate();
-            ruleSet.save();
+            rule = ruleSet.addRule(IMPLEMENTATION, "testRule")
+                    .withReadingType(readingType)
+                    .active(true)
+                    .create();
         }
 
         final EstimationRuleSet resolved = ruleSet;
@@ -319,7 +323,7 @@ public class ReadingEstimateTest {
         }
         assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) rule.getId()), existDate).isPresent()).isTrue();
         assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), existDate).isPresent()).isFalse();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isFalse();
+        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"), existDate).get().isActual()).isFalse();
         assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) rule.getId()), newDate).isPresent()).isTrue();
         Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
         assertThat(channelReading).isPresent();

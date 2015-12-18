@@ -158,14 +158,16 @@ public class EstimationRuleSetIT {
         UpdatableHolder<Long> ruleSetId = new UpdatableHolder<>(null);
         transactionService.execute(VoidTransaction.of(() -> {
                     EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
-                    EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
-                    zeroesRule.addReadingType(readingType);
-                    zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-                    zeroesRule.activate();
-                    EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax");
-                    minMaxRule.addReadingType(readingType);
-                    minMaxRule.activate();
-                    estimationRuleSet.save();
+                    EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
+                            .withReadingType(readingType)
+                            .havingProperty(MAX_NUMBER_IN_SEQUENCE)
+                            .withValue(BigDecimal.valueOf(20))
+                            .active(true)
+                            .create();
+                    EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax")
+                            .withReadingType(readingType)
+                            .active(true)
+                            .create();
                     ruleSetId.update(estimationRuleSet.getId());
                 }
         ));
@@ -179,19 +181,19 @@ public class EstimationRuleSetIT {
         EstimationRuleSet estimationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
             estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
-            EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
-            zeroesRule.addReadingType(readingType);
-            zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-            zeroesRule.activate();
-            estimationRuleSet.save();
+            EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
+                    .withReadingType(readingType)
+                    .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                    .active(true)
+                    .create();
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
             estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSet.getId()).get();
-            EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax");
-            minMaxRule.addReadingType(readingType);
-            minMaxRule.activate();
-            estimationRuleSet.save();
+            EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax")
+                    .withReadingType(readingType)
+                    .active(true)
+                    .create();
             context.commit();
         }
         estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSet.getId()).get();
@@ -205,19 +207,19 @@ public class EstimationRuleSetIT {
         EstimationRuleSet estimationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
             estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
-            EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
-            zeroesRule.addReadingType(readingType);
-            zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-            zeroesRule.activate();
-            estimationRuleSet.save();
+            EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
+                    .withReadingType(readingType)
+                    .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                    .active(true)
+                    .create();
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
             estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSet.getId()).get();
-            EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax");
-            minMaxRule.addReadingType(readingType);
-            minMaxRule.activate();
-            estimationRuleSet.save();
+            EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax")
+                    .withReadingType(readingType)
+                    .active(true)
+                    .create();
             context.commit();
         }
         estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSet.getId()).get();
@@ -231,14 +233,15 @@ public class EstimationRuleSetIT {
         UpdatableHolder<Long> ruleSetId = new UpdatableHolder<>(null);
         transactionService.execute(VoidTransaction.of(() -> {
                     EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
-                    EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
-                    zeroesRule.addReadingType(readingType);
-                    zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-                    zeroesRule.activate();
-                    EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax");
-                    minMaxRule.addReadingType(readingType);
-                    minMaxRule.activate();
-                    estimationRuleSet.save();
+                    EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
+                            .withReadingType(readingType)
+                            .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                            .active(true)
+                            .create();
+                    EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax")
+                            .withReadingType(readingType)
+                            .active(true)
+                            .create();
                     ruleSetId.update(estimationRuleSet.getId());
                 }
         ));
@@ -260,11 +263,11 @@ public class EstimationRuleSetIT {
         UpdatableHolder<Long> ruleId = new UpdatableHolder<>(null);
         transactionService.execute(VoidTransaction.of(() -> {
                     EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
-                    EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
-                    zeroesRule.addReadingType(readingType);
-                    zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-                    zeroesRule.activate();
-                    estimationRuleSet.save();
+                    EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
+                            .withReadingType(readingType)
+                            .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                            .active(true)
+                            .create();
                     ruleId.update(zeroesRule.getId());
                 }
         ));

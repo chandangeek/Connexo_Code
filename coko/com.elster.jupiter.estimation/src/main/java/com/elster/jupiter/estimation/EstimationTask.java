@@ -49,8 +49,7 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
-
-    void save();
+    void update();
 
     void delete();
 
