@@ -26,7 +26,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return IssueService.COMPONENT_NAME;
+        return "ISR";
     }
 
     @Override

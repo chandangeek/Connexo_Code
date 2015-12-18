@@ -96,6 +96,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issueService.getIssueCreationService()).thenReturn(issueCreationService);
         when(issueService.getIssueActionService()).thenReturn(issueActionService);
         when(issueService.getIssueAssignmentService()).thenReturn(issueAssignmentService);
+        when(nlsService.getThesaurus("ISR", Layer.REST)).thenReturn(thesaurus);
         when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
         application.setIssueService(issueService);
