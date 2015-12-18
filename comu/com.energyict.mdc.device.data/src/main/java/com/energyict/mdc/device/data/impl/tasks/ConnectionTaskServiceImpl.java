@@ -414,9 +414,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         if (newDefaultConnectionTask != null) {
             newDefaultConnectionTask.setAsDefault();
         }
-        else {
-            this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARDEFAULT.topic(), device);
-        }
     }
 
     private void clearOldDefault(Device device, ConnectionTaskImpl newDefaultConnectionTask) {
@@ -425,7 +422,10 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 .stream()
                 .filter(connectionTask -> isPreviousDefault(newDefaultConnectionTask, connectionTask))
                 .map(ConnectionTaskImpl.class::cast)
-                .forEach(ConnectionTaskImpl::clearDefault);
+                .forEach(connectionTask -> {
+                    connectionTask.clearDefault();
+                    this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARDEFAULT.topic(), connectionTask);
+                });
     }
 
     @Override
