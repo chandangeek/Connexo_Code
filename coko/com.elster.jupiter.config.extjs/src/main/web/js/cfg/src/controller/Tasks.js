@@ -569,12 +569,16 @@ Ext.define('Cfg.controller.Tasks', {
             		id: form.down('#cbo-validation-task-device-group').getValue(),
             		name: form.down('#cbo-validation-task-device-group').getRawValue()
             	});
+            } else {
+                record.set('deviceGroup', null);
             }
             if (usagePointGroupId) {
             	record.set('usagePointGroup', {
             		id: form.down('#cbo-validation-task-usagepoint-group').getValue(),
             		name: form.down('#cbo-validation-task-usagepoint-group').getRawValue()
             	});
+            } else {
+                record.set('usagePointGroup', null);
             }
             if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
                 startOnDate = moment(form.down('#start-on').getValue()).valueOf();
