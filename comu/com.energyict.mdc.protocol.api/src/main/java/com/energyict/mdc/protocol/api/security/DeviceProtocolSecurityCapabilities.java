@@ -29,7 +29,7 @@ public interface DeviceProtocolSecurityCapabilities {
      * <p>
      * Note that none of the properties should be 'required'
      * because it is possible that the communication
-     * expert configures the BaseDevice is such a way
+     * expert configures the BaseDevice in such a way
      * that not all of the properties are actually needed.
      * As an example, say that the security capabilities
      * involve the following set of properties:
