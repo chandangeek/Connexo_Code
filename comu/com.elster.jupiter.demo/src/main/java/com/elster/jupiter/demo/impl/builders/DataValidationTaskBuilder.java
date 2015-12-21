@@ -50,8 +50,7 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
 
-        DataValidationTask task = taskBuilder.build();
-        task.save();
+        DataValidationTask task = taskBuilder.create();
         applyPostBuilders(task);
 
         return task;
