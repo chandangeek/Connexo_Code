@@ -90,7 +90,8 @@ Ext.define('Uni.view.search.field.Selection', {
     },
 
     onChange: function () {
-        var me = this, value;
+        var me = this, value,
+            filterSelected = me.down('#filter-selected');
 
         me.selection.sort();
         value = me.selection.getRange().map(function (item) {
@@ -103,7 +104,11 @@ Ext.define('Uni.view.search.field.Selection', {
         }) : null);
 
         if (me.grid.rendered) {
-            me.viewSync();
+            if (filterSelected.getValue()) {
+                me.syncSelection(me.grid.getSelectionModel().getCount() ? true : false);
+            }
+
+            me.syncView();
         }
     },
 
@@ -256,21 +261,8 @@ Ext.define('Uni.view.search.field.Selection', {
                                 input.reset();
                                 input.resumeEvent('change');
                                 store.filters.removeAtKey(me.displayField);
+                                me.syncSelection(this.checked);
 
-                                if (this.checked) {
-                                    if (store.remoteFilter) {
-                                        store.removeAll();
-                                        store.add(selection.getRange());
-                                    } else {
-                                        store.filter({
-                                            filterFn: function (item) {
-                                                return selection.getRange().indexOf(item) >= 0;
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    store.load();
-                                }
                                 Ext.resumeLayouts(true);
                             }
                         }
@@ -285,19 +277,19 @@ Ext.define('Uni.view.search.field.Selection', {
                     me.grid.down('#select-all').setRawValue(isChecked);
                 },
                 onStoreAdd: function () {
-                    me.viewSync();
+                    me.syncView();
                 },
                 onStoreLoad: function () {
-                    me.viewSync();
+                    me.syncView();
                 },
                 onStoreRefresh: function () {
-                    me.viewSync();
+                    me.syncView();
                 },
                 listeners: {
-                    beforeselect: function (s, record) {
+                    select: function (s, record) {
                         selection.add(record);
                     },
-                    beforedeselect: function (s, record) {
+                    deselect: function (s, record) {
                         selection.remove(record);
                     }
 
@@ -331,17 +323,17 @@ Ext.define('Uni.view.search.field.Selection', {
         me.callParent(arguments);
         me.bindStore(me.store || 'ext-empty-store', true);
         me.grid = me.down('grid');
-        me.on('menushow', me.viewSync, me);
+        me.on('menushow', me.syncView, me);
     },
 
-    viewSync: function() {
+    syncView: function() {
         var me = this,
             model = me.grid.getSelectionModel(),
             count = me.store.getCount(),
             filterSelected = me.down('#filter-selected');
 
         model.deselectAll(true);
-        model.select(me.getStoreRecords(), true, true);
+        model.select(me.getStoreRecords(), false, true);
         model.updateHeaderState();
 
         me.down('#select-all').setDisabled(!count);
@@ -355,6 +347,27 @@ Ext.define('Uni.view.search.field.Selection', {
             &&  count === me.selection.getCount()
         );
         filterSelected.resumeEvent('change');
+    },
+
+    syncSelection: function(check) {
+        var me = this,
+            store = me.grid.getStore(),
+            selection = me.selection;
+
+        if (check) {
+            if (store.remoteFilter) {
+                store.removeAll();
+                store.add(selection.getRange());
+            } else {
+                store.filter({
+                    filterFn: function (item) {
+                        return selection.getRange().indexOf(item) >= 0;
+                    }
+                });
+            }
+        } else {
+            store.load();
+        }
     },
 
     getStoreRecords: function() {
