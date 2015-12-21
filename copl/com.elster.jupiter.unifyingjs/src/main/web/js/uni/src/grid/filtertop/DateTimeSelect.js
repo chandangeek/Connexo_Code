@@ -61,12 +61,12 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
                                         xtype: 'button',
                                         ui: 'action',
                                         action: 'apply',
-                                        text: 'Apply'
+                                        text: Uni.I18n.translate('general.apply', 'UNI', 'Apply')
                                     },
                                     {
                                         xtype: 'button',
                                         action: 'clear',
-                                        text: 'Clear'
+                                        text: Uni.I18n.translate('general.clear', 'UNI', 'Clear')
                                     }
                                 ]
                             }
