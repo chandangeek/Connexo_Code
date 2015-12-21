@@ -113,9 +113,7 @@ class ThesaurusImpl implements IThesaurus {
             initTranslations(component, layer);
         }
         if (!translations.containsKey(key)) {
-            if (!translations.containsKey(key)) {
-                return defaultMessage;
-            }
+            return defaultMessage;
         }
         return translations.get(key).translate(getLocale()).orElse(defaultMessage);
     }
