@@ -256,7 +256,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
         if (form.isValid()) {
             formErrorsPanel.hide();
-            switch (this.portDirection) {
+            switch (this.portDirection.toLowerCase()) {
                 case 'inbound':
                     typeModel = Ext.create(Mdc.model.InboundComPort);
                     break;
@@ -297,9 +297,13 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             record.set('modemInitStrings', modemInit);
             record.set('globalModemInitStrings', globalModemInitStrings);
             ids && (record.set('outboundComPortPoolIds', ids));
-            if (comPortTypeField.getValue() == 'TYPE_SERIAL' && this.portDirection == 'inbound') {
+            if (comPortTypeField.getValue() == 'TYPE_SERIAL' && this.portDirection.toLowerCase() == 'inbound') {
                 record.set('flowControl', form.down('#flowControl').findRecordByValue(form.down('#flowControl').getValue()).getData());
                 record.set('parity', form.down('#parity').findRecordByValue(form.down('#parity').getValue()).getData());
+                record.set('connectTimeout', values.atCommandTimeout);
+                record.set('delayAfterConnect', values.delayAfterConnect);
+                record.set('delayBeforeSend', values.delayBeforeSend);
+                record.set('atCommandTimeout', values.atCommandTimeout);
             }
             me.portModel = null;
             record.save({
@@ -360,7 +364,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             router = this.getController('Uni.controller.history.Router'),
             messageText;
 
-        switch (portDirection) {
+        switch (portDirection.toLowerCase()) {
             case 'inbound':
                 messageText = Uni.I18n.translate('comServerComPorts.form.addInboundSuccess', 'MDC', 'Inbound communication port {0}',[actionType]);
                 break;
@@ -417,7 +421,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             }
         });
 
-        switch (direction) {
+        switch (direction.toLowerCase()) {
             case 'inbound':
                 portModel = me.getModel('Mdc.model.InboundComPort');
                 break;
@@ -456,7 +460,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     widget.showForm(me.portDirection, me.portType);
                     addForm = widget.down('#addComPortForm');
                     comportTypeSelectCombo = widget.down('#comPortTypeSelect');
-                    switch (recordData.direction) {
+                    switch (recordData.direction.toLowerCase()) {
                         case 'inbound':
                             addForm.loadRecord(record);
                             comportTypeSelectCombo.suspendChangeEvent = true;
@@ -636,7 +640,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
     filterStore: function () {
         var me = this;
-        switch (me.portDirection) {
+        switch (me.portDirection.toLowerCase()) {
             case 'inbound':
                 var inboundStore = me.getStore('Mdc.store.InboundComPortPools');
                 inboundStore.load({
