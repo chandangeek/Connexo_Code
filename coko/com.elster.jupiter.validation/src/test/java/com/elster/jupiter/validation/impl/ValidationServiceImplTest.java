@@ -210,7 +210,7 @@ public class ValidationServiceImplTest {
         when(channelValidationQuery.select(any())).thenReturn(Collections.emptyList());
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(validationRuleQueryExecutor);
-        when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
+        when(dataModel.query(IValidationRule.class, IValidationRuleSetVersion.class, IValidationRuleSet.class)).thenReturn(validationRuleQueryExecutor);
         when(queryService.wrap(eq(validationRuleQueryExecutor))).thenReturn(allValidationRuleQuery);
         when(messageService.getQueueTableSpec(any(String.class))).thenReturn(Optional.of(queueTableSpec));
         when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
