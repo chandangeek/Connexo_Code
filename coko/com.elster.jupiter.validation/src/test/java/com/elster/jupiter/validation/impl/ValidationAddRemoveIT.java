@@ -184,12 +184,12 @@ public class ValidationAddRemoveIT {
 
             final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
-            minMaxRule.addReadingType(readingType1);
-            minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
-            minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
-            minMaxRule.activate();
-            validationRuleSet.save();
+            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
+                    .withReadingType(readingType1)
+                    .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                    .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                    .active(true)
+                    .create();
 
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
@@ -221,20 +221,20 @@ public class ValidationAddRemoveIT {
             @Override
             protected void doPerform() {
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-            	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(10L), date1.plusSeconds(900 * 1)));
-            	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(11L), date1.plusSeconds(900 * 2)));
-            	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(12L), date1.plusSeconds(900 * 3)));
-            	meter.store(meterReading);
+                meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(10L), date1.plusSeconds(900 * 1)));
+                meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(11L), date1.plusSeconds(900 * 2)));
+                meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(12L), date1.plusSeconds(900 * 3)));
+                meter.store(meterReading);
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
                 List<IMeterActivationValidation> meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
                 IChannelValidation channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
-                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900*3));
+                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 3));
                 Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
                 List<BaseReadingRecord> readings = channel.getReadings(Range.all());
-                channel.removeReadings(readings.subList(1,readings.size()));
+                channel.removeReadings(readings.subList(1, readings.size()));
                 meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
                 channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
-                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900*1));
+                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 1));
             }
         });
     }

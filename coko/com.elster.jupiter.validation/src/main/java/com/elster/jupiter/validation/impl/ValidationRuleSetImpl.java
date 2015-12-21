@@ -22,11 +22,11 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,8 +57,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Valid
     private List<IValidationRuleSetVersion> versions = new ArrayList<>();
-    private List<IValidationRule> rules = new ArrayList<>();
-    private List<IValidationRuleSetVersion> versionToSave = new ArrayList<>();
 
     private final EventService eventService;
     private final DataModel dataModel;
@@ -114,7 +112,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public void setName(String name) {
-        this.name = name != null ? name.trim() : name;
+        this.name = name != null ? name.trim() : null;
     }
 
     @Override
@@ -165,7 +163,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public void save() {
-        addNewVersion();
         if (getId() == 0) {
             doPersist();
         } else {
@@ -175,7 +172,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
-        doGetVersions().forEach(version -> version.save());
+        doGetVersions().forEach(ValidationRuleSetVersion::save);
         eventService.postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
     }
 
@@ -187,7 +184,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public void delete() {
         this.setObsoleteTime(Instant.now()); // mark obsolete
-        doGetVersions().forEach(version -> version.delete());
+        doGetVersions().forEach(ValidationRuleSetVersion::delete);
         validationRuleSetFactory().update(this);
         eventService.postEvent(EventType.VALIDATIONRULESET_DELETED.topic(), this);
     }
@@ -202,7 +199,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public List<IValidationRuleSetVersion> getRuleSetVersions() {
         List<IValidationRuleSetVersion> versions = doGetVersions()
-                .sorted(Comparator.comparing(ver -> ver.getNotNullStartDate()))
+                .sorted(Comparator.comparing(IValidationRuleSetVersion::getNotNullStartDate))
                 .collect(Collectors.toList());
         updateVersionsEndDate(versions);
         return versions;
@@ -210,14 +207,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private Stream<IValidationRuleSetVersion> doGetVersions() {
         return versions.stream().filter(version -> !version.isObsolete());
-    }
-
-    private void addNewVersion() {
-        versionToSave.forEach(newVersion -> {
-            newVersion.save();
-            versions.add(newVersion);
-        });
-        versionToSave.clear();
     }
 
     private Stream<IValidationRule> doGetRules() {
@@ -267,7 +256,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public IValidationRuleSetVersion addRuleSetVersion(String description, Instant startDate) {
         ValidationRuleSetVersionImpl newRuleSetVersion = validationRuleSetVersionProvider.get().init(this, description, startDate);
-        versionToSave.add(newRuleSetVersion);
+        versions.add(newRuleSetVersion);
         return newRuleSetVersion;
     }
 
@@ -301,6 +290,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
                 .getRules()
                 .stream()
                 .forEach(clonedVersion::cloneRule);
+        clonedVersion.save();
         return clonedVersion;
     }
 
@@ -330,18 +320,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         return dataModel.mapper(IValidationRuleSet.class);
     }
 
-    public List<ValidationRule> getRules(Iterable<? extends ReadingType> readingTypes) {
-        List<ValidationRule> result = new ArrayList<>();
-        List<IValidationRule> rules = getRules();
-        for (ValidationRule rule : rules) {
-            Set<ReadingType> readingTypesForRule = rule.getReadingTypes();
-            for (ReadingType readingtype : readingTypes) {
-                if (readingTypesForRule.contains(readingtype)) {
-                    result.add(rule);
-                }
-            }
-        }
-        return result;
+    public List<ValidationRule> getRules(Collection<? extends ReadingType> readingTypes) {
+        return getRules()
+                .stream()
+                .filter(rule -> readingTypes.stream().anyMatch(rule::appliesTo))
+                .collect(Collectors.toList());
     }
 
     @Override

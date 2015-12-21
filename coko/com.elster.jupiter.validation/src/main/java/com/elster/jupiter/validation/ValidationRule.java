@@ -25,6 +25,10 @@ public interface ValidationRule {
 
     void deactivate();
 
+    default boolean appliesTo(ReadingType readingType) {
+        return getReadingTypes().contains(readingType);
+    }
+
     ValidationRuleSet getRuleSet();
 
     ValidationRuleSetVersion getRuleSetVersion();

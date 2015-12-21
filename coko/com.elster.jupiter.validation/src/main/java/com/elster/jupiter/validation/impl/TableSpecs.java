@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -75,7 +76,6 @@ public enum TableSpecs {
             table.column("ACTION").number().notNull().conversion(NUMBER2ENUM).map("action").add();
             table.column("IMPLEMENTATION").varChar(NAME_LENGTH).map("implementation").add();
             Column ruleSetVersionIdColumn = table.column("RULESETVERSIONID").number().notNull().conversion(NUMBER2LONG).add();
-            Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
@@ -83,8 +83,6 @@ public enum TableSpecs {
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
             table.foreignKey("VAL_FK_RULESETVERSION").references("VAL_VALIDATIONRULESETVERSION").on(ruleSetVersionIdColumn).onDelete(RESTRICT)
                     .map("ruleSetVersion").reverseMap("rules").composition().reverseMapOrder("position").add();
-            table.foreignKey("VAL_FK_RULESET").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
-                    .map("ruleSet").reverseMap("rules").composition().add();
             table.unique("VAL_UQ_RULE_NAME").on(ruleSetVersionIdColumn, nameColumn, obsoleteColumn).add();
         }
     },
@@ -116,7 +114,7 @@ public enum TableSpecs {
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(MeterActivation.class).onDelete(RESTRICT).map("meterActivation").on(meterActivationColumn).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).on(ruleSetColumn).onDelete(DeleteRule.RESTRICT)
-                    .map("ruleSet", ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
+                    .map("ruleSet", ValidationRuleSetVersionImpl.class, ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
             table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, meterActivationColumn, obsoleteColumn).add();
         }
     },
@@ -131,7 +129,7 @@ public enum TableSpecs {
             table.column("LASTCHECKED").number().conversion(NUMBER2INSTANT).map("lastChecked").add();
             table.column("ACTIVERULES").bool().map("activeRules").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
-            table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(MeteringService.COMPONENTNAME, "MTR_CHANNEL").onDelete(RESTRICT).on(channelRef).map("channel").add();
+            table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(Channel.class).onDelete(RESTRICT).on(channelRef).map("channel").add();
             table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL").references(VAL_MA_VALIDATION.name()).onDelete(DeleteRule.CASCADE).map("meterActivationValidation").reverseMap("channelValidations")
                     .composition().on(meterActivationValidationColumn).add();
         }

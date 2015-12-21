@@ -13,6 +13,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleBuilder;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
@@ -25,13 +26,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,18 +71,12 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
         this.validationRuleProvider = validationRuleProvider;
     }
 
-    ValidationRuleSetVersionImpl init(ValidationRuleSet validationRuleSet) {
-        return init(validationRuleSet, null, null);
-    }
-
     ValidationRuleSetVersionImpl init(ValidationRuleSet validationRuleSet, String description, Instant startDate) {
         this.ruleSet.set(validationRuleSet);
         this.description = description;
         this.startDate = startDate;
         return this;
     }
-
-
 
     @Override
     public String getDescription() {
@@ -238,8 +233,12 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     }
 
     @Override
-    public IValidationRule addRule(ValidationAction action, String implementation, String name) {
-        ValidationRuleImpl newRule = validationRuleProvider.get().init(ruleSet.get(), this, action, implementation, name);
+    public ValidationRuleBuilder addRule(ValidationAction action, String implementation, String name) {
+        return new ValidationRuleBuilderImpl(this, action, implementation, name);
+    }
+
+    IValidationRule newRule(ValidationAction action, String implementation, String name) {
+        ValidationRuleImpl newRule = validationRuleProvider.get().init(this, action, implementation, name);
         rulesToSave.add(newRule);
         return newRule;
     }
@@ -252,7 +251,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     @Override
     public IValidationRule cloneRule(IValidationRule iValidationRule){
-        IValidationRule newRule = addRule(iValidationRule.getAction(), iValidationRule.getImplementation(), iValidationRule.getName());
+        IValidationRule newRule = newRule(iValidationRule.getAction(), iValidationRule.getImplementation(), iValidationRule.getName());
         List<String> mRIDs = iValidationRule.getReadingTypes().stream().map(readingTypeInfo -> readingTypeInfo.getMRID()).collect(Collectors.toList());
         updateReadingTypes(newRule, mRIDs);
         Map<String, Object> properties = iValidationRule.getProperties().stream().collect(Collectors.toMap(ValidationRuleProperties::getName, ValidationRuleProperties::getValue));
@@ -300,28 +299,21 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append('\n');
-        doGetRules().forEach(rule -> builder.append(rule.toString()).append('\n'));
-        return builder.toString();
+        return doGetRules()
+                .map(ValidationRule::toString)
+                .collect(Collectors.joining("\n", null, "\n"));
     }
 
     private DataMapper<IValidationRuleSetVersion> validationRuleSetVersionFactory() {
         return dataModel.mapper(IValidationRuleSetVersion.class);
     }
 
-    public List<ValidationRule> getRules(Iterable<? extends ReadingType> readingTypes) {
-        List<ValidationRule> result = new ArrayList<>();
-        List<IValidationRule> rules = getRules();
-        for (ValidationRule rule : rules) {
-            Set<ReadingType> readingTypesForRule = rule.getReadingTypes();
-            for (ReadingType readingtype : readingTypes) {
-                if (readingTypesForRule.contains(readingtype)) {
-                    result.add(rule);
-                }
-            }
-        }
-        return result;
+    @Override
+    public List<ValidationRule> getRules(Collection<? extends ReadingType> readingTypes) {
+        return getRules()
+                .stream()
+                .filter(rule -> readingTypes.stream().anyMatch(rule::appliesTo))
+                .collect(Collectors.toList());
     }
 
     @Override
