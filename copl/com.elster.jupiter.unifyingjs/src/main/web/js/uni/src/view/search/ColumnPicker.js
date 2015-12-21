@@ -13,7 +13,7 @@ Ext.define('Uni.view.search.ColumnPicker', {
     ],
 
     xtype: 'uni-search-column-picker',
-    text: 'Columns',
+    text: Uni.I18n.translate('general.columns', 'UNI', 'Columns'),
     arrowAlign: 'right',
     menuAlign: 'tr-br',
 
@@ -42,18 +42,18 @@ Ext.define('Uni.view.search.ColumnPicker', {
             tbar: [{
                 xtype: 'button',
                 itemId: 'column-picker-restore-defaults-button',
-                text: 'Restore defaults',
+                text: Uni.I18n.translate('general.restoreDefaults', 'UNI', 'Restore defaults'),
                 ui: 'link',
                 handler: Ext.bind(me.restoreColumns, me)
             }],
             buttons: [
                 {
-                    text: 'Done',
+                    text: Uni.I18n.translate('general.done', 'UNI', 'Done'),
                     itemId: 'column-picker-done-button',
                     handler: Ext.bind(me.changeColumns, me)
                 },
                 {
-                    text: 'Cancel',
+                    text: Uni.I18n.translate('general.cancel', 'UNI', 'Cancel'),
                     itemId: 'column-picker-cancel-button',
                     ui: 'link',
                     handler: function() {
