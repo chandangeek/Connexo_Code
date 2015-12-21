@@ -29,6 +29,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
             loadProfilesStore = me.getStore('Mdc.store.LoadProfilesOfDevice'),
             tabWidget;
 
+        if(loadProfile){
+            if(loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != mRID){
+                loadProfile = null;
+            }
+        }
+
         timeUnitsStore.load();
         deviceModel.load(mRID, {
             success: function (device) {
