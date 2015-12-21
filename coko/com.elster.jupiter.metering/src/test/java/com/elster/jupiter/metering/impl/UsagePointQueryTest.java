@@ -1,33 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.security.Principal;
-import java.sql.SQLException;
-import java.time.Instant;
-
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.StreetDetail;
 import com.elster.jupiter.cbo.TownDetail;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
@@ -195,8 +174,7 @@ public class UsagePointQueryTest {
         assertThat(query.select(Condition.TRUE,1,5)).hasSize(5);
         assertThat(query.select(meteringService.hasAccountability())).isEmpty();
         PartyService partyService = injector.getInstance(PartyService.class);
-        Party party = partyService.newOrganization("Electrabel");
-        party.save();
+        Party party = partyService.newOrganization("Electrabel").create();
         PartyRole role = partyService.getRole(MarketRoleKind.ENERGYSERVICECONSUMER.name()).get();
         party.assumeRole(role, Instant.now());
         query.setLazy();
