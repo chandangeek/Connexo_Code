@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.BasicPropertySpec;
@@ -34,6 +35,7 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleBuilder;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
@@ -322,7 +324,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         ValidationRuleSet ruleSet = mockValidationRuleSet(V_RULE_SET_ID);
         ValidationRuleSetVersion ruleSetVersion = mockValidationRuleSetVersion(V_RULE_VERSION_ID, ruleSet);
         ValidationRule rule = mockValidationRule(V_RULE_ID, ruleSetVersion);
-        when(ruleSetVersion.addRule(Matchers.eq(ValidationAction.FAIL), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
+        ValidationRuleBuilder builder = FakeBuilder.initBuilderStub(rule, ValidationRuleBuilder.class, ValidationRuleBuilder.PropertyBuilder.class);
+        when(ruleSetVersion.addRule(Matchers.eq(ValidationAction.FAIL), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(builder);
 
         Response response = target("/validation/" + V_RULE_SET_ID + "/versions/" + V_RULE_VERSION_ID + "/rules").request().post(entity);
 
@@ -330,11 +333,16 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("MyRule");
 
-        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
-        verify(rule).addProperty("nullableboolean", false);
-        verify(rule).addProperty("boolean", true);
-        verify(rule).addProperty("text", "string");
-        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
+        verify(builder).havingProperty("number");
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(BigDecimal.valueOf(10.0));
+        verify(builder).havingProperty("nullableboolean");
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(false);
+        verify(builder).havingProperty("boolean");
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(true);
+        verify(builder).havingProperty("text");
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue("string");
+        verify(builder).havingProperty(Matchers.eq("listvalue"));
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(Matchers.isA(ListValue.class));
     }
 
     @Test
@@ -351,7 +359,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         ValidationRuleSetVersion ruleSetVersion = mockValidationRuleSetVersion(V_RULE_VERSION_ID, ruleSet);
         ValidationRule rule = mockValidationRule(V_RULE_ID, ruleSetVersion);
         when(rule.getAction()).thenReturn(ValidationAction.WARN_ONLY);
-        when(ruleSetVersion.addRule(Matchers.eq(ValidationAction.WARN_ONLY), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
+        ValidationRuleBuilder builder = FakeBuilder.initBuilderStub(rule, ValidationRuleBuilder.class, ValidationRuleBuilder.PropertyBuilder.class);
+        when(ruleSetVersion.addRule(Matchers.eq(ValidationAction.WARN_ONLY), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(builder);
 
         Response response = target("/validation/" + V_RULE_SET_ID + "/versions/" + V_RULE_VERSION_ID + "/rules").request().post(entity);
 
@@ -360,11 +369,16 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("MyRule");
         assertThat(jsonModel.<String>get("$.action")).isEqualTo(ValidationAction.WARN_ONLY.name());
 
-        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
-        verify(rule).addProperty("nullableboolean", false);
-        verify(rule).addProperty("boolean", true);
-        verify(rule).addProperty("text", "string");
-        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
+        verify(builder).havingProperty("number");
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(BigDecimal.valueOf(10.0));
+        verify(builder).havingProperty("nullableboolean");
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(false);
+        verify(builder).havingProperty("boolean");
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(true);
+        verify(builder).havingProperty("text");
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue("string");
+        verify(builder).havingProperty(Matchers.eq("listvalue"));
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(Matchers.isA(ListValue.class));
     }
 
     @Test
@@ -692,6 +706,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
                 mockPropertySpec(BasicPropertyTypes.TEXT, "text", true),
                 mockPropertySpec(BasicPropertyTypes.LISTVALUE, "listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
+        Validator validator = mock(Validator.class);
+        when(validator.getPropertySpecs()).thenReturn(propertySpes);
+        when(validationService.getValidator("com.blablabla.Validator")).thenReturn(validator);
 
         Map<String, Object> props = new HashMap<>();
         props.put("number", 13);

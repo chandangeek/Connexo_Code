@@ -1,27 +1,5 @@
 package com.elster.jupiter.validation.rest.impl;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -53,6 +31,27 @@ import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.security.Privileges;
 import com.google.common.collect.Range;
 
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Path("/validationtasks")
 public class DataValidationTaskResource {
 
@@ -66,12 +65,12 @@ public class DataValidationTaskResource {
 
     @Inject
     public DataValidationTaskResource(RestQueryService queryService,
-            ValidationService validationService,
-            TransactionService transactionService,
-            MeteringGroupsService meteringGroupsService,
-            TimeService timeService,
-            Thesaurus thesaurus,
-            ConcurrentModificationExceptionFactory conflictFactory) {
+                                      ValidationService validationService,
+                                      TransactionService transactionService,
+                                      MeteringGroupsService meteringGroupsService,
+                                      TimeService timeService,
+                                      Thesaurus thesaurus,
+                                      ConcurrentModificationExceptionFactory conflictFactory) {
         this.queryService = queryService;
         this.validationService = validationService;
         this.transactionService = transactionService;
@@ -87,28 +86,26 @@ public class DataValidationTaskResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response createDataValidationTask(DataValidationTaskInfo info) {
 
-        DataValidationTaskBuilder builder = validationService.newTaskBuilder()
-                .setName(info.name)
-                .setApplication(info.application)
-                .setScheduleExpression(getScheduleExpression(info))
-                .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
-        if (info.deviceGroup != null)
-            builder = builder.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
-        if (info.usagePointGroup != null)
-            builder = builder.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
-
-        DataValidationTask dataValidationTask = builder.build();
-
         try (TransactionContext context = transactionService.getContext()) {
-            dataValidationTask.save();
+            DataValidationTaskBuilder builder = validationService.newTaskBuilder()
+                    .setName(info.name)
+                    .setApplication(info.application)
+                    .setScheduleExpression(getScheduleExpression(info))
+                    .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+            if (info.deviceGroup != null) {
+                builder = builder.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
+            }
+            if (info.usagePointGroup != null) {
+                builder = builder.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+            }
+            DataValidationTask dataValidationTask = builder.create();
             context.commit();
+            return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).build();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).build();
-
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public KorePagedInfoList getDataValidationTasks(@Context UriInfo uriInfo) {
@@ -120,7 +117,7 @@ public class DataValidationTaskResource {
 
     @DELETE
     @Path("/{dataValidationTaskId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response deleteDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
@@ -130,7 +127,7 @@ public class DataValidationTaskResource {
 
     @GET
     @Path("/{dataValidationTaskId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public DataValidationTaskInfo getDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, @Context SecurityContext securityContext) {
         DataValidationTask task = validationService.findValidationTask(dataValidationTaskId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -139,7 +136,7 @@ public class DataValidationTaskResource {
 
     @PUT
     @Path("/{dataValidationTaskId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response updateReadingTypeDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
@@ -160,7 +157,7 @@ public class DataValidationTaskResource {
                 task.setEndDeviceGroup(null);
             }
             task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
-            task.save();
+            task.update();
             context.commit();
             return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(task, thesaurus, timeService)).build();
         }
@@ -168,7 +165,7 @@ public class DataValidationTaskResource {
 
     @PUT
     @Path("/{id}/trigger")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response triggerDataValidationTask(@PathParam("id") long id, DataValidationTaskInfo info) {
         info.id = id;
@@ -188,7 +185,7 @@ public class DataValidationTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public DataValidationTaskHistoryInfos getDataValidationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
-                                                                   @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
+                                                                       @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         DataValidationTask task = fetchDataValidationTask(id);
         DataValidationOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
@@ -222,10 +219,10 @@ public class DataValidationTaskResource {
 
     @GET
     @Path("/{id}/history/{occurrenceId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public DataValidationOccurrenceLogInfos getDataValidationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
-                                                                     @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+                                                                         @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         DataValidationTask task = fetchDataValidationTask(id);
         DataValidationOccurrence occurrence = fetchDataValidationOccurrence(occurrenceId, task);
