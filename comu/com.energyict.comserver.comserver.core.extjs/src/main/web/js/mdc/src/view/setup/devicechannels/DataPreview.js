@@ -224,7 +224,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             if(type === 'main'){
                 return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
             } else {
-                return '-';
+                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
             }
         }
     },
