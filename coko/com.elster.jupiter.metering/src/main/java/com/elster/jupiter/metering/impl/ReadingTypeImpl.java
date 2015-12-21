@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.IllegalEnumValueException;
 import com.elster.jupiter.cbo.MacroPeriod;
@@ -80,7 +79,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private TimeAttribute measuringPeriod;
 	private Accumulation accumulation;
 	private FlowDirection flowDirection;
-	private Commodity commodity;
+	private com.elster.jupiter.cbo.Commodity commodity;
 	private MeasurementKind measurementKind;
 	private RationalNumber interharmonic;
 	private RationalNumber argument;
@@ -101,20 +100,20 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
     }
-	
+
 	ReadingTypeImpl init(String mRID, String aliasName) {
 		this.mRID = mRID;
 		this.aliasName = aliasName;
 		this.active = true;
 		setTransientFields();
-		setFullAliasName();
+		buildFullAliasName();
         return this;
 	}
 
 	static Currency getCurrency(int isoCode, Thesaurus thesaurus) {
 		if (isoCode == 0) {
 			isoCode = 999;
-		} 
+		}
 		for (Currency each : Currency.getAvailableCurrencies()) {
 			if (each.getNumericCode() == isoCode) {
 				return each;
@@ -122,27 +121,27 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		}
 		throw new IllegalCurrencyCodeException(thesaurus, isoCode);
 	}
-	
+
 	static int getCurrencyId(Currency currency) {
 		int result = currency.getNumericCode();
 		return result == 999 ? 0 : result;
 	}
-	
-	@Override 
+
+	@Override
 	public void postLoad() {
 		setTransientFields();
 	}
-	
+
 	@Override
 	public String getMRID() {
 		return mRID;
 	}
-	
+
 	@Override
 	public String getAliasName() {
 		return aliasName;
 	}
-	
+
 	private void setTransientFields() {
 		String[] parts = mRID.split("\\.");
 		if (parts.length != MRID_FIELD_COUNT) {
@@ -154,7 +153,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
             measuringPeriod = TimeAttribute.get(parse(parts[MEASURING_PERIOD]));
             accumulation = Accumulation.get(parse(parts[ACCUMULATION]));
             flowDirection = FlowDirection.get(parse(parts[FLOW_DIRECTION]));
-            commodity = Commodity.get(parse(parts[COMMODITY]));
+            commodity = com.elster.jupiter.cbo.Commodity.get(parse(parts[COMMODITY]));
             measurementKind = MeasurementKind.get(parse(parts[MEASUREMENT_KIND]));
             interharmonic = asRational(parts,INTERHARMONIC_NUMERATOR,INTERHARMONIC_DENOMINATOR);
             argument = asRational(parts,ARGUMENT_NUMERATOR,ARGUMENT_DENOMINATOR);
@@ -170,11 +169,11 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         }
         equidistant = getIntervalLength().isPresent();
     }
-		
+
 	private int parse(String intString) {
 		return Integer.parseInt(intString);
 	}
-	
+
 	private RationalNumber asRational(String[] parts , int numeratorOffset , int denominatorOffset) {
 		int numerator = parse(parts[numeratorOffset]);
 		int denominator = parse(parts[denominatorOffset]);
@@ -184,7 +183,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 			return new RationalNumber(numerator, denominator);
 		}
 	}
-	
+
 	public String getName() {
 		StringBuilder builder = new StringBuilder();
 		Holder<String> connector = first("").andThen(" ");
@@ -243,7 +242,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	}
 
 	ReadingTypeCodeBuilder builder() {
-		return 
+		return
 			ReadingTypeCodeBuilder.of(commodity)
 				.period(macroPeriod)
 				.aggregate(aggregate)
@@ -318,7 +317,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         return mRID.hashCode();
     }
 
-    @Override 
+    @Override
     public boolean isRegular() {
     	return equidistant;
     }
@@ -350,7 +349,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	@Override
 	public boolean isBulkQuantityReadingType(ReadingType readingType) {
 		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
-		return 
+		return
 			this.macroPeriod.equals(other.macroPeriod) &&
 			this.aggregate.equals(other.aggregate) &&
 			this.measuringPeriod.equals(other.measuringPeriod) &&
@@ -375,21 +374,21 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         return version;
     }
 
-    @Override 
+    @Override
 	public MacroPeriod getMacroPeriod() {
 		return macroPeriod;
 	}
-    
+
     @Override
 	public Aggregate getAggregate() {
 		return aggregate;
 	}
-    
+
     @Override
 	public TimeAttribute getMeasuringPeriod() {
 		return measuringPeriod;
 	}
-    
+
     @Override
 	public Accumulation getAccumulation() {
 		return accumulation;
@@ -401,10 +400,10 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	}
 
     @Override
-    public Commodity getCommodity() {
+    public com.elster.jupiter.cbo.Commodity getCommodity() {
 		return commodity;
 	}
-    
+
     @Override
 	public MeasurementKind getMeasurementKind() {
 		return measurementKind;
@@ -414,8 +413,8 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     public RationalNumber getInterharmonic() {
 		return interharmonic;
 	}
-    
-    @Override	
+
+    @Override
     public RationalNumber getArgument() {
 		return argument;
 	}
@@ -429,7 +428,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     public int getCpp() {
 		return cpp;
 	}
-    
+
     @Override
 	public int getConsumptionTier() {
 		return consumptionTier;
@@ -472,7 +471,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
     @Override
     public void update() {
-        setFullAliasName();
+        this.buildFullAliasName();
         dataModel.mapper(ReadingType.class).update(this);
     }
 
@@ -483,7 +482,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		}
 		return TimeAttribute.values()[Integer.parseInt(parts[2])];
 	}
-    
+
     public Quantity toQuantity(BigDecimal value) {
     	if (value == null) {
     		return null;
@@ -492,37 +491,33 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     	}
     }
 
-    private void setFullAliasName() {
+    private void buildFullAliasName() {
         StringBuilder fullAlias = new StringBuilder();
         if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
-            fullAlias.append("[").append(getTranslationWithDefault(this.getMeasuringPeriod().getDescription())).append("] ");
+	        ReadingTypeTranslationKeys.MeasuringPeriod.appendFullAliasName(this.getMeasuringPeriod(), fullAlias, this.thesaurus);
         } else if (this.getMacroPeriod().equals(MacroPeriod.DAILY) || this.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
-            fullAlias.append("[").append(getTranslationWithDefault(this.getMacroPeriod().getDescription())).append("] ");
+	        ReadingTypeTranslationKeys.MacroPeriod.appendFullAliasName(this.getMacroPeriod(), fullAlias, this.thesaurus);
         }
-		switch (this.getCommodity()){
-			case ELECTRICITY_PRIMARY_METERED: fullAlias.append(" ").append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.PRIMARY).format()).append(" ");break;
-			case ELECTRICITY_SECONDARY_METERED: fullAlias.append(" ").append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.SECONDARY).format()).append(" ");break;
-		}
+	    ReadingTypeTranslationKeys.Commodity.appendFullAliasName(this.getCommodity(), fullAlias, this.thesaurus);
         fullAlias.append(this.getAliasName());
         if (this.getUnit().isApplicable()) {
-            fullAlias.append(" (").append(getTranslationWithDefault(this.getMultiplier().getSymbol())).append(getTranslationWithDefault(this.getUnit().getSymbol())).append(")");
+	        ReadingTypeTranslationKeys.UnitWithMultiplier.appendFullAliasName(this.getMultiplier(), this.getUnit(), fullAlias, this.thesaurus);
         }
         if (this.getPhases().isApplicable()) {
-            fullAlias.append(" ").append(getTranslationWithDefault(this.getPhases().getDescription()));
+	        ReadingTypeTranslationKeys.Phase.appendFullAliasName(this.getPhases(), fullAlias, this.thesaurus);
         }
         if (this.getTou() != 0) {
-            fullAlias.append(" ").append(getTranslationWithDefault("ToU")).append(" ").append(this.getTou());
+	        ReadingTypeTranslationKeys.TimeOfUse.appendFullAliasName(this.getTou(), fullAlias, this.thesaurus);
         }
         fullAliasName =  fullAlias.toString();
     }
 
     @Override
     public String getFullAliasName() {
-		setFullAliasName();
-        return fullAliasName;
+	    if (this.fullAliasName == null) {
+		    this.buildFullAliasName();
+	    }
+	    return fullAliasName;
     }
 
-    private String getTranslationWithDefault(String value) {
-        return thesaurus.getString(value, value);
-    }
 }

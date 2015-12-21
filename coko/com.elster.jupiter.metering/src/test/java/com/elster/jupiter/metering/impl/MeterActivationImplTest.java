@@ -16,20 +16,13 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 import java.time.Clock;
@@ -39,9 +32,25 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.anyVararg;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterActivationImplTest extends EqualsContractTest {
@@ -92,20 +101,24 @@ public class MeterActivationImplTest extends EqualsContractTest {
     private TimeSeries timeSeries;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat messageFormat;
 
     @Before
     public void setUp() {
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1, "readingType1");
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, "readingType2");
         readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3, "readingType3");
-        
+
         final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
 			@Override
 			public ChannelImpl get() {
 				return new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
 			}
 		};
-		
+
         channelBuilder = new Provider<ChannelBuilder>() {
 			@Override
 			public ChannelBuilder get() {
