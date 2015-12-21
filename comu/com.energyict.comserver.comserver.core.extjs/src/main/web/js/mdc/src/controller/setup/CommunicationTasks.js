@@ -120,10 +120,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     previewConnectionTask: function (record) {
         var me = this,
             form = me.getCommunicationTaskPreviewForm();
-        me.setPreLoader(form, Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
+        form.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         me.getCommunicationTaskPreviewPanel().setTitle(Ext.String.htmlEncode(record.getData().comTask.name));
         form.loadRecord(record);
-        me.clearPreLoader();
+        form.setLoading(false);
     },
 
     showCommunicationTasks: function (deviceTypeId, deviceConfigurationId) {
@@ -204,10 +204,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         comTasksStore.getProxy().startParam = false;
                         comTasksStore.load({
                             callback: function () {
-                                connectionMethodsStore.getProxy().extraParams = ({
-                                    deviceType: deviceTypeId,
-                                    deviceConfig: deviceConfigurationId
-                                });
+                                connectionMethodsStore.getProxy().setUrl(deviceTypeId, deviceConfigurationId);
                                 connectionMethodsStore.load({
                                     callback: function () {
                                         securityPropertySetsStore.getProxy().extraParams = ({

@@ -44,6 +44,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                 xtype: 'emptygridcontainer',
                 itemId: 'dynamic-group-preview-container',
                 grid: {
+                    maxHeight: 450,
                     xtype: 'dynamic-group-devices-grid',
                     itemId: 'dynamic-group-devices-grid',
                     service: me.getService()
@@ -158,6 +159,9 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
             destroyable: true
         });
 
+        me.on('render', function() {
+            me.down('search-criteria-selector').setSearchContainer(Ext.ComponentQuery.query('contentcontainer')[0]);
+        });
         me.on('destroy', function () {
             listeners.destroy();
         });

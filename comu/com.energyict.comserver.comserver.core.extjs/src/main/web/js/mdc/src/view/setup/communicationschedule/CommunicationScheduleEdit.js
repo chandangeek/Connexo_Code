@@ -129,7 +129,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                 width: 55,
                                                 items: [
                                                     {
-                                                        tooltip: 'Remove',
+                                                        tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                                                             this.fireEvent('deleteComTask', record);
                                                         }

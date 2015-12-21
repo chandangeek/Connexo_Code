@@ -48,7 +48,10 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                        name: 'comPortType'
+                        name: 'comPortType',
+                        renderer: function (value) {
+                            return value && value.localizedValue;
+                        }
                     }
                 ]
             },
@@ -62,7 +65,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
                         fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                         name: 'active',
                         renderer: function (val) {
-                            val ? val = 'Active' : val = 'Inactive';
+                            val ? val = Uni.I18n.translate('general.active', 'MDC', 'Active') : val = Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                             return val;
                         }
                     },

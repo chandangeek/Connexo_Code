@@ -82,8 +82,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
 		 var me = this,
             grid = me.up('validation-ruleset-view').down('validation-rules-grid'),
             addButton = me.up('validation-ruleset-view').down('button[action=addValidationRule]');
-			
-        me.setTitle(record.get('name'));
+
         me.validationRuleSetId = record.get('ruleSetId');		
 		me.versionId = record.get('versionId');
 		addButton.setHref('#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('id') + '/rules/add');        

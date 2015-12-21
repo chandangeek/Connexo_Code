@@ -47,6 +47,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeSetup', {
     ],
 
     initComponent: function () {
+
         this.callParent(arguments);
     }
 });

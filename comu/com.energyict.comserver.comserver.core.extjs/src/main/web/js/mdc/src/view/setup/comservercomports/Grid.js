@@ -24,6 +24,9 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
             {
                 header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 dataIndex: 'comPortType',
+                renderer: function (value) {
+                    return value && value.localizedValue;
+                },
                 flex: 1
             },
             {

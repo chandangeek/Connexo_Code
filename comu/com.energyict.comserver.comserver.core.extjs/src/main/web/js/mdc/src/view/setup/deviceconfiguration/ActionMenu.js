@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.ActionMenu', {
     items: [
         {
             itemId: 'btn-edit-device-config',
-            text: 'Edit',
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             action: 'edit'
         },
         {

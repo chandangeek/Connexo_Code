@@ -50,7 +50,10 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                    name: 'comPortType'
+                    name: 'comPortType',
+                    renderer: function (value) {
+                        return value && value.localizedValue;
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),

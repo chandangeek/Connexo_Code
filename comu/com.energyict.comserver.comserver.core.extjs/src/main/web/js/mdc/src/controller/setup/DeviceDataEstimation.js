@@ -54,8 +54,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
                 me.getApplication().fireEvent('loadDevice', device);
                 view.down('#deviceDataEstimationStatusField').setValue(status ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive'));
                 if (toggleActivationButton) {
-                    toggleActivationButton.setText((status ? Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-                        Uni.I18n.translate('general.activatex', 'MDC', "Activate '{0}'",[Uni.I18n.translate('estimationDevice.statusSection.buttonAppendix', 'MDC', 'data estimation')])));
+                    toggleActivationButton.setText((status ? Uni.I18n.translate('general.deactivatex', 'MDC', 'Deactivate {0}',[Uni.I18n.translate('estimationDevice.statusSection.buttonAppendix', 'MDC', 'data estimation')]) :
+                        Uni.I18n.translate('general.activatex', 'MDC', 'Activate {0}',[Uni.I18n.translate('estimationDevice.statusSection.buttonAppendix', 'MDC', 'data estimation')])));
                     toggleActivationButton.action = status ? 'deactivate' : 'activate';
                 }
                 me.getApplication().fireEvent('changecontentevent', view);
@@ -71,8 +71,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             confirmText: activate ? Uni.I18n.translate('general.activate', 'MDC', 'Activate') : Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
             itemId: 'activationConfirmationWindow'
         }).show({
-            title: activate ? Uni.I18n.translate('estimationDevice.activateConfirmation.title', 'MDC', 'Activate data estimation on device {0}?', [me.mRID]) :
-                Uni.I18n.translate('estimationDevice.deactivateConfirmation.title', 'MDC', 'Deactivate data estimation on device {0}?', [me.mRID]),
+            title: activate ? Uni.I18n.translate('estimationDevice.activateConfirmation.title', 'MDC', 'Activate data estimation on device \'{0}\'?', [me.mRID]) :
+                Uni.I18n.translate('estimationDevice.deactivateConfirmation.title', 'MDC', 'Deactivate data estimation on device \'{0}\'?', [me.mRID]),
             msg: activate ? '' :
                 Uni.I18n.translate('estimationDevice.deactivateConfirmation.msg', 'MDC', 'The data of this device will no longer be estimated'),
             fn: function (state) {

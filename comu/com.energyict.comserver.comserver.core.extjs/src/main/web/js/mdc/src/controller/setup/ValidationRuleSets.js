@@ -109,7 +109,6 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getValidationRuleSetsGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -166,22 +165,18 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         });
     },
 
-    onValidationRuleSetsSelectionChange: function (grid) {
-        var view = this.getValidationRuleSetsOverview(),
-            selection = grid.view.getSelectionModel().getSelection();
-
-        this.onAddRuleSetsChange(grid);
-        if (selection.length > 0) {
-            view.updateValidationRuleSet(selection[0]);
+    onValidationRuleSetsSelectionChange: function (selectionModel, selectedRecords) {
+        var view = this.getValidationRuleSetsOverview();
+        this.onAddRuleSetsChange(selectionModel, selectedRecords);
+        if (selectedRecords.length > 0) {
+            view.updateValidationRuleSet(selectedRecords[0]);
         }
     },
 
-    onAddValidationRuleSetsSelectionChange: function (grid) {
-        var view = this.getAddValidationRuleSets(),
-            selection = grid.view.getSelectionModel().getSelection();
-
-        if (selection.length > 0) {
-            view.updateValidationRuleSet(selection[0]);
+    onAddValidationRuleSetsSelectionChange: function (selectionModel, selectedRecords) {
+        var view = this.getAddValidationRuleSets();
+        if (selectedRecords.length > 0) {
+            view.updateValidationRuleSet(selectedRecords[0]);
         }
     },
 
@@ -412,11 +407,11 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         }
     },
 
-    onAddRuleSetsChange: function (grid) {
+    onAddRuleSetsChange: function (selectionModel, selectedRecords) {
         var me = this,
             versionsGrid;
 
-        if (grid.getSelection().length === 1) {
+        if (selectedRecords.length === 1) {
             versionsGrid = me.getAddValidationVersionsPreview();
             versionsGrid.getStore().on('load', function (store, records, success) {
                 var rec = store.find('status', 'CURRENT');

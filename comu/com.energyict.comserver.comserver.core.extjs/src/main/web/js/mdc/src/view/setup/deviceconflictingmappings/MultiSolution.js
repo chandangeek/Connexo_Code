@@ -74,11 +74,13 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.MultiSolution', {
                         itemId: 'map' + me.conflict.id,
                         inputValue: 'map',
                         listeners: {
-
                             change: function () {
                                 var map = me.actualForm.down('#map' + me.conflict.id);
-                                me.conflictsStore.each(function (item) {
-                                    if (!map.getValue()) {
+                                if (map.getValue()) {
+                                    me.actualForm.down('#combo' + me.conflict.id).setValue(me.toConfigurationStore.first());
+                                }
+                                else {
+                                    me.conflictsStore.each(function (item) {
                                         item.to().removeFilter(me.conflict.id);
                                         me.actualForm.down('#combo' + me.conflict.id).setValue();
                                         me.conflictsStore.each(function (radioComponent) {
@@ -91,11 +93,8 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.MultiSolution', {
                                                 }
                                             }
                                         });
-                                    }
-                                    if (map.getValue()) {
-                                        me.actualForm.down('#combo' + me.conflict.id).setValue(me.toConfigurationStore.first());
-                                    }
-                                });
+                                    });
+                                }
                             }
                         }
                     },
