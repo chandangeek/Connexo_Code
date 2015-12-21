@@ -304,6 +304,16 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     VLM20(267, "com.energyict.protocolimpl.modbus.spiraxsarco.VLM20"),
     RIM20(268, "com.energyict.protocolimpl.modbus.spiraxsarco.RIM20"),
 
+    CryptoE350_42(269, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.landisgyr.CryptoE350", FamilyRule.DSMR_NTA),
+    CryptoKaifa_42(270, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.ibm.Cryptokaifa", FamilyRule.DSMR_NTA),
+    Landis_Gyr_CryptoMbusDevice_42(271, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.landisgyr.CryptoMbusDevice", FamilyRule.EICT_NTA),
+    Elster_CryptoMbusDevice_42(272, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.elster.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    Dummy_CryptoMbusDevice_42(273, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.common.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    Itron_CryptoMbusDevice_42(274, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+
+    CryptoWebRTUKP_42(275, "com.enexis.protocolimplv2.nta.dsmr23.eict.CryptoWebRTUKP", FamilyRule.EICT_NTA),
+    CryptoRtuPlusServer_42(276, "com.enexis.protocolimplv2.rtuplusserver.g3.CryptoRtuPlusServer", FamilyRule.G3_LINKY_DLMS, FamilyRule.G3_PLC),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),

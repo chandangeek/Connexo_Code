@@ -442,6 +442,18 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice
 
+-keepnames com.enexis.smartmeterprotocolimpl.nta.dsmr42.landisgyr.CryptoE350
+
+-keepnames com.enexis.smartmeterprotocolimpl.nta.dsmr42.landisgyr.CryptoMbusDevice
+
+-keepnames com.enexis.smartmeterprotocolimpl.nta.dsmr42.ibm.Cryptokaifa
+
+-keepnames com.enexis.smartmeterprotocolimpl.nta.dsmr42.itron.CryptoMbusDevice
+
+-keepnames com.enexis.smartmeterprotocolimpl.nta.dsmr42.elster.CryptoMbusDevice
+
+-keepnames com.enexis.smartmeterprotocolimpl.nta.dsmr42.common.CryptoMbusDevice
+
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDIS {
     public *;   # For usage in protocolimpl-v2
 }
