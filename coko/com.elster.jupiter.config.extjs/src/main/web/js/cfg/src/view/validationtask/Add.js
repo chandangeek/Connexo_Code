@@ -85,7 +85,8 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         itemId: 'rbtn-device-group',
                                         name: 'grouptype',
                                         boxLabel: Uni.I18n.translate('general.group.device', 'CFG', 'End device'),
-                                        inputValue: 'End Device'
+                                        inputValue: 'End Device',
+                                        checked: true
                                     },
                                     {
                                         itemId: 'rbtn-usagepoint-group',
@@ -95,7 +96,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                     }
                                 ],
                                 listeners: {
-                                    change: function(field, newValue, oldVallue) {
+                                    change: function(field, newValue, oldValue) {
                                         
                                         if (newValue['grouptype'] == 'End Device') {
                                         	me.down('#cbo-validation-task-usagepoint-group').hide();
@@ -113,66 +114,71 @@ Ext.define('Cfg.view.validationtask.Add', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: ' ',
-                        required: true,
                         layout: 'hbox',
+                        fieldLabel: ' ',
                         items: [
                             {
-                                xtype: 'combobox',
-                                itemId: 'cbo-validation-task-device-group',
-                                name: 'endDeviceGroup',
-                                width: 235,
-                                store: 'Cfg.store.DeviceGroups',
-                                editable: false,
-                                disabled: false,
-                                emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
-                                //allowBlank: false,
-                                queryMode: 'local',
-                                displayField: 'name',
-                                valueField: 'id'
+                                xtype: 'fieldcontainer',
+                                required: true,
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'combobox',
+                                        itemId: 'cbo-validation-task-device-group',
+                                        name: 'endDeviceGroup',
+                                        width: 235,
+                                        store: 'Cfg.store.DeviceGroups',
+                                        editable: false,
+                                        disabled: false,
+                                        emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
+                                        //allowBlank: false,
+                                        queryMode: 'local',
+                                        displayField: 'name',
+                                        valueField: 'id'
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        itemId: 'no-device',
+                                        hidden: true,
+                                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</div>',
+                                        htmlEncode: false,
+                                        labelwidth: 500,
+                                        width: 235
+                                    },
+
+                                ]
                             },
                             {
-                                xtype: 'displayfield',
-                                itemId: 'no-device',
-                                hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</div>',
-                                htmlEncode: false,
-                                labelwidth: 500,
-                                width: 235
+                                xtype: 'fieldcontainer',
+                                required: true,
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'combobox',
+                                        itemId: 'cbo-validation-task-usagepoint-group',
+                                        name: 'usagePointGroup',
+                                        width: 235,
+                                        store: 'Cfg.store.UsagePointGroups',
+                                        editable: false,
+                                        disabled: false,
+                                        emptyText: Uni.I18n.translate('validationTasks.addValidationTask.usagepointGroupPrompt', 'CFG', 'Select a usage point group...'),
+                                        //allowBlank: false,
+                                        queryMode: 'local',
+                                        displayField: 'name',
+                                        valueField: 'id'
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        itemId: 'no-usagepoint',
+                                        hidden: true,
+                                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.') + '</div>',
+                                        htmlEncode: false,
+                                        labelwidth: 500,
+                                        width: 235
+                                    },
+
+                                ]
                             },
-                            
-                        ]
-                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: ' ',
-                        required: true,
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'combobox',
-                                itemId: 'cbo-validation-task-usagepoint-group',
-                                name: 'usagePointGroup',
-                                width: 235,
-                                store: 'Cfg.store.UsagePointGroups',
-                                editable: false,
-                                disabled: false,
-                                emptyText: Uni.I18n.translate('validationTasks.addValidationTask.usagepointGroupPrompt', 'CFG', 'Select a usage point group...'),
-                                //allowBlank: false,
-                                queryMode: 'local',
-                                displayField: 'name',
-                                valueField: 'id'
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'no-usagepoint',
-                                hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.') + '</div>',
-                                htmlEncode: false,
-                                labelwidth: 500,
-                                width: 235
-                            },
-                            
                         ]
                     },
                     {
