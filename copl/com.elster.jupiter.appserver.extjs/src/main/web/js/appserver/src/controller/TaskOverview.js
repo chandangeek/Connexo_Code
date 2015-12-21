@@ -37,16 +37,8 @@ Ext.define('Apr.controller.TaskOverview', {
     },
 
     showTaskOverview: function () {
-        var me = this,
-            store = Ext.create('Apr.store.Tasks'),
-            view;
-            view = Ext.widget('task-overview-setup',
-                {
-                    store: store
-                });
-            me.getApplication().fireEvent('changecontentevent', view);
-            me.getFilter().applyFilters();
-
+        var me = this;
+        me.getApplication().fireEvent('changecontentevent', Ext.widget('task-overview-setup'));
     },
 
     showPreview: function(records,record){
