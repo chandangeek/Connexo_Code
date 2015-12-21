@@ -104,7 +104,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             serverId: id
         });
         me.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
         Uni.util.Common.loadNecessaryStores(storesArr, function () {
             addMenus = widget.query('comServerComPortsAddMenu');
             addMenus && Ext.Array.each(addMenus, function (menu) {
@@ -115,15 +114,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             addComPortPoolsStore.removeAll();
             comServerModel.load(id, {
                 success: function (record) {
-                    comPortsStore.load({
-                        callback: function () {
-                            widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
-                            widget.setLoading(false);
-                            me.getApplication().fireEvent('comServerOverviewLoad', record);
-                            widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
-                        }
-                    })
-
+                    widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
+                    me.getApplication().fireEvent('comServerOverviewLoad', record);
+                    widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
                 }
             });
         }, false);
@@ -235,12 +228,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             failure: function (record, options) {
                 var title,
                     errorsArray,
+                    errorsObj,
                     message;
 
                 record.reject();
                 if (options && options.response.status === 400) {
                     title = Uni.I18n.translate('comServerComPorts.activation.failurex', 'MDC', "Failed to activate '{0}'",record.get('name'));
-                    errorsArray = Ext.decode(options.response.responseText);
+                    errorsObj = Ext.decode(options.response.responseText);
+                    errorsArray = errorsObj.errors;
                     message = '';
                     Ext.Array.each(errorsArray, function (obj) {
                         message += obj.msg + '.'
