@@ -109,7 +109,7 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public String getString(String key, String defaultMessage) {
-        if (translations.isEmpty()) {
+        if (translations.isEmpty() || !translations.containsKey(key)) {
             initTranslations(component, layer);
         }
         if (!translations.containsKey(key)) {
