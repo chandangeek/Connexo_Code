@@ -128,14 +128,29 @@ Ext.define('Dbp.deviceprocesses.view.StartProcess', {
                     }
                 ]
 
+            },
+            {
+                xtype: 'no-items-found-panel',
+                itemId: 'pnl-no-items-found',
+                margin: '15 0 20 0',
+                hidden: true,
+                title: Uni.I18n.translate('dbp.process.start.title', 'DBP', 'Start process'),
+                reasons: [
+                    Uni.I18n.translate('dbp.startprocess.empty.list.item1', 'DBP', 'No processes have been defined yet.'),
+                    Uni.I18n.translate('dbp.startprocess.empty.list.item2', 'DBP', 'No processes are available for the current device state.'),
+                    Uni.I18n.translate('dbp.startprocess.empty.list.item3', 'DBP', 'Processes exist, but you do not have permission to execute them.')
+                ]
             }
         ];
         me.callParent(arguments);
         processCombo = me.down('combobox[name=startProcessCombo]');
 
         processStore.load(function (records) {
+            var visible = Ext.isEmpty(records);
             Ext.getBody().unmask();
-            if (!Ext.isEmpty(records)) {
+            me.down('#pnl-processes').setVisible(!visible);
+            me.down('#pnl-no-items-found').setVisible(visible);
+            if (!visible) {
                 processCombo.bindStore(processStore);
             }
         });
