@@ -201,9 +201,10 @@ Ext.define('Cfg.controller.Tasks', {
         me.taskModel = null;
         me.taskId = null;
         me.fromEdit = false;
-        view.down('#cbo-validation-task-device-group').hide();
+        view.down('#cbo-validation-task-device-group').setLoading(true);
         view.down('#cbo-validation-task-usagepoint-group').hide();
         deviceGroupCombo.store.load(function () {
+            view.down('#cbo-validation-task-device-group').setLoading(false);;
             if (this.getCount() === 0) {
                 deviceGroupCombo.allowBlank = true;
             }
