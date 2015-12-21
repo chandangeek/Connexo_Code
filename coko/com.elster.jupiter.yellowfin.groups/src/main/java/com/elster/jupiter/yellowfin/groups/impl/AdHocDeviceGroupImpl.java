@@ -15,18 +15,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
+final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
 
     private String ADHOC_GROUP_NAME_PREFIX = "__##SEARCH_RESULTS##__";
     private int SECONDS_IN_DAY = 24*60*60;
     private int ROWCOUNT_ITEMS = 100;
 
-    long id;
-    String name;
+    private long id;
+    private String name;
     private Instant createTime;
 
-    protected List<AdHocEntryImpl> entries = new ArrayList<AdHocEntryImpl>();
-    protected final DataModel dataModel;
+    private List<AdHocEntryImpl> entries = new ArrayList<AdHocEntryImpl>();
+    private final DataModel dataModel;
 
     @Inject
     private AdHocDeviceGroupImpl(DataModel dataModel) {
@@ -67,14 +67,14 @@ public class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
         }
     }
 
-    protected SqlBuilder buildCreateSQL(Instant instant){
+    private SqlBuilder buildCreateSQL(Instant instant){
         SqlBuilder builder = new SqlBuilder();
         builder.append("delete from " + TableSpecs.YFN_ADHOC_DG );
         builder.append(" where CREATETIME < " + instant.getEpochSecond() * 1000 + " and rownum < " + ROWCOUNT_ITEMS);
         return builder;
     }
 
-    protected PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException{
+    private PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException{
         if (connection == null){
             throw new IllegalArgumentException("Connection can't be null");
         }
@@ -170,5 +170,18 @@ public class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
 
     public List<AdHocEntryImpl> getEntries(){
         return this.entries;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AdHocDeviceGroupImpl)) return false;
+        AdHocDeviceGroupImpl that = (AdHocDeviceGroupImpl) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
