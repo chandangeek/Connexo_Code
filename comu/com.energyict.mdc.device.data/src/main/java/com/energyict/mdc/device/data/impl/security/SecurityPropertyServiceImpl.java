@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.data.impl.security;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.streams.Predicates;
-import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -17,6 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TypedProperties;
@@ -26,14 +18,10 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.exceptions.SecurityPropertyException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
-import com.energyict.mdc.dynamic.relation.*;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
-
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -47,7 +35,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
 
 
 /**
@@ -244,29 +231,22 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
     @Override
     public void updateSecurityPropertiesWithNewSecurityPropertySet(Device device, SecurityPropertySet originSecurityPropertySet, SecurityPropertySet destinationSecurityPropertySet) {
         this.findActiveProperties(device, originSecurityPropertySet, clock.instant())
-                .ifPresent(relation -> {
+                .ifPresent(customPropertySetValues -> {
                     final TypedProperties typedProperties = TypedProperties.empty();
-                    originSecurityPropertySet.getPropertySpecs().stream()
-                            .map(propertySpec -> getSecurityPropertyKeyValuePair(propertySpec, relation))
-                            .flatMap(optionalPair -> optionalPair.isPresent() ? Stream.of(optionalPair.get()) : Stream.empty())
-                            .forEach(pair -> typedProperties.setProperty(pair.getFirst(), pair.getLast()));
+                    destinationSecurityPropertySet.getPropertySpecs().stream()
+                            .forEach(propertySpec -> typedProperties.setProperty(propertySpec.getName(), customPropertySetValues.getProperty(propertySpec.getName())));
+                    deleteSecurityPropertiesFor(device, originSecurityPropertySet);
                     setSecurityProperties(device, destinationSecurityPropertySet, typedProperties);
-                    deleteSecurityPropertiesFor(device, relation.getRelationType(), originSecurityPropertySet);
                 });
     }
 
     @Override
     public void deleteSecurityPropertiesFor(Device device, SecurityPropertySet securityPropertySet) {
-        RelationType relationType = this.findSecurityPropertyRelationType(device);
-        deleteSecurityPropertiesFor(device, relationType, securityPropertySet);
-    }
-
-    private Optional<Pair<String, Object>> getSecurityPropertyKeyValuePair(PropertySpec propertySpec, Relation relation) {
-        Object propertyValue = relation.get(propertySpec.getName());
-        if (propertyValue != null) {
-            return Optional.of(Pair.of(propertySpec.getName(), propertyValue));
-        } else {
-            return Optional.empty();
-        }
+        device
+                .getDeviceType()
+                .getDeviceProtocolPluggableClass()
+                .getDeviceProtocol()
+                .getCustomPropertySet()
+                .ifPresent(baseDeviceCustomPropertySet -> this.customPropertySetService.removeValuesFor(baseDeviceCustomPropertySet, device, securityPropertySet));
     }
 }

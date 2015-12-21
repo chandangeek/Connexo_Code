@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.configchange;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -11,13 +12,10 @@ import java.util.stream.Stream;
  */
 public final class DeviceConfigChangeExecutor {
 
-    private static DeviceConfigChangeExecutor ourInstance = new DeviceConfigChangeExecutor();
+    private final DeviceService deviceService;
 
-    public static DeviceConfigChangeExecutor getInstance() {
-        return ourInstance;
-    }
-
-    private DeviceConfigChangeExecutor() {
+    public DeviceConfigChangeExecutor(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     public Device execute(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration) {
@@ -52,7 +50,7 @@ public final class DeviceConfigChangeExecutor {
      * @param destinationDeviceConfiguration the configuration to change to
      */
     private void prepareForChangeDeviceConfig(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration) {
-        device.lock();
+        this.deviceService.findAndLockDeviceByIdAndVersion(device.getId(), device.getVersion());
         device.validateDeviceCanChangeConfig(destinationDeviceConfiguration);
         device.createNewMeterActivation();
     }

@@ -29,8 +29,11 @@ public class SecurityPropertiesConfigChangeItem extends AbstractConfigChangeItem
             mapSecurityPropertiesFromDevice(device, deviceConfigConflictMapping);
         });
 
-        final List<DeviceConfigChangeAction<SecurityPropertySet>> matchedSecuritySets = DeviceConfigChangeEngine.INSTANCE.getSecuritySetConfigChangeActions(originDeviceConfiguration, destinationDeviceConfiguration).stream().filter(actionTypeIs(DeviceConfigChangeActionType.MATCH)).collect(Collectors.toList());
+        List<DeviceConfigChangeAction<SecurityPropertySet>> securitySetActions = DeviceConfigChangeEngine.INSTANCE.getSecuritySetConfigChangeActions(originDeviceConfiguration, destinationDeviceConfiguration);
+        List<DeviceConfigChangeAction<SecurityPropertySet>> matchedSecuritySets = getMatchItems(securitySetActions);
+        List<SecurityPropertySet> removeItems = getRemoveItems(securitySetActions);
         matchedSecuritySets.stream().forEach(matchedSecurityPropertySet -> device.updateSecurityProperties(matchedSecurityPropertySet.getOrigin(), matchedSecurityPropertySet.getDestination()));
+        removeItems.forEach(device::deleteSecurityPropertiesFor);
     }
 
     private void removeSecurityPropertiesFromDevice(ServerDeviceForConfigChange device, DeviceConfigConflictMapping deviceConfigConflictMapping) {

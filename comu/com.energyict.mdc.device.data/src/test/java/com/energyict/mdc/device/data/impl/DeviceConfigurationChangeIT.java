@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.LocalEvent;
@@ -7,6 +9,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -19,6 +22,7 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
+import com.energyict.mdc.device.data.impl.security.BasicAuthenticationSecurityProperties;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -32,6 +36,8 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -42,19 +48,25 @@ import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -86,8 +98,22 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             @Override
             protected void doPerform() {
                 outboundIpConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundIpConnectionTypeImpl.class);
+                registerDeviceProtocol();
+                grantAllViewAndEditPrivilegesToPrincipal();
             }
         });
+    }
+
+    public static void registerDeviceProtocol() {
+        deviceProtocolPluggableClass = registerDeviceProtocol(TestProtocol.class);
+    }
+
+    private static <T extends DeviceProtocol> DeviceProtocolPluggableClass registerDeviceProtocol(Class<T> deviceProtocolClass) {
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass =
+                inMemoryPersistence.getProtocolPluggableService()
+                        .newDeviceProtocolPluggableClass(deviceProtocolClass.getSimpleName(), deviceProtocolClass.getName());
+        deviceProtocolPluggableClass.save();
+        return deviceProtocolPluggableClass;
     }
 
     @Before
@@ -119,6 +145,9 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
                                     );
                             dc.deactivate();
                             DeviceConfigConflictMappingEngine.INSTANCE.reCalculateConflicts(dt);
+                        });
+                        // we do it in two runs because some obsolete objects refer to different configs
+                        dt.getConfigurations().forEach(dc -> {
                             final List<ComTask> comTasks = dc.getComTaskEnablements().stream().map(ComTaskEnablement::getComTask).collect(Collectors.toList());
                             comTasks.forEach(dc::disableComTask);
 
@@ -607,7 +636,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    public void changeConfigWithNoConflictConnectionMethods() {
+    public void changeConfigWithNoConflictConnectionMethodsTest() {
         final String connectionTaskName = "MyDefaultConnectionTaskName";
         final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
         Device device;
@@ -636,6 +665,41 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
+    }
+
+    @Test
+    public void changeConfigWithNoConflictsRemoveAndMapConnectionMethodsTest() {
+        final String firstConnectionTaskName = "myFirstConnectionTaskName";
+        final String secondConnectionTaskName = "mySecondConnectionTaskName";
+        final PartialScheduledConnectionTaskImpl otherSecondConnectionTask;
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
+
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, firstConnectionTaskName, outboundIpPool);
+            final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, secondConnectionTaskName, outboundIpPool);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+            otherSecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, firstConnectionTaskName, outboundIpPool);
+            secondDeviceConfiguration.activate();
+
+            updateConflictsFor(otherSecondConnectionTask, connectionTaskCreatedTopic);
+            assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+            final ScheduledConnectionTask originalSecondScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(mySecondConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+
+        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+        assertThat(modifiedDevice.getConnectionTasks()).hasSize(1);
+        assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(otherSecondConnectionTask.getId());
     }
 
     @Test
@@ -761,7 +825,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    public void changeConfigWithNoConflictingSecurityPropertySetsAndValidProperties() {
+    public void changeConfigWithNoConflictingSecurityPropertySetsAndValidPropertiesTest() {
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
         final SecurityPropertySet firstSecurityPropertySet;
         final SecurityPropertySet secondSecurityPropertySet;
         Device device;
@@ -782,7 +847,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
             device.save();
             TypedProperties securityProperties = TypedProperties.empty();
-            securityProperties.setProperty("Password", "12345678");
+            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
+            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
             context.commit();
         }
@@ -790,14 +856,59 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
         try (TransactionContext context = getTransactionService().getContext()) {
             assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo("Password");
+            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
             assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
             context.commit();
         }
     }
 
     @Test
+    public void changeConfigWithNoConflictingSecurityPropertySetsAndValidPropertiesRemoveAndMapTest() {
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
+        final SecurityPropertySet firstSecurityPropertySet;
+        final SecurityPropertySet secondSecurityPropertySet;
+        final SecurityPropertySet otherSecurityPropertySet;
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
+
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            final String firstSecurityPropertySetName = "NoSecurity";
+            final String secondSecurityPropertySetName = "OtherSecurity";
+            firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, firstSecurityPropertySetName);
+            secondSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, secondSecurityPropertySetName);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            otherSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, firstSecurityPropertySetName);
+            secondDeviceConfiguration.activate();
+
+            updateConflictsFor(otherSecurityPropertySet, securitySetCreatedTopic);
+            assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            TypedProperties securityProperties = TypedProperties.empty();
+            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
+            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
+            device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
+            device.setSecurityProperties(secondSecurityPropertySet, securityProperties);
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+
+        try (TransactionContext context = getTransactionService().getContext()) {
+            assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+            assertThat(modifiedDevice.getSecurityProperties(otherSecurityPropertySet).get(0).getName()).isEqualTo(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
+            assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
+            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet)).isEmpty();
+            context.commit();
+        }
+    }
+
+    @Test
     public void changeConfigWithConflictingSecurityPropertySetsAndMapSolutionTest() {
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
+
         Device device;
         final DeviceConfiguration secondDeviceConfiguration;
         final SecurityPropertySet secondSecurityPropertySet;
@@ -819,15 +930,19 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
             device.save();
             TypedProperties securityProperties = TypedProperties.empty();
-            securityProperties.setProperty("Password", "12345678");
+            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
+            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
+            device.getSecurityProperties(firstSecurityPropertySet);
             context.commit();
         }
+
+
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         try (TransactionContext context = getTransactionService().getContext()) {
             assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo("Password");
+            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
             assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
             context.commit();
         }
@@ -856,7 +971,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
             device.save();
             TypedProperties securityProperties = TypedProperties.empty();
-            securityProperties.setProperty("Password", "12345678");
+            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
+            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
             context.commit();
         }
@@ -951,11 +1067,11 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             secondDeviceConfiguration.activate();
 
             device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-            device.setProtocolDialectProperty(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME, ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME_D1, myPropertyValue);
+            device.setProtocolDialectProperty(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME, ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME, myPropertyValue);
             device.save();
 
             final ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME).get();
-            assertThat(protocolDialectProperties.getTypedProperties().getProperty(ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME_D1)).isEqualTo(myPropertyValue);
+            assertThat(protocolDialectProperties.getTypedProperties().getProperty(ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME)).isEqualTo(myPropertyValue);
             assertThat(protocolDialectProperties.getProtocolDialectConfigurationProperties().getDeviceConfiguration().getId()).isEqualTo(firstDeviceConfiguration.getId());
             context.commit();
         }
@@ -965,7 +1081,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
             final ProtocolDialectProperties protocolDialectProperties1 = modifiedDevice.getProtocolDialectProperties(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME).get();
-            assertThat(protocolDialectProperties1.getTypedProperties().getProperty(ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME_D1)).isEqualTo(myPropertyValue);
+            assertThat(protocolDialectProperties1.getTypedProperties().getProperty(ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME)).isEqualTo(myPropertyValue);
             assertThat(protocolDialectProperties1.getProtocolDialectConfigurationProperties().getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
             context.commit();
         }
@@ -1115,8 +1231,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         return deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == firstDeviceConfiguration.getId() && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == secondDeviceConfiguration.getId();
     }
 
-    private PartialScheduledConnectionTaskImpl createPartialConnectionTask(DeviceConfiguration firstDeviceConfiguration, String connectionTaskName, OutboundComPortPool comPortPool) {
-        final PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = firstDeviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName, outboundIpConnectionTypePluggableClass, scheduledConnectionTaskInterval, ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+    private PartialScheduledConnectionTaskImpl createPartialConnectionTask(DeviceConfiguration deviceConfiguration, String connectionTaskName, OutboundComPortPool comPortPool) {
+        final PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName, outboundIpConnectionTypePluggableClass, scheduledConnectionTaskInterval, ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         partialScheduledConnectionTaskBuilder.comPortPool(comPortPool);
         return partialScheduledConnectionTaskBuilder.build();
     }
@@ -1169,5 +1285,16 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             builder.setNumberOfDigits(9);
             builder.setNumberOfFractionDigits(3);
         };
+    }
+
+    protected static void grantAllViewAndEditPrivilegesToPrincipal() {
+        Set<Privilege> privileges = new HashSet<>();
+        Privilege editPrivilege = mock(Privilege.class);
+        when(editPrivilege.getName()).thenReturn(EditPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(editPrivilege);
+        Privilege viewPrivilege = mock(Privilege.class);
+        when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(viewPrivilege);
+        when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
     }
 }

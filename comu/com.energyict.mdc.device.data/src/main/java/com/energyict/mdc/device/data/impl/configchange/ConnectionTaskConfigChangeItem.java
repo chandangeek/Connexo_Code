@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 import java.util.List;
@@ -32,11 +33,14 @@ public class ConnectionTaskConfigChangeItem extends AbstractConfigChangeItem {
             mapConnectionsTasksFromDevice(device, deviceConfigConflictMapping);
         });
 
-        final List<DeviceConfigChangeAction<PartialConnectionTask>> matchedConnectionTasks = DeviceConfigChangeEngine.INSTANCE.getConnectionTaskConfigChangeActions(originDeviceConfiguration, destinationDeviceConfiguration).stream().filter(actionTypeIs(DeviceConfigChangeActionType.MATCH)).collect(Collectors.toList());
-        matchedConnectionTasks.stream().forEach(matchedConnectionTask
+        List<DeviceConfigChangeAction<PartialConnectionTask>> connectionTaskActions = DeviceConfigChangeEngine.INSTANCE.getConnectionTaskConfigChangeActions(originDeviceConfiguration, destinationDeviceConfiguration);
+        List<DeviceConfigChangeAction<PartialConnectionTask>> matchItems = getMatchItems(connectionTaskActions);
+        List<PartialConnectionTask> removeItems = getRemoveItems(connectionTaskActions);
+        matchItems.stream().forEach(matchedConnectionTask
                 -> device.getConnectionTasks().stream()
                 .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == matchedConnectionTask.getOrigin().getId()).findFirst()
                 .ifPresent(updateConnectionTaskWithNewPartialConnectionTask(matchedConnectionTask.getDestination())));
+        removeItems.forEach(partialConnectionTask -> device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == partialConnectionTask.getId()).findAny().ifPresent(device::removeConnectionTask));
     }
 
     private void removeConnectionsTasksFromDevice(ServerDeviceForConfigChange device, DeviceConfigConflictMapping deviceConfigConflictMapping) {

@@ -23,7 +23,7 @@ import static com.elster.jupiter.util.Checks.is;
 public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecurityProperties {
 
     public enum ActualFields {
-        PASSWORD("password"),
+        PASSWORD("password"){},
         USER_NAME("userName");
 
         private final String name;
@@ -61,21 +61,17 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
     private String password;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String userName;
-    @Size(max = Table.MAX_STRING_LENGTH)
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        Password password = (Password) propertyValues.getProperty(ActualFields.PASSWORD.javaName());
-        if (password != null) {
-            this.password = password.getValue();
-        }
+        this.password = (String) propertyValues.getProperty(ActualFields.PASSWORD.javaName());
         this.userName = (String) propertyValues.getProperty(ActualFields.USER_NAME.javaName());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.password).empty()) {
-            propertySetValues.setProperty(ActualFields.PASSWORD.javaName(), new Password(this.password));
+            propertySetValues.setProperty(ActualFields.PASSWORD.javaName(), this.password);
         }
         this.setPropertyIfNotNull(propertySetValues, ActualFields.USER_NAME.javaName(), this.userName);
     }

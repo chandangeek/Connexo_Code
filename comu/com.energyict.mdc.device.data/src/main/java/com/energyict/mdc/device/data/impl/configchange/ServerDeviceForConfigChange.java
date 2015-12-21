@@ -7,7 +7,6 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.dynamic.relation.CanLock;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
  * Adds behavior to {@link com.energyict.mdc.device.data.Device} that is specific
  * to server side components.
  */
-public interface ServerDeviceForConfigChange extends Device, CanLock {
+public interface ServerDeviceForConfigChange extends Device {
 
     String CONFIG_CHANGE_BULK_QUEUE_DESTINATION = "ConfigChangeBulkQD";
     String DEVICE_CONFIG_CHANGE_SUBSCRIBER = "DeviceConfigChangeSubscriber";

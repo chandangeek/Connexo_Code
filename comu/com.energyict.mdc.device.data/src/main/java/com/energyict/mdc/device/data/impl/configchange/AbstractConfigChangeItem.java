@@ -17,6 +17,10 @@ public abstract class AbstractConfigChangeItem implements DataSourceConfigChange
         return actions.stream().filter(actionTypeIs(DeviceConfigChangeActionType.ADD)).map(DeviceConfigChangeAction::getDestination).collect(Collectors.toList());
     }
 
+    <T extends HasId> List<T> getRemoveItems(List<DeviceConfigChangeAction<T>> actions) {
+        return actions.stream().filter(actionTypeIs(DeviceConfigChangeActionType.REMOVE)).map(DeviceConfigChangeAction::getOrigin).collect(Collectors.toList());
+    }
+
     Predicate<DeviceConfigChangeAction<?>> actionTypeIs(DeviceConfigChangeActionType deviceConfigChangeActionType) {
         return deviceConfigChangeAction -> deviceConfigChangeAction.getActionType().equals(deviceConfigChangeActionType);
     }
