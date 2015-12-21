@@ -95,10 +95,10 @@ public class TemporalTest {
     public void testTemporal()  {
         try (TransactionContext context = getTransactionService().getContext()) {
         	PartyService partyService = getPartyService();
-         	Organization organization = partyService.newOrganization("Melrose");
-        	organization.setAliasName("Melrose Place");
-        	organization.setDescription("Buy and Improve");
-        	organization.save();
+         	Organization organization = partyService.newOrganization("Melrose")
+                    .setAliasName("Melrose Place")
+                    .setDescription("Buy and Improve")
+                    .create();
         	PartyRole role = partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
         	organization.assumeRole(role, Instant.now());
         	context.commit();

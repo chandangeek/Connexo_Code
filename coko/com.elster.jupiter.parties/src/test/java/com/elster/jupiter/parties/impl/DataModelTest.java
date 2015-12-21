@@ -106,10 +106,10 @@ public class DataModelTest {
     	PartyServiceImpl partyService = (PartyServiceImpl) getPartyService();
     	DataModel dataModel = partyService.getDataModel();
         try (TransactionContext context = getTransactionService().getContext()) {
-         	Organization organization = partyService.newOrganization("Melrose");
-        	organization.setAliasName("Melrose Place");
-        	organization.setDescription("Buy and Improve");
-        	organization.save();
+         	Organization organization = partyService.newOrganization("Melrose")
+					.setAliasName("Melrose Place")
+                    .setDescription("Buy and Improve")
+                    .create();
         	assertThat(dataModel.mapper(Party.class).find()).hasSize(1);
         	assertThat(dataModel.mapper(Organization.class).find()).hasSize(1);
         	assertThat(dataModel.mapper(Person.class).find()).hasSize(0);
@@ -163,19 +163,14 @@ public class DataModelTest {
     public void testWriteBack()  {
         try (TransactionContext context = getTransactionService().getContext()) {
         	PartyServiceImpl partyService = (PartyServiceImpl) getPartyService();
-         	PersonImpl person = (PersonImpl) partyService.newPerson("Frank","Hyldmar");
-         	assertThat(person.getCreateTime()).isNull();
-         	assertThat(person.getModTime()).isNull();
-         	assertThat(person.getUserName()).isNull();
-         	assertThat(person.getVersion()).isEqualTo(0);
-         	person.save();
-         	Instant now = Instant.now();
-         	assertThat(person.getCreateTime().isAfter(now)).isFalse();
+         	PersonImpl person = (PersonImpl) partyService.newPerson("Frank","Hyldmar").create();
+            Instant now = Instant.now();
+            assertThat(person.getCreateTime().isAfter(now)).isFalse();
          	assertThat(person.getModTime().isAfter(now)).isFalse();
          	assertThat(person.getUserName()).isNotNull();
         	assertThat(person.getVersion()).isEqualTo(1);
          	person.setAliasName("xxxx");
-         	person.save();
+         	person.update();
          	assertThat(person.getCreateTime().isAfter(now)).isFalse();
          	assertThat(person.getModTime().isBefore(now)).isFalse();
          	assertThat(person.getVersion()).isEqualTo(2);

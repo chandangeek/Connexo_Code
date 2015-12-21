@@ -100,17 +100,16 @@ public class PartyCrudTest {
     public void testCrud()  {
         try (TransactionContext context = getTransactionService().getContext()) {
         	PartyService partyService = getPartyService();
-         	Organization organization = partyService.newOrganization("EICT");
-        	organization.save();
-        	organization.setName("Elster");
-        	organization.setAliasName("EnergyICT");
-        	organization.setDescription("Delivering tomorrow's energy solutions today");
-        	StreetAddress address = new StreetAddress();
-        	address.getStreetDetail().setBuildingName("KKS");
-        	address.getStreetDetail().setName("Stasegemsesteenweg");
-        	address.getStreetDetail().setNumber("114");
-        	organization.setStreetAddress(address);
-        	organization.save();
+			StreetAddress address = new StreetAddress();
+			address.getStreetDetail().setBuildingName("KKS");
+			address.getStreetDetail().setName("Stasegemsesteenweg");
+			address.getStreetDetail().setNumber("114");
+         	Organization organization = partyService.newOrganization("EICT")
+					.setName("Elster")
+					.setAliasName("EnergyICT")
+					.setDescription("Delivering tomorrow's energy solutions today")
+					.setStreetAddress(address)
+					.create();
         	Query<Party> query = partyService.getPartyQuery();
         	query.setLazy();
         	assertThat(query.select(Condition.TRUE)).hasSize(1);
@@ -133,7 +132,7 @@ public class PartyCrudTest {
         	UserService userService = injector.getInstance(UserService.class);
         	User user = userService.findUser("admin").get();
         	party.appointDelegate(user, Instant.EPOCH);
-        	party.save();
+        	party.update();
         	party = query.select(Condition.TRUE).get(0);
         	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
         	assertThat(role.getParties()).isNotEmpty();
@@ -160,11 +159,11 @@ public class PartyCrudTest {
     @Test(expected=IllegalArgumentException.class)
     public void testDuplicateRepresentation() {
     	try (TransactionContext context = getTransactionService().getContext()) {
-    		Person person = getPartyService().newPerson("Frank", "Hyldmar");
+    		Person person = getPartyService().newPerson("Frank", "Hyldmar").create();
         	UserService userService = injector.getInstance(UserService.class);
         	User user = userService.findUser("admin").get();
         	person.appointDelegate(user, Instant.EPOCH);
-        	person.save();
+        	person.update();
         	assertThat(person.getCurrentDelegates()).hasSize(1);
         	person.appointDelegate(user, Instant.now());
     		context.commit();
@@ -180,10 +179,10 @@ public class PartyCrudTest {
     @Test(expected=IllegalArgumentException.class)
     public void testDuplicateRole() {
     	try (TransactionContext context = getTransactionService().getContext()) {
-    		Organization organization = getPartyService().newOrganization("Elster");
+    		Organization organization = getPartyService().newOrganization("Elster").create();
     		PartyRole role = getPartyService().createRole("111", "222", "333", "444", "555");
     		organization.assumeRole(role, Instant.EPOCH);
-    		organization.save();
+    		organization.update();
     		assertThat(organization.getPartyInRoles(Instant.now())).hasSize(1);
     		organization.assumeRole(role, Instant.now());
     		context.commit();
@@ -214,9 +213,9 @@ public class PartyCrudTest {
     public void testValidation() {
     	try (TransactionContext context = getTransactionService().getContext()) {
            	PartyService partyService = getPartyService();
-           	Organization organization = partyService.newOrganization("Elster");
-           	organization.setStreetAddress(new StreetAddress());
-           	organization.save();
+           	Organization organization = partyService.newOrganization("Elster")
+                    .setStreetAddress(new StreetAddress())
+                    .create();
            	context.commit();
     	}
     }
@@ -225,23 +224,20 @@ public class PartyCrudTest {
     public void testDuplicate() {
     	try (TransactionContext context = getTransactionService().getContext()) {
            	PartyService partyService = getPartyService();
-           	Organization organization = partyService.newOrganization("Elster");
-           	organization.save();
-           	organization = partyService.newOrganization("Elster");
-           	organization.save();
+           	Organization organization = partyService.newOrganization("Elster").create();
+           	organization = partyService.newOrganization("Elster").create();
            	context.commit();
     	}
     }
 
-
 	@Test()
 	public void testFindAndLockPartyRepresentation() {
 		try (TransactionContext context = getTransactionService().getContext()) {
-			Person person = getPartyService().newPerson("Samuel", "La");
+			Person person = getPartyService().newPerson("Samuel", "La").create();
 			UserService userService = injector.getInstance(UserService.class);
 			User user = userService.findUser("admin").get();
 			person.appointDelegate(user, Instant.EPOCH);
-			person.save();
+			person.update();
 
 			Optional<PartyRepresentation> partyRepresentation = getPartyService()
 					.findAndLockPartyRepresentationByVersionAndKey(1L, "admin", person.getId(), Instant.EPOCH.toEpochMilli());

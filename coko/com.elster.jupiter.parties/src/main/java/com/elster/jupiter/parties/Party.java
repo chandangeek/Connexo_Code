@@ -16,7 +16,7 @@ public interface Party extends IdentifiedObject {
     void setAliasName(String aliasName);
     void setDescription(String description);
     void setElectronicAddress(ElectronicAddress electronicAddress);
-    void save();
+    void update();
     void delete();
     long getVersion();
     List<? extends PartyInRole> getPartyInRoles(Range<Instant> range);

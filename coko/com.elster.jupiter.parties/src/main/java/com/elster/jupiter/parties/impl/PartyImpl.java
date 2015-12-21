@@ -1,20 +1,5 @@
 package com.elster.jupiter.parties.impl;
 
-import static com.elster.jupiter.domain.util.Save.action;
-import static com.google.common.base.MoreObjects.toStringHelper;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.domain.util.Save;
@@ -34,6 +19,20 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static com.elster.jupiter.domain.util.Save.action;
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 @Unique(fields="mRID", groups = Save.Create.class)
 abstract class PartyImpl implements Party {
@@ -265,7 +264,11 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public void save() {
+    public void update() {
+        doSave();
+    }
+
+    void doSave() {
         action(getId()).save(dataModel, this, getType());
     }
 
@@ -282,19 +285,16 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Party)) {
-            return false;
-        }
-        Party party = (Party) o;
-        return id == party.getId();
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+
+        return getClass().equals(o.getClass()) && id == ((PartyImpl) o).id;
+
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(id);
     }
 

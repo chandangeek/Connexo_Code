@@ -1,19 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.sql.SQLException;
-import java.time.Instant;
-
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -39,6 +27,17 @@ import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.sql.SQLException;
+import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 public class SubQueryTest {
@@ -98,10 +97,10 @@ public class SubQueryTest {
     	PartyServiceImpl partyService = (PartyServiceImpl) getPartyService();
     	DataModel dataModel = partyService.getDataModel();
         try (TransactionContext context = getTransactionService().getContext()) {
-         	Organization organization = partyService.newOrganization("Melrose");
-        	organization.setAliasName("Melrose Place");
-        	organization.setDescription("Buy and Improve");
-        	organization.save();
+         	Organization organization = partyService.newOrganization("Melrose")
+                    .setAliasName("Melrose Place")
+                    .setDescription("Buy and Improve")
+                    .create();
         	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
         	PartyRole role = partyService.getPartyRoles().get(0);
         	organization.assumeRole(role, Instant.now());

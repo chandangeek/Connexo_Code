@@ -1,20 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -35,6 +22,18 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 public class BatchInsertTest {
@@ -95,26 +94,27 @@ public class BatchInsertTest {
     	DataModel dataModel = partyService.getDataModel();
         try (TransactionContext context = getTransactionService().getContext()) {
         	List<Party> parties = new ArrayList<>();
-         	Organization organization = partyService.newOrganization("Melrose");
-        	organization.setAliasName("Melrose Place");
-        	organization.setDescription("Buy and Improve");
+         	Organization organization = partyService.newOrganization("Melrose")
+					.setAliasName("Melrose Place")
+					.setDescription("Buy and Improve")
+					.create();
         	parties.add(organization);
-        	Person person = partyService.newPerson("Simon","Peckham");
+        	Person person = partyService.newPerson("Simon","Peckham").create();
         	parties.add(person);
-        	assertThat(organization.getId()).isEqualTo(0);
-        	assertThat(person.getId()).isEqualTo(0);
-        	assertThat(organization.getVersion()).isEqualTo(0);
-        	assertThat(person.getVersion()).isEqualTo(0);
-        	dataModel.mapper(Party.class).persist(parties);
         	assertThat(organization.getId()).isEqualTo(1);
         	assertThat(person.getId()).isEqualTo(2);
         	assertThat(organization.getVersion()).isEqualTo(1);
         	assertThat(person.getVersion()).isEqualTo(1);
+        	dataModel.mapper(Party.class).update(parties);
+        	assertThat(organization.getId()).isEqualTo(1);
+        	assertThat(person.getId()).isEqualTo(2);
+        	assertThat(organization.getVersion()).isEqualTo(2);
+        	assertThat(person.getVersion()).isEqualTo(2);
         	organization.setDescription("xyz");
         	person.setDescription("abc");
         	dataModel.mapper(Party.class).update(parties);
-        	assertThat(organization.getVersion()).isEqualTo(2);
-        	assertThat(person.getVersion()).isEqualTo(2);
+        	assertThat(organization.getVersion()).isEqualTo(3);
+        	assertThat(person.getVersion()).isEqualTo(3);
         	context.commit();
         }
     }

@@ -9,28 +9,25 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.parties.Organization;
+import com.elster.jupiter.parties.OrganizationBuilder;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
-import java.time.Clock;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.security.Principal;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -195,13 +192,13 @@ public class PartyServiceImpl implements PartyService, InstallService {
     }
 
     @Override
-    public Organization newOrganization(String mRID) {
-        return dataModel.getInstance(OrganizationImpl.class).init(mRID);
+    public OrganizationBuilder newOrganization(String mRID) {
+        return new OrganizationBuilderImpl(dataModel, mRID);
     }
 
     @Override
-    public Person newPerson(String firstName, String lastName) {
-        return dataModel.getInstance(PersonImpl.class).init(firstName, lastName);
+    public PersonBuilderImpl newPerson(String firstName, String lastName) {
+        return new PersonBuilderImpl(dataModel, firstName, lastName);
     }
 
     @Reference
