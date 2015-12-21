@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                                 if (me.router && record) {
                                     result = '<a href="'
                                         + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(Ext.merge(me.router.arguments, {loadProfileConfigurationId: record.getId()}))
-                                        + '">' + value + '</a>';
+                                        + '">' + Ext.String.htmlEncode(value) + '</a>';
                                 }
 
                                 return result;

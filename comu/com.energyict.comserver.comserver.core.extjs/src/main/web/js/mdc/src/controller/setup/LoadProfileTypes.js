@@ -15,7 +15,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.RegisterTypesToAdd',
         'Mdc.store.SelectedRegisterTypesForLoadProfileType',
-        'Mdc.store.Intervals'
+        'Mdc.store.Intervals',
+        'Mdc.store.Clipboard'
     ],
 
     models: [
@@ -271,13 +272,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 success: function (record) {
                     me.getApplication().fireEvent('loadProfileType', record);
 
-                    me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'), false);
-
                     if (intervalsStore.getCount()) {
-                        form.loadRecord(record);
+                        me.loadRecordOrClipboard(record)
                     } else {
                         intervalsStore.on('load', function () {
-                            form.loadRecord(record);
+                            me.loadRecordOrClipboard(record)
                         }, me, {single: true});
                     }
 
@@ -304,6 +303,22 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }
     },
 
+    loadRecordOrClipboard: function(record) {
+        var me = this;
+        if(me.getStore('Mdc.store.Clipboard').get('model')) {
+            record = me.getStore('Mdc.store.Clipboard').get('model');
+        } else {
+            me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'), false);
+        }
+        this.getEditForm().loadRecord(record);
+    },
+
+    storeCurrentValues: function () {
+        var clipboard = this.getStore('Mdc.store.Clipboard');
+        this.getEditForm().updateRecord();
+        clipboard.set('model', this.getEditForm().getRecord());
+    },
+
     showRegisterTypesAddView: function (id) {
         var me = this,
             store = Ext.getStore('Mdc.store.RegisterTypesToAdd'),
@@ -319,6 +334,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         } else {
             store.getProxy().url = store.getProxy().baseUrl;
         }
+        me.storeCurrentValues();
 
         Ext.suspendLayouts();
         editPage.getLayout().setActiveItem(1);

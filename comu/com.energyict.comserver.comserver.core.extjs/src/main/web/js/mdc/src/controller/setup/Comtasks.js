@@ -191,9 +191,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             widget = Ext.widget('comtaskCreateEdit'),
             taskId = router.arguments['id'],
             connectedGrid = widget.down('#messagesConnectedGrid'),
+            timeUnitsStore = this.getStore('Mdc.store.TimeUnits'),
             allMessagesStore = connectedGrid.getAllItemsStore(),
             selectedMessagesStore = connectedGrid.getSelectedItemsStore();
 
+        timeUnitsStore.load();
         allMessagesStore.removeAll();
         selectedMessagesStore.removeAll();
         this.getApplication().fireEvent('changecontentevent', widget);
