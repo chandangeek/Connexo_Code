@@ -135,7 +135,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         DataValidationTaskImpl testPersistDataValidationTask = newTask();
         testPersistDataValidationTask.setName("testname");
         testPersistDataValidationTask.setEndDeviceGroup(endDeviceGroup);
-        testPersistDataValidationTask.save();
+        testPersistDataValidationTask.doSave();
         verify(dataModel).persist(testPersistDataValidationTask);
     }
     
@@ -144,7 +144,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         DataValidationTaskImpl testPersistDataValidationTask = newTask();
         testPersistDataValidationTask.setName("testname");
         testPersistDataValidationTask.setUsagePointGroup(usagePointGroup);
-        testPersistDataValidationTask.save();
+        testPersistDataValidationTask.doSave();
         verify(dataModel).persist(testPersistDataValidationTask);
     }
 
@@ -156,7 +156,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         testUpdateDataValidationTask.setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)));
         field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
         when(recurrentTask.getName()).thenReturn("taskname");
-        testUpdateDataValidationTask.save();
+        testUpdateDataValidationTask.update();
         verify(dataModel).update(testUpdateDataValidationTask);
     }
     
@@ -167,7 +167,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         testUpdateDataValidationTask.setUsagePointGroup(usagePointGroup);
         testUpdateDataValidationTask.setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)));
         field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
-        testUpdateDataValidationTask.save();
+        testUpdateDataValidationTask.update();
         verify(dataModel).update(testUpdateDataValidationTask);
     }
 
@@ -176,7 +176,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         DataValidationTaskImpl task = newTask();
         task.setEndDeviceGroup(endDeviceGroup);
         field("id").ofType(Long.TYPE).in(task).set(ID);
-        task.save();
+        task.update();
         verify(dataModel).update(task);
 
         when(dataModel.query(any(), any())).thenReturn(queryExecutor);
@@ -199,7 +199,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         task.setUsagePointGroup(usagePointGroup);
         task.setName("taskname");
         field("id").ofType(Long.TYPE).in(task).set(ID);
-        task.save();
+        task.update();
         verify(dataModel).update(task);
 
         when(dataModel.query(any(), any())).thenReturn(queryExecutor);

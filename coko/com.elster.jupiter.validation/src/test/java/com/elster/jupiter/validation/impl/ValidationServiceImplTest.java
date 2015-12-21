@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -735,13 +734,6 @@ public class ValidationServiceImplTest {
         verify(meterValidation, never()).setActivationStatus(anyBoolean());
         verify(dataModel, never()).getInstance(MeterValidationImpl.class);
 
-    }
-    @Test
-    public void testCreateDataValidationTask() {
-        EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
-        DataValidationTask task = validationService.newTaskBuilder().setName(NAME).setEndDeviceGroup(endDeviceGroup).build();
-        verify(dataModel, never()).persist(task);
-        assertThat(task.getEndDeviceGroup().get()).isEqualTo(endDeviceGroup);
     }
 
     @Test
