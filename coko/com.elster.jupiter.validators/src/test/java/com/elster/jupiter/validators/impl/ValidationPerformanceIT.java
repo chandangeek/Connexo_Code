@@ -136,32 +136,33 @@ public class ValidationPerformanceIT {
             throw new RuntimeException(e);
         }
         injector.getInstance(TransactionService.class).execute(() -> {
-        	injector.getInstance(FiniteStateMachineService.class);
-        	MeteringService meteringService = injector.getInstance(MeteringService.class);
-        	ValidationService validationService = injector.getInstance(ValidationService.class);
+            injector.getInstance(FiniteStateMachineService.class);
+            MeteringService meteringService = injector.getInstance(MeteringService.class);
+            ValidationService validationService = injector.getInstance(ValidationService.class);
             validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
             readingType = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
-            	.measure(MeasurementKind.ENERGY)
-            	.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
-            	.flow(FlowDirection.FORWARD)
-            	.period(TimeAttribute.MINUTE15)
-            	.accumulate(Accumulation.DELTADELTA)
-            	.code();
+                    .measure(MeasurementKind.ENERGY)
+                    .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
+                    .flow(FlowDirection.FORWARD)
+                    .period(TimeAttribute.MINUTE15)
+                    .accumulate(Accumulation.DELTADELTA)
+                    .code();
             ReadingType readingType1 = meteringService.getReadingType(readingType).get();
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
             meter = amrSystem.newMeter("2331").create();
             meterActivation = meter.activate(date1);
             final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minmax");
-            minMaxRule.addReadingType(readingType1);
-            minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
-            minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
-            minMaxRule.activate();
-            ValidationRule missingRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MISSING, "missing");
-            missingRule.addReadingType(readingType1);
-            missingRule.activate();
-            validationRuleSet.save();
+            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minmax")
+                    .withReadingType(readingType1)
+                    .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                    .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                    .active(true)
+                    .create();
+            ValidationRule missingRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MISSING, "missing")
+                    .withReadingType(readingType1)
+                    .active(true)
+                    .create();
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
                 public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
@@ -174,7 +175,7 @@ public class ValidationPerformanceIT {
                 }
             });
             validationService.activateValidation(meter);
-			validationService.enableValidationOnStorage(meter);
+            validationService.enableValidationOnStorage(meter);
             return null;
         });
     }
@@ -187,36 +188,36 @@ public class ValidationPerformanceIT {
 
     @Test
     public void testPass() {
-    	TransactionService txService = injector.getInstance(TransactionService.class);
-    	MeteringService meteringService = injector.getInstance(MeteringService.class);
-    	int i = 1;
-    	try (TransactionContext context = txService.getContext()) {
-    		MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
-        	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(51L), date1.plusSeconds(900 * i++)));
-        	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(52L), date1.plusSeconds(900 * i++)));
-        	meter.store(meterReading);
-        	context.commit();
-    	}
+        TransactionService txService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        int i = 1;
+        try (TransactionContext context = txService.getContext()) {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
+            meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(51L), date1.plusSeconds(900 * i++)));
+            meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(52L), date1.plusSeconds(900 * i++)));
+            meter.store(meterReading);
+            context.commit();
+        }
         // reread meter
         meter = meteringService.findMeter(meter.getId()).get();
         int sqlCount = 0;
         try (TransactionContext context = txService.getContext()) {
-        	MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
-        	meter.store(meterReading);
-        	context.commit();
-        	sqlCount = context.getStats().getSqlCount();
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
+            meter.store(meterReading);
+            context.commit();
+            sqlCount = context.getStats().getSqlCount();
         }
         meter = meteringService.findMeter(meter.getId()).get();
         try (TransactionContext context = txService.getContext()) {
-        	MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        	for (int j = 0 ; j < 10 ; j++) {
-        		meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
-        	}
-        	meter.store(meterReading);
-        	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            for (int j = 0; j < 10; j++) {
+                meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
+            }
+            meter.store(meterReading);
+            context.commit();
+            assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);
         }
     }
- }
+}
