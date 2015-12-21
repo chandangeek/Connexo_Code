@@ -84,7 +84,7 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
         Set<IValidationRule> rules = channelValidations.stream()
                 .map(IChannelValidation::getMeterActivationValidation)
                 .map(IMeterActivationValidation::getRuleSet)
-                .flatMap(ruleSet -> ruleQuery.select(Where.where("ruleSet").isEqualTo(ruleSet)).stream())
+                .flatMap(ruleSet -> ruleQuery.select(Where.where("ruleSetVersion.ruleSet").isEqualTo(ruleSet)).stream())
                 .collect(Collectors.toSet());
         return Multimaps.index(rules, i -> i.getReadingQualityType().getCode());
     }

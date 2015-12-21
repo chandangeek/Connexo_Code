@@ -459,7 +459,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     Query<IValidationRule> getAllValidationRuleQuery() {
-        return queryService.wrap(dataModel.query(IValidationRule.class));
+        return queryService.wrap(dataModel.query(IValidationRule.class, IValidationRuleSetVersion.class, IValidationRuleSet.class));
     }
 
     List<? extends IChannelValidation> getChannelValidations(Channel channel) {
