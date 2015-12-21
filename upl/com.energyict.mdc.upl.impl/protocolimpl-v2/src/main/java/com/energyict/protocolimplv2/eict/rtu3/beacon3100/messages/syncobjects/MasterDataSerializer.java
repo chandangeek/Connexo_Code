@@ -9,29 +9,12 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
-import com.energyict.mdc.protocol.tasks.ClockTask;
-import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
-import com.energyict.mdc.protocol.tasks.LogBooksTask;
-import com.energyict.mdc.protocol.tasks.ProtocolTask;
-import com.energyict.mdc.protocol.tasks.RegistersTask;
-import com.energyict.mdc.tasks.ComTaskEnablement;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
-import com.energyict.mdc.tasks.NextExecutionSpecs;
-import com.energyict.mdc.tasks.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.tasks.ServerComTask;
+import com.energyict.mdc.protocol.tasks.*;
+import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterSpec;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceConfiguration;
-import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.LoadProfileSpec;
-import com.energyict.mdw.core.LoadProfileType;
-import com.energyict.mdw.core.LogBookSpec;
-import com.energyict.mdw.core.LogBookType;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.mdw.core.*;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
@@ -55,11 +38,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.security.Key;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -227,17 +206,17 @@ public class MasterDataSerializer {
             deviceTimeZone = timeZoneInUse.getTimeZone().getID();
         }
 
-        //The master key is a general property on the Beacon DC device
-        final byte[] masterKey = parseKey(Beacon3100ConfigurationSupport.MASTER_KEY, masterDevice.getProtocolProperties().getStringProperty(Beacon3100ConfigurationSupport.MASTER_KEY));
+        //The dlmsMeterKEK is a general property on the Beacon DC device
+        final byte[] dlmsMeterKEK = parseKey(Beacon3100ConfigurationSupport.DLMS_METER_KEK, masterDevice.getProtocolProperties().getStringProperty(Beacon3100ConfigurationSupport.DLMS_METER_KEK));
 
         //Get the DLMS keys from the device. If they are empty, an empty OctetString will be sent to the beacon.
         final byte[] password = getSecurityKey(device, SecurityPropertySpecName.PASSWORD.toString());
         final byte[] ak = getSecurityKey(device, SecurityPropertySpecName.AUTHENTICATION_KEY.toString());
         final byte[] ek = getSecurityKey(device, SecurityPropertySpecName.ENCRYPTION_KEY.toString());
 
-        final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(password, masterKey), "");
-        final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(ak, masterKey), "");
-        final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(ek, masterKey), "");
+        final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(password, dlmsMeterKEK), "");
+        final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(ak, dlmsMeterKEK), "");
+        final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(ek, dlmsMeterKEK), "");
 
         return new Beacon3100MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, device.getSerialNumber(), wrappedPassword, wrappedAK, wrappedEK);
     }
@@ -563,9 +542,9 @@ public class MasterDataSerializer {
         return false;
     }
 
-    private static byte[] wrap(byte[] key, byte[] masterKey) {
+    private static byte[] wrap(byte[] key, byte[] dlmsMeterKEK) {
         final Key keyToWrap = new SecretKeySpec(key, "AES");
-        final Key kek = new SecretKeySpec(masterKey, "AES");
+        final Key kek = new SecretKeySpec(dlmsMeterKEK, "AES");
         try {
             final Cipher aesWrap = Cipher.getInstance("AESWrap");
             aesWrap.init(Cipher.WRAP_MODE, kek);

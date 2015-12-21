@@ -76,9 +76,9 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
         return macAndKeyPair;
     }
 
-    private byte[] aesWrap(byte[] key, byte[] masterKey) {
+    private byte[] aesWrap(byte[] key, byte[] dlmsMeterKEK) {
         final Key keyToWrap = new SecretKeySpec(key, "AES");
-        final Key kek = new SecretKeySpec(masterKey, "AES");
+        final Key kek = new SecretKeySpec(dlmsMeterKEK, "AES");
         try {
             final Cipher aesWrap = Cipher.getInstance("AESWrap");
             aesWrap.init(Cipher.WRAP_MODE, kek);

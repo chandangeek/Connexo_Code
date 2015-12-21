@@ -16,14 +16,16 @@ import java.util.List;
 public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     public static final String READCACHE_PROPERTY = "ReadCache";
-    public static final String MASTER_KEY = "MasterKey";
+    public static final String DLMS_METER_KEK = "DlmsMeterKEK";
     public static final String PSK_ENCRYPTION_KEY = "PSKEncryptionKey";
+    private static final String DLMS_WAN_KEK = "DlmsWanKEK";
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> optionalProperties = new ArrayList<>(super.getOptionalProperties());
         optionalProperties.add(readCachePropertySpec());
-        optionalProperties.add(masterKeyPropertySpec());
+        optionalProperties.add(dlmsKEKPropertySpec());
+        optionalProperties.add(dlmsWANKEKPropertySpec());
         optionalProperties.add(pskEncryptionKeyPropertySpec());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
@@ -33,6 +35,10 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         return optionalProperties;
     }
 
+    private PropertySpec dlmsWANKEKPropertySpec() {
+        return PropertySpecFactory.encryptedStringPropertySpec(DLMS_WAN_KEK);
+    }
+
     private PropertySpec readCachePropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(READCACHE_PROPERTY, false);
     }
@@ -40,8 +46,8 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     /**
      * A key used for to encrypt other DLMS keys (aka the key encryption key, KEK)
      */
-    private PropertySpec masterKeyPropertySpec() {
-        return PropertySpecFactory.encryptedStringPropertySpec(MASTER_KEY);
+    private PropertySpec dlmsKEKPropertySpec() {
+        return PropertySpecFactory.encryptedStringPropertySpec(DLMS_METER_KEK);
     }
 
     /**
