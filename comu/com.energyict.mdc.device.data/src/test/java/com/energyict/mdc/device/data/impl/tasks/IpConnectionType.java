@@ -1,21 +1,20 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -27,8 +26,6 @@ import java.util.Set;
  */
 public abstract class IpConnectionType implements ConnectionType {
 
-    public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
-    public static final String PORT_PROPERTY_NAME = "port";
     private static final int HASH_CODE = 35809; // Random prime number
 
     private final PropertySpecService propertySpecService;
@@ -54,29 +51,9 @@ public abstract class IpConnectionType implements ConnectionType {
         return EnumSet.of(ComPortType.TCP, ComPortType.UDP);
     }
 
-    private PropertySpec ipAddressPropertySpec () {
-        return this.propertySpecService.basicPropertySpec(IP_ADDRESS_PROPERTY_NAME, true, new StringFactory());
-    }
-
-    private PropertySpec portNumberPropertySpec () {
-        return this.propertySpecService.basicPropertySpec(PORT_PROPERTY_NAME, false, new BigDecimalFactory());
-    }
-
-     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(this.ipAddressPropertySpec(), this.portNumberPropertySpec());
-    }
-
     @Override
-    public PropertySpec getPropertySpec (String name) {
-        switch (name) {
-            case IP_ADDRESS_PROPERTY_NAME:
-                return this.ipAddressPropertySpec();
-            case PORT_PROPERTY_NAME:
-                return this.portNumberPropertySpec();
-            default:
-                return null;
-        }
+    public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
+        return Optional.of(new IpConnectionCustomPropertySet(this.propertySpecService));
     }
 
     @Override

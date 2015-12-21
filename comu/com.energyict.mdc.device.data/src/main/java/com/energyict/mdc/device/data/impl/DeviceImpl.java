@@ -37,6 +37,22 @@ import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.*;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.*;
@@ -52,6 +68,28 @@ import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.*;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.dynamic.relation.CanLock;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -73,12 +111,30 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.*;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -89,7 +145,7 @@ import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
-public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange {
+public class DeviceImpl implements Device, ServerDeviceForConfigChange {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -141,9 +197,9 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
     @Valid
     private List<DeviceMessageImpl> deviceMessages = new ArrayList<>();
 
-    private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
-    private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
-    private List<ProtocolDialectProperties> dirtyDialectProperties = new ArrayList<>();
+    private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
+    private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
+    private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
 
     private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
@@ -269,8 +325,8 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         this.dirtyDialectProperties = new ArrayList<>();
     }
 
-    private void saveDialectProperties(List<ProtocolDialectProperties> dialectProperties) {
-        dialectProperties.stream().map(ProtocolDialectPropertiesImpl.class::cast).forEach(ProtocolDialectPropertiesImpl::save);
+    private void saveDialectProperties(List<ProtocolDialectPropertiesImpl> dialectProperties) {
+        dialectProperties.stream().forEach(ProtocolDialectPropertiesImpl::save);
     }
 
     private void notifyUpdated() {
@@ -308,6 +364,7 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         deleteConnectionTasks();
         deleteDeviceMessages();
         deleteSecuritySettings();
+        deleteProtocolDialects();
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
         this.obsoleteKoreDevice();
@@ -331,10 +388,10 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-                .getEntries()
-                .stream()
-                .filter(each -> each.getEndDevice().getId() == endDevice.getId())
-                .findFirst()
+            .getEntries()
+            .stream()
+            .filter(each -> each.getEndDevice().getId() == endDevice.getId())
+            .findFirst()
                 .ifPresent(group::remove);
     }
 
@@ -355,6 +412,10 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         this.securityPropertyService.deleteSecurityPropertiesFor(this);
     }
 
+    private void deleteProtocolDialects() {
+        this.dialectPropertiesList.forEach(PersistentIdObject::delete);
+    }
+
     private void closeCurrentMeterActivation() {
         getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(clock.instant()));
     }
@@ -364,6 +425,7 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
     }
 
     private void deleteConnectionTasks() {
+        this.connectionTasks.forEach(ServerConnectionTask::notifyDelete);
         this.connectionTasks.clear();
     }
 
@@ -548,31 +610,6 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
     }
 
     @Override
-    public void lock() {
-        try {
-            try (PreparedStatement stmnt = getLockSqlBuilder().getStatement(dataModel.getConnection(true))) {
-                try (ResultSet rs = stmnt.executeQuery()) {
-                    if (!rs.next()) {
-                        throw new ApplicationException("Tuple not found");
-                    }
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DatabaseException(ex);
-        }
-    }
-
-    private SqlBuilder getLockSqlBuilder() {
-        SqlBuilder sqlBuilder = new SqlBuilder("select *");
-        sqlBuilder.append(" from ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" where id = ?");
-        sqlBuilder.bindLong(this.getId());
-        sqlBuilder.append(" for update");
-        return sqlBuilder;
-    }
-
-    @Override
     public void validateDeviceCanChangeConfig(DeviceConfiguration destinationDeviceConfiguration) {
         if (this.getDeviceConfiguration().getId() == destinationDeviceConfiguration.getId()) {
             throw DeviceConfigurationChangeException.cannotChangeToSameConfig(thesaurus, this);
@@ -686,13 +723,12 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         }
     }
 
-    private Optional<ProtocolDialectProperties> getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectProperties> propertiesList) {
-        for (ProtocolDialectProperties properties : propertiesList) {
-            if (properties.getDeviceProtocolDialectName().equals(dialectName)) {
-                return Optional.of(properties);
-            }
-        }
-        return Optional.empty();
+    private Optional<ProtocolDialectProperties> getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectPropertiesImpl> propertiesList) {
+        return propertiesList
+                .stream()
+                .filter(properties -> properties.getDeviceProtocolDialectName().equals(dialectName))
+                .map(ProtocolDialectProperties.class::cast)
+                .findAny();
     }
 
     @Override
@@ -703,12 +739,12 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
             newDialectProperties.setProperty(propertyName, value);
         } else {
             dialectProperties.get().setProperty(propertyName, value);
-            this.dirtyDialectProperties.add(dialectProperties.get());
+            this.dirtyDialectProperties.add((ProtocolDialectPropertiesImpl) dialectProperties.get());
         }
     }
 
     private ProtocolDialectProperties createNewLocalDialectProperties(String dialectName) {
-        ProtocolDialectProperties dialectProperties;
+        ProtocolDialectPropertiesImpl dialectProperties;
         ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties(dialectName);
         if (configurationProperties != null) {
             dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
@@ -734,12 +770,13 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
     public void removeProtocolDialectProperty(String dialectName, String propertyName) {
         Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
         if (dialectProperties.isPresent()) {
-            dialectProperties.get().removeProperty(propertyName);
+            ProtocolDialectProperties props = dialectProperties.get();
+            props.removeProperty(propertyName);
+            if (!this.dirtyDialectProperties.contains(props)) {
+                this.dirtyDialectProperties.add((ProtocolDialectPropertiesImpl) props);
+            }
         } else {
             createNewLocalDialectProperties(dialectName);
-        }
-        if ((dialectProperties.isPresent()) && !this.dirtyDialectProperties.contains(dialectProperties.get())) {
-            this.dirtyDialectProperties.add(dialectProperties.get());
         }
     }
 
@@ -1539,13 +1576,13 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
 
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
-        return comTaskExecutions.stream().filter(x -> !x.isObsolete()).collect(Collectors.toList());
+        return comTaskExecutions.stream().filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate()).collect(Collectors.toList());
     }
 
     private ComTaskExecution add(ComTaskExecutionImpl comTaskExecution) {
         Save.CREATE.validate(DeviceImpl.this.dataModel, comTaskExecution, Save.Create.class, Save.Update.class);
-        this.comTaskExecutions.add(comTaskExecution);
         Save.UPDATE.validate(DeviceImpl.this.dataModel, this, Save.Create.class, Save.Update.class);
+        this.comTaskExecutions.add(comTaskExecution);
         if (this.id != 0) {
             comTaskExecution.notifyCreated();
             dataModel.touch(DeviceImpl.this);
@@ -1603,8 +1640,7 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        ComTaskExecution toRemove = this.comTaskExecutions.stream().filter(x-> x.executesComSchedule(comSchedule))
-                .findFirst().
+        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x-> x.executesComSchedule(comSchedule)).findFirst().
                 orElseThrow(()-> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
         removeComTaskExecution(toRemove);
     }
@@ -1945,7 +1981,7 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
     public class ScheduledComTaskExecutionBuilderForDevice
             extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
 
-        private Set<ComTaskExecution> executionsToDelete = new HashSet<>();
+        private Set<ComTaskExecution> executionsToDelete;
 
         private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComSchedule comSchedule) {
             super(comTaskExecutionProvider.get());
@@ -1954,16 +1990,11 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         }
 
         private void initExecutionsToDelete(ComSchedule comSchedule) {
-            for(ComTaskExecution comTaskExecution:DeviceImpl.this.comTaskExecutions){
-                if(!comTaskExecution.usesSharedSchedule()){
-                    for(ComTask comTask : comSchedule.getComTasks()){
-                        if(comTaskExecution.getComTasks().get(0).getId()==comTask.getId()){
-                            this.executionsToDelete.add(comTaskExecution);
-                        }
-                    }
-                }
-            }
-            comSchedule.getComTasks();
+            Set<Long> comScheduleComTasks = comSchedule.getComTasks().stream().map(ComTask::getId).collect(Collectors.toSet());
+            this.executionsToDelete = DeviceImpl.this.getComTaskExecutionImpls()
+                    .filter(Predicates.not(ComTaskExecution::usesSharedSchedule))
+                    .filter(cte -> comScheduleComTasks.contains(cte.getComTasks().get(0).getId()))
+                    .collect(Collectors.toSet());
         }
 
         @Override

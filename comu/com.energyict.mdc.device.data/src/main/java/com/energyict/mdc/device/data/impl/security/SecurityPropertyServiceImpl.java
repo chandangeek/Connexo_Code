@@ -9,24 +9,36 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.SecurityPropertyException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.dynamic.relation.*;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
+
+import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
@@ -48,7 +60,7 @@ import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAt
 public class SecurityPropertyServiceImpl implements SecurityPropertyService, ServerSecurityPropertyServiceForConfigChange {
 
     private volatile Clock clock;
-    private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile Thesaurus thesaurus;
 
     // For OSGi framework
@@ -58,10 +70,10 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     // For unit testing purposes
     @Inject
-    public SecurityPropertyServiceImpl(Clock clock, ProtocolPluggableService protocolPluggableService, NlsService nlsService) {
+    public SecurityPropertyServiceImpl(Clock clock, CustomPropertySetService customPropertySetService, NlsService nlsService) {
         this();
         this.setClock(clock);
-        this.setProtocolPluggableService(protocolPluggableService);
+        this.setCustomPropertySetService(customPropertySetService);
         this.setNlsService(nlsService);
     }
 
@@ -71,8 +83,8 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
     }
 
     @Reference
-    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
-        this.protocolPluggableService = protocolPluggableService;
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
@@ -91,55 +103,42 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     private List<SecurityProperty> getSecurityPropertiesIgnoringPrivileges(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         return this.findActiveProperties(device, securityPropertySet, when)
-                .map(r -> this.toSecurityProperties(r, device, securityPropertySet))
+                .map(values -> this.toSecurityProperties(values, device, securityPropertySet))
                 .orElse(Collections.emptyList());
     }
 
-    public Optional<Relation> findActiveProperties(Device device, SecurityPropertySet securityPropertySet, Instant activeDate) {
-        RelationType relationType = this.findSecurityPropertyRelationType(device);
-        if (relationType != null) {
-            FilterAspect deviceAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME));
-            FilterAspect securityPropertySetAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME));
-
-            RelationSearchFilter searchFilter =
-                    new RelationSearchFilter(
-                            CompositeFilterCriterium.matchAll(
-                                    new SimpleFilterCriterium(deviceAspect, SimpleFilterCriterium.Operator.EQUALS, device),
-                                    new SimpleFilterCriterium(securityPropertySetAspect, SimpleFilterCriterium.Operator.EQUALS, securityPropertySet)));
-            List<Relation> relations = relationType.findByFilter(searchFilter);
-            if (relations.isEmpty()) {
-                return Optional.empty();
-            } else {
-                for (Relation relation : relations) {
-                    if (relation.getPeriod().contains(activeDate)) {
-                        return Optional.of(relation);
-                    }
-                }
-                return Optional.empty();
-            }
-        } else {
-            // No RelationType means there are no security properties
+    public Optional<CustomPropertySetValues> findActiveProperties(Device device, SecurityPropertySet securityPropertySet, Instant activeDate) {
+        Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> customPropertySet =
+                device
+                    .getDeviceType()
+                    .getDeviceProtocolPluggableClass()
+                    .getDeviceProtocol()
+                    .getCustomPropertySet();
+        if (customPropertySet.isPresent()) {
+            return Optional.of(
+                    this.customPropertySetService.getUniqueValuesFor(
+                            customPropertySet.get(),
+                            device,
+                            activeDate,
+                            securityPropertySet));
+        }
+        else {
             return Optional.empty();
         }
     }
 
-    private RelationType findSecurityPropertyRelationType(Device device) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = device.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
-        return this.protocolPluggableService.findSecurityPropertyRelationType(deviceProtocolPluggableClass);
-    }
-
-    private List<SecurityProperty> toSecurityProperties(Relation relation, Device device, SecurityPropertySet securityPropertySet) {
+    private List<SecurityProperty> toSecurityProperties(CustomPropertySetValues values, Device device, SecurityPropertySet securityPropertySet) {
         return securityPropertySet
                 .getPropertySpecs()
                 .stream()
-                .map(each -> this.toSecurityProperty(each, relation, device, securityPropertySet))
+                .map(each -> this.toSecurityProperty(each, values, device, securityPropertySet))
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
     }
 
-    private Optional<SecurityProperty> toSecurityProperty(PropertySpec propertySpec, Relation relation, Device device, SecurityPropertySet securityPropertySet) {
-        Boolean status = (Boolean) relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME);
-        Object propertyValue = relation.get(propertySpec.getName());
+    private Optional<SecurityProperty> toSecurityProperty(PropertySpec propertySpec, CustomPropertySetValues values, Device device, SecurityPropertySet securityPropertySet) {
+        Boolean complete = (Boolean) values.getProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName());
+        Object propertyValue = values.getProperty(propertySpec.getName());
         if (propertyValue != null) {
             return Optional.of(
                     new SecurityPropertyImpl(
@@ -147,10 +146,11 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
                             securityPropertySet,
                             propertySpec,
                             propertyValue,
-                            relation.getPeriod(),
+                            values.getEffectiveRange(),
                             // Status is a required attribute on the relation should it cannot be null
-                            status));
-        } else {
+                            complete));
+        }
+        else {
             return Optional.empty();
         }
     }
@@ -178,7 +178,8 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     @Override
     public boolean securityPropertiesAreValid(Device device) {
-        return device.getDeviceConfiguration()
+        return device
+                .getDeviceConfiguration()
                 .getComTaskEnablements()
                 .stream()
                 .noneMatch(comTaskEnablement -> isMissingOrIncomplete(device, comTaskEnablement.getSecurityPropertySet()));
@@ -202,22 +203,20 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
     }
 
     private void doSetSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = device.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
-        RelationType relationType = this.protocolPluggableService.findSecurityPropertyRelationType(deviceProtocolPluggableClass);
-        RelationTransaction transaction = relationType.newRelationTransaction();
-        transaction.setFrom(this.clock.instant());
-        transaction.setTo(null);
-        transaction.set(DEVICE_ATTRIBUTE_NAME, device);
-        transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);
-        properties.propertyNames().stream().forEach(propertyName -> transaction.set(propertyName, properties.getLocalValue(propertyName)));
-        transaction.set(STATUS_ATTRIBUTE_NAME, isSecurityPropertySetComplete(securityPropertySet, properties));
-        try {
-            transaction.execute();
-        } catch (BusinessException e) {
-            throw new NestedRelationTransactionException(e, transaction.getRelationType().getName(), this.thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
+        CustomPropertySetValues values = CustomPropertySetValues.emptyDuring(Range.atLeast(this.clock.instant()));
+        values.setProperty(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName(), securityPropertySet);
+        properties.propertyNames().stream().forEach(propertyName -> values.setProperty(propertyName, properties.getLocalValue(propertyName)));
+        values.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), this.isSecurityPropertySetComplete(securityPropertySet, properties));
+        deviceProtocolPluggableClass
+                .getDeviceProtocol()
+                .getCustomPropertySet()
+                .ifPresent(cps -> this.customPropertySetService.setValuesFor(
+                                        cps,
+                                        device,
+                                        values,
+                                        this.clock.instant(),
+                                        securityPropertySet));
     }
 
     private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
@@ -228,34 +227,18 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     @Override
     public void deleteSecurityPropertiesFor(Device device) {
-        RelationType relationType = this.findSecurityPropertyRelationType(device);
-        if (relationType != null) {
-            device.getDeviceConfiguration()
-                    .getSecurityPropertySets()
-                    .stream()
-                    .forEach(securityPropertySet -> this.deleteSecurityPropertiesFor(device, relationType, securityPropertySet));
-        }
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
+        deviceProtocolPluggableClass
+                .getDeviceProtocol()
+                .getCustomPropertySet()
+                .ifPresent(cps -> this.deleteSecurityPropertiesFor(device, cps));
     }
 
-    private void deleteSecurityPropertiesFor(Device device, RelationType relationType, SecurityPropertySet securityPropertySet) {
-        FilterAspect deviceAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME));
-        FilterAspect securityPropertySetAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME));
-
-        RelationSearchFilter searchFilter =
-                new RelationSearchFilter(
-                        CompositeFilterCriterium.matchAll(
-                                new SimpleFilterCriterium(deviceAspect, SimpleFilterCriterium.Operator.EQUALS, device),
-                                new SimpleFilterCriterium(securityPropertySetAspect, SimpleFilterCriterium.Operator.EQUALS, securityPropertySet)));
-        List<Relation> relations = relationType.findByFilter(searchFilter);
-        relations.stream().forEach(relation -> {
-            try {
-                relation.delete();
-            } catch (BusinessException e) {
-                throw new NestedRelationTransactionException(e, relationType.getName(), this.thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
-            } catch (SQLException e) {
-                throw new UnderlyingSQLFailedException(e);
-            }
-        });
+    private void deleteSecurityPropertiesFor(Device device, CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> cps) {
+        device
+            .getDeviceConfiguration()
+            .getSecurityPropertySets()
+            .forEach(securitySet -> this.customPropertySetService.removeValuesFor(cps, device, securitySet));
     }
 
     @Override

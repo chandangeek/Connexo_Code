@@ -131,7 +131,6 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -156,10 +155,10 @@ import com.energyict.mdc.scheduling.model.impl.ComScheduleFinder;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TaskFinder;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -168,7 +167,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -181,7 +179,9 @@ import java.util.Properties;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -191,15 +191,14 @@ import static org.mockito.Mockito.*;
 public class InMemoryIntegrationPersistence {
 
     private BundleContext bundleContext;
-    private Principal principal;
+    private User principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
     private EventService eventService;
     private NlsService nlsService;
     private static final Clock clock = mock(Clock.class);
     private JsonService jsonService;
-    private RelationService relationService;
+    private CustomPropertySetService customPropertySetService;
     private EngineConfigurationService engineConfigurationService;
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
@@ -288,6 +287,7 @@ public class InMemoryIntegrationPersistence {
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
+                new CustomPropertySetsModule(),
                 new PluggableModule(),
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
@@ -308,7 +308,7 @@ public class InMemoryIntegrationPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
-            this.ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(OrmService.class);
             injector.getInstance(CustomPropertySetService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
@@ -323,7 +323,7 @@ public class InMemoryIntegrationPersistence {
             this.estimationService = injector.getInstance(EstimationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
-            this.relationService = injector.getInstance(RelationService.class);
+            this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
@@ -346,8 +346,8 @@ public class InMemoryIntegrationPersistence {
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(CustomPropertySetService.class);
             initializeFactoryProviders();
-            createOracleAliases(dataModel.getConnection(true));
             initializePrivileges();
             ctx.commit();
         }
@@ -378,28 +378,10 @@ public class InMemoryIntegrationPersistence {
         });
     }
 
-    private void createOracleAliases(Connection connection) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
-                "CREATE VIEW IF NOT EXISTS USER_TABLES AS select table_name from INFORMATION_SCHEMA.TABLES where table_schema = 'PUBLIC'"
-        )) {
-            preparedStatement.execute();
-        }
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
-                "CREATE VIEW IF NOT EXISTS USER_IND_COLUMNS AS select index_name, table_name, column_name, ordinal_position AS column_position from INFORMATION_SCHEMA.INDEXES where table_schema = 'PUBLIC'"
-        )) {
-            preparedStatement.execute();
-        }
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
-                "CREATE TABLE IF NOT EXISTS USER_SEQUENCES ( SEQUENCE_NAME VARCHAR2 (30) NOT NULL, MIN_VALUE NUMBER, MAX_VALUE NUMBER, INCREMENT_BY NUMBER NOT NULL, CYCLE_FLAG VARCHAR2 (1), ORDER_FLAG VARCHAR2 (1), CACHE_SIZE NUMBER NOT NULL, LAST_NUMBER NUMBER NOT NULL)"
-        )) {
-            preparedStatement.execute();
-        }
-    }
-
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
         when(((User) this.principal).hasPrivilege(any(), anyString())).thenReturn(true);
         this.licenseService = mock(LicenseService.class);
@@ -437,8 +419,8 @@ public class InMemoryIntegrationPersistence {
         return transactionService;
     }
 
-    public RelationService getRelationService() {
-        return relationService;
+    public CustomPropertySetService getCustomPropertySetService() {
+        return this.customPropertySetService;
     }
 
     public ProtocolPluggableService getProtocolPluggableService() {
@@ -537,17 +519,12 @@ public class InMemoryIntegrationPersistence {
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(IssueService.class).toInstance(issueService);
             bind(Thesaurus.class).toInstance(thesaurus);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
 
     public User getMockedUser(){
-        return (User) this.principal;
+        return this.principal;
     }
 
     public UserService getUserService() {

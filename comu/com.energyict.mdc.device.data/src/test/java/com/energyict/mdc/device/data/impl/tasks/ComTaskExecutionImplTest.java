@@ -104,7 +104,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         builder1.add();
         ComTaskExecutionBuilder<ScheduledComTaskExecution> builder2 = device.newScheduledComTaskExecution(comSchedule2);
         builder2.add();
-
+        device.save();
         // Asserts: see expected ExpectedConstraintViolation
     }
 
@@ -145,6 +145,30 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         // Asserts
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice.getComTaskExecutions()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void reschedulePreviouslyRemovedComTaskTest() {
+
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        ComTaskExecutionBuilder<ScheduledComTaskExecution> scheduledComTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
+        ScheduledComTaskExecution scheduledComTaskExecution = scheduledComTaskExecutionBuilder.add();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        assertThat(reloadedDevice.getComTaskExecutions()).hasSize(1);
+        reloadedDevice.removeComTaskExecution(scheduledComTaskExecution);
+        reloadedDevice.save();
+        assertThat(reloadedDevice.getComTaskExecutions()).isEmpty();
+
+        reloadedDevice = getReloadedDevice(device);
+        assertThat(reloadedDevice.getComTaskExecutions()).isEmpty();
+        reloadedDevice.newScheduledComTaskExecution(comSchedule).add();
+
+        // Asserts
+        assertThat(reloadedDevice.getComTaskExecutions()).hasSize(1);
     }
 
     @Test

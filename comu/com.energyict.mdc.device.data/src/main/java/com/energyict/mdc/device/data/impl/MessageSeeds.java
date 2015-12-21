@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.DeviceDataServices;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.DeviceDataServices;
 
 import java.util.logging.Level;
 
@@ -15,7 +14,6 @@ import static java.util.logging.Level.SEVERE;
  * @since 2014-03-06 (14:41)
  */
 public enum MessageSeeds implements MessageSeed {
-    LEGACY(100, "legacy.exception", "Coding: BusinessException or SQLException from legacy code that has not been ported to the jupiter ORM framework"),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required"),
     CODING_RELATION_IS_ALREADY_OBSOLETE(1001, "relation.isAlreadyObsolete", "Cannot remove a property because the relation (of type ''{0}'') that holds it is already obsolete"),
     CODING_NO_PROPERTIES_EXPECTED(1002, "noAttributesExpected", "Was not expecting a value to be added for property ''{0}'' because the pluggable does not have any properties"),
@@ -37,7 +35,6 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION(2004, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION, "A connection task must be added against a partial connection task (id={0}, configuration id={1}) from the same device configuration (id={2})"),
     CONNECTION_TASK_IS_ALREADY_OBSOLETE(2005, Keys.CONNECTION_TASK_IS_ALREADY_OBSOLETE, "The connection task ''{0}'' on device {1} cannot be made obsolete because it is already obsolete since {2,date,yyyy-MM-dd HH:mm:ss}"),
     CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE(2006, Keys.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE, "The connection task ''{0}'' on device {1} cannot be made obsolete because it is currently being executed by communication server ''{2}''"),
-    CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE(2007, Keys.CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE, "The connection task ''{0}'' on device {1} cannot be updated because it is already obsolete since {2,date,yyyy-MM-dd HH:mm:ss}"),
     DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE(2008, Keys.DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE, "The default connection task ''{0}'' on device {1} cannot be removed because it is still in use by communication tasks"),
     CONNECTION_TASK_INVALID_PROPERTY(2009, Keys.CONNECTION_TASK_INVALID_PROPERTY, "Invalid value"),
     CONNECTION_TASK_PROPERTY_NOT_IN_SPEC(2010, Keys.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC, "ConnectionType ''{0}'' does not contain a specification for attribute ''{1}''"),
@@ -179,7 +176,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CONNECTION_TASK_IS_ALREADY_OBSOLETE = "connectionTask.isAlreadyObsolete";
         public static final String CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE = "connectionTask.isExecutingAndCannotObsolete";
         public static final String DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE = "defaultConnectionTask.isInUseAndCannotObsolete";
-        public static final String CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE = "connectionTask.isObsoleteAndCannotUpdate";
         public static final String CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED = "connectionTask.pluggableClass.required";
         public static final String CONNECTION_TASK_COMPORT_POOL_REQUIRED = "connectionTask.comPortPool.required";
         public static final String CONNECTION_TASK_INVALID_PROPERTY = "connectionTask.property.invalid";

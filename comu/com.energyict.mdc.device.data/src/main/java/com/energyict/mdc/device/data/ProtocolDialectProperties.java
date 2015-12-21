@@ -4,8 +4,8 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.pluggable.PluggableClassUsage;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
@@ -31,7 +31,7 @@ public interface ProtocolDialectProperties
      *
      * @return the Device referring to this ProtocolDialectProperties
      */
-    public Device getDevice ();
+    Device getDevice();
 
     /**
      * The name of the {@link DeviceProtocolDialect}
@@ -39,20 +39,20 @@ public interface ProtocolDialectProperties
      *
      * @return The DeviceProtocolDialect
      */
-    public String getDeviceProtocolDialectName ();
+    String getDeviceProtocolDialectName();
 
     /**
      * The {@link ProtocolDialectConfigurationProperties} from which this ProtocolDialectProperties inherits.
      *
      * @return the ProtocolDialectConfigurationProperties
      */
-    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
+    ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 
     /**
      * Returns the current properties in the TypedProperties format.
      *
      * @return the TypedProperties of this ProtocolDialectProperties object
      */
-    public TypedProperties getTypedProperties();
+    TypedProperties getTypedProperties();
 
 }

@@ -258,7 +258,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public ObisCode getObisCode() {
-            return channelSpec.getObisCode();
+            return channelSpec.getDeviceObisCode();
         }
 
         @Override

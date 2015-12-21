@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -12,7 +15,14 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -21,15 +31,12 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -39,9 +46,6 @@ import java.util.Set;
  * @since 2014-05-15 (11:03)
  */
 public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
-
-    private static final String USERNAME_PROPERTY_NAME = "username";
-    private static final String PASSWORD_PROPERTY_NAME = "password";
 
     private final PropertySpecService propertySpecService;
 
@@ -177,16 +181,12 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(2);
-        propertySpecs.add(this.propertySpecService.basicPropertySpec(USERNAME_PROPERTY_NAME, true, new StringFactory()));
-        propertySpecs.add(this.propertySpecService.basicPropertySpec(PASSWORD_PROPERTY_NAME, true, new StringFactory()));
-        return propertySpecs;
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(getCustomPropertySet(this.propertySpecService));
     }
 
-    @Override
-    public String getSecurityRelationTypeName() {
-        return TestProtocolWithOnlySecurityProperties.class.getSimpleName();
+    public static CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> getCustomPropertySet(PropertySpecService propertySpecService) {
+        return new BasicAuthenticationCustomPropertySet(propertySpecService);
     }
 
     @Override
@@ -197,21 +197,6 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        switch (name) {
-            case USERNAME_PROPERTY_NAME: {
-                return this.propertySpecService.basicPropertySpec(USERNAME_PROPERTY_NAME, true, new StringFactory());
-            }
-            case PASSWORD_PROPERTY_NAME: {
-                return this.propertySpecService.basicPropertySpec(PASSWORD_PROPERTY_NAME, true, new StringFactory());
-            }
-            default: {
-                return null;
-            }
-        }
     }
 
     @Override
@@ -245,12 +230,8 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        return null;
-    }
-
-    @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         return null;
     }
+
 }

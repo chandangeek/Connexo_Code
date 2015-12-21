@@ -13,7 +13,6 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import org.drools.core.factmodel.traits.Alias;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -59,13 +58,11 @@ public class SharedScheduleSearchableProperty extends AbstractSearchableDevicePr
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".id IN (");
-        sqlBuilder.append("select DEVICE " +
-                "from DDC_COMTASKEXEC " +
-                "join SCH_COMSCHEDULE on SCH_COMSCHEDULE.ID = DDC_COMTASKEXEC.COMSCHEDULE " +
-                "where ");
-        sqlBuilder.add(this.toSqlFragment("SCH_COMSCHEDULE.id", condition, now));
-        sqlBuilder.append(" AND DDC_COMTASKEXEC.obsolete_date is null ");
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".id IN ");
+        sqlBuilder.openBracket();
+        sqlBuilder.append("select DEVICE from DDC_COMTASKEXEC where ");
+        sqlBuilder.add(this.toSqlFragment("DDC_COMTASKEXEC.comschedule", condition, now));
+        sqlBuilder.append(" AND DDC_COMTASKEXEC.obsolete_date is null");
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }

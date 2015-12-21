@@ -15,6 +15,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Validates the {@link HasValidProperties} constraint against a {@link ConnectionTaskImpl}.
@@ -59,7 +60,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         ConnectionType connectionType = connectionTypePluggableClass.getConnectionType();
         if (!properties.localPropertyNames().isEmpty()) {
             for (String propertyName : properties.localPropertyNames()) {
-                if (connectionType.getPropertySpec(propertyName) == null) {
+                if (!connectionType.getPropertySpec(propertyName).isPresent()) {
                     context.disableDefaultConstraintViolation();
                     context
                         .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC + "}")
@@ -79,26 +80,26 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     }
 
     private void validatePropertyValue(ConnectionType connectionType, String propertyName, Object propertyValue, ConstraintValidatorContext context) {
-        PropertySpec propertySpec=null;
+        Optional<PropertySpec> propertySpec = Optional.empty();
         try {
             /* Not using fail-fast anymore so it is possible
              * that there is no spec for the propertyName. */
             propertySpec = connectionType.getPropertySpec(propertyName);
-            if (propertySpec != null) {
+            if (propertySpec.isPresent()) {
                 /**
                  * Required properties can be left empty in an incomplete state.
                  * If a required property is filled in, then it should be valid.
                  * Other properties should always be valid.
                  */
-                if (!(propertySpec.isRequired() && propertyValue == null)) {
-                    propertySpec.validateValue(propertyValue);
+                if (!(propertySpec.get().isRequired() && propertyValue == null)) {
+                    propertySpec.get().validateValue(propertyValue);
                 }
             }
         }
         catch (InvalidValueException e) {
             context
                 .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
-                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
+                .addPropertyNode("properties").addPropertyNode(propertySpec.get().getName()).addConstraintViolation()
                 .disableDefaultConstraintViolation();
             this.valid = false;
         }

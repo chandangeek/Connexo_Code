@@ -1,8 +1,14 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.OptimisticLockException;
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TypedProperties;
@@ -23,16 +29,13 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
@@ -46,9 +49,6 @@ import java.util.TimeZone;
 
 import org.junit.*;
 
-import javax.validation.ConstraintViolationException;
-
-import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -75,7 +75,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     @After
-    public void refreshAllConnectionTypePluggableClasses() throws BusinessException {
+    public void refreshAllConnectionTypePluggableClasses() {
         refreshConnectionTypePluggableClasses();
     }
 
@@ -187,6 +187,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithAllIpProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
@@ -204,8 +205,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties()).hasSize(2);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(PORT_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.PORT.propertyName())).isEqualTo(PORT_PROPERTY_VALUE);
     }
 
     private ScheduledConnectionTaskImpl createASimpleScheduledConnectionTask() {
@@ -219,6 +220,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndNoDefaultsOnPluggableClass() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
@@ -235,16 +237,17 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties()).hasSize(1);   // Only 1 property is locally defined and higher levels do not specify any property values
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(1);
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isNull();
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.PORT.propertyName())).isNull();
     }
 
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndSomeDefaultsOnPluggableClass() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // First update the properties of the ipConnectionType pluggable class
-        outboundIpConnectionTypePluggableClass.removeProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME));
-        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.removeProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get());
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get(), PORT_PROPERTY_VALUE);
         outboundIpConnectionTypePluggableClass.save();
 
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
@@ -264,17 +267,17 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties()).hasSize(2);   // 1 property is locally defined, 1 is inherited and the third is not specified at any level
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(PORT_PROPERTY_VALUE);
-        assertThat(typedProperties.hasInheritedValueFor(IpConnectionType.PORT_PROPERTY_NAME)).isTrue();
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.PORT.propertyName())).isEqualTo(PORT_PROPERTY_VALUE);
+        assertThat(typedProperties.hasInheritedValueFor(IpConnectionProperties.PORT.propertyName())).isTrue();
     }
 
     @Test
     @Transactional
     public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClass() {
         // First update the properties of the ipConnectionType pluggable class
-        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
-        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get(), IP_ADDRESS_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get(), PORT_PROPERTY_VALUE);
         outboundIpConnectionTypePluggableClass.save();
 
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
@@ -291,23 +294,23 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the connection type pluggable class
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(typedProperties.hasInheritedValueFor(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isTrue();
-        assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(PORT_PROPERTY_VALUE);
-        assertThat(typedProperties.hasInheritedValueFor(IpConnectionType.PORT_PROPERTY_NAME)).isTrue();
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(typedProperties.hasInheritedValueFor(IpConnectionProperties.IP_ADDRESS.propertyName())).isTrue();
+        assertThat(typedProperties.getProperty(IpConnectionProperties.PORT.propertyName())).isEqualTo(PORT_PROPERTY_VALUE);
+        assertThat(typedProperties.hasInheritedValueFor(IpConnectionProperties.PORT.propertyName())).isTrue();
     }
 
     @Test
     @Transactional
     public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClassAndPartialConnectionTask() {
         // First update the properties of the ipConnectionType pluggable class
-        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
-        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get(), IP_ADDRESS_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get(), PORT_PROPERTY_VALUE);
         outboundIpConnectionTypePluggableClass.save();
 
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
-        partialScheduledConnectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, UPDATED_IP_ADDRESS_PROPERTY_VALUE);
-        partialScheduledConnectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, UPDATED_PORT_PROPERTY_VALUE);
+        partialScheduledConnectionTask.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), UPDATED_IP_ADDRESS_PROPERTY_VALUE);
+        partialScheduledConnectionTask.setProperty(IpConnectionProperties.PORT.propertyName(), UPDATED_PORT_PROPERTY_VALUE);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         // Do not set any properties on the ScheduledConnectionTask
@@ -318,18 +321,18 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
         assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // 2 properties are inherited from the partial connection task and 1 is inherited from the connection type pluggable class
-        assertThat(connectionTask.getTypedProperties().getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(UPDATED_IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isTrue();
-        assertThat(connectionTask.getTypedProperties().getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(UPDATED_PORT_PROPERTY_VALUE);
-        assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionType.PORT_PROPERTY_NAME)).isTrue();
+        assertThat(connectionTask.getTypedProperties().getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(UPDATED_IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionProperties.IP_ADDRESS.propertyName())).isTrue();
+        assertThat(connectionTask.getTypedProperties().getProperty(IpConnectionProperties.PORT.propertyName())).isEqualTo(UPDATED_PORT_PROPERTY_VALUE);
+        assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionProperties.PORT.propertyName())).isTrue();
     }
 
     @Test
     @Transactional
     public void testCreateWithAllPropertiesInheritedFromPartialConnectionTask() {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
-        partialScheduledConnectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS_PROPERTY_VALUE);
-        partialScheduledConnectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, PORT_PROPERTY_VALUE);
+        partialScheduledConnectionTask.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), IP_ADDRESS_PROPERTY_VALUE);
+        partialScheduledConnectionTask.setProperty(IpConnectionProperties.PORT.propertyName(), PORT_PROPERTY_VALUE);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         // Do not set any properties on the ScheduledConnectionTask
@@ -342,22 +345,23 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the partial connection task
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(typedProperties.hasInheritedValueFor(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isTrue();
-        assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(PORT_PROPERTY_VALUE);
-        assertThat(typedProperties.hasInheritedValueFor(IpConnectionType.PORT_PROPERTY_NAME)).isTrue();
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(typedProperties.hasInheritedValueFor(IpConnectionProperties.IP_ADDRESS.propertyName())).isTrue();
+        assertThat(typedProperties.getProperty(IpConnectionProperties.PORT.propertyName())).isEqualTo(PORT_PROPERTY_VALUE);
+        assertThat(typedProperties.hasInheritedValueFor(IpConnectionProperties.PORT.propertyName())).isTrue();
     }
 
     @Test
     @Transactional
     public void testUpdateIpConnectionTypeProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
         device.save();
 
-        connectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, UPDATED_IP_ADDRESS_PROPERTY_VALUE);
+        connectionTask.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), UPDATED_IP_ADDRESS_PROPERTY_VALUE);
 
         // Business method
         device.save();
@@ -366,19 +370,20 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties()).hasSize(2);  // Ip is default and has 2 properties
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(UPDATED_IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(PORT_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(UPDATED_IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.PORT.propertyName())).isEqualTo(PORT_PROPERTY_VALUE);
     }
 
     @Test
     @Transactional
     public void testAddIpConnectionTypeProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
 
-        connectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, PORT_PROPERTY_VALUE);
+        connectionTask.setProperty(IpConnectionProperties.PORT.propertyName(), PORT_PROPERTY_VALUE);
 
         // Business method
         device.save();
@@ -387,19 +392,20 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties()).hasSize(2);  // Ip is default and has 2 properties
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(PORT_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.PORT.propertyName())).isEqualTo(PORT_PROPERTY_VALUE);
     }
 
     @Test
     @Transactional
     public void testRemoveIpConnectionTypeProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
 
-        connectionTask.removeProperty(IpConnectionType.PORT_PROPERTY_NAME);
+        connectionTask.removeProperty(IpConnectionProperties.PORT.propertyName());
 
         // Business method
         device.save();
@@ -408,16 +414,17 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties()).hasSize(1);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(1);
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isNull();
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.PORT.propertyName())).isNull();
     }
 
     @Test
     @Transactional
     public void testReturnToInheritedProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // First update the properties of the ipConnectionType pluggable class
-        outboundIpConnectionTypePluggableClass.removeProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME));
-        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), UPDATED_PORT_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.removeProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get());
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get(), UPDATED_PORT_PROPERTY_VALUE);
         outboundIpConnectionTypePluggableClass.save();
 
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
@@ -426,7 +433,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
         device.save();
 
-        connectionTask.removeProperty(IpConnectionType.PORT_PROPERTY_NAME);
+        connectionTask.removeProperty(IpConnectionProperties.PORT.propertyName());
 
         // Business method
         device.save();
@@ -435,9 +442,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getProperties()).hasSize(2);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
-        assertThat(typedProperties.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(typedProperties.hasInheritedValueFor(IpConnectionType.PORT_PROPERTY_NAME)).isTrue();
-        assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(UPDATED_PORT_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(typedProperties.hasInheritedValueFor(IpConnectionProperties.PORT.propertyName())).isTrue();
+        assertThat(typedProperties.getProperty(IpConnectionProperties.PORT.propertyName())).isEqualTo(UPDATED_PORT_PROPERTY_VALUE);
     }
 
     @Test
@@ -459,13 +466,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         scheduledConnectionTask.update();
 
-        // Expected BusinessException because the ComPortType of the ComPortPool is not supported by the ConnectionType
-        //assertThat(e.getMessageId()).isEqualTo("comPortTypeXOfComPortPoolYIsNotSupportedByConnectionTypePluggableClassZ");
+        // See expected constraint violation rule
     }
 
     @Test
     @Transactional
     public void testGetPropertiesOnMultipleDates() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // Create task with properties on may first 2011
         Instant mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
@@ -475,8 +482,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         connectionTask.saveAllProperties();
 
         freezeClock(2012, Calendar.MAY, 1);
-        connectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, UPDATED_IP_ADDRESS_PROPERTY_VALUE);
-        connectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, UPDATED_PORT_PROPERTY_VALUE);
+        connectionTask.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), UPDATED_IP_ADDRESS_PROPERTY_VALUE);
+        connectionTask.setProperty(IpConnectionProperties.PORT.propertyName(), UPDATED_PORT_PROPERTY_VALUE);
 
         // Business method
         connectionTask.saveAllProperties();
@@ -485,15 +492,15 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         List<ConnectionTaskProperty> allPropertiesOnMayFirst2011 = connectionTask.getProperties(mayFirst2011);
         assertThat(allPropertiesOnMayFirst2011).hasSize(1); // On May 1st, 2011 only the ip address was specified
         ConnectionTaskProperty property = allPropertiesOnMayFirst2011.get(0);
-        assertThat(property.getName()).isEqualTo(IpConnectionType.IP_ADDRESS_PROPERTY_NAME);
+        assertThat(property.getName()).isEqualTo(IpConnectionProperties.IP_ADDRESS.propertyName());
         assertThat(property.getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
     }
 
     @Test
     @Transactional
     public void testGetPropertiesOnMultipleDatesAfterReload() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // Create task with properties on may first 2011
-
         Instant mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
@@ -502,8 +509,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         connectionTask.saveAllProperties();
 
         freezeClock(2012, Calendar.MAY, 1);
-        connectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, UPDATED_IP_ADDRESS_PROPERTY_VALUE);
-        connectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, UPDATED_PORT_PROPERTY_VALUE);
+        connectionTask.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), UPDATED_IP_ADDRESS_PROPERTY_VALUE);
+        connectionTask.setProperty(IpConnectionProperties.PORT.propertyName(), UPDATED_PORT_PROPERTY_VALUE);
         connectionTask.saveAllProperties();
 
         // Business method
@@ -513,7 +520,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         List<ConnectionTaskProperty> allPropertiesOnMayFirst2011 = reloaded.getProperties(mayFirst2011);
         assertThat(allPropertiesOnMayFirst2011).hasSize(1); // On May 1st, 2011 only the ip address was specified
         ConnectionTaskProperty property = allPropertiesOnMayFirst2011.get(0);
-        assertThat(property.getName()).isEqualTo(IpConnectionType.IP_ADDRESS_PROPERTY_NAME);
+        assertThat(property.getName()).isEqualTo(IpConnectionProperties.IP_ADDRESS.propertyName());
         assertThat(property.getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
     }
 
@@ -578,8 +585,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         device.save();
 
-        // Expecting a BusinessException because the offset is outside the communication window.
-        //assertThat(e.getMessageId()).isEqualTo("OffsetXIsNotWithinComWindowY");
+        // See expected constraint violation rule
     }
 
     @Test
@@ -597,8 +603,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         device.save();
 
-        // Expecting a BusinessException because the offset is outside the communication window.
-        // assertThat(e.getMessageId()).isEqualTo("OffsetXIsNotWithinComWindowY");
+        // See expected constraint violation rule
     }
 
     @Test
@@ -965,6 +970,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testDeleteWithNoProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testDeleteWithNoProperties");
         long id = connectionTask.getId();
 
@@ -972,12 +978,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertTrue(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete());
+        assertThat(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete()).isTrue();
     }
 
     @Test
     @Transactional
     public void testDeleteWithProperties() {
+        Instant now = this.freezeClock(2015, Calendar.MAY, 2);
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testDeleteWithProperties");
         long id = connectionTask.getId();
 
@@ -985,15 +992,17 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertTrue(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete());
-        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
+        assertThat(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete()).isTrue();
+        CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
+                .getCustomPropertySet()
+                .get();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getUniqueValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
+        // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
     @Test(expected = ConnectionTaskIsExecutingAndCannotBecomeObsoleteException.class)
     @Transactional
-    public void makeObsoleteWhenComServerIsExecutingTest() throws SQLException, BusinessException {
+    public void makeObsoleteWhenComServerIsExecutingTest() throws SQLException {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("makeObsoleteWhenComServerIsExecutingTest");
 
         this.attemptLock(connectionTask);
@@ -1005,6 +1014,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteWithNoProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteWithNoProperties");
 
         // Business method
@@ -1018,19 +1028,22 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteAlsoMakesRelationsObsolete() {
-        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-
+        Instant now = this.freezeClock(2015, Calendar.MAY, 2);
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testMakeObsoleteAlsoMakesRelationsObsolete");
 
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).hasSize(1);
+        CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = outboundIpConnectionTypePluggableClass.getConnectionType()
+                .getCustomPropertySet()
+                .get();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getUniqueValuesFor(customPropertySet, connectionTask, now).isEmpty()).isFalse();
+
         // Business method
         device.removeConnectionTask(connectionTask);
 
         // Asserts
         assertThat(connectionTask.isObsolete()).isTrue();
         assertThat(connectionTask.getObsoleteDate()).isNotNull();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).hasSize(1);
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getUniqueValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
+        // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
     @Test
@@ -1050,21 +1063,37 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(obsolete.getObsoleteDate()).isNotNull();
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
     @Transactional
-    public void testUpdateAfterMakeObsolete() {
+    public void testUpdateDeviceWithObsoleteConnectionTask() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testUpdateAfterMakeObsolete");
 
         device.removeConnectionTask(connectionTask);
 
+        device = getReloadedDevice(device);
         // Business method
-        connectionTask.setCommunicationWindow(FROM_TEN_PM_TO_TWO_AM);
-        connectionTask.update();
+        device.setName("AnotherName");
+        device.save();
 
-        // Asserts: see expected CannotUpdateObsoleteConnectionTaskException
+        // Make sure the device can be changed
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
+    @Transactional
+    public void testUpdateDeviceWithOtherDefaultConnectionTask() {
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testUpdateAfterMakeObsolete");
+
+        device.removeConnectionTask(connectionTask);
+
+        device = getReloadedDevice(device);
+        ScheduledConnectionTaskImpl replacement = this.createAsapWithNoPropertiesWithoutViolations("testNewDefault");
+        // Business method
+        device.save();
+
+        // Make sure the device can be changed
+    }
+
+    @Test
     @Transactional
     public void testMakeObsoleteTwice() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteTwice");
@@ -1073,8 +1102,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Business method
         device.removeConnectionTask(connectionTask);
-
-        // Asserts: see expected ConnectionTaskIsAlreadyObsoleteException
     }
 
     @Test(expected = OptimisticLockException.class)
@@ -1170,7 +1197,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testApplyComWindowWhenTaskDoesNotHaveAComWindow() throws SQLException, BusinessException {
+    public void testApplyComWindowWhenTaskDoesNotHaveAComWindow() throws SQLException {
         Instant nextExecutionTimestamp = inMemoryPersistence.getClock().instant();
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithoutNextExecutionSpecs", null);
 
@@ -1183,7 +1210,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testApplyComWindowWithNextExecutionTimeStampThatImmediatelyFallsWithinComWindow() throws SQLException, BusinessException {
+    public void testApplyComWindowWithNextExecutionTimeStampThatImmediatelyFallsWithinComWindow() throws SQLException {
         this.toRestore = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampThatImmediatelyFallsWithinComWindow", FROM_ONE_AM_TO_TWO_AM);
@@ -1199,7 +1226,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testApplyComWindowWithNextExecutionTimeStampBeforeComWindow() throws SQLException, BusinessException {
+    public void testApplyComWindowWithNextExecutionTimeStampBeforeComWindow() throws SQLException {
         this.toRestore = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampBeforeComWindow", FROM_ONE_AM_TO_TWO_AM);
@@ -1216,7 +1243,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testApplyComWindowWithNextExecutionTimeStampAfterComWindow() throws SQLException, BusinessException {
+    public void testApplyComWindowWithNextExecutionTimeStampAfterComWindow() throws SQLException {
         this.toRestore = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithNextExecutionTimeStampAfterComWindow", FROM_ONE_AM_TO_TWO_AM);
@@ -1290,7 +1317,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void pauseIfNotPausedTest() throws SQLException, BusinessException {
+    public void pauseIfNotPausedTest() throws SQLException {
         String name = "pauseIfNotPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
 
@@ -1305,7 +1332,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void pauseWhenAlreadyPausedTest() throws SQLException, BusinessException {
+    public void pauseWhenAlreadyPausedTest() throws SQLException {
         String name = "pauseWhenAlreadyPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
 
@@ -1320,7 +1347,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void resumeWhenPausedTest() throws SQLException, BusinessException {
+    public void resumeWhenPausedTest() throws SQLException {
         String name = "resumeWhenPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
         connectionTask.deactivate();
@@ -1335,7 +1362,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void resumeWhenAlreadyResumedTest() throws SQLException, BusinessException {
+    public void resumeWhenAlreadyResumedTest() throws SQLException {
         String name = "resumeWhenAlreadyResumedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
 
@@ -1348,7 +1375,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test(expected = IllegalArgumentException.class)
     @Transactional
-    public void testConnectWithOtherProperties() throws SQLException, BusinessException, ConnectionException {
+    public void testConnectWithOtherProperties() throws SQLException, ConnectionException {
         String name = "testConnectWithOtherProperties";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
 
@@ -1363,105 +1390,105 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 /* Todo: Enable once communication session objects have been ported to this bundle
     @Test
     @Transactional
-    public void testGetLastComSessionWithoutComSessions() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithoutComSessions() throws SQLException {
         ConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithoutComSessions");
         this.doTestGetLastComSessionWithoutComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithoutComSessionsWithActiveLastComSessionCache() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithoutComSessionsWithActiveLastComSessionCache() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetComSessionsWithoutComSessionsWithActiveLastComSessionCache");
         this.doTestGetLastComSessionWithoutComSessionsWithActiveLastComSessionCache(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithoutComSessionsWithActiveComSessionCache() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithoutComSessionsWithActiveComSessionCache() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetComSessionsWithoutComSessionsWithActiveComSessionCache");
         this.doTestGetLastComSessionWithoutComSessionsWithActiveComSessionCache(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithComSessions() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithComSessions() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithComSessions");
         this.doTestGetLastComSessionWithComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithComSessionsWithActiveLastComSessionCache() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithComSessionsWithActiveLastComSessionCache() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetComSessionsWithComSessionsWithActiveLastComSessionCache");
         this.doTestGetLastComSessionWithComSessionsWithActiveLastComSessionCache(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastComSessionWithComSessionsWithActiveComSessionCache() throws SQLException, BusinessException {
+    public void testGetLastComSessionWithComSessionsWithActiveComSessionCache() throws SQLException {
         ConnectionTask connectionTask = (ConnectionTask) this.createAsapWithNoPropertiesWithoutViolations("testGetComSessionsWithComSessionsWithActiveComSessionCache");
         this.doTestGetLastComSessionWithComSessionsWithActiveComSessionCache(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetSuccessIndicatorWithoutComSessions() throws SQLException, BusinessException {
+    public void testGetSuccessIndicatorWithoutComSessions() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithoutComSessions");
         this.doTestGetSuccessIndicatorWithoutComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetSuccessIndicatorWithSuccessfulLastComSession() throws SQLException, BusinessException {
+    public void testGetSuccessIndicatorWithSuccessfulLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithSuccessfulLastComSession");
         this.doTestGetSuccessIndicatorWithComSessions(connectionTask, true);
     }
 
     @Test
     @Transactional
-    public void testGetSuccessIndicatorWithFailedLastComSession() throws SQLException, BusinessException {
+    public void testGetSuccessIndicatorWithFailedLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetSuccessIndicatorWithFailedLastComSession");
         this.doTestGetSuccessIndicatorWithComSessions(connectionTask, false);
     }
 
     @Test
     @Transactional
-    public void testGetLastSuccessIndicatorWithoutComSessions() throws SQLException, BusinessException {
+    public void testGetLastSuccessIndicatorWithoutComSessions() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastSuccessIndicatorWithoutComSessions");
         this.doTestGetLastSuccessIndicatorWithoutComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastSuccessIndicatorWithSuccessfulLastComSession() throws SQLException, BusinessException {
+    public void testGetLastSuccessIndicatorWithSuccessfulLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastSuccessIndicatorWithSuccessfulLastComSession");
         this.doTestGetLastSuccessIndicatorWithComSessions(connectionTask, ComSession.SuccessIndicator.Success);
     }
 
     @Test
     @Transactional
-    public void testGetLastSuccessIndicatorWithSetupErrorLastComSession() throws SQLException, BusinessException {
+    public void testGetLastSuccessIndicatorWithSetupErrorLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastSuccessIndicatorWithSetupErrorLastComSession");
         this.doTestGetLastSuccessIndicatorWithComSessions(connectionTask, ComSession.SuccessIndicator.SetupError);
     }
 
     @Test
     @Transactional
-    public void testGetLastSuccessIndicatorWithBrokenLastComSession() throws SQLException, BusinessException {
+    public void testGetLastSuccessIndicatorWithBrokenLastComSession() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastSuccessIndicatorWithBrokenLastComSession");
         this.doTestGetLastSuccessIndicatorWithComSessions(connectionTask, ComSession.SuccessIndicator.Broken);
     }
 
     @Test
     @Transactional
-    public void testGetLastTaskSummaryWithoutComSessions() throws SQLException, BusinessException {
+    public void testGetLastTaskSummaryWithoutComSessions() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastTaskSummaryWithoutComSessions");
         this.doTestGetLastTaskSummaryWithoutComSessions(connectionTask);
     }
 
     @Test
     @Transactional
-    public void testGetLastTaskSummaryWithComSessions() throws SQLException, BusinessException {
+    public void testGetLastTaskSummaryWithComSessions() throws SQLException {
         ScheduledConnectionTask connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testGetLastTaskSummaryWithoutComSessions");
         this.doTestGetLastTaskSummaryWithComSessions(connectionTask, 4, 1, 1);
     }
@@ -1488,7 +1515,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testSwitchFromInboundDefault() throws SQLException, BusinessException {
+    public void testSwitchFromInboundDefault() throws SQLException {
         InboundConnectionTaskImpl inboundConnectionTask = this.createSimpleInboundConnectionTask();
 
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(inboundConnectionTask);
@@ -1508,7 +1535,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testSetAsDefaultWithoutOtherDefaults() throws SQLException, BusinessException {
+    public void testSetAsDefaultWithoutOtherDefaults() throws SQLException {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testSetAsDefaultWithoutOtherDefaults");
 
         // Business method

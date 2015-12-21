@@ -1,17 +1,18 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
-import com.elster.jupiter.properties.PropertySpec;
-
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -45,13 +46,8 @@ public abstract class NoParamsConnectionType implements ConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getPropertySpec (String name) {
-        return null;
+    public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
+        return Optional.empty();
     }
 
     @Override

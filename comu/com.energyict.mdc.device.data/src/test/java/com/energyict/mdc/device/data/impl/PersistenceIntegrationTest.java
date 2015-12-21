@@ -16,18 +16,20 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import org.junit.*;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.TimeZone;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -69,11 +71,11 @@ public abstract class PersistenceIntegrationTest {
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
         inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false);
-        try (TransactionContext context = getTransactionService().getContext()) {
-            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
-            deviceProtocolPluggableClass.save();
-            context.commit();
-        }
+        deviceProtocol = mock(DeviceProtocol.class);
+        deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
     }
 
     @AfterClass

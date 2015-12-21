@@ -21,11 +21,11 @@ import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -50,7 +50,6 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(ValidationService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(Clock.class);
-        requireBinding(RelationService.class);
         requireBinding(ProtocolPluggableService.class);
         requireBinding(SchedulingService.class);
         requireBinding(DeviceMessageSpecificationService.class);
