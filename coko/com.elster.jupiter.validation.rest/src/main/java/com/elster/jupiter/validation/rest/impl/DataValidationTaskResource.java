@@ -155,6 +155,10 @@ public class DataValidationTaskResource {
                 task.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
                 task.setEndDeviceGroup(null);
             }
+            if (info.deviceGroup == null && info.usagePointGroup == null) {
+                task.setUsagePointGroup(null);
+                task.setEndDeviceGroup(null);
+            }
             task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
             task.save();
             context.commit();
