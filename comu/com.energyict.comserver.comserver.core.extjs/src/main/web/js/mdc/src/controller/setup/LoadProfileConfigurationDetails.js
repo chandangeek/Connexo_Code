@@ -254,55 +254,52 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             selectedReadingType = formPanel.down('reading-type-combo').valueModels[0],
             formValue = form.getValues(),
             preloader, jsonValues,
-            router = this.getController('Uni.controller.history.Router');
+            router = this.getController('Uni.controller.history.Router'),
+            associatedMeasurementType = this.getAssociatedMeasurementType(selectedReadingType);
 
-        if (form.isValid()) {
-            formValue.measurementType = {id: this.getAssociatedMeasurementType(selectedReadingType).get('id') || null};
-            jsonValues = Ext.JSON.encode(formValue);
-            formErrorsPanel.hide();
-            switch (btn.action) {
-                case 'Add':
-                    preloader = Ext.create('Ext.LoadMask', {
-                        msg: "Adding channel",
-                        target: formPanel
-                    });
-                    preloader.show();
-                    Ext.Ajax.request({
-                        url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels',
-                        method: 'POST',
-                        jsonData: jsonValues,
-                        success: function () {
-                            me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.added', 'MDC', 'Channel configuration added'));
-                            router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward();
-                        },
-                        callback: function () {
-                            preloader.destroy();
-                        }
-                    });
-                    break;
-                case 'Save':
-                    preloader = Ext.create('Ext.LoadMask', {
-                        msg: "Editing channel",
-                        target: formPanel
-                    });
-                    preloader.show();
-                    Ext.Ajax.request({
-                        url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId,
-                        method: 'PUT',
-                        jsonData: Ext.merge(formPanel.record, formValue),
-                        backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(),
-                        success: function () {
-                            me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.saved', 'MDC', 'Channel configuration saved'));
-                            router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
-                        },
-                        callback: function () {
-                            preloader.destroy();
-                        }
-                    });
-                    break;
-            }
-        } else {
-            formErrorsPanel.show();
+        formValue.measurementType = {id: associatedMeasurementType ? associatedMeasurementType.get('id') || null : null};
+        jsonValues = Ext.JSON.encode(formValue);
+        formErrorsPanel.hide();
+        switch (btn.action) {
+            case 'add':
+                preloader = Ext.create('Ext.LoadMask', {
+                    msg: "Adding channel",
+                    target: formPanel
+                });
+                preloader.show();
+                Ext.Ajax.request({
+                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels',
+                    method: 'POST',
+                    jsonData: jsonValues,
+                    success: function () {
+                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.added', 'MDC', 'Channel configuration added'));
+                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward();
+                    },
+                    callback: function () {
+                        preloader.destroy();
+                    }
+                });
+                break;
+            case 'edit':
+                preloader = Ext.create('Ext.LoadMask', {
+                    msg: "Editing channel",
+                    target: formPanel
+                });
+                preloader.show();
+                Ext.Ajax.request({
+                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId,
+                    method: 'PUT',
+                    jsonData: Ext.merge(formPanel.record, formValue),
+                    backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(),
+                    success: function () {
+                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.saved', 'MDC', 'Channel configuration saved'));
+                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
+                    },
+                    callback: function () {
+                        preloader.destroy();
+                    }
+                });
+                break;
         }
     },
 
@@ -463,7 +460,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             success: function (response) {
                                 var widget = Ext.widget('loadProfileConfigurationDetailForm',
                                         {
-                                            loadProfileConfigurationChannelAction: Uni.I18n.translate('general.add','MDC','Add'),
+                                            loadProfileConfigurationChannelAction: 'add',
                                             deviceTypeId: deviceTypeId,
                                             deviceConfigurationId: deviceConfigurationId,
                                             loadProfileConfigurationId: loadProfileConfigurationId
@@ -535,7 +532,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         var channel = Ext.JSON.decode(response.responseText),
                                             widget = Ext.widget('loadProfileConfigurationDetailForm',
                                                 {
-                                                    loadProfileConfigurationChannelAction: Uni.I18n.translate('general.save','MDC','Save'),
+                                                    loadProfileConfigurationChannelAction: 'edit',
                                                     deviceTypeId: deviceTypeId,
                                                     deviceConfigurationId: deviceConfigurationId,
                                                     loadProfileConfigurationId: loadProfileConfigurationId
