@@ -1982,11 +1982,6 @@ Ext.define('Dxp.controller.Tasks', {
         destinationsStore.removeAll();
         evenTypesStore.removeAll();
 
-       /* formatterStore.addListener('load', function() {
-            debugger;
-            me.view.down('#file-formatter-combo').setValue(obj.dataProcessor);
-        },me);*/
-
         if (me.readingTypesArray) {
             Ext.each(me.readingTypesArray, function (record) {
                 gridStore.add(record);
