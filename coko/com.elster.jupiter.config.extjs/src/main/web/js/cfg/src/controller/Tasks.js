@@ -259,10 +259,12 @@ Ext.define('Cfg.controller.Tasks', {
                         if (this.getCount() === 0) {
                             deviceGroupCombo.allowBlank = true;
                             deviceGroupCombo.hide();
-                            view.down('#no-device').show();
+                            if (record.get('groupType') == 'End Device') {
+                                view.down('#no-device').show();
+                            }
                         }
-                        deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
-                        if (record.data.deviceGroup.id)
+                        deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup && record.data.deviceGroup.id));
+                        if (record.data.deviceGroup && record.data.deviceGroup.id)
                            view.down('#rbtn-device-group').setValue(true);
                     }
                 });
@@ -272,10 +274,12 @@ Ext.define('Cfg.controller.Tasks', {
                         if (this.getCount() === 0) {
                         	usagepointGroupCombo.allowBlank = true;
                         	usagepointGroupCombo.hide();
-                            view.down('#no-device').show();
+                            if (record.get('groupType') == 'Usage Point') {
+                                view.down('#no-usagepoint').show();
+                            }
                         }
-                        usagepointGroupCombo.setValue(usagepointGroupCombo.store.getById(record.data.usagePointGroup.id));
-                        if (record.data.usagePointGroup.id)
+                        usagepointGroupCombo.setValue(usagepointGroupCombo.store.getById(record.data.usagePointGroup && record.data.usagePointGroup.id));
+                        if (record.data.usagePointGroup && record.data.usagePointGroup.id)
                             view.down('#rbtn-usagepoint-group').setValue(true);
                     }
                 });
