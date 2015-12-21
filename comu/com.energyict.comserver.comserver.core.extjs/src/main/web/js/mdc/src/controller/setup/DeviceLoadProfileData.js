@@ -84,6 +84,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 }
             };
 
+        if(loadProfile){
+            if(loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != mRID){
+                loadProfile = null;
+            }
+        }
+
         dataStore.removeAll(true);
         dataStore.getProxy().setUrl({
             mRID: mRID,

@@ -2,6 +2,6 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Registers', {
     extend: 'Mdc.view.setup.comtasks.parameters.ComboWithToolbar',
     alias: 'widget.communication-tasks-registerscombo',
     name: 'registers',
-    fieldLabel: 'Register groups',
+    fieldLabel: Uni.I18n.translate('comtask.register.groups','MDC','Register groups'),
     store: 'Mdc.store.RegisterGroups'
 });

@@ -16,7 +16,7 @@ Ext.define('Mdc.store.ComPortPoolComports',{
         var me= this,
             arrayToRemove = [];
         me.each(function(record) {
-                if (record.getData().comPortType != type) {
+                if (record.getData().comPortType.id != type.id) {
                     arrayToRemove.push(record)
                 }
         });

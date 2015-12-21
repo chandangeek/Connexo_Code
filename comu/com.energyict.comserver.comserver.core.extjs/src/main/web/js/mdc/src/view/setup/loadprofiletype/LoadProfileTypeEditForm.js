@@ -166,6 +166,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
     setEdit: function (edit, returnLink, addRegisterTypesLink) {
         this.edit = edit;
 
+        Ext.suspendLayouts();
         if (edit) {
             this.down('#save-load-profile-type-button').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
         } else {
@@ -180,6 +181,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         this.down('#add-register-types-to-load-profile-type-button').on('click', function () {
             location.href = addRegisterTypesLink;
         });
+
+        Ext.resumeLayouts(true);
     },
 
     loadRecord: function (record) {

@@ -134,7 +134,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         me.showTriggerConfirmation(mRID, comTaskId)
     },
 
-    showTriggerConfirmation: function (mRID, comTaskId) {
+    showTriggerConfirmation: function (mRID, comTaskId, device) {
         var me = this;
         Ext.widget('confirmation-window', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.trigger', 'MDC', 'Trigger'),
@@ -145,18 +145,28 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 fn: function (btnId) {
                     if (btnId == 'confirm') {
                         var store = me.getStore('Mdc.store.DeviceCommands');
-                        me.triggerCommand(mRID, comTaskId)
+                        me.triggerCommand(mRID, comTaskId, device)
                     }
                 },
-                msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger command now?'),
-                title: Uni.I18n.translate('deviceCommand.action.trigger', 'MDC', 'Trigger command')
+                msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger a communication task to execute this command?'),
+                title: Uni.I18n.translate('deviceCommand.action.triggerComTask', 'MDC', 'Trigger communication task')
             });
     },
 
-    triggerCommand: function (mRID, comTaskId) {
-        var me = this;
+    triggerCommand: function (mRID, comTaskId, device) {
+        var me = this,
+            infoData = {'device': {
+                'version': device.data.version,
+                'mRID': device.data.mRID,
+                'parent' : {
+                    'id': device.data.parent.id,
+                    'version': device.data.parent.version
+                }
+            }};
+        var info = Ext.encode(infoData);
         Ext.Ajax.request({
             url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/comtasks/' + comTaskId + '/runnow',
+            jsonData: info,
             method: 'PUT',
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.triggerSuccess', 'MDC', 'Command triggered'));
@@ -318,9 +328,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     msgCategoryChange: function (combo, records) {
         var me = this,
             cat = records[0];
+        me.getAddPropertyForm().hide();
+        me.getAddPropertyHeader().hide();
         if (Ext.isDefined(cat)) {
-            me.getCommandCombo().clearValue();
-            me.getCommandCombo().bindStore(cat.deviceMessageSpecs());
+            me.getCommandCombo().reset();
+            me.getCommandCombo().bindStore(cat.deviceMessageSpecs(), true);
         }
     },
 
@@ -333,8 +345,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             if (command.properties() && (command.properties().getCount() > 0)) {
                 propertyHeader.show();
                 propertyHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', [command.get('name')]) + '</h3>');
+                me.getAddPropertyForm().show();
             } else {
-                propertyHeader.hide()
+                me.getAddPropertyForm().hide();
+                propertyHeader.hide();
             }
             if (!command.get('willBePickedUpByComTask')) {
                 combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))
@@ -373,7 +387,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                         var router = me.getController('Uni.controller.history.Router'),
                             response = Ext.JSON.decode(operation.response.responseText);
                         router.getRoute('devices/device/commands').forward();
-                        response['preferredComTask'] && me.showTriggerConfirmation(btn.mRID, response['preferredComTask'].id);
+                        Ext.ModelManager.getModel('Mdc.model.Device').load(btn.mRID, {
+                            success: function (device) {
+                                response['preferredComTask'] && me.showTriggerConfirmation(btn.mRID, response['preferredComTask'].id, device);
+                            }
+                        });
                     }
                 }
             });

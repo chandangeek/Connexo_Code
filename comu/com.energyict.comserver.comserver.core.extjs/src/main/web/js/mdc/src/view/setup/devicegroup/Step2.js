@@ -92,8 +92,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                                         disabled: true,
                                         itemId: 'search-criteria-selector',
                                         xtype: 'search-criteria-selector',
-                                        service: me.getService(),
-                                        searchContainer: me
+                                        service: me.getService()
                                     }
                                 ]
                             },
@@ -160,6 +159,9 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
             destroyable: true
         });
 
+        me.on('render', function() {
+            me.down('search-criteria-selector').setSearchContainer(Ext.ComponentQuery.query('contentcontainer')[0]);
+        });
         me.on('destroy', function () {
             listeners.destroy();
         });

@@ -65,7 +65,6 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     store: 'Mdc.store.ComPortTypes',
                     displayField: 'localizedValue',
                     valueField: 'id',
-                    value: 'TCP',
                     queryMode: 'local'
                 },
                 {
@@ -104,22 +103,22 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
             nest = me.down('#addFormNest'),
             form;
         Ext.suspendLayouts();
-        switch (portDirection) {
+        switch (portDirection.toLowerCase()) {
             case 'inbound' :
                 switch (portType) {
-                    case 'TCP':
+                    case 'TYPE_TCP':
                         nest.removeAll();
                         form = nest.add({xtype: 'tcpForm'});
                         break;
-                    case 'UDP':
+                    case 'TYPE_UDP':
                         nest.removeAll();
                         form = nest.add({xtype: 'udpForm'});
                         break;
-                    case 'SERVLET':
+                    case 'TYPE_SERVLET':
                         nest.removeAll();
                         form = nest.add({xtype: 'servletForm'});
                         break;
-                    case 'SERIAL':
+                    case 'TYPE_SERIAL':
                         nest.removeAll();
                         form = nest.add({xtype: 'serialForm'});
                         break;
@@ -128,19 +127,19 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                 break;
             case 'outbound' :
                 switch (portType) {
-                    case 'TCP':
+                    case 'TYPE_TCP':
                         nest.removeAll();
                         form = nest.add({xtype: 'tcpForm'});
                         break;
-                    case 'UDP':
+                    case 'TYPE_UDP':
                         nest.removeAll();
                         form = nest.add({xtype: 'udpForm'});
                         break;
-                    case 'SERVLET':
+                    case 'TYPE_SERVLET':
                         nest.removeAll();
                         form = nest.add({xtype: 'servletForm'});
                         break;
-                    case 'SERIAL':
+                    case 'TYPE_SERIAL':
                         nest.removeAll();
                         form = nest.add({xtype: 'serialForm'});
                         break;

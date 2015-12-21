@@ -104,25 +104,19 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             serverId: id
         });
         me.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
         Uni.util.Common.loadNecessaryStores(storesArr, function () {
             addMenus = widget.query('comServerComPortsAddMenu');
             addMenus && Ext.Array.each(addMenus, function (menu) {
                 menu.comServerId = id;
             });
             me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portModel && (delete me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portModel);
+            me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portType && (delete me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portType);
             addComPortPoolsStore.removeAll();
             comServerModel.load(id, {
                 success: function (record) {
-                    comPortsStore.load({
-                        callback: function () {
-                            widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
-                            widget.setLoading(false);
-                            me.getApplication().fireEvent('comServerOverviewLoad', record);
-                            widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
-                        }
-                    })
-
+                    widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
+                    me.getApplication().fireEvent('comServerOverviewLoad', record);
+                    widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
                 }
             });
         }, false);
@@ -147,11 +141,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 if (!previewPanel.isDestroyed) {
                     previewPanel.setTitle(Ext.String.htmlEncode(record.get('name')));
                     previewPanel.down('menu').record = record;
-                    form = previewPanel.down('comPortForm' + record.get('comPortType').localizedValue);
+                    form = previewPanel.down('comPortForm' + record.get('comPortType').id.substring(5));
                     currentForm && currentForm.hide();
                     if (form) {
                         form.show();
-                        if (record.get('comPortType') === 'SERIAL') {
+                        if (record.get('comPortType').id.substring(5) === 'SERIAL') {
                             form.showData(record.get('direction'));
                         }
                         comServerNameField = form.down('displayfield[name=comServerName]');
@@ -160,7 +154,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                         } else {
                             comServerNameField.hide();
                         }
-                        if (record.get('comPortType') != 'SERVLET') {
+                        if (record.get('comPortType').id.substring(5) != 'SERVLET') {
                             switch (record.get('direction')) {
                                 case 'Inbound':
                                     form.down('displayfield[name=outboundComPortPoolIdsDisplay]').hide();
@@ -234,12 +228,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             failure: function (record, options) {
                 var title,
                     errorsArray,
+                    errorsObj,
                     message;
 
                 record.reject();
                 if (options && options.response.status === 400) {
                     title = Uni.I18n.translate('comServerComPorts.activation.failurex', 'MDC', "Failed to activate '{0}'",record.get('name'));
-                    errorsArray = Ext.decode(options.response.responseText);
+                    errorsObj = Ext.decode(options.response.responseText);
+                    errorsArray = errorsObj.errors;
                     message = '';
                     Ext.Array.each(errorsArray, function (obj) {
                         message += obj.msg + '.'
