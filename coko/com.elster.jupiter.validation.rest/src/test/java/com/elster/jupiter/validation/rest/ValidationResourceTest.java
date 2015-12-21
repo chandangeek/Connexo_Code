@@ -378,7 +378,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         verify(builder).havingProperty("text");
         verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue("string");
         verify(builder).havingProperty(Matchers.eq("listvalue"));
-        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(Matchers.any(ListValue.class));
+        verify((ValidationRuleBuilder.PropertyBuilder) builder).withValue(Matchers.isA(ListValue.class));
     }
 
     @Test
@@ -706,6 +706,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
                 mockPropertySpec(BasicPropertyTypes.TEXT, "text", true),
                 mockPropertySpec(BasicPropertyTypes.LISTVALUE, "listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
+        Validator validator = mock(Validator.class);
+        when(validator.getPropertySpecs()).thenReturn(propertySpes);
+        when(validationService.getValidator("com.blablabla.Validator")).thenReturn(validator);
 
         Map<String, Object> props = new HashMap<>();
         props.put("number", 13);
