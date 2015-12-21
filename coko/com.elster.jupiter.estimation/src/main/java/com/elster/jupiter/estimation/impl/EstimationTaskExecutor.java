@@ -60,7 +60,9 @@ class EstimationTaskExecutor implements TaskExecutor {
 
         estimationTask.getEndDeviceGroup().getMembers(occurrence.getTriggerTime()).stream()
                 .filter(device -> device instanceof Meter)
-                .map(device -> ((Meter) device).getMeterActivation(occurrence.getTriggerTime()))
+                .map(Meter.class::cast)
+                .filter(meter -> estimationService.getEstimationResolvers().stream().anyMatch(resolver -> resolver.isEstimationActive(meter)))
+                .map(meter -> meter.getMeterActivation(occurrence.getTriggerTime()))
                 .flatMap(Functions.asStream())
                 .forEach((meterActivation) -> estimationService.estimate(meterActivation, period(meterActivation, relativePeriod, occurrence.getTriggerTime()), taskLogger));
         estimationTask.updateLastRun(occurrence.getTriggerTime());
