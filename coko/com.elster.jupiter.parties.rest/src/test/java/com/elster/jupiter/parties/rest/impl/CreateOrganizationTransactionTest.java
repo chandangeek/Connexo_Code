@@ -7,7 +7,9 @@ import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.StreetDetail;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.cbo.TownDetail;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.parties.Organization;
+import com.elster.jupiter.parties.OrganizationBuilder;
 import com.elster.jupiter.parties.PartyService;
 
 import org.junit.After;
@@ -38,6 +40,8 @@ public class CreateOrganizationTransactionTest {
     @Captor
     private ArgumentCaptor<TelephoneNumber> telephoneCaptor;
 
+    private OrganizationBuilder organizationBuilder;
+
     @Mock
     private Organization organization;
     @Mock
@@ -45,7 +49,8 @@ public class CreateOrganizationTransactionTest {
 
     @Before
     public void setUp() {
-        when(partyService.newOrganization(MRID)).thenReturn(organization);
+        organizationBuilder = FakeBuilder.initBuilderStub(organization, OrganizationBuilder.class);
+        when(partyService.newOrganization(MRID)).thenReturn(organizationBuilder);
     }
 
     @After
@@ -60,7 +65,7 @@ public class CreateOrganizationTransactionTest {
 
         assertThat(result).isEqualTo(organization);
 
-        verify(organization).setPhone1(telephoneCaptor.capture());
+        verify(organizationBuilder).setPhone1(telephoneCaptor.capture());
 
         assertThat(telephoneCaptor.getValue()).isEqualToComparingFieldByField(PHONE1);
     }

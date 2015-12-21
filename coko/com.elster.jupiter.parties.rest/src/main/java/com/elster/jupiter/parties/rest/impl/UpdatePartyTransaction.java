@@ -22,7 +22,7 @@ public class UpdatePartyTransaction implements Transaction<Party> {
 
     private Party doUpdate(Party party) {
         info.updateParty(party);
-        party.save();
+        party.update();
         return party;
     }
 

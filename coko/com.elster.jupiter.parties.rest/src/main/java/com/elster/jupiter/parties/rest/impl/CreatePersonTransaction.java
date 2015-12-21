@@ -20,22 +20,19 @@ final class CreatePersonTransaction implements Transaction<Person> {
 
     @Override
     public Person perform() {
-        Person person = partyService.newPerson(info.firstName, info.lastName);
-        person.setMRID(info.mRID);
-        person.setName(info.name);
-        person.setAliasName(info.aliasName);
-        person.setDescription(info.description);
-        person.setElectronicAddress(info.electronicAddress);
 
-        person.setMiddleName(info.mName);
-        person.setPrefix(info.prefix);
-        person.setSuffix(info.suffix);
-        person.setSpecialNeed(info.specialNeed);
-        person.setLandLinePhone(info.landLinePhone);
-        person.setMobilePhone(info.mobilePhone);
-
-        person.save();
-
-        return person;
+        return partyService.newPerson(info.firstName, info.lastName)
+                .setMRID(info.mRID)
+                .setName(info.name)
+                .setAliasName(info.aliasName)
+                .setDescription(info.description)
+                .setElectronicAddress(info.electronicAddress)
+                .setMiddleName(info.mName)
+                .setPrefix(info.prefix)
+                .setSuffix(info.suffix)
+                .setSpecialNeed(info.specialNeed)
+                .setLandLinePhone(info.landLinePhone)
+                .setMobilePhone(info.mobilePhone)
+                .create();
     }
 }

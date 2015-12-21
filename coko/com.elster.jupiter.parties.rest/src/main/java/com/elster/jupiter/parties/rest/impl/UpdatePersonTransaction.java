@@ -1,10 +1,8 @@
 package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.transaction.Transaction;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -29,7 +27,7 @@ class UpdatePersonTransaction implements Transaction<Person> {
 
     private Person doUpdate(Person person) {
         info.update(person);
-        person.save();
+        person.update();
         return person;
     }
 

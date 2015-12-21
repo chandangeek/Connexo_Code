@@ -28,7 +28,7 @@ public class UpdateOrganizationTransaction implements Transaction<Organization> 
 
     private Organization doUpdate(Organization organization) {
         info.update(organization);
-        organization.save();
+        organization.update();
         return organization;
     }
 
