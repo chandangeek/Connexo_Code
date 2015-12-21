@@ -71,8 +71,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             confirmText: activate ? Uni.I18n.translate('general.activate', 'MDC', 'Activate') : Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
             itemId: 'activationConfirmationWindow'
         }).show({
-            title: activate ? Uni.I18n.translate('estimationDevice.activateConfirmation.title', 'MDC', 'Activate data estimation on device {0}?', [me.mRID]) :
-                Uni.I18n.translate('estimationDevice.deactivateConfirmation.title', 'MDC', 'Deactivate data estimation on device {0}?', [me.mRID]),
+            title: activate ? Uni.I18n.translate('estimationDevice.activateConfirmation.title', 'MDC', 'Activate data estimation on device \'{0}\'?', [me.mRID]) :
+                Uni.I18n.translate('estimationDevice.deactivateConfirmation.title', 'MDC', 'Deactivate data estimation on device \'{0}\'?', [me.mRID]),
             msg: activate ? '' :
                 Uni.I18n.translate('estimationDevice.deactivateConfirmation.msg', 'MDC', 'The data of this device will no longer be estimated'),
             fn: function (state) {
