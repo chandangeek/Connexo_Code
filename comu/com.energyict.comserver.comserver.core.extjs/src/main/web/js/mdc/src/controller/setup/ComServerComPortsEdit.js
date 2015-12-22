@@ -392,6 +392,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         }
     },
 
+    loadTimeUnits: function() {
+        var timeUnitsStore = this.getStore('TimeUnits');
+        timeUnitsStore.load();
+    },
+
     showEditView: function (id, direction, comPortId) {
         var me = this,
             widget = Ext.widget('comportEdit', {serverId: id}),
@@ -411,6 +416,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             recordData,
             directionField;
 
+        me.loadTimeUnits();
         me.getApplication().fireEvent('changecontentevent', widget);
         preloader.show();
 
@@ -541,6 +547,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             widget = Ext.widget('comportEdit', {serverId: id}),
             comServerModel = me.getModel('Mdc.model.ComServer');
 
+        me.loadTimeUnits();
         me.currentUrl = 'administration/comservers/detail/comports/addOutbound';
         me.comServerId = id;
         me.comportEdit = widget;
@@ -577,6 +584,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             widget = Ext.widget('comportEdit', {serverId: id}),
             comServerModel = me.getModel('Mdc.model.ComServer');
 
+        me.loadTimeUnits();
         me.currentUrl = 'administration/comservers/detail/comports/addInbound';
         me.portType = me.defaultType;
         me.comServerId = id;
