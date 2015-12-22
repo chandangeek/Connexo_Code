@@ -1,28 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.when;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ProcessStatus;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Optional;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
@@ -35,11 +12,35 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;
 
 import javax.inject.Provider;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractBaseReadingImplTest {
@@ -68,14 +69,18 @@ public abstract class AbstractBaseReadingImplTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
+    private NlsMessageFormat messageFormat;
+    @Mock
     private Vault vault;
     @Mock
     private RecordSpec recordSpec;
 
     @Before
     public void setUp() {
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
     	when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
-    	when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec)); 
+    	when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(entry.getTimeStamp()).thenReturn(DATE);
         when(entry.getRecordDateTime()).thenReturn(RECORD_DATE);
         when(entry.getBigDecimal(anyInt())).thenAnswer(new Answer<Object>() {
@@ -109,7 +114,7 @@ public abstract class AbstractBaseReadingImplTest {
         builder.measure(MeasurementKind.DEMAND).in(MetricMultiplier.KILO,ReadingTypeUnit.WATT);
         unknownReadingType = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
         channel = (ChannelImpl) meterActivation.createChannel(readingType1, readingType2, readingType);
-       
+
         when(entry.getLong(0)).thenReturn(1L << ProcessStatus.Flag.SUSPECT.ordinal());
         baseReading = createInstanceToTest(channel, entry);
         when(entry.size()).thenReturn(3 + baseReading.getReadingTypeOffset());
@@ -182,7 +187,7 @@ public abstract class AbstractBaseReadingImplTest {
     public void testGetProcessingFlags() {
         assertThat(baseReading.getProcesStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
     }
-    
+
     ChannelImpl getChannel() {
     	return channel;
     }

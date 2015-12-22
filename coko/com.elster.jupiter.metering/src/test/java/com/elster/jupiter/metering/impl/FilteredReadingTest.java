@@ -8,22 +8,25 @@ import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,12 +44,16 @@ public class FilteredReadingTest {
     private DataModel dataModel;
     @Mock
     private Thesaurus thesaurus;
-    
+    @Mock
+    private NlsMessageFormat messageFormat;
+
     private ReadingTypeImpl readingType1, readingType2, readingType3, readingType4;
 
     @Before
     public void setUp() {
 
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
                 .flow(FlowDirection.FORWARD)
@@ -56,7 +63,7 @@ public class FilteredReadingTest {
     	readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(builder.in(MetricMultiplier.KILO).code(), "");
     	readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(builder.in(MetricMultiplier.MEGA).code(), "");
     	readingType4 = new ReadingTypeImpl(dataModel, thesaurus).init(builder.in(MetricMultiplier.GIGA).code(), "");
-    	
+
         filteredReading = new FilteredIntervalReadingRecord(source, 1, 3, 0);
 
         when(source.getReadingType(1)).thenReturn(readingType1);
@@ -128,7 +135,7 @@ public class FilteredReadingTest {
     public void testGetTimeStamp() {
         Instant instant = Instant.ofEpochMilli(5416541641L);
         when(source.getTimeStamp()).thenReturn(instant);
-        
+
         assertThat(filteredReading.getTimeStamp()).isEqualTo(instant);
     }
 
