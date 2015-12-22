@@ -122,7 +122,7 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
 
         me.processRecord = processRecord.lastSelection[0].data;
         startProcess.getProxy().setUrl(me.processRecord.id);
-        startProcess.load(encodeURIComponent(me.processRecord.deploymentId),{
+        startProcess.load(me.processRecord.deploymentId,{
             success: function (startProcessRecord) {
 
                 processStartContent.startProcessRecord = startProcessRecord;
@@ -142,7 +142,14 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
     },
 
     processComboChange: function (record) {
-        var me = this;
+        var me = this,
+            widget = me.getStartProcess(),
+            form = widget.down('#frm-process-start'),
+            formErrorsPanel = form.down('#form-errors');
+
+        if (!formErrorsPanel.isHidden()) {
+            formErrorsPanel.hide();
+        }
         me.loadJbpmForm(record);
     },
     cancelStartProcess: function (btn) {
@@ -152,7 +159,6 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
     startProcess: function (button) {
         var me=this,
             processStartContent = me.getProcessStartContent(),
-            router = this.getController('Uni.controller.history.Router'),
             startProcessForm = me.getStartProcessForm(),
             startProcessRecord = processStartContent.startProcessRecord,
             widget = me.getStartProcess(),

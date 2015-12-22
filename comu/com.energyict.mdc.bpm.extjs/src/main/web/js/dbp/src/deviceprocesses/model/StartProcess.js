@@ -25,7 +25,7 @@ Ext.define('Dbp.deviceprocesses.model.StartProcess', {
         reader: {
             type: 'json'
         },
-        setUrl: function(processId, deploymentId){
+        setUrl: function(processId){
             this.url = this.urlTpl.replace('{id}', encodeURIComponent(processId));
         }
     }
