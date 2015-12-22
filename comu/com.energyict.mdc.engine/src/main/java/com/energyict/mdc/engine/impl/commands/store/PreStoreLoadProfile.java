@@ -1,5 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.readings.IntervalBlock;
+import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.collections.DualIterable;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -10,12 +17,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
-import com.elster.jupiter.metering.readings.IntervalBlock;
-import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.collections.DualIterable;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -50,6 +51,7 @@ public class PreStoreLoadProfile {
      * <li>Filter future dates</li>
      * <li>Scale value according to unit</li>
      * <li>OverFlow calculation</li>
+     * <li>Apply multiplier</li>
      * <li>Calculate last reading</li>
      * <li>Remove the entry which corresponds with the lastReading (because we already have it)</li>
      * </ul>
@@ -59,7 +61,7 @@ public class PreStoreLoadProfile {
      */
     PreStoredLoadProfile preStore(CollectedLoadProfile collectedLoadProfile) {
         PreStoredLoadProfile preStoredLoadProfile = new PreStoredLoadProfile(collectedLoadProfile.getLoadProfileIdentifier().getDeviceIdentifier());
-        if (collectedLoadProfile.getCollectedIntervalData().size() > 0) {
+        if (!collectedLoadProfile.getCollectedIntervalData().isEmpty()) {
             Optional<OfflineLoadProfile> optionalLoadProfile = this.comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
             optionalLoadProfile.ifPresent(offlineLoadProfile -> {
                 List<IntervalBlock> processedBlocks = new ArrayList<>();
@@ -73,12 +75,14 @@ public class PreStoreLoadProfile {
                     Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(channelInfo.getReadingTypeMRID());
                     int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
                     BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, offlineLoadProfile);
+                    BigDecimal multiplier = channelInfo.getMultiplier();
                     IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
                     for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
                         if (range.contains(intervalReading.getTimeStamp())) {
                             IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
                             IntervalReading overflowCheckedReading = getOverflowCheckedReading(channelOverFlowValue, scaledIntervalReading);
-                            processingBlock.addIntervalReading(overflowCheckedReading);
+                            IntervalReading multipliedReading = getMultipliedReading(multiplier, overflowCheckedReading);
+                            processingBlock.addIntervalReading(multipliedReading);
                             lastReading = updateLastReadingIfLater(lastReading, intervalReading);
                         }
                     }
@@ -94,7 +98,7 @@ public class PreStoreLoadProfile {
     }
 
     private void checkIfYouHaveAnEmptyChannel(PreStoredLoadProfile preStoredLoadProfile, List<IntervalBlock> processedBlocks) {
-        final Optional<IntervalBlock> blockWithNoIntervals = processedBlocks.stream().filter(intervalBlock -> intervalBlock.getIntervals().size() == 0).findAny();
+        final Optional<IntervalBlock> blockWithNoIntervals = processedBlocks.stream().filter(intervalBlock -> intervalBlock.getIntervals().isEmpty()).findAny();
         if (blockWithNoIntervals.isPresent()) {
             preStoredLoadProfile.setPreStoreResult(PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED);
         } else {
@@ -104,6 +108,15 @@ public class PreStoreLoadProfile {
 
     private Range<Instant> getRangeForNewIntervalStorage(OfflineLoadProfile offlineLoadProfile) {
         return Range.openClosed(offlineLoadProfile.getLastReading().orElse(Instant.EPOCH), clock.instant());
+    }
+
+    private IntervalReading getMultipliedReading(BigDecimal multiplier, IntervalReading intervalReading) {
+        if (!Checks.is(multiplier).equalValue(BigDecimal.ONE)) {
+            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), intervalReading.getValue().multiply(multiplier), intervalReading.getProfileStatus());
+        }
+        else {
+            return intervalReading;
+        }
     }
 
     private IntervalReading getOverflowCheckedReading(BigDecimal channelOverFlowValue, IntervalReading scaledIntervalReading) {
