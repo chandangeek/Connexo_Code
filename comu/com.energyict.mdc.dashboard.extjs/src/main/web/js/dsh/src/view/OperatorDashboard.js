@@ -33,10 +33,16 @@ Ext.define('Dsh.view.OperatorDashboard', {
             {
                 xtype: 'panel',
                 ui: 'large',
+                style: {
+                    marginRight: '28px'
+                },
                 title:  me.router.getRoute().title,
                 tools: [
                     {
                         xtype: 'toolbar',
+                        style: {
+                            marginRight: '20px',
+                        },
                         items: [
                             '->',
                             {
@@ -56,7 +62,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                                     'background-color': '#71adc7'
                                 },
                                 text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
-                                icon: '/apps/sky/build/resources/images/form/restore.png'
+                                icon: '/apps/sky/build/resources/images/form/restore.png',
                             }
                         ]
                     }
@@ -97,7 +103,6 @@ Ext.define('Dsh.view.OperatorDashboard', {
                         padding: '20px'
                     }
                 },
-                style: {'margin-right': '20px'},
                 items: [],
                 dockedItems: [{
                     xtype: 'communication-servers',

@@ -4,6 +4,7 @@ Ext.define('Dsh.view.widget.Summary', {
     requires: [ 'Dsh.view.widget.common.Bar' ],
     alias: 'widget.summary',
     itemId: 'summary',
+    flex: 1,
     title: Uni.I18n.translate('overview.widget.summary.title', 'DSH', 'Summary'),
     header: {
         ui: 'small'
