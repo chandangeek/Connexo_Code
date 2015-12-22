@@ -41,8 +41,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             selector: 'AddProcessesToState'
         }
     ],
-    nameOfToBeAddedState: null,
-
+    deviceLifeCycleState: null,
     init: function () {
         this.control({
             'device-life-cycle-states-setup device-life-cycle-states-grid': {
@@ -106,7 +105,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             processItems.push(record.getData());
         });
         return processItems;
-},
+    },
 
     saveState: function (btn) {
         var me = this,
@@ -155,7 +154,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             },
             callback: function () {
                 editForm.setLoading(false);
-                me.nameOfToBeAddedState = null;
             }
         });
     },
@@ -177,7 +175,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         }
         entryProcessesStore.removeAll();
         exitProcessesStore.removeAll();
-        me.nameOfToBeAddedState = null;
         route.forward();
     },
 
@@ -285,12 +282,11 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                     form.loadRecord(record);
                 }
             });
-        } else { // Busy adding a (new) state
-            var record = Ext.create(stateModel);
-            if (this.nameOfToBeAddedState) {
-                record.set('name', this.nameOfToBeAddedState);
-            }
-            form.loadRecord(record);
+        } else {
+           if (!me.deviceLifeCycleState){
+               me.deviceLifeCycleState = Ext.create(stateModel);
+           }
+           form.loadRecord(me.deviceLifeCycleState);
         }
         widget.setLoading(false);
     },
@@ -321,32 +317,23 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                 }
             }
         });
+        me.deviceLifeCycleState = null;
     },
 
     addEntryTransitionBusinessProcessesToState: function () {
-        this.rememberNameIfNeeded();
         this.addTransitionBusinessProcessesToState('onEntry');
     },
 
     addExitTransitionBusinessProcessesToState: function () {
-        this.rememberNameIfNeeded();
         this.addTransitionBusinessProcessesToState('onExit');
     },
 
-    rememberNameIfNeeded : function() {
-        var editForm = this.getLifeCycleStatesEditForm(),
-            busyAdding = editForm.down('#createEditButton').action === 'add',
-            record = null;
-
-        if (busyAdding) {
-            editForm.updateRecord();
-            record = editForm.getRecord();
-        }
-        this.nameOfToBeAddedState = (busyAdding && record ? record.get('name') : null);
-    },
-
     addTransitionBusinessProcessesToState: function (storeToUpdate) {
-        var router = this.getController('Uni.controller.history.Router');
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            // save the editForm's current state
+            editForm = me.getLifeCycleStatesEditForm();
+        editForm.updateRecord();
         router.getRoute(router.currentRoute + (storeToUpdate === 'onEntry' ? '/addEntryProcesses' : '/addExitProcesses')).forward();
     },
 
@@ -372,7 +359,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             splittedPath = router.currentRoute.split('/');
 
         splittedPath.pop();
-
         router.getRoute(splittedPath.join('/')).forward();
     },
 
