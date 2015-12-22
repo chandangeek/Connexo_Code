@@ -68,13 +68,14 @@ Ext.define('Fim.view.importservices.AddImportService', {
                                 labelWidth: 250,
                                 required: true,
                                 store: 'Fim.store.FileImporters',
-                                editable: false,
+                                editable: true,
                                 disabled: false,
                                 emptyText: Uni.I18n.translate('importService.fileImporterPrompt', 'FIM', 'Select a file importer...'),
                                 allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'displayName',
-                                valueField: 'name'
+                                valueField: 'name',
+                                forceSelection: true
                             },
                             {
                                 xtype: 'container',
