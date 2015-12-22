@@ -336,6 +336,7 @@ public class ChannelResource {
             @PathParam("epochMillis") long epochMillis) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
+        boolean isValidationActive = deviceValidation.isValidationActive();
         Instant to = Instant.ofEpochMilli(epochMillis);
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channel.getDevice().getZone());
         Instant from = zonedDateTime.minus(channel.getInterval().asTemporalAmount()).toInstant();
@@ -346,7 +347,15 @@ public class ChannelResource {
             IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst()).orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
             return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading);
         });
-        return Response.ok(veeReadingInfo.orElseGet(VeeReadingInfo::new)).build();
+        if(veeReadingInfo.isPresent()) {
+            return Response.ok(veeReadingInfo.get()).build();
+        }else{
+            Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis-1), Instant.ofEpochMilli(epochMillis));
+            List<LoadProfileReading> channelData = channel.getChannelData(range);
+            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation)).collect(Collectors.toList());
+            infos.get(0).bulkValidationInfo.isConfirmed = false;
+            return Response.ok(infos).build();
+        }
     }
 
     private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {
