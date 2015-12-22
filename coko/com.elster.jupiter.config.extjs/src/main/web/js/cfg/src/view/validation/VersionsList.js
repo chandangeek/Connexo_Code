@@ -93,7 +93,7 @@ Ext.define('Cfg.view.validation.VersionsList', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: 'Versions per page',
+                itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.versionsperpage', 'CFG', 'Versions per page'),
                 dock: 'bottom',
                 isSecondPagination: me.isSecondPagination,
                 params: {ruleSetId: me.ruleSetId}
