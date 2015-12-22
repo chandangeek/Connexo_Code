@@ -28,9 +28,6 @@ Ext.define('Cfg.view.validation.AddRule', {
 
     readingTypeIndex: 1,
 
-
-
-
     initComponent: function () {
         var me = this;
         me.content = [
@@ -92,9 +89,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                             labelWidth: 260,
                             width: 600
                         },
-
-
-
                         {
                             xtype: 'fieldcontainer',
                             itemId: 'reading-types-field-container',
@@ -115,8 +109,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                                         'margin-right': '10px'
                                     }
                                 },
-
-
                                 {
                                     xtype: 'gridpanel',
                                     itemId: 'readingTypesForValidationRuleGridPanel',
@@ -150,8 +142,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                         }
                                     ],
                                     height: 220,
-                                    width: 670,
-
+                                    width: 670
                                 },
                                 {
                                     xtype: 'button',
@@ -162,9 +153,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                                 }
                             ]
                         },
-
-
-
                         {
                             xtype: 'label',
                             cls: 'x-form-invalid-under',
@@ -192,13 +180,18 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     boxLabel: Uni.I18n.translate('validation.dataQualityLevelWarnOnly', 'CFG', 'Informative'),
                                     name: 'action',
                                     inputValue: 'WARN_ONLY'
-                                },
+                                }
                             ]
                         },
                         {
                             xtype: 'property-form',
-                            padding: '5 10 0 10',
-                            width: '100%'
+                            padding: '5 0 0 0',
+                            width: '100%',
+                            defaults: {
+                                labelWidth: 260,
+                                width: 325,
+                                resetButtonHidden: true
+                            }
                         },
                         {
                             xtype: 'fieldcontainer',
@@ -228,16 +221,12 @@ Ext.define('Cfg.view.validation.AddRule', {
                     }
                 ]
             }
-        ]
-
-
-
-
-
+        ];
 
         this.callParent(arguments);
         this.setEdit(this.edit, this.returnLink);
     },
+
     updateGrid: function() {
         var me = this,
             grid = me.down('#readingTypesForValidationRuleGridPanel'),
