@@ -64,7 +64,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             items: [
                 {
                     xtype: 'component',
-                    html: Uni.I18n.translate('general.noRegisterTypesAdded', 'DLC', 'No register types have been added'),
+                    html: Uni.I18n.translate('general.noRegisterTypesAdded', 'MDC', 'No register types have been added'),
                     itemId: 'noRegisterTypesAddedMsg',
                     style: {
                         'font': 'italic 13px/17px Lato',
