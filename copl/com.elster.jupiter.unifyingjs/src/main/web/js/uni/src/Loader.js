@@ -69,7 +69,8 @@ Ext.define('Uni.Loader', {
         'Uni.override.ColumnOverride',
         'Uni.override.DisplayFieldOverride',
         'Uni.override.Date',
-        'Uni.override.picker.Date'
+        'Uni.override.picker.Date',
+        'Uni.override.form.field.Text'
     ],
 
     /**
