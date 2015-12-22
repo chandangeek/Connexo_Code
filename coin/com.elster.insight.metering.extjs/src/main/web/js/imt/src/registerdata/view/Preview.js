@@ -18,8 +18,7 @@ Ext.define('Imt.registerdata.view.Preview', {
                 layout: 'form',
                 items: [
                     {
-                        xtype:'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.label.general', 'IMT', 'General'),
+                        xtype:'fieldcontainer'
                         labelAlign: 'top',
                         layout: 'vbox',
                         defaults: {
