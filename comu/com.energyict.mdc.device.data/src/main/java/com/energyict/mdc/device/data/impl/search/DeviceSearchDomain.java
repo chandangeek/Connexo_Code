@@ -201,19 +201,18 @@ public class DeviceSearchDomain implements SearchDomain {
                 if (!uniqueDeviceProtocolDialects.add(deviceProtocolDialectName)) {
                     continue;
                 }
-                String relationTableName =
-                        this.protocolPluggableService
-                                .getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(),deviceProtocolDialectName)
-                                .getDeviceProtocolDialect()
-                                .getCustomPropertySet().get()
-                                .getPersistenceSupport()
-                                .tableName();
-                protocolDialect
-                        .getProtocolDialect()
-                        .getPropertySpecs()
-                        .stream()
-                        .map(propertySpec -> injector.getInstance(ProtocolDialectDynamicSearchableProperty.class).init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName))
-                        .forEach(dynamicProperties::add);
+                this.protocolPluggableService
+                        .getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(), deviceProtocolDialectName)
+                        .getDeviceProtocolDialect()
+                        .getCustomPropertySet().ifPresent(deviceProtocolCustomPropSet -> {
+                    String relationTableName = deviceProtocolCustomPropSet.getPersistenceSupport().tableName();
+                    protocolDialect
+                            .getProtocolDialect()
+                            .getPropertySpecs()
+                            .stream()
+                            .map(propertySpec -> injector.getInstance(ProtocolDialectDynamicSearchableProperty.class).init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName))
+                            .forEach(dynamicProperties::add);
+                });
             }
             return dynamicProperties;
         }
