@@ -14,9 +14,8 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -36,10 +35,10 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class DerivedFieldTest {
 
-    private static Injector injector;
-    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private Injector injector;
+    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    private static class MockModule extends AbstractModule {
+    private class MockModule extends AbstractModule {
         @Override
         protected void configure() {       
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
@@ -49,8 +48,8 @@ public class DerivedFieldTest {
    
     private ZoneId defaultZone = ZoneId.systemDefault();
 
-    @BeforeClass
-    public static void setUp() throws SQLException {
+    @Before
+    public void setUp() throws SQLException {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -67,8 +66,8 @@ public class DerivedFieldTest {
         }
     }
 
-    @AfterClass
-    public static void tearDown() throws SQLException {
+    @After
+    public void tearDown() throws SQLException {
     	inMemoryBootstrapModule.deactivate();
     }
 
