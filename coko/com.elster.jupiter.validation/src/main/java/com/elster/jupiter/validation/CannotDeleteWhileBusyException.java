@@ -6,6 +6,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 public abstract class CannotDeleteWhileBusyException extends LocalizedException {
     protected CannotDeleteWhileBusyException(Thesaurus thesaurus, MessageSeed messageSeed, DataValidationTask task) {
-        super(thesaurus, messageSeed, task.getId());
+        super(thesaurus, messageSeed, task.getName());
     }
 }

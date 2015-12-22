@@ -19,7 +19,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_VALIDATION_RULE(102, Constants.DUPLICATE_VALIDATION_RULE, "Name must be unique", Level.SEVERE),
 
     DUPLICATE_VALIDATION_TASK(104, Constants.DUPLICATE_VALIDATION_TASK, "Name must be unique", Level.SEVERE),
-    CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "Cannot delete a validation task (id = {0}) while it is running.", Level.SEVERE),
+    CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "Cannot delete a validation task ''{0}'' while it is running.", Level.SEVERE),
     TASK_VALIDATED_SUCCESFULLY(107, Constants.TASK_VALIDATED_SUCCESFULLY, "Device {0} validated successfully on {1}", Level.INFO),
     VALIDATION_TASK_REQUIRES_EXACTLY_ONE_GROUP(108, Constants.REQUIRES_EXACTLY_ONE_GROUP, "Validation task requires exactly one group", Level.SEVERE),
 
