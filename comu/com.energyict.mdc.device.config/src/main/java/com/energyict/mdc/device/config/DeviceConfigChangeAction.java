@@ -1,6 +1,4 @@
-package com.energyict.mdc.device.config.impl.deviceconfigchange;
-
-import com.energyict.mdc.device.config.DeviceConfiguration;
+package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
 

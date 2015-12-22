@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
+import com.energyict.mdc.device.config.DeviceConfigChangeItem;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 
@@ -9,7 +10,7 @@ import java.util.function.Predicate;
 /**
  * Serves as a helper item to calculate the difference in PartialConnectionTasks for the foreseen DeviceConfigurations
  */
-class DeviceConfigChangeConnectionTaskItem implements DeviceConfigChangeItem<PartialConnectionTask> {
+public class DeviceConfigChangeConnectionTaskItem implements DeviceConfigChangeItem<PartialConnectionTask> {
 
     private final DeviceConfiguration originDeviceConfig;
     private final DeviceConfiguration destinationDeviceConfig;

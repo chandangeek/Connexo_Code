@@ -12,6 +12,8 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 /**
  * Copyrights EnergyICT
@@ -36,9 +38,10 @@ public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT
         PartialConnectionTask origin = createOutboundConnectionTask(sourceConfig, "OriginConnectionTask");
         PartialConnectionTask destination = createOutboundConnectionTask(destinationConfig, "DestinationConnectionTask");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsRemove();
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
+        verifyConflictValidation(times(2), deviceConfigConflictMapping);
 
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
             @Override
@@ -64,9 +67,10 @@ public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT
         PartialConnectionTask origin = createOutboundConnectionTask(sourceConfig, "OriginConnectionTask");
         PartialConnectionTask destination = createOutboundConnectionTask(destinationConfig, "DestinationConnectionTask");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, destination);
+        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(destination);
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
+        verifyConflictValidation(times(2), deviceConfigConflictMapping);
 
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
             @Override
@@ -95,7 +99,7 @@ public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT
         PartialConnectionTask origin = createOutboundConnectionTask(sourceConfig, "OriginConnectionTask");
         PartialConnectionTask destination = createOutboundConnectionTask(destinationConfig, "DestinationConnectionTask");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, null);
+        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(null);
     }
 
     private PartialScheduledConnectionTaskImpl createOutboundConnectionTask(DeviceConfiguration sourceConfig, String name) {

@@ -57,27 +57,39 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
     }
 
     @Override
-    public void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action) {
-        this.action = action;
-        clearCorrespondingDataSource();
-        this.conflictingMapping.get().recalculateSolvedState(this);
+    public void markSolutionAsRemove() {
+        this.getDestinationDataSourceReference().setNull();
+        updateSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
     }
 
     @Override
-    public void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action, S dataSource) {
+    public void markSolutionAsMap(S dataSource) {
         this.getDestinationDataSourceReference().set(dataSource);
-        setSolution(action);
+        updateSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP);
     }
 
-    private void clearCorrespondingDataSource() {
-        switch (this.action) {
-            case REMOVE:
-                this.getDestinationDataSourceReference().setNull();
-                break;
-        }
+    private void updateSolution(DeviceConfigConflictMapping.ConflictingMappingAction action) {
+        this.action = action;
+        this.conflictingMapping.get().recalculateSolvedState(this);
     }
 
     protected DeviceConfigConflictMapping getConflictingMapping() {
         return conflictingMapping.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbstractConflictSolution<?> that = (AbstractConflictSolution<?>) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 }
