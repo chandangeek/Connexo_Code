@@ -1,65 +1,64 @@
 package com.elster.jupiter.validation;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
-import aQute.bnd.annotation.ProviderType;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 @ProviderType
 public interface DataValidationTask extends HasAuditInfo {
 
-    public void activate();
+    void activate();
 
-    public DataValidationTaskStatus execute(DataValidationOccurrence taskOccurence);
+    DataValidationTaskStatus execute(DataValidationOccurrence taskOccurence);
 
-    public void deactivate();
+    void deactivate();
 
-    public Instant getNextExecution();
+    Instant getNextExecution();
 
-    public void save();
+    void update();
 
-    public void delete();
+    void delete();
 
-    public String getName();
+    String getName();
 
-    public void setName(String name);
+    void setName(String name);
 
-    public Optional<EndDeviceGroup> getEndDeviceGroup();
+    Optional<EndDeviceGroup> getEndDeviceGroup();
 
-    public Optional<UsagePointGroup> getUsagePointGroup();
+    Optional<UsagePointGroup> getUsagePointGroup();
 
-    public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+    void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
-    public void setUsagePointGroup(UsagePointGroup usagePointGroup);
+    void setUsagePointGroup(UsagePointGroup usagePointGroup);
 
-    public long getId();
+    long getId();
 
     void setScheduleImmediately(boolean scheduleImmediately);
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
-    public Optional<Instant> getLastRun();
+    Optional<Instant> getLastRun();
 
-    public ScheduleExpression getScheduleExpression();
+    ScheduleExpression getScheduleExpression();
 
-    public Optional<ScheduleExpression> getScheduleExpression(Instant at);
+    Optional<ScheduleExpression> getScheduleExpression(Instant at);
 
-    public void setNextExecution(Instant instant);
+    void setNextExecution(Instant instant);
 
-    public void triggerNow();
+    void triggerNow();
 
-    public boolean canBeDeleted();
+    boolean canBeDeleted();
 
-    public Optional<DataValidationOccurrence> getLastOccurrence();
+    Optional<DataValidationOccurrence> getLastOccurrence();
 
-    public List<? extends DataValidationOccurrence> getOccurrences();
+    List<? extends DataValidationOccurrence> getOccurrences();
 
     Optional<? extends DataValidationOccurrence> getOccurrence(Long id);
 
@@ -67,6 +66,6 @@ public interface DataValidationTask extends HasAuditInfo {
 
     History<? extends DataValidationTask> getHistory();
 
-    public void updateLastRun(Instant triggerTime);
+    void updateLastRun(Instant triggerTime);
 
 }

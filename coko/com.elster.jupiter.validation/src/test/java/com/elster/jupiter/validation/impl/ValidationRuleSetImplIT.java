@@ -153,16 +153,17 @@ public class ValidationRuleSetImplIT {
                 readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
                 ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-                ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
-                zeroesRule.addReadingType(readingType);
-                zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-                zeroesRule.activate();
-                ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
-                minMaxRule.addReadingType(readingType);
-                minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
-                minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
-                minMaxRule.activate();
-                validationRuleSet.save();
+                ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
+                        .withReadingType(readingType)
+                        .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                        .active(true)
+                        .create();
+                ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
+                        .withReadingType(readingType)
+                        .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                        .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                        .active(true)
+                        .create();
 
                 Optional<? extends ValidationRuleSet> found = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId());
                 assertThat(found.isPresent()).isTrue();
@@ -179,23 +180,23 @@ public class ValidationRuleSetImplIT {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-            ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
-            zeroesRule.addReadingType(readingType);
-            zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-            zeroesRule.activate();
-            validationRuleSet.save();
+            ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
+                    .withReadingType(readingType)
+                    .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                    .active(true)
+                    .create();
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.getRuleSetVersions().get(0);
-            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
-            minMaxRule.addReadingType(readingType);
-            minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
-            minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
-            minMaxRule.activate();
-            validationRuleSet.save();
+            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
+                    .withReadingType(readingType)
+                    .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                    .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                    .active(true)
+                    .create();
             context.commit();
         }
         validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
@@ -212,23 +213,23 @@ public class ValidationRuleSetImplIT {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-            ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
-            zeroesRule.addReadingType(readingType);
-            zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-            zeroesRule.activate();
-            validationRuleSet.save();
+            ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
+                    .withReadingType(readingType)
+                    .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                    .active(true)
+                    .create();
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.getRuleSetVersions().get(0);
-            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
-            minMaxRule.addReadingType(readingType);
-            minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
-            minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
-            minMaxRule.activate();
-            validationRuleSet.save();
+            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
+                    .withReadingType(readingType)
+                    .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                    .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                    .active(true)
+                    .create();
             context.commit();
         }
         validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();

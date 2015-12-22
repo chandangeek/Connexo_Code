@@ -76,7 +76,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
         validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, null);
-        validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet);
+        validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, null, null);
     }
     @After
     public void tearDown() {
@@ -85,7 +85,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationRuleSetVersion == null) {
-            validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet);
+            validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, null, null);
             setId(validationRuleSetVersion, ID);
         }
         return validationRuleSetVersion;
@@ -97,14 +97,14 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ValidationRuleSetVersionImpl set = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet);
+        ValidationRuleSetVersionImpl set = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, null, null);
         setId(set, ID);
         return set;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ValidationRuleSetVersionImpl set = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet);
+        ValidationRuleSetVersionImpl set = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, null, null);
         setId(set, OTHER_ID);
         return ImmutableList.of(set);
     }
@@ -137,7 +137,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Test
     public void testDeleteWithRules() {
-        ValidationRule rule1 = validationRuleSetVersion.addRule(ValidationAction.FAIL, "A", "rulename");
+        ValidationRule rule1 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "A", "rulename");
         validationRuleSetVersion.save();
         setId(validationRuleSetVersion, ID);
         setId(rule1, 1001L);
@@ -152,8 +152,8 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Test
     public void testUpdateWithRulesPerformsNecessaryDBOperations() {
-        IValidationRule rule1 = validationRuleSetVersion.addRule(ValidationAction.FAIL, "A", "rulename");
-        IValidationRule rule2 = validationRuleSetVersion.addRule(ValidationAction.FAIL, "B", "rulename");
+        IValidationRule rule1 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "A", "rulename");
+        IValidationRule rule2 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "B", "rulename");
         validationRuleSetVersion.save();
         setId(validationRuleSetVersion, ID);
         setId(rule1, 1001L);
@@ -161,7 +161,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
 
         validationRuleSetVersion.deleteRule(rule1);
-        IValidationRule rule3 = validationRuleSetVersion.addRule(ValidationAction.FAIL, "C", "rulename");
+        IValidationRule rule3 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "C", "rulename");
 
         validationRuleSetVersion.save();
 
@@ -171,7 +171,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Test
     public void testUpdateRuleAction() {
-        IValidationRule rule1 = validationRuleSetVersion.addRule(ValidationAction.FAIL, "A", "rulename");
+        IValidationRule rule1 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "A", "rulename");
         validationRuleSetVersion.save();
         setId(validationRuleSetVersion, ID);
         setId(rule1, 1001L);

@@ -35,18 +35,27 @@ import javax.validation.groups.Default;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.Currying.use;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_RULE + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 @GroupSequence({ValidationRuleImpl.class, ValidationRuleImpl.FirstValidationGroup.class, ValidationRuleImpl.SecondValidationGroup.class})
 public final class ValidationRuleImpl implements IValidationRule {
-    public interface FirstValidationGroup{};
-    public interface SecondValidationGroup{};
+    public interface FirstValidationGroup {
+    }
+
+    ;
+
+    public interface SecondValidationGroup {
+    }
+
+    ;
     private long id;
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -69,7 +78,6 @@ public final class ValidationRuleImpl implements IValidationRule {
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
-    private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();
     private Reference<ValidationRuleSetVersion> ruleSetVersion = ValueReference.absent();
 
     @SuppressWarnings("unused")
@@ -95,8 +103,7 @@ public final class ValidationRuleImpl implements IValidationRule {
         this.readingTypeInRuleProvider = readingTypeInRuleProvider;
     }
 
-    ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationRuleSetVersion ruleSetVersion, ValidationAction action, String implementation, String name) {
-        this.ruleSet.set(ruleSet);
+    ValidationRuleImpl init(ValidationRuleSetVersion ruleSetVersion, ValidationAction action, String implementation, String name) {
         this.ruleSetVersion.set(ruleSetVersion);
         this.action = action;
         this.implementation = implementation;
@@ -257,16 +264,23 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public Set<ReadingType> getReadingTypes() {
-        Set<ReadingType> result = new HashSet<>();
-        for (ReadingTypeInValidationRule readingTypeInRule : readingTypesInRule) {
-            result.add(readingTypeInRule.getReadingType());
-        }
-        return result;
+        return readingTypesInRule
+                .stream()
+                .map(ReadingTypeInValidationRule::getReadingType)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean appliesTo(ReadingType readingType) {
+        return readingTypesInRule
+                .stream()
+                .map(ReadingTypeInValidationRule::getReadingType)
+                .anyMatch(use(ReadingType::equals).with(readingType)::apply);
     }
 
     @Override
     public ValidationRuleSet getRuleSet() {
-        return ruleSet.get();
+        return getRuleSetVersion().getRuleSet();
     }
 
     @Override

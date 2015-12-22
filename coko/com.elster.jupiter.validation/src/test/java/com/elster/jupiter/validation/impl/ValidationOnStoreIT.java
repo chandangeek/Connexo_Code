@@ -188,17 +188,18 @@ public class ValidationOnStoreIT {
 
                 final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
                 ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-                zeroesRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, CONSECUTIVE_ZEROES, "consecutivezeros");
-                zeroesRule.addReadingType(deltaReadingType);
-                zeroesRule.addReadingType(bulkReadingType);
-                zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-                zeroesRule.activate();
-                minMaxRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minmax");
-                minMaxRule.addReadingType(bulkReadingType);
-                minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
-                minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
-                minMaxRule.activate();
-                validationRuleSet.save();
+                zeroesRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, CONSECUTIVE_ZEROES, "consecutivezeros")
+                        .withReadingType(deltaReadingType)
+                        .withReadingType(bulkReadingType)
+                        .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                        .active(true)
+                        .create();
+                minMaxRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minmax")
+                        .withReadingType(bulkReadingType)
+                        .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                        .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                        .active(true)
+                        .create();
 
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override

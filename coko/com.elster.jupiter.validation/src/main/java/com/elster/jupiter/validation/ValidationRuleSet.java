@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.ReadingType;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 
 @ProviderType
@@ -39,7 +40,7 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     void deleteRuleSetVersion(ValidationRuleSetVersion version);
 
-    List<ValidationRule> getRules(Iterable<? extends ReadingType> readingTypes);
+    List<ValidationRule> getRules(Collection<? extends ReadingType> readingTypes);
 
     public Instant getObsoleteDate();
 

@@ -10,20 +10,20 @@ import java.time.Instant;
 @ProviderType
 public interface DataValidationTaskBuilder {
 
-    public DataValidationTaskBuilder setName(String name);
+    DataValidationTaskBuilder setName(String name);
 
-    public DataValidationTaskBuilder setApplication(String application);
+    DataValidationTaskBuilder setApplication(String application);
 
-    public DataValidationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+    DataValidationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
-    public DataValidationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup);
+    DataValidationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup);
 
-    public DataValidationTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression);
+    DataValidationTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression);
 
-    public DataValidationTaskBuilder scheduleImmediately();
+    DataValidationTaskBuilder scheduleImmediately();
 
-    public DataValidationTaskBuilder setNextExecution(Instant nextExecution);
+    DataValidationTaskBuilder setNextExecution(Instant nextExecution);
 
-    public DataValidationTask build();
+    DataValidationTask create();
 
 }

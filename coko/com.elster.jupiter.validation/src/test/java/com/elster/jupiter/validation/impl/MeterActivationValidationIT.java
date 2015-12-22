@@ -223,10 +223,9 @@ public class MeterActivationValidationIT {
         try (TransactionContext context = transactionService.getContext()) {
             validationRuleSet = (IValidationRuleSet) validationService.createValidationRuleSet("forTest");
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("First, Last and Always", Instant.EPOCH);
-            ValidationRule validationRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, "autoPass", "autoPass");
-            validationRule.addReadingType(readingType);
-            validationRule.activate();
-            validationRuleSet.save();
+            ValidationRule validationRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, "autoPass", "autoPass")
+                    .withReadingType(readingType)
+                    .active(true).create();
             context.commit();
         }
     }

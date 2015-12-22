@@ -4,6 +4,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -35,13 +36,13 @@ public interface ValidationRuleSetVersion {
 
     List<? extends ValidationRule> getRules(int start, int limit);
 
-    ValidationRule addRule(ValidationAction action, String implementation, String name);
+    ValidationRuleBuilder addRule(ValidationAction action, String implementation, String name);
 
     ValidationRule updateRule(long id, String name, boolean active, ValidationAction action,  List<String> mRIDs, Map<String, Object> properties);
 
     void deleteRule(ValidationRule rule);
 
-    List<ValidationRule> getRules(Iterable<? extends ReadingType> readingTypes);
+    List<ValidationRule> getRules(Collection<? extends ReadingType> readingTypes);
 
     boolean isObsolete();
 

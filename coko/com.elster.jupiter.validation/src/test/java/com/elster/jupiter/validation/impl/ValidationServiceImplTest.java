@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -211,7 +210,7 @@ public class ValidationServiceImplTest {
         when(channelValidationQuery.select(any())).thenReturn(Collections.emptyList());
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(validationRuleQueryExecutor);
-        when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
+        when(dataModel.query(IValidationRule.class, IValidationRuleSetVersion.class, IValidationRuleSet.class)).thenReturn(validationRuleQueryExecutor);
         when(queryService.wrap(eq(validationRuleQueryExecutor))).thenReturn(allValidationRuleQuery);
         when(messageService.getQueueTableSpec(any(String.class))).thenReturn(Optional.of(queueTableSpec));
         when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
@@ -735,13 +734,6 @@ public class ValidationServiceImplTest {
         verify(meterValidation, never()).setActivationStatus(anyBoolean());
         verify(dataModel, never()).getInstance(MeterValidationImpl.class);
 
-    }
-    @Test
-    public void testCreateDataValidationTask() {
-        EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
-        DataValidationTask task = validationService.newTaskBuilder().setName(NAME).setEndDeviceGroup(endDeviceGroup).build();
-        verify(dataModel, never()).persist(task);
-        assertThat(task.getEndDeviceGroup().get()).isEqualTo(endDeviceGroup);
     }
 
     @Test

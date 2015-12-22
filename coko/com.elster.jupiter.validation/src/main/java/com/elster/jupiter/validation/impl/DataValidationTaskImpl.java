@@ -115,12 +115,18 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         return recurrentTask.get().getNextExecution();
     }
 
+
     @Override
-    public void save() {
+    public void update() {
+        doUpdate();
+        recurrentTaskDirty = false;
+    }
+
+    void doSave() {
         if (getId() == 0) {
             persist();
         } else {
-            update();
+            doUpdate();
         }
         recurrentTaskDirty = false;
     }
@@ -265,7 +271,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         }
     }
 
-    private void update() {
+    private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
         if (recurrentTaskDirty) {
             if(recurrentTask.isPresent()) {

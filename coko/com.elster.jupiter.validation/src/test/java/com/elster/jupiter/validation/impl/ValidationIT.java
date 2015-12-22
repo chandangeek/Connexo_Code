@@ -166,18 +166,19 @@ public class ValidationIT {
 
                 final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
                 ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-                ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros");
-                zeroesRule.addReadingType(readingType1);
-                zeroesRule.addReadingType(readingType2);
-                zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
-                zeroesRule.activate();
-                ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
-                minMaxRule.addReadingType(readingType3);
-                minMaxRule.addReadingType(readingType2);
-                minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
-                minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
-                minMaxRule.activate();
-                validationRuleSet.save();
+                ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros")
+                        .withReadingType(readingType1)
+                        .withReadingType(readingType2)
+                        .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                        .active(true)
+                        .create();
+                ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
+                        .withReadingType(readingType3)
+                        .withReadingType(readingType2)
+                        .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                        .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                        .active(true)
+                        .create();
 
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override
@@ -192,7 +193,7 @@ public class ValidationIT {
                 });
 
                 validationService.activateValidation(meter);
-				validationService.enableValidationOnStorage(meter);
+                validationService.enableValidationOnStorage(meter);
                 return null;
             }
         });
