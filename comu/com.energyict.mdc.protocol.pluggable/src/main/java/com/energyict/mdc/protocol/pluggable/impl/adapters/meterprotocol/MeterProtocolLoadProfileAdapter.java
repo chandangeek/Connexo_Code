@@ -1,8 +1,9 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
@@ -26,8 +27,6 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import org.joda.time.DateTimeConstants;
 
 import java.io.IOException;
@@ -250,7 +249,13 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             ObisCode channelObisCode = new ObisCode(GENERIC_CHANNEL_OBISCODE, ci.getChannelId() + 1);
             try {
                 ChannelInfo configuredChannelInfo = getChannelInfoFromConfiguredChannels(channelObisCode, configuredChannelInfos);
-                convertedChannelInfos.add(new ChannelInfo(configuredChannelInfo.getId(), channelObisCode.toString(), ci.getUnit(), configuredChannelInfo.getMeterIdentifier(), configuredChannelInfo.getReadingType()));
+                ChannelInfo convertedChannelInfo = new ChannelInfo(configuredChannelInfo.getId(), channelObisCode.toString(), ci.getUnit(), configuredChannelInfo.getMeterIdentifier(), configuredChannelInfo.getReadingType());
+                convertedChannelInfo.setMultiplier(ci.getMultiplier());
+                convertedChannelInfo.setCumulativeWrapValue(ci.getCumulativeWrapValue());
+                if (ci.isCumulative()) {
+                    convertedChannelInfo.setCumulative();
+                }
+                convertedChannelInfos.add(convertedChannelInfo);
             } catch (LoadProfileConfigurationException e) {
                 collectedLoadProfile.setFailureInformation(ResultType.ConfigurationMisMatch, getWarning(profileData, com.energyict.mdc.protocol.api.MessageSeeds.UNSUPPORTED_CHANNEL_INFO, ci));
             }
