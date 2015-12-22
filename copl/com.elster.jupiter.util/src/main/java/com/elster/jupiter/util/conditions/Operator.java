@@ -58,7 +58,7 @@ public enum Operator {
 	LIKEIGNORECASE("") {
 		@Override 
 		public String getFormat() {
-			return "UPPER({0}) LIKE UPPER(?) ESCAPE ''\\''";
+			return "''a'' || UPPER(nvl({0}, '''')) LIKE ''a'' || UPPER(?) ESCAPE ''\\''";  // prepending 'a' to make sure % also matches empty strings, which in oracle are null
 		}
 	},
 	SOUNDSAS("") {
