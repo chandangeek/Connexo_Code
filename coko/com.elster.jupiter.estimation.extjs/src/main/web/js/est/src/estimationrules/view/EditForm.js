@@ -151,6 +151,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 defaults: {
                     labelWidth: me.defaults.labelWidth,
                     width: 325,
+                    resetButtonHidden: true,
                     hasNotValueSameAsDefaultMessage: true
                 }
             },
