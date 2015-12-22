@@ -74,6 +74,10 @@
     .#{$prefix}form-display-field {
       color: $grid-row-cell-selected-color;
     }
+
+    .#{$prefix}grid-row-summary .#{$prefix}grid-td {
+      color: $color-grey;
+    }
   }
 //  @include scrollbar(
 //          $scrollbar-size,
