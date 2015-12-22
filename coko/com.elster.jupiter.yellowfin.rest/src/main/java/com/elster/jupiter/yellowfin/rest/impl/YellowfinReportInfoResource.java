@@ -1,6 +1,7 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
@@ -21,12 +22,13 @@ import java.util.List;
 public class YellowfinReportInfoResource {
 
     private YellowfinService yellowfinService;
-
+    private final String errorMessage;
 
 
     @Inject
-    private YellowfinReportInfoResource(YellowfinService yellowfinService){
+    private YellowfinReportInfoResource(YellowfinService yellowfinService, Thesaurus thesaurus){
         this.yellowfinService = yellowfinService;
+        this.errorMessage = thesaurus.getString("error.facts.unavailable", "Connexo Facts is not available.");
     }
 
     @GET
@@ -42,7 +44,7 @@ public class YellowfinReportInfoResource {
         ReportInfos reportInfos = new ReportInfos();
         reportInfos.addAll(
                 yellowfinService.getUserReports(user.getName(), category, subCategory, reportUUID).
-                        orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                        orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
 
         return reportInfos;
 
@@ -66,12 +68,12 @@ public class YellowfinReportInfoResource {
                 ReportInfos reportInfos = new ReportInfos();
                 reportInfos.addAll(
                         yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
-                            orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                            orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
                 if (reportInfos.total > 0) {
                     List<ReportInfo> reportInfo = reportInfos.reports;
                     filterInfos.addAll(
                             yellowfinService.getReportFilters(reportInfo.get(0).getReportId()).
-                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
                 }
 
             }
@@ -99,13 +101,13 @@ public class YellowfinReportInfoResource {
                 ReportInfos reportInfos = new ReportInfos();
                 reportInfos.addAll(
                         yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
-                                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
                 if (reportInfos.total > 0) {
                     List<ReportInfo> reportInfo = new ArrayList<>();
                     reportInfo = reportInfos.reports;
                     filterInfos.addAll(
                             yellowfinService.getFilterListItems(filterId, reportInfo.get(0).getReportId()).
-                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
                 }
             }
         }
