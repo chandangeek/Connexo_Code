@@ -123,13 +123,15 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
     },
 
     showPreview: function (selectionModel, record, showComServer) {
-        var previewPanel = this.getPreview(),
+        var me = this,
+            previewPanel = this.getPreview(),
             menu = previewPanel.down('menu'),
             model = this.getModel('Mdc.model.ComServerComPort'),
             id = record.getId(),
             currentForm = previewPanel.down('form[hidden=false]'),
             comServerNameField,
-            form;
+            form,
+            direction;
 
         previewPanel.setLoading(true);
 
@@ -139,6 +141,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         model.load(id, {
             success: function (record) {
                 if (!previewPanel.isDestroyed) {
+                    direction = me.getDirection(record);
                     previewPanel.setTitle(Ext.String.htmlEncode(record.get('name')));
                     previewPanel.down('menu').record = record;
                     form = previewPanel.down('comPortForm' + record.get('comPortType').id.substring(5));
@@ -146,7 +149,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     if (form) {
                         form.show();
                         if (record.get('comPortType').id.substring(5) === 'SERIAL') {
-                            form.showData(record.get('direction'));
+                            form.showData(direction);
                         }
                         comServerNameField = form.down('displayfield[name=comServerName]');
                         if (showComServer === true) {
@@ -155,7 +158,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                             comServerNameField.hide();
                         }
                         if (record.get('comPortType').id.substring(5) != 'SERVLET') {
-                            switch (record.get('direction')) {
+                            switch (direction) {
                                 case 'Inbound':
                                     form.down('displayfield[name=outboundComPortPoolIdsDisplay]').hide();
                                     form.down('displayfield[name=inboundComPortPools]').show();
@@ -172,6 +175,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 }
             }
         });
+    },
+
+    getDirection: function (record) {
+        if (record.get('type').search(/inbound/i) != -1) {
+            return 'Inbound';
+        } else if (record.get('type').search(/outbound/i) != -1) {
+            return 'Outbound';
+        }
     },
 
     addComPortToComServer: function (menu, item) {
@@ -258,7 +269,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
 
         // todo: do not set route params
         router.arguments['comPortId'] = id;
-        router.arguments['direction'] = this.lowerFirstLetter(record.getData().direction);
+        router.arguments['direction'] = this.getDirection(record).toLowerCase();
         router.getRoute('administration/comservers/detail/comports/edit').forward(router.arguments);
     },
 
