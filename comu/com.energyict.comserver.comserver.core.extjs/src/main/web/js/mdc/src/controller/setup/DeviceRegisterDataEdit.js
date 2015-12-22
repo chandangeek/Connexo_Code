@@ -54,8 +54,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
     updateRegisterData: function (operation) {
         var me = this,
             form = me.getDeviceregisterreportedit().down('#registerDataEditForm');
-        me.hideErrorPanel();
-        me[operation + 'RegisterDataRecord'](form.getValues(), {operation: operation});
+        if (form.isValid()) {
+            me.hideErrorPanel();
+            me[operation + 'RegisterDataRecord'](form.getValues(), {operation: operation});
+        } else {
+            me.clearPreLoader();
+            me.showErrorPanel();
+        }
     },
 
     editRegisterDataRecord: function (values, cfg) {
