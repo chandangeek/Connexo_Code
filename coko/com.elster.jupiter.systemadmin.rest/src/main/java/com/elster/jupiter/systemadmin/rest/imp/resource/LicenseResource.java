@@ -117,7 +117,7 @@ public class LicenseResource {
             info.setSuccess(licensedApps);
             return info;
         } catch (Exception ex) {
-            info.setFailure(ex.getMessage());
+            info.setFailure(ex.getLocalizedMessage());
             throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(jsonService.serialize(info)).build());
         }
     }
