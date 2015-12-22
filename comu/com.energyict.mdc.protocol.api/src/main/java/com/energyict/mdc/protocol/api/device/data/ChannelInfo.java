@@ -1,12 +1,11 @@
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.exceptions.ObisCodeParseException;
-
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.exceptions.ObisCodeParseException;
 
 import java.math.BigDecimal;
 import java.util.logging.Level;
@@ -417,7 +416,7 @@ public class ChannelInfo implements java.io.Serializable {
         this.channelId = channelId;
     }
 
-    public static class ChannelInfoBuilder{
+    public static class ChannelInfoBuilder {
 
         private String name;
         private ObisCode obisCode;
@@ -436,59 +435,59 @@ public class ChannelInfo implements java.io.Serializable {
             this.obisCode = obisCode;
         }
 
-        public static ChannelInfoBuilder fromObisCode(ObisCode obisCode){
+        public static ChannelInfoBuilder fromObisCode(ObisCode obisCode) {
             ChannelInfoBuilder channelInfoBuilder = new ChannelInfoBuilder(obisCode);
             channelInfoBuilder.name = obisCode.toString();
             return channelInfoBuilder;
         }
 
-        public ChannelInfoBuilder meterIdentifier(String meterIdentifier){
+        public ChannelInfoBuilder meterIdentifier(String meterIdentifier) {
             this.meterIdentifier = meterIdentifier;
             return this;
         }
 
-        public ChannelInfoBuilder readingType(ReadingType readingType){
+        public ChannelInfoBuilder readingType(ReadingType readingType) {
             this.readingType = readingType;
             this.readingTypeMRID = readingType.getMRID();
             return this;
         }
 
-        public ChannelInfoBuilder readingTypeMRID(String readingTypeMRID){
+        public ChannelInfoBuilder readingTypeMRID(String readingTypeMRID) {
             this.readingTypeMRID = readingTypeMRID;
             return this;
         }
 
-        public ChannelInfoBuilder unit(Unit unit){
+        public ChannelInfoBuilder unit(Unit unit) {
             this.unit = unit;
             return this;
         }
 
-        public ChannelInfoBuilder multiplier(BigDecimal multiplier){
+        public ChannelInfoBuilder multiplier(BigDecimal multiplier) {
             this.multiplier = multiplier;
             return this;
         }
 
-        public ChannelInfoBuilder id(int id){
+        public ChannelInfoBuilder id(int id) {
             this.id = id;
             return this;
         }
 
-        public ChannelInfoBuilder channelId(int channelId){
+        public ChannelInfoBuilder channelId(int channelId) {
             this.channelId = channelId;
             return this;
         }
 
-        public ChannelInfoBuilder cumulativeWrapValue(BigDecimal cumulativeWrapValue){
+        public ChannelInfoBuilder cumulativeWrapValue(BigDecimal cumulativeWrapValue) {
             this.cumulativeWrapValue = cumulativeWrapValue;
             return this;
         }
 
-        public ChannelInfoBuilder cumulative(boolean cumulative){
+        public ChannelInfoBuilder cumulative(boolean cumulative) {
             this.cumulative = cumulative;
             return this;
         }
 
-        public ChannelInfo build(){
+        public ChannelInfo build() {
             ChannelInfo channelInfo = new ChannelInfo();
             channelInfo.id = this.id;
             channelInfo.name = this.name;
@@ -499,6 +498,7 @@ public class ChannelInfo implements java.io.Serializable {
             channelInfo.readingTypeMRID = this.readingTypeMRID;
             channelInfo.cumulativeWrapValue = this.cumulativeWrapValue;
             channelInfo.channelId = this.channelId;
+            channelInfo.multiplier = this.multiplier;
             return channelInfo;
         }
     }
