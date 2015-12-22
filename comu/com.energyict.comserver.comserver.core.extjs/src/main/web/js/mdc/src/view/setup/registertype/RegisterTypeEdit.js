@@ -72,7 +72,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         valueField: 'name',
                         forceSelection: true,
                         store: 'AvailableReadingTypesForRegisterType',
-
+                        tpl: null,
+                        displayTpl: null,
                         listConfig: {
                             cls: 'isu-combo-color-list',
                             emptyText: Uni.I18n.translate('general.readingtype.startTypingToSelect', 'MDC', 'Start typing to select a reading type...')

@@ -395,10 +395,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                 }
                             }
                         });
-
-                        if (property.getPropertyValue().get('value') == property.getPropertyValue().get('inheritedValue')) {
-                            property.getPropertyValue().set('value', '');
-                        }
                     });
                 }
             }

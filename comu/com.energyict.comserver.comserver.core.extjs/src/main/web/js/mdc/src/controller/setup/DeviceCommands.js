@@ -328,9 +328,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     msgCategoryChange: function (combo, records) {
         var me = this,
             cat = records[0];
+        me.getAddPropertyForm().hide();
+        me.getAddPropertyHeader().hide();
         if (Ext.isDefined(cat)) {
-            me.getCommandCombo().clearValue();
-            me.getCommandCombo().bindStore(cat.deviceMessageSpecs());
+            me.getCommandCombo().reset();
+            me.getCommandCombo().bindStore(cat.deviceMessageSpecs(), true);
         }
     },
 
@@ -343,8 +345,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             if (command.properties() && (command.properties().getCount() > 0)) {
                 propertyHeader.show();
                 propertyHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', [command.get('name')]) + '</h3>');
+                me.getAddPropertyForm().show();
             } else {
-                propertyHeader.hide()
+                me.getAddPropertyForm().hide();
+                propertyHeader.hide();
             }
             if (!command.get('willBePickedUpByComTask')) {
                 combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))

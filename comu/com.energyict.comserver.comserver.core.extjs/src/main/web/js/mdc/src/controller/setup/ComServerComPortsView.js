@@ -104,7 +104,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             serverId: id
         });
         me.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
         Uni.util.Common.loadNecessaryStores(storesArr, function () {
             addMenus = widget.query('comServerComPortsAddMenu');
             addMenus && Ext.Array.each(addMenus, function (menu) {
@@ -115,28 +114,24 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             addComPortPoolsStore.removeAll();
             comServerModel.load(id, {
                 success: function (record) {
-                    comPortsStore.load({
-                        callback: function () {
-                            widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
-                            widget.setLoading(false);
-                            me.getApplication().fireEvent('comServerOverviewLoad', record);
-                            widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
-                        }
-                    })
-
+                    widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
+                    me.getApplication().fireEvent('comServerOverviewLoad', record);
+                    widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
                 }
             });
         }, false);
     },
 
     showPreview: function (selectionModel, record, showComServer) {
-        var previewPanel = this.getPreview(),
+        var me = this,
+            previewPanel = this.getPreview(),
             menu = previewPanel.down('menu'),
             model = this.getModel('Mdc.model.ComServerComPort'),
             id = record.getId(),
             currentForm = previewPanel.down('form[hidden=false]'),
             comServerNameField,
-            form;
+            form,
+            direction;
 
         previewPanel.setLoading(true);
 
@@ -146,6 +141,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         model.load(id, {
             success: function (record) {
                 if (!previewPanel.isDestroyed) {
+                    direction = me.getDirection(record);
                     previewPanel.setTitle(Ext.String.htmlEncode(record.get('name')));
                     previewPanel.down('menu').record = record;
                     form = previewPanel.down('comPortForm' + record.get('comPortType').id.substring(5));
@@ -153,7 +149,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     if (form) {
                         form.show();
                         if (record.get('comPortType').id.substring(5) === 'SERIAL') {
-                            form.showData(record.get('direction'));
+                            form.showData(direction);
                         }
                         comServerNameField = form.down('displayfield[name=comServerName]');
                         if (showComServer === true) {
@@ -162,7 +158,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                             comServerNameField.hide();
                         }
                         if (record.get('comPortType').id.substring(5) != 'SERVLET') {
-                            switch (record.get('direction')) {
+                            switch (direction) {
                                 case 'Inbound':
                                     form.down('displayfield[name=outboundComPortPoolIdsDisplay]').hide();
                                     form.down('displayfield[name=inboundComPortPools]').show();
@@ -179,6 +175,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 }
             }
         });
+    },
+
+    getDirection: function (record) {
+        if (record.get('type').search(/inbound/i) != -1) {
+            return 'Inbound';
+        } else if (record.get('type').search(/outbound/i) != -1) {
+            return 'Outbound';
+        }
     },
 
     addComPortToComServer: function (menu, item) {
@@ -235,12 +239,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             failure: function (record, options) {
                 var title,
                     errorsArray,
+                    errorsObj,
                     message;
 
                 record.reject();
                 if (options && options.response.status === 400) {
                     title = Uni.I18n.translate('comServerComPorts.activation.failurex', 'MDC', "Failed to activate '{0}'",record.get('name'));
-                    errorsArray = Ext.decode(options.response.responseText);
+                    errorsObj = Ext.decode(options.response.responseText);
+                    errorsArray = errorsObj.errors;
                     message = '';
                     Ext.Array.each(errorsArray, function (obj) {
                         message += obj.msg + '.'
@@ -263,7 +269,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
 
         // todo: do not set route params
         router.arguments['comPortId'] = id;
-        router.arguments['direction'] = this.lowerFirstLetter(record.getData().direction);
+        router.arguments['direction'] = this.getDirection(record).toLowerCase();
         router.getRoute('administration/comservers/detail/comports/edit').forward(router.arguments);
     },
 

@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.form.Panel',
     alias: 'widget.protocolDialectPreview',
     itemId: 'protocolDialectPreview',
     requires: [
@@ -22,103 +22,28 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
         }
     ],
 
-    layout: {
-        type: 'card',
-        align: 'stretch'
-    },
-
-
     items: [
-        {
-            xtype: 'panel',
-            border: false,
-            tbar: [
-                {
-                    xtype: 'component',
-                    html: '<h4>' + Uni.I18n.translate('protocolDialect.noProtocolDialectSelected', 'MDC', 'No protocol selected') + '</h4>'
-                }
-            ],
-            items: [
-                {
-                    xtype: 'component',
-                    height: '100px',
-                    html: '<h5>' + Uni.I18n.translate('protocolDialect.selectProtocolDialect', 'MDC', 'Select a protocol to see its details') + '</h5>'
-                }
-            ]
-
-        },
-        {
+            {
             xtype: 'form',
             itemId: 'protocolDialectPreviewForm',
+            defaults: {
+                labelWidth: 250
+            },
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-
             items: [
                 {
-                    xtype: 'container',
-                    layout: {
-                        type: 'column'
-                    },
-                    defaults: {
-                        labelWidth: 250
-                    },
-                    items: [
-                        {
-                            xtype: 'container',
-                            columnWidth: 0.49,
-                            layout: {
-                                type: 'vbox'
-                            },
-                            items: [
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'name',
-                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                                    labelAlign: 'right',
-                                    labelWidth: 250
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'container',
-                            columnWidth: 0.49,
-                            layout: {
-                                type: 'vbox'
-                            },
-                            items: [
-                                /* {
-                                 xtype: 'displayfield',
-                                 name: 'availableForUse',
-                                 fieldLabel: Uni.I18n.translate('protocolDialect.availableForUse', 'MDC', 'Available for use'),
-                                 labelAlign: 'right',
-                                 labelWidth: 250
-                                 }*/
-
-                            ]
-                        }
-                    ]
+                    xtype: 'displayfield',
+                    name: 'name',
+                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
                 },
                 {
-                    xtype: 'form',
-                    border: false,
                     itemId: 'protocolDialectsDetailsTitle',
-                    hidden: true,
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    defaults: {
-                        labelWidth: 250
-                    },
-                    items: [
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: '<h3>' + Uni.I18n.translate('protocolDialect.protocolDialectDetails', 'MDC', 'Protocol dialect details') + '</h3>',
-                            text: ''
-                        }
-                    ]
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('protocolDialect.protocolDialectDetails', 'MDC', 'Protocol dialect details'),
+                    text: ''
                 },
                 {
                     xtype: 'property-form',
@@ -126,8 +51,8 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
                     layout: 'column',
 
                     defaults: {
-                        xtype: 'container',
-                        layout: 'form',
+                        xtype: 'displayfield',
+                        layout: 'vbox',
                         resetButtonHidden: true,
                         labelWidth: 250,
                         columnWidth: 0.5

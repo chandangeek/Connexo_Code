@@ -54,8 +54,12 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                             },
                             {
                                 xtype: 'fieldcontainer',
+                                layout: 'hbox',
                                 itemId: 'fld-validation-result',
                                 fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
+                                style: {
+                                    marginBottom: '18px'
+                                },
                                 items: [
                                     {
                                         xtype: 'button',
@@ -63,8 +67,10 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                         text: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
                                         itemId: 'lnk-validation-result',
                                         ui: 'link',
-                                        href: '#'
-
+                                        href: '#',
+                                        style: {
+                                            padding: '3px 0 0 0'
+                                        }
                                     }
 
                                 ]

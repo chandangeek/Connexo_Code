@@ -103,7 +103,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
             nest = me.down('#addFormNest'),
             form;
         Ext.suspendLayouts();
-        switch (portDirection) {
+        switch (portDirection.toLowerCase()) {
             case 'inbound' :
                 switch (portType) {
                     case 'TYPE_TCP':

@@ -46,14 +46,20 @@ Ext.define('Mdc.model.RuleDeviceConfiguration', {
             name: 'config_loadProfileCount',
             persist: false,
             mapping: function (data) {
-                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '/loadprofiles">' + data.config.loadProfileCount + ' load profile configurations</a>';
+                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '/loadprofiles">'
+                    + Uni.I18n.translatePlural('general.loadProfileConfigurations.counter', data.config.loadProfileCount, 'MDC',
+                        '{0} load profile configurations', '{0} load profile configuration', '{0} load profile configurations')
+                    + '</a>';
             }
         },
         {
             name: 'config_registerCount',
             persist: false,
             mapping: function (data) {
-                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '/registerconfigurations">' + data.config.registerCount + ' register configurations</a>';
+                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '/registerconfigurations">'
+                    + Uni.I18n.translatePlural('general.registerConfigurations.counter', data.config.registerCount, 'MDC',
+                        '{0} register configurations', '{0} register configuration', '{0} register configurations')
+                    + '</a>';
             }
         },
         {

@@ -112,7 +112,9 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 xtype: 'button',
                 itemId: 'add-chanel-configuration-btn',
                 name: 'loadprofilechannelaction',
-                text: this.loadProfileConfigurationChannelAction,
+                text: this.loadProfileConfigurationChannelAction === 'add'
+                    ? Uni.I18n.translate('general.add','MDC','Add')
+                    : Uni.I18n.translate('general.save','MDC','Save'),
                 action: this.loadProfileConfigurationChannelAction,
                 ui: 'action'
             }

@@ -133,9 +133,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                             configurationResultsStore.load();
                             break;
                         case 1:
-                            if(window.location.href.indexOf("intervalStart=") == -1) {
-                                window.location.replace(window.location.href + "?intervalStart=" + new Date().setHours(0,0,0,0));
-                            }
                             validationResultsStore.load();
                             break;
                     }
@@ -335,6 +332,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             isNotEdit: true,
             jsonData: _.pick(me.getMainPage().device.getRecordData(), 'mRID', 'version', 'parent'),
             success: function () {
+                me.getStore('Mdc.store.DeviceValidationResults').load();
                 me.destroyConfirmationWindow();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.dataValidation.activation.validated', 'MDC', 'Data validation completed'));
                 me.getController('Uni.controller.history.Router').getRoute().forward();

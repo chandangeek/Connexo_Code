@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
     items: [
         {
             xtype: 'combo-with-toolbar',
-            fieldLabel: 'Load profile type',
+            fieldLabel: Uni.I18n.translate('comtask.load.profile.type','MDC','Load profile type'),
             itemId: 'checkProfileTypes',
             store: 'Mdc.store.LoadProfileTypes'
         },
@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                 {
                     xtype: 'radiogroup',
                     itemId: 'radioIntervals',
-                    fieldLabel: 'Mark intervals as bad time ',
+                    fieldLabel: Uni.I18n.translate('comtask.mark.intervals.as.bad.time','MDC','Mark intervals as bad time'),
                     afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png">',
                     labelWidth: 350,
                     width: 400,
@@ -29,8 +29,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                         margin: '0 10 0 0'
                     },
                     items: [
-                        {boxLabel: 'Yes', inputValue: 'true', id: 'radioYes'},
-                        {boxLabel: 'No', inputValue: 'false', checked: true, id: 'radioNo'}
+                        {boxLabel: Uni.I18n.translate('general.yes','MDC','Yes'), inputValue: 'true', id: 'radioYes'},
+                        {boxLabel: Uni.I18n.translate('general.no','MDC','No'), inputValue: 'false', checked: true, id: 'radioNo'}
                     ],
                     listeners: {
                         change: function () {
@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                                     xtype: 'textfield',
                                     name: 'minimumclockdifference',
                                     itemId: 'disContNum',
-                                    fieldLabel: 'Minimum clock difference',
+                                    fieldLabel: Uni.I18n.translate('comtask.minimum.clock.difference','MDC','Minimum clock difference'),
                                     hideLabel: true,
                                     maskRe: /[0-9]+/,
                                     margin: '0 10 0 0',
@@ -75,7 +75,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                         },
                         {
                             xtype: 'label',
-                            text: Uni.I18n.translate('profiles.minimumClockDifference','MDC','Minimum clock difference')
+                            text: Uni.I18n.translate('comtask.minimum.clock.difference','MDC','Minimum clock difference')
                         }
                     ]
                 }
@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
         {
             xtype: 'radiogroup',
             itemId: 'radioEvents',
-            fieldLabel: 'Meter events from status flag ',
+            fieldLabel: Uni.I18n.translate('comtask.meter.events.from.status.flag','MDC','Meter events from status flag'),
             afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png">',
             labelWidth: 350,
             width: 400,
@@ -93,14 +93,14 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                 margin: '0 10 0 0'
             },
             items: [
-                {boxLabel: 'Yes', inputValue: 'true'},
-                {boxLabel: 'No', inputValue: 'false', checked: true}
+                {boxLabel: Uni.I18n.translate('general.yes','MDC','Yes'), inputValue: 'true'},
+                {boxLabel: Uni.I18n.translate('general.no','MDC','No'), inputValue: 'false', checked: true}
             ]
         },
         {
             xtype: 'radiogroup',
             itemId: 'radioFail',
-            fieldLabel: "Fail if profile configuration doesn't match ",
+            fieldLabel: Uni.I18n.translate('comtask.fail.profile.configuration.doesnt.match','MDC',"Fail if profile configuration doesn't match"),
             afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png">',
             labelWidth: 350,
             width: 400,
@@ -109,8 +109,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                 margin: '0 10 0 0'
             },
             items: [
-                {boxLabel: 'Yes', inputValue: 'true'},
-                {boxLabel: 'No', inputValue: 'false', checked: true}
+                {boxLabel: Uni.I18n.translate('general.yes','MDC','Yes'), inputValue: 'true'},
+                {boxLabel: Uni.I18n.translate('general.no','MDC','No'), inputValue: 'false', checked: true}
             ]
         }
     ]

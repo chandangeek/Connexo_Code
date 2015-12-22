@@ -463,7 +463,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             success: function (response) {
                                 var widget = Ext.widget('loadProfileConfigurationDetailForm',
                                         {
-                                            loadProfileConfigurationChannelAction: Uni.I18n.translate('general.add','MDC','Add'),
+                                            loadProfileConfigurationChannelAction: 'add',
                                             deviceTypeId: deviceTypeId,
                                             deviceConfigurationId: deviceConfigurationId,
                                             loadProfileConfigurationId: loadProfileConfigurationId
@@ -535,7 +535,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         var channel = Ext.JSON.decode(response.responseText),
                                             widget = Ext.widget('loadProfileConfigurationDetailForm',
                                                 {
-                                                    loadProfileConfigurationChannelAction: Uni.I18n.translate('general.save','MDC','Save'),
+                                                    loadProfileConfigurationChannelAction: 'edit',
                                                     deviceTypeId: deviceTypeId,
                                                     deviceConfigurationId: deviceConfigurationId,
                                                     loadProfileConfigurationId: loadProfileConfigurationId

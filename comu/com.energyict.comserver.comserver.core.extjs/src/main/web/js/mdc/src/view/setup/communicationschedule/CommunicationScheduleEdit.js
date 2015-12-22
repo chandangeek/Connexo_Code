@@ -95,16 +95,18 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                                 required: true,
+                                layout: 'hbox',
                                 items: [
                                     {
-                                        xtype: 'displayfield',
+                                        xtype: 'component',
+                                        html: Uni.I18n.translate('communicationschedule.noComTasksAdded', 'MDC', 'No communication tasks have been added'),
                                         itemId: 'noComTasksSelectedMsg',
                                         name: 'comTaskUsageErrors',
-                                        htmlEncode: false,
-                                        value: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication tasks selected yet') + '</i></span>',
                                         style: {
-                                            marginTop: '4px',
-                                            marginBottom: '0px'
+                                            'font': 'italic 13px/17px Lato',
+                                            'color': '#686868',
+                                            'margin-top': '6px',
+                                            'margin-right': '10px'
                                         }
                                     },
                                     {
@@ -129,7 +131,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                 width: 55,
                                                 items: [
                                                     {
-                                                        tooltip: 'Remove',
+                                                        tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                                                             this.fireEvent('deleteComTask', record);
                                                         }
@@ -147,7 +149,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                         xtype: 'button',
                                         itemId: 'addCommunicationTaskButton',
                                         action: 'addCommunicationTask',
-                                        text: Uni.I18n.translate('communicationschedule.addCommunicationTasks', 'MDC', 'Add communication tasks')
+                                        text: Uni.I18n.translate('communicationschedule.addCommunicationTasks', 'MDC', 'Add communication tasks'),
+                                        margin: '0 0 0 10'
                                     }
                                 ]
                             },
