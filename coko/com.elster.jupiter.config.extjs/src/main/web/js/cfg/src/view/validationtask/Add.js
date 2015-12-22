@@ -76,35 +76,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 name: 'grouptypeTrigger',
                                 width: 235,
                                 store: ['End Device', 'Usage Point'],
-                                queryMode: 'local',
-                                listeners: {
-                                    change: function(field, newValue, oldVallue) {   
-                                        var container = me.down('#cbo-validation-task-group-container');
-                                        Ext.suspendLayouts();
-                                        container.removeAll();
-                                        if (newValue == 'End Device') {
-                                            var store = Ext.getStore('Cfg.store.DeviceGroups');
-                                            store.load(function() {
-                                                if (store.getCount() == 0) {
-                                                    container.add(me.groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.')));
-                                                } else {
-                                                    container.add(me.groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...')));
-                                                }                                                
-                                            });
-                                          } else if (newValue == 'Usage Point') {
-                                              var store = Ext.getStore('Cfg.store.UsagePointGroups');
-                                              store.load(function() {
-                                                  if (store.getCount() == 0) {
-                                                      container.add(me.groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.')));
-                                                  } else {
-                                                      container.add(me.groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...')));
-                                                  }
-                                              });
-                                          }
-                                          container.show();
-                                          Ext.resumeLayouts();
-                                    }
-                                }
+                                queryMode: 'local'
                             }
                         ]
                     },

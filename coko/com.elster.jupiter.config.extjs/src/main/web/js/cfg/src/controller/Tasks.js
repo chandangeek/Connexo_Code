@@ -71,6 +71,9 @@ Ext.define('Cfg.controller.Tasks', {
 
     init: function () {
         this.control({
+            'cfg-validation-tasks-add #cbo-validation-tasks-grouptype-trigger': {
+                change: this.onChangeValidationTaskGroupType
+            },
             'cfg-validation-tasks-add #rgr-validation-tasks-recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
             },
@@ -201,22 +204,7 @@ Ext.define('Cfg.controller.Tasks', {
         me.taskModel = null;
         me.taskId = null;
         me.fromEdit = false;
-//        view.down('#cbo-validation-task-device-group').hide();
-//        view.down('#cbo-validation-task-usagepoint-group').hide();
-//        deviceGroupCombo.store.load(function () {
-//        	view.down('#cbo-validation-task-device-group').hide();
-//            if (this.getCount() === 0) {
-//                deviceGroupCombo.allowBlank = true;
-//            }
-//        });
-//        usagepointGroupCombo.store.load(function () {
-//        	view.down('#cbo-validation-task-usagepoint-group').hide();
-//             if (this.getCount() === 0) {
-//                usagepointGroupCombo.allowBlank = true;
-//            }
-//        });
         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
-
     },
 
     showEditValidationTask: function (taskId) {
@@ -253,32 +241,17 @@ Ext.define('Cfg.controller.Tasks', {
                 me.getApplication().fireEvent('validationtaskload', record);
                 taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'",[record.get('name')]));
                 taskForm.loadRecord(record);
-
-                deviceGroupCombo.store.load({
-                    callback: function () {
-                        if (this.getCount() === 0) {
-                            deviceGroupCombo.allowBlank = true;
-                            deviceGroupCombo.hide();
-                            view.down('#no-device').show();
-                        }
-                        deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
-                        if (record.data.deviceGroup.id)
-                           view.down('#rbtn-device-group').setValue(true);
-                    }
-                });
-                
-                usagepointGroupCombo.store.load({
-                    callback: function () {
-                        if (this.getCount() === 0) {
-                        	usagepointGroupCombo.allowBlank = true;
-                        	usagepointGroupCombo.hide();
-                            view.down('#no-device').show();
-                        }
-                        usagepointGroupCombo.setValue(usagepointGroupCombo.store.getById(record.data.usagePointGroup.id));
-                        if (record.data.usagePointGroup.id)
-                            view.down('#rbtn-usagepoint-group').setValue(true);
-                    }
-                });
+//                var groupCombo = view.down('#cbo-validation-task-group');
+//                if (record.get('groupType') == 'End device') {                    
+//                    view.down('#cbo-validation-tasks-grouptype-trigger').setValue('End Device');
+//                    me.onChangeValidationTaskGroupType(null, 'End Device', null);
+//                    groupCombo.setValue(groupCombo.store.getById(record.get('deviceGroup').id));
+//                }
+//                if (record.get('groupType') == 'Usage point') {
+//                    view.down('#cbo-validation-tasks-grouptype-trigger').setValue('Usage Point');
+//                    me.onChangeValidationTaskGroupType(null, 'Usage Point', null);
+//                    groupCombo.setValue(groupCombo.store.getById(record.get('usagePointGroup').id));
+//                }
                 
                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
                     //if (schedule) {
@@ -298,7 +271,35 @@ Ext.define('Cfg.controller.Tasks', {
         me.getApplication().fireEvent('changecontentevent', view);
         view.setLoading();
     },
-
+    
+    onChangeValidationTaskGroupType: function(field, newValue, oldVallue) {   
+        var me=this,
+            container = me.getAddPage().down('#cbo-validation-task-group-container');
+        Ext.suspendLayouts();
+        container.removeAll();
+        if (newValue == 'End Device') {
+            var store = Ext.getStore('Cfg.store.DeviceGroups');
+            store.load(function() {
+                if (store.getCount() == 0) {
+                    container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.')));
+                } else {
+                    container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...')));
+                }                                                
+            });
+          } else if (newValue == 'Usage Point') {
+              var store = Ext.getStore('Cfg.store.UsagePointGroups');
+              store.load(function() {
+                  if (store.getCount() == 0) {
+                      container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.')));
+                  } else {
+                      container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...')));
+                  }
+              });
+          }
+          container.show();
+          Ext.resumeLayouts();
+    },
+    
     showPreview: function (selectionModel, record) {
         var me = this,
             page = me.getPage(),
@@ -550,22 +551,22 @@ Ext.define('Cfg.controller.Tasks', {
             }
 
             record.set('name', form.down('#txt-task-name').getValue());
-            var deviceGroupId = form.down('#cbo-validation-task-device-group').getValue();
-            var usagePointGroupId = form.down('#cbo-validation-task-usagepoint-group').getValue();
-
-            if (deviceGroupId != null) {
-            	record.set('deviceGroup', {
-            		id: form.down('#cbo-validation-task-device-group').getValue(),
-            		name: form.down('#cbo-validation-task-device-group').getRawValue()
-            	});
-            	record.set('usagePointGroup', null);
-            }
-            if (usagePointGroupId != null) {
-            	record.set('usagePointGroup', {
-            		id: form.down('#cbo-validation-task-usagepoint-group').getValue(),
-            		name: form.down('#cbo-validation-task-usagepoint-group').getRawValue()
-            	});
-            	record.set('deviceGroup', null);
+            var groupTypeCombo = me.getAddPage().down('#cbo-validation-tasks-grouptype-trigger');
+            var groupCombo = me.getAddPage().down('#cbo-validation-task-group');
+            if (groupCombo != null) {
+                if (groupTypeCombo.getValue() == 'End Device') {
+                    record.set('deviceGroup', {
+                        id: groupCombo.getValue(),
+                        name: groupCombo.getRawValue()
+                    });
+                    record.set('usagePointGroup', null);
+                } else if (groupTypeCombo.getValue() == 'Usage Point') {
+                    record.set('usagePointGroup', {
+                        id: groupCombo.getValue(),
+                        name: groupCombo.getRawValue()
+                    });
+                    record.set('deviceGroup', null);
+                }
             }
             if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
                 startOnDate = moment(form.down('#start-on').getValue()).valueOf();
