@@ -9,8 +9,11 @@ import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Provides the translation keys for ReadingTypes
@@ -110,14 +113,17 @@ public final class ReadingTypeTranslationKeys {
         }
 
         public static Stream<TranslationKey> allKeys() {
-            return Stream
-                    .of(MetricMultiplier.values())
+            EnumSet<MetricMultiplier> allMultipliersExceptZero = EnumSet.complementOf(EnumSet.of(MetricMultiplier.ZERO));
+            return allMultipliersExceptZero
+                    .stream()
                     .map(Multiplier::new)
                     .map(Multiplier::asTranslationKey);
         }
 
         public static void appendFullAliasName(MetricMultiplier multiplier,  StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
-            aliasNameBuilder.append(thesaurus.getFormat(new Multiplier(multiplier).asTranslationKey()).format());
+            if (multiplier != MetricMultiplier.ZERO) {
+                aliasNameBuilder.append(thesaurus.getFormat(new Multiplier(multiplier).asTranslationKey()).format());
+            }
         }
 
         private TranslationKey asTranslationKey() {
@@ -136,23 +142,43 @@ public final class ReadingTypeTranslationKeys {
 
         @Override
         public String getKey() {
-            return "readingType.unit." + this.unit.getSymbol();
+            return "readingType.unit." + this.unit.name();
         }
 
         @Override
         public String getDefaultFormat() {
-            return this.unit.getSymbol();
+            switch (this.unit) {
+                case ANGLEMIN: // Intentional fall-through
+                case ANGLESECOND: {
+                    return this.unit.name();
+                }
+                default: {
+                    String symbol = this.unit.getSymbol();
+                    if (is(symbol).emptyOrOnlyWhiteSpace()) {
+                        return this.unit.name();
+                    }
+                    else {
+                        return symbol;
+                    }
+                }
+            }
         }
 
         public static Stream<TranslationKey> allKeys() {
-            return Stream
-                    .of(ReadingTypeUnit.values())
+            return allTranslatableReadingTypeUnits()
+                    .stream()
                     .map(Unit::new)
                     .map(Unit::asTranslationKey);
         }
 
+        private static EnumSet<ReadingTypeUnit> allTranslatableReadingTypeUnits() {
+            return EnumSet.complementOf(EnumSet.of(ReadingTypeUnit.NOTAPPLICABLE));
+        }
+
         public static void appendFullAliasName(ReadingTypeUnit unit,  StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
-            aliasNameBuilder.append(thesaurus.getFormat(new Unit(unit).asTranslationKey()).format());
+            if (unit != ReadingTypeUnit.NOTAPPLICABLE) {
+                aliasNameBuilder.append(thesaurus.getFormat(new Unit(unit).asTranslationKey()).format());
+            }
         }
 
         private TranslationKey asTranslationKey() {
@@ -192,9 +218,9 @@ public final class ReadingTypeTranslationKeys {
 
         public static Stream<TranslationKey> allKeys() {
             return Stream
-                    .of(TimeAttribute.values())
-                    .map(MeasuringPeriod::new)
-                    .map(MeasuringPeriod::asTranslationKey);
+                    .of(com.elster.jupiter.cbo.MacroPeriod.values())
+                    .map(MacroPeriod::new)
+                    .map(MacroPeriod::asTranslationKey);
         }
 
         private TranslationKey asTranslationKey() {
@@ -232,9 +258,9 @@ public final class ReadingTypeTranslationKeys {
 
         public static Stream<TranslationKey> allKeys() {
             return Stream
-                    .of(TimeAttribute.values())
-                    .map(MeasuringPeriod::new)
-                    .map(MeasuringPeriod::asTranslationKey);
+                    .of(com.elster.jupiter.cbo.Phase.values())
+                    .map(Phase::new)
+                    .map(Phase::asTranslationKey);
         }
 
         private TranslationKey asTranslationKey() {
