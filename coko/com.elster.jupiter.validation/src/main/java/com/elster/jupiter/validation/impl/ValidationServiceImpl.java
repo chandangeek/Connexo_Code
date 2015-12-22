@@ -18,6 +18,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -74,10 +76,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.validation",
-        service = {InstallService.class, ValidationService.class, PrivilegesProvider.class, MessageSeedProvider.class},
+        service = {InstallService.class, ValidationService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ValidationService.COMPONENTNAME,
         immediate = true)
-public class ValidationServiceImpl implements ValidationService, InstallService, PrivilegesProvider, MessageSeedProvider {
+public class ValidationServiceImpl implements ValidationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     public static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
@@ -516,8 +518,18 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
+    public String getComponentName() {
+        return ValidationService.COMPONENTNAME;
+    }
+
+    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
     }
 
     @Override
