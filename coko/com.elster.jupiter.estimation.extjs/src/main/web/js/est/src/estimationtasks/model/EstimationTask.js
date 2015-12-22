@@ -128,7 +128,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
                 if (data.period && data.period.name) {
                     return data.period.name;
                 } else {
-                    return 'All';
+                    return Uni.I18n.translate('estimationtasks.general.all', 'EST', 'All');
                 }
             }
         }
