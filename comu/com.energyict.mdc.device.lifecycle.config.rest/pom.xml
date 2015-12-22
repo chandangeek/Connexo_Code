@@ -75,6 +75,10 @@
             <artifactId>events</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
@@ -163,11 +167,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>metering</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

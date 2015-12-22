@@ -43,6 +43,8 @@ public enum DefaultLifeCycleTranslationKey implements TranslationKey {
     TRANSITION_PROTOCOL_DIALECT_CREATED("com/energyict/mdc/device/data/protocoldialectproperties/CREATED", "Creation of protocol dialect properties on a device"),
     TRANSITION_PROTOCOL_DIALECT_UPDATED("com/energyict/mdc/device/data/protocoldialectproperties/UPDATED", "Change of protocol dialect properties on a device"),
     TRANSITION_PROTOCOL_DIALECT_DELETED("com/energyict/mdc/device/data/protocoldialectproperties/DELETED", "Deletion of protocol dialect properties on a device"),
+    TRANSITION_METER_READING_CREATED("com/elster/jupiter/metering/meterreading/CREATED", "Creation of a device reading"),
+    TRANSITION_METER_READING_DELETED("com/elster/jupiter/metering/reading/DELETED", "Deletion of a device reading"),
 
     PRIVILEGE_LEVEL_1("privilege.level.ONE", "Level 1"),
     PRIVILEGE_LEVEL_2("privilege.level.TWO", "Level 2"),

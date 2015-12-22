@@ -3,6 +3,8 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -14,6 +16,7 @@ import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -141,5 +144,29 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         newLifeCycle.name = "Cloned life cycle";
         Response response = target("/devicelifecycles/125/clone").request().post(Entity.json(newLifeCycle));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetEventTypesExcludesSomeMeteringEvents() {
+        List<StateTransitionEventType> stateTransitionEventTypes = new ArrayList<>();
+        stateTransitionEventTypes.add(mockEventType("#activate"));
+        stateTransitionEventTypes.add(mockEventType("#deactivate"));
+        stateTransitionEventTypes.add(mockEventType(EventType.METER_CREATED.topic()));
+        stateTransitionEventTypes.add(mockEventType(EventType.METER_UPDATED.topic()));
+        stateTransitionEventTypes.add(mockEventType(EventType.METER_DELETED.topic()));
+        when(finiteStateMachineService.getStateTransitionEventTypes()).thenReturn(stateTransitionEventTypes);
+
+        String response = target("/devicelifecycles/eventtypes").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<List<?>>get("$.eventTypes")).hasSize(2);
+        assertThat(jsonModel.<List<String>>get("$.eventTypes[*].symbol")).containsExactly("#activate", "#deactivate");
+    }
+
+    private StateTransitionEventType mockEventType(String symbol) {
+        StateTransitionEventType stateTransitionEventType = mock(StateTransitionEventType.class);
+        when(stateTransitionEventType.getSymbol()).thenReturn(symbol);
+        return stateTransitionEventType;
     }
 }
