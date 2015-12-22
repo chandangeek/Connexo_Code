@@ -419,7 +419,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             boolean result = false;
             for (int i = 0; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
                 FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
-                if (current.getValues()[i]== null && fieldSpec.isDerived() && isABigDecimal(current.getValues()[i + 1]) && isABigDecimal(previous.getValues()[i + 1])) {
+                if ((current.getValues()[i] == null || current.getValues()[i] == DoNotUpdateMarker.INSTANCE )&& fieldSpec.isDerived() && isABigDecimal(current.getValues()[i + 1]) && isABigDecimal(previous.getValues()[i + 1])) {
                     BigDecimal currentValue = current.getBigDecimal(i + 1);
                     BigDecimal previousValue = previous.getBigDecimal(i + 1);
                     current.set(i, currentValue.subtract(previousValue));
