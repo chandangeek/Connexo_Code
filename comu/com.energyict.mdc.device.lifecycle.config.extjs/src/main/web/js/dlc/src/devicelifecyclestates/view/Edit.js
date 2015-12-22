@@ -76,7 +76,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                                     width: 55,
                                     items: [
                                         {
-                                            tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                                            tooltip: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
                                             handler: function (grid, rowIndex) {
                                                 grid.getStore().removeAt(rowIndex);
                                                 this.up('#dlc-state-edit').showGridsOrMessages();
@@ -157,7 +157,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                                     width: 55,
                                     items: [
                                         {
-                                            tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                                            tooltip: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
                                             handler: function (grid, rowIndex) {
                                                 grid.getStore().removeAt(rowIndex);
                                                 this.up('#dlc-state-edit').showGridsOrMessages();
