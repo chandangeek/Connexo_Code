@@ -25,6 +25,7 @@ Ext.define('Imt.channeldata.view.PreviewForm', {
                     items: [
                         {
                             xtype: 'fieldcontainer',
+                            fieldLabel: Uni.I18n.translate('usagepointchannelconfiguration.general', 'IMT', 'General'),
                             labelAlign: 'top',
                             layout: 'vbox',
                             defaults: {
