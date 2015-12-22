@@ -113,7 +113,49 @@ public class DerivedFieldTest {
 	        ctx.commit();
         }
     }
-   
-    
-   
+
+    @Test
+    public void testDeltaSpecifiedMeansNoOverwrite()  {
+        IdsService idsService = injector.getInstance(IdsService.class);
+        TimeSeries ts = null;
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            RecordSpec recordSpec = idsService.createRecordSpec("XXX", 1, "Delta")
+                    .addDerivedFieldSpec("Delta", "Total" , FieldType.NUMBER , FieldDerivationRule.DELTAFROMPREVIOUS)
+                    .create();
+            Vault vault = idsService.getVault("IDS", 1).get();
+            ts = vault.createRegularTimeSeries(recordSpec, defaultZone, Duration.ofMinutes(15), 0);
+            TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
+            ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultZone);
+            storer.add(ts, dateTime, null, BigDecimal.valueOf(10));
+            ZonedDateTime last = dateTime.plusMinutes(45);
+            storer.add(ts, last, BigDecimal.valueOf(301), BigDecimal.valueOf(500));
+            storer.execute();
+            storer = idsService.createOverrulingStorer();
+            dateTime = dateTime.plus(ts.interval());
+            storer.add(ts, dateTime, null, BigDecimal.valueOf(100));
+            dateTime = dateTime.plus(ts.interval());
+            storer.add(ts, dateTime, BigDecimal.valueOf(99), BigDecimal.valueOf(200));
+            storer.execute();
+            ctx.commit();
+        }
+        ZonedDateTime dateTime = ZonedDateTime.of(2014,1,1,0,0,0,0,defaultZone);
+        List<TimeSeriesEntry> entries = ts.getEntries(Range.openClosed(dateTime.minusMinutes(15).toInstant(),dateTime.plusMinutes(60).toInstant()));
+        assertThat(entries).hasSize(4);
+        assertThat(entries.get(0).getBigDecimal(0)).isNull();
+        assertThat(entries.get(1).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(90));
+        assertThat(entries.get(2).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(99));
+        assertThat(entries.get(3).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(301));
+        assertThat(entries.get(3).getVersion()).isEqualTo(1);
+        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
+            dateTime = dateTime.plusMinutes(15);
+            storer.add(ts, dateTime, null, BigDecimal.valueOf(50));
+            dateTime = dateTime.plusMinutes(15);
+            storer.execute();
+            ctx.commit();
+        }
+    }
+
+
+
 }
