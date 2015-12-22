@@ -464,7 +464,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     });
                     if (!record.get('allIssues')) {
                         message = Uni.I18n.translatePlural('issues.selectedIssues.assign.withCount', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
-                        + 'The selected issue(s) will be assigned to ' + record.get('assignee').title;
+                        + Uni.I18n.translate('issues.selectedIssues.willBeAssigned', 'ISU','The selected issue(s) will be assigned to {0}',[record.get('assignee').title])
                     } else {
                         message = Uni.I18n.translate('issues.allIssues.willBeAssigned.title', 'ISU', '<h3>Assign all issues to {0}?</h3><br>', [record.get('assignee').title])
                         + Uni.I18n.translate('issues.allIssues.willBeAssigned', 'ISU','All issues will be assigned to {0}',[record.get('assignee').title]);
