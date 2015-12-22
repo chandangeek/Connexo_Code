@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -32,6 +33,7 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
     private volatile DeviceDataModelService deviceDataModelService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
 
     /*OSGI*/
     @SuppressWarnings("unused")
@@ -40,7 +42,7 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        DeviceConfigChangeHandler.ConfigChangeContext configChangeContext = new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, ((ServerDeviceService) deviceService), deviceDataModelService);
+        DeviceConfigChangeHandler.ConfigChangeContext configChangeContext = new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, ((ServerDeviceService) deviceService), deviceDataModelService, deviceConfigurationService);
         return new DeviceConfigChangeHandler(jsonService, configChangeContext);
     }
 
@@ -68,5 +70,10 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setMessageService(MessageService messageService){
         this.messageService = messageService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService){
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 }

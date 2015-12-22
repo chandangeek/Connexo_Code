@@ -59,6 +59,20 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
         return deviceConfigurationChangeException;
     }
 
+    public static DeviceConfigurationChangeException needToSearchOnDeviceConfigForBulkAction(Thesaurus thesaurus) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG);
+    }
+
+    public static DeviceConfigurationChangeException needToSearchOnSingleDeviceConfigForBulkAction(Thesaurus thesaurus) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG);
+    }
+
+    public static DeviceConfigurationChangeException invalidSearchValueForBulkConfigChange(Thesaurus thesaurus, String propertyName) {
+        DeviceConfigurationChangeException deviceConfigurationChangeException = new DeviceConfigurationChangeException(thesaurus, MessageSeeds.BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE, propertyName);
+        deviceConfigurationChangeException.set("propertyName", propertyName);
+        return deviceConfigurationChangeException;
+    }
+
     @Override
     public DeviceConfigurationChangeException get() {
         return this;

@@ -117,6 +117,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_DEVICE_FOUND_FOR_MRID(2090, Keys.NO_DEVICE_FOUND_FOR_MRID, "No device found for mrid {0}"),
     INCORRECT_DEVICE_VERSION(2091, Keys.INCORRECT_DEVICE_VERSION, "No device found for id {0} and version {1}"),
     NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND(2092, Keys.NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND, "No device config change business lock for single device found for id {0}"),
+    BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG(2093, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG, "You need to search a specific device configuration in order to use the bulk action for change device configuration"),
+    BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG(2094, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG, "You need to search on a unique device configuration in order to use the bulk action for change device configuration"),
+    BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE(2095, Keys.BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE, "You provided an invalid search value for the property {0}"),
     ;
 
     private final int number;
@@ -265,5 +268,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_DEVICE_FOUND_FOR_MRID = "no.device.found.mrid";
         public static final String INCORRECT_DEVICE_VERSION = "incorrect.device.version";
         public static final String NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND = "device.configchange.single.device.noBusinessLock";
+        public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG = "bulk.device.configchange.needto.search.on.config";
+        public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG = "bulk.device.configchange.needto.search.on.unique.config";
+        public static final String BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE = "bulk.device.configchange.invalid.search.item";
     }
 }
