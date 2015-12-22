@@ -30,11 +30,33 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.globalModemInitialization', 'MDC', 'Global modem initialization'),
-                    name: 'globalModemInitStrings'
+                    name: 'globalModemInitStrings',
+                    renderer: function (value) {
+                        var result = '';
+                        if (value) {
+                            if (Ext.isArray(value) && !Ext.isEmpty(value)) {
+                                Ext.Array.each(value, function (item) {
+                                    result += item.globalModemInitString + '<br>';
+                                })
+                            }
+                        }
+                        return result;
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.modemInitialization', 'MDC', 'Modem initialization'),
-                    name: 'modemInitStrings'
+                    name: 'modemInitStrings',
+                    renderer: function (value) {
+                        var result = '';
+                        if (value) {
+                            if (Ext.isArray(value) && !Ext.isEmpty(value)) {
+                                Ext.Array.each(value, function (item) {
+                                    result += item.modemInitString + '<br>';
+                                })
+                            }
+                        }
+                        return result;
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.addressSelector', 'MDC', 'Address selector'),
