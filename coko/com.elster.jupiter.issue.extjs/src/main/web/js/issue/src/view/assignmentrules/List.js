@@ -11,12 +11,12 @@ Ext.define('Isu.view.assignmentrules.List', {
 
     columns: [
         {
-            header: 'Description',
+            header: Uni.I18n.translate('general.description', 'ISU', 'Description'),
             dataIndex: 'description',
             flex: 1
         },
         {
-            header: 'Assign to',
+            header: Uni.I18n.translate('general.assignTo', 'ISU', 'Assign to'),
             xtype: 'isu-assignee-column',
             dataIndex: 'assignee',
             flex: 1

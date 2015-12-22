@@ -14,7 +14,7 @@ Ext.define('Isu.controller.history.Administration', {
             disabled: true,
             items: {
                 assignmentrules: {
-                    title: Uni.I18n.translate('route.assignmentRules', 'ISU', 'Assignment Rules'),
+                    title: Uni.I18n.translate('issue.administration.assignment', 'ISU', 'Issue assignment rules'),
                     route: 'assignmentrules',
                     controller: 'Isu.controller.AssignmentRules',
                     privileges: Isu.privileges.Issue.viewRule
