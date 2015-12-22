@@ -35,6 +35,8 @@ public enum MessageSeeds implements MessageSeed {
     UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION(19, "unexpectedInboundCommException", "Unexpected inbound communication exception, see stacktrace for more details"),
     COMMUNICATION_INTERRUPTED(20, "communicationInterrupted", "Communication was interrupted: {0}"),
     CONNECTION_TIMEOUT(21, "connectionTimeout", "Connection timeout"),
+    HOST(22, "host", "Host"),
+    PORT_NUMBER(23, "portNumber", "Port number"),
     ;
 
     private final int number;
