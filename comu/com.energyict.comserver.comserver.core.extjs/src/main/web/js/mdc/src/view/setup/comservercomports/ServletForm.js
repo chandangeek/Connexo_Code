@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             required: true,
             allowBlank: false,
             name: 'numberOfSimultaneousConnections',
-            minValue: 1,
+            minValue: 0,
             stripCharsRe: /\D/,
             listeners: {
                 blur: {
