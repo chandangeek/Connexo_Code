@@ -58,11 +58,24 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             fieldLabel: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
             itemId: 'register-types-fieldcontainer',
             required: true,
+            layout: 'hbox',
+            width: 1000,
             msgTarget: 'under',
             items: [
                 {
+                    xtype: 'component',
+                    html: Uni.I18n.translate('general.noRegisterTypesAdded', 'DLC', 'No register types have been added'),
+                    itemId: 'noRegisterTypesAddedMsg',
+                    style: {
+                        'font': 'italic 13px/17px Lato',
+                        'color': '#686868',
+                        'margin-top': '6px',
+                        'margin-right': '10px'
+                    },
+                    hidden: true
+                },
+                {
                     xtype: 'panel',
-                    width: 670,
                     items: [
                         {
                             xtype: 'gridpanel',
@@ -71,7 +84,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                             store: 'Mdc.store.SelectedRegisterTypesForLoadProfileType',
                             padding: 0,
                             overflowY: 'hidden',
-                            autoHeight: true,
+                            width: 535,
+                            maxHeight: 320,
                             columns: [
                                 {
                                     xtype: 'reading-type-column',
@@ -80,21 +94,29 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                                 },
                                 {
                                     xtype: 'actioncolumn',
-                                    align: 'right',
+                                    iconCls: 'uni-icon-delete',
+                                    width: 55,
                                     items: [
                                         {
-                                            iconCls: 'uni-icon-delete',
+                                            tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                             handler: function (grid, rowIndex) {
                                                 grid.getStore().removeAt(rowIndex);
+                                                this.up('load-profile-type-edit-form').showGridOrMessage();
                                             }
                                         }
                                     ]
                                 }
-                            ]
+                            ],
+                            listeners: {
+                                afterrender: function () {
+                                    this.view.el.dom.style.overflowX = 'hidden'
+                                }
+                            }
                         },
                         {
                             xtype: 'displayfield',
                             itemId: 'all-register-types',
+                            width: 535,
                             value: Uni.I18n.translate('loadProfileTypes.allRegisterTypes', 'MDC', 'All register types'),
                             hidden: true
                         },
@@ -104,21 +126,28 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                             name: 'allRegisterTypes',
                             value: false
                         }
-                    ],
-                    rbar: [
-                        {
-                            xtype: 'container',
-                            items: [
-                                {
-                                    xtype: 'button',
-                                    itemId: 'add-register-types-to-load-profile-type-button',
-                                    text: Uni.I18n.translate('loadProfileTypes.addRegisterTypes', 'MDC', 'Add register types'),
-                                    margin: '0 0 0 10'
-                                }
-                            ]
-                        }
                     ]
                 },
+                {
+                    xtype: 'button',
+                    itemId: 'add-register-types-to-load-profile-type-button',
+                    text: Uni.I18n.translate('loadProfileTypes.addRegisterTypes', 'MDC', 'Add register types'),
+                    margin: '0 0 0 10'
+                }
+            ],
+            markInvalid: function (msg) {
+                var errorComponent = this.up('load-profile-type-edit-form').down('#register-types-errors');
+                errorComponent.update(msg);
+                errorComponent.show();
+            },
+            clearInvalid: function () {
+                this.up('load-profile-type-edit-form').down('#register-types-errors').hide();
+            }
+        },
+        {
+            xtype: 'fieldcontainer',
+            fieldLabel: '&nbsp;',
+            items: [
                 {
                     xtype: 'component',
                     itemId: 'register-types-errors',
@@ -126,18 +155,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                     hidden: true,
                     height: 36
                 }
-            ],
-            markInvalid: function (msg) {
-                var errorComponent = this.down('#register-types-errors');
-
-                errorComponent.update(msg);
-                errorComponent.show();
-                this.down('#register-types-grid').setUI('wrong-data');
-            },
-            clearInvalid: function () {
-                this.down('#register-types-errors').hide();
-                this.down('#register-types-grid').setUI('default');
-            }
+            ]
         },
         {
             xtype: 'fieldcontainer',
@@ -240,8 +258,29 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         }
 
         record.endEdit();
+        me.showGridOrMessage();
 
         return basicForm;
+    },
+
+    showGridOrMessage : function() {
+        var me = this,
+            registerTypesStore = me.down('#register-types-grid').getStore(),
+            allRegisterTypesField = me.down('#all-register-types');
+
+        if ( allRegisterTypesField.hidden ) {
+            if (registerTypesStore.getCount() > 0) {
+                this.down('#noRegisterTypesAddedMsg').hide();
+                this.down('#register-types-grid').show();
+            } else {
+                this.down('#noRegisterTypesAddedMsg').show();
+                this.down('#register-types-grid').hide();
+            }
+        } else {
+            this.down('#noRegisterTypesAddedMsg').hide();
+            this.down('#register-types-grid').hide();
+        }
     }
+
 });
 
