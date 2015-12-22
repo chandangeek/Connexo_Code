@@ -12,6 +12,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -78,17 +79,7 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public String getStringBeyondComponent(String key, String defaultMessage) {
-        if (translations.containsKey(key)) {
-            return translations.get(key).translate(getLocale()).orElse(defaultMessage);
-        } else {
-            Optional<NlsKeyImpl> first = getAdditionalKey(key);
-            if (first.isPresent()) {
-                translations.put(key, first.get());
-                return translations.get(key).translate(getLocale()).orElse(defaultMessage);
-            } else {
-                return defaultMessage;
-            }
-        }
+        return this.getStringBeyondComponent(getLocale(), key, defaultMessage);
     }
 
     @Override
@@ -98,6 +89,8 @@ class ThesaurusImpl implements IThesaurus {
         } else {
             Optional<NlsKeyImpl> first = getAdditionalKey(key);
             if (first.isPresent()) {
+                // Load translations to avoid that they are not loaded when this happens to be the first call
+                this.ensureTranslationsLoaded();
                 translations.put(key, first.get());
                 return translations.get(key).translate(locale).orElse(defaultMessage);
             } else {
@@ -108,21 +101,22 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public String getString(String key, String defaultMessage) {
-        if (translations.isEmpty() || !translations.containsKey(key)) {
-            initTranslations(component, layer);
-        }
-        if (!translations.containsKey(key)) {
-            return defaultMessage;
-        }
-        return translations.get(key).translate(getLocale()).orElse(defaultMessage);
+        return this.getString(getLocale(), key, defaultMessage);
     }
 
     @Override
     public String getString(Locale locale, String key, String defaultMessage) {
+        this.ensureTranslationsLoaded();
         if (!translations.containsKey(key)) {
             return defaultMessage;
         }
         return translations.get(key).translate(locale).orElse(defaultMessage);
+    }
+
+    private void ensureTranslationsLoaded() {
+        if (translations.isEmpty()) {
+            initTranslations(component, layer);
+        }
     }
 
     public Locale getLocale() {
@@ -197,9 +191,7 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public Map<String, String> getTranslations() {
-        if (translations.isEmpty()) {
-            initTranslations(component, layer);
-        }
+        this.ensureTranslationsLoaded();
         Map<String, String> map = new TreeMap<>();
         for (Map.Entry<String, NlsKeyImpl> entry : translations.entrySet()) {
             map.put(entry.getKey(), translate(entry.getValue()));
