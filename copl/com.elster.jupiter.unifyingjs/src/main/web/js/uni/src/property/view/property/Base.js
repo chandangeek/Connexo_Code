@@ -153,12 +153,17 @@ Ext.define('Uni.property.view.property.Base', {
      * @param {Uni.property.model.Property} property
      */
     setProperty: function (property) {
+        var value;
         this.property = property;
-
         if (property) {
+            if (property.get('value') == 0 || property.get('value')) {
+                value = property.get('value');
+            } else {
+                value = undefined;
+            }
             this.setKey(property.get('key'));
             this.setLocalizedName(property.get('name'));
-            this.setValue(!property.get('value') ? undefined : property.get('value'));
+            this.setValue(value);
             this.updateResetButton();
             this.updateEditButton();
         }
