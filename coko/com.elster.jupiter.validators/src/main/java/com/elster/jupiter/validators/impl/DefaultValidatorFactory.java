@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.validators.impl.DefaultValidatorFactory",
@@ -80,7 +81,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>(ValidatorDefinition.values().length + MessageSeeds.values().length) ;
+        List<TranslationKey> translationKeys = new ArrayList<>(ValidatorDefinition.values().length + TranslationKeys.values().length) ;
         for (ValidatorDefinition validatorDefinition : ValidatorDefinition.values()) {
             IValidator validator = validatorDefinition.createTemplate(thesaurus, propertySpecService, meteringService);
             translationKeys.add(new SimpleTranslationKey(validator.getNlsKey().getKey(), validator.getDefaultFormat()));
@@ -93,6 +94,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
                     .map(extraTranslation -> new SimpleTranslationKey(extraTranslation.getFirst().getKey(), extraTranslation.getLast()))
                     .forEach(translationKeys::add);
         }
+        Stream.of(TranslationKeys.values()).forEach(translationKeys::add);
         return translationKeys;
     }
 

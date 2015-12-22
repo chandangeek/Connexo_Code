@@ -77,7 +77,7 @@ class IntervalStateValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Interval state";
+        return TranslationKeys.INTERVAL_STATE_VALIDATOR.getDefaultFormat();
     }
 
     @Override

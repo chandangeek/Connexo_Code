@@ -96,7 +96,7 @@ class MissingValuesValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Check missing values";
+        return TranslationKeys.MISSING_VALUES_VALIDATOR.getDefaultFormat();
     }
 
     @Override

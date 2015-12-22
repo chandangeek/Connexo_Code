@@ -80,7 +80,7 @@ class RegisterIncreaseValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Register increase";
+        return TranslationKeys.REGISTER_INCREASE_VALIDATOR.getDefaultFormat();
     }
 
     @Override
