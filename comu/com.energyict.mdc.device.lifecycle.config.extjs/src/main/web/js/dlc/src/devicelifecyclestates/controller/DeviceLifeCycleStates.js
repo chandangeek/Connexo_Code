@@ -154,6 +154,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             },
             callback: function () {
                 editForm.setLoading(false);
+                me.deviceLifeCycleState = null;
             }
         });
     },
@@ -175,6 +176,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         }
         entryProcessesStore.removeAll();
         exitProcessesStore.removeAll();
+        me.deviceLifeCycleState = null;
         route.forward();
     },
 
