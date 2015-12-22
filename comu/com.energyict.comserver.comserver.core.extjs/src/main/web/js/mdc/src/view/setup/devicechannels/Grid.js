@@ -31,14 +31,9 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 }
             },
             {
-                dataIndex: 'interval',
+                dataIndex: 'interval_formatted',
                 flex: 1,
-                header: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
-                renderer: function (value) {
-                    var res = '';
-                    value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
-                    return res
-                }
+                header: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval')
             },
             {
                 header: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),

@@ -61,7 +61,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         me.control({
             '#add-devicegroup-browse #staticDynamicRadioButton': {
-                change: me.prepareStep2
+                change: function(f, val) {
+                    this.isDynamic = val.dynamic;
+                }
             },
             '#add-devicegroup-browse adddevicegroup-wizard button[navigationBtn=true]': {
                 click: me.moveTo
@@ -115,7 +117,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         state;
 
                     if (widget.rendered) {
-                        isDynamic = record.get('dynamic');
+                        me.isDynamic = isDynamic = record.get('dynamic');
                         state = {
                             domain: 'com.energyict.mdc.device.data.Device',
                             filters: isDynamic
@@ -132,7 +134,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         Ext.suspendLayouts();
                         widget.down('devicegroup-add-navigation').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                         widget.down('adddevicegroup-wizard').loadRecord(record);
-                        me.prepareStep2(null, {dynamic: isDynamic}, null, state);
                         Ext.resumeLayouts(true);
                         if (!isDynamic) {
                             devices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPagination');
@@ -207,6 +208,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         switch (stepNumber) {
             case 1:
                 me.validateStep1(doCallback);
+                me.prepareStep2(null);
                 break;
             case 2:
                 if (me.validateStep2() && doCallback()) {
@@ -328,7 +330,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         }
     },
 
-    prepareStep2: function (field, newValue, oldValue, state) {
+    prepareStep2: function (state) {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
             step2 = wizard.down('device-group-wizard-step2'),
@@ -337,8 +339,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 filters: []
             },
             domainsStore = me.service.getSearchDomainsStore(),
-            isDynamic = newValue.dynamic,
             staticGrid,
+            isDynamic = me.isDynamic,
             selectionGroupType;
 
         step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
