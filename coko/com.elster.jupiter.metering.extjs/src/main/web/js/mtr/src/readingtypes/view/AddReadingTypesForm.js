@@ -40,13 +40,13 @@ Ext.define('Mtr.readingtypes.view.AddReadingTypesForm', {
                         itemId: 'specify-by-radiogroup',
                         items: [
                             {
-                                boxLabel: 'CIM code',
+                                boxLabel: Uni.I18n.translate('readingtypesmanagment.addreadingtypes.cimCode', 'MTR', 'CIM code'),
                                 name: 'specifyBy',
                                 inputValue: 'cim',
                                 checked: true
                             },
                             {
-                                boxLabel: 'Form',
+                                boxLabel: Uni.I18n.translate('readingtypesmanagment.addreadingtypes.form', 'MTR', 'Form'),
                                 name: 'specifyBy',
                                 inputValue: 'form'
                             }
