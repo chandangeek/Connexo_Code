@@ -4,16 +4,17 @@ package com.energyict.mdc.device.config;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -119,7 +120,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     List<DeviceConfigurationEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages();
 
-    public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes);
+    public List<ValidationRule> getValidationRules(Collection<? extends ReadingType> readingTypes);
 
     public GatewayType getGatewayType();
 
