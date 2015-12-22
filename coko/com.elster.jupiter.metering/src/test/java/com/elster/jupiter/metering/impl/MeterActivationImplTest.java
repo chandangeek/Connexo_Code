@@ -198,7 +198,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     public void testAdvanceStartDateMustNotOverlapWithMeterActivationOfMeter() {
         meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
 
-        MeterActivation earlier = mock(MeterActivation.class);
+        IMeterActivation earlier = mock(IMeterActivation.class);
 
         doReturn(Arrays.asList(earlier, meterActivation)).when(meter).getMeterActivations();
         when(earlier.getId()).thenReturn(516501L);
@@ -213,7 +213,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     public void testAdvanceStartDateMustNotOverlapWithMeterActivationOfUsagePoint() {
         meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
 
-        MeterActivation earlier = mock(MeterActivation.class);
+        IMeterActivation earlier = mock(IMeterActivation.class);
 
         doReturn(Arrays.asList(earlier, meterActivation)).when(usagePoint).getMeterActivations();
         when(earlier.getId()).thenReturn(516501L);
@@ -228,7 +228,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     public void testAdvanceStartDateMustNotOverlapWithIncompatibleMeterActivations() {
         meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
 
-        MeterActivation earlier = mock(MeterActivation.class);
+        IMeterActivation earlier = mock(IMeterActivation.class);
 
         doReturn(Arrays.asList(earlier, meterActivation)).when(meter).getMeterActivations();
         when(earlier.getId()).thenReturn(516501L);
@@ -236,7 +236,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
         when(earlier.getUsagePoint()).thenReturn(Optional.empty());
         when(earlier.getMeter()).thenReturn(Optional.of(meter));
 
-        MeterActivation otherEarlier = mock(MeterActivation.class);
+        IMeterActivation otherEarlier = mock(IMeterActivation.class);
         doReturn(Arrays.asList(otherEarlier, meterActivation)).when(usagePoint).getMeterActivations();
         when(otherEarlier.getId()).thenReturn(516502L);
         when(otherEarlier.getRange()).thenReturn(Range.closedOpen(ACTIVATION_TIME_BASE.minusYears(1).toInstant(), ACTIVATION_TIME));
