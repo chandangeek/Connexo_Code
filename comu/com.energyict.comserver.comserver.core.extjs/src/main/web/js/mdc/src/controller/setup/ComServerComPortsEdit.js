@@ -448,7 +448,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     recordData = record.getData();
                     me.recordToEdit = record;
                     me.portType = recordData.comPortType.id;
-                    me.portDirection = recordData.direction;
+                    me.portDirection = me.getDirection(record);
                     me.getApplication().fireEvent('loadComPortOnComServer', recordData.name);
                     actionButton = Ext.ComponentQuery.query('#comPortEdit #addEditButton')[0];
                     directionField = Ext.ComponentQuery.query('#comPortEdit displayfield[name=direction]')[0];
@@ -460,7 +460,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     widget.showForm(me.portDirection, me.portType);
                     addForm = widget.down('#addComPortForm');
                     comportTypeSelectCombo = widget.down('#comPortTypeSelect');
-                    switch (recordData.direction.toLowerCase()) {
+                    switch (me.portDirection.toLowerCase()) {
                         case 'inbound':
                             addForm.loadRecord(record);
                             comportTypeSelectCombo.suspendChangeEvent = true;
@@ -534,6 +534,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                 }
             });
         }, false);
+    },
+
+    getDirection: function (record) {
+        if (record.get('type').search(/inbound/i) != -1) {
+            return 'Inbound';
+        } else if (record.get('type').search(/outbound/i) != -1) {
+            return 'Outbound';
+        }
     },
 
     showAddOutbound: function (id) {
