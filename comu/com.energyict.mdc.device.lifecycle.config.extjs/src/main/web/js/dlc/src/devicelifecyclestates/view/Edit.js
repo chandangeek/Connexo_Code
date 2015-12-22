@@ -1,6 +1,7 @@
 Ext.define('Dlc.devicelifecyclestates.view.Edit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-life-cycle-state-edit',
+    itemId: 'dlc-state-edit',
     requires: [
         'Uni.view.container.ContentContainer',
         'Uni.grid.column.Default'
@@ -45,21 +46,25 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('transitionBusinessProcess.entry', 'DLC', 'Processes on entry'),
-                    hidden: false,
                     itemId: 'processesOnEntryContainer',
-                    name: 'onEntry',
                     required: false,
                     msgTarget: 'under',
+                    layout: 'hbox',
                     width: 1200,
                     items: [
                         {
                             xtype: 'gridpanel',
-                            width: 800,
-                            height: 220,
-                            itemId: 'processesOnEntryGridPanel',
+                            itemId: 'processesOnEntryGrid',
                             store: 'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnEntry',
                             hideHeaders: true,
-                            padding: 0,
+                            disableSelection: true,
+                            trackMouseOver: false,
+                            width: 600,
+                            maxHeight: 300,
+                            hidden: true,
+                            style: {
+                                paddingBottom: '8px'
+                            },
                             columns: [
                                 {
                                     dataIndex: 'name',
@@ -67,52 +72,80 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                                 },
                                 {
                                     xtype: 'actioncolumn',
-                                    align: 'right',
+                                    iconCls: 'uni-icon-delete',
+                                    width: 55,
                                     items: [
                                         {
-                                            iconCls: 'uni-icon-delete',
+                                            tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                             handler: function (grid, rowIndex) {
                                                 grid.getStore().removeAt(rowIndex);
+                                                this.up('#dlc-state-edit').showGridsOrMessages();
                                             }
                                         }
                                     ]
                                 }
                             ],
-                            rbar: [
-                                {
-                                    xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'button',
-                                            itemId: 'addOnEntryTransitionBusinessProcess',
-                                            text: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
-                                            action:'onEntry',
-                                            margin: '0 0 0 10'
-                                        }
-                                    ]
+                            listeners: {
+                                afterrender: function () {
+                                    this.view.el.dom.style.overflowX = 'hidden'
                                 }
-                            ]
+                            }
+                        },
+                        {
+                            xtype: 'component',
+                            html: Uni.I18n.translate('deviceLifeCycleStates.noProcessesAdded', 'DLC', 'No processes have been added'),
+                            itemId: 'noOnEntryProcessesAddedMsg',
+                            style: {
+                                'font': 'italic 13px/17px Lato',
+                                'color': '#686868',
+                                'margin-top': '6px',
+                                'margin-right': '10px'
+                            },
+                            hidden: true
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'addOnEntryTransitionBusinessProcess',
+                            action:'onEntry',
+                            text: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
+                            margin: '0 0 0 10'
                         }
                     ]
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('transitionBusinessProcess.exit', 'DLC', 'Processes on exit'),
-                    hidden: false,
                     itemId: 'processesOnExitContainer',
-                    name: 'onExit',
                     required: false,
                     msgTarget: 'under',
+                    layout: 'hbox',
                     width: 1200,
                     items: [
                         {
-                            xtype: 'gridpanel',
-                            width: 800,
-                            height: 220,
+                            xtype: 'component',
+                            html: Uni.I18n.translate('deviceLifeCycleStates.noProcessesAdded', 'DLC', 'No processes have been added'),
+                            itemId: 'noOnExitProcessesAddedMsg',
+                            style: {
+                                'font': 'italic 13px/17px Lato',
+                                'color': '#686868',
+                                'margin-top': '6px',
+                                'margin-right': '10px'
+                            },
+                            hidden: true
+                        },
+                        {
+                            xtype: 'grid',
+                            itemId: 'processesOnExitGrid',
                             store: 'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnExit',
-                            itemId: 'processesOnExitGridPanel',
                             hideHeaders: true,
-                            padding: 0,
+                            disableSelection: true,
+                            trackMouseOver: false,
+                            width: 600,
+                            maxHeight: 300,
+                            hidden: true,
+                            style: {
+                                paddingBottom: '8px'
+                            },
                             columns: [
                                 {
                                     dataIndex: 'name',
@@ -120,31 +153,31 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                                 },
                                 {
                                     xtype: 'actioncolumn',
-                                    align: 'right',
+                                    iconCls: 'uni-icon-delete',
+                                    width: 55,
                                     items: [
                                         {
-                                            iconCls: 'uni-icon-delete',
+                                            tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                             handler: function (grid, rowIndex) {
                                                 grid.getStore().removeAt(rowIndex);
+                                                this.up('#dlc-state-edit').showGridsOrMessages();
                                             }
                                         }
                                     ]
                                 }
                             ],
-                            rbar: [
-                                {
-                                    xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'button',
-                                            itemId: 'addOnExitTransitionBusinessProcess',
-                                            text: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
-                                            action:'onExit',
-                                            margin: '0 0 0 10'
-                                        }
-                                    ]
+                            listeners: {
+                                afterrender: function () {
+                                    this.view.el.dom.style.overflowX = 'hidden'
                                 }
-                            ]
+                            }
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'addOnExitTransitionBusinessProcess',
+                            action:'onExit',
+                            text: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
+                            margin: '0 0 0 10'
                         }
                     ]
                 },
@@ -169,15 +202,15 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                         }
                     ]
                 }
-            ] ,
+            ],
+
             loadRecord: function (record) {
                 if (Ext.isEmpty(record.get('id'))) { //Add
                     this.setTitle(Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'));
                 }else{ //Edit
-                    var title = Uni.I18n.translate('general.editx', 'DLC', "Edit '{0}'",[record.get('name')])
-                    this.setTitle(title);
-
                     var createBtn = this.down('#createEditButton');
+
+                    this.setTitle(Uni.I18n.translate('general.editx', 'DLC', "Edit '{0}'", record.get('name')));
                     createBtn.setText(Uni.I18n.translate('general.save', 'DLC', 'Save'));
                     createBtn.action = 'save';
                     if (!record.get('isCustom')) {
@@ -189,7 +222,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                     }
                 }
                 this.getForm().loadRecord(record);
-                var processOnEntryStore = this.down('#processesOnEntryGridPanel').getStore();
+                var processOnEntryStore = this.down('#processesOnEntryGrid').getStore();
                 if (processOnEntryStore.modelId != record.getId()){
                     processOnEntryStore.removeAll();
                     Ext.each(record.get("onEntry"), function (transitionBusinessProcess) {
@@ -197,7 +230,8 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                     });
                     processOnEntryStore.modelId = record.getId();
                 }
-                var processOnExitStore = this.down('#processesOnExitGridPanel').getStore();
+
+                var processOnExitStore = this.down('#processesOnExitGrid').getStore();
                 if (processOnExitStore.modelId != record.getId()) {
                     processOnExitStore.removeAll();
                     Ext.each(record.get("onExit"), function (transitionBusinessProcess) {
@@ -205,8 +239,29 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                     });
                     processOnExitStore.modelId = record.getId();
                 }
+                this.up('#dlc-state-edit').showGridsOrMessages();
             }
 
         }
-    ]
+    ],
+
+    showGridsOrMessages : function() {
+        var processOnEntryStore = this.down('#processesOnEntryGrid').getStore(),
+            processOnExitStore = this.down('#processesOnExitGrid').getStore();
+
+        if (processOnEntryStore.getCount() > 0) {
+            this.down('#noOnEntryProcessesAddedMsg').hide();
+            this.down('#processesOnEntryGrid').show();
+        } else {
+            this.down('#noOnEntryProcessesAddedMsg').show();
+            this.down('#processesOnEntryGrid').hide();
+        }
+        if (processOnExitStore.getCount() > 0) {
+            this.down('#noOnExitProcessesAddedMsg').hide();
+            this.down('#processesOnExitGrid').show();
+        } else {
+            this.down('#noOnExitProcessesAddedMsg').show();
+            this.down('#processesOnExitGrid').hide();
+        }
+    }
 });
