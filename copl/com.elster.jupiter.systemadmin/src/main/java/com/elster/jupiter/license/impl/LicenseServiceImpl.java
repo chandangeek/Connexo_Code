@@ -1,12 +1,13 @@
 package com.elster.jupiter.license.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.license.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
@@ -26,6 +27,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -60,6 +62,7 @@ import java.util.stream.Stream;
 public class LicenseServiceImpl implements LicenseService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
     private volatile OrmService ormService;
     private volatile UserService userService;
     private volatile EventService eventService;
@@ -72,9 +75,10 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
     }
 
     @Inject
-    public LicenseServiceImpl(OrmService ormService, UserService userService, EventService eventService) {
+    public LicenseServiceImpl(OrmService ormService, UserService userService, EventService eventService, NlsService nlsService) {
         this();
         setOrmService(ormService);
+        setNlsService(nlsService);
         setUserService(userService);
         setEventService(eventService);
         activate(null);
@@ -100,7 +104,8 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "EVT");
+        return Arrays.asList("ORM", "USR", "EVT", "NLS" +
+                "");
     }
 
     @Override
@@ -124,6 +129,11 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(this.getComponentName(), Layer.DOMAIN);
     }
 
     @Reference
@@ -186,7 +196,9 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
             @Override
             protected void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(Thesaurus.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(LicenseService.class).toInstance(LicenseServiceImpl.this);
             }
         };
@@ -236,10 +248,10 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
         try {
             licensedMap = licenseVerifier.extract(licensedObjects);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | IOException | SignatureException | ClassNotFoundException e) {
-            throw new InvalidLicenseException(e);
+            throw new InvalidLicenseException(thesaurus, e);
         }
         if (!(licensedMap instanceof Hashtable)) {
-            throw InvalidLicenseException.invalidLicense();
+            throw new InvalidLicenseException(thesaurus, MessageSeeds.ALREADY_ACTIVE);
         } else {
             Hashtable<String, SignedObject> licensedApps = (Hashtable<String, SignedObject>) licensedMap;
             for (String applicationKey : licensedApps.keySet()) {
@@ -250,7 +262,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
                     dataModel.update(license, "signedObject");
                     eventService.postEvent(EventType.LICENSE_UPDATED.topic(), license);
                 } else {
-                    LicenseImpl license = LicenseImpl.from(dataModel, applicationKey, licensedApps.get(applicationKey));
+                    LicenseImpl license = LicenseImpl.from(dataModel, applicationKey, licensedApps.get(applicationKey), thesaurus);
                     dataModel.persist(license);
                     eventService.postEvent(EventType.LICENSE_UPDATED.topic(), license);
                 }
@@ -296,5 +308,4 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
             reloadApps();
         }
     }
-
 }

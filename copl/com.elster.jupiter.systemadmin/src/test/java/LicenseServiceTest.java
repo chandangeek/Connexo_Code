@@ -4,9 +4,9 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.license.impl.InvalidLicenseException;
 import com.elster.jupiter.license.impl.LicenseServiceImpl;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -16,7 +16,6 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -29,7 +28,11 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -40,7 +43,6 @@ import java.security.SignedObject;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Properties;
@@ -62,7 +64,6 @@ public class LicenseServiceTest {
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
-
 
     private static Module licenseModule = new AbstractModule() {
         @Override
@@ -232,6 +233,4 @@ public class LicenseServiceTest {
         assertThat(licenseForApplication.get().getGracePeriodInDays()).isEqualTo(0);
         assertThat(licenseForApplication.get().getLicensedValues()).isEmpty();
     }
-
-
 }

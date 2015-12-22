@@ -1,9 +1,11 @@
 package com.elster.jupiter.license.impl;
 
-import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -38,6 +40,14 @@ public class LicenseImpl implements License {
     private static final String LICENSE_GRACE_PERIOD_KEY = "license.grace.period";
     private static final String LICENSE_TYPE_KEY = "license.type";
 
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public LicenseImpl(Thesaurus thesaurus) {
+        super();
+        this.thesaurus = thesaurus;
+    }
+
     @NotNull
     @Size(min = 1, max = 3)
     private String appKey;
@@ -60,19 +70,19 @@ public class LicenseImpl implements License {
 
     void setSignedObject(SignedObject signedObject) throws IOException {
         if (signedObject == null) {
-            throw InvalidLicenseException.invalidLicense();
+            throw new InvalidLicenseException(thesaurus, MessageSeeds.INVALID_LICENSE);
         }
         if (this.signedObject != null) {
             try {
                 Properties newProperties = extractProperties(signedObject);
                 if (!appKey.equals(newProperties.getProperty(LICENSE_APP_KEY))) {
-                    throw InvalidLicenseException.licenseForOtherApp();
+                    throw new InvalidLicenseException(thesaurus, MessageSeeds.LICENSE_FOR_OTHER_APP);
                 }
                 if (getInstant(LICENSE_CREATION_DATE_KEY, newProperties).isBefore(getInstant(LICENSE_CREATION_DATE_KEY, getProperties()))) {
-                    throw InvalidLicenseException.newerLicenseAlreadyExists();
+                    throw new InvalidLicenseException(thesaurus, MessageSeeds.NEWER_LICENSE_EXISTS);
                 }
             } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException | ClassNotFoundException e) {
-                throw new InvalidLicenseException(e);
+                throw new InvalidLicenseException(thesaurus, e);
             }
         }
 
@@ -82,7 +92,7 @@ public class LicenseImpl implements License {
             stream.flush();
             byte[] bytes = baseStream.toByteArray();
             if (Arrays.equals(bytes, this.signedObject)) {
-                throw InvalidLicenseException.licenseAlreadyActive();
+                throw new InvalidLicenseException(thesaurus, MessageSeeds.NEWER_LICENSE_EXISTS);
             }
             this.signedObject = bytes;
             this.properties = null;
@@ -94,7 +104,7 @@ public class LicenseImpl implements License {
             try {
                 properties = extractProperties(getSignedObject());
             } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | IOException | SignatureException | ClassNotFoundException e) {
-                throw new InvalidLicenseException(e);
+                throw new InvalidLicenseException(thesaurus, e);
             }
         }
         return properties;
@@ -104,11 +114,11 @@ public class LicenseImpl implements License {
         return (Properties) new LicenseVerifier().extract(object);
     }
 
-    static LicenseImpl from(DataModel dataModel, String applicationKey, SignedObject signedObject) {
+    static LicenseImpl from(DataModel dataModel, String applicationKey, SignedObject signedObject, Thesaurus thesaurus) {
         try {
             return dataModel.getInstance(LicenseImpl.class).init(applicationKey, signedObject);
         } catch (NoSuchAlgorithmException | IOException | ClassNotFoundException | SignatureException | InvalidKeyException | InvalidKeySpecException e) {
-            throw new InvalidLicenseException(e);
+            throw new InvalidLicenseException(thesaurus, e);
         }
     }
 
@@ -151,9 +161,9 @@ public class LicenseImpl implements License {
     @Override
     public int getGracePeriodInDays() {
         int gracePeriod = getInt(LICENSE_GRACE_PERIOD_KEY, getProperties());
-        if (Status.EXPIRED.equals(getStatus())) {        	
-        	LocalDate expirationDay = getExpiration().atOffset(ZoneOffset.UTC).toLocalDate();
-        	LocalDate endOfGracePeriod = expirationDay.plusDays(gracePeriod);
+        if (Status.EXPIRED.equals(getStatus())) {
+            LocalDate expirationDay = getExpiration().atOffset(ZoneOffset.UTC).toLocalDate();
+            LocalDate endOfGracePeriod = expirationDay.plusDays(gracePeriod);
             gracePeriod = (int) Math.max(0, ChronoUnit.DAYS.between(LocalDate.now(), endOfGracePeriod));
         }
         return gracePeriod;
@@ -187,7 +197,7 @@ public class LicenseImpl implements License {
             long creationTimeStamp = Long.parseLong(properties.getProperty(key, "not present"));
             return Instant.ofEpochMilli(creationTimeStamp);
         } catch (NumberFormatException e) {
-            throw new InvalidLicenseException(e);
+            throw new InvalidLicenseException(thesaurus, e);
         }
     }
 
@@ -195,7 +205,7 @@ public class LicenseImpl implements License {
         try {
             return Integer.parseInt(properties.getProperty(key, "not present"));
         } catch (NumberFormatException e) {
-            throw new InvalidLicenseException(e);
+            throw new InvalidLicenseException(thesaurus, e);
         }
     }
 }
