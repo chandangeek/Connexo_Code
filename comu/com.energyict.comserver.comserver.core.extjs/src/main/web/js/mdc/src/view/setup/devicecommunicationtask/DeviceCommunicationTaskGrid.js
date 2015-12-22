@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
             {
                 header: Uni.I18n.translate('deviceCommunicationTask.communicationTask', 'MDC', 'Communication task'),
                 dataIndex: 'comTask',
-                flex: 1,
+                flex: 2,
                 renderer: function (value) {
                         return Ext.String.htmlEncode(value.name);
                 }
@@ -118,7 +118,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                 xtype: 'uni-actioncolumn',
                 menu: {
                     xtype: 'device-communication-task-action-menu'
-                }
+                },
+                flex: 0.5
             }
 
         ];
