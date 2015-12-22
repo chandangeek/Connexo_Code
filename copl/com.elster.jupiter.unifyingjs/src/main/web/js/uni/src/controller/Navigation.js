@@ -99,13 +99,7 @@ Ext.define('Uni.controller.Navigation', {
             }
         }
 
-        if (!Ext.isEmpty(text)) {
-            Ext.getDoc().dom.title = text + ' '
-            + me.applicationTitleSeparator + ' '
-            + me.applicationTitle;
-        } else {
-            Ext.getDoc().dom.title = me.applicationTitle;
-        }
+        me.setTitle(text);
     },
 
     initBreadcrumbs: function () {
@@ -137,11 +131,27 @@ Ext.define('Uni.controller.Navigation', {
     updateBreadcrumb: function(route) {
         var me = this,
             breadcrumbs = me.getBreadcrumbs(),
-            breadcrumb = breadcrumbs.down('breadcrumbLink[key='+ route.key.replace('/','.') +']');
+            breadcrumb = breadcrumbs.down('breadcrumbLink[key='+ route.key.replace('/','.') +']'),
+            text = route.getTitle();
         if (breadcrumb) {
-            breadcrumb.setText(route.getTitle());
+            if(breadcrumbs.items.items[breadcrumbs.items.items.length -1].text === breadcrumb.text) {
+                me.setTitle(text);
+            }
+            breadcrumb.setText(text);
         }
     },
+
+    setTitle: function(text) {
+        var me = this;
+        if (!Ext.isEmpty(text)) {
+            Ext.getDoc().dom.title = text + ' '
+                + me.applicationTitleSeparator + ' '
+                + me.applicationTitle;
+        } else {
+            Ext.getDoc().dom.title = me.applicationTitle;
+        }
+    },
+
 
     initSearch: function () {
         var me = this;
