@@ -105,8 +105,8 @@ public class NlsServiceIT {
             public void doPerform() {
                 final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage.");
                 thesaurus.addTranslations(Arrays.asList(
-                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
-                        translation(nlsKey, Locale.FRENCH, "tension maximale"))
+                        translation(nlsKey, Locale.FRENCH, "tension maximale"),
+                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs"))
                 );
             }
         });
@@ -127,8 +127,8 @@ public class NlsServiceIT {
             public void doPerform() {
                 final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage.");
                 thesaurus.addTranslations(Arrays.asList(
-                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
-                        translation(nlsKey, Locale.FRENCH, "tension maximale"))
+                        translation(nlsKey, Locale.FRENCH, "tension maximale"),
+                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs"))
                 );
             }
         });
@@ -154,8 +154,8 @@ public class NlsServiceIT {
             public void doPerform() {
                 final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage.");
                 thesaurus.addTranslations(Arrays.asList(
-                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
-                        translation(nlsKey, Locale.FRENCH, "tension maximale"))
+                        translation(nlsKey, Locale.FRENCH, "tension maximale"),
+                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs"))
                 );
             }
         });
@@ -176,8 +176,8 @@ public class NlsServiceIT {
             public void doPerform() {
                 final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage. : {0} V");
                 thesaurus.addTranslations(Arrays.asList(
-                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs : {0} V"),
-                        translation(nlsKey, Locale.FRENCH, "tension maximale : {0} V"))
+                        translation(nlsKey, Locale.FRENCH, "tension maximale : {0} V"),
+                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs : {0} V"))
                 );
             }
         });
@@ -216,5 +216,4 @@ public class NlsServiceIT {
             }
         };
     }
-
 }
