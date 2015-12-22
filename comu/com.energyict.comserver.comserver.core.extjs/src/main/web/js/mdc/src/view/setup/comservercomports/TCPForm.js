@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.connectionCount', 'MDC', 'Simultaneous connections'),
             required: true,
             allowBlank: false,
-            minValue: 1,
+            minValue: 0,
             stripCharsRe: /\D/,
             listeners: {
                 blur: {
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.portNum', 'MDC', 'Port number'),
             required: true,
             allowBlank: false,
-            minValue: 1,
+            minValue: 0,
             stripCharsRe: /\D/,
             listeners: {
                 blur: {

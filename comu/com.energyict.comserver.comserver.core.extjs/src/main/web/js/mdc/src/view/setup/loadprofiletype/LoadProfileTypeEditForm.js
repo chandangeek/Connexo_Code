@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             queryMode: 'local',
             forceSelection: true,
             required: true,
-            editable: false
+            editable: true
         },
         {
             xtype: 'obis-field',
