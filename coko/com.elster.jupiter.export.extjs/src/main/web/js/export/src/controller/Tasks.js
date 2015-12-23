@@ -955,7 +955,7 @@ Ext.define('Dxp.controller.Tasks', {
                         }
                         me.recurrenceEnableDisable();
                         me.updatedDataEnableDisable();
-                        m.exportUpdatedEnableDisabled();
+                        me.exportUpdatedEnableDisabled();
                         view.setLoading(false);
                     }
 
