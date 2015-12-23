@@ -16,21 +16,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.LifecycleDates;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -54,60 +40,19 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
-import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.exceptions.*;
+import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
+import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -125,27 +70,12 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -158,7 +88,7 @@ import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
-public class DeviceImpl implements Device {
+public class DeviceImpl implements Device, ServerDeviceForConfigChange {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -377,7 +307,6 @@ public class DeviceImpl implements Device {
         deleteConnectionTasks();
         deleteDeviceMessages();
         deleteSecuritySettings();
-        deleteProtocolDialects();
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
         this.obsoleteKoreDevice();
@@ -425,10 +354,6 @@ public class DeviceImpl implements Device {
         this.securityPropertyService.deleteSecurityPropertiesFor(this);
     }
 
-    private void deleteProtocolDialects() {
-        this.dialectPropertiesList.forEach(PersistentIdObject::delete);
-    }
-
     private void closeCurrentMeterActivation() {
         getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(clock.instant()));
     }
@@ -442,7 +367,7 @@ public class DeviceImpl implements Device {
         this.connectionTasks.clear();
     }
 
-    private void deleteDeviceMessages(){
+    private void deleteDeviceMessages() {
         getMessages().stream().forEach(DeviceMessage::delete);
     }
 
@@ -456,6 +381,10 @@ public class DeviceImpl implements Device {
 
     private void deleteProperties() {
         this.deviceProperties.clear();
+        for (ProtocolDialectProperties aDialectPropertiesList : dialectPropertiesList) {
+            final ProtocolDialectPropertiesImpl protocolDialectProperties = (ProtocolDialectPropertiesImpl) aDialectPropertiesList;
+            protocolDialectProperties.delete();
+        }
     }
 
     @Override
@@ -540,6 +469,7 @@ public class DeviceImpl implements Device {
     public void setYearOfCertification(Integer yearOfCertification) {
         this.yearOfCertification = yearOfCertification;
     }
+
     @Override
 
     public Integer getYearOfCertification() {
@@ -615,6 +545,72 @@ public class DeviceImpl implements Device {
     @Override
     public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook) {
         return new LogBookUpdaterForDevice((LogBookImpl) logBook);
+    }
+
+    @Override
+    public void validateDeviceCanChangeConfig(DeviceConfiguration destinationDeviceConfiguration) {
+        if (this.getDeviceConfiguration().getId() == destinationDeviceConfiguration.getId()) {
+            throw DeviceConfigurationChangeException.cannotChangeToSameConfig(thesaurus, this);
+        }
+        if (destinationDeviceConfiguration.getDeviceType().getId() != getDeviceType().getId()) {
+            throw DeviceConfigurationChangeException.cannotChangeToConfigOfOtherDeviceType(thesaurus);
+        }
+        checkIfAllConflictsAreSolved(this.getDeviceConfiguration(), destinationDeviceConfiguration);
+    }
+
+
+    private void checkIfAllConflictsAreSolved(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
+        originDeviceConfiguration.getDeviceType().getDeviceConfigConflictMappings().stream()
+                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originDeviceConfiguration.getId()
+                        && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationDeviceConfiguration.getId())
+                .filter(Predicates.not(DeviceConfigConflictMapping::isSolved)).findFirst()
+                .ifPresent(deviceConfigConflictMapping1 -> {throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);});
+    }
+
+    @Override
+    public void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        this.deviceConfiguration.set(deviceConfiguration);
+    }
+
+    @Override
+    public void createNewMeterActivation() {
+        activate(clock.instant());
+    }
+
+    @Override
+    public void removeLoadProfiles(List<LoadProfile> loadProfiles) {
+        this.loadProfiles.removeAll(loadProfiles);
+    }
+
+    @Override
+    public void addLoadProfiles(List<LoadProfileSpec> loadProfileSpecs) {
+        this.loadProfiles.addAll(
+                loadProfileSpecs.stream()
+                        .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
+                        .collect(Collectors.toList()));
+    }
+
+    @Override
+    public void removeLogBooks(List<LogBook> logBooks) {
+        this.logBooks.removeAll(logBooks);
+    }
+
+    @Override
+    public void addLogBooks(List<LogBookSpec> logBookSpecs) {
+        this.logBooks.addAll(
+                logBookSpecs.stream()
+                        .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
+                        .collect(Collectors.toList()));
+    }
+
+    @Override
+    public void updateSecurityProperties(SecurityPropertySet origin, SecurityPropertySet destination) {
+        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).updateSecurityPropertiesWithNewSecurityPropertySet(this, origin, destination);
+    }
+
+    @Override
+    public void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet) {
+        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).deleteSecurityPropertiesFor(this, securityPropertySet);
     }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
@@ -783,10 +779,10 @@ public class DeviceImpl implements Device {
 
 
     private Optional<PropertySpec> getPropertySpecForProperty(String name) {
-        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec->spec.getName().equals(name)).findFirst();
+        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec -> spec.getName().equals(name)).findFirst();
     }
 
-    private void addLocalProperties(TypedProperties properties,  List<PropertySpec> propertySpecs) {
+    private void addLocalProperties(TypedProperties properties, List<PropertySpec> propertySpecs) {
         for (PropertySpec propertySpec : propertySpecs) {
             DeviceProtocolProperty deviceProtocolProperty = findDevicePropertyFor(propertySpec);
             if (deviceProtocolProperty != null) {
@@ -822,8 +818,7 @@ public class DeviceImpl implements Device {
         Optional<? extends MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
         if (currentMeterActivation.isPresent()) {
             return currentMeterActivation.get().getUsagePoint();
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -995,9 +990,9 @@ public class DeviceImpl implements Device {
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile     The LoadProfile
+     * @param loadProfile       The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
-     * @param meter           The Meter
+     * @param meter             The Meter
      * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
@@ -1006,24 +1001,24 @@ public class DeviceImpl implements Device {
         TemporalAmount intervalLength = this.intervalLength(loadProfile);
         List<MeterActivation> allMeterActivations = new ArrayList<>(meter.getMeterActivations());
         allMeterActivations
-            .stream()
-            .filter(ma -> ma.overlaps(requestedInterval))
-            .forEach(affectedMeterActivation -> {
-                Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation.getRange());
-                ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
-                ZonedDateTime requestEnd =
-                        ZonedDateTime.ofInstant(
-                                this.lastReadingClipped(loadProfile, requestedInterval),
-                                affectedMeterActivation.getZoneId());
-                Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
-                while (meterActivationInterval.contains(requestStart.toInstant())) {
-                    ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                    LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                    value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
-                    loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
-                    requestStart = readingTimestamp;
-                }
-            });
+                .stream()
+                .filter(ma -> ma.overlaps(requestedInterval))
+                .forEach(affectedMeterActivation -> {
+                    Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation.getRange());
+                    ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
+                    ZonedDateTime requestEnd =
+                            ZonedDateTime.ofInstant(
+                                    this.lastReadingClipped(loadProfile, requestedInterval),
+                                    affectedMeterActivation.getZoneId());
+                    Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+                    while (meterActivationInterval.contains(requestStart.toInstant())) {
+                        ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
+                        LoadProfileReadingImpl value = new LoadProfileReadingImpl();
+                        value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
+                        loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                        requestStart = readingTimestamp;
+                    }
+                });
         return loadProfileReadingMap;
     }
 
@@ -1042,23 +1037,23 @@ public class DeviceImpl implements Device {
             }
             case WEEKS: {
                 return ZonedDateTime
-                            .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
-                            .toLocalDate()
-                            .with(ChronoField.DAY_OF_WEEK, 1)
-                            .atStartOfDay()
-                            .atZone(zoneId);
+                        .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
+                        .toLocalDate()
+                        .with(ChronoField.DAY_OF_WEEK, 1)
+                        .atStartOfDay()
+                        .atZone(zoneId);
             }
             case MONTHS: {
-                return prefilledIntervalStartWithIntervalMonth(loadProfile,zoneId,requestedIntervalClippedToMeterActivation);
+                return prefilledIntervalStartWithIntervalMonth(loadProfile, zoneId, requestedIntervalClippedToMeterActivation);
 
             }
             case YEARS: {
                 return ZonedDateTime
-                            .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
-                            .toLocalDate()
-                            .with(ChronoField.DAY_OF_YEAR, 1)
-                            .atStartOfDay()
-                            .atZone(zoneId);
+                        .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
+                        .toLocalDate()
+                        .with(ChronoField.DAY_OF_YEAR, 1)
+                        .atStartOfDay()
+                        .atZone(zoneId);
             }
             case MILLISECONDS:  //Intentional fall-through
             case SECONDS:   //Intentional fall-through
@@ -1078,10 +1073,10 @@ public class DeviceImpl implements Device {
          */
         ZonedDateTime nextAttempt =
                 ZonedDateTime
-                    .ofInstant(
-                            requestedIntervalClippedToMeterActivation.lowerEndpoint(),
-                            zoneId)
-                    .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
+                        .ofInstant(
+                                requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                                zoneId)
+                        .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
         ZonedDateTime latestAttemptBefore = nextAttempt;
 
         while (nextAttempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
@@ -1101,10 +1096,10 @@ public class DeviceImpl implements Device {
          */
         ZonedDateTime nextAttempt =
                 ZonedDateTime
-                    .ofInstant(
-                            requestedIntervalClippedToMeterActivation.lowerEndpoint(),
-                            zoneId)
-                    .with(ChronoField.DAY_OF_MONTH, 1).toLocalDate().atStartOfDay(zoneId);
+                        .ofInstant(
+                                requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                                zoneId)
+                        .with(ChronoField.DAY_OF_MONTH, 1).toLocalDate().atStartOfDay(zoneId);
 
         while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
             nextAttempt = nextAttempt.minus(this.intervalLength(loadProfile));
@@ -1211,8 +1206,7 @@ public class DeviceImpl implements Device {
     private Optional<Boolean> hasData(Meter meter) {
         if (meter.hasData()) {
             return Optional.of(true);
-        }
-        else {
+        } else {
             return Optional.of(false);
         }
     }
@@ -1237,7 +1231,7 @@ public class DeviceImpl implements Device {
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
         Optional<UsagePoint> usagePoint = meter.getUsagePoint(start);
         meter.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(start));
-        if(usagePoint.isPresent()){
+        if (usagePoint.isPresent()) {
             return meter.activate(usagePoint.get(), start);
         } else {
             return meter.activate(start);
@@ -1265,12 +1259,10 @@ public class DeviceImpl implements Device {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 return aspectFunction.apply(meter.get());
-            }
-            else {
+            } else {
                 return Optional.empty();
             }
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -1282,12 +1274,10 @@ public class DeviceImpl implements Device {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 return aspectFunction.apply(meter.get());
-            }
-            else {
+            } else {
                 return Collections.emptyList();
             }
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -1330,8 +1320,7 @@ public class DeviceImpl implements Device {
             if (meter.getMeterActivations().isEmpty()) {
                 meter.activate(when);
             }
-        }
-        else {
+        } else {
             throw this.mdcAMRSystemDoesNotExist().get();
         }
     }
@@ -1352,8 +1341,7 @@ public class DeviceImpl implements Device {
         Optional<? extends MeterActivation> meterActivation = meter.getMeterActivation(when);
         if (meterActivation.isPresent()) {
             return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -1383,8 +1371,7 @@ public class DeviceImpl implements Device {
         if (meterActivation.isPresent()) {
             return this.getChannel(meterActivation.get(), readingType)
                     .orElseGet(() -> meterActivation.get().createChannel(readingType));
-        }
-        else {
+        } else {
             throw this.noMeterActivationAt(when).get();
         }
     }
@@ -1647,7 +1634,7 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public GatewayType getConfigurationGatewayType(){
+    public GatewayType getConfigurationGatewayType() {
         DeviceConfiguration configuration = getDeviceConfiguration();
         if (configuration == null) {
             return GatewayType.NONE;
@@ -1699,17 +1686,14 @@ public class DeviceImpl implements Device {
                 Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
                 if (meter.isPresent()) {
                     return meter.get().getState(instant);
-                }
-                else {
+                } else {
                     // Kore meter was not created yet
                     throw new IllegalStateException("Kore meter was not created when this Device was created");
                 }
-            }
-            else {
+            } else {
                 return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
             }
-        }
-        else {
+        } else {
             throw new IllegalStateException("MDC AMR system does not exist");
         }
     }
@@ -1726,12 +1710,10 @@ public class DeviceImpl implements Device {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 return new CIMLifecycleDatesImpl(meter.get(), meter.get().getLifecycleDates());
-            }
-            else {
+            } else {
                 return new NoCimLifecycleDates();
             }
-        }
-        else {
+        } else {
             return new NoCimLifecycleDates();
         }
     }
@@ -1762,11 +1744,9 @@ public class DeviceImpl implements Device {
     private DeviceLifeCycleChangeEvent newEventForMostRecent(Deque<StateTimeSlice> stateTimeSlices, Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents) {
         if (stateTimeSlices.isEmpty()) {
             return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-        }
-        else if (deviceTypeChangeEvents.isEmpty()) {
+        } else if (deviceTypeChangeEvents.isEmpty()) {
             return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
-        }
-        else {
+        } else {
             // Compare both timestamps and create event from the most recent one
             StateTimeSlice stateTimeSlice = stateTimeSlices.peekFirst();
             com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent = deviceTypeChangeEvents.peekFirst();
@@ -1774,11 +1754,9 @@ public class DeviceImpl implements Device {
                 // Give precedence to the device life cycle change but also consume the state change so the latter is ignored
                 stateTimeSlices.removeFirst();
                 return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-            }
-            else if (stateTimeSlice.getPeriod().lowerEndpoint().isBefore(deviceLifeCycleChangeEvent.getTimestamp())) {
+            } else if (stateTimeSlice.getPeriod().lowerEndpoint().isBefore(deviceLifeCycleChangeEvent.getTimestamp())) {
                 return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
-            }
-            else {
+            } else {
                 return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
             }
         }
@@ -1794,7 +1772,7 @@ public class DeviceImpl implements Device {
         return createTime;
     }
 
-    private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{
+    private class InternalDeviceMessageBuilder implements DeviceMessageBuilder {
 
         private final DeviceMessageImpl deviceMessage;
 
@@ -2151,6 +2129,7 @@ public class DeviceImpl implements Device {
             this.koreDevice.update();
         }
     }
+
     private class NoCimLifecycleDates implements CIMLifecycleDates {
         @Override
         public Optional<Instant> getManufacturedDate() {

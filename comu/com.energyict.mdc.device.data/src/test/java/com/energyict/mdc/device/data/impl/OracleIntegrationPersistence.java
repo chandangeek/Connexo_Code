@@ -168,7 +168,7 @@ public class OracleIntegrationPersistence {
         when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(any(PluggableClass.class))).thenReturn(new SimpleDiscoveryProtocol());
         DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
         when(deviceProtocolService.createProtocol(DeviceMessageImplTest.MessageTestDeviceProtocol.class.getName())).thenReturn(new DeviceMessageImplTest.MessageTestDeviceProtocol());
-        when(deviceProtocolService.createProtocol(TestProtocol.class.getName())).thenReturn(new TestProtocol());
+        when(deviceProtocolService.createProtocol(TestProtocol.class.getName())).thenReturn(new TestProtocol(propertySpecService));
         Properties properties = new Properties();
         properties.put("protocols", "all");
         when(license.getLicensedValues()).thenReturn(properties);

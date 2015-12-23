@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -58,6 +57,7 @@ public interface DeviceService {
      * @return the requested Device or null if none was found
      */
     public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
+
     public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version);
 
     /**
@@ -108,5 +108,27 @@ public interface DeviceService {
      * @return a list of all devices matching the given criteria
      */
     public List<Device> findDevicesByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
+
+    /**
+     * Change the DeviceConfiguration of the device to the provided destinationDeviceConfiguration.
+     * <b>NOTE:</b> Make sure you don't create your own transaction. This will be performed during the execution
+     * of this method. Multiple transactions are required to perform Business Locks.
+     *
+     * @param deviceId
+     * @param deviceVersion
+     * @param destinationDeviceConfigId      the ID fo the DestinationDeviceConfig
+     * @param destinationDeviceConfigVersion the version to check   @return the given device with the new configuration applied
+     */
+    public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion);
+
+    /**
+     * Change the DeviceConfiguration for the given set of Devices to the provided destinationDeviceConfiguration.
+     * The action will be queued and the processing is asynchronously.
+     *
+     * @param destinationDeviceConfiguration the configuration which should be applied
+     * @param devicesForConfigChangeSearch
+     * @param deviceMRIDs                    a list of device MRIDs
+     */
+    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs);
 
 }

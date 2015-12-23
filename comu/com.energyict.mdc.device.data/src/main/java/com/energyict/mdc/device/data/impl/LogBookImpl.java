@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.data.impl.configchange.ServerLogBookForConfigChange;
 import com.google.common.collect.Range;
 
 import com.energyict.mdc.common.ObisCode;
@@ -25,7 +26,7 @@ import java.util.Optional;
  * Date: 25/03/14
  * Time: 15:50
  */
-public class LogBookImpl implements LogBook {
+public class LogBookImpl implements ServerLogBookForConfigChange {
 
     private final DataModel dataModel;
 
@@ -118,6 +119,12 @@ public class LogBookImpl implements LogBook {
         }
         filter.logBookId = this.getId();
         return this.device.get().getDeviceEventsByFilter(filter);
+    }
+
+    @Override
+    public void setNewLogBookSpec(LogBookSpec logBookSpec) {
+        this.logBookSpec.set(logBookSpec);
+        this.dataModel.update(this, "logBookSpec");
     }
 
     abstract static class LogBookUpdater implements LogBook.LogBookUpdater {
