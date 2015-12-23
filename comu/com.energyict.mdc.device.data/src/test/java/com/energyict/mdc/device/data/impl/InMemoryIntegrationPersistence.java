@@ -68,8 +68,6 @@ import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.*;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -168,12 +166,6 @@ public class InMemoryIntegrationPersistence {
     private FiniteStateMachineService finiteStateMachineService;
     private Injector injector;
 
-    public TopologyService getTopologyService() {
-        return topologyService;
-    }
-
-    private TopologyService topologyService;
-
     public InMemoryIntegrationPersistence() {
         super();
     }
@@ -248,8 +240,7 @@ public class InMemoryIntegrationPersistence {
                 new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
-                new SchedulingModule(),
-                new TopologyModule());
+                new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -291,7 +282,6 @@ public class InMemoryIntegrationPersistence {
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
-            this.topologyService = injector.getInstance(TopologyService.class);
             injector.getInstance(CustomPropertySetService.class);
             initializeFactoryProviders();
             initializePrivileges();
