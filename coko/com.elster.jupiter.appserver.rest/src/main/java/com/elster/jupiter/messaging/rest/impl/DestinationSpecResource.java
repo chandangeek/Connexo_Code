@@ -1,10 +1,8 @@
 package com.elster.jupiter.messaging.rest.impl;
 
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -36,16 +34,14 @@ public class DestinationSpecResource {
     private final MessageService messageService;
     private final TransactionService transactionService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
-    private final AppService appService;
-    private final Thesaurus thesaurus;
+    private final DestinationSpecInfoFactory destinationSpecInfoFactory;
 
     @Inject
-    public DestinationSpecResource(MessageService messageService, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, AppService appService, Thesaurus thesaurus) {
+    public DestinationSpecResource(MessageService messageService, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, DestinationSpecInfoFactory destinationSpecInfoFactory) {
         this.messageService = messageService;
         this.transactionService = transactionService;
         this.conflictFactory = conflictFactory;
-        this.appService = appService;
-        this.thesaurus = thesaurus;
+        this.destinationSpecInfoFactory = destinationSpecInfoFactory;
     }
 
     @GET
@@ -65,8 +61,8 @@ public class DestinationSpecResource {
 
     private Function<? super DestinationSpec, ? extends DestinationSpecInfo> mapToInfo(@QueryParam("state") boolean withState) {
         return withState
-                ? (destinationSpec -> DestinationSpecInfo.from(destinationSpec).withStats(destinationSpec))
-                : DestinationSpecInfo::from;
+                ? destinationSpecInfoFactory::withAppServers
+                : destinationSpecInfoFactory::from;
     }
 
     @GET
@@ -77,7 +73,7 @@ public class DestinationSpecResource {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
         DestinationSpecInfo destinationSpecInfo = mapToInfo(withState).apply(destinationSpec);
         if (withState) {
-            destinationSpecInfo.withAppServers(destinationSpec, appService, thesaurus);
+            destinationSpecInfoFactory.withAppServers(destinationSpec);
         }
         return destinationSpecInfo;
     }
@@ -113,7 +109,7 @@ public class DestinationSpecResource {
             destinationSpec.purgeErrors();
             context.commit();
         }
-        return Response.status(Response.Status.OK).entity(DestinationSpecInfo.from(destinationSpec)).build();
+        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec)).build();
     }
 
     private Response doUpdateDestinationSpec(@PathParam("destinationSpecName") String destinationSpecName, DestinationSpecInfo info) {
@@ -123,7 +119,7 @@ public class DestinationSpecResource {
             destinationSpec.updateRetryBehavior(info.numberOfRetries, Duration.ofSeconds(info.retryDelayInSeconds));
             context.commit();
         }
-        return Response.status(Response.Status.OK).entity(DestinationSpecInfo.from(destinationSpec)).build();
+        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec)).build();
     }
 
 }

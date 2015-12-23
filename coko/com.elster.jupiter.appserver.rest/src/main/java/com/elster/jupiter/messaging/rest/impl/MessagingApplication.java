@@ -94,6 +94,7 @@ public class MessagingApplication extends Application implements MessageSeedProv
                 bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(appService).to(AppService.class);
+                bind(DestinationSpecInfoFactory.class).to(DestinationSpecInfoFactory.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
