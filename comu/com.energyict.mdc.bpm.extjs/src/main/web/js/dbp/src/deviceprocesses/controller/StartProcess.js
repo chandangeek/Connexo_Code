@@ -175,6 +175,7 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
             startProcessRecord.beginEdit();
             startProcessRecord.set('mrid', me.mRID);
             startProcessRecord.set('deploymentId', me.processRecord.deploymentId);
+            startProcessRecord.set('id', me.processRecord.deploymentId);
             startProcessRecord.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dbp.startprocess.started', 'DBP', 'Process started.'));
