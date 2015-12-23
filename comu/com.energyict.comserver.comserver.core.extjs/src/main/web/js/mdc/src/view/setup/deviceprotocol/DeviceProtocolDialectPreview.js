@@ -106,12 +106,9 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectPreview', {
                     border: false,
                     itemId: 'protocolDialectsDetailsTitle',
                     hidden: true,
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
                     defaults: {
-                        labelWidth: 250
+                        labelWidth: 250,
+                        labelAlign: 'left'
                     },
                     items: [
                         {

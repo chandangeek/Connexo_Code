@@ -112,6 +112,10 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
                     border: false,
                     itemId: 'deviceSecuritySettingDetailsTitle',
                     hidden: true,
+                    defaults: {
+                        labelWidth: 250,
+                        labelAlign: 'left'
+                    },
                     items: [
                         {
                             xtype: 'displayfield',
