@@ -1,6 +1,9 @@
 Ext.define('Apr.model.MessageQueue', {
     extend: 'Uni.model.Version',
     idProperty: 'name',
+    requires: [
+        'Apr.model.Subscriber'
+    ],
     fields: [
         'name', 'type', 'active', 'buffered', 'retryDelayInSeconds',
         {
@@ -18,15 +21,18 @@ Ext.define('Apr.model.MessageQueue', {
         {
             name: 'retryDelayInMinutes',
             type: 'int',
-         //   persist: false,
             mapping:  function (data) {
                 if (data.retryDelayInSeconds) {
                     return data.retryDelayInSeconds / 60;
                 }
             }
-        }
-
+        },
+        'subscriberSpecInfos'
     ],
+    hasMany: {
+        model: 'Apr.model.Subscriber',
+        name: 'subscriberSpecInfos'
+    },
 
     proxy: {
         type: 'rest',

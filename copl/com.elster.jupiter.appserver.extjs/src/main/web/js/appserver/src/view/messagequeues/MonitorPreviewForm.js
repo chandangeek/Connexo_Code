@@ -6,29 +6,29 @@ Ext.define('Apr.view.messagequeues.MonitorPreviewForm', {
         type: 'vbox'
     },
     defaults: {
+        xtype: 'displayfield',
         labelWidth: 250
     },
-    initComponent: function () {
-        var me = this;
-        me.items = [
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.messages', 'APR', 'Messages'),
-                name: 'numberOfMessages'
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.Errors', 'APR', 'Errors'),
-                name: 'numberOFErrors'
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.messageServiceName', 'APR', 'Message service name'),
-                itemId: 'txt-export-path',
-                name: 'exportDirectory'
+    items: [
+        {
+            fieldLabel: Uni.I18n.translate('general.messages', 'APR', 'Messages'),
+            name: 'numberOfMessages'
+        },
+        {
+            fieldLabel: Uni.I18n.translate('general.Errors', 'APR', 'Errors'),
+            name: 'numberOFErrors'
+        },
+        {
+            fieldLabel: Uni.I18n.translate('messageQueue.subscribers', 'APR', 'Used by'),
+            name: 'subscriberSpecInfos',
+            /* tpl: ['<ul>', '<tpl for=".">', '<li>{displayName} ({active})) </li>', '</tpl>', '</ul>'], */
+            renderer: function (value) {
+               var resultArray = [];
+               Ext.Array.each(value, function (subscriberSpecInfo) {
+                   resultArray.push('<p>' + Ext.String.htmlEncode(subscriberSpecInfo['displayName']) /*+' ('+ subscriberSpecInfo['active']+')'+*/+'</p>');
+               });
+               return resultArray;
             }
-        ];
-        me.callParent(arguments);
-    }
-
+        }
+    ]
 });
