@@ -1195,7 +1195,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("data");
         assertThat(connectionMethods).hasSize(1);
         Map<String, Object> connectionMethod = connectionMethods.get(0);
-        assertThat(connectionMethod).hasSize(14)
+        assertThat(connectionMethod).hasSize(15)
                 .containsKey("id")
                 .containsKey("name")
                 .containsKey("direction")
