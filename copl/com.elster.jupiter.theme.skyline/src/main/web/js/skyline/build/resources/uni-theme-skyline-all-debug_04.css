@@ -1080,9 +1080,10 @@
   border-color: #70bb51;
   background-color: white;
   border-radius: 5px;
+  overflow-wrap: break-word;
 }
 
-/* line 14, ../../sass/src/tip/Tip.scss */
+/* line 15, ../../sass/src/tip/Tip.scss */
 .x-tip-anchor {
   border-color: #70bb51;
   background-color: white;
@@ -8729,6 +8730,10 @@ a.x-datepicker-date:hover {
 /* line 74, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected .x-form-display-field {
   color: white;
+}
+/* line 78, ../../sass/src/panel/Table.scss */
+.x-grid-body .x-grid-row-selected .x-grid-row-summary .x-grid-td {
+  color: #686868;
 }
 
 /* line 1, ../../sass/src/grid/header/Container.scss */

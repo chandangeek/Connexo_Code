@@ -5915,9 +5915,10 @@
   border-color: #70bb51;
   background-color: white;
   border-radius: 5px;
+  overflow-wrap: break-word;
 }
 
-/* line 14, ../../sass/src/tip/Tip.scss */
+/* line 15, ../../sass/src/tip/Tip.scss */
 .x-tip-anchor {
   border-color: #70bb51;
   background-color: white;
@@ -13785,6 +13786,10 @@ a.x-datepicker-date:hover {
 .x-grid-body .x-grid-row-selected .x-form-display-field {
   color: white;
 }
+/* line 78, ../../sass/src/panel/Table.scss */
+.x-grid-body .x-grid-row-selected .x-grid-row-summary .x-grid-td {
+  color: #686868;
+}
 
 /* line 1, ../../sass/src/grid/header/Container.scss */
 .x-grid-header-ct {
@@ -18179,11 +18184,4 @@ a.x-datepicker-date:hover {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=25);
   opacity: 0.25;
   cursor: default;
-}
-
-/*<if slicer>*/
-/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-tab-bar-small-top:after {
-  display: none;
-  content: "x-slicer:stretch:bottom";
 }

@@ -1,3 +1,10 @@
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-bar-small-top:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
 /*</if slicer>*/
 /* */
 /*<if slicer>*/
