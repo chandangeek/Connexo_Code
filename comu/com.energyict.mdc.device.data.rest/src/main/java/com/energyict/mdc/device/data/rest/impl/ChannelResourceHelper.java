@@ -64,6 +64,9 @@ public class ChannelResourceHelper {
         return Response.ok(channelInfo.validationInfo).build();
     }
 
+    /**
+     * Linked with {@link LoadProfileResource#allDataValidatedOnChannel(Channel, Range)}
+     */
     public void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
         List<DataValidationStatus> states =
                 channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());
