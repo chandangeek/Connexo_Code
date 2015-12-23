@@ -152,7 +152,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     logBookLink = me.getDeviceTypeDetailLogBookLink(),
                     loadProfilesLink = me.getDeviceTypeDetailLoadProfilesLink(),
                     deviceConfigurationsLink = me.getDeviceConfigurationsDetailLink(),
-                    deviceLifeCycleLink = widget.down('#details-device-life-cycle-link');
+                    deviceLifeCycleLink = widget.down('#details-device-life-cycle-link'),
+                    actionMenu = widget.down('device-type-action-menu');
 
                 Ext.suspendLayouts();
 
@@ -187,7 +188,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 );
 
                 widget.down('form').loadRecord(deviceType);
-                widget.down('device-type-action-menu').record = deviceType;
+                if (actionMenu) {
+                    actionMenu.record = deviceType;
+                }
 
                 Ext.resumeLayouts(true);
 
