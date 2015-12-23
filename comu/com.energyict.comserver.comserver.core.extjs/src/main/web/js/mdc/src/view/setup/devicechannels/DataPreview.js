@@ -159,7 +159,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 result += ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
             });
             field.setValue(result);
-        } else if (!Ext.isEmpty(value)) {
+        } else if (Array.isArray(value) && !Ext.isEmpty(value)) {
             field.show();
             Ext.Array.each(value, function (rule) {
                 result += Ext.String.htmlEncode(rule.name) + '<br>';
