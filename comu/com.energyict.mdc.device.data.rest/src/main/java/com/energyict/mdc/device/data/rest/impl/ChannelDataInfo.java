@@ -32,7 +32,7 @@ public class ChannelDataInfo {
     public boolean isBulk;
 
     @JsonProperty("validationActive")
-    public Boolean validationStatus;
+    public Boolean validationActive;
 
     @JsonProperty("dataValidated")
     public Boolean dataValidated;

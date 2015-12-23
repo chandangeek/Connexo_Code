@@ -16,6 +16,9 @@ public class VeeReadingInfo {
     @JsonProperty("dataValidated")
     public Boolean dataValidated;
 
+    @JsonProperty("validationActive")
+    public Boolean validationActive;
+
     @JsonProperty("mainValidationInfo")
     public VeeReadingValueInfo mainValidationInfo = new VeeReadingValueInfo();
 
