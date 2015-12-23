@@ -680,7 +680,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private void doAssignPrivileges(PrivilegesProvider privilegesProvider) {
-        System.out.println("Verifying privileges not yet registered");
         if(!privilegesNotYetRegistered.isEmpty()) {
             privilegesProvider.getModuleResources().stream()
                     .map(resource -> resource.getPrivilegeNames())
@@ -688,7 +687,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                     .filter(item -> privilegesNotYetRegistered.containsKey(item))
                     .forEach(privilege -> {
                         for(PrivilegeAssociation association : privilegesNotYetRegistered.get(privilege)) {
-                            System.out.println("Granting privilege " + privilege + " to group " + association.group + " on application " + association.application);
                             Optional<Group> group = findGroup(association.group);
                             if (group.isPresent()) {
                                 group.get().grant(association.application, privilege);
