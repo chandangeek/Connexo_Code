@@ -144,7 +144,7 @@ Ext.define('Dsh.view.widget.Summary', {
             questionMarkAdded = false;
 
         if (filter) {
-            if (filter.hasOwnProperty('deviceGroup') && filter.deviceGroup.length > 0) {
+            if (filter.hasOwnProperty('deviceGroup')) {
                 if (!questionMarkAdded) {
                     url += '?';
                     questionMarkAdded = true;
