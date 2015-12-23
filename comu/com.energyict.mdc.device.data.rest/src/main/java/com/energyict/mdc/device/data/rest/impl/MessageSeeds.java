@@ -78,7 +78,12 @@ public enum MessageSeeds implements MessageSeed {
     FLAG_DEVICE_CONCURRENT_TITLE(261, "FlagDeviceConcurrentTitle", "Failed to flag ''{0}''"),
     REMOVE_FLAG_DEVICE_CONCURRENT_TITLE(262, "RemoveFlagDeviceConcurrentTitle", "Failed to remove ''{0}'' from the list of flagged devices"),
     FLAG_DEVICE_CONCURRENT_BODY(263, "FlagDeviceConcurrentMessage", "{0} has changed since the page was last updated."),
-    VERSION_MISSING(264, "VersionInfoMissing", "Versioning information is missing in the request");
+    VERSION_MISSING(264, "VersionInfoMissing", "Versioning information is missing in the request"),
+    CONFLICT_ON_DEVICE(265, "ConflictOnDevice", "The device you attempted to edit was changed by someone else."),
+    NO_SUCH_DEVICE_CONFIG(266, "NoSuchDeviceConfig" , "Device type does not contain a device configuration with that id"),
+    NO_SUCH_DEVICE_ID(267, "NoSuchDeviceId" , "No device with id {0}"),
+    CHANGE_DEVICE_CONFIG_CONFLICT(268, "ChangeDeviceConfigConflict" , "Found change device configuration conflict with id {0}")
+    ;
     private final int number;
     private final String key;
     private final String format;
