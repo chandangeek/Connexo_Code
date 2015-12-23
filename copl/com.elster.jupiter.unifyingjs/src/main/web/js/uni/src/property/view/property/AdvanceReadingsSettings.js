@@ -171,9 +171,9 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
     getValueAsDisplayString: function (value) {
         if (Ext.isObject(value)) {
             if(value.none){
-                return Uni.I18n.translate('general.none', this.translationKey, 'None');
+                return Uni.I18n.translate('general.none', 'UNI', 'None');
             } else if (value.bulk){
-                return Uni.I18n.translate('advanceReadingProperty.bulkReading', this.translationKey, 'Bulk reading');
+                return Uni.I18n.translate('advanceReadingProperty.bulkReading', 'UNI', 'Bulk reading');
             } else {
                 return value.readingType.aliasName;
             }
