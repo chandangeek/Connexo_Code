@@ -57,10 +57,14 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             url;
 
         if (selectionGrid.isAllSelected()) {
+            var filterItems = me.getFilterObjectFromQueryString();
             data.filter = {};
-            me.getStore('Dsh.store.CommunicationTasksBuffered').filters.each(function (item) {
-                data.filter[item.property] = item.value;
-            });
+            for (var dataIndex in filterItems) {
+                var value = filterItems[dataIndex];
+                if (filterItems.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
+                    data.filter[dataIndex] = value;
+                }
+            }
         } else {
             data.communications = [];
             Ext.Array.each(selectionGrid.getSelectionModel().getSelection(), function (item) {
@@ -193,5 +197,30 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
                 cancelBtn.hide();
                 break;
         }
+    },
+
+    getFilterObjectFromQueryString: function() {
+        var filterObject = Uni.util.QueryString.getQueryStringValues(false);
+        this.adaptFilterObject(filterObject);
+        return filterObject;
+    },
+
+    adaptFilterObject: function(filterObject) {
+        // Assure that properties that are expected to be an int array, are indeed int arrays
+        var props = ['deviceTypes', 'deviceGroups', 'comTasks', 'comSchedules'];
+        Ext.Array.each(props, function(prop) {
+            if (filterObject.hasOwnProperty(prop)) {
+                if (Ext.isArray(filterObject[prop])) {
+                    for (i = 0; i < filterObject[prop].length; i++) {
+                        filterObject[prop][i] = parseInt(filterObject[prop][i]);
+                    }
+                } else {
+                    var theOneValue = filterObject[prop];
+                    filterObject[prop] = [];
+                    filterObject[prop][0] = !Ext.isNumber(theOneValue) ? parseInt(theOneValue) : theOneValue;
+                }
+            }
+        });
     }
+
 });

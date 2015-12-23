@@ -264,8 +264,6 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     forwardToBulk: function () {
-        var router = this.getController('Uni.controller.history.Router');
-
-        router.getRoute('workspace/communications/details/bulk').forward(null, router.queryParams);
+        location.href = '#/workspace/communications/details/bulk?' + Uni.util.QueryString.getQueryString();
     }
 });
