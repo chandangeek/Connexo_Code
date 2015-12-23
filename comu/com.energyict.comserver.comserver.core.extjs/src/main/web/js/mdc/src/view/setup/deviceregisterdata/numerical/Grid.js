@@ -39,6 +39,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                             cls +=  ' icon-validation-black'
                         }
                         metaData.tdCls = cls;
+                    }else{
+                        var result = record.data.validationResult,
+                            status = result.split('.')[1],
+                            cls = 'icon-validation-cell';
+                        if (status === 'notValidated') {
+                            cls +=  ' icon-validation-black'
+                        }
+                        metaData.tdCls = cls;
                     }
                     if (!Ext.isEmpty(data)) {
                         return record.get('isConfirmed') ? Uni.Number.formatNumber(data, -1) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>' : Uni.Number.formatNumber(data, -1);
@@ -67,6 +75,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         if (status === 'suspect') {
                             cls +=  ' icon-validation-red'
                         }
+                        if (status === 'notValidated') {
+                            cls +=  ' icon-validation-black'
+                        }
+                        metaData.tdCls = cls;
+                    }else{
+                        var result = record.data.validationResult,
+                            status = result.split('.')[1],
+                            cls = 'icon-validation-cell';
                         if (status === 'notValidated') {
                             cls +=  ' icon-validation-black'
                         }
