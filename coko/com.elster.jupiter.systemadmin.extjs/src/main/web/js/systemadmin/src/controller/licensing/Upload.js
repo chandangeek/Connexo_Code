@@ -73,8 +73,9 @@ Ext.define('Sam.controller.licensing.Upload', {
             uploadPanel = self.getUploadPanel(),
             router = self.getController('Uni.controller.history.Router'),
             form = uploadPanel.down('form').getEl().dom,
-            message = 'Licenses successfully uploaded for applications: ';
+            message = Uni.I18n.translate('general.successfully.upload.licenses', 'SAM', 'Licenses successfully uploaded for applications');
 
+        message += ': ';
         if (uploadPanel.down('form').getForm().isValid()) {
             uploadPanel.setLoading();
             Ext.Ajax.request({
@@ -99,7 +100,7 @@ Ext.define('Sam.controller.licensing.Upload', {
                         Ext.getStore('apps').load();
                     } else {
                         uploadPanel.down('#upload').disable();
-                        self.getApplication().getController('Uni.controller.Error').showError('Failed to upload licenses', responseObject.errors[0].msg);
+                        self.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.failed.to.upload.licenses', 'SAM', 'Failed to upload licenses'), responseObject.errors[0].msg);
                     }
                 }
             });
