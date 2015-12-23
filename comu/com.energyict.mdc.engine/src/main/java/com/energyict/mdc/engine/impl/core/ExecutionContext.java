@@ -628,8 +628,8 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private DeviceCommandFactory getDeviceCommandFactory() {
-        if(this.deviceCommandFactory == null){
-            deviceCommandFactory = new DeviceCommandFactoryImpl();
+        if (this.deviceCommandFactory == null) {
+            deviceCommandFactory = new DeviceCommandFactoryImpl(this.comTaskExecution);
         }
         return deviceCommandFactory;
     }
