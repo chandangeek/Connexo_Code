@@ -243,16 +243,12 @@ Ext.define('Cfg.controller.Tasks', {
                 taskForm.loadRecord(record);
                 var selector = view.down('#cbo-validation-tasks-grouptype-trigger');
                 if (record.get('groupType') == 'End device') { 
-                    selector.suspendEvents(false);
                     selector.setValue('End Device');
                     me.onChangeValidationTaskGroupType(null, 'End Device', null);
-                    selector.resumeEvents();
                 }
                 if (record.get('groupType') == 'Usage point') {
-                    selector.suspendEvents(false);
                     selector.setValue('Usage Point');
                     me.onChangeValidationTaskGroupType(null, 'Usage Point', null);
-                    selector.resumeEvents();
                 }
                 
                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
@@ -566,13 +562,13 @@ Ext.define('Cfg.controller.Tasks', {
                 if (groupTypeCombo.getValue() == 'End Device') {
                     record.set('deviceGroup', {
                         id: groupCombo.getValue(),
-                        name: groupCombo.getRawValue()
+                        name: groupCombo.getDisplayValue()
                     });
                     record.set('usagePointGroup', null);
                 } else if (groupTypeCombo.getValue() == 'Usage Point') {
                     record.set('usagePointGroup', {
                         id: groupCombo.getValue(),
-                        name: groupCombo.getRawValue()
+                        name: groupCombo.getDisplayValue()
                     });
                     record.set('deviceGroup', null);
                 }
