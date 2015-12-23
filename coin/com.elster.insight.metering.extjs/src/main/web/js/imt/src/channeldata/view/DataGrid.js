@@ -47,7 +47,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                     return  value ? Uni.I18n.translate('general.dateattime', 'IMT', '{0} at {1}',[
                         Uni.DateTime.formatDateShort(value),
                         Uni.DateTime.formatTimeShort(value)
-                    ]).toLowerCase() : '';
+                    ]) : '';
                 },
                 flex: 1
             },

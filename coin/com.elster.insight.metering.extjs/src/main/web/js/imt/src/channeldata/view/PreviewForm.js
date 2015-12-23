@@ -52,7 +52,7 @@ Ext.define('Imt.channeldata.view.PreviewForm', {
                                     name: 'interval',
                                     renderer: function (value) {
                                         var res = '';
-                                        value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
+                                        value ? res = Ext.String.htmlEncode(Ext.String.format('{0} {1}', value.count, value.timeUnit)) : null;
                                         return res
                                     }
                                 },

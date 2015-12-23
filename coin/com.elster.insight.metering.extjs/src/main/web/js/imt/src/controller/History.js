@@ -63,7 +63,7 @@ Ext.define('Imt.controller.History', {
                                             action: 'showEditChannelCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('channelCustomAttributesLoaded', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('channels.editCustomAttributes', 'IMT', "Edit '{0}'", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('channels.editCustomAttributes', 'IMT', "Edit '{0}'", record.get('name')));
                                                     return true;
                                                 }, {single: true});
 
@@ -78,7 +78,7 @@ Ext.define('Imt.controller.History', {
                                             action: 'loadCustomAttributeVersions',
                                             callback: function (route) {
                                                 this.getApplication().on('loadCustomAttributeSetOnChannel', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('channels.historyCustomAttributes', 'IMT', "'{0}' history", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('channels.historyCustomAttributes', 'IMT', "'{0}' history", record.get('name')));
                                                     return true;
                                                 }, {single: true});
 
@@ -93,7 +93,7 @@ Ext.define('Imt.controller.History', {
                                                     action: 'editCustomAttributeVersion',
                                                     callback: function (route) {
                                                         this.getApplication().on('loadCustomAttributeSetVersionOnChannel', function (record) {
-                                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')]));
+                                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", record.get('period')));
                                                             return true;
                                                         }, {single: true});
 
@@ -108,7 +108,7 @@ Ext.define('Imt.controller.History', {
                                                     action: 'addCustomAttributeVersion',
                                                     callback: function (route) {
                                                         this.getApplication().on('loadCustomAttributeSetOnChannelAdd', function (record) {
-                                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')]));
+                                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", record.get('name')));
                                                             return true;
                                                         }, {single: true});
 
@@ -123,7 +123,7 @@ Ext.define('Imt.controller.History', {
                                                     action: 'cloneCustomAttributeVersion',
                                                     callback: function (route) {
                                                         this.getApplication().on('loadCustomAttributeSetVersionOnChannelClone', function (record) {
-                                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", [record.get('period')]));
+                                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", record.get('period')));
                                                             return true;
                                                         }, {single: true});
 
