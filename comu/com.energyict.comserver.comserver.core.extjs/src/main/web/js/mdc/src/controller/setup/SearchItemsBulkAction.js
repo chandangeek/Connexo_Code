@@ -443,15 +443,26 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             }
         });
     },
+
+    changeDeviceConfigAvailable: function (filters) {
+        var result = [];
+        Ext.each(filters, function (item) {
+            if (item.id === 'deviceType' || item.id === 'deviceConfiguration') {
+                if (item.value[0].criteria.length == 1) {
+                    result.push(item.id);
+                }
+            }
+        });
+        return result.length == 2;
+    },
+
     changeContent: function (nextCmp, currentCmp) {
-        var me = this,
-            additionalText,
+        var me = this, errorPanel = null, additionalText, progressBar,
             router = me.getController('Uni.controller.history.Router'),
+            search = me.getController('Mdc.controller.Search'),
             wizard = me.getSearchItemsWizard(),
             layout = wizard.getLayout(),
-            errorContainer = currentCmp.down('#stepSelectionError'),
-            errorPanel = null,
-            progressBar;
+            errorContainer = currentCmp.down('#stepSelectionError');
 
         switch (currentCmp.name) {
             case 'selectDevices':
@@ -461,7 +472,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     me.devices = me.getDevicesGrid().getSelectionModel().getSelection();
                 }
 
-                if (!me.allDevices && me.isDeviceConfigEqual(me.devices)) {
+                if (me.changeDeviceConfigAvailable(search.service.getFilters())) {
                     nextCmp.down('#searchitemschangeconfig').enable();
                 } else {
                     nextCmp.down('#searchitemschangeconfig').disable();
@@ -672,9 +683,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     }
                     break;
                  case 'changeconfig':
-                        titleText = Uni.I18n.translate('searchItems.bulk.changeDevConfigTitle', 'MDC', 'Change device configuration of all devices');  
+                        titleText = Uni.I18n.translate('searchItems.bulk.changeDevConfigTitle', 'MDC', 'Change device configuration of all devices');
                     break;
-                
+
             }
         } else {
             switch (me.operation) {
