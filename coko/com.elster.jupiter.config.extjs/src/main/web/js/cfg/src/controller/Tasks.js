@@ -243,15 +243,15 @@ Ext.define('Cfg.controller.Tasks', {
                 taskForm.loadRecord(record);
                 var selector = view.down('#cbo-validation-tasks-grouptype-trigger');
                 if (record.get('groupType') == 'End device') { 
-                    selector.suspendEvents();
+                    selector.suspendEvents(false);
                     selector.setValue('End Device');
-                    me.onChangeValidationTaskGroupType(null, 'End Device', null, record.get('deviceGroup').id);
+                    me.onChangeValidationTaskGroupType(null, 'End Device', null);
                     selector.resumeEvents();
                 }
                 if (record.get('groupType') == 'Usage point') {
-                    selector.suspendEvents();
+                    selector.suspendEvents(false);
                     selector.setValue('Usage Point');
-                    me.onChangeValidationTaskGroupType(null, 'Usage Point', null, record.get('usagePointGroup').id);
+                    me.onChangeValidationTaskGroupType(null, 'Usage Point', null);
                     selector.resumeEvents();
                 }
                 
@@ -273,7 +273,7 @@ Ext.define('Cfg.controller.Tasks', {
         me.getApplication().fireEvent('changecontentevent', view);
         view.setLoading();
     },
-    onChangeValidationTaskGroupType: function(field, newValue, oldVallue, selected) {   
+    onChangeValidationTaskGroupType: function(field, newValue, oldVallue) {   
         var me=this,
             container = me.getAddPage().down('#cbo-validation-task-group-container');
         Ext.suspendLayouts();
@@ -284,6 +284,10 @@ Ext.define('Cfg.controller.Tasks', {
                 if (store.getCount() == 0) {
                     container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.')));
                 } else {
+                    var selected = undefined;
+                    if (me.taskModel) {
+                        selected = me.taskModel.get('deviceGroup').id;
+                    }
                     container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'), selected));
                 }             
             });
@@ -293,6 +297,10 @@ Ext.define('Cfg.controller.Tasks', {
                   if (store.getCount() == 0) {
                       container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.')));
                   } else {
+                      var selected = undefined;
+                      if (me.taskModel) {
+                          selected = me.taskModel.get('usagePointGroup').id;
+                      }
                       container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...'), selected));
                   }
               });
