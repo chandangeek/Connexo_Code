@@ -345,16 +345,15 @@ public class ChannelResource {
 
         Optional<VeeReadingInfo> veeReadingInfo = dataValidationStatus.map(status -> {
             IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst()).orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
-            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading);
+            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading, isValidationActive);
         });
         if(veeReadingInfo.isPresent()) {
             return Response.ok(veeReadingInfo.get()).build();
         }else{
             Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis-1), Instant.ofEpochMilli(epochMillis));
             List<LoadProfileReading> channelData = channel.getChannelData(range);
-            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation)).collect(Collectors.toList());
-            infos.get(0).bulkValidationInfo.isConfirmed = false;
-            return Response.ok(infos).build();
+            Optional<ChannelDataInfo> found = channelData.stream().map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation)).findFirst();
+            return Response.ok(found.orElse(new ChannelDataInfo())).build();
         }
     }
 
