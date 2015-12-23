@@ -334,7 +334,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     parseModemArrayToString: function (array) {
         var string = '';
         Ext.Array.each(array, function (value) {
-            string += value.modemInitString + ';';
+            if (value == array[array.length-1]) {
+                string += value.modemInitString;
+            } else {
+                string += value.modemInitString + ';';
+            }
         });
 
         return string;
@@ -353,7 +357,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     parseGlobalModemArrayToString: function (array) {
         var string = '';
         Ext.Array.each(array, function (value) {
-            string += value.globalModemInitString + ';';
+            if (value == array[array.length-1]) {
+                string += value.globalModemInitString;
+            } else {
+                string += value.globalModemInitString + ';';
+            }
         });
 
         return string;

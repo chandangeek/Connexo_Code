@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.ChangeDeviceConfigurationView', {
     extend: 'Uni.view.container.ContentContainer',
     require: [
-        'Uni.util.FormInfoMessage',
+        'Uni.util.FormEmptyMessage',
         'Uni.util.FormErrorMessage'
     ],
     itemId: 'change-device-configuration-view',
@@ -45,16 +45,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.ChangeDeviceConfigurationView', {
                                         },
                                         items: [
                                             {
-                                                xtype: 'uni-form-info-message',
+                                                xtype: 'uni-form-empty-message',
                                                 itemId: 'form-notification',
                                                 text: Uni.I18n.translate('device.changeDeviceConfiguration.lossDataNotification', 'MDC', 'The device configuration change can possibly lead to critical data loss (security settings, connection attributes...)'),
-                                                style: 'padding-bottom: 20px'
                                             },
                                             {
                                                 xtype: 'uni-form-error-message',
                                                 itemId: 'form-errors',
                                                 name: 'form-errors',
-                                                width: 680,
+                                                width: 707,
                                                 hidden: true
                                             },
                                             {

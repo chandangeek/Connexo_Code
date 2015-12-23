@@ -332,6 +332,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             isNotEdit: true,
             jsonData: _.pick(me.getMainPage().device.getRecordData(), 'mRID', 'version', 'parent'),
             success: function () {
+                me.getStore('Mdc.store.DeviceValidationResults').load();
                 me.destroyConfirmationWindow();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.dataValidation.activation.validated', 'MDC', 'Data validation completed'));
                 me.getController('Uni.controller.history.Router').getRoute().forward();
