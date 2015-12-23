@@ -343,11 +343,34 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     var  formFields = me.createFilterControls(filterRecord, filterOmittable ? "filter": "prompt",initialValue );
 
                     formFields = Ext.isArray(formFields) ? formFields : [formFields];
+
                     formFields.unshift({
-                        xtype: 'displayfield',
-                        labelAlign: 'left',
-                        labelWidth:300,
-                        fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
+                        xtype: 'container',
+                        itemId:'report-mandatory-filters-title',
+                        layout: {
+                            type: 'hbox',
+                            align: 'left'
+                        },
+                        padding: '0 0 20 0',
+                        items: [
+                            {
+                                xtype: 'label',
+                                itemId: 'report-mandatory-filters-label',
+                                text: filterDescription + ' ' + me.translateFilterType(filterType)
+                            },
+                            {
+                                xtype: 'button',
+                                hidden: filterOmittable,
+                                iconCls: 'uni-form-item-label-required',
+                                ui: 'blank',
+                                disabled: true,
+                                shadow: false,
+                                margin: '5 0 0 0',
+                                width: 16,
+                                tabIndex: -1
+                            }
+
+                        ]
                     });
 
                     var fieldContainer = {
@@ -374,7 +397,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     }
                 });
                 me.getWizard().setLoading(false);
-               // Ext.resumeLayouts(true);
+                // Ext.resumeLayouts(true);
             });
 
         }
@@ -752,7 +775,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     fieldType:fieldType,
                     record:filterRecord,
                     //disabled:fieldType != 'filter' && defaultValue,
-                    value: defaultValue || filterRecord.get('filterDefaultValue1').split('|'),
+                    value: defaultValue || (filterRecord.get('filterDefaultValue1').length ? filterRecord.get('filterDefaultValue1').split('|'): null),
                     valueField: 'value2',
                     store: store,
                     getFieldValue : function(){
@@ -792,7 +815,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     fieldType:fieldType,
                     record:filterRecord,
                     //disabled:fieldType != 'filter' && defaultValue,
-                    value: defaultValue || filterRecord.get('filterDefaultValue1').split('|'),
+                    value: defaultValue || (filterRecord.get('filterDefaultValue1').length ? filterRecord.get('filterDefaultValue1').split('|'): null),
                     valueField: 'value2',
                     store: store,
                     getFieldValue : function(){
@@ -827,12 +850,12 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         var hasFilters = false;
 
         var
-        fieldsContainer = summaryContainer.add({
-            xtype: 'fieldcontainer',
-            labelAlign: 'left',
-            labelStyle: 'color:#cccccc',
-            fieldLabel: Uni.I18n.translate('generatereport.wizard.mandatoryFilters', 'YFN', 'Mandatory filters')
-        });
+            fieldsContainer = summaryContainer.add({
+                xtype: 'fieldcontainer',
+                labelAlign: 'left',
+                labelStyle: 'color:#cccccc',
+                fieldLabel: Uni.I18n.translate('generatereport.wizard.mandatoryFilters', 'YFN', 'Mandatory filters')
+            });
 
         var prompts = me.getWizard().query('[fieldType = prompt]');
 
@@ -918,7 +941,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             case 'LINKFILTER': return Uni.I18n.translate('generatereport.filterTypeLINKFILTER', 'YFN', 'Link to Filter');
             case 'CONTAINS': return Uni.I18n.translate('generatereport.filterTypeCONTAINS', 'YFN', 'Contains');
             case 'NOTCONTAINS': return Uni.I18n.translate('generatereport.filterTypeNOTCONTAINS', 'YFN', 'Does not contain');
-            return filterType;
+                return filterType;
         }
     },
     getDefaultDateValue:function(defaultDateValue){
@@ -930,6 +953,6 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             defaultDateValue = eval('new Date('+defaultDateValue+'*86400000)');
             return Ext.Date.format(defaultDateValue,'Y-m-d');
         }
-       return defaultDateValue;
+        return defaultDateValue;
     }
 })
