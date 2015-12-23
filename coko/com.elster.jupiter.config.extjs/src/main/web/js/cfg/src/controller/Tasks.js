@@ -91,7 +91,7 @@ Ext.define('Cfg.controller.Tasks', {
             },
             'cfg-validation-tasks-history cfg-tasks-history-grid': {
                 select: this.showHistoryPreview
-            },
+            }
         });
     },
     showValidationTasks: function () {
@@ -241,17 +241,19 @@ Ext.define('Cfg.controller.Tasks', {
                 me.getApplication().fireEvent('validationtaskload', record);
                 taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'",[record.get('name')]));
                 taskForm.loadRecord(record);
-//                var groupCombo = view.down('#cbo-validation-task-group');
-//                if (record.get('groupType') == 'End device') {                    
-//                    view.down('#cbo-validation-tasks-grouptype-trigger').setValue('End Device');
-//                    me.onChangeValidationTaskGroupType(null, 'End Device', null);
-//                    groupCombo.setValue(groupCombo.store.getById(record.get('deviceGroup').id));
-//                }
-//                if (record.get('groupType') == 'Usage point') {
-//                    view.down('#cbo-validation-tasks-grouptype-trigger').setValue('Usage Point');
-//                    me.onChangeValidationTaskGroupType(null, 'Usage Point', null);
-//                    groupCombo.setValue(groupCombo.store.getById(record.get('usagePointGroup').id));
-//                }
+                var selector = view.down('#cbo-validation-tasks-grouptype-trigger');
+                if (record.get('groupType') == 'End device') { 
+                    selector.suspendEvents();
+                    selector.setValue('End Device');
+                    me.onChangeValidationTaskGroupType(null, 'End Device', null, record.get('deviceGroup').id);
+                    selector.resumeEvents();
+                }
+                if (record.get('groupType') == 'Usage point') {
+                    selector.suspendEvents();
+                    selector.setValue('Usage Point');
+                    me.onChangeValidationTaskGroupType(null, 'Usage Point', null, record.get('usagePointGroup').id);
+                    selector.resumeEvents();
+                }
                 
                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
                     //if (schedule) {
@@ -271,8 +273,7 @@ Ext.define('Cfg.controller.Tasks', {
         me.getApplication().fireEvent('changecontentevent', view);
         view.setLoading();
     },
-    
-    onChangeValidationTaskGroupType: function(field, newValue, oldVallue) {   
+    onChangeValidationTaskGroupType: function(field, newValue, oldVallue, selected) {   
         var me=this,
             container = me.getAddPage().down('#cbo-validation-task-group-container');
         Ext.suspendLayouts();
@@ -283,8 +284,8 @@ Ext.define('Cfg.controller.Tasks', {
                 if (store.getCount() == 0) {
                     container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.')));
                 } else {
-                    container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...')));
-                }                                                
+                    container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'), selected));
+                }             
             });
           } else if (newValue == 'Usage Point') {
               var store = Ext.getStore('Cfg.store.UsagePointGroups');
@@ -292,7 +293,7 @@ Ext.define('Cfg.controller.Tasks', {
                   if (store.getCount() == 0) {
                       container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.')));
                   } else {
-                      container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...')));
+                      container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...'), selected));
                   }
               });
           }

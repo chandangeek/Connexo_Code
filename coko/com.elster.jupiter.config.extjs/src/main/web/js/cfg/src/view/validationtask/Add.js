@@ -246,7 +246,7 @@ Ext.define('Cfg.view.validationtask.Add', {
             field.setValue(field.minValue);
         }
     },
-    groupComboBox(store, prompt) {
+    groupComboBox(store, prompt, selected) {
         return {
             xtype: 'combobox',
             itemId: 'cbo-validation-task-group',
@@ -259,7 +259,8 @@ Ext.define('Cfg.view.validationtask.Add', {
             emptyText: prompt,
             queryMode: 'local',
             displayField: 'name',
-            valueField: 'id'
+            valueField: 'id',
+            value: selected
         };
     },
     groupEmptyMessage(text) {
