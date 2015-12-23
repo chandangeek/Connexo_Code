@@ -20,9 +20,15 @@ import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.IntervalBlock;
+import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -32,7 +38,9 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -70,6 +78,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -83,6 +92,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Currying.use;
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.stream.Collectors.toList;
 
@@ -246,7 +256,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         }
     }
 
-    private void saveDirtyConnectionProperties(){
+    private void saveDirtyConnectionProperties() {
         this.getConnectionTaskImpls()
                 .filter(ConnectionTaskImpl::hasDirtyProperties)
                 .forEach(ConnectionTaskPropertyProvider::saveAllProperties);
@@ -330,10 +340,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-            .getEntries()
-            .stream()
-            .filter(each -> each.getEndDevice().getId() == endDevice.getId())
-            .findFirst()
+                .getEntries()
+                .stream()
+                .filter(each -> each.getEndDevice().getId() == endDevice.getId())
+                .findFirst()
                 .ifPresent(group::remove);
     }
 
@@ -805,8 +815,101 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateKoreMeter(amrSystem.get());
-            meter.store(meterReading);
+            meter.store(toCheckedMeterReading(meterReading));
         }
+    }
+
+    private MeterReading toCheckedMeterReading(MeterReading meterReading) {
+        // make a map of readings to their overflow values
+        Map<BaseReading, BigDecimal> overflowCheckedMap = Stream.of(
+                meterReading.getReadings()
+                        .stream()
+                        .map(this::readingPairedWithOverflow),
+                meterReading.getIntervalBlocks()
+                        .stream()
+                        .flatMap(intervalBlock -> intervalBlock.getIntervals()
+                                .stream()
+                                .map(use(this::pairedWithOverflow).with(intervalBlock.getReadingTypeCode()))
+                        )
+
+        )
+                .flatMap(Function.identity())
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
+        if (overflowCheckedMap.isEmpty()) {
+            return meterReading;
+        }
+        MeterReadingImpl copy = MeterReadingImpl.newInstance();
+        copy.addAllEndDeviceEvents(meterReading.getEvents());
+        meterReading.getReadings()
+                .stream()
+                .map(use(this::toCheckedReading).with(overflowCheckedMap))
+                .forEach(copy::addReading);
+        meterReading.getIntervalBlocks()
+                .stream()
+                .map(use(this::toCheckedIntervalBlock).with(overflowCheckedMap))
+                .forEach(copy::addIntervalBlock);
+        return copy;
+    }
+
+    private IntervalBlock toCheckedIntervalBlock(IntervalBlock intervalBlock, Map<BaseReading, BigDecimal> overflowCheckedMap) {
+        if (intervalBlock.getIntervals().stream().noneMatch(overflowCheckedMap::containsKey)) {
+            return intervalBlock;
+        }
+        IntervalBlockImpl copy = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
+        intervalBlock.getIntervals()
+                .stream()
+                .map(use(this::toCheckedIntervalReading).with(overflowCheckedMap))
+                .forEach(copy::addIntervalReading);
+        return copy;
+    }
+
+    private Reading toCheckedReading(Reading reading, Map<BaseReading, BigDecimal> overflowCheckedMap) {
+        BigDecimal checked = overflowCheckedMap.get(reading);
+        if (checked != null) {
+            return new OverflowReading(reading, checked);
+        }
+        return reading;
+    }
+
+    private IntervalReading toCheckedIntervalReading(IntervalReading reading, Map<BaseReading, BigDecimal> overflowCheckedMap) {
+        BigDecimal checked = overflowCheckedMap.get(reading);
+        if (checked != null) {
+            return new OverflowIntervalReading(reading, checked);
+        }
+        return reading;
+    }
+
+    private Optional<Pair<BaseReading, BigDecimal>> readingPairedWithOverflow(Reading reading) {
+        return pairedWithOverflow(reading, reading.getReadingTypeCode());
+    }
+
+    private Optional<Pair<BaseReading, BigDecimal>> pairedWithOverflow(BaseReading reading, String readingTypeCode) {
+        return getOverflowValue(readingTypeCode)
+                .flatMap(use(this::getOverflowCheckedValue).on(reading));
+    }
+
+    private Optional<Pair<BaseReading, BigDecimal>> getOverflowCheckedValue(BaseReading reading, BigDecimal overFlow) {
+        return optionally(overflows(reading, overFlow), () -> Pair.of(reading, reading.getValue().subtract(overFlow)));
+    }
+
+    private boolean overflows(BaseReading reading, BigDecimal overFlow) {
+        BigDecimal value = reading.getValue();
+        return value != null && value.compareTo(overFlow) > 0;
+    }
+
+    private static <T> Optional<T> optionally(boolean condition, Supplier<T> valueIfTrue) {
+        return Optional.of(condition)
+                .filter(b -> b)
+                .map(b -> valueIfTrue.get());
+    }
+
+    private Optional<BigDecimal> getOverflowValue(String readingTypeCode) {
+        return getChannels()
+                .stream()
+                .filter(channel -> channel.getReadingType().getMRID().equals(readingTypeCode))
+                .findAny()
+                .map(Channel::getOverflow);
     }
 
     @Override
@@ -941,7 +1044,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval.upperEndpoint()));
         for (MeterActivation meterActivation : meterActivations) {
             Range<Instant> meterActivationInterval = meterActivation.getInterval().toOpenClosedRange().intersection(interval);
-            meterHasData |= meterActivationInterval.lowerEndpoint()!=meterActivationInterval.upperEndpoint();
+            meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
             for (IntervalReadingRecord meterReading : meterReadings) {
@@ -1484,7 +1587,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
                 .collect(Collectors.toList());
     }
 
-    private ConnectionTask add(ConnectionTaskImpl connectionTask){
+    private ConnectionTask add(ConnectionTaskImpl connectionTask) {
         Save.CREATE.validate(DeviceImpl.this.dataModel, connectionTask, Save.Create.class, Save.Update.class);
         DeviceImpl.this.connectionTasks.add(connectionTask);
         if (this.id != 0) {
@@ -1529,7 +1632,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     }
 
     @Override
-    public void removeComTaskExecution(ComTaskExecution comTaskExecution){
+    public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
         this.comTaskExecutions
                 .stream()
                 .filter(x -> x.getId() == comTaskExecution.getId())
@@ -1578,8 +1681,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x-> x.executesComSchedule(comSchedule)).findFirst().
-                orElseThrow(()-> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
+        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule)).findFirst().
+                orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
         removeComTaskExecution(toRemove);
     }
 
@@ -1939,7 +2042,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         public ScheduledComTaskExecution add() {
             executionsToDelete.forEach(DeviceImpl.this::removeComTaskExecution);
             ScheduledComTaskExecution comTaskExecution = super.add();
-            return (ScheduledComTaskExecution ) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
+            return (ScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
         }
     }
 
