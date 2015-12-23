@@ -19,12 +19,12 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPoolsGrid', {
 
     columns: [
         {
-            header: 'Communication port pool',
+            header: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
             dataIndex: 'name',
             flex: 3
         },
         {
-            header: 'Status',
+            header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
             dataIndex: 'active',
             flex: 1,
             renderer: function (value) {
