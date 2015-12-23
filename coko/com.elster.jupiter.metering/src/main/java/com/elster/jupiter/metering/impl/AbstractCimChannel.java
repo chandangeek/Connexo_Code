@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -269,15 +270,25 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     private void markEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
+        markDeltaReadingEstimated(derived, timeStamp, readingQualities);
+        markNextDeltaReadingEstimated(derived, timeStamp, readingQualities);//added to resolve COMU-3023
+    }
 
-            List<ReadingQualityRecordImpl> readingQualityRecords = derived.findReadingQuality(timeStamp).stream()
-                    .map(ReadingQualityRecordImpl.class::cast)
-                    .collect(Collectors.toList());
-            derived.makeNoLongerSuspect(readingQualityRecords);
-            readingQualities.stream()
-                    .filter(readingQuality -> readingQualityRecords.stream().map(ReadingQualityRecord::getType).noneMatch(type -> type.equals(readingQuality.getType())))
-                    .forEach(readingQuality -> derived.createReadingQuality(readingQuality.getType(), timeStamp));
+    private void markDeltaReadingEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
+        List<ReadingQualityRecordImpl> readingQualityRecords = derived.findReadingQuality(timeStamp).stream()
+                .map(ReadingQualityRecordImpl.class::cast)
+                .collect(Collectors.toList());
+        derived.makeNoLongerSuspect(readingQualityRecords);
+        readingQualities.stream()
+                .filter(readingQuality -> readingQualityRecords.stream().map(ReadingQualityRecord::getType).noneMatch(type -> type.equals(readingQuality.getType())))
+                .forEach(readingQuality -> derived.createReadingQuality(readingQuality.getType(), timeStamp));
+    }
 
+    private void markNextDeltaReadingEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
+        Optional<TemporalAmount> interval = derived.getIntervalLength();
+        if (interval.isPresent() && derived.getReading(timeStamp.plus(interval.get())).isPresent()) {
+            markDeltaReadingEstimated(derived, timeStamp.plus(interval.get()), readingQualities);
+        }
     }
 
     public Optional<CimChannel> derivedCimChannel() {
