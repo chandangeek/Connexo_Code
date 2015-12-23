@@ -186,7 +186,7 @@ Ext.define('Imt.controller.History', {
                             	register: {
                                     title: Uni.I18n.translate('general.label.usagepoint.register', 'IMT', 'Register'),
                                     route: '{registerId}',
-                                    controller: 'Imt.registerdata.controller.View',
+                                    controller: 'Imt.registerdata.controller.ViewData',
                                     action: 'showUsagePointRegisterData',
                                     callback: function (route) {
                                         this.getApplication().on('registerDataLoaded', function (record) {
@@ -195,6 +195,26 @@ Ext.define('Imt.controller.History', {
                                         }, {single: true});
 
                                         return this;
+                                    },
+                                    items: {
+                                        create: {
+                                            title: Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'),
+                                            route: 'add',
+                                            controller: 'Imt.registerdata.controller.EditData',
+                                 //           privileges: Mdc.privileges.Device.administrateDeviceData,
+                                            action: 'showRegisterDataAddView',
+                                 //           dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                 //           dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('registerdata.editReading', 'IMT', 'Edit reading'),
+                                            route: '{timestamp}/edit',
+                                            controller: 'Imt.registerdata.controller.EditData',
+                                  //          privileges: Mdc.privileges.Device.administrateDeviceData,
+                                            action: 'showRegisterDataEditView',
+                                  //          dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                  //          dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+                                        }
                                     }
                                 }                                    
                             }

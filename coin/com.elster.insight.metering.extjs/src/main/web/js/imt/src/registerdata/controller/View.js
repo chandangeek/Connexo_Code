@@ -4,38 +4,24 @@ Ext.define('Imt.registerdata.controller.View', {
         'Imt.registerdata.store.Register',
         'Imt.registerdata.view.Setup',
         'Imt.registerdata.view.Preview',
-        'Imt.registerdata.store.RegisterData',
-        'Imt.registerdata.view.RegisterDataSetup',
-        'Imt.registerdata.view.RegisterDataPreview'
+        'Imt.registerdata.view.ActionMenu'
     ],
     models: [
         'Imt.usagepointmanagement.model.UsagePoint',
         'Imt.registerdata.model.Register',
-        'Imt.registerdata.model.RegisterData',
-        'Imt.model.DataIntervalAndZoomLevels',
-        'Imt.channeldata.model.ChannelDataDuration'
     ],
     stores: [
         'Imt.registerdata.store.Register',
-        'Imt.registerdata.store.RegisterData',
-        'Imt.registerdata.store.RegisterDataDurations',
-        'Imt.store.DataIntervalAndZoomLevels',
-        'Imt.channeldata.store.ChannelDataDurations'
     ],
     views: [
-        'Imt.registerdata.view.RegisterList',
-        'Imt.registerdata.view.RegisterDataList'
+          'Imt.registerdata.view.RegisterList',
     ],
     refs: [
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
         {ref: 'registerList', selector: '#registerList'},
         {ref: 'registerListSetup', selector: '#registerListSetup'},
         {ref: 'registerPreview', selector: '#registerPreview'},
-        
-        {ref: 'registerDataOverviewLink', selector: '#register-data-overview-link'},
-        {ref: 'registerDataList', selector: '#registerDataList'},
-        {ref: 'registerDataSetup', selector: '#registerDataSetup'},
-        {ref: 'registerDataPreview', selector: '#registerDataPreview'}
+        {ref: 'registerActionMenu', selector: '#registerActionMenu'},
     ],
     init: function () {
         var me = this;
@@ -43,99 +29,187 @@ Ext.define('Imt.registerdata.controller.View', {
             '#registerList': {
                 select: me.onRegisterListSelect
             },
-            '#registerDataList': {
-                select: me.onRegisterDataListSelect
-            }
+            '#registerActionMenu': {
+                click: me.chooseAction
+            },
         });
     },
     showUsagePointRegisters: function (mRID) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            dataStore = me.getStore('Imt.registerdata.store.Register'),
-            usagePoint = Ext.create('Imt.usagepointmanagement.model.UsagePoint'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-       
-        pageMainContent.setLoading(true);
-        var widget = Ext.widget('registerListSetup', {router: router, mRID: mRID});
-        usagePoint.set('mRID', mRID);
-        me.getApplication().fireEvent('usagePointLoaded', usagePoint);
-        me.getApplication().fireEvent('changecontentevent', widget);
-        me.getOverviewLink().setText(mRID);
-        dataStore.getProxy().setUrl(mRID);
-        dataStore.load(function() {
-        	me.getRegisterList().getSelectionModel().select(0);
-        	pageMainContent.setLoading(false);
-        })
-
+	        router = me.getController('Uni.controller.history.Router'),
+	        registerStore = me.getStore('Imt.registerdata.store.Register'),
+	        usagePoint = Ext.create('Imt.usagepointmanagement.model.UsagePoint'),
+	        pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+        me.mRID = mRID;
+	    pageMainContent.setLoading(true);
+	    Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
+	        success: function (usagepoint) {
+	        	var widget = Ext.widget('registerListSetup', {
+	        		router: router, 
+	        		mRID: mRID,
+	        		usagepoint: usagepoint
+	        	});
+	        	me.getApplication().fireEvent('usagePointLoaded', usagepoint);
+	        	me.getApplication().fireEvent('changecontentevent', widget);
+	        	registerStore.load(function() {	
+	        		router.arguments.version = usagepoint.get('version');
+	      	        me.getRegisterList().getSelectionModel().select(0);
+	      	        pageMainContent.setLoading(false);
+	      	    });
+	        	me.getOverviewLink().setText(mRID);
+	        }
+	    });
+	    registerStore.getProxy().setUrl(mRID);
     },
-     onRegisterListSelect: function (rowmodel, record, index) {
+    onRegisterListSelect: function (rowmodel, record, index) {
         var me = this;
         me.previewRegisterData(record);
     },
 
     previewRegisterData: function (record) {
         var me = this,
-            widget = Ext.widget('registerPreview'), 
+        	router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('registerPreview', {router: router}), 
             form = widget.down('#registerPreviewForm'),
             previewContainer = me.getRegisterListSetup().down('#previewComponentContainer');
         
         form.loadRecord(record);
+        widget.tools[0].menu.record=record;
         widget.setTitle(record.get('readingTypeFullAliasName'));
         previewContainer.removeAll();
-        previewContainer.add(widget);
-   	
+        previewContainer.add(widget);    
     },
-    
-    showUsagePointRegisterData: function(mRID, registerId) {
-	     var me = this,
-         dataStore = me.getStore('Imt.registerdata.store.RegisterData'),
-         router = me.getController('Uni.controller.history.Router'),
-         registerModel = me.getModel('Imt.registerdata.model.Register'),
-         durationsStore = me.getStore('Imt.registerdata.store.RegisterDataDurations'),
-         pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-	   
-	     pageMainContent.setLoading(true);
-	     registerModel.getProxy().setUrl({mRID: mRID, registerId: registerId});
-	     registerModel.load(registerId, {
-            success: function (record) {
-                var widget = Ext.widget('registerDataSetup', {
-                        router: router, 
-                        mRID: mRID, 
-                        registerId: registerId,
-                        filter: {
-                           fromDate: new Date().getTime(),
-                           duration: '1months',
-                           durationStore: durationsStore
-                        }
-                });
-                me.getApplication().fireEvent('registerDataLoaded', record);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getOverviewLink().setText(mRID); 
-                dataStore.getProxy().setUrl({mRID: mRID, registerId: registerId});
-	            dataStore.load(function() {
-	            	me.getRegisterDataList().getSelectionModel().select(0);
-	            	me.getRegisterDataList().setTitle(record.get('readingTypeFullAliasName'));
-	            	pageMainContent.setLoading(false);
-	            });
-            }
-	     });
-    },
-    onRegisterDataListSelect: function (rowmodel, record, index) {
-        var me = this;
-        me.previewRegisterData2(record);
-    },
-    previewRegisterData2: function (record) {
+    chooseAction: function (menu, item) {
         var me = this,
-            widget = Ext.widget('registerDataPreview'), 
-            form = widget.down('#registerDataPreviewForm'),
-            previewContainer = me.getRegisterDataSetup().down('#previewComponentContainer');
-        
-        form.loadRecord(record);
-        var datestr = Uni.I18n.translate('general.dateattime', 'IMT', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(record.get('readingTime'))),Uni.DateTime.formatTimeLong(new Date(record.get('readingTime')))], false);
-        widget.setTitle(datestr);
-        previewContainer.removeAll();
-        previewContainer.add(widget);
-   	
-    }
+        router = this.getController('Uni.controller.history.Router'),
+        routeParams = router.arguments,
+        route,
+        filterParams = {};
+
+	    switch (item.action) {
+	        case 'validateNow':
+	            me.showValidateNowMessage(menu.record);
+	            break;
+	        case 'viewSuspects':
+	            filterParams.suspect = 'suspect';
+	            route = 'usagepoints/view/registers/register'; 
+	            break;
+	    }
+	
+	    route && (route = router.getRoute(route));
+	        route && route.forward(routeParams, filterParams); 
+    },
+    showValidateNowMessage: function (record) {
+    	var me = this,
+    	router = me.getController('Uni.controller.history.Router'),
+        mRID = me.mRID ? me.mRID : router.arguments.mRID;
+
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                itemId: 'validateNowRegisterConfirmationWindow',
+                confirmText: Uni.I18n.translate('general.validate', 'IMT', 'Validate'),
+                confirmation: function () {
+                    me.activateDataValidation(record, this);
+                }
+            });
+        Ext.Ajax.request({
+        	url: '../../api/udr/usagepoints/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
+        	method: 'GET',
+            success: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+                if (res.hasValidation) {
+                    if (res.lastChecked) {
+                        me.dataValidationLastChecked = new Date(res.lastChecked);
+                    } else {
+                        me.dataValidationLastChecked = new Date();
+                    }
+                    confirmationWindow.insert(1, me.getValidationContent());
+                    confirmationWindow.show({
+                        title: Uni.I18n.translate('registerdata.validation.validateNow', 'IMT', 'Validate data of register configuration {0}?', [record.get('name')]),
+                        msg: ''
+                    });
+                } else {
+                    var title = Uni.I18n.translate('registerdata.validateNow.error', 'IMT', 'Failed to validate data of register configuration {0}', [record.get('name')]),
+                        message = Uni.I18n.translate('registerdata.validation.noData', 'IMT', 'There is currently no data for this register configuration'),
+                        config = {
+                            icon: Ext.MessageBox.WARNING
+                        };
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                }
+            }
+        });
+        confirmationWindow.on('close', function () {
+            this.destroy();
+        });
+    },
+    activateDataValidation: function (record, confWindow) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        record.data.version = router.arguments.version;
+        if (confWindow.down('#validateRegisterFromDate').getValue() > me.dataValidationLastChecked) {
+            confWindow.down('#validateRegisterDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'IMT', 'The date should be before or equal to the default date.'));
+            confWindow.down('#validateRegisterDateErrors').setVisible(true);
+        } else {
+            confWindow.down('button').setDisabled(true);
+            Ext.Ajax.request({
+                url: '../../api/udr/usagepoints/' + encodeURIComponent(me.mRID) + '/registers/' + record.get('id') + '/validate',
+                method: 'PUT',
+                isNotEdit: true,
+                jsonData: Ext.merge({
+                    lastChecked: confWindow.down('#validateRegisterFromDate').getValue().getTime(),
+                }, _.pick(record.getData(), 'id', 'name', 'version')),
+                success: function () {
+                    confWindow.removeAll(true);
+                    confWindow.destroy();
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('registerdata.validation.completed', 'IMT', 'Data validation completed'));
+                    router.getRoute().forward();
+                },
+                failure: function () {
+                    confWindow.removeAll(true);
+                    confWindow.destroy();
+                }
+            });
+
+        }
+    },
+
+    getValidationContent: function () {
+        var me = this;
+        return Ext.create('Ext.container.Container', {
+            defaults: {
+                labelAlign: 'left',
+                labelStyle: 'font-weight: normal; padding-left: 50px'
+            },
+            items: [
+                {
+                    xtype: 'datefield',
+                    itemId: 'validateRegisterFromDate',
+                    editable: false,
+                    showToday: false,
+                    value: me.dataValidationLastChecked,
+                    fieldLabel: Uni.I18n.translate('registerdata.validation.item1', 'IMT', 'The data of register configuration will be validated starting from'),
+                    labelWidth: 375,
+                    labelPad: 0.5
+                },
+                {
+                    xtype: 'panel',
+                    itemId: 'validateRegisterDateErrors',
+                    hidden: true,
+                    bodyStyle: {
+                        color: '#eb5642',
+                        padding: '0 0 15px 65px'
+                    },
+                    html: ''
+                },
+                {
+                    xtype: 'displayfield',
+                    value: '',
+                    fieldLabel: Uni.I18n.translate('registerdata.validateNow.item2', 'IMT', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
+                    labelWidth: 500
+                }
+            ]
+        });
+    },
 });
 

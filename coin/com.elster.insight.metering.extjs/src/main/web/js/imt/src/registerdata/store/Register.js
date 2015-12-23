@@ -1,6 +1,8 @@
 Ext.define('Imt.registerdata.store.Register', {
-    extend: 'Ext.data.Store',
+	extend: 'Uni.data.store.Filterable',
     model: 'Imt.registerdata.model.Register',
+    storeId: 'register',
+    autoLoad: false,
 	proxy: {
 	    type: 'rest',
 	    urlTpl: '/api/udr/usagepoints/{mRID}/registers',

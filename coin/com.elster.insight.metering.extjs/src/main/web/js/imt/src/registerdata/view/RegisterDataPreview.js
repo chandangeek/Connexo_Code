@@ -6,9 +6,22 @@ Ext.define('Imt.registerdata.view.RegisterDataPreview', {
 
     requires: [
         'Imt.registerdata.view.ActionMenu',
-        'Uni.form.field.ReadingTypeDisplay'
+        'Uni.form.field.ReadingTypeDisplay',
+        'Imt.registerdata.view.RegisterDataValidationPreview'
     ],
 
+    tools: [
+            {
+                xtype: 'button',
+                text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                itemId: 'registerDataActionButton',
+                iconCls: 'x-uni-action-iconD',
+                menu: {
+                    xtype: 'registerDataActionMenu'
+                }
+            }
+    ],
+        
     initComponent: function () {
         var me = this;
         me.items = [
@@ -56,6 +69,10 @@ Ext.define('Imt.registerdata.view.RegisterDataPreview', {
                                 name: 'deltaValue'
                             }
                         ]
+                    },
+                    {
+                    	xtype: 'registerDataValidationPreview',
+                    	router: me.router
                     }
                 ]
             }
