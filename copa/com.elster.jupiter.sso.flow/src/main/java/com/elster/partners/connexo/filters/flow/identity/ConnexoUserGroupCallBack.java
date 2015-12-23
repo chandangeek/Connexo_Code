@@ -1,6 +1,9 @@
 package com.elster.partners.connexo.filters.flow.identity;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import org.jboss.solder.core.Veto;
 import org.kie.api.task.UserGroupCallback;
@@ -8,9 +11,11 @@ import org.kie.api.task.UserGroupCallback;
 @Veto
 public class ConnexoUserGroupCallBack implements UserGroupCallback {
 
-	ConnexoFlowRestProxyManager manager = ConnexoFlowRestProxyManager.getInstance();
+	ConnexoFlowRestProxyManager manager;
 
-    ConnexoUserGroupCallBack() {}
+    ConnexoUserGroupCallBack() {
+		manager = ConnexoFlowRestProxyManager.getInstance();
+	}
 
 	@Override
 	public boolean existsUser(String userId) {

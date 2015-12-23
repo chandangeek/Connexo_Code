@@ -4,41 +4,64 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by dragos on 11/17/2015.
  */
 public class ConnexoFlowRestProxyManager {
 
+    private static final String CONNEXO_CONFIG = System.getProperty("connexo.configuration");
+
     private final String url;
-    private final String token;
+    private final String user;
+    private final String password;
+    private String token;
 
     private static ConnexoFlowRestProxyManager instance = null;
 
-    public static synchronized ConnexoFlowRestProxyManager getInstance(String url, String token) {
+    public static synchronized ConnexoFlowRestProxyManager getInstance() {
         if(instance == null) {
-            instance = new ConnexoFlowRestProxyManager(url, token);
+            Properties properties = new Properties();
+            if(CONNEXO_CONFIG != null){
+                try {
+                    FileInputStream inputStream = new FileInputStream(CONNEXO_CONFIG);
+                    properties.load(inputStream);
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String property = properties.getProperty("com.elster.jupiter.url");
+            String url_param = (property != null) ? property : "http://localhost:8080";
+
+            property = properties.getProperty("com.elster.jupiter.user");
+            String user_param = (property != null) ? property : "admin";
+
+            property = properties.getProperty("com.elster.jupiter.password");
+            String password_param = (property != null) ? property : "admin";
+
+            instance = new ConnexoFlowRestProxyManager(url_param, user_param, password_param);
         }
 
         return instance;
     }
 
-    static ConnexoFlowRestProxyManager getInstance() {
-        return instance;
+    private ConnexoFlowRestProxyManager(String url, String user, String password) {
+        this.url = url;
+        this.user = user;
+        this.password = password;
     }
 
-    private ConnexoFlowRestProxyManager(String url, String token) {
-        this.url = url;
+    public void setToken(String token){
         this.token = token;
     }
 
@@ -193,11 +216,10 @@ public class ConnexoFlowRestProxyManager {
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("GET");
-            // TODO: use the proper header name here
-            httpConnection.setRequestProperty("X-CONNEXO-TOKEN", this.token);
-            httpConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString("admin:admin".getBytes()));
+            //httpConnection.setRequestProperty("X-CONNEXO-TOKEN", this.token);
+            httpConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((this.user + ":" + this.password).getBytes()));
             httpConnection.setRequestProperty("Accept", "application/json");
-            if (httpConnection.getResponseCode() != 200) {
+            if (httpConnection.getResponseCode() < 200 || httpConnection.getResponseCode() >= 300) {
                 throw new RuntimeException("Failed : HTTP error code : "
                         + httpConnection.getResponseCode());
             }
