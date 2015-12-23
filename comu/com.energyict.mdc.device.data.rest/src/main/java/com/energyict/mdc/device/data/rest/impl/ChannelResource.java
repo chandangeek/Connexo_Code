@@ -352,9 +352,16 @@ public class ChannelResource {
         }else{
             Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis-1), Instant.ofEpochMilli(epochMillis));
             List<LoadProfileReading> channelData = channel.getChannelData(range);
-            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation)).collect(Collectors.toList());
-            infos.get(0).bulkValidationInfo.isConfirmed = false;
-            return Response.ok(infos).build();
+            Optional<ChannelDataInfo> found = channelData.stream().map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation)).findFirst();
+            return Response.ok(found.orElse(new ChannelDataInfo())).build();
+            /*if(found.isPresent()) {
+                ChannelDataInfo info = found.get();
+                info.bulkValidationInfo.isConfirmed = false;
+                return Response.ok(info).build();
+            }
+            else{
+                return Response.ok(new VeeReadingInfo()).build();
+            }*/
         }
     }
 
