@@ -108,7 +108,8 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 defaults: {
                     labelWidth: me.defaults.labelWidth,
                     width: 320,
-                    resetButtonHidden: true
+                    resetButtonHidden: true,
+                    hasNotValueSameAsDefaultMessage: true
                 }
             },
             {
