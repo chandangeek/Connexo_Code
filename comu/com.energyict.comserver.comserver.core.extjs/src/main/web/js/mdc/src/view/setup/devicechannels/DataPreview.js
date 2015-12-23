@@ -267,7 +267,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             },
             {
                 fieldLabel: Uni.I18n.translate('devicechannelsreadings.validationstatus.title', 'MDC', 'Validation status'),
-                name: 'validationStatus',
+                name: 'validationActive',
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('general.active', 'MDC', 'Active') :
                         Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
