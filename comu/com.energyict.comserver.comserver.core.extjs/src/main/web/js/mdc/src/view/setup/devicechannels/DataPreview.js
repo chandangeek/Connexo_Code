@@ -159,7 +159,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 result += ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
             });
             field.setValue(result);
-        } else if (!Ext.isEmpty(value)) {
+        } else if (Array.isArray(value) && !Ext.isEmpty(value)) {
             field.show();
             Ext.Array.each(value, function (rule) {
                 result += Ext.String.htmlEncode(rule.name) + '<br>';
@@ -267,7 +267,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             },
             {
                 fieldLabel: Uni.I18n.translate('devicechannelsreadings.validationstatus.title', 'MDC', 'Validation status'),
-                name: 'validationStatus',
+                name: 'validationActive',
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('general.active', 'MDC', 'Active') :
                         Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')

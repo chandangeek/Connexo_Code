@@ -261,7 +261,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             jsonValues = Ext.JSON.encode(formValue);
             formErrorsPanel.hide();
             switch (btn.action) {
-                case 'Add':
+                case 'add':
                     preloader = Ext.create('Ext.LoadMask', {
                         msg: "Adding channel",
                         target: formPanel
@@ -280,7 +280,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         }
                     });
                     break;
-                case 'Save':
+                case 'edit':
                     preloader = Ext.create('Ext.LoadMask', {
                         msg: "Editing channel",
                         target: formPanel

@@ -20,6 +20,7 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
 
     refresh: function(device, channel, callback) {
         var me = this,
+            record = this,
             channelsIds = _.keys(me.get('channelData')),
             requestCount = channelsIds.length,
             reading = me.get('interval').end,
@@ -40,8 +41,12 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
                         .replace('{reading}', reading),
                     success: function(response) {
                         var data = Ext.decode(response.responseText);
-
                         Ext.merge(channelValidationData[channelId], data);
+
+                        record.beginEdit();
+                        record.set('validationActive', record.get('validationActive') || channelValidationData[channelId].validationActive);
+                        record.endEdit();
+
                         doCallback();
                     }
                 })

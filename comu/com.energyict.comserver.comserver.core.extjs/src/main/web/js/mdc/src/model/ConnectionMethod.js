@@ -7,6 +7,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string', useNull: true},
         {name: 'direction', type: 'string', useNull: true},
+        {name: 'displayDirection', type: 'string', useNull: true},
         {name: 'allowSimultaneousConnections', type: 'boolean', useNull: true},
         {name: 'isDefault', type: 'boolean', useNull: true},
         {name: 'comPortPool', type: 'string', useNull: true},

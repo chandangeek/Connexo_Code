@@ -154,7 +154,9 @@ Ext.define('Mdc.devicetypecustomattributes.controller.AttributeSets', {
         customAttributesSetsStore.getProxy().setUrl(deviceTypeId);
         widget = Ext.widget('device-type-add-custom-attribute-sets-setup', {deviceTypeId: deviceTypeId});
         me.getApplication().fireEvent('changecontentevent', widget);
-        customAttributesSetsStore.load();
+        customAttributesSetsStore.load(function () {
+            widget.down('device-type-add-custom-attribute-sets-grid').getSelectionModel().deselectAll();
+        });
         me.loadDeviceTypeModel(me, widget, deviceTypeId);
     },
 
