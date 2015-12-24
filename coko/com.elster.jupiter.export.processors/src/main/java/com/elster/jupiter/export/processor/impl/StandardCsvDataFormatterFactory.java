@@ -85,17 +85,6 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.UPDATE_TAG.getKey(), true, null));
         SeparatorFinder separatorFinder = new SeparatorFinder(thesaurus);
         PropertySpecBuilder builder = propertySpecService.newPropertySpecBuilder(new StringReferenceFactory(separatorFinder));
-        System.err.println();
-        System.err.println();
-        System.err.println("-------------------FFFFFFFFFFFFFFFFFFF----------------------" + separatorFinder.getValues()[1]);
-        System.err.println();
-        System.err.println();
-        System.err.println();
-        System.err.println();
-        System.err.println();
-        System.err.println();
-        System.err.println();
-        System.err.println();
         builder.name(FormatterProperties.SEPARATOR.getKey(), FormatterProperties.SEPARATOR.getKey()).markRequired().addValues(separatorFinder.getValues()).markExhaustive();
 
         propertySpecs.add(builder.finish());
