@@ -11,19 +11,25 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
         var me = this,
             intervalStart = (new Date()).setHours(0, 0, 0, 0);
 
-
         me.filters = [
             {
                 type: 'datetimeselect',
-                value:  moment(intervalStart).toDate(),
+                value: moment(intervalStart).toDate(),
                 dataIndex: 'intervalStart',
                 name: 'intervalStart'
             }
 
         ];
 
-
         me.callParent(arguments);
+    },
+
+    clearFilters: function () {
+        var me = this,
+            intervalStart = (new Date()).setHours(0, 0, 0, 0);
+
+        me.down('uni-grid-filtertop-datetime-select').setFilterValue(intervalStart);
+        me.applyFilters();
     },
 
     onBeforeLoad: function (store, options) {
@@ -82,7 +88,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
 
         return {
             intervalRegisterStart: filterParams.intervalStart,
-            intervalRegisterEnd:  moment(filterParams.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf()
+            intervalRegisterEnd: moment(filterParams.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf()
         };
     }
 });
