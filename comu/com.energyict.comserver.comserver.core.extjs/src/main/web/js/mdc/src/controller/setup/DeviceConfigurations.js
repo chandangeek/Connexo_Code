@@ -870,6 +870,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     cancelChangeDeviceConfiguration: function (btn) {
         var router = this.getController('Uni.controller.history.Router');
+        Ext.state.Manager.clear('newDeviceConfig');
         router.getRoute('devices/device').forward();
     }
 });
