@@ -282,6 +282,7 @@ public class EstimationResource {
                                 Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
                                 estimationRuleBuilder.havingProperty(propertySpec.getName()).withValue(value);
                             });
+                    estimationRuleBuilder.active(false);
                     EstimationRule rule = estimationRuleBuilder.create();
                     return new EstimationRuleInfo(rule, propertyUtils);
                 });
