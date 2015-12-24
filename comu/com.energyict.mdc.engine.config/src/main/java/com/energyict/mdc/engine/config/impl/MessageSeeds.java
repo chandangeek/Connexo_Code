@@ -7,7 +7,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-    SHOULD_BE_AT_LEAST(1, Keys.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {value} seconds.", Level.SEVERE),
+    SHOULD_BE_AT_LEAST(1, Keys.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {value}", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Keys.MDC_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
     VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "Value not in range {min} to {max}", Level.SEVERE),
     INVALID_URL(4, Keys.MDC_INVALID_URL, "This is not a valid URL", Level.SEVERE),
@@ -31,7 +31,9 @@ public enum MessageSeeds implements MessageSeed {
     COMPORTPOOL_STILL_REFERENCED(111, Keys.MDC_COMPORTPOOL_STILL_REFERENCED, "Comport pool is still referenced by comport(s)", Level.SEVERE),
     OUTBOUND_COMPORT_STILL_IN_POOL(112, Keys.OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL, "The outbound comport is still contained in a pool", Level.SEVERE),
     NO_SUCH_PLUGGABLE_CLASS(113, Keys.MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID, "The comportpool references a non-existing pluggable class", Level.SEVERE),
-    VETO_DISCOVERYPROTOCOLPLUGGABLECLASS_DELETION(114, Keys.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y, "The device protocol pluggable class {0} is still used by the following device types: {1}", Level.SEVERE);
+    VETO_DISCOVERYPROTOCOLPLUGGABLECLASS_DELETION(114, Keys.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y, "The device protocol pluggable class {0} is still used by the following device types: {1}", Level.SEVERE),
+    PORT_NUMBER_MAX_VALUE(115, Keys.PORT_NUMBER_MAX_VALUE, "Maximum acceptable value is {value}", Level.SEVERE),
+    ;
 
     private final int number;
     private final String key;
@@ -98,6 +100,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL = "outboundComPortXStillMemberOfPool";
         public static final String MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID = "ComPortPool.pluggableClass.invalid";
         public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y = "discoveryProtocolPluggableClass.XstillInUseByDeviceTypesY";
+        public static final String PORT_NUMBER_MAX_VALUE = "PortNumberMaxValue";
     }
 
 }
