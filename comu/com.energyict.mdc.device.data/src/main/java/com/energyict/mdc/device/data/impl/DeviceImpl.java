@@ -4,6 +4,9 @@ import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -16,7 +19,21 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -40,19 +57,67 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.exceptions.*;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
+import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
+import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.*;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -63,6 +128,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -70,12 +136,27 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.time.*;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -99,6 +180,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     private final ValidationService validationService;
     private final SecurityPropertyService securityPropertyService;
     private final MeteringGroupsService meteringGroupsService;
+    private final CustomPropertySetService customPropertySetService;
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
@@ -169,7 +251,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
             Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
             Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider,
             Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider,
-            MeteringGroupsService meteringGroupsService) {
+            MeteringGroupsService meteringGroupsService,
+            CustomPropertySetService customPropertySetService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -185,6 +268,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
         this.firmwareComTaskExecutionProvider = firmwareComTaskExecutionProvider;
         this.meteringGroupsService = meteringGroupsService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
@@ -309,8 +393,22 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         deleteSecuritySettings();
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
+        this.removeCustomProperties();
         this.obsoleteKoreDevice();
         this.getDataMapper().remove(this);
+    }
+
+    private void removeCustomProperties() {
+        this.getDeviceType().getCustomPropertySets().forEach(this::removeCustomPropertiesFor);
+    }
+
+    private void removeCustomPropertiesFor(RegisteredCustomPropertySet customPropertySet) {
+        this.removeCustomPropertiesFor(customPropertySet.getCustomPropertySet());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removeCustomPropertiesFor(CustomPropertySet customPropertySet) {
+        this.customPropertySetService.removeValuesFor(customPropertySet, this);
     }
 
     private void obsoleteKoreDevice() {
