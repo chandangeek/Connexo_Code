@@ -11,8 +11,10 @@ public enum FormatterProperties implements TranslationKey {
     FORMATTER_PROPERTIES("formatterProperties", "Formatter properties"),
     SEPARATOR(FORMATTER_PROPERTIES.getKey() + ".separator", "Separator"),
     TAG(FORMATTER_PROPERTIES.getKey() + '.' + "tag", "Identifier"),
-    UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Update identifier");
-
+    UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Update identifier"),
+    SEPARATOR_COMMA("Comma (,)", "Comma (,)"),
+    SEPARATOR_SEMICOLON("Semicolon (;)", "Semicolon (;)"),
+    ;
 
     private String name;
     private String defaultTranslation;
@@ -21,7 +23,6 @@ public enum FormatterProperties implements TranslationKey {
         this.name = name;
         this.defaultTranslation = defaultTranslation;
     }
-
 
     @Override
     public String getKey() {
@@ -32,6 +33,4 @@ public enum FormatterProperties implements TranslationKey {
     public String getDefaultFormat() {
         return defaultTranslation;
     }
-
-
 }

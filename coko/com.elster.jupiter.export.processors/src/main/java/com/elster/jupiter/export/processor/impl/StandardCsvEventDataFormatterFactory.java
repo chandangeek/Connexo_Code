@@ -10,7 +10,9 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.StringReferenceFactory;
 import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.validation.ValidationService;
 import org.osgi.service.component.annotations.Component;
@@ -58,7 +60,7 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     @Reference
     public void setThesaurus(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.REST);
     }
 
     @Reference
@@ -76,12 +78,14 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
         this.meteringService = meteringService;
     }
 
-
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.TAG.getKey(), true, null));
-        propertySpecs.add(propertySpecService.stringPropertySpecWithValues(FormatterProperties.SEPARATOR.getKey(), true, "Comma (,)", "Semicolon (;)"));
+        SeparatorFinder separatorFinder = new SeparatorFinder(thesaurus);
+        PropertySpecBuilder builder = propertySpecService.newPropertySpecBuilder(new StringReferenceFactory(separatorFinder));
+        builder.name(FormatterProperties.SEPARATOR.getKey(), FormatterProperties.SEPARATOR.getKey()).markRequired().addValues(separatorFinder.getValues()).markExhaustive();
+        propertySpecs.add(builder.finish());
         return propertySpecs;
     }
 
@@ -94,8 +98,8 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
         return (String) properties.get(FormatterProperties.TAG.getKey());
     }
 
-    private String getSeparator(Map<String, Object> properties) {
-        return (String) properties.get(FormatterProperties.SEPARATOR.getKey());
+    private TranslatablePropertyValueInfo getSeparator(Map<String, Object> properties) {
+        return (TranslatablePropertyValueInfo) properties.get(FormatterProperties.SEPARATOR.getKey());
     }
 
     @Override

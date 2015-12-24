@@ -88,7 +88,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         this.meteringService = meteringService;
 
         if (propertyMap.containsKey(FormatterProperties.SEPARATOR.getKey())) {
-            defineSeparator(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
+            defineSeparator((TranslatablePropertyValueInfo) propertyMap.get(FormatterProperties.SEPARATOR.getKey()));
         } else {
             this.fieldSeparator = DEFAULT_SEPARATOR;
         }
@@ -198,10 +198,10 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         return Stream.of(intervalBlocks.stream()
                 .map(IntervalBlock::getIntervals)
                 .flatMap(Collection::stream), readings.stream())
-                    .flatMap(Function.identity())
-                    .map(BaseReading::getTimeStamp)
-                    .max(Comparator.naturalOrder())
-                    .orElse(null);
+                .flatMap(Function.identity())
+                .map(BaseReading::getTimeStamp)
+                .max(Comparator.naturalOrder())
+                .orElse(null);
     }
 
 
@@ -286,15 +286,11 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
     public void endExport() {
     }
 
-    private void defineSeparator(String separator) {
-        switch (separator) {
-            case SEMICOLON_VALUE:
-                this.fieldSeparator = SEMICOLON_SEPARATOR;
-                break;
-            case COMMA_VALUE:
-            default:
-                this.fieldSeparator = COMMA_SEPARATOR;
-                break;
+    private void defineSeparator(TranslatablePropertyValueInfo translatablePropertyValueInfo) {
+        if (translatablePropertyValueInfo.getId().equals(FormatterProperties.SEPARATOR_SEMICOLON.getKey())) {
+            this.fieldSeparator = SEMICOLON_SEPARATOR;
+        } else {
+            this.fieldSeparator = COMMA_SEPARATOR;
         }
     }
 
