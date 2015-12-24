@@ -1,8 +1,6 @@
 package com.elster.jupiter.tasks.rest.impl;
 
-        import com.elster.jupiter.nls.Layer;
-        import com.elster.jupiter.nls.NlsService;
-        import com.elster.jupiter.nls.Thesaurus;
+        import com.elster.jupiter.nls.*;
         import com.elster.jupiter.rest.util.RestQueryService;
         import com.elster.jupiter.tasks.TaskService;
         import com.elster.jupiter.time.TimeService;
@@ -13,11 +11,10 @@ package com.elster.jupiter.tasks.rest.impl;
         import org.osgi.service.component.annotations.Reference;
 
         import javax.ws.rs.core.Application;
-        import java.util.HashSet;
-        import java.util.Set;
+        import java.util.*;
 
-@Component(name = "com.elster.jupiter.tasks.rest", service = Application.class, immediate = true, property = {"alias=/tsk", "app=SYS", "name=" + TaskApplication.COMPONENT_NAME})
-public class TaskApplication extends Application {
+@Component(name = "com.elster.jupiter.tasks.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/tsk", "app=SYS", "name=" + TaskApplication.COMPONENT_NAME})
+public class TaskApplication extends Application implements TranslationKeyProvider {
     public static final String COMPONENT_NAME = "TSK";
 
     private volatile TaskService taskService;
@@ -72,5 +69,22 @@ public class TaskApplication extends Application {
             bind(taskService).to(TaskService.class);
             bind(thesaurus).to(Thesaurus.class);
         }
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        return keys;
     }
 }

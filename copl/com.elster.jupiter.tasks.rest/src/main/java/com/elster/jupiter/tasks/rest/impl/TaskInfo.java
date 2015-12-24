@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
-import com.elster.jupiter.tasks.TranslationKeys;
+
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
