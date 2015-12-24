@@ -55,12 +55,9 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
 
                 me.getStore('Dbp.deviceprocesses.store.RunningProcesses').getProxy().setUrl('mrid', me.mRID);
                 me.getStore('Dbp.deviceprocesses.store.HistoryProcesses').getProxy().setUrl('mrid', me.mRID);
-              //  if (!widget) {
-                    widget = Ext.widget('dbp-device-processes-main-view', {device: device});
-                    me.getApplication().fireEvent('changecontentevent', widget);
-             //   } else {
-            //        widget.device = device;
-            //    }
+
+                widget = Ext.widget('dbp-device-processes-main-view', {device: device});
+                me.getApplication().fireEvent('changecontentevent', widget);
 
                 var queryString = Uni.util.QueryString.getQueryStringValues(false);
                 me.getProcessesTab().setActiveTab(queryString.activeTab == 'history' ? 1 : 0);
@@ -69,7 +66,6 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
                     me.getHistoryProcessesGrid().getSelectionModel().select(0);
                     return true;
                 }, this);
-
             },
             failure: function (response) {
                 viewport.setLoading(false);
@@ -95,9 +91,9 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
                 openTasksValue += '<br>';
             }
 
-            var taskName = rec.get('name').length >0? rec.get('name'): Uni.I18n.translate('dbp.process.noTaskName', 'DBP', 'No task name'),
+            var taskName = rec.get('name').length > 0 ? rec.get('name') : Uni.I18n.translate('dbp.process.noTaskName', 'DBP', 'No task name'),
                 status = rec.get('statusDisplay'),
-                assign = rec.get('actualOwner').length >0? rec.get('actualOwner'): Uni.I18n.translate('dbp.process.unassigned', 'DBP', 'Unassigned');
+                assign = rec.get('actualOwner').length > 0 ? rec.get('actualOwner') : Uni.I18n.translate('dbp.process.unassigned', 'DBP', 'Unassigned');
 
             if (Dbp.privileges.DeviceProcesses.canAssignOrExecute()) {
                 openTasksValue += Ext.String.format('<a href =\"{0}\">{1}</a> ({2}, {3})',
@@ -109,7 +105,7 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
             }
         });
 
-        me.getOpenTasksDisplay().setValue((openTasksValue.length > 0)? openTasksValue: Uni.I18n.translate('dbp.process.noOpenTasks', 'DBP', 'None'));
+        me.getOpenTasksDisplay().setValue((openTasksValue.length > 0) ? openTasksValue : Uni.I18n.translate('dbp.process.noOpenTasks', 'DBP', 'None'));
         Ext.resumeLayouts();
     },
 
@@ -146,11 +142,14 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
 
         var selectionModel = me.getHistoryProcessesGrid().getSelectionModel();
         if ((tab.itemId === 'history-processes-tab')
-            && me.getHistoryProcessesGrid().getStore().getCount() > 0
-            && selectionModel.getCount() == 0) {
-            selectionModel.select(0);
+            && me.getHistoryProcessesGrid().getStore().getCount() > 0) {
+            if (selectionModel.getCount() == 0) {
+                selectionModel.select(0);
+            }
+            else {
+                me.showHistoryPreview(selectionModel, selectionModel.getSelection()[0]);
+            }
         }
-
         me.applyNewState(queryString);
     }
 });

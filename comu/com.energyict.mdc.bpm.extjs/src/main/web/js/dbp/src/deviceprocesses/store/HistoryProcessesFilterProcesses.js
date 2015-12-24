@@ -17,6 +17,7 @@ Ext.define('Dbp.deviceprocesses.store.HistoryProcessesFilterProcesses', {
 
     fields: [
         {name: 'name', type: 'string'},
-        {name: 'id', type: 'string'}
+        {name: 'id', type: 'string'},
+        {name: 'deploymentId', type: 'string'}
     ]
 });

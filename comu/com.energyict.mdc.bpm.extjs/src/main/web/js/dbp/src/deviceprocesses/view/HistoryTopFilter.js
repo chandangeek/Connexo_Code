@@ -11,7 +11,7 @@ Ext.define('Dbp.deviceprocesses.view.HistoryTopFilter', {
                 dataIndex: 'process',
                 emptyText: Uni.I18n.translate('dbp.process.filter.process', 'DBP', 'Process'),
                 multiSelect: true,
-                displayField: 'id',
+                displayField: 'name',
                 valueField: 'id',
                 width: 240,
                 store: 'Dbp.deviceprocesses.store.HistoryProcessesFilterProcesses'
