@@ -62,12 +62,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+
 import com.google.common.collect.Sets;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -82,6 +79,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.LongStream;
+
+import org.junit.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -262,7 +264,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
         when(deviceType.getRegisterTypeTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
-        when(deviceType.getDeviceTypeCustomPropertySetUsage()).thenReturn(Arrays.asList(registeredCustomPropertySet));
+        when(deviceType.getCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
         when(deviceType.getName()).thenReturn(name);
         when(deviceType.getId()).thenReturn(id);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
