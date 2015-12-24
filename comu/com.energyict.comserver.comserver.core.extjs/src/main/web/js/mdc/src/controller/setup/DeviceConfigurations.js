@@ -128,14 +128,20 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     deviceConfigRestoreState: function (combo) {
-        combo.setValue(Ext.state.Manager.get('newDeviceConfig'));
+        var device = this.getChangeDeviceConfigurationView().device,
+            deviceConfigState = Ext.state.Manager.get('deviceConfigState');
+        if (Ext.isObject(deviceConfigState)) {
+            combo.setValue(deviceConfigState[device.get('mRID')]);
+        }
         if (!Ext.isEmpty(combo.getValue())) {
             this.getSaveChangeDeviceConfigurationBtn().setDisabled(false);
         }
     },
 
     deviceConfigSaveState: function (combo) {
-        Ext.state.Manager.set('newDeviceConfig', combo.getValue());
+        var device = this.getChangeDeviceConfigurationView().device, deviceConfigState = {};
+        deviceConfigState[device.get('mRID')] = combo.getValue();
+        Ext.state.Manager.set('deviceConfigState', deviceConfigState);
         this.getSaveChangeDeviceConfigurationBtn().setDisabled(false);
     },
 
@@ -796,7 +802,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             method: 'PUT',
             jsonData: device.data,
             success: function () {
-                Ext.state.Manager.clear('newDeviceConfig');
+                Ext.state.Manager.clear('deviceConfigState');
                 router.getRoute('devices/device').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.changeDeviceConfiguration.changed', 'MDC', 'Device configuration successfully changed'));
             },
@@ -868,9 +874,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         });
     },
 
-    cancelChangeDeviceConfiguration: function (btn) {
+    cancelChangeDeviceConfiguration: function () {
         var router = this.getController('Uni.controller.history.Router');
-        Ext.state.Manager.clear('newDeviceConfig');
+        Ext.state.Manager.clear('deviceConfigState');
         router.getRoute('devices/device').forward();
     }
 });
