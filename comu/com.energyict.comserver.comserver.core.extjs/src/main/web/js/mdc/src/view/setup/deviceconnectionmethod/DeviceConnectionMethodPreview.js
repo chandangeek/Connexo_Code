@@ -210,7 +210,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                         align: 'stretch'
                     },
                     defaults: {
-                        labelWidths: 250,
+                        labelWidth: 250,
                         labelAlign: 'left'
                     },
                     items: [
