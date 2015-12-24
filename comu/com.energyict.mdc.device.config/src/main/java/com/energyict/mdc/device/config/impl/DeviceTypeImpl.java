@@ -36,11 +36,16 @@ import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceType
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.masterdata.*;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -246,7 +251,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public List<RegisteredCustomPropertySet> getDeviceTypeCustomPropertySetUsage() {
+    public List<RegisteredCustomPropertySet> getCustomPropertySets() {
         return deviceTypeCustomPropertySetUsages
                 .stream()
                 .map(DeviceTypeCustomPropertySetUsageImpl::getRegisteredCustomPropertySet)
@@ -254,14 +259,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void addDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet) {
+    public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
         DeviceTypeCustomPropertySetUsageImpl deviceTypeCustomPropertySetUsage = getDataModel().getInstance(DeviceTypeCustomPropertySetUsageImpl.class).initialize(this, registeredCustomPropertySet);
         this.deviceTypeCustomPropertySetUsages.add(deviceTypeCustomPropertySetUsage);
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
     @Override
-    public void removeDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet) {
+    public void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
         Optional<DeviceTypeCustomPropertySetUsageImpl> deviceTypeCustomPropertySetUsage = this.deviceTypeCustomPropertySetUsages.stream()
                 .filter(f -> f.getDeviceType().getId() == this.getId())
                 .filter(f -> f.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
@@ -734,8 +739,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private interface NestedBuilder {
-
-        public void add();
+        void add();
     }
 
     private class ChannelSpecBuilder implements NestedBuilder {
