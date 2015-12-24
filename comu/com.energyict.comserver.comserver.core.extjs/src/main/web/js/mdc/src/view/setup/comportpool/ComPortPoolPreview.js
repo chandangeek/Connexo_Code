@@ -44,7 +44,14 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('comPortPool.preview.direction', 'MDC', 'Direction'),
-                        name: 'direction'
+                        name: 'direction',
+                        renderer: function (value) {
+                            if (value === 'Inbound') {
+                                return Uni.I18n.translate('general.inbound', 'MDC', 'Inbound');
+                            } else {
+                                return Uni.I18n.translate('general.outbound', 'MDC', 'Outbound');
+                            }
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),

@@ -133,6 +133,9 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 
     getStoreListeners: function () {
         return {
+            beforeload: function() {
+                this.mainView.setLoading();
+            },
             load: this.onLoad
         };
     },

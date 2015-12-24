@@ -198,11 +198,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             finishBtn = wizard.down('#finishButton'),
             statusPage = me.getStatusPage(),
             scheduleIds = [],
-            deviceMRID = [],
+            devicesMRID = [],
             url = '/api/ddr/devices/schedules',
             request = {},
-            jsonData,
-            params;
+            jsonData;
 
         finishBtn.disable();
 
@@ -211,7 +210,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 scheduleIds.push(item.getId());
             });
             Ext.each(me.devices, function (item) {
-                deviceMRID.push(item.get('mRID'));
+                devicesMRID.push(item.get('mRID'));
             });
             request.action = me.operation;
             request.scheduleIds = scheduleIds;
@@ -219,7 +218,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 var store = me.getDevicesGrid().getStore();
                 request.filter =  store.getProxy().encodeFilters(store.filters.getRange());
             } else {
-                request.deviceMRIDs = deviceMRID;
+                request.deviceMRIDs = devicesMRID;
             }
             jsonData = Ext.encode(request);
             Ext.Ajax.request({
@@ -245,8 +244,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 statusPage.setLoading(false);
                 if (success) {
                     wizard.setLoading(false);
+                    var devicesQty = Ext.isEmpty(me.devices) ? Uni.I18n.translate('searchItems.bulk.general.all', 'MDC', 'all') : me.devices.length;
                     statusPage.showChangeDeviceConfigSuccess(Uni.I18n.translate('searchItems.bulk.devicesAddedToQueueTitle', 'MDC', 'This task has been put on the queue successfully'),
-                        Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', me.devices.length, 'MDC', "The {0} devices are queued to change their configuration", "The {0} device is queued to change its configuration", "The {0} devices are queued to change their configuration"))
+                        Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', devicesQty, 'MDC', "The {0} devices are queued to change their configuration", "The {0} device is queued to change its configuration", "The {0} devices are queued to change their configuration"))
                     );
                     finishBtn.enable();
                 }
@@ -488,28 +488,38 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 me.operation = currentCmp.down('#searchitemsactionselect').getValue().operation;
                 if (nextCmp.name == 'selectActionItems') {
                     if (me.operation == 'changeconfig') {
-                        var changeDeviceConfigForm = nextCmp.down('#change-device-configuration');
+                        var configStore = me.getStore('Mdc.store.DeviceConfigurations'),
+                            changeDeviceConfigForm = nextCmp.down('#change-device-configuration'),
+                            currentConfigField = nextCmp.down('#current-device-config-selection');
+
                         nextCmp.down('#select-schedules-panel').hide();
                         changeDeviceConfigForm.show();
                         changeDeviceConfigForm.getForm().clearInvalid();
-                        var configStore = me.getStore('Mdc.store.DeviceConfigurations'),
-                            device = me.devices[0],
-                            deviceConfigName = device.get('deviceConfigurationName'),
-                            deviceConfigId = device.get('deviceConfigurationId'),
-                            currentConfigField = nextCmp.down('#current-device-config-selection');
 
-                        me.deviceType = device.get('deviceTypeId');
-                        me.deviceConfigId = deviceConfigId;
-                        currentConfigField.setValue(deviceConfigName);
-                        configStore.getProxy().setUrl({deviceType: me.deviceType});
-                        wizard.setLoading(true);
-                        configStore.load(function (operation, success) {
-                            wizard.setLoading(false);
-                            configStore.filter({
-                                filterFn: function (record) {
-                                    return record.get('id') !== deviceConfigId
+                        if (me.allDevices) {
+                            Ext.each(search.service.getFilters(), function (item) {
+                                switch (item.id) {
+                                    case 'deviceType':
+                                        me.deviceType = parseInt(item.value[0].criteria[0]);
+                                        break;
+                                    case 'deviceConfiguration':
+                                        me.deviceConfigId = parseInt(item.value[0].criteria[0]);
+                                        break;
                                 }
                             });
+                        } else {
+                            var device = me.devices[0];
+                            me.deviceType = device.get('deviceTypeId');
+                            me.deviceConfigId = device.get('deviceConfigurationId');
+                        }
+
+                        configStore.getProxy().setUrl({deviceType: me.deviceType});
+
+                        wizard.setLoading(true);
+                        configStore.load(function (operation, success) {
+                            var deviceConfig = this.getById(me.deviceConfigId);
+                            currentConfigField.setValue(deviceConfig.get('name'));
+                            this.removeAt(this.findExact('id', me.deviceConfigId));
                             if (success && (configStore.getCount() < 1)) {
                                 wizard.down('#nextButton').disable();
                                 nextCmp.down('#new-device-config-selection').hide();
@@ -519,7 +529,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 nextCmp.down('#new-device-config-selection').show();
                                 nextCmp.down('#no-device-configuration').hide();
                             }
-
+                            wizard.setLoading(false);
                         });
                     } else {
                         nextCmp.down('#select-schedules-panel').show();
