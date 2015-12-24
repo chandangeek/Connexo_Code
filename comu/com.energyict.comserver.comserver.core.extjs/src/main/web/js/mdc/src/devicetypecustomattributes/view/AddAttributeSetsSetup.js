@@ -46,7 +46,7 @@ Ext.define('Mdc.devicetypecustomattributes.view.AddAttributeSetsSetup', {
                                     xtype: 'no-items-found-panel',
                                     title: Uni.I18n.translate('customattributesets.noItems', 'MDC', 'No custom attribute sets found'),
                                     reasons: [
-                                        Uni.I18n.translate('customattributesets.empty.list.item4', 'MDC', 'All custom attribute already added.'),
+                                        Uni.I18n.translate('customattributesets.empty.list.item4', 'MDC', 'All custom attribute sets already added.'),
                                         Uni.I18n.translate('customattributesets.empty.list.item1', 'MDC', 'No custom attribute sets defined yet.')
                                     ]
                                 }

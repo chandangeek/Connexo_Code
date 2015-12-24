@@ -43,12 +43,29 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                           itemId: 'buttonsAndNamesContainer',
                             items: [
                                 {
-                                    xtype: 'button',
-                                    name: 'addCommands',
-                                    text: Uni.I18n.translate('general.addAction', 'MDC', 'Add action'),
-                                    margin: '5 0 5 0',
-                                    itemId: 'addCommandsToTask',
-                                    action: 'addCommand'
+                                    xtype: 'container',
+                                    layout: 'hbox',
+                                    items: [
+                                        {
+                                            xtype: 'component',
+                                            html: Uni.I18n.translate('general.noActionsAdded', 'MDC', 'No actions have been added'),
+                                            itemId: 'noActionsAddedMsg',
+                                            style: {
+                                                'font': 'italic 13px/17px Lato',
+                                                'color': '#686868',
+                                                'margin-top': '6px',
+                                                'margin-right': '10px'
+                                            }
+                                        },
+                                        {
+                                            xtype: 'button',
+                                            name: 'addCommands',
+                                            text: Uni.I18n.translate('general.addAction', 'MDC', 'Add action'),
+                                            margin: '0 0 0 5',
+                                            itemId: 'addCommandsToTask',
+                                            action: 'addCommand'
+                                        }
+                                    ]
                                 },
                                 {
                                     xtype: 'container',
@@ -125,5 +142,15 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                 }
             ]
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var me = this;
+        me.callParent(arguments);
+        // To remove the horizontal scroll bars of the categories grids
+        me.on('afterrender', function() {
+            me.down('#messagesConnectedGrid #allItemsGrid').view.el.dom.style.overflowX = 'hidden';
+            me.down('#messagesConnectedGrid #selectedItemsGrid').view.el.dom.style.overflowX = 'hidden';
+        }, me, {single:true});
+    }
 });

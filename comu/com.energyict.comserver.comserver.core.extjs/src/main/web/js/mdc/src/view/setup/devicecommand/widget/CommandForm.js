@@ -12,8 +12,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
     defaults: {
         xtype: 'combobox',
         labelWidth: 250,
-        maxWidth: 577,
-        minWidth: 400,
+        width: 600,
         allowBlank: false,
         validateOnBlur: false,
         required: true
