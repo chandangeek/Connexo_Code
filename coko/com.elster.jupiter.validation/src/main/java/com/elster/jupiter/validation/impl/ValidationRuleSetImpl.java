@@ -238,7 +238,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private void updateVersionsEndDate(List<IValidationRuleSetVersion> versions) {
         versions.stream()
-                .sorted(Comparator.comparing(IValidationRuleSetVersion::getStartDate))
+                .sorted(Comparator.comparing(IValidationRuleSetVersion::getNotNullStartDate))
                 .sequential()
                 .reduce((a, b) -> {
                     a.setEndDate(b.getStartDate()); // set End Date;
@@ -335,6 +335,4 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private void setObsoleteTime(Instant obsoleteTime) {
         this.obsoleteTime = obsoleteTime;
     }
-
-
 }

@@ -1,26 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
-import javax.inject.Provider;
-import javax.validation.ValidatorFactory;
-
-import com.elster.jupiter.validation.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
@@ -28,7 +7,26 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.google.common.collect.ImmutableList;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.inject.Provider;
+import javax.validation.ValidatorFactory;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationRuleSetTest extends EqualsContractTest {
@@ -214,7 +212,23 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
         assertThat(validationRuleSet.getRuleSetVersions()).hasSize(1).contains(version1);
         assertThat(version1.getDescription()).isEqualTo("description2");
-
     }
 
+    @Test
+    public void testAddSecondRuleSetVersionWithNoneStartDate() {
+        //COMU-3142
+        Instant now = Instant.now();
+        validationRuleSet.addRuleSetVersion("From now", now);
+        validationRuleSet.addRuleSetVersion("Before now", null);
+
+        List<IValidationRuleSetVersion> ruleSetVersions = validationRuleSet.getRuleSetVersions();
+
+        assertThat(ruleSetVersions).hasSize(2);
+        assertThat(ruleSetVersions.get(0).getNotNullStartDate()).isEqualTo(Instant.EPOCH);
+        assertThat(ruleSetVersions.get(0).getNotNullEndDate()).isEqualTo(now);
+        assertThat(ruleSetVersions.get(0).getDescription()).isEqualTo("Before now");
+        assertThat(ruleSetVersions.get(1).getNotNullStartDate()).isEqualTo(now);
+        assertThat(ruleSetVersions.get(1).getNotNullEndDate()).isEqualTo(Instant.MAX);
+        assertThat(ruleSetVersions.get(1).getDescription()).isEqualTo("From now");
+    }
 }
