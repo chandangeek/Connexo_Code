@@ -113,12 +113,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             me.getModel(deviceGroupModelName).load(deviceGroupId, {
                 success: function (record) {
                     var isDynamic,
-                        devices,
-                        state;
+                        devices;
 
                     if (widget.rendered) {
                         me.isDynamic = isDynamic = record.get('dynamic');
-                        state = {
+                        me.state = {
                             domain: 'com.energyict.mdc.device.data.Device',
                             filters: isDynamic
                                 ? Ext.decode(record.get('filter'), true)
@@ -155,6 +154,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             });
         } else {
             widget.down('adddevicegroup-wizard').loadRecord(Ext.create(deviceGroupModelName));
+            me.state = {
+                domain: 'com.energyict.mdc.device.data.Device',
+                filters: []
+            }
         }
         me.service.on('searchResultsBeforeLoad', me.availableClearAll, me);
         widget.on('destroy', function () {
@@ -188,8 +191,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             }
         }
 
-
-
         if (direction > 0) {
             me.validateCurrentStep(currentStep, changeStep);
         } else {
@@ -209,7 +210,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             case 1:
                 me.validateStep1(function() {
                     doCallback();
-                    me.prepareStep2(null);
+                    me.prepareStep2();
                 });
                 break;
             case 2:
@@ -332,14 +333,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         }
     },
 
-    prepareStep2: function (state) {
+    prepareStep2: function () {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
             step2 = wizard.down('device-group-wizard-step2'),
-            defaultState = {
-                domain: 'com.energyict.mdc.device.data.Device',
-                filters: []
-            },
             domainsStore = me.service.getSearchDomainsStore(),
             staticGrid,
             isDynamic = me.isDynamic,
@@ -366,11 +363,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         if (domainsStore.isLoading()) {
             domainsStore.on('load', function () {
-                me.service.applyState(state || defaultState, function(){
+                me.service.applyState(me.state, function(){
                 });
             }, me, {single: true});
         } else {
-            me.service.applyState(state || defaultState, function(){
+            me.service.applyState(me.state, function(){
             });
         }
     },
