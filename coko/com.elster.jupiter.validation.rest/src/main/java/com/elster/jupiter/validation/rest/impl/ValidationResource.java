@@ -198,6 +198,7 @@ public class ValidationResource {
                             () -> new WebApplicationException(Response.Status.NOT_FOUND));
 
                     ValidationRuleSetVersion version = ruleSet.addRuleSetVersion(info.description, makeInstant(info.startDate));
+                    ruleSet.save();
                     return new ValidationRuleSetVersionInfo(version);
                 });
         return Response.status(Response.Status.CREATED).entity(result).build();
