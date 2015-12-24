@@ -207,12 +207,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         switch (stepNumber) {
             case 1:
-                me.validateStep1(doCallback);
-                me.prepareStep2(null);
+                me.validateStep1(function() {
+                    doCallback();
+                    me.prepareStep2(null);
+                });
                 break;
             case 2:
-                if (me.validateStep2() && doCallback()) {
-                    callback();
+                if (me.validateStep2()) {
+                    doCallback();
                 }
                 break;
             default:
@@ -362,16 +364,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             me.service.excludedCriteria = 'deviceGroup';
         }
 
-        wizard.setLoading(true);
         if (domainsStore.isLoading()) {
             domainsStore.on('load', function () {
                 me.service.applyState(state || defaultState, function(){
-                    wizard.setLoading(false);
                 });
             }, me, {single: true});
         } else {
             me.service.applyState(state || defaultState, function(){
-                wizard.setLoading(false);
             });
         }
     },
