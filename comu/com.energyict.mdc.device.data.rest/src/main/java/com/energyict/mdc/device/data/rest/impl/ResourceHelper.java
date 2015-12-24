@@ -487,7 +487,7 @@ public class ResourceHelper {
     }
 
     public List<CustomPropertySetInfo> getDeviceCustomPropertySetInfos(Device device) {
-        return device.getDeviceType().getDeviceTypeCustomPropertySetUsage()
+        return device.getDeviceType().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(registeredCustomPropertySet -> this.getDeviceCustomPropertySetInfo(registeredCustomPropertySet, device))
@@ -526,7 +526,7 @@ public class ResourceHelper {
     }
 
     public List<CustomPropertySetInfo> getDeviceCustomPropertySetInfos(Device device, Instant instant) {
-        return device.getDeviceType().getDeviceTypeCustomPropertySetUsage()
+        return device.getDeviceType().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .filter(cps -> cps.getCustomPropertySet().isVersioned())
@@ -870,7 +870,7 @@ public class ResourceHelper {
     }
 
     private RegisteredCustomPropertySet getRegisteredCustomPropertySet(Device device, long cpsId) {
-        return device.getDeviceType().getDeviceTypeCustomPropertySetUsage().stream()
+        return device.getDeviceType().getCustomPropertySets().stream()
                 .filter(cps -> cps.getId() == cpsId && cps.isViewableByCurrentUser())
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));

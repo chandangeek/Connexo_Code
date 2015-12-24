@@ -1557,7 +1557,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(customPropertySet.getName()).thenReturn("testCps");
         when(customPropertySet.isVersioned()).thenReturn(true);
         when(device.getDeviceType()).thenReturn(deviceType);
-        when(deviceType.getDeviceTypeCustomPropertySetUsage()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        when(deviceType.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         when(registeredCustomPropertySet.isViewableByCurrentUser()).thenReturn(true);
         when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
