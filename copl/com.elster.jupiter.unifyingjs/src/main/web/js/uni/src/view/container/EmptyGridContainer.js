@@ -99,8 +99,6 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
 
     onBeforeLoad: function () {
         var me = this;
-
-        me.getLayout().setActiveItem(me.getGridCt());
     },
 
     onLoad: function (store, records, successful) {
