@@ -10,7 +10,6 @@ Ext.define('Uni.util.FormErrorMessage', {
     },
     errorIcon: null,
     defaultErrorIcon: 'x-uni-form-error-msg-icon',
-    width: 600,
     margin: '7 0 32 0',
     htmlEncode: true,
     beforeRender: function () {
