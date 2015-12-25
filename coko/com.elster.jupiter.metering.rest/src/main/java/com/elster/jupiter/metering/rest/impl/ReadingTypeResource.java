@@ -20,7 +20,11 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -30,6 +34,7 @@ import com.elster.jupiter.util.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -87,11 +92,12 @@ public class ReadingTypeResource {
     @Path("/codes/{field}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getCodes(@PathParam("field") String field, @BeanParam JsonQueryParameters queryParameters) {
-        List<ReadingTypeCodeInfo> infoList = Arrays.stream(ReadingTypeCodes.values())
-                .filter(candidate -> candidate.getName().equalsIgnoreCase(field))
-                .map(ReadingTypeCodes::getCodeInfo)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.FIELD_NOT_FOUND, field));
+        List<ReadingTypeCodeInfo> infoList = Arrays.stream(ReadingTypeFields.values())
+                .filter(candidate -> candidate.getFieldName().equalsIgnoreCase(field))
+                .map(c -> meteringService.getReadingTypeFieldCodesFactory()
+                        .getCodeFields(c.getFieldName()).entrySet()
+                        .stream().map(e -> new ReadingTypeCodeInfo(e.getKey(), e.getValue())))
+                .flatMap(Function.identity()).sorted((a, b) -> Integer.compare(a.code, b.code)).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList(field + "Codes", infoList, queryParameters);
     }
 
