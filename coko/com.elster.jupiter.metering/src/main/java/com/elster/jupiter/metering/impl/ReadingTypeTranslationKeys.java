@@ -8,9 +8,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -291,6 +293,187 @@ public final class ReadingTypeTranslationKeys {
 
     }
 
+    public static class Aggregate implements TranslationKey {
+        private final com.elster.jupiter.cbo.Aggregate aggregate;
+
+        public Aggregate(com.elster.jupiter.cbo.Aggregate aggregate) {
+            super();
+            this.aggregate = aggregate;
+        }
+
+        @Override
+        public String getKey() {
+            return "readingType.aggregate." + this.aggregate.name();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.aggregate.getDescription();
+        }
+
+        public static Stream<TranslationKey> allKeys() {
+            return Stream
+                    .of(com.elster.jupiter.cbo.Aggregate.values())
+                    .map(Aggregate::new)
+                    .map(Aggregate::asTranslationKey);
+        }
+
+        private TranslationKey asTranslationKey() {
+            return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
+        }
+    }
+
+    public static class Accumulation implements TranslationKey {
+        private final com.elster.jupiter.cbo.Accumulation accumulation;
+
+        public Accumulation(com.elster.jupiter.cbo.Accumulation accumulation) {
+            super();
+            this.accumulation = accumulation;
+        }
+
+        @Override
+        public String getKey() {
+            return "readingType.accumulation." + this.accumulation.name();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.accumulation.getDescription();
+        }
+
+        public static Stream<TranslationKey> allKeys() {
+            return Stream
+                    .of(com.elster.jupiter.cbo.Accumulation.values())
+                    .map(Accumulation::new)
+                    .map(Accumulation::asTranslationKey);
+        }
+
+        private TranslationKey asTranslationKey() {
+            return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
+        }
+    }
+
+    public static class FlowDirection implements TranslationKey {
+        private final com.elster.jupiter.cbo.FlowDirection flowDirection;
+
+        public FlowDirection(com.elster.jupiter.cbo.FlowDirection flowDirection) {
+            super();
+            this.flowDirection = flowDirection;
+        }
+
+        @Override
+        public String getKey() {
+            return "readingType.flowDirection." + this.flowDirection.name();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.flowDirection.getDescription();
+        }
+
+        public static Stream<TranslationKey> allKeys() {
+            return Stream
+                    .of(com.elster.jupiter.cbo.FlowDirection.values())
+                    .map(FlowDirection::new)
+                    .map(FlowDirection::asTranslationKey);
+        }
+
+        private TranslationKey asTranslationKey() {
+            return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
+        }
+    }
+
+    public static class MeasurementKind implements TranslationKey {
+        private final com.elster.jupiter.cbo.MeasurementKind measurementKind;
+
+        public MeasurementKind(com.elster.jupiter.cbo.MeasurementKind measurementKind) {
+            super();
+            this.measurementKind = measurementKind;
+        }
+
+        @Override
+        public String getKey() {
+            return "readingType.measurementKind." + this.measurementKind.name();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.measurementKind.getDescription();
+        }
+
+        public static Stream<TranslationKey> allKeys() {
+            return Stream
+                    .of(com.elster.jupiter.cbo.MeasurementKind.values())
+                    .map(MeasurementKind::new)
+                    .map(MeasurementKind::asTranslationKey);
+        }
+
+        private TranslationKey asTranslationKey() {
+            return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
+        }
+    }
+
+
+    public static class CommodityFields implements TranslationKey {
+        private final com.elster.jupiter.cbo.Commodity commodity;
+
+        public CommodityFields(com.elster.jupiter.cbo.Commodity commodity) {
+            super();
+            this.commodity = commodity;
+        }
+
+        @Override
+        public String getKey() {
+            return "readingType.commodity." + this.commodity.name();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.commodity.getDescription();
+        }
+
+        public static Stream<TranslationKey> allKeys() {
+            return Stream
+                    .of(com.elster.jupiter.cbo.Commodity.values())
+                    .map(CommodityFields::new)
+                    .map(CommodityFields::asTranslationKey);
+        }
+
+        private TranslationKey asTranslationKey() {
+            return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
+        }
+    }
+
+    public enum Currency implements TranslationKey {
+        POUND(java.util.Currency.getInstance("GBP")),
+        EURO(java.util.Currency.getInstance("EUR")),
+        USDOLLAR(java.util.Currency.getInstance("USD"));
+
+        private final java.util.Currency currency;
+
+        Currency(java.util.Currency currency) {
+            this.currency = currency;
+        }
+
+        @Override
+        public String getKey() {
+            return "readingType.currency." + this.currency.getCurrencyCode();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.currency.getDisplayName(Locale.ENGLISH);
+        }
+
+        public int getCurrencyCode() {
+            return this.currency.getNumericCode();
+        }
+
+        private TranslationKey asTranslationKey() {
+            return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
+        }
+    }
+
     public static List<TranslationKey> allKeys() {
         List<TranslationKey> allKeys = new ArrayList<>();
         allKeys.add(TimeOfUse.translationKey());
@@ -300,6 +483,12 @@ public final class ReadingTypeTranslationKeys {
         Phase.allKeys().forEach(allKeys::add);
         Multiplier.allKeys().forEach(allKeys::add);
         Unit.allKeys().forEach(allKeys::add);
+        Aggregate.allKeys().forEach(allKeys::add);
+        Accumulation.allKeys().forEach(allKeys::add);
+        FlowDirection.allKeys().forEach(allKeys::add);
+        MeasurementKind.allKeys().forEach(allKeys::add);
+        CommodityFields.allKeys().forEach(allKeys::add);
+        Arrays.stream(Currency.values()).map(Currency::asTranslationKey).forEach(allKeys::add);
         return allKeys;
     }
 

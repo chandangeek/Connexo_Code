@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.PurgeConfiguration;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -457,6 +458,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             condition = condition.and(hasAccountability());
         }
         return DefaultFinder.of(UsagePoint.class, condition, dataModel);
+    }
+
+    @Override
+    public ReadingTypeFieldsFactory getReadingTypeFieldCodesFactory() {
+        return new ReadingTypeLocalizedFieldsFactory(thesaurus);
     }
 
     @Override
