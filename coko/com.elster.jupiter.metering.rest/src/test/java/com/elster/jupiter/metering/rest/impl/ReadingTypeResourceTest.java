@@ -12,6 +12,7 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.ByteArrayInputStream;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.in;
@@ -89,6 +91,12 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest{
 
     @Test
     public void testGetCodes() throws Exception{
+        ReadingTypeFieldsFactory fieldsFactory = mock(ReadingTypeFieldsFactory.class);
+        when(fieldsFactory.getCodeFields("macroPeriod"))
+                .thenReturn(Arrays.stream(MacroPeriod.values())
+                        .filter(e -> e.getId()!= 0)
+                        .collect(Collectors.toMap(MacroPeriod::getId, MacroPeriod::getDescription)));
+        when(meteringService.getReadingTypeFieldCodesFactory()).thenReturn(fieldsFactory);
         String response = target("/readingtypes/codes/macroPeriod").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(Arrays.asList(MacroPeriod.values()).size()-1);
