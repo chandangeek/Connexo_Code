@@ -84,25 +84,22 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
 
     setValue: function (value) {
         var me = this;
-        if (!this.isEdit) {
-            this.getDisplayField().setValue(this.getValueAsDisplayString(value));
+
+        if (!me.isEdit) {
+            me.getDisplayField().setValue(me.getValueAsDisplayString(value));
         } else {
             if(value.none){
-                this.down('radiogroup').setValue({advanceRb:1});
-                this.down('combobox').setDisabled(true);
+                me.down('radiogroup').setValue({advanceRb:1});
+                me.down('combobox').setDisabled(true);
             } else if (value.bulk) {
-                this.down('radiogroup').setValue({advanceRb:2});
-                this.down('combobox').setDisabled(true);
+                me.down('radiogroup').setValue({advanceRb:2});
+                me.down('combobox').setDisabled(true);
             } else {
-                this.down('radiogroup').setValue({advanceRb:3});
-                var readingTypeStore = me.down('#readingTypeCombo').getStore();
-                readingTypeStore.load({
-                    params: {like: value.readingType && value.readingType.aliasName},
-                    callback: function () {
-                        var model = Ext.create('Mdc.model.ReadingType',value.readingType);
-                        me.down('#readingTypeCombo').setValue(model);
-                    }
+                me.down('radiogroup').setValue({advanceRb:3});
+                me.down('#readingTypeCombo').getStore().load({
+                    params: {like: value.readingType && value.readingType.aliasName}
                 });
+                me.down('#readingTypeCombo').setValue(value.readingType && value.readingType.mrid);
             }
         }
     },
