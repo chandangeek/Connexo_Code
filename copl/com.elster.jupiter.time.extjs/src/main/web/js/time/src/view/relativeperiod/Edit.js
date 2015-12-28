@@ -61,7 +61,12 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 enforceMaxLength: true,
                                 allowBlank: false,
                                 width: 600,
-                                fieldLabel: Uni.I18n.translate('relativeperiod.name', 'TME', 'Name')
+                                fieldLabel: Uni.I18n.translate('relativeperiod.name', 'TME', 'Name'),
+                                listeners: {
+                                    afterrender: function (field) {
+                                        field.focus(false, 500);
+                                    }
+                                }
                             },
                             {
                                 xtype: 'combobox',
