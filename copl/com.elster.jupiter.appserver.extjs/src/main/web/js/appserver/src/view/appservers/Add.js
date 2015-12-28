@@ -32,6 +32,7 @@ Ext.define('Apr.view.appservers.Add', {
                 itemId: 'add-appserver-form',
                 ui: 'large',
                 width: '100%',
+                focusOnToFront: true,
                 defaults: {
                     labelWidth: 250
                 },
@@ -53,7 +54,12 @@ Ext.define('Apr.view.appservers.Add', {
                         fieldLabel: Uni.I18n.translate('general.name', 'APR', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        listeners: {
+                            afterrender: function (field) {
+                                field.focus(false, 500);
+                            }
+                        }
                     },
                     {
                         xtype: 'textfield',
