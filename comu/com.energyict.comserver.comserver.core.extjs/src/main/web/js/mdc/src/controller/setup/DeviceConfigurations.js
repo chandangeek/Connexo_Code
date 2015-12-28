@@ -114,7 +114,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 click: this.cancelChangeDeviceConfiguration
             },
             '#new-device-configuration': {
-                select: this.enableSaveButton
+                afterrender: this.deviceConfigRestoreState,
+                select: this.deviceConfigSaveState
             }
         });
     },
@@ -126,7 +127,21 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         }
     },
 
-    enableSaveButton: function () {
+    deviceConfigRestoreState: function (combo) {
+        var device = this.getChangeDeviceConfigurationView().device,
+            deviceConfigState = Ext.state.Manager.get('deviceConfigState');
+        if (Ext.isObject(deviceConfigState)) {
+            combo.setValue(deviceConfigState[device.get('mRID')]);
+        }
+        if (!Ext.isEmpty(combo.getValue())) {
+            this.getSaveChangeDeviceConfigurationBtn().setDisabled(false);
+        }
+    },
+
+    deviceConfigSaveState: function (combo) {
+        var device = this.getChangeDeviceConfigurationView().device, deviceConfigState = {};
+        deviceConfigState[device.get('mRID')] = combo.getValue();
+        Ext.state.Manager.set('deviceConfigState', deviceConfigState);
         this.getSaveChangeDeviceConfigurationBtn().setDisabled(false);
     },
 
@@ -754,16 +769,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 deviceConfigurationsStore.clearFilter();
                 deviceConfigurationsStore.getProxy().setUrl({deviceType: device.get('deviceTypeId')});
 
-                deviceConfigurationsStore.filter({
-                    filterFn: function (item) {
-                        return item.get('id') != currentDeviceConfigurationId;
-                    }
-                });
-
                 deviceConfigurationsStore.load(function () {
-                    var isEmptyStore = !deviceConfigurationsStore.count();
-                    me.getNoDeviceConfigurationsLabel().setVisible(isEmptyStore);
-                    me.getNewDeviceConfigurationCombo().setVisible(!isEmptyStore);
+                    this.removeAt(this.findExact('id', currentDeviceConfigurationId));
+                    me.getNoDeviceConfigurationsLabel().setVisible(!this.count());
+                    me.getNewDeviceConfigurationCombo().setVisible(this.count());
                 });
 
                 widget.down('#device-configuration-name').setValue(device.get('deviceConfigurationName'));
@@ -792,14 +801,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             url: '/api/ddr/devices/' + device.get('id'),
             method: 'PUT',
             jsonData: device.data,
-            success: function (response) {
-                //var json = Ext.decode(response.responseText, true);
-
-
+            success: function () {
+                Ext.state.Manager.clear('deviceConfigState');
                 router.getRoute('devices/device').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.changeDeviceConfiguration.changed', 'MDC', 'Device configuration successfully changed'));
-
-
             },
             failure: function (response, request) {
                 if (response.status == 400) {
@@ -869,8 +874,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         });
     },
 
-    cancelChangeDeviceConfiguration: function (btn) {
+    cancelChangeDeviceConfiguration: function () {
         var router = this.getController('Uni.controller.history.Router');
+        Ext.state.Manager.clear('deviceConfigState');
         router.getRoute('devices/device').forward();
     }
 });

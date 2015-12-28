@@ -461,6 +461,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             params: {},
                             method: 'GET',
                             success: function (response) {
+                                me.getApplication().fireEvent('loadLoadProfile', JSON.parse(response.responseText));
                                 var widget = Ext.widget('loadProfileConfigurationDetailForm',
                                         {
                                             loadProfileConfigurationChannelAction: 'add',
@@ -473,7 +474,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         target: widget
                                     }),
                                     readingTypeCombo = widget.down('reading-type-combo'),
-                                    title = Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration');
+                                    title = Uni.I18n.translate('loadprofiles.loadprofileaddChannelConfiguration', 'MDC', 'Add channel configuration');
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 preloader.show();
                                 widget.down('form').setTitle(title);
@@ -527,6 +528,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             params: {},
                             method: 'GET',
                             success: function (response) {
+                                me.getApplication().fireEvent('loadLoadProfile', JSON.parse(response.responseText));
                                 Ext.Ajax.request({
                                     url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId,
                                     params: {},
