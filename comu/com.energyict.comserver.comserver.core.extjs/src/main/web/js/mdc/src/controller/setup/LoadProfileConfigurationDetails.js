@@ -528,6 +528,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             params: {},
                             method: 'GET',
                             success: function (response) {
+                                me.getApplication().fireEvent('loadLoadProfile', JSON.parse(response.responseText));
                                 Ext.Ajax.request({
                                     url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId,
                                     params: {},
