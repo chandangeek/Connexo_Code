@@ -124,35 +124,49 @@ public class TaskInfo {
         TimeDuration every = scheduleExpression.getEvery();
         int count = every.getCount();
         TimeDuration.TimeUnit unit = every.getTimeUnit();
-        String everyTranslation = thesaurus.getString("every", "every");
+        String everyTranslation = thesaurus.getStringBeyondComponent("every", "every");
 
         String unitTranslation = unit.getDescription();
-        if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
+        if (unit.equals(TimeDuration.TimeUnit.MINUTES)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getString("day", "day");
+                unitTranslation = thesaurus.getStringBeyondComponent("minute", "minute");
             } else {
-                unitTranslation = thesaurus.getString("multipleDays", "days");
+                unitTranslation = thesaurus.getStringBeyondComponent("minutes", "minutes");
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.HOURS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getStringBeyondComponent("hour", "hour");
+            } else {
+                unitTranslation = thesaurus.getStringBeyondComponent("hours", "hours");
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getStringBeyondComponent("day", "day");
+            } else {
+                unitTranslation = thesaurus.getStringBeyondComponent("days", "days");
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getString("week", "week");
+                unitTranslation = thesaurus.getStringBeyondComponent("week", "week");
             } else {
-                unitTranslation = thesaurus.getString("multipleWeeks", "weeks");
+                unitTranslation = thesaurus.getStringBeyondComponent("weeks", "weeks");
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getString("month", "month");
+                unitTranslation = thesaurus.getStringBeyondComponent("month", "month");
             } else {
-                unitTranslation = thesaurus.getString("multipleMonths", "months");
+                unitTranslation = thesaurus.getStringBeyondComponent("months", "months");
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getString("year", "year");
+                unitTranslation = thesaurus.getStringBeyondComponent("year", "year");
             } else {
-                unitTranslation = thesaurus.getString("multipleYears", "years");
+                unitTranslation = thesaurus.getStringBeyondComponent("years", "years");
             }
         }
         if (count == 1) {
