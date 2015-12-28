@@ -27,7 +27,7 @@ Ext.define('Imt.registerdata.view.RegisterDataMainGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'),
-                        privileges: Mdc.privileges.Device.administrateDeviceData,
+             //           privileges: Imt.privileges.Device.administrateDeviceData,
                         href: '#/usagepoints/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/add',
                   //      dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                     }
