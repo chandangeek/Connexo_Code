@@ -32,6 +32,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 name: 'name',
                 fieldLabel: Uni.I18n.translate('general.estimationRule', 'EST', 'Estimation rule'),
                 required: true,
+                allowBlank: false,
                 emptyText: Uni.I18n.translate('general.placeholder.enterName', 'EST', 'Enter a name...'),
                 listeners: {
                     afterrender: function(field) {
@@ -51,6 +52,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 displayField: 'displayName',
                 queryMode: 'local',
                 forceSelection: true,
+                allowBlank: false,
                 emptyText: Uni.I18n.translate('general.placeholder.selectEstimationRule', 'EST', 'Select a estimation rule...'),
                 disabled: me.edit,
                 listeners: {
@@ -221,6 +223,15 @@ Ext.define('Est.estimationrules.view.EditForm', {
             propertyForm.updateRecord();
             me.getRecord().propertiesStore = propertyForm.getRecord().properties();
         }
+    },
+    isValid: function() {
+        var me = this,
+            valid = !me.down('#noReadingTypesForEstimationRuleLabel').isVisible();
+        if(!valid) {
+            me.down('#reading-types-grid-error').update(Uni.I18n.translate('general.fieldRequired', 'EST', 'This field is required'));
+            me.down('#reading-types-grid-error').show();
+        }
+        return this.callParent(arguments) && valid;
     },
     updateValid: function (errors) {
         var me = this,

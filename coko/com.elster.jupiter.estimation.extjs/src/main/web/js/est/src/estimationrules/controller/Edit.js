@@ -28,6 +28,10 @@ Ext.define('Est.estimationrules.controller.Edit', {
         {
             ref: 'editForm',
             selector: 'estimation-rule-edit estimation-rule-edit-form'
+        },
+        {
+            ref: 'editFormErrorMessage',
+            selector: 'estimation-rule-edit estimation-rule-edit-form #form-errors'
         }
     ],
 
@@ -124,31 +128,37 @@ Ext.define('Est.estimationrules.controller.Edit', {
     saveRule: function () {
         var me = this,
             page = me.getPage(),
-            form = me.getEditForm();
+            form = me.getEditForm(),
+            errorMsg = me.getEditFormErrorMessage();
 
         form.updateValid();
-        form.updateRecord();
-        page.setLoading(true);
-        form.getRecord().save({
-            backUrl: page.returnLink,
-            callback: function (record, operation, success) {
-                var responseText = Ext.decode(operation.response.responseText, true);
+        if (form.isValid()) {
+            form.updateRecord();
+            page.setLoading(true);
+            form.getRecord().save({
+                backUrl: page.returnLink,
+                callback: function (record, operation, success) {
+                    var responseText = Ext.decode(operation.response.responseText, true);
 
-                page.setLoading(false);
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', operation.action === 'create'
-                        ? Uni.I18n.translate('estimationrules.addRuleSuccess', 'EST', 'Estimation rule successfully added')
-                        : Uni.I18n.translate('estimationrules.saveRuleSuccess', 'EST', 'Estimation rule successfully saved'));
-                    if (page.rendered) {
-                        window.location.href = page.returnLink;
-                    }
-                } else {
-                    if (page.rendered && responseText && responseText.errors) {
-                        form.updateValid(responseText.errors);
+                    page.setLoading(false);
+                    if (success) {
+                        me.getApplication().fireEvent('acknowledge', operation.action === 'create'
+                            ? Uni.I18n.translate('estimationrules.addRuleSuccess', 'EST', 'Estimation rule successfully added')
+                            : Uni.I18n.translate('estimationrules.saveRuleSuccess', 'EST', 'Estimation rule successfully saved'));
+                        if (page.rendered) {
+                            window.location.href = page.returnLink;
+                        }
+                    } else {
+                        if (page.rendered && responseText && responseText.errors) {
+                            form.updateValid(responseText.errors);
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            errorMsg.setText(errorMsg.defaultText);
+            errorMsg.show();
+        }
     },
 
     addReadingTypes: function () {
