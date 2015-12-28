@@ -19,7 +19,12 @@ Ext.define('Mtr.readingtypes.view.EditAliasWindow', {
                     itemId: 'edit-alias-window-textfield',
                     maxWidth: 400,
                     maxLength: 80,
-                    enforceMaxLength: true
+                    enforceMaxLength: true,
+                    listeners: {
+                        afterrender: function (field) {
+                            field.focus(false, 500);
+                        }
+                    }
                 },
                 {
                     xtype: 'fieldcontainer',
