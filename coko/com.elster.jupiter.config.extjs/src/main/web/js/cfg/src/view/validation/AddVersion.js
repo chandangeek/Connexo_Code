@@ -59,7 +59,12 @@ Ext.define('Cfg.view.validation.AddVersion', {
                             height: 150,
 							labelWidth: 260,
                             fieldLabel: Uni.I18n.translate('general.description', 'CFG', 'Description'),
-                            enforceMaxLength: true
+                            enforceMaxLength: true,
+                            listeners: {
+                                afterrender: function (field) {
+                                    field.focus(false, 500);
+                                }
+                            }
                         },						
                         {
                             xtype: 'fieldcontainer',
