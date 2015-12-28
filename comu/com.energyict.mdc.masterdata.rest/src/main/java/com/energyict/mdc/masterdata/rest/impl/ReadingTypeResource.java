@@ -76,14 +76,7 @@ public class ReadingTypeResource {
     }
 
     private Condition getReadingTypeFilterCondition(String dbSearchText) {
-        String regex = ".*".concat(escapeSpecialCharacters(dbSearchText).replace(" ", ".*").concat(".*"));
-        return Where.where("fullAliasName").matches(regex,"i").and(Where.where("mRID").matches("^0.[0-9]+.0", ""));
-    }
-
-    private String escapeSpecialCharacters(String text){
-        for (String keyword: Arrays.asList("\\", "_", "%", "(", ")", "+", "-", ".", "[", "*")) {
-            text=text.replace(keyword,"\\"+keyword);
-        }
-        return text;
+        String regex = "*".concat(dbSearchText.replace(" ", "*").concat("*"));
+        return Where.where("fullAliasName").likeIgnoreCase(regex).and(Where.where("mRID").matches("^0.[0-9]+.0", ""));
     }
 }
