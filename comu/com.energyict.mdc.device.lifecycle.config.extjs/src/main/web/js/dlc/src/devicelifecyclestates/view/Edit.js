@@ -33,7 +33,12 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                     fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
                     itemId: 'lifeCycleStateNameField',
                     maxLength: 80,
-                    enforceMaxLength: true
+                    enforceMaxLength: true,
+                    listeners: {
+                        afterrender: function (field) {
+                            field.focus(false, 500);
+                        }
+                    }
                 },
                 {
                     xtype: 'displayfield',
