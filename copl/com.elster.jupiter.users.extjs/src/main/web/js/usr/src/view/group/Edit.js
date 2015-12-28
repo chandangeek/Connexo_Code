@@ -19,6 +19,7 @@ Ext.define('Usr.view.group.Edit', {
     },
 
     initComponent: function () {
+        var me = this;
         this.content = [
             {
                 xtype: 'panel',
@@ -68,7 +69,14 @@ Ext.define('Usr.view.group.Edit', {
                                 msgTarget: 'under',
                                 allowBlank: false,
                                 maxLength: 80,
-                                enforceMaxLength: true
+                                enforceMaxLength: true,
+                                listeners: {
+                                    afterrender: function (field) {
+                                        if(!me.edit) {
+                                            field.focus(false, 500);
+                                        }
+                                    }
+                                }
                             },
                             {
                                 xtype: 'textfield',
@@ -76,7 +84,14 @@ Ext.define('Usr.view.group.Edit', {
                                 itemId: 'txt-description',
                                 fieldLabel: Uni.I18n.translate('general.description', 'USR', 'Description'),
                                 maxWidth: 650,
-                                width: 750
+                                width: 750,
+                                listeners: {
+                                    afterrender: function (field) {
+                                        if(me.edit) {
+                                            field.focus(false, 500);
+                                        }
+                                    }
+                                }
                             },
                             {
                                 xtype: 'label',

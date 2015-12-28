@@ -48,7 +48,14 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         itemId: 'txt-name',
                         required: true,
                         allowBlank: false,
-                        fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name')
+                        fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
+                        listeners: {
+                            afterrender: function (field) {
+                                if(!me.edit) {
+                                    field.focus(false, 500);
+                                }
+                            }
+                        }
                     },
                     {
                         xtype: 'textfield',
@@ -56,7 +63,14 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         itemId: 'txt-url',
                         required: true,
                         allowBlank: false,
-                        fieldLabel: Uni.I18n.translate('userDirectories.url', 'USR', 'URL')
+                        fieldLabel: Uni.I18n.translate('userDirectories.url', 'USR', 'URL'),
+                        listeners: {
+                            afterrender: function (field) {
+                                if(me.edit) {
+                                    field.focus(false, 500);
+                                }
+                            }
+                        }
                     },
                     {
                         xtype: 'textfield',

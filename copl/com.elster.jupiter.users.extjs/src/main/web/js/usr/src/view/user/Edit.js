@@ -50,7 +50,12 @@ Ext.define('Usr.view.user.Edit', {
                                 name: 'description',
                                 fieldLabel: Uni.I18n.translate('general.description', 'USR', 'Description'),
                                 maxLength: 256,
-                                enforceMaxLength: true
+                                enforceMaxLength: true,
+                                listeners: {
+                                    afterrender: function (field) {
+                                        field.focus(false, 500);
+                                    }
+                                }
                             },
                             {
                                 name: 'domain',
