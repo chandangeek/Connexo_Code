@@ -9,6 +9,7 @@ import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -22,8 +23,10 @@ import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import org.osgi.service.event.EventConstants;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -82,69 +85,34 @@ public class DeviceConfigChangeHandler implements MessageHandler {
                     /*************************************************************************************************/
                     validateUniqueDeviceConfiguration(queueMessage.search, configChangeContext.thesaurus);
 
-                    SearchDomain searchDomain = configChangeContext.searchService.findDomain(Device.class.getName()).orElseThrow(() -> new InvalidSearchDomain(configChangeContext.thesaurus, Device.class.getName()));
+                    SearchDomain searchDomain = configChangeContext.searchService.findDomain(Device.class.getName())
+                            .orElseThrow(() -> new InvalidSearchDomain(configChangeContext.thesaurus, Device.class.getName()));
                     SearchBuilder<Object> searchBuilder = configChangeContext.searchService.search(searchDomain);
-
-                    searchDomain.getProperties().stream().
-                            filter(p -> queueMessage.search.searchItems.stream().filter(deviceSearchItem -> deviceSearchItem.propertyName.equals(p.getName())).findAny().isPresent()).
-                            forEach(searchableProperty -> {
-                                try {
-                                    if (searchableProperty.getSelectionMode() == SearchableProperty.SelectionMode.MULTI) {
-                                        searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(queueMessage.search.searchItems, searchableProperty, configChangeContext));
-                                    } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
-                                        searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(queueMessage.search.searchItems, searchableProperty, configChangeContext));
-                                    } else {
-                                        searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(queueMessage.search.searchItems, searchableProperty, configChangeContext));
-                                    }
-                                } catch (InvalidValueException e) {
-                                    throw DeviceConfigurationChangeException.invalidSearchValueForBulkConfigChange(configChangeContext.thesaurus, searchableProperty.getName());
-                                }
-                            });
+                    for (SearchablePropertyValue propertyValue : searchDomain.getPropertiesValues(getPropertyMapper(queueMessage))) {
+                        try {
+                            propertyValue.addAsCondition(searchBuilder);
+                        } catch (InvalidValueException e) {
+                            throw DeviceConfigurationChangeException.invalidSearchValueForBulkConfigChange(configChangeContext.thesaurus, propertyValue.getProperty().getName());
+                        }
+                    }
                     return searchBuilder.toFinder().stream().map(Device.class::cast);
                 } else {
                     return queueMessage.deviceMRIDs.stream().map(configChangeContext.deviceService::findByUniqueMrid).filter(Optional::isPresent).map(Optional::get);
                 }
             }
 
+            private Function<SearchableProperty, SearchablePropertyValue> getPropertyMapper(ItemizeConfigChangeQueueMessage queueMessage) {
+                return searchableProperty -> new SearchablePropertyValue(searchableProperty, queueMessage.search.searchItems.get(searchableProperty.getName()));
+            }
+
             private void validateUniqueDeviceConfiguration(DevicesForConfigChangeSearch search, Thesaurus thesaurus) {
-                Optional<DevicesForConfigChangeSearch.DeviceSearchItem> deviceConfigSearchItem = search.searchItems.stream().filter(deviceSearchItem -> deviceSearchItem.propertyName.equals(deviceConfigurationSearchPropertyName)).findFirst();
-                if (deviceConfigSearchItem.isPresent()) {
-                    if ((deviceConfigSearchItem.get().singleData == null || deviceConfigSearchItem.get().singleData.equals("")) &&
-                            deviceConfigSearchItem.get().multipleData.size() > 1) {
-                        throw DeviceConfigurationChangeException.needToSearchOnSingleDeviceConfigForBulkAction(thesaurus);
-                    }
-                } else {
+                SearchablePropertyValue.ValueBean deviceConfigValueBean = search.searchItems.get(deviceConfigurationSearchPropertyName);
+                if (deviceConfigValueBean == null
+                        || deviceConfigValueBean.values == null
+                        || deviceConfigValueBean.values.isEmpty()) {
                     throw DeviceConfigurationChangeException.needToSearchOnDeviceConfigForBulkAction(thesaurus);
-                }
-            }
-
-            private Object getQueryParameterAsObject(List<DevicesForConfigChangeSearch.DeviceSearchItem> searchItems, SearchableProperty searchableProperty, ConfigChangeContext configChangeContext) {
-                Optional<DevicesForConfigChangeSearch.DeviceSearchItem> searchItem = searchItems.stream().filter(deviceSearchItem -> deviceSearchItem.propertyName.equals(searchableProperty.getName())).findAny();
-                if (searchItem.isPresent()) {
-                    return getSearchObject(searchableProperty, configChangeContext, searchItem.get().singleData);
-                }
-                return null;
-            }
-
-            private List<Object> getQueryParameterAsObjectList(List<DevicesForConfigChangeSearch.DeviceSearchItem> searchItems, SearchableProperty searchableProperty, ConfigChangeContext configChangeContext) {
-                Optional<DevicesForConfigChangeSearch.DeviceSearchItem> searchItem = searchItems.stream().filter(deviceSearchItem -> deviceSearchItem.propertyName.equals(searchableProperty.getName())).findAny();
-                if (searchItem.isPresent()) {
-                    return searchItem.get().multipleData.stream().map(id -> getSearchObject(searchableProperty, configChangeContext, id)).flatMap(o -> o.isPresent() ? Stream.of(o.get()) : Stream.empty()).collect(Collectors.toList());
-
-                }
-                return Collections.emptyList();
-            }
-
-            private Optional<?> getSearchObject(SearchableProperty searchableProperty, ConfigChangeContext configChangeContext, String id) {
-                switch (searchableProperty.getName()) {
-                    case deviceTypeSearchPropertyName: {
-                        return configChangeContext.deviceConfigurationService.findDeviceType(Long.valueOf(id));
-                    }
-                    case deviceConfigurationSearchPropertyName: {
-                        return configChangeContext.deviceConfigurationService.findDeviceConfiguration(Long.valueOf(id));
-                    }
-                    default:
-                        return Optional.empty();
+                } else if (deviceConfigValueBean.values.size() > 1) {
+                    throw DeviceConfigurationChangeException.needToSearchOnSingleDeviceConfigForBulkAction(thesaurus);
                 }
             }
         },
