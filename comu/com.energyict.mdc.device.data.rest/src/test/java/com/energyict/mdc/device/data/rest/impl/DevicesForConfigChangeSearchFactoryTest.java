@@ -4,13 +4,16 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Condition;
+import org.assertj.core.api.ObjectArrayAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -18,6 +21,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,6 +52,12 @@ public class DevicesForConfigChangeSearchFactoryTest {
         when(searchDomain.supports(Device.class)).thenReturn(true);
         when(searchDomain.getId()).thenReturn("Device");
         when(searchDomain.getProperties()).thenReturn(Arrays.asList(deviceTypeProperty,  deviceConfigProperty));
+        when(searchDomain.getPropertiesValues(Matchers.any())).thenAnswer(
+                inv -> searchDomain.getProperties()
+                        .stream()
+                        .map(props -> ((Function<SearchableProperty, SearchablePropertyValue>)inv.getArguments()[0]).apply(props))
+                        .collect(Collectors.toList())
+        );
         when(searchService.findDomain(Device.class.getName())).thenReturn(Optional.of(searchDomain));
 
         Map<String, Object> deviceTypeValues = new HashMap<>();
@@ -57,10 +68,10 @@ public class DevicesForConfigChangeSearchFactoryTest {
         deviceConfigValues.put("criteria", new String[]{"1001","1002"});
         Map<String, Object> deviceType = new HashMap<>();
         deviceType.put("property", "deviceType");
-        deviceType.put("value", deviceTypeValues);
+        deviceType.put("value", new Object[]{deviceTypeValues});
         Map<String, Object> deviceConfig = new HashMap<>();
         deviceConfig.put("property", "deviceConfiguration");
-        deviceConfig.put("value", deviceConfigValues);
+        deviceConfig.put("value", new Object[]{deviceConfigValues});
 
         String string = new ObjectMapper().writer().writeValueAsString(new Object[]{deviceType, deviceConfig});
 //        "[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"1001\"]}]},{\"property\":\"deviceConfiguration\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"1001\",\"1002\"]}]}]"
@@ -71,16 +82,16 @@ public class DevicesForConfigChangeSearchFactoryTest {
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(jsonQueryFilter);
 
         assertThat(devicesForConfigChangeSearch.searchItems).hasSize(2);
-        assertThat(devicesForConfigChangeSearch.searchItems).haveExactly(1, new Condition<DevicesForConfigChangeSearch.DeviceSearchItem>(){
+        assertThat(devicesForConfigChangeSearch.searchItems.values()).haveExactly(1, new Condition<SearchablePropertyValue.ValueBean>(){
             @Override
-            public boolean matches(DevicesForConfigChangeSearch.DeviceSearchItem value) {
-                return value.multipleData.containsAll(Arrays.asList("1001", "1002")) && value.propertyName.equals("deviceConfiguration");
+            public boolean matches(SearchablePropertyValue.ValueBean value) {
+                return value.values.containsAll(Arrays.asList("1001", "1002")) && value.propertyName.equals("deviceConfiguration");
             }
         });
-        assertThat(devicesForConfigChangeSearch.searchItems).haveExactly(1, new Condition<DevicesForConfigChangeSearch.DeviceSearchItem>(){
+        assertThat(devicesForConfigChangeSearch.searchItems.values()).haveExactly(1, new Condition<SearchablePropertyValue.ValueBean>(){
             @Override
-            public boolean matches(DevicesForConfigChangeSearch.DeviceSearchItem value) {
-                return value.multipleData.containsAll(Arrays.asList("1001")) && value.propertyName.equals("deviceType");
+            public boolean matches(SearchablePropertyValue.ValueBean value) {
+                return value.values.containsAll(Arrays.asList("1001")) && value.propertyName.equals("deviceType");
             }
         });
 
