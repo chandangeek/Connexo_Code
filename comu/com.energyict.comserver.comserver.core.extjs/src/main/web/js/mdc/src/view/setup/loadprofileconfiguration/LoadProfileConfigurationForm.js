@@ -48,6 +48,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                         store: 'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable',
                         required: true,
                         allowBlank: false,
+                        forceSelection: true,
                         //fieldLabel: 'Load profile type',
                         fieldLabel: Uni.I18n.translate('general.loadProfileType', 'MDC', 'Load profile type'),
                         emptyText: Uni.I18n.translate('loadprofileconfiguration.selectLoadProfileType','MDC','Select a load profile type'),
