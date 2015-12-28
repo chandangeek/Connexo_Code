@@ -88,6 +88,7 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
             return;
         } else if (value instanceof String){
             this.stringValue = (String) value;
+            return;
         }
         this.stringValue = toStringValue(value);
     }
