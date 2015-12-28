@@ -86,6 +86,8 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
         if (BigDecimal.class.equals(getPropertySpec().getValueFactory().getValueType())) {
             this.stringValue = toStringValue(new BigDecimal(value.toString()));
             return;
+        } else if (value instanceof String){
+            this.stringValue = (String) value;
         }
         this.stringValue = toStringValue(value);
     }
