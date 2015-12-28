@@ -110,8 +110,13 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
     @Override
     public void validateProperties(List<DataExportProperty> properties) {
         for (DataExportProperty property : properties) {
-            String stringValue = (String) property.getValue();
-            checkInvalidChars(stringValue, property.getName(), NON_PATH_INVALID);
+            if (property instanceof TranslatablePropertyValueInfo) {
+                TranslatablePropertyValueInfo translatablePropertyValueInfo = (TranslatablePropertyValueInfo) property.getValue();
+                checkInvalidChars(translatablePropertyValueInfo.getId().toString(), property.getName(), NON_PATH_INVALID);
+            } else {
+                String stringValue = (String) property.getValue();
+                checkInvalidChars(stringValue, property.getName(), NON_PATH_INVALID);
+            }
         }
     }
 
