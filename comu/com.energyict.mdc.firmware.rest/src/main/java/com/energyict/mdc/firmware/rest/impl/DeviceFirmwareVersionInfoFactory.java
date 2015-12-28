@@ -343,6 +343,7 @@ public class DeviceFirmwareVersionInfoFactory {
     }
 
     public static class FirmwareUploadedScheduledActivationState extends AbstractFirmwareUpgradeState {
+        protected final static String FIRMWARE_UPLOAD_FINISH_DATE = "uploadStartDate";
 
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
@@ -359,6 +360,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
+            properties.put(FIRMWARE_UPLOAD_FINISH_DATE, message.getModTime().toEpochMilli());
             Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
             if (activationDate.isPresent()) {
                 properties.put(FIRMWARE_PLANNED_ACTIVATION_DATE, activationDate.get().toEpochMilli());
