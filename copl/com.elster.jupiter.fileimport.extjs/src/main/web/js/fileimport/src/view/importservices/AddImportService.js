@@ -53,7 +53,12 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         width: 600,
                         allowBlank: false,
                         fieldLabel: Uni.I18n.translate('general.name', 'FIM', 'Name'),
-                        enforceMaxLength: true
+                        enforceMaxLength: true,
+                        listeners: {
+                            afterrender: function (field) {
+                                field.focus(false, 500);
+                            }
+                        }
                     },
                     {
                         xtype: 'container',
