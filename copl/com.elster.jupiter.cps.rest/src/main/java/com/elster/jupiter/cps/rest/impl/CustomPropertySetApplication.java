@@ -5,6 +5,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
@@ -12,6 +14,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,10 +23,10 @@ import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.cps.rest",
-        service = {Application.class, MessageSeedProvider.class},
+        service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/cps", "app=MDC", "name=" + CustomPropertySetApplication.COMPONENT_NAME})
-public class CustomPropertySetApplication extends Application implements MessageSeedProvider {
+public class CustomPropertySetApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
 
     public static final String COMPONENT_NAME = "CPS";
 
@@ -62,8 +65,18 @@ public class CustomPropertySetApplication extends Application implements Message
     }
 
     @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationSeeds.values());
     }
 
     @Override
@@ -75,6 +88,7 @@ public class CustomPropertySetApplication extends Application implements Message
         @Override
         protected void configure() {
             bind(thesaurus).to(Thesaurus.class);
+            bind(thesaurus).to(MessageInterpolator.class);
             bind(transactionService).to(TransactionService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);

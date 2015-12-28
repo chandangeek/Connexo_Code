@@ -36,6 +36,8 @@ public class CustomPropertySetInfoFactory {
     }
 
     private List<CustomPropertySetAttributeInfo> getAttributes(List<PropertySpec> propertySpecs) {
-        return propertySpecs.stream().map(CustomPropertySetAttributeInfo::new).collect(Collectors.toList());
+        List<CustomPropertySetAttributeInfo> customPropertySetAttributeInfos = new ArrayList<>();
+        propertySpecs.stream().forEach(attribute -> customPropertySetAttributeInfos.add(new CustomPropertySetAttributeInfo(attribute, thesaurus)));
+        return customPropertySetAttributeInfos;
     }
 }

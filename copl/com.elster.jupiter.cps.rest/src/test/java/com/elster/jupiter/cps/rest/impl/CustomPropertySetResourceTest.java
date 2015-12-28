@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -57,7 +58,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         Map jsonCustomAttributes = (Map) ((List) jsonCustomAttributeSets.get("attributes")).get(0);
         assertThat(jsonCustomAttributes.get("name")).isEqualTo("customAttribute");
         assertThat(jsonCustomAttributes.get("type")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
-        assertThat(jsonCustomAttributes.get("typeSimpleName")).isEqualTo("BigDecimalFactory");
+        assertThat(jsonCustomAttributes.get("typeSimpleName")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
         assertThat(jsonCustomAttributes.get("required")).isEqualTo(true);
     }
 
@@ -80,9 +81,13 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
     private PropertySpec getPropertySpec() {
         PropertySpec propertySpec = mock(PropertySpec.class);
         ValueFactory valueFactory = mock(BigDecimalFactory.class);
+        PropertySpecPossibleValues propertySpecPossibleValues = mock(PropertySpecPossibleValues.class);
         when(propertySpec.getName()).thenReturn("customAttribute");
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
+        when(propertySpec.getPossibleValues()).thenReturn(propertySpecPossibleValues);
+        when(propertySpec.getPossibleValues().getDefault()).thenReturn("");
+        when(propertySpec.getPossibleValues().getAllValues()).thenReturn(Arrays.asList("", ""));
         when(propertySpec.isRequired()).thenReturn(true);
         when(propertySpec.getDescription()).thenReturn("kw");
         return propertySpec;
