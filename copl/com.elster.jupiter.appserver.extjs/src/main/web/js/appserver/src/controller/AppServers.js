@@ -964,7 +964,12 @@ Ext.define('Apr.controller.AppServers', {
                 success: function () {
                     me.getAddPage().setLoading(false);
                     me.getController('Uni.controller.history.Router').getRoute('administration/appservers').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.addSuccessMsg', 'APR', 'Application server added'));
+                    if(!isEdit) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.addSuccessMsg', 'APR', 'Application server added'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.saveSuccessMsg', 'APR', 'Application server saved'));
+                    }
+
                 },
                 failure: function (record, operation) {
                     me.getAddPage().setLoading(false);
