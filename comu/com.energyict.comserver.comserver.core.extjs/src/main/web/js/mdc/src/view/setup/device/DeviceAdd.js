@@ -53,7 +53,12 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             maxLength: 80,
                             enforceMaxLength: true,
                             validateOnBlur: false,
-                            validateOnChange: false
+                            validateOnChange: false,
+                            listeners: {
+                                afterrender: function (field) {
+                                    field.focus(false, 500);
+                                }
+                            }
                         },
                         {
                             xtype: 'textfield',

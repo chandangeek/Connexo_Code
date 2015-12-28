@@ -65,6 +65,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                                         combo.nextSibling('[name=obisCode]').setValue(record.get('obisCode'));
                                     }
                                 }
+                            },
+                            afterrender: function (field) {
+                                field.focus(false, 500);
                             }
                         }
                     },

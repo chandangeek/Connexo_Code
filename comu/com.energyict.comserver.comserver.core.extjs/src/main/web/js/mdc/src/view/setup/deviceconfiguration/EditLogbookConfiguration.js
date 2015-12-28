@@ -32,7 +32,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                     xtype: 'displayfield',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('general.logbookType', 'MDC', 'Logbook type'),
-                    width: 500
+                    width: 500,
+                    listeners: {
+                        afterrender: function (field) {
+                            field.focus(false, 500);
+                        }
+                    }
                 },
                 {
                     xtype: 'obis-displayfield',

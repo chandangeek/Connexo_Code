@@ -69,7 +69,12 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         itemId: 'editRegisterGroupNameField',
                                         maxWidth: 650,
                                         maxLength: 80,
-                                        enforceMaxLength: true
+                                        enforceMaxLength: true,
+                                        listeners: {
+                                            afterrender: function (field) {
+                                                field.focus(false, 500);
+                                            }
+                                        }
                                     },
                                     {
                                         xtype: 'label',
