@@ -98,16 +98,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 layout: 'hbox',
                                 items: [
                                     {
-                                        xtype: 'component',
-                                        html: Uni.I18n.translate('communicationschedule.noComTasksAdded', 'MDC', 'No communication tasks have been added'),
+                                        xtype: 'displayfield',
+                                        value: '<span style="color: #686868;font-style: italic">'
+                                        + Uni.I18n.translate('communicationschedule.noComTasksAdded', 'MDC', 'No communication tasks have been added')
+                                        + '</span>',
+                                        htmlEncode: false,
                                         itemId: 'noComTasksSelectedMsg',
-                                        name: 'comTaskUsageErrors',
-                                        style: {
-                                            'font': 'italic 13px/17px Lato',
-                                            'color': '#686868',
-                                            'margin-top': '6px',
-                                            'margin-right': '10px'
-                                        }
+                                        name: 'comTaskUsageErrors'
                                     },
                                     {
                                         xtype: 'grid',

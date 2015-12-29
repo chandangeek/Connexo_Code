@@ -192,7 +192,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             } else {
                 this.restorePools = undefined;
             }
-            if (!this.currentUrl.includes('edit')) {
+            if (!this.currentUrl.indexOf('edit') > -1) {
                 this.restoreState();
             }
             this.filterStore();
