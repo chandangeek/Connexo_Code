@@ -144,6 +144,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 name: 'directoryUser',
                                 itemId: 'txt-userName',
                                 required: true,
+                                allowBlank: false,
                                 labelWidth: 250,
                                 width: 600,
                                 enforceMaxLength: true,
@@ -173,6 +174,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         xtype: 'textfield',
                         name: 'password',
                         itemId: 'txt-userPassword',
+                        allowBlank: false,
                         required: true,
                         inputType: 'password',
                         fieldLabel: Uni.I18n.translate('userDirectories.userPassword', 'USR', 'Password')
