@@ -49,7 +49,6 @@ Ext.define('Cfg.view.validationtask.Add', {
                         itemId: 'txt-task-name',
                         width: 500,
                         required: true,
-                        allowBlank: false,
                         fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                         enforceMaxLength: true,
                         maxLength: 80,
@@ -135,16 +134,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         queryMode: 'local',
                                         displayField: 'name',
                                         valueField: 'id'
-                                    },
-                                    {
-                                        xtype: 'displayfield',
-                                        itemId: 'no-device',
-                                        hidden: true,
-                                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</div>',
-                                        htmlEncode: false,
-                                        labelwidth: 500,
-                                        width: 235
-                                    },
+                                    }
 
                                 ]
                             },
@@ -166,19 +156,9 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         queryMode: 'local',
                                         displayField: 'name',
                                         valueField: 'id'
-                                    },
-                                    {
-                                        xtype: 'displayfield',
-                                        itemId: 'no-usagepoint',
-                                        hidden: true,
-                                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.') + '</div>',
-                                        htmlEncode: false,
-                                        labelwidth: 500,
-                                        width: 235
-                                    },
-
+                                    }
                                 ]
-                            },
+                            }
                         ]
                     },
                     {

@@ -204,7 +204,7 @@ Ext.define('Cfg.controller.Tasks', {
         view.down('#cbo-validation-task-device-group').setLoading(true);
         view.down('#cbo-validation-task-usagepoint-group').hide();
         deviceGroupCombo.store.load(function () {
-            view.down('#cbo-validation-task-device-group').setLoading(false);;
+            view.down('#cbo-validation-task-device-group').setLoading(false);
             if (this.getCount() === 0) {
                 deviceGroupCombo.allowBlank = true;
             }
