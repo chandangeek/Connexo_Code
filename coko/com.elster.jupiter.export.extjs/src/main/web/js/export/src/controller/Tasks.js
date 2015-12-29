@@ -1252,6 +1252,7 @@ Ext.define('Dxp.controller.Tasks', {
                                 text: 'Retry',
                                 ui: 'remove',
                                 handler: function (button, event) {
+                                    this.up('messagebox').destroy();
                                     me.removeOperation(record);
                                 }
                             },
@@ -1266,11 +1267,12 @@ Ext.define('Dxp.controller.Tasks', {
                             }
                         ]
                     }).show({
-                        ui: 'notification-error',
                         title: Uni.I18n.translate('general.remove.error.msg', 'DES', 'Remove operation failed'),
+                        ui: 'message-error',
+                        icon: 'icon-warning2',
+                        style: 'font-size: 34px;',
                         msg: errorText,
-                        modal: false,
-                        icon: Ext.MessageBox.ERROR
+                        modal: false
                     })
                 }
             }
