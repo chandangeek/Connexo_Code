@@ -20,6 +20,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step1', {
                 width: 500,
                 labelWidth: 150,
                 store: 'Mdc.store.DeviceLifeCycles',
+                emptyText: Uni.I18n.translate('devicetype.selectDeviceLifeCycle', 'MDC', 'Select a device life cycle...'),
                 required: true,
                 editable: false,
                 queryMode: 'local',
