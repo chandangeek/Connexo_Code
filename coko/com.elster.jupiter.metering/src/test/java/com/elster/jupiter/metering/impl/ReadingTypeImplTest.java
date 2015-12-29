@@ -30,12 +30,12 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     private static final String ALIAS = "alias";
 
     private static final String plainAlias = "PlainAlias";
-    private static final String aliasWithMacroPeriod = "[Daily]  Secondary PlainAlias";
-    private static final String aliasWithMeasuringPeriod = "[15-minute]  Secondary PlainAlias";
-    private static final String aliasWithUnit = " Secondary PlainAlias (Wh)";
-    private static final String aliasWithPhase = " Secondary PlainAlias Phase-A";
-    private static final String aliasWithTOU = " Secondary PlainAlias Time of use 3";
-    private static final String aliasWithAll = "[Monthly]  Secondary PlainAlias (kWh) Phase-B Time of use 3";
+    private static final String aliasWithMacroPeriod = "[Daily] Secondary PlainAlias";
+    private static final String aliasWithMeasuringPeriod = "[15-minute] Secondary PlainAlias";
+    private static final String aliasWithUnit = "Secondary PlainAlias (Wh)";
+    private static final String aliasWithPhase = "Secondary PlainAlias Phase-A";
+    private static final String aliasWithTOU = "Secondary PlainAlias Time of use 3";
+    private static final String aliasWithAll = "[Monthly] Secondary PlainAlias (kWh) Phase-B Time of use 3";
 
     @Mock
     private DataModel dataModel;
@@ -170,7 +170,7 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     @Test
     public void simpleReadingTypeWithPlainAliasTest() {
         ReadingType readingType = mockSimpleReadingTypeWithPlainAlias();
-        assertThat(readingType.getFullAliasName()).isEqualTo(" Secondary " + plainAlias);
+        assertThat(readingType.getFullAliasName()).isEqualTo("Secondary " + plainAlias);
     }
 
     @Test

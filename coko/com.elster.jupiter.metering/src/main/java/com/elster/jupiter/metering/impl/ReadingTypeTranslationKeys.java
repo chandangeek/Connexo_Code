@@ -46,12 +46,12 @@ public final class ReadingTypeTranslationKeys {
             return this.defaultFormat;
         }
 
-        public static void appendFullAliasName(com.elster.jupiter.cbo.Commodity commodity, StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
-            Stream
+        public static String getFullAliasNameElement(com.elster.jupiter.cbo.Commodity commodity, Thesaurus thesaurus) {
+            return Stream
                 .of(values())
                 .filter(each -> each.commodity.equals(commodity))
                 .findFirst()
-                .ifPresent(key -> aliasNameBuilder.append(" ").append(thesaurus.getFormat(key).format()).append(" "));
+                    .map(key -> thesaurus.getFormat(key).format()).orElse("");
         }
 
     }
@@ -85,13 +85,8 @@ public final class ReadingTypeTranslationKeys {
             return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
         }
 
-        public static void appendFullAliasName(TimeAttribute timeAttribute, StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
-            aliasNameBuilder
-                    .append("[")
-                    .append(thesaurus
-                                .getFormat(new MeasuringPeriod(timeAttribute).asTranslationKey())
-                                .format())
-                    .append("] ");
+        public static String getFullAliasNameElement(TimeAttribute timeAttribute, Thesaurus thesaurus) {
+            return "[" + thesaurus.getFormat(new MeasuringPeriod(timeAttribute).asTranslationKey()).format() + "]";
         }
 
     }
@@ -122,9 +117,11 @@ public final class ReadingTypeTranslationKeys {
                     .map(Multiplier::asTranslationKey);
         }
 
-        public static void appendFullAliasName(MetricMultiplier multiplier,  StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
+        public static String getFullAliasNameElement(MetricMultiplier multiplier, Thesaurus thesaurus) {
             if (multiplier != MetricMultiplier.ZERO) {
-                aliasNameBuilder.append(thesaurus.getFormat(new Multiplier(multiplier).asTranslationKey()).format());
+                return thesaurus.getFormat(new Multiplier(multiplier).asTranslationKey()).format();
+            } else {
+                return "";
             }
         }
 
@@ -177,9 +174,11 @@ public final class ReadingTypeTranslationKeys {
             return EnumSet.complementOf(EnumSet.of(ReadingTypeUnit.NOTAPPLICABLE));
         }
 
-        public static void appendFullAliasName(ReadingTypeUnit unit,  StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
+        public static String getFullAliasNameElement(ReadingTypeUnit unit, Thesaurus thesaurus) {
             if (unit != ReadingTypeUnit.NOTAPPLICABLE) {
-                aliasNameBuilder.append(thesaurus.getFormat(new Unit(unit).asTranslationKey()).format());
+                return thesaurus.getFormat(new Unit(unit).asTranslationKey()).format();
+            } else {
+                return "";
             }
         }
 
@@ -191,11 +190,11 @@ public final class ReadingTypeTranslationKeys {
 
     public static class UnitWithMultiplier {
 
-        public static void appendFullAliasName(MetricMultiplier multiplier, ReadingTypeUnit unit, StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
-            aliasNameBuilder.append(" (");
-            Multiplier.appendFullAliasName(multiplier, aliasNameBuilder, thesaurus);
-            Unit.appendFullAliasName(unit, aliasNameBuilder, thesaurus);
-            aliasNameBuilder.append(")");
+        public static String getFullAliasNameElement(MetricMultiplier multiplier, ReadingTypeUnit unit, Thesaurus thesaurus) {
+            return "(" +
+                    Multiplier.getFullAliasNameElement(multiplier, thesaurus) +
+                    Unit.getFullAliasNameElement(unit, thesaurus) +
+                    ")";
         }
 
     }
@@ -229,13 +228,8 @@ public final class ReadingTypeTranslationKeys {
             return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
         }
 
-        public static void appendFullAliasName(com.elster.jupiter.cbo.MacroPeriod macroPeriod, StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
-            aliasNameBuilder
-                    .append("[")
-                    .append(thesaurus
-                                .getFormat(new MacroPeriod(macroPeriod).asTranslationKey())
-                                .format())
-                    .append("] ");
+        public static String getFullAliasNameElement(com.elster.jupiter.cbo.MacroPeriod macroPeriod, Thesaurus thesaurus) {
+            return "[" + thesaurus.getFormat(new MacroPeriod(macroPeriod).asTranslationKey()).format() + "]";
         }
 
     }
@@ -269,10 +263,8 @@ public final class ReadingTypeTranslationKeys {
             return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
         }
 
-        public static void appendFullAliasName(com.elster.jupiter.cbo.Phase phase, StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
-            aliasNameBuilder
-                .append(" ")
-                .append(thesaurus.getFormat(new Phase(phase).asTranslationKey()).format());
+        public static String getFullAliasNameElement(com.elster.jupiter.cbo.Phase phase, Thesaurus thesaurus) {
+            return thesaurus.getFormat(new Phase(phase).asTranslationKey()).format();
         }
 
     }
@@ -283,12 +275,8 @@ public final class ReadingTypeTranslationKeys {
             return new SimpleTranslationKey("readingType.timeOfUse", "Time of use");
         }
 
-        public static void appendFullAliasName(int timeOfUse, StringBuilder aliasNameBuilder, Thesaurus thesaurus) {
-            aliasNameBuilder
-                .append(" ")
-                .append(thesaurus.getFormat(translationKey()).format())
-                .append(" ")
-                .append(timeOfUse);
+        public static String getFullAliasNameElement(int timeOfUse, Thesaurus thesaurus) {
+            return thesaurus.getFormat(translationKey()).format() + " " + timeOfUse;
         }
 
     }

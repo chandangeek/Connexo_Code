@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -27,8 +28,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
 
@@ -492,25 +496,25 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     }
 
     private void buildFullAliasName() {
-        StringBuilder fullAlias = new StringBuilder();
-        if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
-	        ReadingTypeTranslationKeys.MeasuringPeriod.appendFullAliasName(this.getMeasuringPeriod(), fullAlias, this.thesaurus);
-        } else if (this.getMacroPeriod().equals(MacroPeriod.DAILY) || this.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
-	        ReadingTypeTranslationKeys.MacroPeriod.appendFullAliasName(this.getMacroPeriod(), fullAlias, this.thesaurus);
-        }
-	    ReadingTypeTranslationKeys.Commodity.appendFullAliasName(this.getCommodity(), fullAlias, this.thesaurus);
-        fullAlias.append(this.getAliasName());
-        if (this.getUnit().isApplicable()) {
-	        ReadingTypeTranslationKeys.UnitWithMultiplier.appendFullAliasName(this.getMultiplier(), this.getUnit(), fullAlias, this.thesaurus);
-        }
-        if (this.getPhases().isApplicable()) {
-	        ReadingTypeTranslationKeys.Phase.appendFullAliasName(this.getPhases(), fullAlias, this.thesaurus);
-        }
-        if (this.getTou() != 0) {
-	        ReadingTypeTranslationKeys.TimeOfUse.appendFullAliasName(this.getTou(), fullAlias, this.thesaurus);
-        }
-        fullAliasName =  fullAlias.toString();
-    }
+		List<String> fullAliasNameElements = new ArrayList<>();
+		if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.MeasuringPeriod.getFullAliasNameElement(this.getMeasuringPeriod(), this.thesaurus));
+		} else if (this.getMacroPeriod().equals(MacroPeriod.DAILY) || this.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.MacroPeriod.getFullAliasNameElement(this.getMacroPeriod(), this.thesaurus));
+		}
+		fullAliasNameElements.add(ReadingTypeTranslationKeys.Commodity.getFullAliasNameElement(this.getCommodity(), this.thesaurus));
+		fullAliasNameElements.add(this.getAliasName());
+		if (this.getUnit().isApplicable()) {
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.UnitWithMultiplier.getFullAliasNameElement(this.getMultiplier(), this.getUnit(), this.thesaurus));
+		}
+		if (this.getPhases().isApplicable()) {
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.Phase.getFullAliasNameElement(this.getPhases(), this.thesaurus));
+		}
+		if (this.getTou() != 0) {
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.TimeOfUse.getFullAliasNameElement(this.getTou(), this.thesaurus));
+		}
+		fullAliasName = fullAliasNameElements.stream().filter(s -> !Checks.is(s).emptyOrOnlyWhiteSpace()).collect(Collectors.joining(" "));
+	}
 
     @Override
     public String getFullAliasName() {
