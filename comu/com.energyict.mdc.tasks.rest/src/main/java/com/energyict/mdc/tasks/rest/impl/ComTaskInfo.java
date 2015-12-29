@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.tasks.ComTask;
 
 import java.util.ArrayList;
@@ -47,10 +48,10 @@ public class ComTaskInfo {
         return comTaskInfos;
     }
 
-    public static ComTaskInfo fullFrom(ComTask comTask) {
+    public static ComTaskInfo fullFrom(ComTask comTask, Thesaurus thesaurus) {
         ComTaskInfo comTaskInfo = ComTaskInfo.from(comTask);
         comTaskInfo.commands = new ArrayList<>();
-        comTaskInfo.commands.addAll(ProtocolTaskInfo.from(comTask.getProtocolTasks()));
+        comTaskInfo.commands.addAll(ProtocolTaskInfo.from(comTask.getProtocolTasks(), thesaurus));
         comTaskInfo.messages = MessageCategoryInfo.fromTasks(comTask.getProtocolTasks());
         return comTaskInfo;
     }

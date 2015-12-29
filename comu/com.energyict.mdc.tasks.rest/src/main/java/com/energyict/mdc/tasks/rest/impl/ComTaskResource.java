@@ -74,7 +74,7 @@ public class ComTaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public Response getComTask(@PathParam("id") long id) {
         ComTask comTask = taskService.findComTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
-        return Response.status(Response.Status.OK).entity(ComTaskInfo.fullFrom(comTask)).build();
+        return Response.status(Response.Status.OK).entity(ComTaskInfo.fullFrom(comTask, thesaurus)).build();
     }
 
     @POST @Transactional
