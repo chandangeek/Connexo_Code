@@ -1,7 +1,9 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -26,6 +28,9 @@ import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +43,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     private long id;
 
+    @NotEmpty(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY  + "}")
+    @Size(max = 80, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
 
     private final TaskService taskService;
@@ -286,8 +293,9 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     private void persist() {
+        Save.CREATE.validate(dataModel, this);
         persistRecurrentTask();
-        Save.CREATE.save(dataModel, this);
+        dataModel.persist(this);
     }
 
     private void persistRecurrentTask() {
