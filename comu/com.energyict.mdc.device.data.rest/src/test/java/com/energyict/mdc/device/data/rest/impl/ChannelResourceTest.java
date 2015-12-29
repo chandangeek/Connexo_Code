@@ -109,8 +109,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private EstimationRule estimationRule;
     @Mock
     private ReadingQualityRecord quality1, quality2, quality3;
-/*    @Mock
-    private ReadingQualityRecord quality2;*/
+    /*    @Mock
+        private ReadingQualityRecord quality2;*/
     @Mock
     private ValidationRuleSet validationRuleSet;
     @Mock
@@ -203,7 +203,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRule.getName()).thenReturn("EstimationRule");
-        ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
+        ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityTypeEstimatedByRule);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityTypeEstimatedByRule);
         //add confirm quality
@@ -367,7 +367,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelDataFilteredMatches() throws UnsupportedEncodingException {
-        String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect","suspect").create();
+        String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect", "suspect").create();
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);
@@ -420,7 +420,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testChannelInfo(){
+    public void testChannelInfo() {
         String json = target("devices/1/channels/" + CHANNEL_ID1).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         // TODO add items
@@ -489,6 +489,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findAndLockChannelSpecByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(channelSpec));
+        when(masterDataService.findLoadProfileType(anyLong())).thenReturn(Optional.of(loadProfileType));
+        when(masterDataService.findAndLockLoadProfileTypeByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(loadProfileType));
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getId()).thenReturn(1L);
         when(channel.getDevice()).thenReturn(device);
@@ -496,6 +498,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelSpec.getVersion()).thenReturn(1L);
         when(channelSpec.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
+        when(loadProfileType.getId()).thenReturn(1L);
+        when(loadProfileType.getVersion()).thenReturn(1L);
         LoadProfile loadProfile = mock(LoadProfile.class);
         when(device.getLoadProfiles()).thenReturn(Collections.singletonList(loadProfile));
         when(loadProfile.getChannels()).thenReturn(Collections.singletonList(channel));
@@ -524,24 +528,24 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(customPropertySetService.getUniqueValuesFor(eq(customPropertySet), eq(channelSpec), any(Instant.class), anyObject())).thenReturn(customPropertySetValuesNoTimesliced);
         when(customPropertySetService.getAllVersionedValuesFor(eq(customPropertySet), eq(channelSpec), anyObject())).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
         ValuesRangeConflict conflict1 = mock(ValuesRangeConflict.class);
-        when(conflict1.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeFirst),Instant.ofEpochMilli(endTimeFirst)));
+        when(conflict1.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeFirst), Instant.ofEpochMilli(endTimeFirst)));
         when(conflict1.getMessage()).thenReturn("testMessage");
         when(conflict1.getType()).thenReturn(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
         when(conflict1.getValues()).thenReturn(customPropertySetValues);
         ValuesRangeConflict conflict2 = mock(ValuesRangeConflict.class);
-        when(conflict2.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeNew),Instant.ofEpochMilli(endTimeNew)));
+        when(conflict2.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeNew), Instant.ofEpochMilli(endTimeNew)));
         when(conflict2.getMessage()).thenReturn("testMessage");
         when(conflict2.getType()).thenReturn(ValuesRangeConflictType.RANGE_INSERTED);
         when(conflict2.getValues()).thenReturn(CustomPropertySetValues.emptyDuring(Interval.of(Range.closedOpen(Instant.ofEpochMilli(startTimeNew), Instant.ofEpochMilli(endTimeNew)))));
         ValuesRangeConflict conflict3 = mock(ValuesRangeConflict.class);
-        when(conflict3.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(endTimeFirst),Instant.ofEpochMilli(endTimeSecond)));
+        when(conflict3.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(endTimeFirst), Instant.ofEpochMilli(endTimeSecond)));
         when(conflict3.getMessage()).thenReturn("testMessage");
         when(conflict3.getType()).thenReturn(ValuesRangeConflictType.RANGE_OVERLAP_DELETE);
         when(conflict3.getValues()).thenReturn(customPropertySetValues2);
         OverlapCalculatorBuilder overlapCalculatorBuilder = mock(OverlapCalculatorBuilder.class);
-        when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
-        when(overlapCalculatorBuilder.whenUpdating(any(Instant.class),any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
-        when(customPropertySetService.calculateOverlapsFor(anyObject(),anyObject(),anyObject())).thenReturn(overlapCalculatorBuilder);
+        when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Arrays.asList(conflict1, conflict2, conflict3));
+        when(overlapCalculatorBuilder.whenUpdating(any(Instant.class), any(Range.class))).thenReturn(Arrays.asList(conflict1, conflict2, conflict3));
+        when(customPropertySetService.calculateOverlapsFor(anyObject(), anyObject(), anyObject())).thenReturn(overlapCalculatorBuilder);
         return customPropertySet;
     }
 
@@ -627,6 +631,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.isActive = true;
         info.parent = 1L;
         info.version = 5L;
+        info.objectTypeId = 1L;
+        info.objectTypeVersion = 1L;
         info.timesliced = false;
         info.properties = new ArrayList<>();
         Response response = target("devices/1/channels/1/customproperties/1").request().put(Entity.json(info));
@@ -643,6 +649,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.endTime = startTimeFirst;
         info.parent = 1L;
         info.version = 5L;
+        info.objectTypeId = 1L;
+        info.objectTypeVersion = 1L;
         info.timesliced = true;
         info.versionId = info.startTime;
         info.properties = new ArrayList<>();
@@ -651,6 +659,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.startTime = startTimeNew;
         info.endTime = endTimeFirst;
         info.versionId = info.startTime;
+        info.objectTypeId = 1L;
+        info.objectTypeVersion = 1L;
         response = target("devices/1/channels/1/customproperties/1/versions/1416403197000").queryParam("forced", true).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
     }
