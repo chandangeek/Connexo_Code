@@ -7,7 +7,7 @@ Ext.define('Isu.view.assignmentrules.List', {
     ],
     alias: 'widget.issues-assignment-rules-list',
     store: 'Isu.store.AssignmentRules',
-    height: 285,
+    maxHeight: 300,
 
     columns: [
         {
