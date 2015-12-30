@@ -103,8 +103,21 @@ public class LoadProfileResource {
                 .collect(Collectors.toList());
 
         loadProfileInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
+        Range<Instant> checkInterval = lastMonth();
         loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
-                .allMatch(c -> c.getDevice().forValidation().allDataValidated(c, clock.instant()));
+                .allMatch(c -> allDataValidatedOnChannel(c, checkInterval));
+    }
+
+    /**
+     * This method should return the same result as {@link ChannelResourceHelper#addValidationInfo(Channel, ChannelInfo)}
+     */
+    private boolean allDataValidatedOnChannel(Channel channel, Range<Instant> checkInterval) {
+        List<DataValidationStatus> validationStatuses =
+                channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), checkInterval);
+        if (!validationStatuses.isEmpty()) {
+            return  validationStatuses.stream().allMatch(DataValidationStatus::completelyValidated);
+        }
+        return channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
     }
 
     private boolean isValidationActive(LoadProfile loadProfile) {
@@ -152,9 +165,10 @@ public class LoadProfileResource {
             @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
+        Boolean isValidationActive = isValidationActive(loadProfile);
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd")));
-            List<LoadProfileDataInfo> infos = loadProfileData.stream().map(loadProfileReading -> deviceDataInfoFactory.createLoadProfileDataInfo(loadProfileReading, device.forValidation(), loadProfile.getChannels())).collect(Collectors.toList());
+            List<LoadProfileDataInfo> infos = loadProfileData.stream().map(loadProfileReading -> deviceDataInfoFactory.createLoadProfileDataInfo(loadProfileReading, device.forValidation(), loadProfile.getChannels(), isValidationActive)).collect(Collectors.toList());
             infos = filter(infos, filter);
             List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedLoadProfileData, queryParameters);

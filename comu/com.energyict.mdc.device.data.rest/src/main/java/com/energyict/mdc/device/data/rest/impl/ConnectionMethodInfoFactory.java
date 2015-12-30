@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -13,17 +14,23 @@ import java.util.List;
 public class ConnectionMethodInfoFactory {
 
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ConnectionMethodInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
+    public ConnectionMethodInfoFactory(MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.thesaurus = thesaurus;
     }
 
     public ConnectionMethodInfo<?> asInfo(ConnectionTask<?,?> connectionTask, UriInfo uriInfo) {
         if (InboundConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
-            return new InboundConnectionMethodInfo((InboundConnectionTask) connectionTask, uriInfo, mdcPropertyUtils);
+            ConnectionMethodInfo connectionMethodInfo = new InboundConnectionMethodInfo((InboundConnectionTask) connectionTask, uriInfo, mdcPropertyUtils);
+            connectionMethodInfo.displayDirection = DefaultTranslationKey.INBOUND.translateWith(thesaurus);
+            return connectionMethodInfo;
         } else if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
-            return new ScheduledConnectionMethodInfo((ScheduledConnectionTask) connectionTask, uriInfo, mdcPropertyUtils);
+            ConnectionMethodInfo connectionMethodInfo = new ScheduledConnectionMethodInfo((ScheduledConnectionTask) connectionTask, uriInfo, mdcPropertyUtils);
+            connectionMethodInfo.displayDirection = DefaultTranslationKey.OUTBOUND.translateWith(thesaurus);
+            return connectionMethodInfo;
         } else {
             throw new IllegalArgumentException("Unsupported ConnectionMethod type "+connectionTask.getClass().getSimpleName());
         }
