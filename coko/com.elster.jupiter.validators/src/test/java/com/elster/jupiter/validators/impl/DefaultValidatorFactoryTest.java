@@ -90,7 +90,7 @@ public class DefaultValidatorFactoryTest {
         DefaultValidatorFactory validatorFactory = defaultValidatorFactory;
         validatorFactory.setNlsService(nlsService);
 
-        int expectedTranslations = 0;
+        int expectedTranslations = TranslationKeys.values().length;
         for (String implementation : validatorFactory.available()) {
             expectedTranslations++;
             Validator validator = validatorFactory.createTemplate(implementation);
