@@ -466,6 +466,7 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension) {
         FileDestinationImpl fileDestination = dataModel.getInstance(FileDestinationImpl.class).init(this, fileLocation, fileName, fileExtension);
+        Save.CREATE.validate(dataModel, fileDestination);
         destinations.add(fileDestination);
         doSave();
         return fileDestination;
@@ -474,6 +475,7 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public EmailDestination addEmailDestination(String recipients, String subject, String attachmentName, String attachmentExtension) {
         EmailDestinationImpl emailDestination = EmailDestinationImpl.from(this, dataModel, recipients, subject, attachmentName, attachmentExtension);
+        Save.CREATE.validate(dataModel, emailDestination);
         destinations.add(emailDestination);
         doSave();
         return emailDestination;
