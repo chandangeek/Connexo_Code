@@ -24,6 +24,10 @@ public class ReadingTypeFilter {
         return condition;
     }
 
+    public void addCondition(Condition condition) {
+        this.condition = this.condition.and(condition);
+    }
+
     public void addFullAliasNameCondition(String name){
         condition =  condition.and(Operator.LIKE.compare("fullAliasName", Where.toOracleSql(name)));
     }

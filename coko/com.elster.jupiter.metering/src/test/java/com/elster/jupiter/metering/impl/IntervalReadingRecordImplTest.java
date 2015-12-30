@@ -16,14 +16,10 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -32,10 +28,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IntervalReadingRecordImplTest {
@@ -58,13 +62,16 @@ public class IntervalReadingRecordImplTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
+    private NlsMessageFormat messageFormat;
+    @Mock
     private Vault vault;
     @Mock
     private RecordSpec recordSpec;
 
     @Before
     public void setUp() {
-
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         doReturn(Optional.of(vault)).when(idsService).getVault("MTR", 1);
         doReturn(Optional.of(recordSpec)).when(idsService).getRecordSpec("MTR", 2);
         doReturn(ZoneId.systemDefault()).when(meterActivation).getZoneId();
@@ -89,12 +96,6 @@ public class IntervalReadingRecordImplTest {
 
         channel = new ChannelImpl(dataModel, idsService, meteringService, clock, eventService)
                 .init(meterActivation, Arrays.asList(readingType1, readingType2));
-
-    }
-
-    @After
-    public void tearDown() {
-
     }
 
     @Test
@@ -108,7 +109,6 @@ public class IntervalReadingRecordImplTest {
         assertThat(filtered.getReadingType(0)).isEqualTo(readingType2);
         assertThat(filtered.getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(filtered.getQuantities()).containsExactly(ReadingTypeUnit.WATTHOUR.getUnit().amount(BigDecimal.TEN, 3));
-
     }
 
     @Test
@@ -122,7 +122,6 @@ public class IntervalReadingRecordImplTest {
         assertThat(filtered.getReadingType(0)).isEqualTo(readingType1);
         assertThat(filtered.getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(filtered.getQuantities()).containsExactly(ReadingTypeUnit.WATTHOUR.getUnit().amount(BigDecimal.ONE, 3));
-
     }
 
 }

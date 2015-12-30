@@ -20,6 +20,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.PurgeConfiguration;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
+import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -29,7 +31,6 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
-import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
@@ -59,6 +60,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -459,6 +461,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
+    public ReadingTypeFieldsFactory getReadingTypeFieldCodesFactory() {
+        return new ReadingTypeLocalizedFieldsFactory(thesaurus);
+    }
+
+    @Override
     public List<ReadingType> getAllReadingTypesWithoutInterval() {
         Condition withoutIntervals = where(ReadingTypeImpl.Fields.mRID.name()).matches("^0.[0-9]+.0", "");
         return dataModel.mapper(ReadingType.class).select(withoutIntervals);
@@ -605,6 +612,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(Privileges.values()).forEach(translationKeys::add);
         Arrays.stream(PropertyTranslationKeys.values()).forEach(translationKeys::add);
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
+        translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         return translationKeys;
     }
 
