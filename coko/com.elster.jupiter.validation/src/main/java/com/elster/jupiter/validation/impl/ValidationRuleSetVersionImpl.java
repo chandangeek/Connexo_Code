@@ -245,8 +245,9 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     @Override
     public IValidationRule updateRule(long id, String name, boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
-        IValidationRule rule = getExistingRule(id);
-        return doUpdateRule(rule, name, activeStatus, action,  mRIDs, properties);
+        IValidationRule rule =  doUpdateRule(getExistingRule(id), name, activeStatus, action,  mRIDs, properties);
+        Save.UPDATE.validate(dataModel,rule);
+        return rule;
     }
 
     @Override
