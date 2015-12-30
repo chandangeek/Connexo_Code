@@ -69,8 +69,8 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
         ExecutionContext executionContext = this.newTestExecutionContext();
         CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
-        LogBooksCommand logBooksCommand = commandRoot.getLogBooksCommand(logBooksTask, commandRoot, comTaskExecution);
-        ReadLogBooksCommand readLogBooksCommand = commandRoot.getReadLogBooksCommand(logBooksCommand, comTaskExecution);
+        LogBooksCommand logBooksCommand = commandRoot.findOrCreateLogBooksCommand(logBooksTask, commandRoot, comTaskExecution);
+        ReadLogBooksCommand readLogBooksCommand = commandRoot.findorCreateReadLogBooksCommand(logBooksCommand, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
         when(deviceProtocol.getLogBookData(Matchers.<List<LogBookReader>>any())).thenReturn(Arrays.asList(collectedLogBook));
@@ -117,7 +117,7 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
 
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot commandRoot = new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider);
-        ReadLogBooksCommand readLogBooksCommand = commandRoot.getReadLogBooksCommand(mock(LogBooksCommand.class), comTaskExecution);
+        ReadLogBooksCommand readLogBooksCommand = commandRoot.findorCreateReadLogBooksCommand(mock(LogBooksCommand.class), comTaskExecution);
         readLogBooksCommand.addLogBooks(Arrays.asList(logBookReader1, logBookReader2, logBookReader3, logBookReader1, logBookReader2));
 
         assertThat(((ReadLogBooksCommandImpl) readLogBooksCommand).getLogBooksToCollect()).hasSize(3);

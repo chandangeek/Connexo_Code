@@ -35,7 +35,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
     private CommandRoot getMockedCommandRoot(){
         CommandRoot commandRoot = mock(CommandRoot.class);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.getTimeDifferenceCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class))).thenReturn(new TimeDifferenceCommandImpl(commandRoot));
+        when(commandRoot.findOrCreateTimeDifferenceCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class))).thenReturn(new TimeDifferenceCommandImpl(commandRoot));
         return commandRoot;
     }
 

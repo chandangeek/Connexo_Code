@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -13,8 +14,6 @@ import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceComman
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.tasks.BasicCheckTask;
-
-import com.elster.jupiter.time.TimeDuration;
 
 import java.util.Optional;
 
@@ -57,11 +56,11 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
         this.basicCheckTask = basicCheckTask;
 
         if (this.basicCheckTask.verifyClockDifference()) {
-            this.timeDifferenceCommand = commandRoot.getTimeDifferenceCommand(this, comTaskExecution);
-            this.verifyTimeDifferenceCommand = commandRoot.getVerifyTimeDifferenceCommand(this, this, comTaskExecution);
+            this.timeDifferenceCommand = commandRoot.findOrCreateTimeDifferenceCommand(this, comTaskExecution);
+            this.verifyTimeDifferenceCommand = commandRoot.findOrCreateVerifyTimeDifferenceCommand(this, this, comTaskExecution);
         }
         if (this.basicCheckTask.verifySerialNumber()) {
-            this.verifySerialNumberCommand = commandRoot.getVerifySerialNumberCommand(this, comTaskExecution);
+            this.verifySerialNumberCommand = commandRoot.findOrCreateVerifySerialNumberCommand(this, comTaskExecution);
         }
     }
 

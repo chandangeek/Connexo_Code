@@ -95,17 +95,17 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
          * The Execute method will chronologically execute all the commands so this one should be first
          */
 
-        this.verifyLoadProfilesCommand = getCommandRoot().getVerifyLoadProfileCommand(this, comTaskExecution);
+        this.verifyLoadProfilesCommand = getCommandRoot().findOrCreateVerifyLoadProfileCommand(this, comTaskExecution);
 
-        this.readLoadProfileDataCommand = getCommandRoot().getReadLoadProfileDataCommand(this, comTaskExecution);
+        this.readLoadProfileDataCommand = getCommandRoot().findOrCreateReadLoadProfileDataCommand(this, comTaskExecution);
 
         if (this.loadProfilesTask.isMarkIntervalsAsBadTime()) {
-            this.timeDifferenceCommand = getCommandRoot().getTimeDifferenceCommand(this, comTaskExecution);
-            this.markIntervalsAsBadTimeCommand = getCommandRoot().getMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
+            this.timeDifferenceCommand = getCommandRoot().findOrCreateTimeDifferenceCommand(this, comTaskExecution);
+            this.markIntervalsAsBadTimeCommand = getCommandRoot().findOrCreateMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
         }
 
         if (this.loadProfilesTask.createMeterEventsFromStatusFlags()) {
-            this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().getCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
+            this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().findOrCreateCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
         }
 
         createLoadProfileReaders(comTaskExecution.getDevice().getmRID());

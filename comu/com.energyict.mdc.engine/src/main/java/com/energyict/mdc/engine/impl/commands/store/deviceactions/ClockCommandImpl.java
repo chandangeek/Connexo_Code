@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -17,8 +18,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.ClockTask;
-
-import com.elster.jupiter.time.TimeDuration;
 
 import java.util.List;
 import java.util.Optional;
@@ -99,15 +98,15 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
     private void updateCommand() {
         switch (clockTask.getClockTaskType()) {
             case SETCLOCK: {
-                setClockCommand(getCommandRoot().getSetClockCommand(this, this.comTaskExecution));
+                setClockCommand(getCommandRoot().findOrCreateSetClockCommand(this, this.comTaskExecution));
             }
             break;
             case FORCECLOCK: {
-                setClockCommand(getCommandRoot().getForceClockCommand(this, this.comTaskExecution));
+                setClockCommand(getCommandRoot().findOrCreateForceClockCommand(this, this.comTaskExecution));
             }
             break;
             case SYNCHRONIZECLOCK: {
-                setClockCommand(getCommandRoot().getSynchronizeClockCommand(this, this.comTaskExecution));
+                setClockCommand(getCommandRoot().findOrCreateSynchronizeClockCommand(this, this.comTaskExecution));
             }
             break;
             default: {

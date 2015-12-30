@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * A CompositeComCommand can contain several {@link ComCommand}s which are executed in the order the
@@ -26,7 +26,7 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
      * @param command the command to add
      * @param comTaskExecution the referred ComTaskExecution
      */
-    public void addUniqueCommand(final ComCommand command, ComTaskExecution comTaskExecution);
+    void addUniqueCommand(final ComCommand command, ComTaskExecution comTaskExecution);
 
     /**
      * Adds the given CreateComTaskExecutionSessionCommand to the command list.
@@ -34,14 +34,9 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
      * @param command the command to add
      * @param comTaskExecution the referred ComTaskExecution
      */
-    public void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution);
+    void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution);
 
-    /**
-     * Get the List of ComCommands
-     *
-     * @return the requested list of ComCommands
-     */
-    public Map<ComCommandType, ComCommand> getCommands();
+    boolean contains(ComCommand comCommand);
 
     /**
      * Checks whether the given argument already exists in the current root.
@@ -49,6 +44,14 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
      * @param comCommandType the {@link ComCommandTypes} to check for existence
      * @return true if the ComCommand type already exists, false otherwise
      */
-    public boolean checkCommandTypeExistence(final ComCommandType comCommandType, final Map<ComCommandType,ComCommand> comCommands);
+    boolean commandAlreadyExists(ComCommandKey comCommandType);
+
+    /**
+     * Finds the existing {@link ComCommand} with the given {@link ComCommandKey}.
+     *
+     * @param key The ComCommandKey
+     * @return the requested ComCommand or Optional.empty if the ComCommand does not exist yet
+     */
+    Optional<ComCommand> getExistingCommand(ComCommandKey key);
 
 }

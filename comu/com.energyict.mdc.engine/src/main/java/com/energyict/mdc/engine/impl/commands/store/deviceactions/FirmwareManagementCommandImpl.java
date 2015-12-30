@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.FirmwareManagementCommand;
@@ -75,7 +74,7 @@ public class FirmwareManagementCommandImpl extends SimpleComCommand implements F
     }
 
     @Override
-    public ComCommandType getCommandType() {
+    public ComCommandTypes getCommandType() {
         return ComCommandTypes.FIRMWARE_COMMAND;
     }
 

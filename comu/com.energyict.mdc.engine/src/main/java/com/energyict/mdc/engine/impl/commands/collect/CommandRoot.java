@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.CreateComTaskExecutionSessionTask;
@@ -19,11 +21,8 @@ import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.transaction.TransactionService;
-
 import java.time.Clock;
+import java.util.Optional;
 
 /**
  * A CommandRoot contains all {@link ComCommand ComCommands} which are to be executed
@@ -36,23 +35,23 @@ import java.time.Clock;
  */
 public interface CommandRoot extends CompositeComCommand {
 
-    public interface ServiceProvider {
+    interface ServiceProvider {
 
-        public IssueService issueService();
+        IssueService issueService();
 
-        public Clock clock();
+        Clock clock();
 
-        public Thesaurus thesaurus();
+        Thesaurus thesaurus();
 
-        public DeviceService deviceService();
+        DeviceService deviceService();
 
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+        MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
-        public TransactionService transactionService();
+        TransactionService transactionService();
 
-        public IdentificationService identificationService();
+        IdentificationService identificationService();
 
-        public MeteringService meteringService();
+        MeteringService meteringService();
 
     }
 
@@ -62,15 +61,30 @@ public interface CommandRoot extends CompositeComCommand {
      *
      * @return The ExecutionContext
      */
-    public ExecutionContext getExecutionContext();
+    ExecutionContext getExecutionContext();
 
     /**
-     * Gets the requested ComCommand from the command list based on the given type.
-     *
-     * @param commandType the commandType of the Command to return
-     * @return the requested command
+     * Uses the next security group for commands that need the same security settings
+     * but other settings than used for previously added commands.<br/>
+     * As a result, these commands <b>cannot</b> be grouped with any previously created commands, e.g.:
+     * RegisterCommands withing the same 'group' can be merged together/combined, but when belonging to different groups, merging is not possible.
      */
-    public ComCommand getComCommand(final ComCommandTypes commandType);
+    void nextSecurityCommandGroup();
+
+    /**
+     * Getter for the current 'securitySet command group'<br/>
+     * Commands having the same command group use the same security settings and thus can be combined together (e.g. multiple RegisterCommands merged)<br/>
+     * Commands having a different command group use different security settings and thus cannot be combined together
+     */
+    long getSecuritySetCommandGroupId();
+
+    /**
+     * Gets the requested ComCommand from the command list based for the given {@link ComCommandKey}.
+     *
+     * @param key The ComCommandKey
+     * @return the requested command or Optional.empty() if no such ComCommand exists
+     */
+    Optional<ComCommand> getComCommand(ComCommandKey key);
 
     /**
      * Gets or creates the {@link ComTaskExecutionComCommand} that contains all the {@link ComCommand}s
@@ -79,7 +93,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution The ComTaskExecution
      * @return The ComTaskExecutionComCommand
      */
-    public ComTaskExecutionComCommand getComTaskRoot(ComTaskExecution comTaskExecution);
+    ComTaskExecutionComCommand getComTaskRoot(ComTaskExecution comTaskExecution);
 
     /**
      * @param loadProfilesTask     the task for which this command is created for
@@ -87,7 +101,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link LoadProfileCommand} in this {@link CommandRoot}
      */
-    public LoadProfileCommand getLoadProfileCommand(final LoadProfilesTask loadProfilesTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    LoadProfileCommand findOrCreateLoadProfileCommand(LoadProfilesTask loadProfilesTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param registersTask        the task for which this command is created for
@@ -95,7 +109,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution
      * @return the {@link RegisterCommand} in this {@link CommandRoot}
      */
-    public RegisterCommand getRegisterCommand(final RegistersTask registersTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    RegisterCommand findOrCreateRegisterCommand(RegistersTask registersTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param logBooksTask         the task for which this command is created for
@@ -103,7 +117,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link LogBooksCommand} in this {@link CommandRoot}
      */
-    public LogBooksCommand getLogBooksCommand(final LogBooksTask logBooksTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    LogBooksCommand findOrCreateLogBooksCommand(LogBooksTask logBooksTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param loadProfilesTask     the loadProfilesTask for which this command is created for. Use NULL if there is no loadProfilesTask for this command.
@@ -112,7 +126,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link LegacyLoadProfileLogBooksCommand} in this {@link CommandRoot}
      */
-    public LegacyLoadProfileLogBooksCommand getLegacyLoadProfileLogBooksCommand(final LoadProfilesTask loadProfilesTask, final LogBooksTask logBooksTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    LegacyLoadProfileLogBooksCommand findOrCreateLegacyLoadProfileLogBooksCommand(LoadProfilesTask loadProfilesTask, LogBooksTask logBooksTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param basicCheckTask       the task fro which this command is created for
@@ -120,14 +134,14 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link BasicCheckCommand} in this {@link CommandRoot}
      */
-    public BasicCheckCommand getBasicCheckCommand(final BasicCheckTask basicCheckTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    BasicCheckCommand findOrCreateBasicCheckCommand(BasicCheckTask basicCheckTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param possibleCommandOwner the possible owner of this command if it does not exist yet
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link StatusInformationCommand} in this {@link CommandRoot}
      */
-    public StatusInformationCommand getStatusInformationCommand(final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    StatusInformationCommand findOrCreateStatusInformationCommand(CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * This command can actually perform the reading of the registers of a device
@@ -136,7 +150,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link ReadRegistersCommand} in this {@link CommandRoot}
      */
-    public ReadRegistersCommand getReadRegistersCommand(final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    ReadRegistersCommand findOrCreateReadRegistersCommand(CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * This command can actually perform the reading of the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}s of a device
@@ -145,7 +159,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution the ComTaskExecution that drives this ComCommand
      * @return the {@link ReadLogBooksCommand} in this {@link CommandRoot}
      */
-    public ReadLogBooksCommand getReadLogBooksCommand(final LogBooksCommand logBooksCommand, ComTaskExecution comTaskExecution);
+    ReadLogBooksCommand findorCreateReadLogBooksCommand(LogBooksCommand logBooksCommand, ComTaskExecution comTaskExecution);
 
     /**
      * @param clockTask            the task for which this command is created for
@@ -153,7 +167,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link ClockCommand} in this {@link CommandRoot}
      */
-    public ClockCommand getClockCommand(final ClockTask clockTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    ClockCommand findOrCreateClockCommand(ClockTask clockTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      *
@@ -162,14 +176,14 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution  the ComTaskExecution that drives this ComCommand
      * @return the {@link MessagesCommand} in this {@link CommandRoot}
      */
-    public MessagesCommand getMessagesCommand(final MessagesTask messagesTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    MessagesCommand findOrCreateMessagesCommand(MessagesTask messagesTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param possibleCommandOwner the possible owner of this command if it does not exist yet
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link TimeDifferenceCommand} in this {@link CommandRoot}
      */
-    public TimeDifferenceCommand getTimeDifferenceCommand(final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    TimeDifferenceCommand findOrCreateTimeDifferenceCommand(CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param basicCheckCommand    the basicCheckCommand which will own this VerifyTimeDifferenceCommand
@@ -177,63 +191,63 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link VerifyTimeDifferenceCommand} in this {@link CommandRoot}
      */
-    public VerifyTimeDifferenceCommand getVerifyTimeDifferenceCommand(final BasicCheckCommand basicCheckCommand, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    VerifyTimeDifferenceCommand findOrCreateVerifyTimeDifferenceCommand(BasicCheckCommand basicCheckCommand, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param loadProfileCommand the LoadProfileCommand that will own this VerifyLoadProfileCommand
      * @param comTaskExecution   the ComTaskExecution that drives this ComCommand
      * @return the VerifyLoadProfilesCommandImpl in this {@link CommandRoot}
      */
-    public VerifyLoadProfilesCommand getVerifyLoadProfileCommand(final LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
+    VerifyLoadProfilesCommand findOrCreateVerifyLoadProfileCommand(LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
 
     /**
      * @param loadProfileCommand the LoadProfileCommand that will own this ReadLoadProfileDataCommand
      * @param comTaskExecution   the ComTaskExecution that drives this ComCommand
      * @return the ReadLoadProfileDataCommandImpl in this {@link CommandRoot}
      */
-    public ReadLoadProfileDataCommand getReadLoadProfileDataCommand(final LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
+    ReadLoadProfileDataCommand findOrCreateReadLoadProfileDataCommand(LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
 
     /**
      * @param legacyLoadProfileLogBooksCommand the LegacyLoadProfileLogBooksCommand that will own this ReadLegacyLoadProfileLogBooksDataCommand
      * @param comTaskExecution                 the ComTaskExecution that drives this ComCommand
      * @return the {@link ReadLegacyLoadProfileLogBooksDataCommand} in this {@link CommandRoot}
      */
-    public ReadLegacyLoadProfileLogBooksDataCommand getReadLegacyLoadProfileLogBooksDataCommand(final LegacyLoadProfileLogBooksCommand legacyLoadProfileLogBooksCommand, ComTaskExecution comTaskExecution);
+    ReadLegacyLoadProfileLogBooksDataCommand findOrCreateReadLegacyLoadProfileLogBooksDataCommand(LegacyLoadProfileLogBooksCommand legacyLoadProfileLogBooksCommand, ComTaskExecution comTaskExecution);
 
     /**
      * @param loadProfileCommand the LoadProfileCommand that will own this MarkIntervalsAsBadTimeCommand
      * @param comTaskExecution   the ComTaskExecution that drives this ComCommand
      * @return the MarkIntervalsAsBadTimeCommandImpl in this {@link CommandRoot}
      */
-    public MarkIntervalsAsBadTimeCommand getMarkIntervalsAsBadTimeCommand(final LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
+    MarkIntervalsAsBadTimeCommand findOrCreateMarkIntervalsAsBadTimeCommand(LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
 
     /**
      * @param loadProfileCommand the LoadProfileCommand that will own this CreateMeterEventsFromStatusFlagsCommand
      * @param comTaskExecution   the ComTaskExecution that drives this ComCommand
      * @return the {@link CreateMeterEventsFromStatusFlagsCommand} in this {@link CommandRoot}
      */
-    public CreateMeterEventsFromStatusFlagsCommand getCreateMeterEventsFromStatusFlagsCommand(final LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
+    CreateMeterEventsFromStatusFlagsCommand findOrCreateCreateMeterEventsFromStatusFlagsCommand(LoadProfileCommand loadProfileCommand, ComTaskExecution comTaskExecution);
 
     /**
      * @param clockCommand     the {@link ClockCommand} that will own this ForceClockCommand
      * @param comTaskExecution the ComTaskExecution that drives this ComCommand
      * @return the {@link ForceClockCommand} in this {@link CommandRoot}
      */
-    public ComCommand getForceClockCommand(final ClockCommand clockCommand, ComTaskExecution comTaskExecution);
+    ComCommand findOrCreateForceClockCommand(ClockCommand clockCommand, ComTaskExecution comTaskExecution);
 
     /**
      * @param clockCommand     the {@link ClockCommand} that will own this SetClockCommand
      * @param comTaskExecution the ComTaskExecution that drives this ComCommand
      * @return the {@link SetClockCommand} in this {@link CommandRoot}
      */
-    public SetClockCommand getSetClockCommand(final ClockCommand clockCommand, ComTaskExecution comTaskExecution);
+    SetClockCommand findOrCreateSetClockCommand(ClockCommand clockCommand, ComTaskExecution comTaskExecution);
 
     /**
      * @param clockCommand     the {@link ClockCommand} that will own this SynchronizeClockCommand
      * @param comTaskExecution the ComTaskExecution that drives this ComCommand
      * @return the {@link SynchronizeClockCommand} in this {@link CommandRoot}
      */
-    public SynchronizeClockCommand getSynchronizeClockCommand(final ClockCommand clockCommand, ComTaskExecution comTaskExecution);
+    SynchronizeClockCommand findOrCreateSynchronizeClockCommand(ClockCommand clockCommand, ComTaskExecution comTaskExecution);
 
     /**
      * @param topologyTask         the task for which this command is created for
@@ -241,14 +255,14 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution     the ComTaskExecution that drives this ComCommand
      * @return the {@link TopologyCommand} in this {@link CommandRoot}
      */
-    public TopologyCommand getTopologyCommand(final TopologyTask topologyTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    TopologyCommand findOrCreateTopologyCommand(TopologyTask topologyTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param comCommands      the BasicCheckCommand that will own this VerifySerialNumberCommand
      * @param comTaskExecution the ComTaskExecution that drives this ComCommand
      * @return the {@link VerifySerialNumberCommand} in this {@link CommandRoot}
      */
-    public VerifySerialNumberCommand getVerifySerialNumberCommand(final BasicCheckCommand comCommands, ComTaskExecution comTaskExecution);
+    VerifySerialNumberCommand findOrCreateVerifySerialNumberCommand(BasicCheckCommand comCommands, ComTaskExecution comTaskExecution);
 
     /**
      * @param protocolTask the task for which this command is created
@@ -256,9 +270,9 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution the ComTaskExecution that drives this ComCommand
      * @return the newly created CreateComTaskExecutionSessionCommand
      */
-    public CreateComTaskExecutionSessionCommand createComTaskSessionTask(CreateComTaskExecutionSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    CreateComTaskExecutionSessionCommand createComTaskSessionTask(CreateComTaskExecutionSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
-    public FirmwareManagementCommand getFirmwareCommand(FirmwareManagementTask firmwareManagementTask, CommandRoot possibleCommandOwner, ComTaskExecution comTaskExecution);
+    FirmwareManagementCommand findOrCreateFirmwareCommand(FirmwareManagementTask firmwareManagementTask, CommandRoot possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * Executes the ComCommands related to the given preparedComTaskExecution
@@ -266,18 +280,18 @@ public interface CommandRoot extends CompositeComCommand {
      * @param preparedComTaskExecution the given PreparedComTaskExecution
      * @param executionContext         the executionContext
      */
-    public void executeFor(JobExecution.PreparedComTaskExecution preparedComTaskExecution, ExecutionContext executionContext);
+    void executeFor(JobExecution.PreparedComTaskExecution preparedComTaskExecution, ExecutionContext executionContext);
 
     /**
      * Gets the ServiceProvider which collects the Services which are required for the creation/execution of ComCommands
      *
      * @return the ServiceProvider
      */
-    public ServiceProvider getServiceProvider();
+    ServiceProvider getServiceProvider();
 
     /**
      * Indicates if any exceptions (during storing of underlying collected data) should be exposed to the DeviceCommandExecutor
      */
-    public boolean isExposeStoringException();
+    boolean isExposeStoringException();
 
 }

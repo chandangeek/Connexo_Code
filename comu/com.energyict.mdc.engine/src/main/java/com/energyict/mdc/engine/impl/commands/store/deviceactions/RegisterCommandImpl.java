@@ -62,7 +62,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         } else {
             registers = device.getAllRegistersForMRID(comTaskExecution.getDevice().getmRID());
         }
-        ReadRegistersCommand readRegistersCommand = getCommandRoot().getReadRegistersCommand(this, comTaskExecution);
+        ReadRegistersCommand readRegistersCommand = getCommandRoot().findOrCreateReadRegistersCommand(this, comTaskExecution);
         readRegistersCommand.addRegisters(registers);
         deviceRegisterList = new DeviceRegisterList(device.getDeviceIdentifier());
     }

@@ -49,7 +49,7 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
         this.logBooksTask = logBooksTask;
         createLogBookReaders(device, comTaskExecution.getDevice().getmRID());
 
-        ReadLogBooksCommand readLogBooksCommand = getCommandRoot().getReadLogBooksCommand(this, comTaskExecution);
+        ReadLogBooksCommand readLogBooksCommand = getCommandRoot().findorCreateReadLogBooksCommand(this, comTaskExecution);
         readLogBooksCommand.addLogBooks(this.logBookReaders);
     }
 

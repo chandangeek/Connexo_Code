@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
@@ -32,9 +34,6 @@ import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.RegistersTask;
-
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,30 +103,30 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
 
-        LoadProfileCommand loadProfileCommand = commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
-        ClockCommand clockCommand = commandRoot.getClockCommand(clockTask, commandRoot, comTaskExecution);
+        LoadProfileCommand loadProfileCommand = commandRoot.findOrCreateLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
+        ClockCommand clockCommand = commandRoot.findOrCreateClockCommand(clockTask, commandRoot, comTaskExecution);
         //MessagesCommand messagesCommand = commandRoot.getMessagesCommand(messagesTask, commandRoot, comTaskExecution);
-        RegisterCommand registerCommand = commandRoot.getRegisterCommand(registersTask, commandRoot, comTaskExecution);
-        LogBooksCommand logBooksCommand = commandRoot.getLogBooksCommand(logBooksTask, commandRoot, comTaskExecution);
-        BasicCheckCommand basicCheckCommand = commandRoot.getBasicCheckCommand(basicCheckTask, commandRoot, comTaskExecution);
+        RegisterCommand registerCommand = commandRoot.findOrCreateRegisterCommand(registersTask, commandRoot, comTaskExecution);
+        LogBooksCommand logBooksCommand = commandRoot.findOrCreateLogBooksCommand(logBooksTask, commandRoot, comTaskExecution);
+        BasicCheckCommand basicCheckCommand = commandRoot.findOrCreateBasicCheckCommand(basicCheckTask, commandRoot, comTaskExecution);
 
         // Asserts
         assertThat(loadProfileCommand).isNotNull();
-        assertThat(commandRoot.getTimeDifferenceCommand(commandRoot, comTaskExecution)).isNotNull();
-        assertThat(commandRoot.getCreateMeterEventsFromStatusFlagsCommand(loadProfileCommand, comTaskExecution)).isNotNull();
-        assertThat(commandRoot.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution)).isNotNull();
-        assertThat(commandRoot.getVerifyLoadProfileCommand(loadProfileCommand, comTaskExecution)).isNotNull();
-        assertThat(commandRoot.getReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateTimeDifferenceCommand(commandRoot, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateCreateMeterEventsFromStatusFlagsCommand(loadProfileCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateVerifyLoadProfileCommand(loadProfileCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution)).isNotNull();
         assertThat(clockCommand).isNotNull();
-        assertThat(commandRoot.getForceClockCommand(clockCommand, comTaskExecution)).isNotNull();
-        assertThat(commandRoot.getSetClockCommand(clockCommand, comTaskExecution)).isNotNull();
-        assertThat(commandRoot.getSynchronizeClockCommand(clockCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateForceClockCommand(clockCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateSetClockCommand(clockCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateSynchronizeClockCommand(clockCommand, comTaskExecution)).isNotNull();
         assertThat(registerCommand).isNotNull();
         //assertThat(messagesCommand).isNotNull();
         assertThat(basicCheckCommand).isNotNull();
         assertThat(logBooksCommand).isNotNull();
-        assertThat(commandRoot.getVerifySerialNumberCommand(basicCheckCommand, comTaskExecution)).isNotNull();
-        assertThat(commandRoot.getStatusInformationCommand(commandRoot, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateVerifySerialNumberCommand(basicCheckCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.findOrCreateStatusInformationCommand(commandRoot, comTaskExecution)).isNotNull();
     }
 
     @Test

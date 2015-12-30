@@ -52,11 +52,8 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
 
     public List<ServerCollectedData> getNestedCollectedData () {
         Set<ServerCollectedData> collectedData = new HashSet<>();
-        for (ComCommand command : this.getCommands().values()) {
-            List<CollectedData> nestedCollectedData = command.getCollectedData();
-            for (CollectedData data : nestedCollectedData) {
-                collectedData.add((ServerCollectedData) data);
-            }
+        for (ComCommand command : this) {
+            command.getCollectedData().stream().map(ServerCollectedData.class::cast).forEach(collectedData::add);
         }
         return new ArrayList<>(collectedData);
     }
@@ -69,11 +66,6 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
     @Override
     public ComTaskExecution getComTaskExecution() {
         return comTaskExecution;
-    }
-
-    @Override
-    public boolean contains (ComCommand comCommand) {
-        return this.getCommands().values().contains(comCommand);
     }
 
     @Override
