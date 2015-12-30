@@ -35,6 +35,7 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
@@ -117,6 +118,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile TaskService mdcTaskService;
     private volatile MasterDataService masterDataService;
+    private volatile TransactionService transactionService;
+    private volatile JsonService jsonService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -146,7 +149,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
             MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
             SchedulingService schedulingService, MessageService messageService,
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
-            QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService) {
+            QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
+            TransactionService transactionService, JsonService jsonService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -173,6 +177,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.setQueryService(queryService);
         this.setMdcTaskService(mdcTaskService);
         this.setMasterDataService(masterDataService);
+        this.setTransactionService(transactionService);
+        this.setJsonService(jsonService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -338,6 +344,16 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.securityPropertyService = securityPropertyService;
     }
 
+    @Reference
+    public void setTransactionService(TransactionService transactionService){
+        this.transactionService = transactionService;
+    }
+
+    @Override
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
     @Override
     public ServerConnectionTaskService connectionTaskService() {
         return this.connectionTaskService;
@@ -361,6 +377,21 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     @Override
     public BatchService batchService() {
         return this.batchService;
+    }
+
+    @Override
+    public MessageService messageService() {
+        return this.messagingService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService){
+        this.jsonService = jsonService;
+    }
+
+    @Override
+    public JsonService jsonService() {
+        return jsonService;
     }
 
     @Override
@@ -439,6 +470,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
                 bind(TaskService.class).toInstance(mdcTaskService);
                 bind(MasterDataService.class).toInstance(masterDataService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(TransactionService.class).toInstance(transactionService);
+                bind(JsonService.class).toInstance(jsonService);
             }
         };
     }
@@ -547,7 +580,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
                 new SimpleTranslationKey(ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME),
                 new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME),
                 new SimpleTranslationKey(SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
-                new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME)));
+                new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME),
+                new SimpleTranslationKey(ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME)));
         keys.addAll(Arrays.asList(Privileges.values()));
         return keys;
     }

@@ -67,7 +67,7 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest {
 
-    private static final String REQUIRED_PROPERTY_NAME = "ThisIsTheRequiredPropertyName";
+    public static final String REQUIRED_PROPERTY_NAME = "ThisIsTheRequiredPropertyName";
     private static final String REQUIRED_PROPERTY_VALUE = "lmskdjfsmldkfjsqlmdkfj";
     private static final String OPTIONAL_PROPERTY_NAME = "ThisIsTheOptionalPropertyName";
     private static final String OPTIONAL_PROPERTY_VALUE = "sdlfkjnsqdlmfjsqdfsqdfsqdf";
@@ -75,7 +75,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     private static final String OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE = "jklmdsqfjkldsqlozidkcxjnnclsqkdkjoijfze65465zef65e6f51ze6f51zefze";
     private static final String INHERITED_OPTIONAL_PROPERTY_VALUE = "inheritedmqjdsflmdsqkjflmsqdjkfmsqldkfjlmdsqjkf";
 
-    private static final String DIALECT_1_NAME = TestProtocolDialect1.class.getSimpleName();
+    public static final String DIALECT_1_NAME = TestProtocolDialect1.class.getSimpleName();
     private static final String DIALECT_2_NAME = TestProtocolDialect2.class.getSimpleName();
 
     private static final String MRID = "mRID";
@@ -98,9 +98,9 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
                 registerDeviceProtocol();
                 deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(ProtocolDialectPropertiesImplIT.class.getSimpleName(), deviceProtocolPluggableClass);
                 deviceType.setDeviceUsageType(DeviceUsageType.METER);
+                deviceType.save();
                 DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(ProtocolDialectPropertiesImplIT.class.getName());
                 deviceConfiguration = deviceConfigurationBuilder.add();
-                deviceType.save();
                 deviceConfiguration.activate();
 
                 protocolDialect1ConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);

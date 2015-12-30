@@ -105,7 +105,22 @@ public enum MessageSeeds implements MessageSeed {
     NO_METER_ACTIVATION_AT(2078, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}"),
     LAST_CHECKED_CANNOT_BE_NULL(2079, Keys.LAST_CHECKED_CANNOT_BE_NULL, "The new last checked timestamp cannot be null"),
     LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
-    DUPLICATE_COMTASK(2081, Keys.DUPLICATE_COMTASK, "One or more communication tasks in the communication schedule are already scheduled on the device"),
+    CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG(2081, Keys.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG, "You can not change the configuration of device {0} to the configuration it already has"),
+    CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED(2082, Keys.CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED, "You can not change the configuration of device {0} to the configuration {1} because there are still unsolved conflicts"),
+    CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE(2083, Keys.CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE, "You can not change the configuration of a device to a configuration of another devicetype"),
+    NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION(2084, Keys.NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION, "No destination device configuration found for id {0} and version {1}"),
+    VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED(2085, Keys.VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED, "There is currently an active configuration change happening, your change would create new conflicts, please wait untill the action has finished."),
+    DUPLICATE_COMTASK(2086, Keys.DUPLICATE_COMTASK, "One or more communication tasks in the communication schedule are already scheduled on the device"),
+    INVALID_SEARCH_DOMAIN(2087, Keys.INVALID_SEARCH_DOMAIN, "You are trying to look for an invalid search domain : {0}"),
+    NO_DESTINATION_SPEC_FOUND(2088, Keys.NO_DESTINATION_SPEC_FOUND, "No destination spec found for : {0}"),
+    NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND(2089, Keys.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, "No device config change business lock found for id {0}"),
+    NO_DEVICE_FOUND_FOR_MRID(2090, Keys.NO_DEVICE_FOUND_FOR_MRID, "No device found for mrid {0}"),
+    INCORRECT_DEVICE_VERSION(2091, Keys.INCORRECT_DEVICE_VERSION, "No device found for id {0} and version {1}"),
+    NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND(2092, Keys.NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND, "No device config change business lock for single device found for id {0}"),
+    BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG(2093, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG, "You need to search a specific device configuration in order to use the bulk action for change device configuration"),
+    BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG(2094, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG, "You need to search on a unique device configuration in order to use the bulk action for change device configuration"),
+    BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE(2095, Keys.BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE, "You provided an invalid search value for the property {0}"),
+    PRIORITY_NOT_IN_RANGE(2096, Keys.PRIORITY_NOT_IN_RANGE, "Value must be between {min} and {max}"),
     ;
 
     private final int number;
@@ -243,5 +258,19 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_METER_ACTIVATION_AT = "no.meteractivation";
         public static final String LAST_CHECKED_CANNOT_BE_NULL = "lastChecked.null";
         public static final String LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED = "lastChecked.after.currentLastChecked";
+        public static final String CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG = "cannotChangeDeviceToSameConfig";
+        public static final String CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED = "cannotChangeConfigStillUnsolvedConflicts";
+        public static final String CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE = "cannotChangeToConfigOfOtherDeviceType";
+        public static final String NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION = "noDestinationDeviceConfigFoundForVersion";
+        public static final String VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED = "activeConfigChangeNoNewConflictsAllowed";
+        public static final String INVALID_SEARCH_DOMAIN = "device.invalidSearchDomain";
+        public static final String NO_DESTINATION_SPEC_FOUND = "device.noDestinationSpecFound";
+        public static final String NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND = "device.configchange.noBusinessLock";
+        public static final String NO_DEVICE_FOUND_FOR_MRID = "no.device.found.mrid";
+        public static final String INCORRECT_DEVICE_VERSION = "incorrect.device.version";
+        public static final String NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND = "device.configchange.single.device.noBusinessLock";
+        public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG = "bulk.device.configchange.needto.search.on.config";
+        public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG = "bulk.device.configchange.needto.search.on.unique.config";
+        public static final String BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE = "bulk.device.configchange.invalid.search.item";
     }
 }

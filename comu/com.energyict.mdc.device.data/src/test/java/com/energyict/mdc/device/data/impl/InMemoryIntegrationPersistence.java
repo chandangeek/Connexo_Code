@@ -12,6 +12,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -163,6 +164,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
     private FiniteStateMachineService finiteStateMachineService;
+    private Injector injector;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -184,13 +186,13 @@ public class InMemoryIntegrationPersistence {
         when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(any(PluggableClass.class))).thenReturn(new SimpleDiscoveryProtocol());
         deviceProtocolService = mock(DeviceProtocolService.class);
         when(deviceProtocolService.createProtocol(DeviceMessageImplTest.MessageTestDeviceProtocol.class.getName())).thenReturn(new DeviceMessageImplTest.MessageTestDeviceProtocol());
-        when(deviceProtocolService.createProtocol(TestProtocol.class.getName())).thenReturn(new TestProtocol());
+        when(deviceProtocolService.createProtocol(TestProtocol.class.getName())).thenReturn(new TestProtocol(propertySpecService));
         TestProtocolWithRequiredStringAndOptionalNumericDialectProperties testProtocolThatUseMocking = new TestProtocolWithRequiredStringAndOptionalNumericDialectProperties();
         when(deviceProtocolService.createProtocol(TestProtocolWithRequiredStringAndOptionalNumericDialectProperties.class.getName())).thenReturn(testProtocolThatUseMocking);
         Properties properties = new Properties();
         properties.put("protocols", "all");
         when(license.getLicensedValues()).thenReturn(properties);
-        Injector injector = Guice.createInjector(
+        injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
@@ -296,9 +298,12 @@ public class InMemoryIntegrationPersistence {
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
+        when(this.principal.hasPrivilege(any(), anyString())).thenReturn(true);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.thesaurus = mock(Thesaurus.class);
+        this.issueService = mock(IssueService.class, RETURNS_DEEP_STUBS);
+        when(this.issueService.findStatus(any())).thenReturn(Optional.<IssueStatus>empty());
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -369,6 +374,34 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.thesaurus();
     }
 
+    public NlsService getNlsService() {
+        return nlsService;
+    }
+
+    public LicenseService getLicenseService() {
+        return licenseService;
+    }
+
+    public ConnectionTypeService getConnectionTypeService() {
+        return connectionTypeService;
+    }
+
+    public InboundDeviceProtocolService getInboundDeviceProtocolService() {
+        return inboundDeviceProtocolService;
+    }
+
+    public DeviceProtocolService getDeviceProtocolService() {
+        return deviceProtocolService;
+    }
+
+    public ValidationService getValidationService() {
+        return validationService;
+    }
+
+    public FiniteStateMachineService getFiniteStateMachineService() {
+        return finiteStateMachineService;
+    }
+
     public Clock getClock() {
         return clock;
     }
@@ -427,7 +460,7 @@ public class InMemoryIntegrationPersistence {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
-            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(IssueService.class).toInstance(issueService);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(() -> dataModel);
         }
@@ -457,6 +490,10 @@ public class InMemoryIntegrationPersistence {
         return batchService;
     }
 
+    public DeviceConfigConflictMappingHandler getDeviceConfigConflictMappingHandler(){
+        return injector.getInstance(DeviceConfigConflictMappingHandler.class);
+    }
+
     public DeviceSearchDomain getDeviceSearchDomain() {
         return deviceSearchDomain;
     }
@@ -464,4 +501,5 @@ public class InMemoryIntegrationPersistence {
     public DataCollectionKpiService getDataCollectionKpiService() {
         return dataCollectionKpiService;
     }
+
 }

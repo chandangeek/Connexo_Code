@@ -6,6 +6,13 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
+
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.properties.PropertySpec;
+
+import java.util.Optional;
 
 /**
  * Adds behavior to {@link DeviceService} that is specific
@@ -42,11 +49,25 @@ public interface ServerDeviceService extends DeviceService {
      * if the property were to be removed from the {@link ProtocolDialectConfigurationProperties}.
      *
      * @param configurationProperties The DeviceConfiguration
-     * @param propertySpec The PropertySpec
+     * @param propertySpec            The PropertySpec
      * @return <code>true</code> iff there is at least one Device with overruling properties
      */
     long countDevicesThatRelyOnRequiredProperty(ProtocolDialectConfigurationProperties configurationProperties, PropertySpec propertySpec);
 
     Query<Device> deviceQuery();
+
+    /**
+     * Checks if there is currently an active 'ChangeDeviceConfiguration' happening.
+     * We do this by validation whether the origin or destination are part of a the business lock for deviceConfigChanges
+     *
+     * @param originDeviceConfiguration      the origin DeviceConfiguration
+     * @param destinationDeviceConfiguration the destination DeviceConfiguration
+     * @return true if there is currently a changeDeviceConfiguration happening for either of the DeviceConfigurations
+     */
+    public boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration);
+
+    public Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id);
+
+    public Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id);
 
 }

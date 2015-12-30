@@ -229,7 +229,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
         return DefaultFinder.of(Device.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), this.deviceDataModelService.dataModel()).defaultSortColumn("lower(name)");
     }
 
-
     @Override
     public List<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue) {
         Condition condition = where("deviceProperties.propertySpec").isEqualTo(propertySpecName).and(where("deviceProperties.propertyValue").isEqualTo(propertySpecValue));
@@ -248,4 +247,62 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public Query<Device> deviceQuery() {
         return queryService.wrap(deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class));
     }
+
+    @Override
+    public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
+        Pair<Device, DeviceConfigChangeRequestImpl> lockResult = deviceDataModelService.getTransactionService().execute(() -> {
+            Device device = findAndLockDeviceByIdAndVersion(deviceId, deviceVersion).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForVersion(thesaurus, deviceId, deviceVersion));
+            final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
+                    .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
+                    .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
+            final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(deviceConfiguration);
+            deviceConfigChangeRequest.save();
+            return Pair.of(device, deviceConfigChangeRequest);
+        });
+
+        Device modifiedDevice = null;
+        try {
+            modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> new DeviceConfigChangeExecutor(this).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
+        } finally {
+            deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
+        }
+        return modifiedDevice;
+    }
+
+    @Override
+    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs) {
+        final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(destinationDeviceConfiguration);
+        deviceConfigChangeRequest.save();
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch, deviceConfigChangeRequest.getId());
+
+        DestinationSpec destinationSpec = deviceDataModelService.messageService().getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION).orElseThrow(new NoDestinationSpecFound(thesaurus, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION));
+        Map<String, Object> message = createConfigChangeQueueMessage(itemizeConfigChangeQueueMessage);
+        destinationSpec.message(deviceDataModelService.jsonService().serialize(message)).send();
+    }
+
+    private Map<String, Object> createConfigChangeQueueMessage(ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage) {
+        Map<String, Object> message = new HashMap<>(2);
+        message.put(EventConstants.EVENT_TOPIC, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_BULK_SETUP_ACTION);
+        message.put(ServerDeviceForConfigChange.CONFIG_CHANGE_MESSAGE_VALUE, deviceDataModelService.jsonService().serialize(itemizeConfigChangeQueueMessage));
+        return message;
+    }
+
+    @Override
+    public boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
+        return this.deviceDataModelService.dataModel()
+                .stream(DeviceConfigChangeRequest.class)
+                .filter(Where.where(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).in(Arrays.asList(originDeviceConfiguration, destinationDeviceConfiguration)))
+                .findAny().isPresent();
+    }
+
+    @Override
+    public Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id) {
+        return deviceDataModelService.dataModel().mapper(DeviceConfigChangeRequest.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id) {
+        return deviceDataModelService.dataModel().mapper(DeviceConfigChangeInAction.class).getUnique("id", id);
+    }
+
 }
