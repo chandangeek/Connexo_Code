@@ -369,7 +369,7 @@ public class MeteringCommands {
                     protected void doPerform() {
                         EndDeviceEventRecord endDeviceEventRecord = null;
                         try {
-                            endDeviceEventRecord = meter.addEventRecord(type.get(), Instant.from(dateTimeFormat.parse(dateTime))).create();
+                            endDeviceEventRecord = meter.addEventRecord(type.get(), LocalDateTime.from(dateTimeFormat.parse(dateTime)).atZone(ZoneId.systemDefault()).toInstant()).create();
                         } catch (RuntimeException e) {
                             e.printStackTrace();
                         }
