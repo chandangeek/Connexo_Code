@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.protocol.api.ConnectionType;
 
 /**
  * Insert your comments here.
@@ -12,7 +14,10 @@ public enum TranslationKeys implements TranslationKey {
 
     DEFAULT("Default", "Default"),
     CHANNEL("com.energyict.mdc.device.config.ChannelSpec", "Channel"),
-    REGISTER("com.energyict.mdc.device.config.RegisterSpec", "Register");
+    REGISTER("com.energyict.mdc.device.config.RegisterSpec", "Register"),
+    INBOUND(ConnectionType.Direction.INBOUND.name(), "Inbound"),
+    OUTBOUND(ConnectionType.Direction.OUTBOUND.name(), "Outbound");
+
 
     private final String key;
     private final String defaultFormat;
@@ -20,6 +25,10 @@ public enum TranslationKeys implements TranslationKey {
     TranslationKeys(String key, String defaultFormat) {
         this.key = key;
         this.defaultFormat = defaultFormat;
+    }
+
+    public String translateWith(Thesaurus thesaurus){
+        return thesaurus.getFormat(this).format();
     }
 
     @Override

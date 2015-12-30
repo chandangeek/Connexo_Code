@@ -40,6 +40,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public String name;
     public String connectionTypePluggableClass;
     public String comPortPool;
+    public String displayDirection;
     public boolean isDefault;
     public Integer comWindowStart;
     public Integer comWindowEnd;

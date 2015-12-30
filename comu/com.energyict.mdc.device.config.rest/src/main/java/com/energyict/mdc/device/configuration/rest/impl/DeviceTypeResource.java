@@ -8,10 +8,10 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -208,10 +208,10 @@ public class DeviceTypeResource {
         if (!isLinked) {
             registeredCustomPropertySets = resourceHelper.findAllCustomPropertySetsByDomain(Device.class)
                     .stream()
-                    .filter(f -> !deviceType.getDeviceTypeCustomPropertySetUsage().stream().map(RegisteredCustomPropertySet::getId).collect(Collectors.toList()).contains(f.getId()))
+                    .filter(f -> !deviceType.getCustomPropertySets().stream().map(RegisteredCustomPropertySet::getId).collect(Collectors.toList()).contains(f.getId()))
                     .collect(Collectors.toList());
         } else {
-            registeredCustomPropertySets = deviceType.getDeviceTypeCustomPropertySetUsage();
+            registeredCustomPropertySets = deviceType.getCustomPropertySets();
         }
         return PagedInfoList.fromPagedList("deviceTypeCustomPropertySets", DeviceTypeCustomPropertySetInfo.from(registeredCustomPropertySets), queryParameters);
     }
@@ -224,7 +224,7 @@ public class DeviceTypeResource {
     public Response addDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, List<DeviceTypeCustomPropertySetInfo> infos) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         infos.stream().forEach(deviceTypeCustomPropertySetInfo ->
-                deviceType.addDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id, Device.class)));
+                deviceType.addCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id, Device.class)));
         return Response.ok().build();
     }
 
@@ -234,7 +234,7 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceTypeCustomPropertySetUsage(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("customPropertySetId") long customPropertySetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        deviceType.removeDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class));
+        deviceType.removeCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class));
         return Response.ok().build();
     }
 
