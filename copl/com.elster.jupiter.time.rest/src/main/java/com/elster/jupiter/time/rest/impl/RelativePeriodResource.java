@@ -1,7 +1,6 @@
 package com.elster.jupiter.time.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -18,7 +17,6 @@ import com.elster.jupiter.time.rest.RelativeDatePreviewInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfos;
 import com.elster.jupiter.time.rest.RelativePeriodPreviewInfo;
-import com.elster.jupiter.time.rest.impl.i18n.MessageSeeds;
 import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -110,7 +108,6 @@ public class RelativePeriodResource {
     public Response createRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
         RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.convertToRelativeOperations());
         RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.convertToRelativeOperations());
-        verifyDateRangeOrThrowException(relativeDateFrom, relativeDateTo);
         List<RelativePeriodCategory> categories = getRelativePeriodCategoriesList(relativePeriodInfo);
         RelativePeriod period;
         try (TransactionContext context = transactionService.getContext()) {
@@ -131,7 +128,6 @@ public class RelativePeriodResource {
             RelativePeriod relativePeriod = findRelativePeriodAndLock(relativePeriodInfo);
             RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.convertToRelativeOperations());
             RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.convertToRelativeOperations());
-            verifyDateRangeOrThrowException(relativeDateFrom, relativeDateTo);
             List<RelativePeriodCategory> categories = getRelativePeriodCategoriesList(relativePeriodInfo);
             RelativePeriod period;
             period = timeService.updateRelativePeriod(relativePeriod.getId(), relativePeriodInfo.name, relativeDateFrom, relativeDateTo, categories);
@@ -227,13 +223,6 @@ public class RelativePeriodResource {
         Instant instant = Instant.ofEpochMilli(relativeDatePreviewInfo.date);
         ZoneId zoneId = ZoneId.ofOffset("", ZoneOffset.ofHoursMinutes(relativeDatePreviewInfo.parseOffsetHours(), relativeDatePreviewInfo.parseOffsetMinutes()));
         return ZonedDateTime.ofInstant(instant, zoneId);
-    }
-
-    private void verifyDateRangeOrThrowException(RelativeDate relativeDateFrom, RelativeDate relativeDateTo) {
-        ZonedDateTime time = ZonedDateTime.now();
-        if (relativeDateFrom.getRelativeDate(time).isAfter(relativeDateTo.getRelativeDate(time))) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_RANGE, "to");
-        }
     }
 
     private List<RelativePeriodCategory> getRelativePeriodCategoriesList(RelativePeriodInfo relativePeriodInfo) {
