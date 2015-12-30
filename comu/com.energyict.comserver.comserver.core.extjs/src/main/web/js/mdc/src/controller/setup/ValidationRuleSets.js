@@ -314,7 +314,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.data.name]),
             msg: Uni.I18n.translate('validation.deviceconfig.remove.confirmation.msg', 'MDC',
-                'This validation rule set type will no longer be available on the device configuration.'),
+                'This validation rule set will no longer be available on the device configuration.'),
             config: {
                 me: me,
                 record: record
