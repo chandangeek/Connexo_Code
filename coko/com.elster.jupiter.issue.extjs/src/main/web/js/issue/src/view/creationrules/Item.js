@@ -39,12 +39,12 @@ Ext.define('Isu.view.creationrules.Item', {
                         name: 'name'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.ruleTemplate', 'ISU', 'Rule template'),
-                        name: 'template_name'
-                    },
-                    {
                         fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
                         name: 'issueType_name'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.title.ruleTemplate', 'ISU', 'Rule template'),
+                        name: 'template_name'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISU', 'Issue reason'),
