@@ -23,8 +23,6 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class StandardCsvEventDataFormatter implements StandardFormatter {
 
-    public static final String SEMICOLON_VALUE = "Semicolon (;)";
-    public static final String COMMA_VALUE = "Comma (,)";
     public static final String SEMICOLON_SEPARATOR = ";";
     public static final String COMMA_SEPARATOR = ",";
     private final DataExportService dataExportService;
@@ -35,14 +33,14 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
         this.dataExportService = dataExportService;
     }
 
-    private StandardCsvEventDataFormatter init(String separator, String tag) {
-        this.separator = defineSeparator(separator);
+    private StandardCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
+        this.separator = defineSeparator(translatablePropertyValueInfo);
         this.tag = tag;
         return this;
     }
 
-    static StandardCsvEventDataFormatter from(DataExportService dataExportService, String separator, String tag) {
-        return new StandardCsvEventDataFormatter(dataExportService).init(separator, tag);
+    static StandardCsvEventDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
+        return new StandardCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag);
     }
 
     @Override
@@ -81,15 +79,10 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
 
     }
 
-    private String defineSeparator(String separator) {
-        switch (separator) {
-            case SEMICOLON_VALUE:
-                return SEMICOLON_SEPARATOR;
-            case COMMA_VALUE:
-            default:
-                return COMMA_SEPARATOR;
+    private String defineSeparator(TranslatablePropertyValueInfo translatablePropertyValueInfo) {
+        if (translatablePropertyValueInfo.getId().equals(FormatterProperties.SEPARATOR_SEMICOLON.getKey())) {
+            return SEMICOLON_SEPARATOR;
         }
+        return COMMA_SEPARATOR;
     }
-
-
 }

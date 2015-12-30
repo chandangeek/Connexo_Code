@@ -52,7 +52,8 @@ public class StandardCsvEventDataFormatterTest {
 
     @Test
     public void test() {
-        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, "Comma (,)", "Tag");
+        TranslatablePropertyValueInfo translatablePropertyValueInfo = new TranslatablePropertyValueInfo("Comma (,)", "Comma (,)");
+        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag");
 
         MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
         meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", time1.toInstant()));
@@ -79,5 +80,4 @@ public class StandardCsvEventDataFormatterTest {
         assertThat(textLine3.getAppendablePayload()).isEqualTo("2014-05-13T15:42:00.000+12:00,3.2.3.4,MRID2\n");
         assertThat(textLine3.getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "Tag").child("MRID2"));
     }
-
 }

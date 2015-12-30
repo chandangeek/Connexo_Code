@@ -10,7 +10,9 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.StringReferenceFactory;
 import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -61,7 +63,7 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     @Reference
     public void setThesaurus(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.REST);
     }
 
     @Reference
@@ -78,7 +80,6 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
-
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
@@ -128,8 +129,13 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     @Override
     public void validateProperties(List<DataExportProperty> properties) {
         for (DataExportProperty property : properties) {
-            String stringValue = (String) property.getValue();
-            checkInvalidChars(stringValue, property.getName(), NON_PATH_INVALID);
+            if (property.getValue() instanceof TranslatablePropertyValueInfo) {
+                TranslatablePropertyValueInfo translatablePropertyValueInfo = (TranslatablePropertyValueInfo) property.getValue();
+                checkInvalidChars(translatablePropertyValueInfo.getId().toString(), property.getName(), NON_PATH_INVALID);
+            } else {
+                String stringValue = (String) property.getValue();
+                checkInvalidChars(stringValue, property.getName(), NON_PATH_INVALID);
+            }
         }
     }
 

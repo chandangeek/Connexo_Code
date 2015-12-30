@@ -55,7 +55,7 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     @Reference
     public void setThesaurus(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.REST);
     }
 
     @Reference
@@ -100,8 +100,8 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
         return (String) properties.get(FormatterProperties.TAG.getKey());
     }
 
-    private String getSeparator(Map<String, Object> properties) {
-        return (String) properties.get(FormatterProperties.SEPARATOR.getKey());
+    private TranslatablePropertyValueInfo getSeparator(Map<String, Object> properties) {
+        return (TranslatablePropertyValueInfo) properties.get(FormatterProperties.SEPARATOR.getKey());
     }
 
     @Override
@@ -112,8 +112,13 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
     @Override
     public void validateProperties(List<DataExportProperty> properties) {
         for (DataExportProperty property : properties) {
-            String stringValue = (String) property.getValue();
-            checkInvalidChars(stringValue, property.getName(), NON_PATH_INVALID);
+            if (property.getValue() instanceof TranslatablePropertyValueInfo) {
+                TranslatablePropertyValueInfo translatablePropertyValueInfo = (TranslatablePropertyValueInfo) property.getValue();
+                checkInvalidChars(translatablePropertyValueInfo.getId().toString(), property.getName(), NON_PATH_INVALID);
+            } else {
+                String stringValue = (String) property.getValue();
+                checkInvalidChars(stringValue, property.getName(), NON_PATH_INVALID);
+            }
         }
     }
 
@@ -135,4 +140,5 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
     public String getDisplayName() {
         return DISPLAY_NAME;
     }
+
 }

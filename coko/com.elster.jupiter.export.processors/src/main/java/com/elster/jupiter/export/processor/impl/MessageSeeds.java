@@ -68,6 +68,4 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FILE_IO = "file.io.failure";
         public static final String ABSOLUTE_PATH = "path.absolute.disallowed";
     }
-
 }
-

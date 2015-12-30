@@ -167,13 +167,14 @@ public class StandardCsvDataFormatterTest {
         when(dataValidationStatus2.getValidationResult()).thenReturn(ValidationResult.VALID);
         when(dataValidationStatus3.getValidationResult()).thenReturn(ValidationResult.NOT_VALIDATED);
 
+        TranslatablePropertyValueInfo semicolonValueInfo = new TranslatablePropertyValueInfo("Semicolon (;)", "Semicolon (;)");
         properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile, propertyPath);
         when(propertyExtension.getName()).thenReturn("fileFormat.fileExtension");
         when(propertyExtension.getValue()).thenReturn("csv");
         when(propertyPrefix.getName()).thenReturn("fileFormat.filenamePrefix");
         when(propertyPrefix.getValue()).thenReturn("MainFile");
         when(propertySeparator.getName()).thenReturn(FormatterProperties.SEPARATOR.getKey());
-        when(propertySeparator.getValue()).thenReturn(StandardCsvDataFormatter.SEMICOLON_VALUE);
+        when(propertySeparator.getValue()).thenReturn(semicolonValueInfo);
         when(propertyExtensionUpdated.getName()).thenReturn("fileFormat.updatedData.updateFileExtension");
         when(propertyExtensionUpdated.getValue()).thenReturn("csv");
         when(propertyPrefixUpdated.getName()).thenReturn("fileFormat.updatedData.updateFilenamePrefix");
@@ -309,5 +310,4 @@ public class StandardCsvDataFormatterTest {
         }
         return propertyMap;
     }
-
 }
