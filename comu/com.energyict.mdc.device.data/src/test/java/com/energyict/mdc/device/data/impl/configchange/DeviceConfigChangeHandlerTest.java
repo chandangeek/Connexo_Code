@@ -9,6 +9,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -19,6 +20,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -54,7 +56,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -240,6 +245,42 @@ public class DeviceConfigChangeHandlerTest {
 
         verify(messageBuilder, times(deviceMRIDs.size())).send();
     }
+
+    @Test
+    public void testChangeConfigForDecommissionedDevice() throws JsonProcessingException {
+        DevicesForConfigChangeSearch devicesForConfigChangeSearch = new DevicesForConfigChangeSearch();
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, getDeviceTypeValueBean());
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, getDeviceConfigValueBean());
+
+
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        when(destinationSpec.message(anyString())).thenReturn(messageBuilder);
+        MessageService messageService = mock(MessageService.class);
+        when(deviceDataModelService.messageService()).thenReturn(messageService);
+        when(messageService.getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION)).thenReturn(Optional.of(destinationSpec));
+        State decommissionedState = mock(State.class);
+        when(decommissionedState.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
+        String deviceMRID1 = "deviceMRDI1";
+        Device device1 = mock(Device.class);
+        when(device1.getState()).thenReturn(decommissionedState);
+        when(deviceService.findByUniqueMrid(deviceMRID1)).thenReturn(Optional.of(device1));
+
+        List<String> deviceMRIDs = Arrays.asList(deviceMRID1);
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(DESTINATION_CONFIG_ID, deviceMRIDs, devicesForConfigChangeSearch, DEVICE_CONFIG_CHANGE_REQUEST_ID);
+        mockSearchBuilder(mockMessageHandlerInternals(itemizeConfigChangeQueueMessage));
+        DeviceConfigChangeHandler deviceConfigChangeHandler = getTestInstance();
+
+        Message queueMessage = mock(Message.class);
+        NlsMessageFormat format = mock(NlsMessageFormat.class);
+        when(format.format(anyVararg())).thenReturn("some message");
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
+        deviceConfigChangeHandler.process(queueMessage);
+
+        verify(messageBuilder, never()).send();
+        verify(destinationSpec, never()).message(Matchers.anyString());
+    }
+
 
     @Test
     @Expected(value = DeviceConfigurationChangeException.class, message = "You need to search a specific device configuration in order to use the bulk action for change device configuration")

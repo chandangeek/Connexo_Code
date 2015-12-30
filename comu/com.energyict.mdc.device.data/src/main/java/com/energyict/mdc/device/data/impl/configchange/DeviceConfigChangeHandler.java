@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -127,9 +128,18 @@ public class DeviceConfigChangeHandler implements MessageHandler {
                         consumerForAllowedDevices.accept(device);
                     } else {
                         LOGGER.warning(configChangeContext.thesaurus.getFormat(MessageSeeds.CHANGE_CONFIG_WRONG_DEVICE_STATE)
-                                .format(device.getmRID(), device.getState().getName()));
+                                .format(device.getmRID(), getStateName(configChangeContext.thesaurus, device.getState())));
                     }
                 };
+            }
+
+            public String getStateName(Thesaurus thesaurus, State state) {
+                Optional<DefaultState> defaultState = DefaultState.from(state);
+                if (defaultState.isPresent()) {
+                    return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
+                } else {
+                    return state.getName();
+                }
             }
         },
         CONFIGCHANGEEXECUTOR(ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SINGLE_START_ACTION) {
