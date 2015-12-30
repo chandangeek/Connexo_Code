@@ -285,6 +285,11 @@ public class ReadingEstimateTest {
             }
 
             @Override
+            public boolean isEstimationActive(Meter meter) {
+                return true;
+            }
+
+            @Override
             public Priority getPriority() {
                 return Priority.HIGHEST;
             }

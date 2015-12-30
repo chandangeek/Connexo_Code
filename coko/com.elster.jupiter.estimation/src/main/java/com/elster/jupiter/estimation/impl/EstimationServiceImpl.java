@@ -63,6 +63,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -459,6 +460,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     public void removeEstimationResolver(EstimationResolver estimationResolver) {
         resolvers.remove(estimationResolver);
+    }
+
+    @Override
+    public List<EstimationResolver> getEstimationResolvers() {
+        return Collections.unmodifiableList(resolvers);
     }
 
     private EstimationResult getInitialBlocksToEstimateAsResult(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
