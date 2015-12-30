@@ -113,7 +113,7 @@ Ext.define('Apr.controller.MessageQueues',{
     showPreview: function(selectionModel, record){
         var preview = this.getPreview();
         preview.setTitle(record.get('name'));
-        preview.down('form').loadRecord(record);
+        preview.down('form').customLoadRecord(record);
         if (preview.down('monitor-action-menu')) {
             preview.down('monitor-action-menu').record = record;
         }

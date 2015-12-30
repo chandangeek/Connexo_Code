@@ -7,7 +7,8 @@ Ext.define('Apr.view.messagequeues.MonitorPreviewForm', {
     },
     defaults: {
         xtype: 'displayfield',
-        labelWidth: 250
+        labelWidth: 250,
+        width: 1000
     },
     items: [
         {
@@ -20,15 +21,45 @@ Ext.define('Apr.view.messagequeues.MonitorPreviewForm', {
         },
         {
             fieldLabel: Uni.I18n.translate('messageQueue.subscribers', 'APR', 'Used by'),
-            name: 'subscriberSpecInfos',
-            /* tpl: ['<ul>', '<tpl for=".">', '<li>{displayName} ({active})) </li>', '</tpl>', '</ul>'], */
-            renderer: function (value) {
-               var resultArray = [];
-               Ext.Array.each(value, function (subscriberSpecInfo) {
-                   resultArray.push('<p>' + Ext.String.htmlEncode(subscriberSpecInfo['displayName']) /*+' ('+ subscriberSpecInfo['active']+')'+*/+'</p>');
-               });
-               return resultArray;
-            }
+            xtype: 'fieldcontainer',
+            itemId: 'used-by-field-container',
+            labelWidth: 100
         }
-    ]
+    ],
+
+    customLoadRecord: function(record) {
+        var me = this,
+            fieldContainer = me.down('#used-by-field-container'),
+            internalFieldConainer,
+            active;
+
+        Ext.suspendLayouts();
+        fieldContainer.removeAll();
+        me.loadRecord(record);
+        Ext.Array.each(record.get('subscriberSpecInfos'), function (subscriberSpecInfo) {
+            console.log(subscriberSpecInfo);
+            internalFieldConainer = {
+                xtype: 'fieldcontainer',
+                margin: '15 0 0 0',
+                labelWidth: 140,
+                fieldLabel: subscriberSpecInfo.displayName,
+                items: []
+            };
+
+            Ext.Array.each(subscriberSpecInfo.appServers, function (appServer) {
+                if (appServer.active) {
+                    active = Uni.I18n.translate('general.active', 'APR', 'Active')
+                } else {
+                    active = Uni.I18n.translate('general.inactive', 'APR', 'inactive')
+                }
+
+                internalFieldConainer.items.push({
+                    xtype: 'displayfield',
+                    value: appServer.appServerName + ' (' + active + ')'
+                })
+            });
+            fieldContainer.add(internalFieldConainer);
+        });
+        Ext.resumeLayouts(true);
+    }
 });
