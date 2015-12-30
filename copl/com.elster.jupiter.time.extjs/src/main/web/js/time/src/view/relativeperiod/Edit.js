@@ -100,7 +100,8 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 itemId: 'relative-date-start',
                                 startPeriodCfg: {
                                     fieldLabel: Uni.I18n.translate('general.start', 'TME', 'Start'),
-                                    showOptionNow: false
+                                    showOptionNow: false,
+                                    name: 'from'
                                 },
                                 defaults: {
                                     labelWidth: 160
@@ -124,7 +125,8 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 itemId: 'relative-date-end',
                                 startPeriodCfg: {
                                     fieldLabel: Uni.I18n.translate('general.end', 'TME', 'End'),
-                                    showOptionDate: false
+                                    showOptionDate: false,
+                                    errorId: 'to'
                                 },
                                 defaults: {
                                     labelWidth: 160

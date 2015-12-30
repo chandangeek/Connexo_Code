@@ -74,6 +74,7 @@ Ext.define('Tme.controller.RelativePeriods', {
 
         record.set('to', endDateModel.data);
         record.endEdit();
+        form.getForm().clearInvalid();
         record.save({
             success: function (record, operation) {
                 var messageText;
