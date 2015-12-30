@@ -18,7 +18,8 @@ public class ValidateRelativeDateRangeValidator implements ConstraintValidator<V
     @Override
     public boolean isValid(RelativePeriodImpl relativePeriod, ConstraintValidatorContext context) {
         ZonedDateTime time = ZonedDateTime.now();
-        if(relativePeriod.getRelativeDateFrom().getRelativeDate(time).isAfter(relativePeriod.getRelativeDateTo().getRelativeDate(time))) {
+        if(relativePeriod.getRelativeDateFrom() != null && relativePeriod.getRelativeDateTo() != null
+                && relativePeriod.getRelativeDateFrom().getRelativeDate(time).isAfter(relativePeriod.getRelativeDateTo().getRelativeDate(time))) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(message).addPropertyNode(fields[0]).addConstraintViolation();
             return false;
