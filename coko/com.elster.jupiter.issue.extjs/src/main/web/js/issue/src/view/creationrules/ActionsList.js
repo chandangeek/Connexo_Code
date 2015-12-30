@@ -13,7 +13,7 @@ Ext.define('Isu.view.creationrules.ActionsList', {
         items: [
             {
                 itemId: 'description',
-                header: Uni.I18n.translate('general.description', 'ISU', 'Description'),
+                header: Uni.I18n.translate('general.action', 'ISU', 'Action'),
                 dataIndex: 'type',
                 flex: 1,
                 renderer: function (value, metaData, record) {
