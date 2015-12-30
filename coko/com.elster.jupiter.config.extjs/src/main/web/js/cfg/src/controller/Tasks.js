@@ -206,13 +206,21 @@ Ext.define('Cfg.controller.Tasks', {
         deviceGroupCombo.store.load(function () {
             view.down('#cbo-validation-task-device-group').setLoading(false);
             if (this.getCount() === 0) {
-                deviceGroupCombo.allowBlank = true;
+                Ext.suspendLayouts();
+                deviceGroupCombo.hide();
+                view.down('#no-device').show();
+                view.down('#field-validation-task-device-group').combineErrors = true;
+                Ext.resumeLayouts(true);
             }
         });
         usagepointGroupCombo.store.load(function () {
         	view.down('#cbo-validation-task-usagepoint-group').hide();
              if (this.getCount() === 0) {
-                usagepointGroupCombo.allowBlank = true;
+                 Ext.suspendLayouts();
+                 usagepointGroupCombo.hide();
+                 view.down('#no-usagepoint').show();
+                 view.down('#field-validation-task-usagepoint-group').combineErrors = true;
+                 Ext.resumeLayouts(true);
             }
         });
         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
@@ -256,31 +264,33 @@ Ext.define('Cfg.controller.Tasks', {
 
                 deviceGroupCombo.store.load({
                     callback: function () {
+                        Ext.suspendLayouts();
                         if (this.getCount() === 0) {
-                            deviceGroupCombo.allowBlank = true;
                             deviceGroupCombo.hide();
-                            if (record.data.deviceGroup && record.data.deviceGroup.id) {
-                                view.down('#no-device').show();
-                            }
+                            view.down('#no-device').show();
+                            view.down('#field-validation-task-device-group').combineErrors = true;
                         }
                         deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup && record.data.deviceGroup.id));
-                        if (record.data.deviceGroup && record.data.deviceGroup.id)
-                           view.down('#rbtn-device-group').setValue(true);
+                        if (record.data.deviceGroup && record.data.deviceGroup.id) {
+                            view.down('#rgr-validation-tasks-grouptype-trigger').setValue('dg');
+                        }
+                        Ext.resumeLayouts(true);
                     }
                 });
                 
                 usagepointGroupCombo.store.load({
                     callback: function () {
+                        Ext.suspendLayouts();
                         if (this.getCount() === 0) {
-                        	usagepointGroupCombo.allowBlank = true;
                         	usagepointGroupCombo.hide();
-                            if (record.data.usagePointGroup && record.data.usagePointGroup.id) {
-                                view.down('#no-usagepoint').show();
-                            }
+                            view.down('#no-usagepoint').show();
+                            view.down('#field-validation-task-usagepoint-group').combineErrors = true;
                         }
                         usagepointGroupCombo.setValue(usagepointGroupCombo.store.getById(record.data.usagePointGroup && record.data.usagePointGroup.id));
-                        if (record.data.usagePointGroup && record.data.usagePointGroup.id)
-                            view.down('#rbtn-usagepoint-group').setValue(true);
+                        if (record.data.usagePointGroup && record.data.usagePointGroup.id) {
+                            view.down('#rgr-validation-tasks-grouptype-trigger').setValue('upg');
+                        }
+                        Ext.resumeLayouts(true);
                     }
                 });
                 
@@ -538,6 +548,7 @@ Ext.define('Cfg.controller.Tasks', {
             page = me.getAddPage(),
             form = page.down('#frm-add-validation-task'),
             formErrorsPanel = form.down('#form-errors'),
+            groupType = page.down('#rgr-validation-tasks-grouptype-trigger').getValue(),
             lastDayOfMonth = false,
             startOnDate,
             timeUnitValue,
@@ -547,7 +558,6 @@ Ext.define('Cfg.controller.Tasks', {
             deviceGroupId,
             usagePointGroupId;
 
-        page.clearInvalid();
         if (form.isValid()) {
             var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
 
@@ -557,10 +567,10 @@ Ext.define('Cfg.controller.Tasks', {
             }
 
             record.set('name', form.down('#txt-task-name').getValue());
-            if (page.down('#rgr-validation-tasks-grouptype-trigger').getValue().grouptype == 'End Device') {
+            if (groupType === 'dg') {
                 record.set('usagePointGroup', null);
                 deviceGroupId = form.down('#cbo-validation-task-device-group').getValue();
-            } else if (page.down('#rgr-validation-tasks-grouptype-trigger').getValue().grouptype == 'Usage Point') {
+            } else if (groupType === 'upg') {
                 record.set('deviceGroup', null);
                 usagePointGroupId = form.down('#cbo-validation-task-usagepoint-group').getValue();
             }
@@ -672,11 +682,6 @@ Ext.define('Cfg.controller.Tasks', {
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
                         form.getForm().markInvalid(json.errors);
-                        Ext.Array.each(json.errors, function (error) {
-                            if (error.id == 'groupTypeField') {
-                                page.markInvalid(error.msg);
-                            }
-                        });
                         formErrorsPanel.show();
                     }
                 }
