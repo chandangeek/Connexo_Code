@@ -37,7 +37,6 @@ Ext.define('Apr.view.messagequeues.MonitorPreviewForm', {
         fieldContainer.removeAll();
         me.loadRecord(record);
         Ext.Array.each(record.get('subscriberSpecInfos'), function (subscriberSpecInfo) {
-            console.log(subscriberSpecInfo);
             internalFieldConainer = {
                 xtype: 'fieldcontainer',
                 margin: '15 0 0 0',
