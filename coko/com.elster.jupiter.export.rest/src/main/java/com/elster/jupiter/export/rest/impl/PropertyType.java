@@ -31,4 +31,5 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
         }
         return UNKNOWN;
     }
+
 }
