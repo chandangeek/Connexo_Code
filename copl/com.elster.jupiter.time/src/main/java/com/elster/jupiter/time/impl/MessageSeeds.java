@@ -17,6 +17,7 @@ public enum MessageSeeds implements MessageSeed {
     CATEGORY_MUST_BE_UNIQUE(9, Keys.CATEGORY_MUST_BE_UNIQUE, "Category is not unique", Level.SEVERE),
     UNKNOWN_TIME_UNIT (10, Keys.UNKNOWN_TIME_UNIT, "Unknown time unit ''{0}''", Level.SEVERE),
     INVALID_TIME_COUNT (11, Keys.INVALID_TIME_COUNT, "{0} is not a number", Level.SEVERE),
+    INVALID_DATE_RANGE (12, Keys.INVALID_DATE_RANGE, "Invalid date range: start date is later than end date", Level.SEVERE);
     ;
 
     private final int number;
@@ -83,6 +84,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CATEGORY_MUST_BE_UNIQUE = "CategoryMustBeUnique";
         public static final String UNKNOWN_TIME_UNIT = "UnknownTimeUnit";
         public static final String INVALID_TIME_COUNT = "InvalidTimeCount";
+        public static final String INVALID_DATE_RANGE = "InvalidDateRange";
     }
 
 }

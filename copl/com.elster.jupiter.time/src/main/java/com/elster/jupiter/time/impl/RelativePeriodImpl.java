@@ -25,9 +25,10 @@ import java.util.List;
 
 @Unique(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 @ValidateCategoryUsage(fields = "category", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+@ValidateRelativeDateRange(fields = "to", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_DATE_RANGE + "}")
 public final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
     @NotNull
     private RelativeDate from;
