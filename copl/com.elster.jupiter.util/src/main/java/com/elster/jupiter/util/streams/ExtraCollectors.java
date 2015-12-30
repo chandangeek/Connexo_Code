@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import java.util.Collections;
 import java.util.Set;
@@ -47,25 +48,28 @@ public enum ExtraCollectors {
     }
 
     public static <T extends Comparable<? super T>> Collector<Range<T>, ?, RangeSet<T>> toImmutableRangeSet() {
-        return new Collector<Range<T>, ImmutableRangeSet.Builder<T>, RangeSet<T>>() {
+        return new Collector<Range<T>, TreeRangeSet<T>, RangeSet<T>>() {
             @Override
-            public Supplier<ImmutableRangeSet.Builder<T>> supplier() {
-                return ImmutableRangeSet::builder;
+            public Supplier<TreeRangeSet<T>> supplier() {
+                return TreeRangeSet::create;
             }
 
             @Override
-            public BiConsumer<ImmutableRangeSet.Builder<T>, Range<T>> accumulator() {
-                return ImmutableRangeSet.Builder::add;
+            public BiConsumer<TreeRangeSet<T>, Range<T>> accumulator() {
+                return TreeRangeSet::add;
             }
 
             @Override
-            public BinaryOperator<ImmutableRangeSet.Builder<T>> combiner() {
-                return (b1, b2) -> b1.addAll(b2.build());
+            public BinaryOperator<TreeRangeSet<T>> combiner() {
+                return (b1, b2) -> {
+                    b1.addAll(b2);
+                    return b1;
+                };
             }
 
             @Override
-            public Function<ImmutableRangeSet.Builder<T>, RangeSet<T>> finisher() {
-                return ImmutableRangeSet.Builder::build;
+            public Function<TreeRangeSet<T>, RangeSet<T>> finisher() {
+                return ImmutableRangeSet::copyOf;
             }
 
             @Override
