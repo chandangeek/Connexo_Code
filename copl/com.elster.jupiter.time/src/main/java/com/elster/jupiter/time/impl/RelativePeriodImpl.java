@@ -1,5 +1,6 @@
 package com.elster.jupiter.time.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
@@ -25,7 +26,7 @@ import java.util.List;
 @Unique(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 @ValidateCategoryUsage(fields = "category", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
 public final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
     @NotNull
