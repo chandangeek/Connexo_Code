@@ -49,7 +49,7 @@ Ext.define('Apr.view.messagequeues.MonitorPreviewForm', {
                 if (appServer.active) {
                     active = Uni.I18n.translate('general.active', 'APR', 'Active')
                 } else {
-                    active = Uni.I18n.translate('general.inactive', 'APR', 'inactive')
+                    active = Uni.I18n.translate('general.inactive', 'APR', 'Inactive')
                 }
 
                 internalFieldConainer.items.push({
