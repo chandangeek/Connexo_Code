@@ -20,10 +20,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -486,7 +488,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private void createRealServices() {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService, protocolPluggableService, clock);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService, clock);
-        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService, meteringService);
+        this.deviceService = new DeviceServiceImpl(this, queryService, thesaurus);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);

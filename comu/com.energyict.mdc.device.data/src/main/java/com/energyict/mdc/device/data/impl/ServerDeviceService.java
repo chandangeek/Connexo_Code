@@ -9,9 +9,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.properties.PropertySpec;
-
 import java.util.Optional;
 
 /**
@@ -64,10 +61,10 @@ public interface ServerDeviceService extends DeviceService {
      * @param destinationDeviceConfiguration the destination DeviceConfiguration
      * @return true if there is currently a changeDeviceConfiguration happening for either of the DeviceConfigurations
      */
-    public boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration);
+    boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration);
 
-    public Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id);
+    Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id);
 
-    public Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id);
+    Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id);
 
 }

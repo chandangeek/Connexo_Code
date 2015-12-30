@@ -55,6 +55,7 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
