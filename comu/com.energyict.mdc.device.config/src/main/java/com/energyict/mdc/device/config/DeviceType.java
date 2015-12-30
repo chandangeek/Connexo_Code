@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -11,6 +10,8 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -32,27 +33,27 @@ public interface DeviceType extends HasId, HasName {
      *
      * @return the id
      */
-    public long getId();
+    long getId();
 
     /**
      * Returns the name that uniquely identifies this DeviceType.
      *
      * @return the name
      */
-    public String getName();
+    String getName();
 
-    public void setName(String newName);
+    void setName(String newName);
 
-    public long getVersion();
+    long getVersion();
 
     /**
      * Returns a description for this DeviceType.
      *
      * @return description
      */
-    public String getDescription();
+    String getDescription();
 
-    public void setDescription(String newDescription);
+    void setDescription(String newDescription);
 
     /**
      * Gets the {@link DeviceLifeCycle} that is currently in use
@@ -60,7 +61,7 @@ public interface DeviceType extends HasId, HasName {
      *
      * @return The current DeviceLifeCycle
      */
-    public DeviceLifeCycle getDeviceLifeCycle();
+    DeviceLifeCycle getDeviceLifeCycle();
 
     /**
      * Gets the {@link DeviceLifeCycle} that was in use
@@ -71,21 +72,21 @@ public interface DeviceType extends HasId, HasName {
      * @param when The point in time
      * @return The DeviceLifeCycle
      */
-    public Optional<DeviceLifeCycle> getDeviceLifeCycle(Instant when);
+    Optional<DeviceLifeCycle> getDeviceLifeCycle(Instant when);
 
     /**
      * Gets the List of {@link DeviceLifeCycleChangeEvent}s for this DeviceType.
      *
      * @return The List of DeviceLifeCycleChangeEvent
      */
-    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents();
+    List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents();
 
     /**
      * Returns true if this device type's protocol supports messaging.
      *
      * @return true if this device type's protocol supports messaging
      */
-    public boolean supportsMessaging();
+    boolean supportsMessaging();
 
     /**
      * Returns true if devices of this type are 'dumb' and cannot capture their own load profiles
@@ -95,7 +96,7 @@ public interface DeviceType extends HasId, HasName {
      *
      * @return true if devices of this type are logical slaves
      */
-    public boolean isLogicalSlave();
+    boolean isLogicalSlave();
 
     /**
      * Returns the {@link DeviceProtocolPluggableClass} that will be used to
@@ -103,49 +104,49 @@ public interface DeviceType extends HasId, HasName {
      *
      * @return the DeviceProtocolPluggableClass
      */
-    public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
+    DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
 
-    public void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName);
+    void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName);
 
-    public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+    void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
-    public List<LogBookType> getLogBookTypes();
+    List<LogBookType> getLogBookTypes();
 
-    public void addLogBookType(LogBookType logBookType);
+    void addLogBookType(LogBookType logBookType);
 
-    public void removeLogBookType(LogBookType logBookType);
+    void removeLogBookType(LogBookType logBookType);
 
-    public List<RegisterType> getRegisterTypes();
+    List<RegisterType> getRegisterTypes();
 
-    public void addRegisterType(RegisterType registerType);
+    void addRegisterType(RegisterType registerType);
 
-    public void addRegisterTypeCustomPropertySet(RegisterType registerType, RegisteredCustomPropertySet registeredCustomPropertySet);
+    void addRegisterTypeCustomPropertySet(RegisterType registerType, RegisteredCustomPropertySet registeredCustomPropertySet);
 
-    public Optional<RegisteredCustomPropertySet> getRegisterTypeTypeCustomPropertySet(RegisterType registerType);
+    Optional<RegisteredCustomPropertySet> getRegisterTypeTypeCustomPropertySet(RegisterType registerType);
 
-    public void removeRegisterType(RegisterType registerType);
+    void removeRegisterType(RegisterType registerType);
 
-    public List<LoadProfileType> getLoadProfileTypes();
+    List<LoadProfileType> getLoadProfileTypes();
 
-    public void addLoadProfileType(LoadProfileType loadProfileType);
+    void addLoadProfileType(LoadProfileType loadProfileType);
 
-    public void addLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType, RegisteredCustomPropertySet registeredCustomPropertySet);
+    void addLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType, RegisteredCustomPropertySet registeredCustomPropertySet);
 
-    public Optional<RegisteredCustomPropertySet> getLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType);
+    Optional<RegisteredCustomPropertySet> getLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType);
 
-    public void removeLoadProfileType(LoadProfileType loadProfileType);
+    void removeLoadProfileType(LoadProfileType loadProfileType);
 
-    public DeviceUsageType getDeviceUsageType();
+    DeviceUsageType getDeviceUsageType();
 
-    public void setDeviceUsageType(DeviceUsageType deviceUsageType);
+    void setDeviceUsageType(DeviceUsageType deviceUsageType);
 
-    public List<DeviceConfiguration> getConfigurations();
+    List<DeviceConfiguration> getConfigurations();
 
-    public List<RegisteredCustomPropertySet> getDeviceTypeCustomPropertySetUsage();
+    List<RegisteredCustomPropertySet> getCustomPropertySets();
 
-    public void addDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet);
+    void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
 
-    public void removeDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet);
+    void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
 
     /**
      * Returns a DeviceConfigurationBuilder that allows the caller
@@ -155,21 +156,21 @@ public interface DeviceType extends HasId, HasName {
      * @param name The name for the new DeviceConfiguration
      * @return The DeviceConfigurationBuilder
      */
-    public DeviceConfigurationBuilder newConfiguration(String name);
+    DeviceConfigurationBuilder newConfiguration(String name);
 
-    public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete);
+    void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete);
 
-    public void save();
+    void save();
 
-    public void delete();
+    void delete();
 
-    public boolean canActAsGateway();
+    boolean canActAsGateway();
 
-    public boolean isDirectlyAddressable();
+    boolean isDirectlyAddressable();
 
     List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings();
 
-    public interface DeviceConfigurationBuilder {
+    interface DeviceConfigurationBuilder {
 
         /**
          * Returns a builder for a new {@link ChannelSpec} in the
@@ -183,7 +184,7 @@ public interface DeviceType extends HasId, HasName {
          * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)
          * @see #add()
          */
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, LoadProfileSpec loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, LoadProfileSpec loadProfileSpec);
 
         /**
          * Returns a builder for a new {@link ChannelSpec} whose {@link LoadProfileSpec}
@@ -198,7 +199,7 @@ public interface DeviceType extends HasId, HasName {
          * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)
          * @see #add()
          */
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
+        ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
 
         /**
          * Returns a builder for a new {@link RegisterSpec} in the
@@ -211,7 +212,7 @@ public interface DeviceType extends HasId, HasName {
          * @see DeviceConfiguration#createNumericalRegisterSpec(RegisterType)
          * @see #add()
          */
-        public NumericalRegisterSpec.Builder newNumericalRegisterSpec(RegisterType registerType);
+        NumericalRegisterSpec.Builder newNumericalRegisterSpec(RegisterType registerType);
 
         /**
          * Returns a builder for a new {@link RegisterSpec} in the
@@ -224,7 +225,7 @@ public interface DeviceType extends HasId, HasName {
          * @see DeviceConfiguration#createTextualRegisterSpec(RegisterType)
          * @see #add()
          */
-        public TextualRegisterSpec.Builder newTextualRegisterSpec(RegisterType registerType);
+        TextualRegisterSpec.Builder newTextualRegisterSpec(RegisterType registerType);
 
         /**
          * Returns a builder for a new {@link LoadProfileSpec} in the
@@ -237,7 +238,7 @@ public interface DeviceType extends HasId, HasName {
          * @see DeviceConfiguration#createLoadProfileSpec(LoadProfileType)
          * @see #add()
          */
-        public LoadProfileSpec.LoadProfileSpecBuilder newLoadProfileSpec(LoadProfileType loadProfileType);
+        LoadProfileSpec.LoadProfileSpecBuilder newLoadProfileSpec(LoadProfileType loadProfileType);
 
         /**
          * Returns a builder for a new {@link LogBookSpec} in the
@@ -249,7 +250,7 @@ public interface DeviceType extends HasId, HasName {
          * @return The builder
          * @see DeviceConfiguration#createLogBookSpec(LogBookType)
          */
-        public LogBookSpec.LogBookSpecBuilder newLogBookSpec(LogBookType logBookType);
+        LogBookSpec.LogBookSpecBuilder newLogBookSpec(LogBookType logBookType);
 
         /**
          * Completes the building process, returning the {@link DeviceConfiguration}
@@ -259,7 +260,7 @@ public interface DeviceType extends HasId, HasName {
          *
          * @return The DeviceConfiguration
          */
-        public DeviceConfiguration add();
+        DeviceConfiguration add();
 
         DeviceConfigurationBuilder description(String description);
 

@@ -43,14 +43,8 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
-import com.energyict.mdc.device.config.impl.InboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.config.impl.IpConnectionType;
-import com.energyict.mdc.device.config.impl.OutboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.config.impl.PartialOutboundConnectionTaskCrudIT;
-import com.energyict.mdc.device.config.impl.ServerDeviceType;
-import com.energyict.mdc.device.config.impl.SpyEventService;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.impl.*;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -81,10 +75,18 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.verification.VerificationMode;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -94,17 +96,9 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -303,5 +297,15 @@ public abstract class AbstractConflictIT {
             injector.getInstance(DeviceConfigConflictMappingHandler.class).onEvent(localEvent);
             return null;
         }).when(eventService.getSpy()).postEvent(any(), any());
+    }
+
+
+    void verifyConflictValidation(VerificationMode mode) {
+        final DeviceConfigConflictMappingImpl deviceConfigConflictMapping = mock(DeviceConfigConflictMappingImpl.class);
+        verifyConflictValidation(mode, deviceConfigConflictMapping);
+    }
+
+    void verifyConflictValidation(VerificationMode mode, DeviceConfigConflictMapping deviceConfigConflictMapping) {
+        verify(eventService.getSpy(), mode).postEvent(EventType.DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE.topic(), deviceConfigConflictMapping);
     }
 }

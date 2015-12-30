@@ -5,7 +5,6 @@ package com.energyict.mdc.device.config;
  * A solution will either be to
  * <ul>
  *     <li>Remove the origin ConnectionMethod</li>
- *     <li>Add the destination ConnectionMethod</li>
  *     <li>Map the origin ConnectionMethod to the destination ConnectionMethod</li>
  * </ul>
  */

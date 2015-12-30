@@ -15,7 +15,7 @@ import java.util.logging.Level;
  */
 @ProviderType
 public enum MessageSeeds implements MessageSeed {
-    VETO_LOGBOOKTYPE_DELETION(998, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} is still used by the following device types: {1}"),
+    VETO_LOGBOOKTYPE_DELETION(998, "logBookType.XstillInUseByDeviceTypesY", "The logbook type {0} is still used by the following device types: {1}"),
     VETO_DEVICEPROTOCOLPLUGGABLECLASS_DELETION(999, "deviceProtocolPluggableClass.XstillInUseByDeviceTypesY", "The device protocol pluggable class {0} is still used by the following device types: {1}"),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required"),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique"),
@@ -33,8 +33,8 @@ public enum MessageSeeds implements MessageSeed {
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(4010, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use"),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS(4011, "loadProfileType.XstillInUseByLoadProfileSpecsY", "The load profile type with reading type {0} cannot be removed because it is still in use by the following load profile spec(s): {1}"),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The load profile type with reading type {0} cannot be removed because it is still in use by the following device type(s): {1}"),
-    LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use"),
-    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be removed because it is still in use by the following log book spec(s): {1}"),
+    LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "logBookType.cannotUpdateObisCode", "The obis code of the logbook type \"{0}\" cannot be updated because it is in use"),
+    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The logbook type {0} cannot be removed because it is still in use by the following log book spec(s): {1}"),
     REGISTER_SPEC_NUMBER_OF_DIGITS_INVALID(6001, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least {min} digit is required, maximum is {max}"),
     REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased"),
     REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED,"The register type of a register configuration is required"),
@@ -53,7 +53,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Keys.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS, "The device type {0} cannot be removed because it still has active configurations"),
     DEVICE_PROTOCOL_IS_REQUIRED(7004, Keys.DEVICE_PROTOCOL_IS_REQUIRED, "The protocol of a device type is required"),
     DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE(7005, "deviceType.loadProfileType.duplicate", "The load profile type ''{0}'' was already added to the device type ''{1}''"),
-    DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE(7006, "deviceType.logBookType.duplicate", "The log book type ''{0}'' was already added to the device type ''{1}''"),
+    DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE(7006, "deviceType.logBookType.duplicate", "The logbook type ''{0}'' was already added to the device type ''{1}''"),
     DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS(7007, Keys.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS, "The protocol of a device type cannot change when the device type has configurations"),
     DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE(7008, "deviceType.registerType.duplicate", "The register type ''{0}'' was already added to the device type ''{1}''"),
     DEVICE_LIFE_CYCLE_REQUIRED(7009, Keys.DEVICE_LIFE_CYCLE_REQUIRED, "Device life cycle is required"),
