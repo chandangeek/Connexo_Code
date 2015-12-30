@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.rest;
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
+import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.rest.impl.EstimationApplication;
 import com.elster.jupiter.estimation.rest.impl.PropertyInfoFactory;
 import com.elster.jupiter.estimation.rest.impl.PropertyType;
@@ -71,9 +72,11 @@ public class PropertyUtils {
             Map <String, Boolean> defaultValueMap = new HashMap<>();
             if (defaultValue != null) {
                 defaultValueMap.put(defaultValue.toString(), true);
-                if (propertyValue != null && propertyValue.toString().equals(defaultValue.toString())) {
-                    propertyValue = defaultValueMap;
-                }
+            }
+            if (propertyValue != null && !(propertyValue instanceof ReadingTypeAdvanceReadingsSettings)){
+                Map <String, Boolean> propertyValueMap = new HashMap<>();
+                propertyValueMap.put(propertyValue.toString(), true);
+                propertyValue = propertyValueMap;
             }
             return new PropertyValueInfo<>(propertyValue, defaultValueMap);
         }
