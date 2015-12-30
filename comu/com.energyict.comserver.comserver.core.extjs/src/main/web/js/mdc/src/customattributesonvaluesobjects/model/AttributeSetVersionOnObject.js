@@ -6,6 +6,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetVersionOnObjec
     idProperty: 'versionId',
     fields: [
         {name: 'versionId', type: 'integer', useNull: true},
+        {name: 'objectTypeId', type: 'integer'},
+        {name: 'objectTypeVersion', type: 'integer'},
         {name: 'name', type: 'string'},
         {name: 'editable', type: 'boolean'},
         {name: 'timesliced', type: 'boolean'},
