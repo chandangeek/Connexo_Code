@@ -20,13 +20,18 @@ import com.energyict.mdc.device.data.exceptions.InvalidSearchDomain;
 import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import org.osgi.service.event.EventConstants;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -38,7 +43,7 @@ import java.util.stream.Stream;
  * </ul>
  */
 public class DeviceConfigChangeHandler implements MessageHandler {
-
+    private static final Logger LOGGER = Logger.getLogger(DeviceConfigChangeHandler.class.getName());
     public static final String deviceConfigurationSearchPropertyName = "deviceConfiguration";
     public static final String deviceTypeSearchPropertyName = "deviceType";
 
@@ -67,14 +72,14 @@ public class DeviceConfigChangeHandler implements MessageHandler {
             void handle(Map<String, Object> properties, ConfigChangeContext configChangeContext) {
                 ItemizeConfigChangeQueueMessage queueMessage = configChangeContext.jsonService.deserialize(((String) properties.get(ServerDeviceForConfigChange.CONFIG_CHANGE_MESSAGE_VALUE)), ItemizeConfigChangeQueueMessage.class);
                 DeviceConfigChangeRequest deviceConfigChangeRequest = getDeviceConfigChangeRequest(configChangeContext, queueMessage.deviceConfigChangeRequestId);
-                getDeviceStream(configChangeContext, queueMessage).forEach(
+                getDeviceStream(configChangeContext, queueMessage).forEach(consumeAndFilterDevices(configChangeContext,
                         device -> {
                             DeviceConfigChangeInActionImpl deviceConfigChangeInAction = deviceConfigChangeRequest.addDeviceInAction(device);
                             sendMessageOnConfigQueue(configChangeContext,
                                     configChangeContext.jsonService.serialize(
                                             new SingleConfigChangeQueueMessage(device.getmRID(), queueMessage.destinationDeviceConfigurationId, deviceConfigChangeInAction.getId(), queueMessage.deviceConfigChangeRequestId)),
                                     ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SINGLE_START_ACTION);
-                        });
+                        }));
             }
 
             private Stream<Device> getDeviceStream(ConfigChangeContext configChangeContext, ItemizeConfigChangeQueueMessage queueMessage) {
@@ -114,6 +119,17 @@ public class DeviceConfigChangeHandler implements MessageHandler {
                 } else if (deviceConfigValueBean.values.size() > 1) {
                     throw DeviceConfigurationChangeException.needToSearchOnSingleDeviceConfigForBulkAction(thesaurus);
                 }
+            }
+
+            private Consumer<Device> consumeAndFilterDevices(ConfigChangeContext configChangeContext, Consumer<Device> consumerForAllowedDevices) {
+                return device -> {
+                    if (!DefaultState.DECOMMISSIONED.getKey().equals(device.getState().getName())){
+                        consumerForAllowedDevices.accept(device);
+                    } else {
+                        LOGGER.warning(configChangeContext.thesaurus.getFormat(MessageSeeds.CHANGE_CONFIG_WRONG_DEVICE_STATE)
+                                .format(device.getmRID(), device.getState().getName()));
+                    }
+                };
             }
         },
         CONFIGCHANGEEXECUTOR(ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SINGLE_START_ACTION) {

@@ -121,6 +121,7 @@ public enum MessageSeeds implements MessageSeed {
     BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG(2094, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG, "You need to search on a unique device configuration in order to use the bulk action for change device configuration"),
     BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE(2095, Keys.BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE, "You provided an invalid search value for the property {0}"),
     PRIORITY_NOT_IN_RANGE(2096, Keys.PRIORITY_NOT_IN_RANGE, "Value must be between {min} and {max}"),
+    CHANGE_CONFIG_WRONG_DEVICE_STATE(2097, Keys.CHANGE_CONFIG_WRONG_DEVICE_STATE, "Device configuration cannot be changed on device with MRID: {0} as this device has the {1} state."),
     ;
 
     private final int number;
@@ -272,5 +273,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG = "bulk.device.configchange.needto.search.on.config";
         public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG = "bulk.device.configchange.needto.search.on.unique.config";
         public static final String BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE = "bulk.device.configchange.invalid.search.item";
+        public static final String CHANGE_CONFIG_WRONG_DEVICE_STATE = "change.config.wrong.device.state";
     }
 }
