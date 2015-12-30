@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 
@@ -12,6 +13,8 @@ import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
  */
 public interface ComTaskExecutionComCommand extends CompositeComCommand {
 
-    public boolean contains (ComCommand comCommand);
+    boolean contains(ComCommand comCommand);
+
+    ComTaskExecution getComTaskExecution();
 
 }

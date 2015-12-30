@@ -62,7 +62,7 @@ public class DeviceUserFileConfigurationInformationTest {
         DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
 
         // Business method
-        DeviceCommand command = deviceIpAddress.toDeviceCommand(new MeterDataStoreCommandImpl(serviceProvider), serviceProvider);
+        DeviceCommand command = deviceIpAddress.toDeviceCommand(new MeterDataStoreCommandImpl(null, serviceProvider), serviceProvider);
 
         // Asserts
         assertThat(command).isNotNull();

@@ -67,6 +67,11 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
     }
 
     @Override
+    public ComTaskExecution getComTaskExecution() {
+        return comTaskExecution;
+    }
+
+    @Override
     public boolean contains (ComCommand comCommand) {
         return this.getCommands().values().contains(comCommand);
     }

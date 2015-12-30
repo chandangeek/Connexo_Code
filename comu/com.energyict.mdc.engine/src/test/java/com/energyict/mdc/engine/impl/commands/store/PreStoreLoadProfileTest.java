@@ -152,6 +152,36 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
     @Test
     @Transactional
+    public void preStoreWithMultiplierTest() {
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithMultiplierTest").loadProfileTypes(this.loadProfileType).create();
+        LoadProfile loadProfile = device.getLoadProfiles().get(0);
+        BigDecimal multiplier = BigDecimal.valueOf(50L);
+        CollectedLoadProfile collectedLoadProfile =
+                enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithMultiplier(loadProfile.getInterval(), multiplier));
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
+
+        freezeClock(currentTimeStamp);
+
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+
+        assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
+        for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
+            IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
+            for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
+                IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
+                IntervalReading intervalReading = preStoredLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
+                // Calculate the expected value, don't forget the scaler that was mocked
+                BigDecimal expectedValue = new BigDecimal(intervalValue.getNumber().toString()).scaleByPowerOfTen(3).multiply(multiplier);
+                assertThat(intervalReading.getValue()).isEqualByComparingTo(expectedValue);
+            }
+        }
+    }
+
+    @Test
+    @Transactional
     public void preStoreWithPositiveUnitConversionTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithPositiveUnitConversionTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
@@ -456,6 +486,15 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         return collectedLoadProfile;
     }
 
+    CollectedLoadProfile createMockLoadProfileWithMultiplier(TimeDuration interval, BigDecimal multiplier) {
+        CollectedLoadProfile collectedLoadProfile = mock(CollectedLoadProfile.class, RETURNS_DEEP_STUBS);
+        List<ChannelInfo> mockedChannelInfos = createMockedChannelInfosWithMultiplier(interval, multiplier);
+        when(collectedLoadProfile.getChannelInfo()).thenReturn(mockedChannelInfos);
+        List<IntervalData> mockedCollectedIntervalData = createMockedIntervalData();
+        when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(mockedCollectedIntervalData);
+        return collectedLoadProfile;
+    }
+
     CollectedLoadProfile createMockLoadProfileWithPositiveScaler(TimeDuration interval) {
         CollectedLoadProfile collectedLoadProfile = mock(CollectedLoadProfile.class, RETURNS_DEEP_STUBS);
         List<ChannelInfo> mockedChannelInfos = createMockedChannelInfosWithPositiveThousandScaler(interval);
@@ -500,6 +539,29 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         ObisCode channelObisCodeTwo = obisCodeActiveExport;
         channelInfos.add(ChannelInfo.ChannelInfoBuilder.fromObisCode(channelObisCodeTwo).meterIdentifier(DEVICE_NAME).unit(kiloWattHours)
                 .readingTypeMRID(getMdcReadingTypeUtilService().getReadingTypeFrom(channelObisCodeTwo, kiloWattHours, interval)).build());
+        return channelInfos;
+    }
+
+    private List<ChannelInfo> createMockedChannelInfosWithMultiplier(TimeDuration interval, BigDecimal multiplier) {
+        List<ChannelInfo> channelInfos = new ArrayList<>();
+        ObisCode channelObisCodeOne = obisCodeActiveImport;
+        channelInfos.add(
+                ChannelInfo.ChannelInfoBuilder
+                        .fromObisCode(channelObisCodeOne)
+                        .multiplier(multiplier)
+                        .meterIdentifier(DEVICE_NAME)
+                        .unit(kiloWattHours)
+                        .readingTypeMRID(getMdcReadingTypeUtilService().getReadingTypeFrom(channelObisCodeOne, wattHours, interval))
+                        .build());
+        ObisCode channelObisCodeTwo = obisCodeActiveExport;
+        channelInfos.add(
+                ChannelInfo.ChannelInfoBuilder
+                        .fromObisCode(channelObisCodeTwo)
+                        .multiplier(multiplier)
+                        .meterIdentifier(DEVICE_NAME)
+                        .unit(kiloWattHours)
+                        .readingTypeMRID(getMdcReadingTypeUtilService().getReadingTypeFrom(channelObisCodeTwo, wattHours, interval))
+                        .build());
         return channelInfos;
     }
 

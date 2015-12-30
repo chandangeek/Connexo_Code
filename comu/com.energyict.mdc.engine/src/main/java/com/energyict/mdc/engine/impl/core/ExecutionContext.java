@@ -216,13 +216,13 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void addStatisticalInformationForTaskSession() {
-        if (this.isConnected() && this.getComSessionBuilder() != null) {
-            ComSessionBuilder comSessionBuilder = this.getComSessionBuilder();
+        if (this.isConnected() && this.currentTaskExecutionBuilder.isPresent()) {
+            ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = this.currentTaskExecutionBuilder.get();
             Counters taskSessionCounters = this.comPortRelatedComChannel.getTaskSessionCounters();
-            comSessionBuilder.addSentBytes(taskSessionCounters.getBytesSent());
-            comSessionBuilder.addReceivedBytes(taskSessionCounters.getBytesRead());
-            comSessionBuilder.addSentPackets(taskSessionCounters.getPacketsSent());
-            comSessionBuilder.addReceivedPackets(taskSessionCounters.getPacketsRead());
+            comTaskExecutionSessionBuilder.addSentBytes(taskSessionCounters.getBytesSent());
+            comTaskExecutionSessionBuilder.addReceivedBytes(taskSessionCounters.getBytesRead());
+            comTaskExecutionSessionBuilder.addSentPackets(taskSessionCounters.getPacketsSent());
+            comTaskExecutionSessionBuilder.addReceivedPackets(taskSessionCounters.getPacketsRead());
         }
     }
 
@@ -628,8 +628,8 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private DeviceCommandFactory getDeviceCommandFactory() {
-        if(this.deviceCommandFactory == null){
-            deviceCommandFactory = new DeviceCommandFactoryImpl();
+        if (this.deviceCommandFactory == null) {
+            deviceCommandFactory = new DeviceCommandFactoryImpl(this.comTaskExecution);
         }
         return deviceCommandFactory;
     }
