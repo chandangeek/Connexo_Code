@@ -181,8 +181,11 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     switch (operation) {
                         case 'assign':
                             if (successCount > 0) {
-                                successMessage = Uni.I18n.translatePlural('issues.assign.success.result', successCount, 'ISU', '-', '<h3>Successfully assigned one issue to ', '<h3>Successfully assigned {0} issues to ')
-                                    + record.get('assignee').title + '</h3><br>';
+                                successMessage =  Uni.I18n.translatePlural('issues.assign.success.result5', successCount, 'ISU',
+                                        "There were no issues to assign to ",
+                                        "Successfully assigned one issue to ",
+                                        "Successfully assigned {0} issues to ");
+                                successMessage = '\<h3\>' + successMessage + record.get('assignee').title + '\</h3\>\<br\>'
                             }
                             break;
                         case 'close':
