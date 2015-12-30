@@ -88,7 +88,12 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                         name: 'comTaskName',
                         fieldLabel: Uni.I18n.translate('communicationtasks.form.comTask', 'MDC', 'Communication task'),
                         itemId: 'comTaskDisplayField',
-                        hidden: true
+                        hidden: true,
+                        listeners: {
+                            afterrender: function (field) {
+                                field.focus(false, 500);
+                            }
+                        }
                     },
                     {
                         xtype: 'hiddenfield',

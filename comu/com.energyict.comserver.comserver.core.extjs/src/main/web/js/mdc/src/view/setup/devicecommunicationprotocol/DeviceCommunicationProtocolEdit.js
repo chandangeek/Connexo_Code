@@ -59,7 +59,12 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                         xtype: 'displayfield',
                                         name: 'name',
                                         fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                                        itemId: 'editName'
+                                        itemId: 'editName',
+                                        listeners: {
+                                            afterrender: function (field) {
+                                                field.focus(false, 500);
+                                            }
+                                        }
                                     },
                                     {
                                         xtype: 'displayfield',
