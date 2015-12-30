@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
@@ -11,9 +10,11 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleBuilder;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
@@ -307,26 +308,28 @@ public class ValidationResource {
                             final ValidationRuleInfo info, @Context SecurityContext securityContext) {
         ValidationRuleInfo result =
                 transactionService.execute(() -> {
+                    ValidationRule validationRule = null;
                     ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
                             () -> new WebApplicationException(Response.Status.NOT_FOUND));
                     ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSet, ruleSetVersionId);
 
-                    ValidationRule rule = ruleSetVersion.addRule(info.action, info.implementation, info.name);
-                    for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
-                        rule.addReadingType(readingTypeInfo.mRID);
-                    }
+                    ValidationRuleBuilder ruleBuilder = ruleSetVersion.addRule(info.action, info.implementation, info.name)
+                            .withReadingType(info.readingTypes.stream()
+                                    .map(rtInfo -> rtInfo.mRID)
+                                    .toArray(String[]::new));
                     try {
-                        for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                            Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                            if (value != null) {
-                                rule.addProperty(propertySpec.getName(), value);
-                            }
-                        }
+                        validationService.getValidator(info.implementation)
+                                .getPropertySpecs()
+                                .stream()
+                                .map(spec -> Pair.of(spec.getName(), propertyUtils.findPropertyValue(spec, info.properties)))
+                                .filter(pair -> pair.getLast() != null)
+                                .forEach(pair -> ruleBuilder.havingProperty(pair.getFirst()).withValue(pair.getLast()));
                     } catch (ValidatorNotFoundException ex) {
+                        // we'll rely on validation of the save
                     } finally {
-                        ruleSetVersion.save();
+                        validationRule = ruleBuilder.create();
                     }
-                    return validationRuleInfoFactory.createValidationRuleInfo(rule);
+                    return validationRuleInfoFactory.createValidationRuleInfo(validationRule);
                 });
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
@@ -336,9 +339,9 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response editRule(@PathParam("ruleSetId") long ruleSetId,
-                                        @PathParam("ruleSetVersionId") long ruleSetVersionId,
-                                        @PathParam("ruleId") long ruleId,
-                                        ValidationRuleInfo info) {
+                             @PathParam("ruleSetVersionId") long ruleSetVersionId,
+                             @PathParam("ruleId") long ruleId,
+                             ValidationRuleInfo info) {
         info.id = ruleId;
         ValidationRule validationRule = transactionService.execute(() -> {
             ValidationRule rule = findAndLockValidationRule(info);
