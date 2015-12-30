@@ -126,7 +126,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                     width: 380,
                     allowBlank: false,
                     queryMode: 'local',
-                    store: 'Mdc.store.DeviceConfigurations',
+                    store: 'Mdc.store.BulkDeviceConfigurations',
                     displayField: 'name',
                     valueField: 'id',
                     listConfig: {

@@ -14,7 +14,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     ],
     stores: [
         'Mdc.store.CommunicationSchedulesWithoutPaging',
-        'Mdc.store.DeviceConfigurations'
+        'Mdc.store.DeviceConfigurations',
+        'Mdc.store.BulkDeviceConfigurations'
     ],
     refs: [
         {
@@ -488,7 +489,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 me.operation = currentCmp.down('#searchitemsactionselect').getValue().operation;
                 if (nextCmp.name == 'selectActionItems') {
                     if (me.operation == 'changeconfig') {
-                        var configStore = me.getStore('Mdc.store.DeviceConfigurations'),
+                        var configStore = me.getStore('Mdc.store.BulkDeviceConfigurations'),
                             changeDeviceConfigForm = nextCmp.down('#change-device-configuration'),
                             currentConfigField = nextCmp.down('#current-device-config-selection');
 
