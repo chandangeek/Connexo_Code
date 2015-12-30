@@ -17,8 +17,6 @@ public enum FormatterProperties implements TranslationKey {
     SEPARATOR_SEMICOLON(FORMATTER_PROPERTIES.getKey() + ".separator.semicolon", "Semicolon (;)"),
     TAG(FORMATTER_PROPERTIES.getKey() + '.' + "tag", "Identifier"),
     UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Update identifier"),
-    SEPARATOR_COMMA("Comma (,)", "Comma (,)"),
-    SEPARATOR_SEMICOLON("Semicolon (;)", "Semicolon (;)"),
     ;
 
     private String name;

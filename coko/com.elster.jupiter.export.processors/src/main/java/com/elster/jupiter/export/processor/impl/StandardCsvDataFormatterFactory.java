@@ -10,9 +10,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringReferenceFactory;
 import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.validation.ValidationService;
 
