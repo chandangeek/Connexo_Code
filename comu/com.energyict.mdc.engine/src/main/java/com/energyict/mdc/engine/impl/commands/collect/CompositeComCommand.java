@@ -44,14 +44,6 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
     boolean contains(ComCommand comCommand);
 
     /**
-     * Checks whether the given argument already exists in the current root.
-     *
-     * @param comCommandType the {@link ComCommandTypes} to check for existence
-     * @return true if the ComCommand type already exists, false otherwise
-     */
-    boolean commandAlreadyExists(ComCommandKey comCommandType);
-
-    /**
      * Finds the existing {@link ComCommand} with the given {@link ComCommandKey}.
      *
      * @param key The ComCommandKey

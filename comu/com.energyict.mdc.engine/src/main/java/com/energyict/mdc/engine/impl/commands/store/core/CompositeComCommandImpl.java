@@ -158,8 +158,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
         return this.comCommands.values().contains(comCommand);
     }
 
-    @Override
-    public boolean commandAlreadyExists(ComCommandKey comCommandKey) {
+    private boolean commandAlreadyExists(ComCommandKey comCommandKey) {
         return this.getExistingCommand(comCommandKey).isPresent();
     }
 
