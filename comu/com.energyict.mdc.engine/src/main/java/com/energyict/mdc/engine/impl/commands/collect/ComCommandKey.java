@@ -13,13 +13,15 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
  */
 public final class ComCommandKey {
 
+    private static final long IGNORE = Long.MIN_VALUE;
+
     private final ComCommandType type;
     private final long deviceId;
     private final long comTaskExecutionId;
     private final long securitySetCommandGroupId;
 
-    public ComCommandKey(ComCommandType type, long deviceId, long securitySetCommandGroupId) {
-        this(type, deviceId, 0, securitySetCommandGroupId);
+    public ComCommandKey(ComCommandType type, long deviceId) {
+        this(type, deviceId, IGNORE, IGNORE);
     }
 
     public ComCommandKey(ComCommandType type, ComTaskExecution comTaskExecution, long securitySetCommandGroupId) {
@@ -28,7 +30,7 @@ public final class ComCommandKey {
 
     private static long extractDeviceIdFrom(ComTaskExecution comTaskExecution) {
         if (comTaskExecution == null || comTaskExecution.getDevice() == null) {
-            return 0L;
+            return IGNORE;
         }
         else {
             return comTaskExecution.getDevice().getId();
@@ -37,7 +39,7 @@ public final class ComCommandKey {
 
     private static long extractComTaskExecutionIdFrom(ComTaskExecution comTaskExecution) {
         if (comTaskExecution == null) {
-            return 0L;
+            return IGNORE;
         }
         else {
             return comTaskExecution.getId();
@@ -75,10 +77,12 @@ public final class ComCommandKey {
             return true;
         }
 
-        if (deviceId != other.deviceId) {
+        if (   deviceId != IGNORE
+            && deviceId != other.deviceId) {
             return false;
         }
-        if (securitySetCommandGroupId != other.securitySetCommandGroupId) {
+        if (   securitySetCommandGroupId != IGNORE
+            && securitySetCommandGroupId != other.securitySetCommandGroupId) {
             return false;
         }
         return type == other.type;
@@ -95,13 +99,16 @@ public final class ComCommandKey {
 
         ComCommandKey that = (ComCommandKey) o;
 
-        if (deviceId != that.deviceId) {
+        if (   deviceId != IGNORE
+            && deviceId != that.deviceId) {
             return false;
         }
-        if (comTaskExecutionId != that.comTaskExecutionId) {
+        if (   comTaskExecutionId != IGNORE
+            && comTaskExecutionId != that.comTaskExecutionId) {
             return false;
         }
-        if (securitySetCommandGroupId != that.securitySetCommandGroupId) {
+        if (   securitySetCommandGroupId != IGNORE
+            && securitySetCommandGroupId != that.securitySetCommandGroupId) {
             return false;
         }
         return type == that.type;
@@ -111,9 +118,15 @@ public final class ComCommandKey {
     @Override
     public int hashCode() {
         int result = type.hashCode();
-        result = 31 * result + (int) (deviceId ^ (deviceId >>> 32));
-        result = 31 * result + (int) (comTaskExecutionId ^ (comTaskExecutionId >>> 32));
-        result = 31 * result + (int) (securitySetCommandGroupId ^ (securitySetCommandGroupId >>> 32));
+        if (deviceId != IGNORE) {
+            result = 31 * result + (int) (deviceId ^ (deviceId >>> 32));
+        }
+        if (comTaskExecutionId != IGNORE) {
+            result = 31 * result + (int) (comTaskExecutionId ^ (comTaskExecutionId >>> 32));
+        }
+        if (securitySetCommandGroupId != IGNORE) {
+            result = 31 * result + (int) (securitySetCommandGroupId ^ (securitySetCommandGroupId >>> 32));
+        }
         return result;
     }
 

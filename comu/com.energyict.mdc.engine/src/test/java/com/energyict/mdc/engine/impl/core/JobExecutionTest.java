@@ -64,6 +64,7 @@ import org.joda.time.DateTime;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -233,7 +234,7 @@ public class JobExecutionTest {
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(ct));
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getComTask()).thenReturn(this.comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(this.comTask));
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
@@ -286,7 +287,7 @@ public class JobExecutionTest {
         when(this.offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
         when(serverDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
-        jobExecution.prepareAll(Arrays.asList(comTaskExecution));
+        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
         verify(genericDeviceProtocol, times(1)).organizeComCommands(any(CommandRoot.class));
     }
 
@@ -307,7 +308,7 @@ public class JobExecutionTest {
         when(this.offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
         when(serverDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        jobExecution.prepareAll(Arrays.asList(comTaskExecution));
+        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
         verify(genericDeviceProtocol, never()).organizeComCommands(any(CommandRoot.class));
     }
 
@@ -445,7 +446,7 @@ public class JobExecutionTest {
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort, true));
 
         scheduledComTaskExecutionGroup.establishConnection();
-        scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
+        scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution, false);
 
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().basickCheckHasFailed()).isTrue();
     }
@@ -479,7 +480,7 @@ public class JobExecutionTest {
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort, true));
 
         scheduledComTaskExecutionGroup.establishConnection();
-        scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
+        scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution, false);
 
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().basickCheckHasFailed()).isTrue();
     }
@@ -497,7 +498,7 @@ public class JobExecutionTest {
 
     private void createMockedComTaskWithGivenProtocolTasks(ProtocolTask... protocolTasks) {
         ComTask comTask = mock(ComTask.class);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
         when(comTaskExecution.getProtocolTasks()).thenReturn(Arrays.asList(protocolTasks));
         when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(protocolTasks));
     }

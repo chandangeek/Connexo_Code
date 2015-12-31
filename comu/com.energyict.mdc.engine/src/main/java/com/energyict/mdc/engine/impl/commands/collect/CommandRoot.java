@@ -274,6 +274,8 @@ public interface CommandRoot extends CompositeComCommand {
 
     FirmwareManagementCommand findOrCreateFirmwareCommand(FirmwareManagementTask firmwareManagementTask, CommandRoot possibleCommandOwner, ComTaskExecution comTaskExecution);
 
+    boolean containsDaisyChainedLogOnCommandFor(ComTaskExecution comTaskExecution);
+
     /**
      * Executes the ComCommands related to the given preparedComTaskExecution
      *

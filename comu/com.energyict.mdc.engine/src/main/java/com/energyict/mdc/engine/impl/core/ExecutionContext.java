@@ -124,6 +124,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     private CommandRoot commandRoot;
     private CompositeDeviceCommand storeCommand;
     private boolean basicCheckFailed = false;
+    private boolean errorAtLogonOrInit = false;
     private StopWatch connecting;
     private StopWatch executing;
     private DeviceCommandFactory deviceCommandFactory;
@@ -385,16 +386,24 @@ public final class ExecutionContext implements JournalEntryFactory {
         return basicCheckFailed;
     }
 
+    public void setBasicCheckFailed(boolean basicCheckFailed) {
+        this.basicCheckFailed = basicCheckFailed;
+    }
+
+    public boolean errorOccurredAtLogonOrInit() {
+        return errorAtLogonOrInit;
+    }
+
+    public void setErrorOccuredAtLogonOrInit(boolean errorAtInitOrLogon) {
+        this.errorAtLogonOrInit = errorAtInitOrLogon;
+    }
+
     public void initializeJournalist() {
         this.journalist = new ComCommandJournalist(this, serviceProvider.clock());
     }
 
     public void markComTaskExecutionForConnectionSetupError(String reason) {
         this.currentTaskExecutionBuilder.ifPresent(b -> b.addComCommandJournalEntry(now(), CompletionCode.ConnectionError, reason, "ConnectionType - Connect"));
-    }
-
-    public void setBasicCheckFailed(boolean basicCheckFailed) {
-        this.basicCheckFailed = basicCheckFailed;
     }
 
     public void setComSessionBuilder(ComSessionBuilder comSessionBuilder) {

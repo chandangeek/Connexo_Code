@@ -5,10 +5,10 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
@@ -128,7 +128,10 @@ public class InboundJobExecutionGroup extends JobExecution {
             this.setExecutionContext(this.newExecutionContext(this.connectionTask, this.getComPort(), true));
             List<PreparedComTaskExecution> preparedComTaskExecutions = this.prepareAll(this.comTaskExecutions);
             if (this.getExecutionContext().connect()) {
-                preparedComTaskExecutions.forEach(this::performPreparedComTaskExecution);
+                for (int i = 0; i < preparedComTaskExecutions.size(); i++) {
+                    PreparedComTaskExecution preparedComTaskExecution = preparedComTaskExecutions.get(i);
+                    performPreparedComTaskExecution(preparedComTaskExecution, nextOneIsOtherPhysicalSlave(preparedComTaskExecutions, i));
+                }
             }
         } finally {
             this.closeConnection();
