@@ -44,10 +44,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
                 renderer: function (value) {
-                    return  value ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[
+                    return  value ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} at {1}',[
                         Uni.DateTime.formatDateShort(value),
                         Uni.DateTime.formatTimeShort(value)
-                    ]).toLowerCase() : '';
+                    ]) : '';
                 },
                 flex: 1
             },

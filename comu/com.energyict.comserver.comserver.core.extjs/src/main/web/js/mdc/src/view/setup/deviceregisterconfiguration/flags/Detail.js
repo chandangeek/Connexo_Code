@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Detail', {
                                                 name: 'reportedDateTime',
                                                 renderer: function (value) {
                                                     if (!Ext.isEmpty(value)) {
-                                                        return Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]).toLowerCase()
+                                                        return Uni.I18n.translate('general.dateattime', 'MDC', '{0} at {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))])
                                                     }
 
                                                     return '-';
