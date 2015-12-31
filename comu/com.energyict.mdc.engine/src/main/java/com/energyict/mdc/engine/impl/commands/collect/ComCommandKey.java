@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 /**
@@ -20,8 +21,8 @@ public final class ComCommandKey {
     private final long comTaskExecutionId;
     private final long securitySetCommandGroupId;
 
-    public ComCommandKey(ComCommandType type, long deviceId) {
-        this(type, deviceId, IGNORE, IGNORE);
+    public ComCommandKey(ComCommandType type, Device device) {
+        this(type, extractDeviceIdFrom(device), IGNORE, IGNORE);
     }
 
     public ComCommandKey(ComCommandType type, ComTaskExecution comTaskExecution, long securitySetCommandGroupId) {
@@ -29,11 +30,20 @@ public final class ComCommandKey {
     }
 
     private static long extractDeviceIdFrom(ComTaskExecution comTaskExecution) {
-        if (comTaskExecution == null || comTaskExecution.getDevice() == null) {
+        if (comTaskExecution == null) {
             return IGNORE;
         }
         else {
-            return comTaskExecution.getDevice().getId();
+            return extractDeviceIdFrom(comTaskExecution.getDevice());
+        }
+    }
+
+    private static long extractDeviceIdFrom(Device device) {
+        if (device == null) {
+            return IGNORE;
+        }
+        else {
+            return device.getId();
         }
     }
 
@@ -59,14 +69,6 @@ public final class ComCommandKey {
 
     public long getDeviceId() {
         return deviceId;
-    }
-
-    public long getComTaskExecutionId() {
-        return comTaskExecutionId;
-    }
-
-    public long getSecuritySetCommandGroupId() {
-        return securitySetCommandGroupId;
     }
 
     public boolean equalsIgnoreComTaskExecution(ComCommandKey other) {

@@ -16,6 +16,8 @@ import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
+import com.energyict.mdc.protocol.api.exceptions.SerialNumberMismatchException;
+import com.energyict.mdc.protocol.api.exceptions.TimeDifferenceExceededException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -58,6 +60,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
         for (Map.Entry<ComCommandKey, ComCommand> comCommandEntry : comCommands.entrySet()) {
             final ComCommand comCommand = comCommandEntry.getValue();
             final ComCommandKey commandKey = comCommandEntry.getKey();
+            final ComCommandType commandType = commandKey.getCommandType();
             if (areWeAllowedToPerformTheCommand(firstException, canWeStillDoADisconnect, commandKey, executionContext.basickCheckHasFailed())) {
                 try {
                     performTheComCommandIfAllowed(deviceProtocol, executionContext, comCommand);
@@ -65,7 +68,16 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
                     if (firstException == null) {
                         firstException = e;
                     }
-                    canWeStillDoADisconnect = areWeStillAbleToPerformAProperDisconnect(e);
+                    if (commandType.equals(ComCommandTypes.LOGON) || commandType.equals(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE)) {
+                        executionContext.setErrorOccuredAtLogonOrInit(true);
+                        break;
+                    }
+                    else {
+                        canWeStillDoADisconnect = areWeStillAbleToPerformAProperDisconnect(e);
+                        if (isBasicCheckFailure(e)) {
+                            executionContext.setBasicCheckFailed(true);
+                        }
+                    }
                 }
             }
         }
@@ -114,6 +126,10 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
         return !ConnectionFailureException.class.isAssignableFrom(e.getClass())
                 && !ConnectionSetupException.class.isAssignableFrom(e.getClass())
                 && !ConnectionCommunicationException.class.isAssignableFrom(e.getClass());
+    }
+
+    private boolean isBasicCheckFailure(ComServerRuntimeException e) {
+        return e instanceof TimeDifferenceExceededException || e instanceof SerialNumberMismatchException;
     }
 
     @Override
@@ -168,9 +184,9 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
     @Override
     public List<ComCommand> getExistingCommandsOfType(ComCommandType type) {
         List<ComCommand> matchingCommands = new ArrayList<>();
-        for (ComCommandKey comCommandTypeAndId : this.comCommands.keySet()) {
-            ComCommand candidate = this.comCommands.get(comCommandTypeAndId);
-            if (type.equals(comCommandTypeAndId.getCommandType())) {
+        for (ComCommandKey key : this.comCommands.keySet()) {
+            ComCommand candidate = this.comCommands.get(key);
+            if (type.equals(key.getCommandType())) {
                 matchingCommands.add(candidate);
             }
             if (candidate instanceof CompositeComCommand) {

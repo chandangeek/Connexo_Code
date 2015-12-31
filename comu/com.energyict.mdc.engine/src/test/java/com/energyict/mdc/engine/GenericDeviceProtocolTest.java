@@ -81,7 +81,7 @@ public class GenericDeviceProtocolTest {
 
         CommandRoot result = protocol.organizeComCommands(root);
         assertThat(result.getCommandTypes()).hasSize(root.getCommandTypes().size() - 1);
-        assertThat(result.getExistingCommandsOfType(ComCommandTypes.CLOCK_COMMAND)).containsOnly(this.setClockCommand);
+        assertThat(result.getExistingCommandsOfType(ComCommandTypes.SET_CLOCK_COMMAND)).containsOnly(this.setClockCommand);
         assertThat(result.getCommandTypes()).doesNotContain(ComCommandTypes.READ_REGISTERS_COMMAND);
         assertThat(result.getExistingCommandsOfType(ComCommandTypes.READ_REGISTERS_COMMAND)).isEmpty();
         assertThat(root.getCommandTypes()).contains(ComCommandTypes.SET_CLOCK_COMMAND);

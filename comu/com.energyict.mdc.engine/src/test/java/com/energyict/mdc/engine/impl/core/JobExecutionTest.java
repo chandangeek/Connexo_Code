@@ -421,6 +421,7 @@ public class JobExecutionTest {
         Date meterTime = new DateTime(2013, 9, 18, 16, 0, 0, 0).toDate();
         Date systemTime = new DateTime(2013, 9, 18, 15, 0, 0, 0).toDate();
         when(this.clock.instant()).thenReturn(systemTime.toInstant());
+        when(this.clock.millis()).thenReturn(systemTime.getTime());
         when(deviceProtocol.getTime()).thenReturn(meterTime);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         ScheduledComTaskExecutionGroup jobExecution = getJobExecutionForBasicCheckInFrontTests();
@@ -438,7 +439,6 @@ public class JobExecutionTest {
         when(basicCheckTask.verifyClockDifference()).thenReturn(true);
         createMockedComTaskWithGivenProtocolTasks(basicCheckTask);
 
-        // Business method
         JobExecution.PreparedComTaskExecution preparedComTaskExecution =
                 jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
@@ -446,6 +446,8 @@ public class JobExecutionTest {
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort, true));
 
         scheduledComTaskExecutionGroup.establishConnection();
+
+        // Business method
         scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution, false);
 
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().basickCheckHasFailed()).isTrue();

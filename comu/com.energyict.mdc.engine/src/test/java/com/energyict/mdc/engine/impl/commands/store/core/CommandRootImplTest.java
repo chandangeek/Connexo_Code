@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandKey;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
@@ -36,7 +37,7 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.RegistersTask;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -134,22 +135,22 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         CommandRoot commandRoot = createCommandRoot();
 
         LoadProfileCommand loadProfileCommand = mock(LoadProfileCommand.class);
+        when(loadProfileCommand.getExistingCommand(any(ComCommandKey.class))).thenReturn(Optional.empty());
         when(loadProfileCommand.getCommandType()).thenReturn(ComCommandTypes.LOAD_PROFILE_COMMAND);
         commandRoot.addUniqueCommand(loadProfileCommand, comTaskExecution);
 
         ClockCommand clockCommand = mock(ClockCommand.class);
+        when(clockCommand.getExistingCommand(any(ComCommandKey.class))).thenReturn(Optional.empty());
         when(clockCommand.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
         commandRoot.addUniqueCommand(clockCommand, comTaskExecution);
 
-        //MessagesCommand messagesCommand = mock(MessagesCommand.class);
-        //when(messagesCommand.getCommandType()).thenReturn(ComCommandTypes.MESSAGES_COMMAND);
-        //commandRoot.addCommand(messagesCommand, comTaskExecution);
-
         RegisterCommand registerCommand = mock(RegisterCommand.class);
+        when(registerCommand.getExistingCommand(any(ComCommandKey.class))).thenReturn(Optional.empty());
         when(registerCommand.getCommandType()).thenReturn(ComCommandTypes.REGISTERS_COMMAND);
         commandRoot.addUniqueCommand(registerCommand, comTaskExecution);
 
         LogBooksCommand logBooksCommand = mock(LogBooksCommand.class);
+        when(logBooksCommand.getExistingCommand(any(ComCommandKey.class))).thenReturn(Optional.empty());
         when(logBooksCommand.getCommandType()).thenReturn(ComCommandTypes.LOGBOOKS_COMMAND);
         commandRoot.addUniqueCommand(logBooksCommand, comTaskExecution);
 
@@ -159,7 +160,6 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         // Asserts
         verify(loadProfileCommand).getCollectedData();
         verify(clockCommand).getCollectedData();
-        //verify(messagesCommand).getCollectedData();
         verify(registerCommand).getCollectedData();
         verify(logBooksCommand).getCollectedData();
     }
@@ -169,34 +169,32 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         CommandRoot commandRoot = createCommandRoot();
 
         LoadProfileCommand loadProfileCommand = mock(LoadProfileCommand.class);
+        when(loadProfileCommand.getExistingCommand(any(ComCommandKey.class))).thenReturn(Optional.empty());
         when(loadProfileCommand.getCommandType()).thenReturn(ComCommandTypes.LOAD_PROFILE_COMMAND);
         commandRoot.addUniqueCommand(loadProfileCommand, comTaskExecution);
         ServerCollectedData loadProfileCollectedData = mock(ServerCollectedData.class);
-        when(loadProfileCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(loadProfileCollectedData));
+        when(loadProfileCommand.getCollectedData()).thenReturn(Collections.<CollectedData>singletonList(loadProfileCollectedData));
 
         ClockCommand clockCommand = mock(ClockCommand.class);
+        when(clockCommand.getExistingCommand(any(ComCommandKey.class))).thenReturn(Optional.empty());
         when(clockCommand.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
         commandRoot.addUniqueCommand(clockCommand, comTaskExecution);
         ServerCollectedData clockCollectedData = mock(ServerCollectedData.class);
-        when(clockCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(clockCollectedData));
-
-//        MessagesCommand messagesCommand = mock(MessagesCommand.class);
-//        when(messagesCommand.getCommandType()).thenReturn(ComCommandTypes.MESSAGES_COMMAND);
-//        commandRoot.addCommand(messagesCommand, comTaskExecution);
-//        ServerCollectedData messagesCollectedData = mock(ServerCollectedData.class);
-//        when(messagesCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(messagesCollectedData));
+        when(clockCommand.getCollectedData()).thenReturn(Collections.<CollectedData>singletonList(clockCollectedData));
 
         RegisterCommand registerCommand = mock(RegisterCommand.class);
+        when(registerCommand.getExistingCommand(any(ComCommandKey.class))).thenReturn(Optional.empty());
         when(registerCommand.getCommandType()).thenReturn(ComCommandTypes.REGISTERS_COMMAND);
         commandRoot.addUniqueCommand(registerCommand, comTaskExecution);
         ServerCollectedData registerCollectedData = mock(ServerCollectedData.class);
-        when(registerCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(registerCollectedData));
+        when(registerCommand.getCollectedData()).thenReturn(Collections.<CollectedData>singletonList(registerCollectedData));
 
         LogBooksCommand logBooksCommand = mock(LogBooksCommand.class);
+        when(logBooksCommand.getExistingCommand(any(ComCommandKey.class))).thenReturn(Optional.empty());
         when(logBooksCommand.getCommandType()).thenReturn(ComCommandTypes.LOGBOOKS_COMMAND);
         commandRoot.addUniqueCommand(logBooksCommand, comTaskExecution);
         ServerCollectedData logBooksCollectedData = mock(ServerCollectedData.class);
-        when(logBooksCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(logBooksCollectedData));
+        when(logBooksCommand.getCollectedData()).thenReturn(Collections.<CollectedData>singletonList(logBooksCollectedData));
 
         // Business method
         List<CollectedData> collectedData = commandRoot.getCollectedData();
@@ -362,6 +360,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         final ExecutionContext executionContext = commandRoot.getExecutionContext();
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComCommand comCommand = mock(ComCommand.class);
+        when(comCommand.getCommandType()).thenReturn(ComCommandTypes.BASIC_CHECK_COMMAND);
         commandRoot.addUniqueCommand(comCommand, comTaskExecution);
 
         JobExecution.PreparedComTaskExecution preparedComTaskExecution = mock(JobExecution.PreparedComTaskExecution.class);
@@ -378,6 +377,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         final ExecutionContext executionContext = commandRoot.getExecutionContext();
         ComCommand comCommand = mock(ComCommand.class);
+        when(comCommand.getCommandType()).thenReturn(ComCommandTypes.BASIC_CHECK_COMMAND);
         ComTaskExecution comTaskExecution = executionContext.getComTaskExecution();
         commandRoot.addUniqueCommand(comCommand, comTaskExecution);
 
@@ -388,7 +388,5 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
         verify(comCommand, times(1)).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
     }
-
-
 
 }

@@ -518,7 +518,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
 
     @Override
     public boolean containsDaisyChainedLogOnCommandFor(ComTaskExecution comTaskExecution) {
-        ComCommandKey key = new ComCommandKey(ComCommandTypes.DAISY_CHAINED_LOGON, comTaskExecution.getDevice().getId());
+        ComCommandKey key = new ComCommandKey(ComCommandTypes.DAISY_CHAINED_LOGON, comTaskExecution.getDevice());
         return this.getExistingCommand(key).isPresent();
     }
 

@@ -297,7 +297,7 @@ public abstract class JobExecution implements ScheduledJob {
              * as we are locking on the ConnectionTask. */
             this.executeAndUpdateSuccessRate(preparedComTaskExecution);
         } catch (ComServerRuntimeException e) {
-            if (checkIfWeCanPerformOtherComTaskExecutionsBasedOnConnectionRelatedExceptions(e, nextOneIsPhysicalSlave, getExecutionContext().errorOccurredAtLogonOrInit())) {
+            if (!checkIfWeCanPerformOtherComTaskExecutionsBasedOnConnectionRelatedExceptions(e, nextOneIsPhysicalSlave, getExecutionContext().errorOccurredAtLogonOrInit())) {
                 throw e;
             } else if (checkWhetherAllNextComTasksShouldNotBeExecutedBasedOnBasicCheckFailure(e)) {
                 getExecutionContext().setBasicCheckFailed(true);
