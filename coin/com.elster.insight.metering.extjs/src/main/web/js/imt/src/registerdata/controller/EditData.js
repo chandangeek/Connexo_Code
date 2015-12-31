@@ -46,7 +46,7 @@ Ext.define('Imt.registerdata.controller.EditData', {
 	              success: function (register) {
 	                  var widget = Ext.widget('registerDataEdit', {
 	                      edit: false,
-	                      returnLink: router.getRoute('usagepoints/view/registers/register').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}),
+	                      returnLink: router.getRoute('usagepoints/view/registers/registerdata').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}),
 	                      mRID: mRID,
 	                      registerId: registerId,
 	                      router: router
@@ -87,7 +87,7 @@ Ext.define('Imt.registerdata.controller.EditData', {
 	                      success: function (reading) {
 	                          var widget = Ext.widget('registerDataEdit', {
 	                              edit: true,
-	                              returnLink: router.getRoute('usagepoints/view/registers/register').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}),
+	                              returnLink: router.getRoute('usagepoints/view/registers/registerdata').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}),
 	                              router: router
 	                          });
 	                          me.getApplication().fireEvent('loadRegister', register);
@@ -180,7 +180,7 @@ Ext.define('Imt.registerdata.controller.EditData', {
                 callback: function (record, operation) {
                     if (operation.wasSuccessful()) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerdata.removed', 'IMT', 'Register data successfully removed'));
-                        router.getRoute('usagepoints/view/registers/register').forward();
+                        router.getRoute('usagepoints/view/registers/registerdata').forward();
 //                        dataStore.load();
                     }
                 }
@@ -222,7 +222,7 @@ Ext.define('Imt.registerdata.controller.EditData', {
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
-                    router.getRoute('usagepoints/view/registers/register').forward();
+                    router.getRoute('usagepoints/view/registers/registerdata').forward();
                    // router.getRoute('usagepoints/view/registers/register').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}),
                 },
                 failure: function (record, resp) {

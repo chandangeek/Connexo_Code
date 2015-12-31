@@ -22,6 +22,7 @@ Ext.define('Imt.registerdata.controller.View', {
         {ref: 'registerListSetup', selector: '#registerListSetup'},
         {ref: 'registerPreview', selector: '#registerPreview'},
         {ref: 'registerActionMenu', selector: '#registerActionMenu'},
+        {ref: 'registerPreview', selector: 'tabbedRegisterView'}
     ],
     init: function () {
         var me = this;
@@ -209,6 +210,62 @@ Ext.define('Imt.registerdata.controller.View', {
                     labelWidth: 500
                 }
             ]
+        });
+    },
+    showRegisterDetailsView: function (mRID, registerId, tabController) {
+        var me = this,
+            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            registerStore = me.getStore('Register');
+        contentPanel.setLoading(true);
+        Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
+            success: function (usagepoint) {
+                me.getApplication().fireEvent('loadUsagePoint', usagepoint);
+                var model = Ext.ModelManager.getModel('Imt.registerdata.model.Register');
+                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+                model.load(registerId, {
+                    success: function (register) {
+                     //   var type = register.get('type');
+                        var widget = Ext.widget('tabbedRegisterView', {
+                            usagepoint: usagepoint,
+                            router: me.getController('Uni.controller.history.Router')
+                        });
+                        var func = function () {
+//                            var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets');
+//                            customAttributesStore.getProxy().setUrl(mRID, registerId);
+//                            customAttributesStore.load(function () {
+//                                widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+//                            });
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
+                            var config = Ext.widget('registerPreview', {
+                                mRID: encodeURIComponent(mRID),
+                                registerId: registerId,
+                                router: me.getController('Uni.controller.history.Router')
+                            });
+                            var form = config.down('#registerPreviewForm');
+                            me.getApplication().fireEvent('loadRegister', register);
+                            form.loadRecord(register);
+                            if (!register.data.validationInfo.validationActive) {
+                                config.down('#validateNowRegister').hide();
+                            }
+                            config.down('#registerActionMenu').record = register;
+                            widget.down('#register-specifications').add(config);
+                        };
+                        if (registerStore.getTotalCount() === 0) {
+                            registerStore.getProxy().url = registerStore.getProxy().url.replace('{mRID}', encodeURIComponent(mRID));
+                            registerStore.load(function () {
+                                func();
+                            });
+                        } else {
+                            func();
+                        }
+                    },
+                    callback: function () {
+                        contentPanel.setLoading(false);
+                        tabController.showTab(0);
+                    }
+                });
+            }
         });
     },
 });

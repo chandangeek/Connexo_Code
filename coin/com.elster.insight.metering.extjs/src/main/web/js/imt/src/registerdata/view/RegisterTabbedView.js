@@ -3,8 +3,13 @@ Ext.define('Imt.registerdata.view.RegisterTabbedView', {
     alias: 'widget.registerTabbedView',
     itemId: 'registerTabbedView',
     requires: [
-        'Uni.view.toolbar.PreviousNextNavigation'
+        'Uni.view.toolbar.PreviousNextNavigation',
+        'Imt.registerdata.store.Register',
+        'Imt.registerdata.view.Overview'
     ],
+    router: null,
+    register: null,
+    usagepoint: null,
     initComponent: function () {
         var me = this;
         me.content = [
@@ -15,11 +20,66 @@ Ext.define('Imt.registerdata.view.RegisterTabbedView', {
                 items: [
                     {
                         title: Uni.I18n.translate('registerdata.specifications', 'IMT', 'Specifications'),
-                        itemId: 'register-specifications'
+                        itemId: 'register-specifications',
+                        items: {
+                            xtype: 'registerOverview',
+                            router: me.router,
+                            usagepoint: me.usagepoint
+                        }
                     },
                     {
                         title: Uni.I18n.translate('registerdata.readings', 'IMT', 'Readings'),
-                        itemId: 'register-data'
+//                        itemId: 'register-data',
+//                        router: me.router,
+//                        mRID: me.mRID,
+//                        registerId: me.registerId
+                        //{
+                            xtype: 'panel',
+                            ui: 'large',
+                            itemId: 'registerDataSetupPanel',
+                       //     title: me.registerId, //Uni.I18n.translate('registerdata.label.register.readings', 'IMT', 'Register Readings'),
+                            layout: {
+                                type: 'fit',
+                                align: 'stretch'
+                            },
+                            defaults: {
+                                style: {
+//                                    marginRight: '20px',
+//                                    padding: '20px'
+                                }
+                            },       
+
+                            items: [{
+                                xtype: 'preview-container',    
+                                grid: {
+                                    xtype: 'registerDataList',
+                                    router: me.router,
+                                    mRID: me.mRID,
+                                    registerId: me.registerId
+                                },
+                                emptyComponent: {
+                                    xtype: 'no-items-found-panel',
+                                    itemId: 'ctr-no-device-register-config',
+                                    title: Uni.I18n.translate('registerdata.label.register.list.empty', 'IMT', 'No registers found'),
+                                    reasons: [
+                                        Uni.I18n.translate('registerdata.label.register.list.undefined', 'IMT', 'No registers have been defined yet.')
+                                    ]
+                                },
+                                previewComponent: {
+                                    xtype: 'container',
+                                    itemId: 'previewComponentContainer'
+                                }
+                            }],
+                            dockedItems: [
+                                {
+                                    dock: 'top',
+                                    xtype: 'imt-registerdata-topfilter',
+                                    itemId: 'registerdatafilterpanel',
+                                    hasDefaultFilters: true,
+                                    filterDefault: me.filter
+                                }
+                             ]
+                       // }
                     }
                 ],
                 listeners: {
@@ -32,8 +92,9 @@ Ext.define('Imt.registerdata.view.RegisterTabbedView', {
                             {
                                 xtype: 'previous-next-navigation-toolbar',
                                 itemId: 'tabbed-usagepoint-register-view-previous-next-navigation-toolbar',
-                                store: 'Register',
+                                store: 'Imt.registerdata.store.Register',
                                 router: me.router,
+                                mRID: me.mRID,
                                 routerIdArgument: 'registerId',
                                 itemsName: '<a href="' + me.router.getRoute('usagepoints/registers').buildUrl() + '">' + Uni.I18n.translate('general.registers', 'IMT', 'Registers').toLowerCase() + '</a>'
                             }
@@ -55,11 +116,11 @@ Ext.define('Imt.registerdata.view.RegisterTabbedView', {
                         ui: 'medium',
                         items: [
                             {
-                                xtype: 'usage-point-side-menu',
-                                itemId: 'stepsMenu',
-                                usagepoint: me.usagepoint,
-                                registerId: me.registerId,
-                                toggleId: 'registersLink'
+                            	xtype: 'usage-point-management-side-menu',
+                                itemId: 'usage-point-management-side-menu',
+                                router: me.router,
+                                mRID: me.mRID,
+                                toggleId: 'registerLink', 	
                             }
                         ]
                     }

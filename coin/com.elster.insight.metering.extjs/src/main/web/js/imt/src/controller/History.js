@@ -187,7 +187,7 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('general.label.usagepoint.register', 'IMT', 'Register'),
                                     route: '{registerId}',
                                     controller: 'Imt.registerdata.controller.ViewData',
-                                    action: 'showUsagePointRegisterData',
+                                    action: 'showRegisterSpecifications', //'showUsagePointRegisterData',
                                     callback: function (route) {
                                         this.getApplication().on('registerDataLoaded', function (record) {
                                             route.setTitle(record.get('readingType').fullAliasName);
@@ -216,7 +216,22 @@ Ext.define('Imt.controller.History', {
                                   //          dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                                         }
                                     }
-                                }                                    
+                                },
+                                registerdata: {
+                                    title: Uni.I18n.translate('routing.registerData', 'IMT', 'Register data'),
+                                    route: '{registerId}/data',
+                                    controller: 'Imt.registerdata.controller.ViewData',
+//                                    privileges: Imt.privileges.UsagePoint.view,
+                                    action: 'showUsagePointRegisterData',
+//                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStateStore,
+                                    callback: function (route) {
+                                        this.getApplication().on('registerdataLoaded', function (record) {
+                                            route.setTitle(record.get('readingType').fullAliasName);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
                             }
            			    },
            			    datavalidation: {
