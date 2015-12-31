@@ -31,7 +31,7 @@ Ext.define('Isu.view.creationrules.ActionsList', {
             },
             {
                 xtype: 'actioncolumn',
-                header: Uni.I18n.translate('general.action', 'ISU', 'Action'),
+               // header: Uni.I18n.translate('general.remove', 'ISU', 'Remove'),
                 align: 'center',
                 items: [{
                     iconCls: 'uni-icon-delete',
