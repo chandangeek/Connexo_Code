@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
@@ -59,7 +60,7 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
     }
 
     @Override
-    public ComCommandTypes getCommandType () {
+    public ComCommandType getCommandType () {
         return ComCommandTypes.COM_TASK_ROOT;
     }
 

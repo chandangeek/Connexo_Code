@@ -22,7 +22,7 @@ public interface ComCommand {
     /**
      * @return the {@link ComCommandType type} of this command.
      */
-    ComCommandTypes getCommandType();
+    ComCommandType getCommandType();
 
     /**
      * Get the root of this command which serves as a root for unique {@link ComCommand ComCommands}.

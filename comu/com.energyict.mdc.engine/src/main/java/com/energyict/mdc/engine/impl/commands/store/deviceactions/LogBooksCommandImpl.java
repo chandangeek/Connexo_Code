@@ -5,6 +5,7 @@ import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
@@ -73,7 +74,7 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
      * of the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}s of the device will be created.
      *
      * @param device the <i>Master</i> Device for which LoadProfileReaders should be created
-     * @param deviceMrid
+     * @param deviceMrid The mRID of the device
      */
     private void createLogBookReaders(final OfflineDevice device, String deviceMrid) {
         List<OfflineLogBook> listOfAllLogBooks = device.getAllOfflineLogBooksForMRID(deviceMrid);
@@ -115,7 +116,7 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.LOGBOOKS_COMMAND;
     }
 

@@ -407,13 +407,13 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LegacyLoadProfileLogBooksCommand legacyCommand = commandRoot.findOrCreateLegacyLoadProfileLogBooksCommand(loadProfilesTask, mock(LogBooksTask.class), commandRoot, comTaskExecution);
 
         // Asserts
-        assertEquals("Expected 5 subCommands in the command list of the LoadProfileCommand", 5, legacyCommand.getCommands().size());
-        assertEquals("The commandRoot should only contain 1 command, the LoadProfileCommand", 1, commandRoot.getCommands().size());
-        assertTrue("The first command should be the verifyLoadProfileCommand", legacyCommand.getCommands().values().toArray()[0] instanceof VerifyLoadProfilesCommandImpl);
-        assertTrue("The second command should be the readLoadProfileDataCommand", legacyCommand.getCommands().values().toArray()[1] instanceof ReadLegacyLoadProfileLogBooksDataCommand);
-        assertTrue("The third command should be the timeDifferenceCommand", legacyCommand.getCommands().values().toArray()[2] instanceof TimeDifferenceCommand);
-        assertTrue("The fourth command should be the markIntervalsAsBadTimeCommand", legacyCommand.getCommands().values().toArray()[3] instanceof MarkIntervalsAsBadTimeCommand);
-        assertTrue("The fifth command should be the createMeterEventsCommand", legacyCommand.getCommands().values().toArray()[4] instanceof CreateMeterEventsFromStatusFlagsCommand);
+        assertThat(legacyCommand.getCommands()).hasSize(5);
+        assertThat(commandRoot.getCommands()).hasSize(1);
+        assertThat(legacyCommand.getCommands().get(0)).isInstanceOf(VerifyLoadProfilesCommandImpl.class);
+        assertThat(legacyCommand.getCommands().get(1)).isInstanceOf(ReadLegacyLoadProfileLogBooksDataCommand.class);
+        assertThat(legacyCommand.getCommands().get(2)).isInstanceOf(TimeDifferenceCommand.class);
+        assertThat(legacyCommand.getCommands().get(3)).isInstanceOf(MarkIntervalsAsBadTimeCommand.class);
+        assertThat(legacyCommand.getCommands().get(4)).isInstanceOf(CreateMeterEventsFromStatusFlagsCommand.class);
     }
 
     @Test

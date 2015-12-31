@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandKey;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
@@ -16,10 +17,15 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A CompositeComCommand can contain several {@link ComCommand ComCommands} which are executed in the order the
@@ -159,10 +165,51 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
         return Optional.empty();
     }
 
+    @Override
+    public List<ComCommand> getExistingCommandsOfType(ComCommandType type) {
+        List<ComCommand> matchingCommands = new ArrayList<>();
+        for (ComCommandKey comCommandTypeAndId : this.comCommands.keySet()) {
+            ComCommand candidate = this.comCommands.get(comCommandTypeAndId);
+            if (type.equals(comCommandTypeAndId.getCommandType())) {
+                matchingCommands.add(candidate);
+            }
+            if (candidate instanceof CompositeComCommand) {
+                CompositeComCommand otherComposite = (CompositeComCommand) candidate;
+                matchingCommands.addAll(otherComposite.getExistingCommandsOfType(type));
+            }
+        }
+        return matchingCommands;
+    }
+
+    @Override
+    public List<ComCommandType> getCommandTypes() {
+        return this.comCommands
+                .keySet()
+                .stream()
+                .map(ComCommandKey::getCommandType)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ComCommand> getCommands() {
+        return new ArrayList<>(this.comCommands.values());
+    }
 
     @Override
     public Iterator<ComCommand> iterator() {
         return this.comCommands.values().iterator();
     }
 
+    protected void removeCommandOfType(ComCommandType type) {
+        Set<ComCommandKey> keys = new HashSet<>(this.comCommands.keySet());
+        keys
+            .stream()
+            .filter(key -> key.getCommandType().equals(type))
+            .forEach(this.comCommands::remove);
+    }
+
+    protected static void copyComCommands(CompositeComCommandImpl source, CompositeComCommandImpl target, Set<ComCommandTypes> unneccesary) {
+        target.comCommands.putAll(source.comCommands);
+        unneccesary.stream().forEach(target::removeCommandOfType);
+    }
 }

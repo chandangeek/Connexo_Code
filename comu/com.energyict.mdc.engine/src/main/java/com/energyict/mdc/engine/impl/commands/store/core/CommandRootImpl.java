@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandKey;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
@@ -114,6 +115,12 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
         this.executionContext = executionContext;
         this.serviceProvider = serviceProvider;
         this.exposeStoringException = exposeStoringException;
+    }
+
+    public CommandRootImpl shallowCloneFor(OfflineDevice offlineDevice, CommandRoot.ServiceProvider serviceProvider, Set<ComCommandTypes> unnecessary) {
+        CommandRootImpl clonedRoot = new CommandRootImpl(offlineDevice, this.getExecutionContext(), serviceProvider);
+        CommandRootImpl.copyComCommands(this, clonedRoot, unnecessary);
+        return clonedRoot;
     }
 
     @Override
@@ -544,7 +551,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.ROOT;
     }
 

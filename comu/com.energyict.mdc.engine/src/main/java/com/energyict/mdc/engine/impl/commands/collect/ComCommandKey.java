@@ -13,16 +13,16 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
  */
 public final class ComCommandKey {
 
-    private final ComCommandTypes type;
+    private final ComCommandType type;
     private final long deviceId;
     private final long comTaskExecutionId;
     private final long securitySetCommandGroupId;
 
-    public ComCommandKey(ComCommandTypes type, long deviceId, long securitySetCommandGroupId) {
+    public ComCommandKey(ComCommandType type, long deviceId, long securitySetCommandGroupId) {
         this(type, deviceId, 0, securitySetCommandGroupId);
     }
 
-    public ComCommandKey(ComCommandTypes type, ComTaskExecution comTaskExecution, long securitySetCommandGroupId) {
+    public ComCommandKey(ComCommandType type, ComTaskExecution comTaskExecution, long securitySetCommandGroupId) {
         this(type, extractDeviceIdFrom(comTaskExecution), extractComTaskExecutionIdFrom(comTaskExecution), securitySetCommandGroupId);
     }
 
@@ -44,14 +44,14 @@ public final class ComCommandKey {
         }
     }
 
-    private ComCommandKey(ComCommandTypes comCommandTypes, long deviceId, long comTaskExecutionId, long securitySetCommandGroupId) {
-        this.type = comCommandTypes;
+    private ComCommandKey(ComCommandType type, long deviceId, long comTaskExecutionId, long securitySetCommandGroupId) {
+        this.type = type;
         this.deviceId = deviceId;
         this.comTaskExecutionId = comTaskExecutionId;
         this.securitySetCommandGroupId = securitySetCommandGroupId;
     }
 
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return type;
     }
 

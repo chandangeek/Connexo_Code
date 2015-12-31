@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
@@ -11,7 +12,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 /**
@@ -24,7 +24,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
  */
 public class StatusInformationCommandImpl extends SimpleComCommand implements StatusInformationCommand {
 
-    private final DeviceIdentifier<?> deviceDeviceIdentifier;
     private final ComTaskExecution comTaskExecution;
 
     public StatusInformationCommandImpl(final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
@@ -36,7 +35,6 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
         if (commandRoot == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        this.deviceDeviceIdentifier = device.getDeviceIdentifier();
     }
 
     @Override
@@ -45,7 +43,7 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.STATUS_INFORMATION_COMMAND;
     }
 

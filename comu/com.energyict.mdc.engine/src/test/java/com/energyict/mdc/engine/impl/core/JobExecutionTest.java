@@ -1,5 +1,13 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -24,7 +32,6 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -51,14 +58,6 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.base.Strings;
 import org.joda.time.DateTime;
 
@@ -66,7 +65,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -332,9 +331,9 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commands).isNotEmpty();
-        assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotEmpty();
+        assertThat(commandTypes).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
     }
 
     @Test
@@ -359,9 +358,9 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commands).isNotEmpty();
-        assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotEmpty();
+        assertThat(commandTypes).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
     }
 
     @Test
@@ -383,9 +382,9 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commands).isNotEmpty();
-        assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotEmpty();
+        assertThat(commandTypes).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND);
 
     }
 
@@ -410,9 +409,9 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commands).isNotEmpty();
-        assertThat(commands.keySet()).containsSequence(ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotEmpty();
+        assertThat(commandTypes).containsSequence(ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
 
     }
 

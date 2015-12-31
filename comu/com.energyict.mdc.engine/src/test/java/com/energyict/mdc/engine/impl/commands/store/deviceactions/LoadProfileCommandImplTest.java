@@ -26,6 +26,7 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +48,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LoadProfileCommandImplTest extends CommonCommandImplTests {
 
-    private final static String MY_MRID = "MyMrid";
+    private static final String MY_MRID = "MyMrid";
+
     @Mock
     ComTaskExecution comTaskExecution;
     @Mock
@@ -198,7 +200,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         when(loadProfileType.getId()).thenReturn(loadProfileTypeId);
         when(loadProfileType.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
-        when(loadProfilesTask.getLoadProfileTypes()).thenReturn(Arrays.asList(loadProfileType));
+        when(loadProfilesTask.getLoadProfileTypes()).thenReturn(Collections.singletonList(loadProfileType));
         CommandRoot commandRoot = createCommandRoot();
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
@@ -334,13 +336,13 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         LoadProfileCommand loadProfileCommand = commandRoot.findOrCreateLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
 
         // Asserts
-        assertThat(loadProfileCommand.getCommands()).hasSize(5);
-        assertThat(commandRoot.getCommands()).hasSize(1);
-        assertThat(loadProfileCommand.getCommands().values().toArray()[0]).isInstanceOf(VerifyLoadProfilesCommandImpl.class);
-        assertThat(loadProfileCommand.getCommands().values().toArray()[1]).isInstanceOf(ReadLoadProfileDataCommand.class);
-        assertThat(loadProfileCommand.getCommands().values().toArray()[2]).isInstanceOf(TimeDifferenceCommand.class);
-        assertThat(loadProfileCommand.getCommands().values().toArray()[3]).isInstanceOf(MarkIntervalsAsBadTimeCommand.class);
-        assertThat(loadProfileCommand.getCommands().values().toArray()[4]).isInstanceOf(CreateMeterEventsFromStatusFlagsCommand.class);
+        assertThat(loadProfileCommand.getCommandTypes()).hasSize(5);
+        assertThat(commandRoot.getCommandTypes()).hasSize(1);
+        assertThat(loadProfileCommand.getCommands().get(0)).isInstanceOf(VerifyLoadProfilesCommandImpl.class);
+        assertThat(loadProfileCommand.getCommands().get(1)).isInstanceOf(ReadLoadProfileDataCommand.class);
+        assertThat(loadProfileCommand.getCommands().get(2)).isInstanceOf(TimeDifferenceCommand.class);
+        assertThat(loadProfileCommand.getCommands().get(3)).isInstanceOf(MarkIntervalsAsBadTimeCommand.class);
+        assertThat(loadProfileCommand.getCommands().get(4)).isInstanceOf(CreateMeterEventsFromStatusFlagsCommand.class);
     }
 
     private static OfflineLoadProfileChannel createMockedOfflineLoadProfileChannel(final ObisCode obisCode) {
@@ -351,4 +353,5 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         when(loadProfileChannel.isStoreData()).thenReturn(true);
         return loadProfileChannel;
     }
+
 }

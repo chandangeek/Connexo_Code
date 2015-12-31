@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -36,6 +37,10 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
      */
     void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution);
 
+    List<ComCommandType> getCommandTypes();
+
+    List<ComCommand> getCommands();
+
     boolean contains(ComCommand comCommand);
 
     /**
@@ -53,5 +58,13 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
      * @return the requested ComCommand or Optional.empty if the ComCommand does not exist yet
      */
     Optional<ComCommand> getExistingCommand(ComCommandKey key);
+
+    /**
+     * Finds the existing {@link ComCommand}s of the given {@link ComCommandType}.
+     *
+     * @param type The ComCommandType
+     * @return The List of ComCommand that are of the specified type
+     */
+    List<ComCommand> getExistingCommandsOfType(ComCommandType type);
 
 }

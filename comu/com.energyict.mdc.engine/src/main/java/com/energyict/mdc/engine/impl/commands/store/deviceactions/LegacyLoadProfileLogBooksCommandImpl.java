@@ -5,6 +5,7 @@ import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
@@ -179,7 +180,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * @return the ComCommandTypes of this command
      */
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND;
     }
 
@@ -187,7 +188,8 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * Create LoadProfileReaders for this LoadProfileCommand, based on the {@link LoadProfileType}s specified in the {@link #loadProfilesTask}.
      * If no types are specified, then a {@link LoadProfileReader} for all
      * of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}s of the device will be created.
-     * @param deviceMrid
+     *
+     * @param deviceMrid The mMRID of the device
      */
     protected void createLoadProfileReaders(String deviceMrid) {
         createLoadProfileReadersForLoadProfilesTask(this.loadProfilesTask, deviceMrid);
