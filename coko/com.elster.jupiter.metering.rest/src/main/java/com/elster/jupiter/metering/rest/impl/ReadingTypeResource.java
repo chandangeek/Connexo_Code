@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -33,6 +34,7 @@ import com.elster.jupiter.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -45,13 +47,15 @@ public class ReadingTypeResource {
     private final ExceptionFactory exceptionFactory;
     private final TransactionService transactionService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final ReadingTypeInfoFactory readingTypeInfoFactory;
     
     @Inject
-    public ReadingTypeResource(MeteringService meteringService, ExceptionFactory exceptionFactory, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory) {
+    public ReadingTypeResource(MeteringService meteringService, ExceptionFactory exceptionFactory, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.transactionService = transactionService;
         this.conflictFactory = conflictFactory;
+        this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
     @GET
@@ -61,7 +65,7 @@ public class ReadingTypeResource {
         List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypes(ReadingTypeFilterFactory.from(jsonQueryFilter))
                 .from(queryParameters)
                 .stream()
-                .map(ReadingTypeInfo::new)
+                .map((readingType) -> readingTypeInfoFactory.from(readingType))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);
@@ -73,7 +77,7 @@ public class ReadingTypeResource {
 	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public ReadingTypeInfos getReadingType(@PathParam("mRID") String mRID) {
     	return meteringService.getReadingType(mRID)
-    		.map(readingType -> new ReadingTypeInfos(readingType))
+    		.map(readingType -> readingTypeInfoFactory.from(Collections.singletonList(readingType)))
     		.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
@@ -85,7 +89,7 @@ public class ReadingTypeResource {
         return meteringService.getReadingType(mRID)
                 .map(rt -> rt.getCalculatedReadingType())
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
-                .map(readingType -> new ReadingTypeInfos(readingType)).orElse(new ReadingTypeInfos());
+                .map(readingType -> readingTypeInfoFactory.from(Collections.singletonList(readingType))).orElse(new ReadingTypeInfos());
     }
 
     @GET

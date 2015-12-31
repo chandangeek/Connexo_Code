@@ -33,11 +33,13 @@ public class ReadingTypeFieldResource {
 
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
+    private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
-    public ReadingTypeFieldResource(MeteringService meteringService, Thesaurus thesaurus) {
+    public ReadingTypeFieldResource(MeteringService meteringService, Thesaurus thesaurus, ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
+        this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
     @GET
@@ -89,7 +91,7 @@ public class ReadingTypeFieldResource {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
         final Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
         readingTypes = readingTypes.stream().filter(filter).sorted((c1,c2)->(c1.getFullAliasName().compareToIgnoreCase(c2.getFullAliasName()))).collect(Collectors.<ReadingType>toList());
-        List<ReadingTypeInfo> pagedReadingTypes = ListPager.of(readingTypes).from(queryParameters).find().stream().map(ReadingTypeInfo::new).collect(toList());
+        List<ReadingTypeInfo> pagedReadingTypes = ListPager.of(readingTypes).from(queryParameters).find().stream().map(readingTypeInfoFactory::from).collect(toList());
         return Response.ok(KorePagedInfoList.asJson("readingTypes", pagedReadingTypes, queryParameters, readingTypes.size())).build();
     }
 

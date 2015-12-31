@@ -89,7 +89,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer());
+        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN));
     }
 
     @Activate
@@ -156,6 +156,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(thesaurus).to(Thesaurus.class);
             bind(thesaurus).to(MessageInterpolator.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
         }
     }
 }
