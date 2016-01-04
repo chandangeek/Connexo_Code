@@ -86,14 +86,14 @@ Ext.define('Imt.registerdata.controller.View', {
         routeParams = router.arguments,
         route,
         filterParams = {};
-
+        router.arguments.registerId = menu.record.get('id');
 	    switch (item.action) {
 	        case 'validateNow':
 	            me.showValidateNowMessage(menu.record);
 	            break;
 	        case 'viewSuspects':
 	            filterParams.suspect = 'suspect';
-	            route = 'usagepoints/view/registers/register'; 
+	            route = 'usagepoints/view/registers/registerdata'; 
 	            break;
 	    }
 	

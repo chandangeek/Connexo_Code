@@ -1,8 +1,8 @@
 Ext.define('Imt.registerdata.store.RegisterData', {
     extend: 'Ext.data.Store',
     requires: [
-               'Imt.registerdata2.model.RegisterData',
-               'Imt.registerdata2.store.RegisterDataDurations'
+               'Imt.registerdata.model.RegisterData',
+               'Imt.registerdata.store.RegisterDataDurations'
     ],
     model: 'Imt.registerdata.model.RegisterData',
     proxy: {
