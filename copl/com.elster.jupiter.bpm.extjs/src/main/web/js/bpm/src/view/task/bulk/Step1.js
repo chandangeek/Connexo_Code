@@ -52,6 +52,11 @@ Ext.define('Bpm.view.task.bulk.Step1', {
                         shortFormat: true
                     },
                     {
+                        header: Uni.I18n.translate('bpm.task.processId', 'BPM', 'Process ID'),
+                        dataIndex: 'processInstancesId',
+                        flex: 1
+                    },
+                    {
                         itemId: 'processName',
                         text: Uni.I18n.translate('bpm.task.process', 'BPM', 'Process'),
                         dataIndex: 'processName',
