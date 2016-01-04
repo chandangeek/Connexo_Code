@@ -24,6 +24,7 @@ Ext.define('Imt.registerdata.controller.View', {
         {ref: 'registerActionMenu', selector: '#registerActionMenu'},
         {ref: 'registerPreview', selector: 'tabbedRegisterView'}
     ],
+    fromSpecification: false,
     init: function () {
         var me = this;
         me.control({
@@ -89,9 +90,11 @@ Ext.define('Imt.registerdata.controller.View', {
         router.arguments.registerId = menu.record.get('id');
 	    switch (item.action) {
 	        case 'validateNow':
+	        	this.fromSpecification = false;
 	            me.showValidateNowMessage(menu.record);
 	            break;
 	        case 'viewSuspects':
+	        	this.fromSpecification = false;
 	            filterParams.suspect = 'suspect';
 	            route = 'usagepoints/view/registers/registerdata'; 
 	            break;

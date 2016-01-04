@@ -25,7 +25,6 @@ Ext.define('Imt.registerdata.controller.ViewData', {
         {ref: 'registerTabbedView', selector: '#registerTabbedView'},
         {ref: 'registerDataPreview', selector: '#registerDataPreview'}
     ],
-    fromSpecification: false,
     init: function () {
         var me = this;
         me.control({
@@ -38,7 +37,6 @@ Ext.define('Imt.registerdata.controller.ViewData', {
             '#registerTabbedView #registerTabPanel': {
                 tabchange: this.onTabChange
             },
-
         });
     },
 
@@ -75,7 +73,7 @@ Ext.define('Imt.registerdata.controller.ViewData', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getOverviewLink().setText(mRID); 
 	            
-	            if (me.fromSpecification === false) {
+	            if (me.fromSpecification === false || me.getController('Imt.registerdata.controller.View').fromSpecification === false) {
 	                widget.down('#registerTabPanel').down('#registerDataSetupPanel').show();
 	                widget.down('#registerTabPanel').setTitle(record.get('readingTypeFullAliasName'));
 	                dataStore.getProxy().setUrl({mRID: mRID, registerId: registerId});
@@ -148,73 +146,7 @@ Ext.define('Imt.registerdata.controller.ViewData', {
     	controller = me.getController('Imt.registerdata.controller.EditData');
     	controller.removeRegisterData();
     },
-//    showRegisterDataView: function (mRID, registerId, tabController) {
-//        var me = this,
-//            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-//            registerModel = me.getModel('Imt.registerdata.model.Register'),
-//            router = me.getController('Uni.controller.history.Router'),
-//            dependenciesCount = 2,
-//            onDependenciesLoad = function () {
-//                var widget,
-//        //            type,
-//                    dataStore;
-//
-//                dependenciesCount--;
-//                if (!dependenciesCount) {
-//                    widget = Ext.widget('tabbedDeviceRegisterView', {
-//                        usagepoint: usagepoint,
-//                        router: router
-//                    });
-//        //            type = register.get('type');
-//                    dataStore = me.getStore('Imt.registerdata.store.RegisterData');
-//
-//                    me.getApplication().fireEvent('changecontentevent', widget);
-//
-//                    Ext.suspendLayouts();
-//                    widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
-//
-//                    tabController.showTab(1);
-//
-//                    widget.down('#register-data').add(Ext.widget('registerDataSetup', {
-//                        mRID: encodeURIComponent(mRID),
-//                        registerId: registerId
-//                    }));
-//
-//                    widget.down('grid').down('[dataIndex=value]').setText(Uni.I18n.translate('usagepoint.registerData.value', 'IMT', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
-//
-//                    me.getFilterPanel().bindStore(dataStore);
-//
-// //                   if (type === 'billing' || type === 'numerical') {
-//                        var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
-//                        deltaValueColumn.setText(Uni.I18n.translate('usagepoint.registerData.deltaValue', 'IMT', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
-//                        deltaValueColumn.setVisible(register.get('isCumulative'));
-////                    }
-//                    Ext.resumeLayouts(true);
-//
-//                    contentPanel.setLoading(false);
-//                    dataStore.load();
-//                }
-//            },
-//            usagepoint,
-//            register;
-//
-//        contentPanel.setLoading();
-//        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
-//            success: function (record) {
-//                usagepoint = record;
-//                me.getApplication().fireEvent('loadUsagePoint', usagepoint);
-//                onDependenciesLoad();
-//            }
-//        });
-//        registerModel.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
-//        registerModel.load(registerId, {
-//            success: function (record) {
-//                register = record;
-//                me.getApplication().fireEvent('loadRegister', register);
-//                onDependenciesLoad();
-//            }
-//        });
-//    },
+
     showRegisterSpecifications: function (mRID, registerId) {
 	     var me = this,
          router = me.getController('Uni.controller.history.Router'),
@@ -276,5 +208,6 @@ Ext.define('Imt.registerdata.controller.ViewData', {
             route && route.forward(routeParams, filterParams);
         }
     },
+ 
 });
 
