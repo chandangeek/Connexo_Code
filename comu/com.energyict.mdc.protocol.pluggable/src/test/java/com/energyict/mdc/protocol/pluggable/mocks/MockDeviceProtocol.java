@@ -46,6 +46,13 @@ import java.util.Set;
  */
 public class MockDeviceProtocol implements DeviceProtocol {
 
+    public static final String END_DEVICE_EVENT_TYPE_MRID = "3.0.0.79";
+
+    @Override
+    public List<String> supportedEventTypes() {
+        return Collections.singletonList(END_DEVICE_EVENT_TYPE_MRID);
+    }
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
 

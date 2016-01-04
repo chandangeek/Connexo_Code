@@ -891,7 +891,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     private void registerDeviceProtocolPluggableClasses() {
         if (!this.deviceProtocolServices.isEmpty()) {
             this.setPrincipal();
-            DeviceProtocolPluggableClassRegistrar registrar = new DeviceProtocolPluggableClassRegistrar(this, this.transactionService);
+            DeviceProtocolPluggableClassRegistrar registrar = new DeviceProtocolPluggableClassRegistrar(this, this.transactionService, this.meteringService);
             registrar.registerAll(this.getAllLicensedProtocols());
         }
         else {

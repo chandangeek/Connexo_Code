@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -8,6 +10,7 @@ import com.energyict.mdc.protocol.api.LicensedProtocol;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Registers {@link DeviceProtocolPluggableClass}es.
@@ -19,11 +22,13 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
 
     private final ServerProtocolPluggableService protocolPluggableService;
     private final TransactionService transactionService;
+    private final MeteringService meteringService;
 
-    public DeviceProtocolPluggableClassRegistrar(ServerProtocolPluggableService protocolPluggableService, TransactionService transactionService) {
+    public DeviceProtocolPluggableClassRegistrar(ServerProtocolPluggableService protocolPluggableService, TransactionService transactionService, MeteringService meteringService) {
         super();
         this.protocolPluggableService = protocolPluggableService;
         this.transactionService = transactionService;
+        this.meteringService = meteringService;
     }
 
     public void registerAll(List<LicensedProtocol> licensedProtocols) {
@@ -70,7 +75,20 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
     }
 
     private DeviceProtocolPluggableClass createDeviceProtocol(LicensedProtocol licensedProtocol) {
-        return this.transactionService.execute(() -> this.protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocol.getName(), licensedProtocol.getClassName()));
+        return this.transactionService.execute(() -> doCreateDeviceProtocol(licensedProtocol));
+    }
+
+    private DeviceProtocolPluggableClass doCreateDeviceProtocol(LicensedProtocol licensedProtocol) {
+        DeviceProtocolPluggableClass pluggableClass = this.protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocol.getName(), licensedProtocol.getClassName());
+        pluggableClass.getDeviceProtocol().supportedEventTypes().stream().forEach(this::findOrCreateEndDeviceEventType);
+        return pluggableClass;
+    }
+
+    private void findOrCreateEndDeviceEventType(String eventTypeMRID) {
+        Optional<EndDeviceEventType> eventType = this.meteringService.getEndDeviceEventType(eventTypeMRID);
+        if (!eventType.isPresent()) {
+            this.meteringService.createEndDeviceEventType(eventTypeMRID);
+        }
     }
 
     @Override
