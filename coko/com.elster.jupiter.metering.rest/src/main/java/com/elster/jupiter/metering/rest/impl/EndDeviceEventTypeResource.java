@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.security.Privileges;
@@ -72,7 +72,7 @@ public class EndDeviceEventTypeResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public EndDeviceEventTypePartInfos getEventOrActions() {
         EndDeviceEventTypePartInfos result = new EndDeviceEventTypePartInfos();
-        result.from(EndDeviceEventorAction.values(), thesaurus);
+        result.from(EndDeviceEventOrAction.values(), thesaurus);
         return result;
     }
 }

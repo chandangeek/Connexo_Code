@@ -1,14 +1,15 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
-import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
-import javax.ws.rs.core.Response;
+import com.jayway.jsonpath.JsonModel;
+
 import java.util.List;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +46,7 @@ public class EndDeviceEventTypeResourceTest extends MeteringApplicationJerseyTes
     public void testGetEventOrActions(){
         String response = target("/enddeviceeventtypes/deviceeventoractions").request().get(String.class);
         JsonModel model = JsonModel.model(response);
-        int total = EndDeviceEventorAction.values().length;
+        int total = EndDeviceEventOrAction.values().length;
         assertThat(model.<Number>get("$.total")).isEqualTo(total);
         assertThat(model.<List>get("$.endDeviceEventTypePartInfos")).hasSize(total);
     }

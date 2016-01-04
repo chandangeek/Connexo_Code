@@ -1,25 +1,11 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.validation.MessageInterpolator;
-import javax.ws.rs.core.Application;
-
-import com.elster.jupiter.cbo.*;
-import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -28,8 +14,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
@@ -138,7 +126,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         for (EndDeviceSubDomain subDomain : EndDeviceSubDomain.values()) {
             keys.add(new SimpleTranslationKey(subDomain.name(), subDomain.getMnemonic()));
         }
-        for (EndDeviceEventorAction eventOrAction : EndDeviceEventorAction.values()) {
+        for (EndDeviceEventOrAction eventOrAction : EndDeviceEventOrAction.values()) {
             keys.add(new SimpleTranslationKey(eventOrAction.name(), eventOrAction.getMnemonic()));
         }
         keys.addAll(Arrays.asList(TranslationSeeds.values()));

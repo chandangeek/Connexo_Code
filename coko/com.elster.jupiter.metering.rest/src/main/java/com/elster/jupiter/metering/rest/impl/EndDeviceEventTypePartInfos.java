@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.rest.impl;
 
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.nls.Thesaurus;
@@ -56,8 +56,8 @@ public class EndDeviceEventTypePartInfos {
         return this;
     }
 
-    public EndDeviceEventTypePartInfos from(EndDeviceEventorAction[] endDeviceEventOrActionArray, Thesaurus thesaurus) {
-        for (EndDeviceEventorAction each : endDeviceEventOrActionArray) {
+    public EndDeviceEventTypePartInfos from(EndDeviceEventOrAction[] endDeviceEventOrActionArray, Thesaurus thesaurus) {
+        for (EndDeviceEventOrAction each : endDeviceEventOrActionArray) {
             EndDeviceEventTypePartInfo endDeviceEventTypePartInfo = new EndDeviceEventTypePartInfo();
             endDeviceEventTypePartInfo.name = each.name();
             endDeviceEventTypePartInfo.mnemonic = each.getMnemonic();
