@@ -228,7 +228,7 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this;
 
         me.saveAssigneeUser(button);
-        setTimeout(function(){
+        setTimeout(function () {
             me.saveEditTask(button);
         }, 100);
 
@@ -348,7 +348,7 @@ Ext.define('Bpm.controller.OpenTask', {
                     propertyForm.hide();
                 }
                 propertyForm.up('#frm-task').doLayout();
-                me.refreshButtons(openTaskRecord);
+                me.refreshButtons(openTaskRecord, taskRecord);
                 taskExecutionContent.setLoading(false);
             },
             failure: function (record, operation) {
@@ -357,13 +357,36 @@ Ext.define('Bpm.controller.OpenTask', {
 
     },
 
-    refreshButtons: function (taskRecord) {
+    refreshButtons: function (openTaskRecord, taskRecord) {
         var me = this,
-            status = taskRecord.get('status');
+            status = openTaskRecord.get('status'),
+            actualOwner = taskRecord.get('actualOwner');
 
-        me.getBtnStart().setVisible((status == "Reserved"));
-        me.getBtnSave().setVisible(status == "InProgress");
-        me.getBtnComplete().setVisible(status == "InProgress");
+        Ext.Ajax.request({
+            url: '/api/bpm/runtime/assignees?me=true',
+            method: 'GET',
+            success: function (operation) {
+
+                var loggedUser = Ext.JSON.decode(operation.responseText).data[0].name;
+                if (actualOwner === loggedUser){
+                    me.getBtnStart().setVisible((status == "Reserved"));
+                    me.getBtnSave().setVisible(status == "InProgress");
+                    me.getBtnComplete().setVisible(status == "InProgress");
+                }
+                else {
+                    var taskExecutionContent = me.getTaskExecutionContent(),
+                        propertyForm = taskExecutionContent.down('property-form');
+                    propertyForm.getForm().getFields().each (function (field) {
+                        field.setReadOnly (true);
+                    });
+                    me.getBtnStart().setVisible(false);
+                    me.getBtnSave().setVisible(false);
+                    me.getBtnComplete().setVisible(false);
+                }
+
+            }
+        })
+
     },
 
     chooseAction: function (button, item) {
