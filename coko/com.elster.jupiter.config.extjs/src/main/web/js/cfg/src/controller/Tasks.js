@@ -244,11 +244,9 @@ Ext.define('Cfg.controller.Tasks', {
                 var selector = view.down('#cbo-validation-tasks-grouptype-trigger');
                 if (record.get('groupType') == 'End device') { 
                     selector.setValue('End Device');
-                    me.onChangeValidationTaskGroupType(null, 'End Device', null);
                 }
                 if (record.get('groupType') == 'Usage point') {
                     selector.setValue('Usage Point');
-                    me.onChangeValidationTaskGroupType(null, 'Usage Point', null);
                 }
                 
                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
@@ -275,12 +273,12 @@ Ext.define('Cfg.controller.Tasks', {
         Ext.suspendLayouts();
         container.removeAll();
         if (newValue == 'End Device') {
-            var store = Ext.getStore('Cfg.store.DeviceGroups');
+            var store = Ext.getStore('Cfg.store.DeviceGroups'),
+                selected = undefined;
             store.load(function() {
                 if (store.getCount() == 0) {
                     container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.')));
                 } else {
-                    var selected = undefined;
                     if (me.taskModel) {
                         selected = me.taskModel.get('deviceGroup').id;
                     }
@@ -293,7 +291,6 @@ Ext.define('Cfg.controller.Tasks', {
                   if (store.getCount() == 0) {
                       container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.')));
                   } else {
-                      var selected = undefined;
                       if (me.taskModel) {
                           selected = me.taskModel.get('usagePointGroup').id;
                       }
@@ -557,7 +554,7 @@ Ext.define('Cfg.controller.Tasks', {
 
             record.set('name', form.down('#txt-task-name').getValue());
             var groupTypeCombo = me.getAddPage().down('#cbo-validation-tasks-grouptype-trigger');
-            var groupCombo = me.getAddPage().down('#cbo-validation-task-group');
+            var groupCombo = me.getAddPage().down('#cbo-validation-task-group-container').down('combobox');
             if (groupCombo != null) {
                 if (groupTypeCombo.getValue() == 'End Device') {
                     record.set('deviceGroup', {
