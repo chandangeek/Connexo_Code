@@ -5,7 +5,7 @@ Ext.define('Imt.registerdata.view.Overview', {
 
     requires: [
         'Imt.registerdata.view.PreviewForm',
-        'Imt.registerdata.view.RegistervalidationPreview',
+        'Imt.registerdata.view.RegisterValidationPreview',
         'Imt.registerdata.view.ActionMenu'
     ],
 
