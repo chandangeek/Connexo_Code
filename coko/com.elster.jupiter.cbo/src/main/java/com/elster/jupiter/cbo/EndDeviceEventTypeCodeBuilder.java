@@ -6,7 +6,7 @@ public final class EndDeviceEventTypeCodeBuilder {
     private EndDeviceType type = EndDeviceType.NA;
     private EndDeviceDomain domain = EndDeviceDomain.NA;
     private EndDeviceSubDomain subDomain = EndDeviceSubDomain.NA;
-    private EndDeviceEventorAction eventOrAction = EndDeviceEventorAction.NA;
+    private EndDeviceEventOrAction eventOrAction = EndDeviceEventOrAction.NA;
 
     private EndDeviceEventTypeCodeBuilder(EndDeviceType type) {
         this.type = type;
@@ -26,7 +26,7 @@ public final class EndDeviceEventTypeCodeBuilder {
         return this;
     }
 
-    public EndDeviceEventTypeCodeBuilder eventOrAction(EndDeviceEventorAction eventOrAction) {
+    public EndDeviceEventTypeCodeBuilder eventOrAction(EndDeviceEventOrAction eventOrAction) {
         this.eventOrAction = requireNonNull(eventOrAction);
         return this;
     }

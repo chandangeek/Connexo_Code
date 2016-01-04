@@ -1,6 +1,6 @@
 package com.elster.jupiter.cbo;
 
-public enum EndDeviceEventorAction implements HasNumericCode {
+public enum EndDeviceEventOrAction implements HasNumericCode {
     NA("NA", 0, "Not applicable. Use when a domain is not needed. This should rarely be used."),
     ABORTED("Aborted", 1, "An event that occurs when some intervention causes the item (identified by the EndDeviceDomain/EndDeviceSubdomain) to stop."),
     ACCESSED("Accessed", 2, "Typically a security event that occurs when physical access or access to data has been obtained (whether permitted or not)."),
@@ -155,7 +155,7 @@ public enum EndDeviceEventorAction implements HasNumericCode {
     private final int value;
     private final String description;
 
-    EndDeviceEventorAction(String mnemonic, int value, String description) {
+    EndDeviceEventOrAction(String mnemonic, int value, String description) {
         this.mnemonic = mnemonic;
         this.value = value;
         this.description = description;
@@ -177,13 +177,13 @@ public enum EndDeviceEventorAction implements HasNumericCode {
         return NA != this;
     }
 
-    public static EndDeviceEventorAction get(int value) {
-        for (EndDeviceEventorAction endDeviceEventorAction : EndDeviceEventorAction.values()) {
-            if (endDeviceEventorAction.getValue() == value) {
-                return endDeviceEventorAction;
+    public static EndDeviceEventOrAction get(int value) {
+        for (EndDeviceEventOrAction endDeviceEventOrAction : EndDeviceEventOrAction.values()) {
+            if (endDeviceEventOrAction.getValue() == value) {
+                return endDeviceEventOrAction;
             }
         }
-        throw new IllegalEnumValueException(EndDeviceEventorAction.class, value);
+        throw new IllegalEnumValueException(EndDeviceEventOrAction.class, value);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.elster.jupiter.cbo;
 
-import org.junit.Test;
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,7 +17,7 @@ public class EndDeviceEventTypeCodeBuilderTest {
         String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
                 .domain(EndDeviceDomain.CLOCK)
                 .subDomain(EndDeviceSubDomain.TIME)
-                .eventOrAction(EndDeviceEventorAction.DISABLED).toCode();
+                .eventOrAction(EndDeviceEventOrAction.DISABLED).toCode();
         assertThat(code).isEqualTo("3.36.114.66");
     }
 
