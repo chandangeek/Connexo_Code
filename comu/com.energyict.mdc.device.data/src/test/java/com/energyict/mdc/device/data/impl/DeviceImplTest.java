@@ -27,6 +27,8 @@ import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.issues.impl.IssueCollectorDefaultImplementation;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import org.junit.After;
@@ -42,6 +44,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,6 +99,8 @@ public class DeviceImplTest {
     private ChannelType channelTypeBulk, channelTypeRegister;
     @Mock
     private ReadingType readingTypeBulk, readingTypeRegister;
+    @Mock
+    private com.energyict.mdc.issues.IssueService mdcIssueService;
 
     @Before
     public void setUp() {
@@ -107,6 +112,8 @@ public class DeviceImplTest {
         when(readingTypeRegister.getMRID()).thenReturn(REGISTER);
 
         when(dataModel.getInstance(LoadProfileImpl.class)).thenAnswer(invocation -> new LoadProfileImpl(dataModel));
+        when(dataModel.getInstance(OverflowCheck.class)).thenAnswer(invocation -> new OverflowCheck(mdcIssueService));
+        when(mdcIssueService.newIssueCollector()).thenAnswer(invocation -> new IssueCollectorDefaultImplementation(clock, thesaurus));
     }
 
     @After
@@ -122,23 +129,25 @@ public class DeviceImplTest {
         DeviceImpl device = createDevice(registerOverflow, bulkOverflow);
         MeterReadingImpl meterReading = createMeterReading();
 
-        device.store(meterReading);
+        List<Warning> warnings = device.store(meterReading);
 
         ArgumentCaptor<MeterReading> meterReadingCaptor = ArgumentCaptor.forClass(MeterReading.class);
         verify(meter).store(meterReadingCaptor.capture());
         MeterReading captured = meterReadingCaptor.getValue();
         assertThat(captured).isSameAs(meterReading);
+
+        assertThat(warnings.isEmpty());
     }
 
     @Test
-    public void testStoreWithOverflowCheckOverflowsApplyToSomeIntervalreadings() {
+    public void testStoreWithOverflowCheckOverflowsApplyToSomeIntervalReadings() {
 
         BigDecimal registerOverflow = BigDecimal.valueOf(1_000);
         BigDecimal bulkOverflow = BigDecimal.valueOf(1_000);
         DeviceImpl device = createDevice(registerOverflow, bulkOverflow);
         MeterReadingImpl meterReading = createMeterReading();
 
-        device.store(meterReading);
+        List<Warning> warnings = device.store(meterReading);
 
         ArgumentCaptor<MeterReading> meterReadingCaptor = ArgumentCaptor.forClass(MeterReading.class);
         verify(meter).store(meterReadingCaptor.capture());
@@ -151,6 +160,8 @@ public class DeviceImplTest {
         assertThat(intervalBlock.getIntervals()).hasSize(2);
         assertThat(intervalBlock.getIntervals().get(0).getValue()).isEqualTo(BigDecimal.valueOf(410));
         assertThat(intervalBlock.getIntervals().get(1).getValue()).isEqualTo(BigDecimal.valueOf(413));
+
+        assertThat(warnings).hasSize(2);
     }
 
     @Test
@@ -161,7 +172,7 @@ public class DeviceImplTest {
         DeviceImpl device = createDevice(registerOverflow, bulkOverflow);
         MeterReadingImpl meterReading = createMeterReading();
 
-        device.store(meterReading);
+        List<Warning> warnings = device.store(meterReading);
 
         ArgumentCaptor<MeterReading> meterReadingCaptor = ArgumentCaptor.forClass(MeterReading.class);
         verify(meter).store(meterReadingCaptor.capture());
@@ -172,6 +183,8 @@ public class DeviceImplTest {
 
         assertThat(captured.getIntervalBlocks().get(0)).isSameAs(meterReading.getIntervalBlocks().get(0));
         assertThat(captured.getIntervalBlocks().get(1)).isSameAs(meterReading.getIntervalBlocks().get(1));
+
+        assertThat(warnings).hasSize(2);
     }
 
     private DeviceImpl createDevice(BigDecimal registerOverflow, BigDecimal bulkOverflow) {

@@ -120,6 +120,7 @@ public enum MessageSeeds implements MessageSeed {
     BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG(2093, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG, "You need to search a specific device configuration in order to use the bulk action for change device configuration"),
     BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG(2094, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG, "You need to search on a unique device configuration in order to use the bulk action for change device configuration"),
     BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE(2095, Keys.BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE, "You provided an invalid search value for the property {0}"),
+    READING_OVERFLOW_DETECTED(2096, Keys.READING_OVERFLOW_DETECTED, "Reading of device {0} and reading type {1} overflowed at {2}, corrected value from {3} to {4}.", Level.WARNING);
     ;
 
     private final int number;
@@ -271,5 +272,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG = "bulk.device.configchange.needto.search.on.config";
         public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG = "bulk.device.configchange.needto.search.on.unique.config";
         public static final String BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE = "bulk.device.configchange.invalid.search.item";
+        public static final String READING_OVERFLOW_DETECTED = "reading.overflow";
     }
 }
