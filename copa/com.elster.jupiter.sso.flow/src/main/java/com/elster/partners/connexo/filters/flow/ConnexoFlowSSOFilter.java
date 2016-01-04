@@ -40,7 +40,7 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
 
         ConnexoPrincipal principal = (ConnexoPrincipal) request.getUserPrincipal();
 
-        if(principal == null || token == null){
+        if(principal == null || token == null || isForbidden(principal)){
             // Not authenticated; redirect to login
             redirectToLogin(request, response);
         }
@@ -67,6 +67,10 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                 filterChain.doFilter(new ConnexoFlowRequestWrapper(subject, request), response);
             }
         }
+    }
+
+    private boolean isForbidden(ConnexoPrincipal principal) {
+        return !principal.getRoles().contains("Business process designer");
     }
 
     private String getConnexoToken(HttpServletRequest request) {
