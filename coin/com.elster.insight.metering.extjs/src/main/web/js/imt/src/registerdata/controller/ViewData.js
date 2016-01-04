@@ -158,6 +158,7 @@ Ext.define('Imt.registerdata.controller.ViewData', {
 	     
 	     Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
 		        success: function (usagepoint) {
+		        	router.arguments.version = usagepoint.get('version');
 		        	me.getApplication().fireEvent('usagePointLoaded', usagepoint);
 		        }
 	     });
