@@ -28,7 +28,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
 
         ConnexoPrincipal principal = (ConnexoPrincipal) request.getUserPrincipal();
 
-        if(principal == null){
+        if(principal == null || isForbidden(principal)){
             // Not authenticated; redirect to login
             redirectToLogin(request, response);
         }
@@ -50,6 +50,10 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
                 }
             }
         }
+    }
+
+    private boolean isForbidden(ConnexoPrincipal principal) {
+        return !principal.getRoles().contains("Report designer");
     }
 
     private void redirectToEntry(HttpServletRequest request, HttpServletResponse response) throws IOException {
