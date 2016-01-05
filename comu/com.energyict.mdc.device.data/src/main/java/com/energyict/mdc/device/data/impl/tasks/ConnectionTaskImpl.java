@@ -27,6 +27,8 @@ import com.energyict.mdc.device.data.impl.PropertyFactory;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.impl.ValidPluggableClassId;
+import com.energyict.mdc.device.data.impl.*;
+import com.energyict.mdc.device.data.impl.configchange.ServerConnectionTaskForConfigChange;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -44,6 +46,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -71,6 +74,7 @@ import static com.elster.jupiter.util.Checks.is;
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
     implements
         ServerConnectionTask<CPPT, PCTT>,
+        ServerConnectionTaskForConfigChange<CPPT, PCTT>,
         ConnectionTaskPropertyProvider,
         PropertyFactory<ConnectionType, ConnectionTaskProperty>,
         HasLastComSession,
@@ -766,6 +770,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected TimeZone getClocksTimeZone() {
         return TimeZone.getTimeZone(this.clock.getZone());
+    }
+
+    @Override
+    public void setNewPartialConnectionTask(PCTT partialConnectionTask) {
+        this.partialConnectionTask.set(partialConnectionTask);
+        this.pluggableClass = partialConnectionTask.getPluggableClass();
+        this.pluggableClassId = this.pluggableClass.getId();
+        getDataModel().update(this, "partialConnectionTask", "pluggableClassId");
     }
 
     /**

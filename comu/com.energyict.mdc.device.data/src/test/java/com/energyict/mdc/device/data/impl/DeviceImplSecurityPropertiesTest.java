@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -87,6 +88,8 @@ public class DeviceImplSecurityPropertiesTest {
     private DeviceConfiguration deviceConfiguration;
     @Mock
     private SecurityPropertySet securityPropertySet;
+    @Mock
+    private CustomPropertySetService customPropertySetService;
 
     @Test
     public void getSecurityPropertiesUsesClock() {
@@ -169,7 +172,7 @@ public class DeviceImplSecurityPropertiesTest {
                 this.validationService, this.securityPropertyService,
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
-                this.firmwareComTaskExecutionProvider, this.meteringGroupsService, readingTypeUtilService);
+                this.firmwareComTaskExecutionProvider, this.meteringGroupsService, customPropertySetService, readingTypeUtilService);
         device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services");
         return device;
     }

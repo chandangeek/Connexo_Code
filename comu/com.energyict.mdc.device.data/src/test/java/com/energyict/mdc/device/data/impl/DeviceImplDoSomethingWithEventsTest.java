@@ -52,6 +52,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -59,11 +60,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
@@ -92,11 +89,15 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
+import org.junit.*;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -108,21 +109,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -345,6 +334,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 mock(QueryService.class),
                                 mock(com.energyict.mdc.tasks.TaskService.class),
                                 mock(MasterDataService.class),
+                                transactionService,
+                                injector.getInstance(JsonService.class),
                                 injector.getInstance(MdcReadingTypeUtilService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();

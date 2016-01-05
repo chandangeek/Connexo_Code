@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
@@ -99,6 +100,8 @@ public class DeviceLifeCycleChangeEventsTest {
     private Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private MeteringGroupsService meteringGroupsService;
+    @Mock
+    private CustomPropertySetService customPropertySetService;
     @Mock
     private MdcReadingTypeUtilService readingTypeUtilService;
     @Mock
@@ -287,6 +290,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider,
                 this.meteringGroupsService,
+                customPropertySetService,
                 this.readingTypeUtilService)
             .initialize(this.deviceConfiguration, "Hello world", "mRID");
     }

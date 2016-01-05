@@ -7,6 +7,20 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -22,6 +36,10 @@ import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
+import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
+import com.energyict.mdc.device.data.impl.configchange.*;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -46,14 +64,17 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.HasId;
+import org.osgi.service.event.EventConstants;
+
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -248,7 +269,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
         return DefaultFinder.of(Device.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), this.deviceDataModelService.dataModel()).defaultSortColumn("lower(name)");
     }
 
-
     @Override
     public List<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue) {
         Condition condition = where("deviceProperties.propertySpec").isEqualTo(propertySpecName).and(where("deviceProperties.propertyValue").isEqualTo(propertySpecValue));
@@ -266,5 +286,62 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Query<Device> deviceQuery() {
         return queryService.wrap(deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class));
+    }
+
+    @Override
+    public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
+        Pair<Device, DeviceConfigChangeRequestImpl> lockResult = deviceDataModelService.getTransactionService().execute(() -> {
+            Device device = findAndLockDeviceByIdAndVersion(deviceId, deviceVersion).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForVersion(thesaurus, deviceId, deviceVersion));
+            final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
+                    .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
+                    .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
+            final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(deviceConfiguration);
+            deviceConfigChangeRequest.save();
+            return Pair.of(device, deviceConfigChangeRequest);
+        });
+
+        Device modifiedDevice = null;
+        try {
+            modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> new DeviceConfigChangeExecutor(this).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
+        } finally {
+            deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
+        }
+        return modifiedDevice;
+    }
+
+    @Override
+    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs) {
+        final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(destinationDeviceConfiguration);
+        deviceConfigChangeRequest.save();
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch, deviceConfigChangeRequest.getId());
+
+        DestinationSpec destinationSpec = deviceDataModelService.messageService().getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION).orElseThrow(new NoDestinationSpecFound(thesaurus, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION));
+        Map<String, Object> message = createConfigChangeQueueMessage(itemizeConfigChangeQueueMessage);
+        destinationSpec.message(deviceDataModelService.jsonService().serialize(message)).send();
+    }
+
+    private Map<String, Object> createConfigChangeQueueMessage(ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage) {
+        Map<String, Object> message = new HashMap<>(2);
+        message.put(EventConstants.EVENT_TOPIC, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_BULK_SETUP_ACTION);
+        message.put(ServerDeviceForConfigChange.CONFIG_CHANGE_MESSAGE_VALUE, deviceDataModelService.jsonService().serialize(itemizeConfigChangeQueueMessage));
+        return message;
+    }
+
+    @Override
+    public boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
+        return this.deviceDataModelService.dataModel()
+                .stream(DeviceConfigChangeRequest.class)
+                .filter(Where.where(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).in(Arrays.asList(originDeviceConfiguration, destinationDeviceConfiguration)))
+                .findAny().isPresent();
+    }
+
+    @Override
+    public Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id) {
+        return deviceDataModelService.dataModel().mapper(DeviceConfigChangeRequest.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id) {
+        return deviceDataModelService.dataModel().mapper(DeviceConfigChangeInAction.class).getUnique("id", id);
     }
 }

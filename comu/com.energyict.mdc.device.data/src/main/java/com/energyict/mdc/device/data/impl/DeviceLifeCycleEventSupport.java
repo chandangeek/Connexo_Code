@@ -1,17 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.CurrentStateExtractor;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.MeteringService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.EnumSet;
@@ -137,7 +135,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
             State state = device.getState();
             if (state.getFiniteStateMachine().getId() == finiteStateMachine.getId()) {
                 CurrentState currentState = new CurrentState();
-                currentState.sourceId = String.valueOf(device.getId());
+                currentState.sourceId = device.getmRID();
                 currentState.name = state.getName();
                 return Optional.of(currentState);
             }

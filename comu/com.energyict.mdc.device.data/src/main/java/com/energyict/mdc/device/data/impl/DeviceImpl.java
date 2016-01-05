@@ -4,6 +4,9 @@ import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -40,10 +43,41 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
+import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
+import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
+import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.exceptions.*;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
@@ -62,6 +96,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -88,7 +123,7 @@ import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
-public class DeviceImpl implements Device {
+public class DeviceImpl implements Device, ServerDeviceForConfigChange {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
 
@@ -101,6 +136,7 @@ public class DeviceImpl implements Device {
     private final ValidationService validationService;
     private final SecurityPropertyService securityPropertyService;
     private final MeteringGroupsService meteringGroupsService;
+    private final CustomPropertySetService customPropertySetService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
@@ -181,6 +217,7 @@ public class DeviceImpl implements Device {
             Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider,
             Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider,
             MeteringGroupsService meteringGroupsService,
+            CustomPropertySetService customPropertySetService,
             MdcReadingTypeUtilService readingTypeUtilService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -197,6 +234,7 @@ public class DeviceImpl implements Device {
         this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
         this.firmwareComTaskExecutionProvider = firmwareComTaskExecutionProvider;
         this.meteringGroupsService = meteringGroupsService;
+        this.customPropertySetService = customPropertySetService;
         this.readingTypeUtilService = readingTypeUtilService;
     }
 
@@ -372,11 +410,24 @@ public class DeviceImpl implements Device {
         deleteConnectionTasks();
         deleteDeviceMessages();
         deleteSecuritySettings();
-        deleteProtocolDialects();
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
+        this.removeCustomProperties();
         this.obsoleteKoreDevice();
         this.getDataMapper().remove(this);
+    }
+
+    private void removeCustomProperties() {
+        this.getDeviceType().getCustomPropertySets().forEach(this::removeCustomPropertiesFor);
+    }
+
+    private void removeCustomPropertiesFor(RegisteredCustomPropertySet customPropertySet) {
+        this.removeCustomPropertiesFor(customPropertySet.getCustomPropertySet());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removeCustomPropertiesFor(CustomPropertySet customPropertySet) {
+        this.customPropertySetService.removeValuesFor(customPropertySet, this);
     }
 
     private void obsoleteKoreDevice() {
@@ -420,10 +471,6 @@ public class DeviceImpl implements Device {
         this.securityPropertyService.deleteSecurityPropertiesFor(this);
     }
 
-    private void deleteProtocolDialects() {
-        this.dialectPropertiesList.forEach(PersistentIdObject::delete);
-    }
-
     private void closeCurrentMeterActivation() {
         getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(clock.instant()));
     }
@@ -451,6 +498,10 @@ public class DeviceImpl implements Device {
 
     private void deleteProperties() {
         this.deviceProperties.clear();
+        for (ProtocolDialectProperties aDialectPropertiesList : dialectPropertiesList) {
+            final ProtocolDialectPropertiesImpl protocolDialectProperties = (ProtocolDialectPropertiesImpl) aDialectPropertiesList;
+            protocolDialectProperties.delete();
+        }
     }
 
     @Override
@@ -699,6 +750,72 @@ public class DeviceImpl implements Device {
     @Override
     public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook) {
         return new LogBookUpdaterForDevice((LogBookImpl) logBook);
+    }
+
+    @Override
+    public void validateDeviceCanChangeConfig(DeviceConfiguration destinationDeviceConfiguration) {
+        if (this.getDeviceConfiguration().getId() == destinationDeviceConfiguration.getId()) {
+            throw DeviceConfigurationChangeException.cannotChangeToSameConfig(thesaurus, this);
+        }
+        if (destinationDeviceConfiguration.getDeviceType().getId() != getDeviceType().getId()) {
+            throw DeviceConfigurationChangeException.cannotChangeToConfigOfOtherDeviceType(thesaurus);
+        }
+        checkIfAllConflictsAreSolved(this.getDeviceConfiguration(), destinationDeviceConfiguration);
+    }
+
+
+    private void checkIfAllConflictsAreSolved(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
+        originDeviceConfiguration.getDeviceType().getDeviceConfigConflictMappings().stream()
+                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originDeviceConfiguration.getId()
+                        && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationDeviceConfiguration.getId())
+                .filter(Predicates.not(DeviceConfigConflictMapping::isSolved)).findFirst()
+                .ifPresent(deviceConfigConflictMapping1 -> {throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);});
+    }
+
+    @Override
+    public void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        this.deviceConfiguration.set(deviceConfiguration);
+    }
+
+    @Override
+    public void createNewMeterActivation() {
+        activate(clock.instant());
+    }
+
+    @Override
+    public void removeLoadProfiles(List<LoadProfile> loadProfiles) {
+        this.loadProfiles.removeAll(loadProfiles);
+    }
+
+    @Override
+    public void addLoadProfiles(List<LoadProfileSpec> loadProfileSpecs) {
+        this.loadProfiles.addAll(
+                loadProfileSpecs.stream()
+                        .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
+                        .collect(Collectors.toList()));
+    }
+
+    @Override
+    public void removeLogBooks(List<LogBook> logBooks) {
+        this.logBooks.removeAll(logBooks);
+    }
+
+    @Override
+    public void addLogBooks(List<LogBookSpec> logBookSpecs) {
+        this.logBooks.addAll(
+                logBookSpecs.stream()
+                        .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
+                        .collect(Collectors.toList()));
+    }
+
+    @Override
+    public void updateSecurityProperties(SecurityPropertySet origin, SecurityPropertySet destination) {
+        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).updateSecurityPropertiesWithNewSecurityPropertySet(this, origin, destination);
+    }
+
+    @Override
+    public void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet) {
+        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).deleteSecurityPropertiesFor(this, securityPropertySet);
     }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {

@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TypedProperties;
@@ -16,11 +17,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.exceptions.SecurityPropertyException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -32,6 +33,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 
 /**
@@ -41,7 +44,7 @@ import java.util.stream.Collectors;
  * @since 2014-05-14 (16:25)
  */
 @Component(name = "com.energyict.mdc.device.data.security", service = SecurityPropertyService.class, property = "name=SecurityPropertyService")
-public class SecurityPropertyServiceImpl implements SecurityPropertyService {
+public class SecurityPropertyServiceImpl implements SecurityPropertyService, ServerSecurityPropertyServiceForConfigChange {
 
     private volatile Clock clock;
     private volatile CustomPropertySetService customPropertySetService;
@@ -80,8 +83,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         if (securityPropertySet.currentUserIsAllowedToViewDeviceProperties()) {
             return this.getSecurityPropertiesIgnoringPrivileges(device, when, securityPropertySet);
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -149,8 +151,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     public boolean securityPropertiesAreValid(Device device, SecurityPropertySet securityPropertySet) {
         if (this.hasRequiredProperties(securityPropertySet)) {
             return !this.isMissingOrIncomplete(device, securityPropertySet);
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -174,17 +175,16 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
         List<SecurityProperty> securityProperties = this.getSecurityPropertiesIgnoringPrivileges(device, this.clock.instant(), securityPropertySet);
         return securityProperties.isEmpty()
-            || securityProperties
-                    .stream()
-                    .anyMatch(Predicates.not(SecurityProperty::isComplete));
+                || securityProperties
+                .stream()
+                .anyMatch(Predicates.not(SecurityProperty::isComplete));
     }
 
     @Override
     public void setSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties) {
         if (securityPropertySet.currentUserIsAllowedToEditDeviceProperties()) {
             this.doSetSecurityProperties(device, securityPropertySet, properties);
-        }
-        else {
+        } else {
             throw new SecurityPropertyException(securityPropertySet, this.thesaurus, MessageSeeds.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES);
         }
     }
@@ -228,4 +228,25 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
             .forEach(securitySet -> this.customPropertySetService.removeValuesFor(cps, device, securitySet));
     }
 
+    @Override
+    public void updateSecurityPropertiesWithNewSecurityPropertySet(Device device, SecurityPropertySet originSecurityPropertySet, SecurityPropertySet destinationSecurityPropertySet) {
+        this.findActiveProperties(device, originSecurityPropertySet, clock.instant())
+                .ifPresent(customPropertySetValues -> {
+                    final TypedProperties typedProperties = TypedProperties.empty();
+                    destinationSecurityPropertySet.getPropertySpecs().stream()
+                            .forEach(propertySpec -> typedProperties.setProperty(propertySpec.getName(), customPropertySetValues.getProperty(propertySpec.getName())));
+                    deleteSecurityPropertiesFor(device, originSecurityPropertySet);
+                    setSecurityProperties(device, destinationSecurityPropertySet, typedProperties);
+                });
+    }
+
+    @Override
+    public void deleteSecurityPropertiesFor(Device device, SecurityPropertySet securityPropertySet) {
+        device
+                .getDeviceType()
+                .getDeviceProtocolPluggableClass()
+                .getDeviceProtocol()
+                .getCustomPropertySet()
+                .ifPresent(baseDeviceCustomPropertySet -> this.customPropertySetService.removeValuesFor(baseDeviceCustomPropertySet, device, securityPropertySet));
+    }
 }
