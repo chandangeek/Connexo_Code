@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
                                 listeners: {
                                     afterrender: function (field) {
-                                        field.focus(false, 500);
+                                        field.focus(false, 200);
                                     }
                                 }
                             },

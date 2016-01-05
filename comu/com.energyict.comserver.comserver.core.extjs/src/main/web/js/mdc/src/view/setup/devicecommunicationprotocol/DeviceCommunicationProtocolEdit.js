@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                         itemId: 'editName',
                                         listeners: {
                                             afterrender: function (field) {
-                                                field.focus(false, 500);
+                                                field.focus(false, 200);
                                             }
                                         }
                                     },
