@@ -7,5 +7,8 @@ import java.time.Instant;
 import java.util.List;
 
 public interface IMeterActivation extends MeterActivation {
+
+    void doEndAt(Instant end);
+
     List<MultiplierUsage> getMultiplierUsages(Instant instant);
 }
