@@ -124,9 +124,8 @@ public enum MessageSeeds implements MessageSeed {
     BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE(2095, Keys.BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE, "You provided an invalid search value for the property {0}"),
     PRIORITY_NOT_IN_RANGE(2096, Keys.PRIORITY_NOT_IN_RANGE, "Value must be between {min} and {max}"),
     CHANGE_CONFIG_WRONG_DEVICE_STATE(2097, Keys.CHANGE_CONFIG_WRONG_DEVICE_STATE, "Device configuration cannot be changed on device with MRID: {0} as this device has the {1} state."),
-    DUPLICATE_COMTASK(2098, Keys.DUPLICATE_COMTASK, "One or more communication tasks in the communication schedule are already scheduled on the device"),
-    MULTIPLIER_SHOULD_BE_LARGER_THAN_ZERO(2099, Keys.MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED, "The multiplier should be larger than zero"),
-    MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE(2100, Keys.MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE, "The multiplier exceeds the max value " + Integer.MAX_VALUE),
+    MULTIPLIER_SHOULD_BE_LARGER_THAN_ZERO(2098, Keys.MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED, "The multiplier should be larger than zero"),
+    MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE(2099, Keys.MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE, "The multiplier exceeds the max value " + Integer.MAX_VALUE),
     ;
 
     private final int number;
