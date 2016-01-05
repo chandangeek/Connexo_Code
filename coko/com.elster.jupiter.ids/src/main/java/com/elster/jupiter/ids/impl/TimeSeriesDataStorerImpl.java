@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
-import java.math.BigDecimal;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -381,62 +380,6 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         void add(ResultSet rs) throws SQLException {
             TimeSeriesEntryImpl oldEntry = new TimeSeriesEntryImpl(getTimeSeries(), rs);
             oldEntries.put(oldEntry.getTimeStamp(), oldEntry);
-        }
-
-        void prepare() {
-            if (!timeSeries.isRegular() || timeSeries.getRecordSpec().derivedFieldCount() == 0) {
-                return;
-            }
-            newEntries.values().stream().reduce(
-                    null,
-                    (guess, current) -> {
-                        TimeSeriesEntryImpl previous = previous(current, guess);
-                        if (previous != null) {
-                            updateFromPrevious(current, previous);
-                        }
-                        return current;
-                    });
-            for (TimeSeriesEntryImpl entry : oldEntries.values()) {
-                if (!newEntries.containsKey(entry.getTimeStamp())) {
-                    TimeSeriesEntryImpl previous = previous(entry, null);
-                    if (previous != null) {
-                        TimeSeriesEntryImpl current = entry.copy();
-                        if (updateFromPrevious(current, previous)) {
-                            newEntries.put(current.getTimeStamp(), current);
-                        }
-                    }
-                }
-            }
-        }
-
-        private boolean updateFromPrevious(TimeSeriesEntryImpl current, TimeSeriesEntryImpl previous) {
-            boolean result = false;
-            for (int i = 0; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
-                FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
-                if ((current.getValues()[i] == null || current.getValues()[i] == DoNotUpdateMarker.INSTANCE )&& fieldSpec.isDerived() && isABigDecimal(current.getValues()[i + 1]) && isABigDecimal(previous.getValues()[i + 1])) {
-                    BigDecimal currentValue = current.getBigDecimal(i + 1);
-                    BigDecimal previousValue = previous.getBigDecimal(i + 1);
-                    current.set(i, currentValue.subtract(previousValue));
-                    result = true;
-                }
-            }
-            return result;
-        }
-
-        private boolean isABigDecimal(Object o) {
-            return o instanceof BigDecimal;
-        }
-
-        private TimeSeriesEntryImpl previous(TimeSeriesEntryImpl current, TimeSeriesEntryImpl guess) {
-            Instant when = timeSeries.next(current.getTimeStamp(), -1);
-            if (guess != null && guess.getTimeStamp().equals(when)) {
-                return guess;
-            }
-            TimeSeriesEntryImpl result = newEntries.get(when);
-            if (result == null) {
-                result = oldEntries.get(when);
-            }
-            return result;
         }
 
         private boolean isInsert(TimeSeriesEntryImpl entry) {
