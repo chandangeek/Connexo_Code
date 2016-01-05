@@ -1,17 +1,15 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
-import com.elster.jupiter.events.EventService;
 
 import java.time.Clock;
 
@@ -30,14 +28,14 @@ public interface DeviceCommand {
     /**
      * Provides Logging services for the execution of DeviceCommands.
      */
-    public interface ExecutionLogger {
+    interface ExecutionLogger {
 
         /**
          * Logs that the specified DeviceCommand completed its execution.
          *
          * @param deviceCommand The DeviceCommand
          */
-        public void executed (DeviceCommand deviceCommand);
+        void executed(DeviceCommand deviceCommand);
 
         /**
          * Logs that an unexpected problem occurred.
@@ -45,7 +43,7 @@ public interface DeviceCommand {
          * @param t The unexpected problem
          * @param comTaskExecution The context of the execution
          */
-        public void logUnexpected (Throwable t, ComTaskExecution comTaskExecution);
+        void logUnexpected(Throwable t, ComTaskExecution comTaskExecution);
 
         /**
          * Adds an additional issue to the log of a ComTaskExecution.
@@ -54,7 +52,7 @@ public interface DeviceCommand {
          * @param issue the issue that should be logged
          * @param comTaskExecution The ComTaskExecution
          */
-        public void addIssue (CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution);
+        void addIssue(CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution);
 
         /**
          * Tests if {@link com.energyict.mdc.issues.Problem}s have been added.
@@ -62,7 +60,7 @@ public interface DeviceCommand {
          * @return true iff Problems have been added
          * @see #addIssue(CompletionCode, Issue, ComTaskExecution)
          */
-        public boolean hasProblems();
+        boolean hasProblems();
 
     }
 
@@ -70,19 +68,19 @@ public interface DeviceCommand {
      * The list of all services that are required by
      * the different types {@link DeviceCommand}s.
      */
-    public interface ServiceProvider {
+    interface ServiceProvider {
 
-        public EventService eventService();
+        EventService eventService();
 
-        public IssueService issueService();
+        IssueService issueService();
 
-        public Clock clock();
+        Clock clock();
 
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+        MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
-        public EngineService engineService();
+        EngineService engineService();
 
-        public NlsService nlsService();
+        NlsService nlsService();
 
     }
 
@@ -93,7 +91,7 @@ public interface DeviceCommand {
      *
      * @param comServerDAO The ComServerDAO that must be used to access the database
      */
-    public void execute (ComServerDAO comServerDAO);
+    void execute(ComServerDAO comServerDAO);
 
     /**
      * Executes this DeviceCommand while the ComServer is shutting down.
@@ -104,7 +102,7 @@ public interface DeviceCommand {
      *
      * @param comServerDAO The ComServerDAO that must be used to access the database
      */
-    public void executeDuringShutdown (ComServerDAO comServerDAO);
+    void executeDuringShutdown(ComServerDAO comServerDAO);
 
     /**
      * Instructs this DeviceCommand to log while executing
@@ -112,7 +110,7 @@ public interface DeviceCommand {
      *
      * @param logger The ExecutionLogger
      */
-    public void logExecutionWith (ExecutionLogger logger);
+    void logExecutionWith(ExecutionLogger logger);
 
     /**
      * Gets the minimum LogLevel that needs to be activated
@@ -124,7 +122,7 @@ public interface DeviceCommand {
      *
      * @return The minimum ComServer.LogLevel
      */
-    public ComServer.LogLevel getJournalingLogLevel ();
+    ComServer.LogLevel getJournalingLogLevel();
 
     /**
      * Converts this DeviceCommand to a String that will be used
@@ -133,6 +131,6 @@ public interface DeviceCommand {
      * @param serverLogLevel The LogLevel set on the ComServer
      * @return The human readable description of this DeviceCommand
      */
-    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel);
+    String toJournalMessageDescription(ComServer.LogLevel serverLogLevel);
 
 }

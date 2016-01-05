@@ -2,7 +2,8 @@ package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * A CompositeComCommand can contain several {@link ComCommand}s which are executed in the order the
@@ -26,7 +27,7 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
      * @param command the command to add
      * @param comTaskExecution the referred ComTaskExecution
      */
-    public void addUniqueCommand(final ComCommand command, ComTaskExecution comTaskExecution);
+    void addUniqueCommand(final ComCommand command, ComTaskExecution comTaskExecution);
 
     /**
      * Adds the given CreateComTaskExecutionSessionCommand to the command list.
@@ -34,21 +35,28 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
      * @param command the command to add
      * @param comTaskExecution the referred ComTaskExecution
      */
-    public void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution);
+    void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution);
+
+    List<ComCommandType> getCommandTypes();
+
+    List<ComCommand> getCommands();
+
+    boolean contains(ComCommand comCommand);
 
     /**
-     * Get the List of ComCommands
+     * Finds the existing {@link ComCommand} with the given {@link ComCommandKey}.
      *
-     * @return the requested list of ComCommands
+     * @param key The ComCommandKey
+     * @return the requested ComCommand or Optional.empty if the ComCommand does not exist yet
      */
-    public Map<ComCommandType, ComCommand> getCommands();
+    Optional<ComCommand> getExistingCommand(ComCommandKey key);
 
     /**
-     * Checks whether the given argument already exists in the current root.
+     * Finds the existing {@link ComCommand}s of the given {@link ComCommandType}.
      *
-     * @param comCommandType the {@link ComCommandTypes} to check for existence
-     * @return true if the ComCommand type already exists, false otherwise
+     * @param type The ComCommandType
+     * @return The List of ComCommand that are of the specified type
      */
-    public boolean checkCommandTypeExistence(final ComCommandType comCommandType, final Map<ComCommandType,ComCommand> comCommands);
+    List<ComCommand> getExistingCommandsOfType(ComCommandType type);
 
 }

@@ -15,5 +15,6 @@ public interface RegisterCommand extends CompositeComCommand {
      *
      * @return the {@link com.energyict.mdc.tasks.RegistersTask}
      */
-    public RegistersTask getRegistersTask();
+    RegistersTask getRegistersTask();
+
 }

@@ -124,6 +124,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     private CommandRoot commandRoot;
     private CompositeDeviceCommand storeCommand;
     private boolean basicCheckFailed = false;
+    private boolean errorAtLogonOrInit = false;
     private StopWatch connecting;
     private StopWatch executing;
     private DeviceCommandFactory deviceCommandFactory;
@@ -216,13 +217,13 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void addStatisticalInformationForTaskSession() {
-        if (this.isConnected() && this.getComSessionBuilder() != null) {
-            ComSessionBuilder comSessionBuilder = this.getComSessionBuilder();
+        if (this.isConnected() && this.currentTaskExecutionBuilder.isPresent()) {
+            ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = this.currentTaskExecutionBuilder.get();
             Counters taskSessionCounters = this.comPortRelatedComChannel.getTaskSessionCounters();
-            comSessionBuilder.addSentBytes(taskSessionCounters.getBytesSent());
-            comSessionBuilder.addReceivedBytes(taskSessionCounters.getBytesRead());
-            comSessionBuilder.addSentPackets(taskSessionCounters.getPacketsSent());
-            comSessionBuilder.addReceivedPackets(taskSessionCounters.getPacketsRead());
+            comTaskExecutionSessionBuilder.addSentBytes(taskSessionCounters.getBytesSent());
+            comTaskExecutionSessionBuilder.addReceivedBytes(taskSessionCounters.getBytesRead());
+            comTaskExecutionSessionBuilder.addSentPackets(taskSessionCounters.getPacketsSent());
+            comTaskExecutionSessionBuilder.addReceivedPackets(taskSessionCounters.getPacketsRead());
         }
     }
 
@@ -385,16 +386,24 @@ public final class ExecutionContext implements JournalEntryFactory {
         return basicCheckFailed;
     }
 
+    public void setBasicCheckFailed(boolean basicCheckFailed) {
+        this.basicCheckFailed = basicCheckFailed;
+    }
+
+    public boolean errorOccurredAtLogonOrInit() {
+        return errorAtLogonOrInit;
+    }
+
+    public void setErrorOccuredAtLogonOrInit(boolean errorAtInitOrLogon) {
+        this.errorAtLogonOrInit = errorAtInitOrLogon;
+    }
+
     public void initializeJournalist() {
         this.journalist = new ComCommandJournalist(this, serviceProvider.clock());
     }
 
     public void markComTaskExecutionForConnectionSetupError(String reason) {
         this.currentTaskExecutionBuilder.ifPresent(b -> b.addComCommandJournalEntry(now(), CompletionCode.ConnectionError, reason, "ConnectionType - Connect"));
-    }
-
-    public void setBasicCheckFailed(boolean basicCheckFailed) {
-        this.basicCheckFailed = basicCheckFailed;
     }
 
     public void setComSessionBuilder(ComSessionBuilder comSessionBuilder) {
@@ -628,8 +637,8 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private DeviceCommandFactory getDeviceCommandFactory() {
-        if(this.deviceCommandFactory == null){
-            deviceCommandFactory = new DeviceCommandFactoryImpl();
+        if (this.deviceCommandFactory == null) {
+            deviceCommandFactory = new DeviceCommandFactoryImpl(this.comTaskExecution);
         }
         return deviceCommandFactory;
     }

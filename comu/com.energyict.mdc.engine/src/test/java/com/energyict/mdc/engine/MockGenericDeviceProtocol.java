@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -208,10 +209,7 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
      */
     @Override
     public CommandRoot organizeComCommands(CommandRoot commandRoot) {
-        CommandRoot resultRoot = new CommandRootImpl(offlineDevice, commandRoot.getExecutionContext(), mock(CommandRoot.ServiceProvider.class));
-        resultRoot.getCommands().putAll(commandRoot.getCommands());
-        resultRoot.getCommands().remove(ComCommandTypes.READ_REGISTERS_COMMAND);
-        return resultRoot;
+        return ((CommandRootImpl) commandRoot).shallowCloneFor(offlineDevice, mock(CommandRoot.ServiceProvider.class), EnumSet.of(ComCommandTypes.READ_REGISTERS_COMMAND));
     }
 
     @Override

@@ -11,7 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Stores the processed data in the database. If it fails, we inform the ProvideInboundResponseDeviceCommand
+ * Stores the processed data in the database.
+ * If it fails, we inform the ProvideInboundResponseDeviceCommand
  * so it can provide a proper response to the device.
  */
 public class InboundDataProcessMeterDataStoreCommandImpl extends MeterDataStoreCommandImpl {
@@ -21,7 +22,7 @@ public class InboundDataProcessMeterDataStoreCommandImpl extends MeterDataStoreC
     private final ExecutionContext executionContext;
 
     public InboundDataProcessMeterDataStoreCommandImpl(ServiceProvider serviceProvider, ExecutionContext executionContext) {
-        super(serviceProvider);
+        super(executionContext.getComTaskExecution(), serviceProvider);
         this.executionContext = executionContext;
     }
 
@@ -49,4 +50,5 @@ public class InboundDataProcessMeterDataStoreCommandImpl extends MeterDataStoreC
     private Problem createCouldNotStoreDataIssue() {
         return ((ServiceProvider) executionContext.getDeviceCommandServiceProvider()).issueService().newProblem(this, MessageSeeds.INBOUND_DATA_STORAGE_FAILURE.getKey());
     }
+
 }

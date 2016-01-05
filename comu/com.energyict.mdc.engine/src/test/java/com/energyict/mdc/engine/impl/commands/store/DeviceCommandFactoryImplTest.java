@@ -1,21 +1,26 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DeviceCommandFactoryImpl} component.
@@ -33,7 +38,7 @@ public class DeviceCommandFactoryImplTest {
 
     @Test
     public void testForEmptyList () {
-        DeviceCommandFactory factory = new DeviceCommandFactoryImpl();
+        DeviceCommandFactory factory = new DeviceCommandFactoryImpl(null);
 
         // Business method
         List<DeviceCommand> deviceCommands = factory.newForAll(new ArrayList<>(0), serviceProvider);
@@ -45,7 +50,7 @@ public class DeviceCommandFactoryImplTest {
 
     @Test
     public void testConvertMethodIsCalled () {
-        DeviceCommandFactory factory = new DeviceCommandFactoryImpl();
+        DeviceCommandFactory factory = new DeviceCommandFactoryImpl(null);
         ServerCollectedData collectedData = mockCollectedData();
 
         // Business method
@@ -59,7 +64,7 @@ public class DeviceCommandFactoryImplTest {
 
     @Test
     public void testWithMultipleCollectedData () {
-        DeviceCommandFactory factory = new DeviceCommandFactoryImpl();
+        DeviceCommandFactory factory = new DeviceCommandFactoryImpl(null);
         DeviceCommand deviceCommand1 = mock(DeviceCommand.class);
         ServerCollectedData collectedData1 = mockCollectedData(deviceCommand1);
         when(collectedData1.toDeviceCommand(any(MeterDataStoreCommandImpl.class), eq(serviceProvider))).thenReturn(deviceCommand1);

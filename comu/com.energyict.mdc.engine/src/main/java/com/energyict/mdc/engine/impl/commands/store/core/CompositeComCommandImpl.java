@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandKey;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -15,10 +16,18 @@ import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
+import com.energyict.mdc.protocol.api.exceptions.SerialNumberMismatchException;
+import com.energyict.mdc.protocol.api.exceptions.TimeDifferenceExceededException;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A CompositeComCommand can contain several {@link ComCommand ComCommands} which are executed in the order the
@@ -38,7 +47,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      * Contains all necessary commands for this {@link ComCommand}.
      * <b>It is necessary to use a LinkedHashMap because we need the commands in chronological order</b>
      */
-    private Map<ComCommandType, ComCommand> comCommands = new LinkedHashMap<>();
+    private Map<ComCommandKey, ComCommand> comCommands = new LinkedHashMap<>();
 
     protected CompositeComCommandImpl(final CommandRoot commandRoot) {
         super(commandRoot);
@@ -48,17 +57,27 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
     public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         ComServerRuntimeException firstException = null;
         boolean canWeStillDoADisconnect = true;
-        for (Map.Entry<ComCommandType, ComCommand> comCommandEntry : comCommands.entrySet()) {
+        for (Map.Entry<ComCommandKey, ComCommand> comCommandEntry : comCommands.entrySet()) {
             final ComCommand comCommand = comCommandEntry.getValue();
-            final ComCommandType commandType = comCommandEntry.getKey();
-            if(areWeAllowedToPerformTheCommand(firstException, canWeStillDoADisconnect, commandType, executionContext.basickCheckHasFailed())){
+            final ComCommandKey commandKey = comCommandEntry.getKey();
+            final ComCommandType commandType = commandKey.getCommandType();
+            if (areWeAllowedToPerformTheCommand(firstException, canWeStillDoADisconnect, commandKey, executionContext.basickCheckHasFailed())) {
                 try {
                     performTheComCommandIfAllowed(deviceProtocol, executionContext, comCommand);
                 } catch (ComServerRuntimeException e) {
-                    if(firstException == null){
+                    if (firstException == null) {
                         firstException = e;
                     }
-                    canWeStillDoADisconnect = areWeStillAbleToPerformAProperDisconnect(e);
+                    if (commandType.equals(ComCommandTypes.LOGON) || commandType.equals(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE)) {
+                        executionContext.setErrorOccuredAtLogonOrInit(true);
+                        break;
+                    }
+                    else {
+                        canWeStillDoADisconnect = areWeStillAbleToPerformAProperDisconnect(e);
+                        if (isBasicCheckFailure(e)) {
+                            executionContext.setBasicCheckFailed(true);
+                        }
+                    }
                 }
             }
         }
@@ -76,12 +95,12 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      *
      * @param firstException the firstException
      * @param canWeStillDoADisconnect indication whether the firstException was related to Communication
-     * @param commandType the type fo the Command
+     * @param commandKey the type fo the Command
      * @param hasBasicCheckFailed The flag that indicates if the basic check task has failed before
      * @return true or false
      */
-    private boolean areWeAllowedToPerformTheCommand(ComServerRuntimeException firstException, boolean canWeStillDoADisconnect, ComCommandType commandType, boolean hasBasicCheckFailed) {
-        return (firstException == null && !hasBasicCheckFailed) || areWeStillAllowedToPerformTheCommand(commandType, canWeStillDoADisconnect);
+    private boolean areWeAllowedToPerformTheCommand(ComServerRuntimeException firstException, boolean canWeStillDoADisconnect, ComCommandKey commandKey, boolean hasBasicCheckFailed) {
+        return (firstException == null && !hasBasicCheckFailed) || areWeStillAllowedToPerformTheCommand(commandKey, canWeStillDoADisconnect);
     }
 
     protected void performTheComCommandIfAllowed(DeviceProtocol deviceProtocol, ExecutionContext executionContext, ComCommand comCommand) {
@@ -92,15 +111,15 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      * We are allowed to do logOffs is the exception wasn't caused by a connection error.
      * The terminate and updateDeviceCache are safe to still perform.
      *
-     * @param commandType the type of the comCommand
+     * @param commandKey the ComCommandKey
      * @param canWeStillDoADisconnect an indication whether we can still communicate (no connection exceptions)
-     * @return true if we can perform the command of the given commandType
+     * @return true if we can perform the command of the given commandKey
      */
-    private boolean areWeStillAllowedToPerformTheCommand(ComCommandType commandType, boolean canWeStillDoADisconnect) {
+    private boolean areWeStillAllowedToPerformTheCommand(ComCommandKey commandKey, boolean canWeStillDoADisconnect) {
         return (    canWeStillDoADisconnect
-                && (commandType.equals(ComCommandTypes.DAISY_CHAINED_LOGOFF) || commandType.equals(ComCommandTypes.LOGOFF)))
-            || commandType.equals(ComCommandTypes.DEVICE_PROTOCOL_TERMINATE)
-            || commandType.equals(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+                && (commandKey.equals(ComCommandTypes.DAISY_CHAINED_LOGOFF) || commandKey.equals(ComCommandTypes.LOGOFF)))
+            || commandKey.equals(ComCommandTypes.DEVICE_PROTOCOL_TERMINATE)
+            || commandKey.equals(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
     }
 
     private boolean areWeStillAbleToPerformAProperDisconnect(Exception e) {
@@ -109,44 +128,86 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
                 && !ConnectionCommunicationException.class.isAssignableFrom(e.getClass());
     }
 
+    private boolean isBasicCheckFailure(ComServerRuntimeException e) {
+        return e instanceof TimeDifferenceExceededException || e instanceof SerialNumberMismatchException;
+    }
+
     @Override
     public void addUniqueCommand(ComCommand command, ComTaskExecution comTaskExecution) {
-        if (checkCommandTypeExistence(command.getCommandType(), getCommandRoot().getCommands())) {
+        ComCommandKey key = new ComCommandKey(command.getCommandType(), comTaskExecution, getCommandRoot().getSecuritySetCommandGroupId());
+        if (this.commandAlreadyExists(key)) {
             throw ComCommandException.uniqueCommandViolation(command, MessageSeeds.COMMAND_NOT_UNIQUE);
         }
-        this.doAddCommand(command);
+        else {
+            this.doAddCommand(key, command);
+        }
     }
 
     @Override
     public void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution) {
-        this.doAddCommand(command);
+        ComCommandKey key = new ComCommandKey(command.getCommandType(), comTaskExecution, getCommandRoot().getSecuritySetCommandGroupId());
+        this.doAddCommand(key, command);
     }
 
-    private void doAddCommand(ComCommand command) {
-        this.comCommands.putIfAbsent(command.getCommandType(), command);
+    private void doAddCommand(ComCommandKey key, ComCommand command) {
+        this.comCommands.putIfAbsent(key, command);
     }
 
     @Override
-    public boolean checkCommandTypeExistence(final ComCommandType comCommandType, final Map<ComCommandType, ComCommand> allCommands) {
-        if (allCommands.containsKey(comCommandType)) {
-            return true;
-        }
-        boolean exists = false;
-        for (ComCommand command : allCommands.values()) {
-            if (command instanceof CompositeComCommand) {
-                exists |= checkCommandTypeExistence(comCommandType, ((CompositeComCommand) command).getCommands());
-            }
-        }
-        return exists;
+    public boolean contains(ComCommand comCommand) {
+        return this.comCommands.values().contains(comCommand);
     }
 
-    /**
-     * Get the List of ComCommands
-     *
-     * @return the requested list of ComCommands
-     */
-    public Map<ComCommandType, ComCommand> getCommands() {
-        return this.comCommands;
+    private boolean commandAlreadyExists(ComCommandKey comCommandKey) {
+        return this.getExistingCommand(comCommandKey).isPresent();
+    }
+
+    @Override
+    public Optional<ComCommand> getExistingCommand(ComCommandKey key) {
+        for (ComCommandKey comCommandTypeAndId : this.comCommands.keySet()) {
+            ComCommand candidate = this.comCommands.get(comCommandTypeAndId);
+            if (key.equalsIgnoreComTaskExecution(comCommandTypeAndId)) {
+                return Optional.of(candidate);
+            }
+            if (candidate instanceof CompositeComCommand) {
+                CompositeComCommand otherComposite = (CompositeComCommand) candidate;
+                Optional<ComCommand> subCommand = otherComposite.getExistingCommand(key);
+                if (subCommand.isPresent()) {
+                    return subCommand;
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<ComCommand> getExistingCommandsOfType(ComCommandType type) {
+        List<ComCommand> matchingCommands = new ArrayList<>();
+        for (ComCommandKey key : this.comCommands.keySet()) {
+            ComCommand candidate = this.comCommands.get(key);
+            if (type.equals(key.getCommandType())) {
+                matchingCommands.add(candidate);
+            }
+            if (candidate instanceof CompositeComCommand) {
+                CompositeComCommand otherComposite = (CompositeComCommand) candidate;
+                matchingCommands.addAll(otherComposite.getExistingCommandsOfType(type));
+            }
+        }
+        return matchingCommands;
+    }
+
+    @Override
+    public List<ComCommandType> getCommandTypes() {
+        return this.comCommands
+                .keySet()
+                .stream()
+                .map(ComCommandKey::getCommandType)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ComCommand> getCommands() {
+        return new ArrayList<>(this.comCommands.values());
     }
 
     @Override
@@ -154,4 +215,16 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
         return this.comCommands.values().iterator();
     }
 
+    protected void removeCommandOfType(ComCommandType type) {
+        Set<ComCommandKey> keys = new HashSet<>(this.comCommands.keySet());
+        keys
+            .stream()
+            .filter(key -> key.getCommandType().equals(type))
+            .forEach(this.comCommands::remove);
+    }
+
+    protected static void copyComCommands(CompositeComCommandImpl source, CompositeComCommandImpl target, Set<ComCommandTypes> unneccesary) {
+        target.comCommands.putAll(source.comCommands);
+        unneccesary.stream().forEach(target::removeCommandOfType);
+    }
 }

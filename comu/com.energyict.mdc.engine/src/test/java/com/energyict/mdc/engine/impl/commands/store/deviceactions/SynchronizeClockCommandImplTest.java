@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -11,7 +12,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.ClockTask;
 
-import com.elster.jupiter.time.TimeDuration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
@@ -65,7 +65,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         Clock clock = executionContextServiceProvider.clock();
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
+        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
         assertThat(command.toJournalMessageDescription(LogLevel.DEBUG)).contains("maximumClockShift: 111 seconds");
     }
@@ -88,7 +88,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         Clock clock = executionContextServiceProvider.clock();
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
+        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
@@ -124,7 +124,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         Clock clock = executionContextServiceProvider.clock();
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
+        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
@@ -160,7 +160,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         Clock clock = executionContextServiceProvider.clock();
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
+        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
@@ -196,7 +196,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         Clock clock = executionContextServiceProvider.clock();
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
+        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
@@ -232,7 +232,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         Clock clock = executionContextServiceProvider.clock();
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
+        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method
@@ -266,7 +266,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         Clock clock = executionContextServiceProvider.clock();
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.getTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
+        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
 
         // business method

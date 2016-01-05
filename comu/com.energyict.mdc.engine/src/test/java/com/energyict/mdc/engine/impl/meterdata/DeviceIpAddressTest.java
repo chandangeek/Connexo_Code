@@ -8,8 +8,9 @@ import com.energyict.mdc.engine.impl.commands.store.NoDeviceCommandServices;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -64,7 +65,7 @@ public class DeviceIpAddressTest {
 
         // Business method
         NoDeviceCommandServices serviceProvider = new NoDeviceCommandServices();
-        DeviceCommand command = deviceIpAddress.toDeviceCommand(new MeterDataStoreCommandImpl(serviceProvider), serviceProvider);
+        DeviceCommand command = deviceIpAddress.toDeviceCommand(new MeterDataStoreCommandImpl(null, serviceProvider), serviceProvider);
 
         // Asserts
         assertThat(command).isNotNull();

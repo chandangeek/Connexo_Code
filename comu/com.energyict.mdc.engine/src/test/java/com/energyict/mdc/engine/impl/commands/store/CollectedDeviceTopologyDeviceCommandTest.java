@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,7 +117,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.comTaskExecution, this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -157,7 +158,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.comTaskExecution, this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -199,7 +200,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.comTaskExecution, this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -233,11 +234,11 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         slaveDevices.add(offlineSlave_2);
         when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave2Identifier);
+        List<DeviceIdentifier> slaveDeviceIdentifiers = Collections.singletonList(slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.comTaskExecution, this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
         // Business method
@@ -270,11 +271,11 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         slaveDevices.add(offlineSlave_2);
         when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave2Identifier);
+        List<DeviceIdentifier> slaveDeviceIdentifiers = Collections.singletonList(slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.comTaskExecution, this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
         // Business method
@@ -292,12 +293,12 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         slaveDevices.add(this.offlineSlave_2);
         when(this.offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave2Identifier);
+        List<DeviceIdentifier> slaveDeviceIdentifiers = Collections.singletonList(slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(this.deviceIdentifier, slaveDeviceIdentifiers);
         TopologyAction topologyAction = TopologyAction.VERIFY;
         deviceTopology.setTopologyAction(topologyAction);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.comTaskExecution, this.serviceProvider), this.serviceProvider);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

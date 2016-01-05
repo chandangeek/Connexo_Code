@@ -5,6 +5,7 @@ import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
@@ -106,24 +107,25 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
              * It is important that the VerifyLoadProfilesCommand is first added to the command list.
              * The Execute method will chronologically execute all the commands so this one should be first
              */
-            this.verifyLoadProfilesCommand = getCommandRoot().getVerifyLoadProfileCommand(this, comTaskExecution);
+            this.verifyLoadProfilesCommand = getCommandRoot().findOrCreateVerifyLoadProfileCommand(this, comTaskExecution);
 
-            this.readLegacyLoadProfileLogBooksDataCommand = getCommandRoot().getReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
+            this.readLegacyLoadProfileLogBooksDataCommand = getCommandRoot().findOrCreateReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
 
             if (this.loadProfilesTask.isMarkIntervalsAsBadTime()) {
-                this.timeDifferenceCommand = getCommandRoot().getTimeDifferenceCommand(this, comTaskExecution);
-                this.markIntervalsAsBadTimeCommand = getCommandRoot().getMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
+                this.timeDifferenceCommand = getCommandRoot().findOrCreateTimeDifferenceCommand(this, comTaskExecution);
+                this.markIntervalsAsBadTimeCommand = getCommandRoot().findOrCreateMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
             }
 
             if (this.loadProfilesTask.createMeterEventsFromStatusFlags()) {
-                this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().getCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
+                this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().findOrCreateCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
             }
             createLoadProfileReaders(comTaskExecution.getDevice().getmRID());
         }
 
         if (this.logBooksTask != null) {
-            /* Adding it a second time is oké, the root will check if it exists and return the existing one */
-            this.readLegacyLoadProfileLogBooksDataCommand = getCommandRoot().getReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
+            if (this.readLegacyLoadProfileLogBooksDataCommand == null) {
+                this.readLegacyLoadProfileLogBooksDataCommand = getCommandRoot().findOrCreateReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
+            }
             createLogBookReaders(this.device, comTaskExecution.getDevice().getmRID());
         }
     }
@@ -178,7 +180,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * @return the ComCommandTypes of this command
      */
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND;
     }
 
@@ -186,7 +188,8 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * Create LoadProfileReaders for this LoadProfileCommand, based on the {@link LoadProfileType}s specified in the {@link #loadProfilesTask}.
      * If no types are specified, then a {@link LoadProfileReader} for all
      * of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}s of the device will be created.
-     * @param deviceMrid
+     *
+     * @param deviceMrid The mMRID of the device
      */
     protected void createLoadProfileReaders(String deviceMrid) {
         createLoadProfileReadersForLoadProfilesTask(this.loadProfilesTask, deviceMrid);

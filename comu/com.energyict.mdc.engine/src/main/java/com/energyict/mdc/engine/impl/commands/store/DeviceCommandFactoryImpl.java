@@ -1,10 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
-import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provides an implementation for the {@link DeviceCommandFactory} interface.
@@ -14,8 +11,16 @@ import java.util.List;
  */
 public class DeviceCommandFactoryImpl extends AbstractDeviceCommandFactory {
 
+    private final ComTaskExecution comTaskExecution;
+
+    public DeviceCommandFactoryImpl(ComTaskExecution comTaskExecution) {
+        super();
+        this.comTaskExecution = comTaskExecution;
+    }
+
     @Override
     MeterDataStoreCommandImpl getMeterDataStoreCommand(DeviceCommand.ServiceProvider serviceProvider) {
-        return new MeterDataStoreCommandImpl(serviceProvider);
+        return new MeterDataStoreCommandImpl(this.comTaskExecution, serviceProvider);
     }
+
 }

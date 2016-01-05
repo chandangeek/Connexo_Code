@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
@@ -47,11 +48,10 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     @Override
     public void addRegisters(final List<OfflineRegister> registersToCollect) {
         if (registersToCollect != null) {
-            for (OfflineRegister offlineRegister : registersToCollect) {
-                if (canWeAddIt(offlineRegister)) {
-                    this.registers.add(offlineRegister);
-                }
-            }
+            registersToCollect
+                    .stream()
+                    .filter(this::canWeAddIt)
+                    .forEach(this.registers::add);
         }
     }
 
@@ -140,7 +140,7 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.READ_REGISTERS_COMMAND;
     }
 

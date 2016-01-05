@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -64,7 +65,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
     private TimeZone toReset;
 
-    private MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommandImpl(new NoDeviceCommandServices());
+    private MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommandImpl(null, new NoDeviceCommandServices());
 
     @Before
     public void setUp() {
@@ -96,8 +97,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     public void testToJournalMessageDescriptionWithOneInterval() {
         Date now = new DateTime(2012, 12, 12, 12, 53, 5, 0, DateTimeZone.UTC).toDate();
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceService)));
-        List<IntervalData> intervalData = Arrays.asList(new IntervalData(now));
-        List<ChannelInfo> channelInfo = Arrays.asList(new ChannelInfo(CHANNEL_INFO_ID, CHANNEL1_ID, "testToStringWithOneInterval", Unit.get("kWh")));
+        List<IntervalData> intervalData = Collections.singletonList(new IntervalData(now));
+        List<ChannelInfo> channelInfo = Collections.singletonList(new ChannelInfo(CHANNEL_INFO_ID, CHANNEL1_ID, "testToStringWithOneInterval", Unit.get("kWh")));
         deviceLoadProfile.setCollectedData(intervalData, channelInfo);
         CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
 
@@ -120,7 +121,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
                         new IntervalData(new DateTime(2012, 12, 12, 13, 15, 0, 0, DateTimeZone.UTC).toDate()),
                         new IntervalData(new DateTime(2012, 12, 12, 13, 30, 0, 0, DateTimeZone.UTC).toDate()));
         List<ChannelInfo> channelInfo =
-                Arrays.asList(
+                Collections.singletonList(
                         new ChannelInfo(
                                 CHANNEL_INFO_ID,
                                 CHANNEL1_ID,
@@ -328,7 +329,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         updatedCollectedIntervalData.add(new IntervalData(intervalEndTime3, 0, 0, 0, updatedIntervalList));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(updatedCollectedIntervalData);
 
-        meterDataStoreCommand = new MeterDataStoreCommandImpl(new NoDeviceCommandServices());
+        meterDataStoreCommand = new MeterDataStoreCommandImpl(null, new NoDeviceCommandServices());
         collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         // Business method
         collectedLoadProfileDeviceCommand.execute(comServerDAO);
