@@ -57,7 +57,7 @@ Ext.define('Apr.view.appservers.Add', {
                         maxLength: 80,
                         listeners: {
                             afterrender: function (field) {
-                                field.focus(false, 500);
+                                field.focus(false, 200);
                             }
                         }
                     },
