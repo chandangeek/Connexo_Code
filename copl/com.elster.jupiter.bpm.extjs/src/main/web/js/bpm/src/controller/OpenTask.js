@@ -230,7 +230,7 @@ Ext.define('Bpm.controller.OpenTask', {
         me.saveAssigneeUser(button);
         setTimeout(function () {
             me.saveEditTask(button);
-        }, 100);
+        }, 300);
 
     },
 
