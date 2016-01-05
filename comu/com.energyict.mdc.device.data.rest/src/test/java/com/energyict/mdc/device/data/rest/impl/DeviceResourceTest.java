@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -122,9 +122,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by bvn on 6/19/14.
- */
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     public static final Instant NOW = Instant.ofEpochMilli(1409738114);
@@ -154,7 +151,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100,200));
+        when(connectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100, 200));
         when(connectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(connectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
@@ -486,7 +483,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         SearchablePropertyValue.ValueBean deviceTypeBean = new SearchablePropertyValue.ValueBean();
         deviceTypeBean.propertyName = "deviceType";
         deviceTypeBean.operator = SearchablePropertyOperator.EQUAL;
-        deviceTypeBean.values = Arrays.asList("1","2","3");
+        deviceTypeBean.values = Arrays.asList("1", "2", "3");
         when(searchDomain.getPropertiesValues(Matchers.any(Function.class)))
                 .thenReturn(Arrays.asList(
                         new SearchablePropertyValue(mridProperty, mridBean),
@@ -830,7 +827,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceEventType.getType()).thenReturn(EndDeviceType.NA);
         when(endDeviceEventType.getDomain()).thenReturn(EndDeviceDomain.BATTERY);
         when(endDeviceEventType.getSubDomain()).thenReturn(EndDeviceSubDomain.VOLTAGE);
-        when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventorAction.DECREASED);
+        when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventOrAction.DECREASED);
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
 
         LogBookInfo info = target("/devices/mrid/logbooks/1").request().get(LogBookInfo.class);
@@ -930,7 +927,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         EndDeviceType type = EndDeviceType.NA;
         EndDeviceDomain domain = EndDeviceDomain.BATTERY;
         EndDeviceSubDomain subDomain = EndDeviceSubDomain.ACCESS;
-        EndDeviceEventorAction eventorAction = EndDeviceEventorAction.ACTIVATED;
+        EndDeviceEventOrAction eventorAction = EndDeviceEventOrAction.ACTIVATED;
 
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
@@ -1465,7 +1462,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testPrivilegesForInStockState(){
+    public void testPrivilegesForInStockState() {
         State state = mock(State.class);
         when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device device = mock(Device.class);
@@ -1498,7 +1495,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testPrivilegesForInDecommissionedState(){
+    public void testPrivilegesForInDecommissionedState() {
         State state = mock(State.class);
         when(state.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
         Device device = mock(Device.class);
@@ -1513,7 +1510,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testPrivilegesForCustomState(){
+    public void testPrivilegesForCustomState() {
         State state = mock(State.class);
         when(state.getName()).thenReturn("Custom state");
         Device device = mock(Device.class);
@@ -1566,12 +1563,18 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(device));
         DeviceType deviceType = mock(DeviceType.class);
+        when(deviceConfigurationService.findDeviceType(anyLong())).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(anyLong(), anyLong())).thenReturn(Optional.of(deviceType));
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
         when(customPropertySet.getName()).thenReturn("testCps");
         when(customPropertySet.isVersioned()).thenReturn(true);
         when(device.getDeviceType()).thenReturn(deviceType);
-        when(deviceType.getDeviceTypeCustomPropertySetUsage()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        when(device.getDeviceType().getId()).thenReturn(1L);
+        when(device.getDeviceType().getVersion()).thenReturn(1L);
+        when(deviceType.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        when(deviceType.getId()).thenReturn(1L);
+        when(deviceType.getVersion()).thenReturn(1L);
         when(registeredCustomPropertySet.isViewableByCurrentUser()).thenReturn(true);
         when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
@@ -1590,24 +1593,24 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(customPropertySetService.getUniqueValuesFor(eq(customPropertySet), eq(device), any(Instant.class))).thenReturn(customPropertySetValues);
         when(customPropertySetService.getAllVersionedValuesFor(customPropertySet, device)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
         ValuesRangeConflict conflict1 = mock(ValuesRangeConflict.class);
-        when(conflict1.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeFirst),Instant.ofEpochMilli(endTimeFirst)));
+        when(conflict1.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeFirst), Instant.ofEpochMilli(endTimeFirst)));
         when(conflict1.getMessage()).thenReturn("testMessage");
         when(conflict1.getType()).thenReturn(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
         when(conflict1.getValues()).thenReturn(customPropertySetValues);
         ValuesRangeConflict conflict2 = mock(ValuesRangeConflict.class);
-        when(conflict2.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeNew),Instant.ofEpochMilli(endTimeNew)));
+        when(conflict2.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeNew), Instant.ofEpochMilli(endTimeNew)));
         when(conflict2.getMessage()).thenReturn("testMessage");
         when(conflict2.getType()).thenReturn(ValuesRangeConflictType.RANGE_INSERTED);
         when(conflict2.getValues()).thenReturn(CustomPropertySetValues.emptyDuring(Interval.of(Range.closedOpen(Instant.ofEpochMilli(startTimeNew), Instant.ofEpochMilli(endTimeNew)))));
         ValuesRangeConflict conflict3 = mock(ValuesRangeConflict.class);
-        when(conflict3.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(endTimeFirst),Instant.ofEpochMilli(endTimeSecond)));
+        when(conflict3.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(endTimeFirst), Instant.ofEpochMilli(endTimeSecond)));
         when(conflict3.getMessage()).thenReturn("testMessage");
         when(conflict3.getType()).thenReturn(ValuesRangeConflictType.RANGE_OVERLAP_DELETE);
         when(conflict3.getValues()).thenReturn(customPropertySetValues2);
         OverlapCalculatorBuilder overlapCalculatorBuilder = mock(OverlapCalculatorBuilder.class);
-        when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
-        when(overlapCalculatorBuilder.whenUpdating(any(Instant.class),any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
-        when(customPropertySetService.calculateOverlapsFor(anyObject(),any(Device.class))).thenReturn(overlapCalculatorBuilder);
+        when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Arrays.asList(conflict1, conflict2, conflict3));
+        when(overlapCalculatorBuilder.whenUpdating(any(Instant.class), any(Range.class))).thenReturn(Arrays.asList(conflict1, conflict2, conflict3));
+        when(customPropertySetService.calculateOverlapsFor(anyObject(), any(Device.class))).thenReturn(overlapCalculatorBuilder);
         return customPropertySet;
     }
 
@@ -1693,6 +1696,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.isActive = true;
         info.parent = 1L;
         info.version = 5L;
+        info.objectTypeId = 1L;
+        info.objectTypeVersion = 1L;
         info.timesliced = false;
         info.properties = new ArrayList<>();
         Response response = target("devices/1/customproperties/1").request().put(Entity.json(info));
@@ -1709,6 +1714,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.endTime = startTimeFirst;
         info.parent = 1L;
         info.version = 5L;
+        info.objectTypeId = 1L;
+        info.objectTypeVersion = 1L;
         info.timesliced = true;
         info.versionId = info.startTime;
         info.properties = new ArrayList<>();
@@ -1717,7 +1724,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.startTime = startTimeNew;
         info.endTime = endTimeFirst;
         info.versionId = info.startTime;
+        info.objectTypeId = 1L;
+        info.objectTypeVersion = 1L;
         response = target("devices/1/customproperties/1/versions/1416403197000").queryParam("forced", true).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
     }
+
 }

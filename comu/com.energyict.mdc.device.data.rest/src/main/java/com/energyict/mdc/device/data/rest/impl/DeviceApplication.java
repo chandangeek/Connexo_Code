@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -59,6 +59,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -115,6 +116,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile SearchService searchService;
     private volatile LoadProfileService loadProfileService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private volatile CustomPropertySetService customPropertySetService;
 
     @Override
@@ -273,7 +275,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 keys.add(new SimpleTranslationKey(subDomain.toString(), subDomain.getMnemonic()));
             }
         }
-        for (EndDeviceEventorAction eventOrAction : EndDeviceEventorAction.values()) {
+        for (EndDeviceEventOrAction eventOrAction : EndDeviceEventOrAction.values()) {
             if (uniqueIds.add(eventOrAction.toString())) {
                 keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
             }
@@ -460,6 +462,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(loadProfileService).to(LoadProfileService.class);
             bind(searchService).to(SearchService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(DevicesForConfigChangeSearchFactory.class).to(DevicesForConfigChangeSearchFactory.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
         }
     }

@@ -9,6 +9,9 @@ public class MinimalVeeReadingInfo {
     @JsonProperty("dataValidated")
     public Boolean dataValidated;
 
+    @JsonProperty("validationActive")
+    public Boolean validationStatus;
+
     @JsonProperty("mainValidationInfo")
     public MinimalVeeReadingValueInfo mainValidationInfo = new MinimalVeeReadingValueInfo();
 

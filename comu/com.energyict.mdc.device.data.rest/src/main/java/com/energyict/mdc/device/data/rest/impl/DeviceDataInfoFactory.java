@@ -59,7 +59,7 @@ public class DeviceDataInfoFactory {
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
         channelIntervalInfo.intervalFlags = new ArrayList<>();
-        channelIntervalInfo.validationStatus = isValidationActive;
+        channelIntervalInfo.validationActive = isValidationActive;
         channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
         channelIntervalInfo.multiplier = channel.getMultiplier().orElseGet(() -> null);
@@ -103,7 +103,7 @@ public class DeviceDataInfoFactory {
         return value != null ? value.setScale(channel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
 
-    public LoadProfileDataInfo createLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, List<Channel> channels) {
+    public LoadProfileDataInfo createLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, List<Channel> channels, Boolean validationStatus) {
         LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
@@ -143,6 +143,7 @@ public class DeviceDataInfoFactory {
                 // This means it is a missing value what hasn't been validated( = detected ) yet
                 MinimalVeeReadingInfo notValidatedMissing = new MinimalVeeReadingInfo();
                 notValidatedMissing.dataValidated = false;
+                notValidatedMissing.validationStatus = validationStatus;
                 notValidatedMissing.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
                 if (channel.getReadingType().isCumulative()) {
                     notValidatedMissing.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;

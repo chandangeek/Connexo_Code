@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Range;
 
@@ -14,6 +15,8 @@ public class CustomPropertySetInfo {
     public long id;
     public long parent;
     public long version;
+    public long objectTypeId;
+    public long objectTypeVersion;
     public String name;
     public boolean editable;
     public boolean timesliced;
@@ -26,20 +29,24 @@ public class CustomPropertySetInfo {
     public CustomPropertySetInfo() {
     }
 
-    public CustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet, List<PropertyInfo> properties, long objectId, long objectVersion) {
+    public CustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet, List<PropertyInfo> properties, long objectId, long objectVersion, long objectTypeId, long objectTypeVersion) {
         this.id = registeredCustomPropertySet.getId();
         this.parent = objectId;
         this.version = objectVersion;
+        this.objectTypeId = objectTypeId;
+        this.objectTypeVersion = objectTypeVersion;
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
         this.editable = registeredCustomPropertySet.isEditableByCurrentUser();
         this.timesliced = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
         this.properties = properties;
     }
 
-    public CustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet, List<PropertyInfo> properties, long objectId, long objectVersion, Range<Instant> effective) {
+    public CustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet, List<PropertyInfo> properties, long objectId, long objectVersion, long objectTypeId, long objectTypeVersion, Range<Instant> effective) {
         this.id = registeredCustomPropertySet.getId();
         this.parent = objectId;
         this.version = objectVersion;
+        this.objectTypeId = objectTypeId;
+        this.objectTypeVersion = objectTypeVersion;
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
         this.editable = registeredCustomPropertySet.isEditableByCurrentUser();
         this.timesliced = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
