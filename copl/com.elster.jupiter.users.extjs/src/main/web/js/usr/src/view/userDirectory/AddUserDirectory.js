@@ -52,7 +52,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         listeners: {
                             afterrender: function (field) {
                                 if(!me.edit) {
-                                    field.focus(false, 500);
+                                    field.focus(false, 200);
                                 }
                             }
                         }
@@ -67,7 +67,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         listeners: {
                             afterrender: function (field) {
                                 if(me.edit) {
-                                    field.focus(false, 500);
+                                    field.focus(false, 200);
                                 }
                             }
                         }

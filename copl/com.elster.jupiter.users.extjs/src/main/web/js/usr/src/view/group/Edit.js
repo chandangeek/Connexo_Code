@@ -73,7 +73,7 @@ Ext.define('Usr.view.group.Edit', {
                                 listeners: {
                                     afterrender: function (field) {
                                         if(!me.edit) {
-                                            field.focus(false, 500);
+                                            field.focus(false, 200);
                                         }
                                     }
                                 }
@@ -88,7 +88,7 @@ Ext.define('Usr.view.group.Edit', {
                                 listeners: {
                                     afterrender: function (field) {
                                         if(me.edit) {
-                                            field.focus(false, 500);
+                                            field.focus(false, 200);
                                         }
                                     }
                                 }
