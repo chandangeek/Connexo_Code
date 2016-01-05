@@ -16,7 +16,7 @@ import static java.util.logging.Level.SEVERE;
  */
 public enum MessageSeeds implements MessageSeed {
 
-    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
+    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "This field is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique", SEVERE),
     FIELD_TOO_LONG(1003, Keys.FIELD_TOO_LONG, "Field must not exceed 80 characters", SEVERE),
 
