@@ -64,7 +64,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 fieldLabel: Uni.I18n.translate('relativeperiod.name', 'TME', 'Name'),
                                 listeners: {
                                     afterrender: function (field) {
-                                        field.focus(false, 500);
+                                        field.focus(false, 200);
                                     }
                                 }
                             },
