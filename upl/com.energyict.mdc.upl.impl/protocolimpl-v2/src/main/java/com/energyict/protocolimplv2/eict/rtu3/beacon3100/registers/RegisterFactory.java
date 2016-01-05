@@ -9,10 +9,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.MemoryManagementAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedRegister;
@@ -27,6 +24,7 @@ import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
 
 import java.io.IOException;
 import java.util.*;
@@ -109,6 +107,12 @@ public class RegisterFactory {
                 } else if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
                     DLMSAttribute memoryStatisticsAttribute = new DLMSAttribute(register.getObisCode(), MemoryManagementAttributes.MEMORY_STATISTICS.getAttributeNumber(), universalObject.getClassID());
                     composedRegister.setRegisterValue(memoryStatisticsAttribute);
+                } else if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
+                    DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
+                    composedRegister.setRegisterValue(valueAttribute);
+                } else if (universalObject.getClassID() == DLMSClassId.EVENT_NOTIFICATION.getClassId()) {
+                    DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), BeaconEventPushNotificationAttributes.SEND_DESTINATION_AND_METHOD.getAttributeNumber(), universalObject.getClassID());
+                    composedRegister.setRegisterValue(valueAttribute);
                 }
                 dlmsAttributes.addAll(composedRegister.getAllAttributes());
                 composedRegisterMap.put(register.getObisCode(), composedRegister);
@@ -154,7 +158,8 @@ public class RegisterFactory {
                                             ", total space: " + memoryStatisticsAttribute.getStructure().getDataType(2).toBigDecimal() + " " + unit);
                         }
 
-                    } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
+                    } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()
+                            || universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
                         //Generic parsing for all data registers
 
                         final AbstractDataType attribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
@@ -168,6 +173,20 @@ public class RegisterFactory {
                             continue;
                         } else {
                             registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
+                        }
+                    } else if(universalObject.getClassID() == DLMSClassId.EVENT_NOTIFICATION.getClassId()) {
+                        AbstractDataType eventPushNotificationAttributes = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
+
+                        if (!eventPushNotificationAttributes.isStructure() || eventPushNotificationAttributes.getStructure().nrOfDataTypes() != 3) {
+                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse the beacon event push notification attributes. Should be a structure of with 3 elements"));
+                            continue;
+                        } else {
+                            //Special parsing for this structure
+                            final String transportType = AlarmConfigurationMessage.TransportType.getStringValue(eventPushNotificationAttributes.getStructure().getDataType(0).getTypeEnum().intValue());
+                            final String destinationAddress = eventPushNotificationAttributes.getStructure().getDataType(1).getOctetString().stringValue();
+                            final String messageType = AlarmConfigurationMessage.MessageType.getStringValue(eventPushNotificationAttributes.getStructure().getDataType(2).getTypeEnum().intValue());
+                            registerValue = new RegisterValue(offlineRegister.getObisCode(),
+                                    "Transport type: " + transportType + ", Destination address: " + destinationAddress + ", Message type: " + messageType);
                         }
                     } else {
                         //Generic parsing for all registers & extended registers
