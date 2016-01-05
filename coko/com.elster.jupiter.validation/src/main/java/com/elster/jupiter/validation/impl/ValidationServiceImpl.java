@@ -48,6 +48,7 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.security.Privileges;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -670,36 +671,26 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         if (found.isPresent()) {
             EndDeviceGroup deviceGroup = found.get();
             try {
-                sqlBuilder.append("SELECT MED.amrid FROM (");
+                sqlBuilder.append("SELECT MED.id FROM (");
 
                 if (deviceGroup instanceof QueryEndDeviceGroup) {
                     QueryEndDeviceGroup queryEndDeviceGroup = (QueryEndDeviceGroup) deviceGroup;
-                    sqlBuilder.add(queryEndDeviceGroup.getEndDeviceQueryProvider().toFragment(queryEndDeviceGroup.toFragment(), "amrId"));
+                    sqlBuilder.add(queryEndDeviceGroup.getEndDeviceQueryProvider().toFragment(queryEndDeviceGroup.toFragment(), "id"));
                 } else {
                     EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = (EnumeratedEndDeviceGroup) deviceGroup;
                     sqlBuilder.add(enumeratedEndDeviceGroup.getAmrIdSubQuery().toFragment());
                 }
 
-                sqlBuilder.append(") MED  " +
-                        "WHERE EXISTS " +
-                        "(" +
-                        "SELECT * FROM MTR_READINGQUALITY mrq " +
-                        "LEFT JOIN MTR_CHANNEL mc ON (mrq.CHANNELID=mc.id) " +
-                        "LEFT JOIN MTR_METERACTIVATION MA ON (mc.meteractivationid=ma.id) " +
-                        "WHERE " + "" +
-                        "(" +
-                        "mrq.type = '3.5.258' " +
-                        "OR " +
-                        "mrq.type = '3.5.259'" +
-                        ") " +
-                        "AND " +
-                        "mrq.actual='Y' " +
-                        "AND " +
-                        "MA.meterid=med.amrid" +
-                        ")");
+                sqlBuilder.append(") MED ");
+                sqlBuilder.append("WHERE EXISTS (");
+                sqlBuilder.append("SELECT * FROM MTR_READINGQUALITY mrq ");
+                sqlBuilder.append("  LEFT JOIN MTR_CHANNEL mc ON mrq.CHANNELID = mc.id");
+                sqlBuilder.append("  LEFT JOIN MTR_METERACTIVATION MA ON mc.meteractivationid = ma.id");
+                sqlBuilder.append(" WHERE (mrq.type = '3.5.258' OR mrq.type = '3.5.259')");
+                sqlBuilder.append("   AND mrq.actual='Y' AND MA.meterid = med.id)");
 
                 if (start.isPresent() && limit.isPresent()) {
-                    sqlBuilder = sqlBuilder.asPageBuilder("amrid", start.get() + 1, start.get() + limit.get() + 1);
+                    sqlBuilder = sqlBuilder.asPageBuilder("id", start.get() + 1, start.get() + limit.get() + 1);
                 }
 
                 return Optional.of(sqlBuilder);
