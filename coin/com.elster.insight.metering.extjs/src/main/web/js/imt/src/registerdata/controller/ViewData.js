@@ -141,7 +141,7 @@ Ext.define('Imt.registerdata.controller.ViewData', {
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
     },
-    removeRegisterData() {
+    removeRegisterData: function() {
     	var me = this,
     	controller = me.getController('Imt.registerdata.controller.EditData');
     	controller.removeRegisterData();
