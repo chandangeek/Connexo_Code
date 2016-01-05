@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.importers.impl.exceptions.ImportException;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issues.Warning;
 
 public abstract class FileImportLoggerImpl<T extends FileImportRecord> implements FileImportLogger<T> {
 
@@ -28,6 +29,11 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
     @Override
     public void warning(TranslationKey message, Object... arguments) {
         fileImportOccurrence.getLogger().info(context.getThesaurus().getFormat(message).format(arguments));
+    }
+
+    @Override
+    public void warning(Warning warning) {
+        fileImportOccurrence.getLogger().info(warning.getDescription());
     }
 
     @Override

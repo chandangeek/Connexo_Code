@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.importers.impl;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issues.Warning;
 
 public interface FileImportLogger<T extends FileImportRecord> {
 
@@ -11,6 +12,8 @@ public interface FileImportLogger<T extends FileImportRecord> {
     void warning(MessageSeed message, Object... arguments);
 
     void warning(TranslationKey message, Object... arguments);
+
+    void warning(Warning warning);
 
     void importLineFailed(T data, Exception exception);
 
