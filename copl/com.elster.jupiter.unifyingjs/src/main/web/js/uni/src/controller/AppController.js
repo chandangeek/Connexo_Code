@@ -170,7 +170,7 @@ Ext.define('Uni.controller.AppController', {
 
             var config = {
                 title: Uni.I18n.translate('error.license', 'UNI', 'License'),
-                msg: Uni.I18n.translate('error.license.graced', 'UNI', 'The system is currently running on a license that has a grace period. You have {0} day(s) remaining.', [this.licenseStatus]),
+                msg: Uni.I18n.translate('error.license.graced', 'UNI', 'The system is currently running on a license that has a grace period. You have {0} day(s) remaining.', this.licenseStatus),
                 modal: false,
                 ui: 'message-error',
                 icon: Ext.MessageBox.ERROR
@@ -183,7 +183,7 @@ Ext.define('Uni.controller.AppController', {
                         text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
                         action: 'close',
                         name: 'close',
-                        ui: 'action',
+                        ui: 'remove',
                         handler: function () {
                             box.close();
                         }
