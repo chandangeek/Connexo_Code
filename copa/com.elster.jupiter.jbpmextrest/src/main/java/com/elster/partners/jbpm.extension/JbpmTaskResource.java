@@ -637,6 +637,12 @@ public class JbpmTaskResource {
                             }
                             internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
                         }
+                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.InProgress)){
+                            if(!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
+                                assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
+                                internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                            }
+                        }
                         internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskContent(taskId));
                     }
                 }
