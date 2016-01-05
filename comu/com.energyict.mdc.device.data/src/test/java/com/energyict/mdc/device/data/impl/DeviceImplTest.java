@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -101,6 +102,8 @@ public class DeviceImplTest {
     private ReadingType readingTypeBulk, readingTypeRegister;
     @Mock
     private com.energyict.mdc.issues.IssueService mdcIssueService;
+    @Mock
+    private CustomPropertySetService customPropertySetService;
 
     @Before
     public void setUp() {
@@ -190,7 +193,7 @@ public class DeviceImplTest {
     private DeviceImpl createDevice(BigDecimal registerOverflow, BigDecimal bulkOverflow) {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskProvider,
-                manuallyScheduledComTaskExecutionTaskProvider, firmwareComTaskExecutionProvider, meteringGroupsService);
+                manuallyScheduledComTaskExecutionTaskProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService);
         LoadProfileSpecImpl loadProfileSpec1 = new LoadProfileSpecImpl(dataModel, eventService, thesaurus);
         ChannelSpecImpl channelSpec1 = new ChannelSpecImpl(dataModel, eventService, thesaurus);
         channelSpec1.setOverflow(registerOverflow);
