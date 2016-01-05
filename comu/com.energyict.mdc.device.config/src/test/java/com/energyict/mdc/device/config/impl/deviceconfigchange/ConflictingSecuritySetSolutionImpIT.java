@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
 
 /**
  * Copyrights EnergyICT
@@ -35,9 +36,10 @@ public class ConflictingSecuritySetSolutionImpIT extends AbstractConflictIT{
         SecurityPropertySet origin = createSecurityPropertySet(sourceConfig, "OriginSecurityPropSet");
         SecurityPropertySet destination = createSecurityPropertySet(destinationConfig, "DestinationSecurityPropSet");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsRemove();
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
+        verifyConflictValidation(times(2), deviceConfigConflictMapping);
 
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
             @Override
@@ -63,9 +65,10 @@ public class ConflictingSecuritySetSolutionImpIT extends AbstractConflictIT{
         SecurityPropertySet origin = createSecurityPropertySet(sourceConfig, "OriginSecurityPropSet");
         SecurityPropertySet destination = createSecurityPropertySet(destinationConfig, "DestinationSecurityPropSet");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, destination);
+        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsMap(destination);
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
+        verifyConflictValidation(times(2), deviceConfigConflictMapping);
 
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
             @Override
@@ -94,7 +97,7 @@ public class ConflictingSecuritySetSolutionImpIT extends AbstractConflictIT{
         SecurityPropertySet origin = createSecurityPropertySet(sourceConfig, "OriginSecurityPropSet");
         SecurityPropertySet destination = createSecurityPropertySet(destinationConfig, "DestinationSecurityPropSet");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, null);
+        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsMap(null);
     }
 
     private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration sourceConfig, String name) {
