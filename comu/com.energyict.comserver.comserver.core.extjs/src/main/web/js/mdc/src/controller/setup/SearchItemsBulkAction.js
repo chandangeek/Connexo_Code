@@ -702,42 +702,42 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             switch (me.operation) {
                 case 'add':
                     if (me.schedules.length === 1) {
-                        pattern = Uni.I18n.translatePlural('searchItems.bulk.addOneComScheduleToDevices.confirmMsg', me.devices.length, 'MDC',
-                            "Add shared communication schedule '{1}' to {0} devices?",
-                            "Add shared communication schedule '{1}' to {0} device?",
-                            "Add shared communication schedule '{1}' to {0} devices?"
-                        );
-                        titleText = Ext.String.format(pattern, 1/*notused*/, Ext.String.htmlEncode(me.schedules[0].get('name')));
+                        if (me.devices.length <= 1){
+                            pattern = Uni.I18n.translate('searchItems.bulk.addOneComScheduleToDevices.confirmMsg0', 'MDC', "Add shared communication schedule '{1}' to {0} device?")
+                        } else {
+                            pattern = Uni.I18n.translate('searchItems.bulk.addOneComScheduleToDevices.confirmMsgn', 'MDC', "Add shared communication schedule '{1}' to {0} devices?")
+                        }
+                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(me.schedules[0].get('name')));
                     } else {
                         Ext.each(me.schedules, function (item, index) {
                             scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
                         });
-                        pattern = Uni.I18n.translatePlural('searchItems.bulk.addComSchedulesToDevices.confirmMsg', me.devices.length, 'MDC',
-                            "Add shared communication schedules {1} to {0} devices?",
-                            "Add shared communication schedules {1} to {0} device?",
-                            "Add shared communication schedules {1} to {0} devices?"
-                        );
-                        titleText = Ext.String.format(pattern, 1/*notused*/, Ext.String.htmlEncode(scheduleList));
+                        if (me.devices.length <= 1){
+                            pattern = Uni.I18n.translate('searchItems.bulk.addComSchedulesToDevices.confirmMsg0', 'MDC', "Add shared communication schedules '{1}' to {0} device?")
+                        } else {
+                            pattern = Uni.I18n.translate('searchItems.bulk.addComSchedulesToDevices.confirmMsgn', 'MDC', "Add shared communication schedules '{1}' to {0} devices?")
+                        }
+                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(scheduleList));
                     }
                     break;
                 case 'remove':
                     if (me.schedules.length === 1) {
-                        pattern = Uni.I18n.translatePlural('searchItems.bulk.removeOneComScheduleFromDevices.confirmMsg', me.devices.length, 'MDC',
-                            "Remove shared communication schedule '{1}' from {0} devices?",
-                            "Remove shared communication schedule '{1}' from {0} device?",
-                            "Remove shared communication schedule '{1}' from {0} devices?"
-                        );
-                        titleText = Ext.String.format(pattern, 1/*notused*/, Ext.String.htmlEncode(me.schedules[0].get('name')));
+                        if (me.devices.length <= 1){
+                            pattern = Uni.I18n.translate('searchItems.bulk.removeOneComScheduleFromDevices.confirmMsg0', 'MDC', "Remove shared communication schedule '{1}' to {0} device?")
+                        } else {
+                            pattern = Uni.I18n.translate('searchItems.bulk.removeOneComScheduleFromDevices.confirmMsgn', 'MDC', "Remove shared communication schedule '{1}' to {0} devices?")
+                        }
+                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(me.schedules[0].get('name')));
                     } else {
                         Ext.each(me.schedules, function (item, index) {
                             scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
                         });
-                        pattern = Uni.I18n.translatePlural('searchItems.bulk.removeComSchedulesFromDevices.confirmMsg', me.devices.length, 'MDC',
-                            "Remove shared communication schedules {1} from {0} devices?",
-                            "Remove shared communication schedules {1} from {0} device?",
-                            "Remove shared communication schedules {1} from {0} devices?"
-                        );
-                        titleText = Ext.String.format(pattern, 1/*notused*/, Ext.String.htmlEncode(scheduleList));
+                        if (me.devices.length <= 1){
+                            pattern = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromDevices.confirmMsg0', 'MDC', "Remove shared communication schedules '{1}' to {0} device?")
+                        } else {
+                            pattern = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromDevices.confirmMsgn', 'MDC', "Remove shared communication schedules '{1}' to {0} devices?")
+                        }
+                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(scheduleList));
                     }
                     break;
                 case 'changeconfig':
