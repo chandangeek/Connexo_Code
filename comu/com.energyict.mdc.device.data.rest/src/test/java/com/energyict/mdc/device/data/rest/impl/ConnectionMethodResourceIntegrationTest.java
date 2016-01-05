@@ -28,10 +28,7 @@ import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -82,7 +79,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +94,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Alright, this is a JerseyTEst coupled with the real-deal back end service (or at least most of them), running in in-memory h2
+ * Alright, this is a JerseyTest coupled with the real-deal back end service (or at least most of them), running in in-memory h2
  * Setup is crappy, but it couldn't find a way to avoid it.
  * We really needed end2end testing for connection method properties, as bugs keep piling up.
  */
@@ -346,7 +342,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testCreateScheduledConnectionMethodWithoutProperties() {
+    public void testCreateScheduledConnectionMethodWithoutPropertiesFromIncompleteConfig() {
         Device device;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
             device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device7", "AGENT007");
@@ -401,7 +397,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testCreateScheduledConnectionMethodActiveWithOnlyRequiredProperties() throws IOException {
+    public void testCreateScheduledConnectionMethodActiveWithOnlyRequiredPropertiesFromIncompleteConfig() throws IOException {
         Device device;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
             device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device10", "AGENT010");
@@ -432,7 +428,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testCreateScheduledConnectionMethodWithProperties() {
+    public void testCreateScheduledConnectionMethodWithPropertiesFromIncompleteConfig() {
         Device device;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
             device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device8", "AGENT008");
@@ -464,7 +460,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateAlreadyCompletedScheduledConnectionMethodWithRequiredProperties() {
+    public void testUpdateAlreadyCompletedScheduledConnectionMethodWithRequiredPropertiesFromIncompleteConfig() {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
@@ -505,7 +501,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateAlreadyCompletedScheduledConnectionMethodWithAllProperties() {
+    public void testUpdateAlreadyCompletedScheduledConnectionMethodWithAllPropertiesFromIncompleteConfig() {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
@@ -548,7 +544,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateImcompleteScheduledConnectionMethodWithAllProperties() {
+    public void testUpdateImcompleteScheduledConnectionMethodWithAllPropertiesFromIncompleteConfig() {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
@@ -589,7 +585,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testCreateScheduledConnectionMethodActiveWithNullRequiredProperty() throws IOException {
+    public void testCreateScheduledConnectionMethodActiveWithNullRequiredPropertyFromCompleteConfig() throws IOException {
         Device device;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
             device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device14", "AGENT014");
@@ -623,7 +619,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateScheduledConnectionMethodUndoPreviouslySetRequiredProperty() throws IOException {
+    public void testUpdateScheduledConnectionMethodUndoPreviouslySetRequiredPropertyFromCompleteConfig() throws IOException {
         Device device;
         ConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
@@ -666,7 +662,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateImcompleteScheduledConnectionMethodWithMissingRequiredProperties() throws IOException {
+    public void testUpdateImcompleteScheduledConnectionMethodWithMissingRequiredPropertiesFromIncompleteConfig() throws IOException {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
@@ -704,7 +700,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateCompletedScheduledConnectionMethodWithMissingRequiredProperties() throws IOException {
+    public void testUpdateCompletedScheduledConnectionMethodWithMissingRequiredPropertiesFromIncompleteConfig() throws IOException {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
@@ -742,7 +738,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateCompletedScheduledConnectionMethodWithMissingNullProperties() throws IOException {
+    public void testUpdateCompletedScheduledConnectionMethodWithNullRequiredPropertiesFromIncompleteConfig() throws IOException {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
@@ -778,6 +774,49 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("connectionTaskProperty.required");
         assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("properties.ipAddress");
+    }
+
+    @Test
+    public void testUpdateCompletedScheduledConnectionMethodWithNullOptionalPropertiesFromIncompleteConfig() throws IOException {
+        Device device;
+        ScheduledConnectionTask scheduledConnectionTask;
+        try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device19", "AGENT019");
+            device.save();
+            scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
+                    setComPortPool(whirlpool).
+                    setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+                    setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.ACTIVE).
+                    setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
+                    setProperty("ipAddress", "6.6.6.6").
+                    setProperty("port", BigDecimal.valueOf(666)).
+                    add();
+            transactionContext.commit();
+        }
+        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
+        info.name = AS_1440_INCOMPLETE;
+        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
+        info.nextExecutionSpecs = new TemporalExpressionInfo();
+        info.nextExecutionSpecs.every = new TimeDurationInfo();
+        info.nextExecutionSpecs.every.count = 15;
+        info.nextExecutionSpecs.every.timeUnit = "minutes";
+        info.version = scheduledConnectionTask.getVersion();
+        info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
+        info.comPortPool = "Whirlpool";
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.properties = new ArrayList<>();
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
+        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+
+        Response response = target("/devices/AGENT019/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        assertThat(agent).isPresent();
+        assertThat(agent.get().getConnectionTasks()).hasSize(1);
+        ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
+        assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTaskLifecycleStatus.ACTIVE);
+        assertThat(connectionTask.getProperty("port")).isNull();
+        assertThat(connectionTask.getProperty("ipAddress").getValue()).isEqualTo("10.10.10.1");
     }
 
 

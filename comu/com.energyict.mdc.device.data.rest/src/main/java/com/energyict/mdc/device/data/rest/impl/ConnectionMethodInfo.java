@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -24,7 +23,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * This Info element represents the PartialConnectionTask in the domain model
