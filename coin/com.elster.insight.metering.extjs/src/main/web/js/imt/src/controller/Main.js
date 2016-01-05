@@ -14,6 +14,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.channeldata.controller.Channels',
         'Imt.channeldata.controller.ChannelData',
         'Imt.registerdata.controller.View',
+        'Imt.registerdata.controller.ViewData',
+        'Imt.registerdata.controller.EditData',
         'Imt.validation.controller.UsagePointDataValidation'
     ],
 
