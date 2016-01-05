@@ -241,6 +241,7 @@ Ext.define('Cfg.controller.Tasks', {
                 me.getApplication().fireEvent('validationtaskload', record);
                 taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'",[record.get('name')]));
                 taskForm.loadRecord(record);
+
                 var selector = view.down('#cbo-validation-tasks-grouptype-trigger');
                 if (record.get('groupType') == 'End device') { 
                     selector.setValue('End Device');
@@ -542,8 +543,11 @@ Ext.define('Cfg.controller.Tasks', {
             timeUnitValue,
             dayOfMonth,
             hours,
-            minutes;
+            minutes,
+            deviceGroupId,
+            usagePointGroupId;
 
+        page.clearInvalid();
         if (form.isValid()) {
             var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
 
@@ -553,6 +557,7 @@ Ext.define('Cfg.controller.Tasks', {
             }
 
             record.set('name', form.down('#txt-task-name').getValue());
+
             var groupTypeCombo = me.getAddPage().down('#cbo-validation-tasks-grouptype-trigger');
             var groupCombo = me.getAddPage().down('#cbo-validation-task-group-container').down('combobox');
             if (groupCombo != null) {
@@ -662,6 +667,11 @@ Ext.define('Cfg.controller.Tasks', {
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
                         form.getForm().markInvalid(json.errors);
+                        Ext.Array.each(json.errors, function (error) {
+                            if (error.id == 'groupTypeField') {
+                                page.markInvalid(error.msg);
+                            }
+                        });
                         formErrorsPanel.show();
                     }
                 }

@@ -91,12 +91,20 @@ Ext.define('Cfg.view.validationtask.Add', {
                             {
                                 xtype: 'displayfield',
                                 itemId: 'no-group',
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.selectGroupType', 'CFG', 'No group type selected.') + '</div>',
+                                value: '<div style="color: #EB5642">' + Uni.I18n.translate('validationTasks.general.selectGroupType', 'CFG', 'No group type selected.') + '</div>',
                                 htmlEncode: false,
                                 labelwidth: 500,
                                 width: 235
                             }
                         ]
+                    },
+                    {
+                        xtype: 'container',
+                        itemId: 'group-type-field-error-container',
+                        padding: '10 0 0 265',
+                        hidden: true,
+                        cls: 'x-form-invalid-under'
+
                     },
                     {
                         title: Uni.I18n.translate('validationTasks.general.schedule', 'CFG', 'Schedule'),
@@ -246,6 +254,7 @@ Ext.define('Cfg.view.validationtask.Add', {
             field.setValue(field.minValue);
         }
     },
+
     groupComboBox(store, prompt, selected) {
         return {
             xtype: 'combobox',
@@ -267,10 +276,25 @@ Ext.define('Cfg.view.validationtask.Add', {
         return {
             xtype: 'displayfield',
             itemId: 'no-group',
-            value: '<div style="color: #FF0000">' + text + '</div>',
+            value: '<div style="color: #EB5642">' + text + '</div>',
             htmlEncode: false,
             labelwidth: 500,
             width: 235
         };
+    },
+    
+    getErrorContainer: function () {
+        return this.down('#group-type-field-error-container');
+    },
+
+    markInvalid: function (msg) {
+        Ext.suspendLayouts();
+        this.getErrorContainer().update(msg);
+        this.getErrorContainer().show();
+        Ext.resumeLayouts(true);
+    },
+
+    clearInvalid: function () {
+        this.getErrorContainer().hide();
     }
 });

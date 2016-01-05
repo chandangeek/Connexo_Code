@@ -67,7 +67,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: 'Validation rule sets per page',
+                itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.validationrulesetsperpage', 'CFG', 'Validation rule sets per page'),
                 dock: 'bottom'
             }
         ];

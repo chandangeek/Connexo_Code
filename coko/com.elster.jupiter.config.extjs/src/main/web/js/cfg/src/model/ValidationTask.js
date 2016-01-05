@@ -1,7 +1,16 @@
 Ext.define('Cfg.model.ValidationTask', {
     extend: 'Uni.model.Version',
     fields: [
-			'id', 'name', 'deviceGroup', 'usagePointGroup', 'schedule', 'nextRun', 'lastRun', 'application',
+			'id', 'name',
+        {
+            name: 'deviceGroup',
+            defaultValue: null
+        },
+        {
+            name: 'usagePointGroup',
+            defaultValue: null
+        },
+        'schedule', 'nextRun', 'lastRun', 'application',
         {
             name: 'schedule',
             defaultValue: null
