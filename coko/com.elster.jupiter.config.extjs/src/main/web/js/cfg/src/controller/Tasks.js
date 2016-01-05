@@ -559,7 +559,7 @@ Ext.define('Cfg.controller.Tasks', {
             record.set('name', form.down('#txt-task-name').getValue());
 
             var groupTypeCombo = me.getAddPage().down('#cbo-validation-tasks-grouptype-trigger');
-            var groupCombo = me.getAddPage().down('#cbo-validation-task-group-container').down('combobox');
+            var groupCombo = me.getAddPage().down('#cbo-validation-task-group');
             if (groupCombo != null) {
                 if (groupTypeCombo.getValue() == 'End Device') {
                     record.set('deviceGroup', {
