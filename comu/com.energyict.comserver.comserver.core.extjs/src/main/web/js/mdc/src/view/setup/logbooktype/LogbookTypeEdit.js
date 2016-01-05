@@ -62,7 +62,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeEdit', {
                                         itemId: 'editLogbookTypeNameField',
                                         maxLength: 80,
                                         enforceMaxLength: true,
-                                        width: 600,
                                         listeners: {
                                             afterrender: function (field) {
                                                 field.focus(false, 500);
