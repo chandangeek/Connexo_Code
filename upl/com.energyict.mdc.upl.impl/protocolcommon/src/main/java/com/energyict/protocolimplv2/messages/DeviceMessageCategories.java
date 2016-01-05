@@ -4,6 +4,8 @@ import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.protocolimplv2.ace4000.messages.ACE4000ConfigurationMessages;
+import com.energyict.protocolimplv2.ace4000.messages.ACE4000GeneralMessages;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -383,6 +385,24 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(FirewallConfigurationMessage.values());
+        }
+    },
+    /**
+     * The category for all ACE4000 configuration messages
+     */
+    ACE4000_CONFIGURATION(40) {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(ACE4000ConfigurationMessages.values());
+        }
+    },
+    /**
+     * The category for all ACE4000 general messages
+     */
+    ACE4000_GENERAL(41) {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(ACE4000GeneralMessages.values());
         }
     };
 

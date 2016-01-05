@@ -262,7 +262,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
     private void installMbus(MessageHandler messageHandler) throws IOException {
         int installChannel = messageHandler.getMbusInstallChannel();
         int primaryAddress = getMBusPhysicalAddress(installChannel);
-        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) primaryAddress);
+        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (primaryAddress - 1));
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
         mbusClient.installSlave(primaryAddress);
     }
@@ -1451,21 +1451,21 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     private void mBusClientRemoteCommissioning(MessageHandler messageHandler) throws IOException{
         int installChannel = messageHandler.getMbusInstallChannel();
-        int channel = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(channel).getObisCode(), 9);
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
         String shortId = messageHandler.getMbusShortId();
         MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(),((Dsmr23Properties)getProtocol().getProperties()).getFixMbusHexShortId());
         mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
         mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
         mbusClient.setVersion(mbusProvider.getVersion(shortId));
         mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
-        mbusClient.installSlave(channel);
+        mbusClient.installSlave(physicalAddress);
     }
 
     private void changeMBusClientAttributes(MessageHandler messageHandler) throws IOException {
         int installChannel = messageHandler.getMbusInstallChannel();
-        int channel = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(channel).getObisCode(),9);
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(),9);
         mbusClient.setManufacturerID(messageHandler.getMbusClientManufacturerID());
         mbusClient.setIdentificationNumber(messageHandler.getMbusClientIdentificationNumber(((Dsmr23Properties)getProtocol().getProperties()).getFixMbusHexShortId()));
         mbusClient.setDeviceType(messageHandler.getMbusDeviceType());

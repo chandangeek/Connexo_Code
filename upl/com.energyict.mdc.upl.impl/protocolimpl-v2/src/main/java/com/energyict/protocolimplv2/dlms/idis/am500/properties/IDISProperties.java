@@ -26,12 +26,16 @@ public class IDISProperties extends DlmsProperties {
     @Override
     public byte[] getSystemIdentifier() {
         //Property CallingAPTitle is used as system identifier in the AARQ
-        final String callingAPTitle = getProperties().getTypedProperty(IDIS.CALLING_AP_TITLE, IDIS.CALLING_AP_TITLE_DEFAULT).trim();
-        if (callingAPTitle.isEmpty()) {
-            return super.getSystemIdentifier();
-        } else {
-            return ProtocolTools.getBytesFromHexString(callingAPTitle, "");
+        final boolean ignoreCallingAPTitle = getProperties().getTypedProperty(IDISConfigurationSupport.IGNORE_CALLING_AP_TITLE, false);
+        if(!ignoreCallingAPTitle){
+            final String callingAPTitle = getProperties().getTypedProperty(IDIS.CALLING_AP_TITLE, IDIS.CALLING_AP_TITLE_DEFAULT).trim();
+            if (callingAPTitle.isEmpty()) {
+                return super.getSystemIdentifier();
+            } else {
+                return ProtocolTools.getBytesFromHexString(callingAPTitle, "");
+            }
         }
+        return null;
     }
 
     @Override

@@ -6,14 +6,7 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -29,26 +22,20 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.ace4000.messages.ACE4000Messaging;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
-import com.energyict.protocolimplv2.ace4000.requests.ReadMBusRegisters;
-import com.energyict.protocolimplv2.ace4000.requests.ReadMeterEvents;
-import com.energyict.protocolimplv2.ace4000.requests.ReadRegisters;
-import com.energyict.protocolimplv2.ace4000.requests.SetTime;
+import com.energyict.protocolimplv2.ace4000.requests.*;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.io.IOException;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -57,7 +44,7 @@ import java.util.logging.Logger;
  * Time: 16:46
  * Author: khe
  */
-public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
+public class ACE4000Outbound extends ACE4000 implements DeviceProtocol,MessageProtocol {
 
     private OfflineDevice offlineDevice;
     private DeviceProtocolCache deviceCache;
@@ -65,6 +52,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private Long cachedMeterTimeDifference = null;
     private ACE4000MessageExecutor messageExecutor = null;
     private DeviceProtocolSecurityPropertySet securityProperties;
+    private ACE4000Messaging messageProtocol;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -86,7 +74,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
+        return "$Date: 2015-12-18 15:10:03 +0200 (Fri, 18 Dec 2015)$";
     }
 
     @Override
@@ -160,17 +148,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return null;
+        return getMessageProtocol().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
-
-            //TODO how to get message entry and content from DeviceMessageShadow?
-            MessageResult messageResult = messageExecutor.executeMessage(new MessageEntry("", ""));
-
-        }
         return null;    //TODO return message results
     }
 
@@ -340,5 +322,42 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         ArrayList<ConnectionType> connectionTypes = new ArrayList<>();
         connectionTypes.add(new InboundIpConnectionType());
         return connectionTypes;
+    }
+
+    public ACE4000Messaging getMessageProtocol() {
+        if (this.messageProtocol == null) {
+            this.messageProtocol = new ACE4000Messaging(new ACE4000MessageExecutor(this));
+        }
+        return messageProtocol;
+    }
+
+    public List getMessageCategories() {
+        return getMessageProtocol().getMessageCategories();
+    }
+
+    @Override
+    public String writeMessage(Message msg) {
+        return getMessageProtocol().writeMessage(msg);
+    }
+
+    @Override
+    public String writeTag(MessageTag tag) {
+        return getMessageProtocol().writeTag(tag);
+    }
+
+    @Override
+    public String writeValue(MessageValue value) {
+        return getMessageProtocol().writeValue(value);
+    }
+
+
+    @Override
+    public void applyMessages(List messageEntries) throws IOException {
+        getMessageProtocol().applyMessages(messageEntries);
+    }
+
+    @Override
+    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        return getMessageProtocol().queryMessage(messageEntry);
     }
 }
