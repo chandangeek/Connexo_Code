@@ -255,7 +255,7 @@ Ext.define('Cfg.view.validationtask.Add', {
         }
     },
 
-    groupComboBox(store, prompt, selected) {
+    groupComboBox: function(store, prompt, selected) {
         return {
             xtype: 'combobox',
             itemId: 'cbo-validation-task-group',
@@ -272,7 +272,7 @@ Ext.define('Cfg.view.validationtask.Add', {
             value: selected
         };
     },
-    groupEmptyMessage(text) {
+    groupEmptyMessage: function(text) {
         return {
             xtype: 'displayfield',
             itemId: 'no-group',
