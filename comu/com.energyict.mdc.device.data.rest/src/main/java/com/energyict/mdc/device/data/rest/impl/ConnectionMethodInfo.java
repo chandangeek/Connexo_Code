@@ -75,15 +75,10 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
             if (this.properties != null) {
                 for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                     Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
-                    if (propertyValue != null) {
+                    if (propertyValue != null || !hasInheritedPropertyValue(partialConnectionTask, propertySpec)) {
                         connectionTask.setProperty(propertySpec.getName(), propertyValue);
                     } else {
-                        Optional<PropertyValueInfo<?>> propertyValueInfo = findPropertyValueInfo(this.properties, propertySpec.getName());
-                        if (propertyValueInfo.isPresent() && (propertyValueInfo.get().inheritedValue == null || "".equals(propertyValueInfo.get().inheritedValue))) {
-                            connectionTask.setProperty(propertySpec.getName(), null);
-                        } else {
-                            connectionTask.removeProperty(propertySpec.getName());//it means that we really want to use inherited value
-                        }
+                        connectionTask.removeProperty(propertySpec.getName());//it means that we really want to use inherited value
                     }
                 }
             }
@@ -92,8 +87,9 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         }
     }
 
-    protected Optional<PropertyValueInfo<?>> findPropertyValueInfo(List<PropertyInfo> properties, String key) {
-        return properties.stream().filter(propertyInfo -> key.equals(propertyInfo.key)).map(PropertyInfo::getPropertyValueInfo).findFirst();
+    protected boolean hasInheritedPropertyValue(PartialConnectionTask partialConnectionTask, PropertySpec propertySpec) {
+        Object property = partialConnectionTask.getTypedProperties().getProperty(propertySpec.getName());
+        return property !=null && !"".equals(property);
     }
 
     public abstract ConnectionTask<?, ?> createTask(EngineConfigurationService engineConfigurationService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
