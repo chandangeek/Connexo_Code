@@ -383,6 +383,46 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             oldEntries.put(oldEntry.getTimeStamp(), oldEntry);
         }
 
+        void prepare() {
+            if (!timeSeries.isRegular() || timeSeries.getRecordSpec().derivedFieldCount() == 0) {
+                return;
+            }
+            newEntries.values().stream().reduce(
+                    null,
+                    (guess, current) -> {
+                        TimeSeriesEntryImpl previous = previous(current, guess);
+                        if (previous != null) {
+                            updateFromPrevious(current, previous);
+                        }
+                        return current;
+                    });
+            for (TimeSeriesEntryImpl entry : oldEntries.values()) {
+                if (!newEntries.containsKey(entry.getTimeStamp())) {
+                    TimeSeriesEntryImpl previous = previous(entry, null);
+                    if (previous != null) {
+                        TimeSeriesEntryImpl current = entry.copy();
+                        if (updateFromPrevious(current, previous)) {
+                            newEntries.put(current.getTimeStamp(), current);
+                        }
+                    }
+                }
+            }
+        }
+
+        private boolean updateFromPrevious(TimeSeriesEntryImpl current, TimeSeriesEntryImpl previous) {
+            boolean result = false;
+            for (int i = 0; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
+                FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
+                if ((current.getValues()[i] == null || current.getValues()[i] == DoNotUpdateMarker.INSTANCE )&& fieldSpec.isDerived() && isABigDecimal(current.getValues()[i + 1]) && isABigDecimal(previous.getValues()[i + 1])) {
+                    BigDecimal currentValue = current.getBigDecimal(i + 1);
+                    BigDecimal previousValue = previous.getBigDecimal(i + 1);
+                    current.set(i, currentValue.subtract(previousValue));
+                    result = true;
+                }
+            }
+            return result;
+        }
+
         private boolean isABigDecimal(Object o) {
             return o instanceof BigDecimal;
         }
