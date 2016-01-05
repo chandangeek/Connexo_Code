@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.data.validation.impl;
 
-import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
 import com.energyict.mdc.device.data.validation.ValidationOverview;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -26,12 +26,15 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
     private volatile ValidationService validationService;
     private volatile DataModel dataModel;
 
+    // For OSGi purposes
     public DeviceDataValidationServiceImpl() {
     }
 
+    // For Testing purposes
     @Inject
     DeviceDataValidationServiceImpl(ValidationService validationService, OrmService ormService) {
-        this.validationService = validationService;
+        this();
+        this.setValidationService(validationService);
         setOrmService(ormService);
     }
 
@@ -46,21 +49,18 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
     }
 
     @Override
-    public List<ValidationOverview> getValidationResultsOfDeviceGroup(Long groupId, Optional<Integer> start, Optional<Integer> limit) {
+    public List<ValidationOverview> getValidationResultsOfDeviceGroup(long groupId, Optional<Integer> start, Optional<Integer> limit) {
         List<ValidationOverview> list = new ArrayList<>();
         Optional<SqlBuilder> found = validationService.getValidationResults(groupId, start, limit);
-        if(found.isPresent()){
-            SqlBuilder sqlBuilder = found.get();
-            sqlBuilder.insertAt(0,
-                    "SELECT DEV.mrid, DEV.serialnumber, DT.name, DC.name FROM DDC_DEVICE DEV " +
-                    "LEFT JOIN MTR_ENDDEVICE ED ON (DEV.id=ed.amrid) " +
-                    "LEFT JOIN DTC_DEVICETYPE DT ON (dev.devicetype=DT.id) " +
-                    "LEFT JOIN DTC_DEVICECONFIG DC ON (dev.deviceconfigid=DC.id) " +
-                    "WHERE " +
-                        "(ED.AMRSYSTEMID = " + KnownAmrSystem.MDC.getId() + "  AND (ED.amrid) IN (");
-            sqlBuilder.append("))");
-
-            try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
+        if (found.isPresent()) {
+            SqlBuilder validationOverviewBuilder = new SqlBuilder();
+            validationOverviewBuilder.append("SELECT DEV.mrid, DEV.serialnumber, DT.name, DC.name FROM DDC_DEVICE DEV ");
+            validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICETYPE DT ON dev.devicetype = DT.id");
+            validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICECONFIG DC ON dev.deviceconfigid = DC.id");
+            validationOverviewBuilder.append(" WHERE DEV.id IN (");
+            validationOverviewBuilder.add(found.get());
+            validationOverviewBuilder.append(")");
+            try (PreparedStatement statement = validationOverviewBuilder.prepare(dataModel.getConnection(false))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         list.add(new ValidationOverview(
