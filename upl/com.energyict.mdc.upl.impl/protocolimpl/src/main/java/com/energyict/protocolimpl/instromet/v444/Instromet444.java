@@ -168,6 +168,9 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
         }
     }
 
+	/**
+	 * The protocol version date
+     */
     public String getProtocolVersion() {
 		return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
 	}
