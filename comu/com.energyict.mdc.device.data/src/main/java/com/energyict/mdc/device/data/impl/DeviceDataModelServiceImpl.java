@@ -158,7 +158,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
             SchedulingService schedulingService, MessageService messageService,
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
-            TransactionService transactionService, JsonService jsonService) {
+            TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -187,6 +187,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setMasterDataService(masterDataService);
         this.setTransactionService(transactionService);
         this.setJsonService(jsonService);
+        this.setMdcIssueService(mdcIssueService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -441,6 +442,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
+    }
+
+    @Reference
+    public void setMdcIssueService(com.energyict.mdc.issues.IssueService mdcIssueService) {
+        this.mdcIssueService = mdcIssueService;
     }
 
     private Module getModule() {
