@@ -58,7 +58,7 @@ mail.from=
 #com.elster.jupiter.server.name=
 
 com.elster.jupiter.bpm.user=admin
-com.elster.jupiter.bpm.password=admin
+com.elster.jupiter.bpm.password=D3moAdmin
 com.elster.jupiter.timeout=300
 com.elster.jupiter.token.refresh.maxcount=100
 com.elster.jupiter.token.expirationtime=300
