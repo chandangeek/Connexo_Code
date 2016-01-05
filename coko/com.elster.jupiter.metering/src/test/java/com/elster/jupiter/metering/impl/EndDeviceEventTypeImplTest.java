@@ -1,33 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-import java.security.Principal;
-import java.sql.SQLException;
-
-import com.elster.jupiter.bpm.impl.BpmModule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -44,11 +28,25 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.security.Principal;
+import java.sql.SQLException;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceEventTypeImplTest extends EqualsContractTest {
@@ -121,7 +119,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
+                String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode();
                 EndDeviceEventTypeImpl endDeviceEventType = meteringService.createEndDeviceEventType(code);
                 Optional<EndDeviceEventType> found = meteringService.getDataModel().mapper(EndDeviceEventType.class).getOptional(code);
                 assertThat(found.get()).isEqualTo(endDeviceEventType);
@@ -150,23 +148,23 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
+            instanceA = createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode());
         }
         return instanceA;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
+        return createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode());
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return ImmutableList.of(
-        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.TIME).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.INCREASED).toCode())
+        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode()),
+        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode()),
+        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.TIME).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode()),
+        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.INCREASED).toCode())
         );
     }
 

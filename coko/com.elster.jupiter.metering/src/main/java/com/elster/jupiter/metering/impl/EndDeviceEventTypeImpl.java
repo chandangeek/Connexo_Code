@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.IllegalEnumValueException;
@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.Objects;
 
@@ -32,7 +31,7 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
     private transient EndDeviceType type;
     private transient EndDeviceDomain domain;
     private transient EndDeviceSubDomain subDomain;
-    private transient EndDeviceEventorAction eventOrAction;
+    private transient EndDeviceEventOrAction eventOrAction;
 
     @SuppressWarnings("unused")
 	private long version;
@@ -74,7 +73,7 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
     }
 
     @Override
-    public EndDeviceEventorAction getEventOrAction() {
+    public EndDeviceEventOrAction getEventOrAction() {
         return eventOrAction;
     }
 
@@ -137,7 +136,7 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
             type = EndDeviceType.get(Integer.parseInt(parts[TYPE_INDEX]));
             domain = EndDeviceDomain.get(Integer.parseInt(parts[DOMAIN_INDEX]));
             subDomain = EndDeviceSubDomain.get(Integer.parseInt(parts[SUBDOMAIN_INDEX]));
-            eventOrAction = EndDeviceEventorAction.get(Integer.parseInt(parts[EVENT_OR_ACTION]));
+            eventOrAction = EndDeviceEventOrAction.get(Integer.parseInt(parts[EVENT_OR_ACTION]));
         } catch (IllegalEnumValueException e) {
             throw new IllegalMRIDFormatException(mRID, e, thesaurus);
         }

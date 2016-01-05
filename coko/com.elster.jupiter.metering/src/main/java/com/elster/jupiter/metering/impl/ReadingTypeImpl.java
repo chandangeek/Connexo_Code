@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.IllegalEnumValueException;
 import com.elster.jupiter.cbo.MacroPeriod;
@@ -19,6 +18,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -28,8 +28,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
@@ -81,7 +84,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 	private TimeAttribute measuringPeriod;
 	private Accumulation accumulation;
 	private FlowDirection flowDirection;
-	private Commodity commodity;
+	private com.elster.jupiter.cbo.Commodity commodity;
 	private MeasurementKind measurementKind;
 	private RationalNumber interharmonic;
 	private RationalNumber argument;
@@ -102,20 +105,20 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
     }
-	
+
 	ReadingTypeImpl init(String mRID, String aliasName) {
 		this.mRID = mRID;
 		this.aliasName = aliasName;
 		this.active = true;
 		setTransientFields();
-		setFullAliasName();
+		buildFullAliasName();
         return this;
 	}
 
 	static Currency getCurrency(int isoCode, Thesaurus thesaurus) {
 		if (isoCode == 0) {
 			isoCode = 999;
-		} 
+		}
 		for (Currency each : Currency.getAvailableCurrencies()) {
 			if (each.getNumericCode() == isoCode) {
 				return each;
@@ -123,27 +126,27 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 		}
 		throw new IllegalCurrencyCodeException(thesaurus, isoCode);
 	}
-	
+
 	static int getCurrencyId(Currency currency) {
 		int result = currency.getNumericCode();
 		return result == 999 ? 0 : result;
 	}
-	
-	@Override 
+
+	@Override
 	public void postLoad() {
 		setTransientFields();
 	}
-	
+
 	@Override
 	public String getMRID() {
 		return mRID;
 	}
-	
+
 	@Override
 	public String getAliasName() {
 		return aliasName;
 	}
-	
+
 	private void setTransientFields() {
 		String[] parts = mRID.split("\\.");
 		if (parts.length != MRID_FIELD_COUNT) {
@@ -155,7 +158,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
             measuringPeriod = TimeAttribute.get(parse(parts[MEASURING_PERIOD]));
             accumulation = Accumulation.get(parse(parts[ACCUMULATION]));
             flowDirection = FlowDirection.get(parse(parts[FLOW_DIRECTION]));
-            commodity = Commodity.get(parse(parts[COMMODITY]));
+            commodity = com.elster.jupiter.cbo.Commodity.get(parse(parts[COMMODITY]));
             measurementKind = MeasurementKind.get(parse(parts[MEASUREMENT_KIND]));
             interharmonic = asRational(parts,INTERHARMONIC_NUMERATOR,INTERHARMONIC_DENOMINATOR);
             argument = asRational(parts,ARGUMENT_NUMERATOR,ARGUMENT_DENOMINATOR);
@@ -171,11 +174,11 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
         }
         equidistant = getIntervalLength().isPresent();
     }
-		
+
 	private int parse(String intString) {
 		return Integer.parseInt(intString);
 	}
-	
+
 	private RationalNumber asRational(String[] parts , int numeratorOffset , int denominatorOffset) {
 		int numerator = parse(parts[numeratorOffset]);
 		int denominator = parse(parts[denominatorOffset]);
@@ -185,7 +188,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 			return new RationalNumber(numerator, denominator);
 		}
 	}
-	
+
 	public String getName() {
 		StringBuilder builder = new StringBuilder();
 		Holder<String> connector = first("").andThen(" ");
@@ -320,7 +323,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
         return mRID.hashCode();
     }
 
-    @Override 
+    @Override
     public boolean isRegular() {
     	return equidistant;
     }
@@ -348,7 +351,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 	@Override
 	public boolean isBulkQuantityReadingType(ReadingType readingType) {
 		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
-		return 
+		return
 			this.macroPeriod.equals(other.macroPeriod) &&
 			this.aggregate.equals(other.aggregate) &&
 			this.measuringPeriod.equals(other.measuringPeriod) &&
@@ -373,21 +376,21 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
         return version;
     }
 
-    @Override 
+    @Override
 	public MacroPeriod getMacroPeriod() {
 		return macroPeriod;
 	}
-    
+
     @Override
 	public Aggregate getAggregate() {
 		return aggregate;
 	}
-    
+
     @Override
 	public TimeAttribute getMeasuringPeriod() {
 		return measuringPeriod;
 	}
-    
+
     @Override
 	public Accumulation getAccumulation() {
 		return accumulation;
@@ -399,10 +402,10 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 	}
 
     @Override
-    public Commodity getCommodity() {
+    public com.elster.jupiter.cbo.Commodity getCommodity() {
 		return commodity;
 	}
-    
+
     @Override
 	public MeasurementKind getMeasurementKind() {
 		return measurementKind;
@@ -412,8 +415,8 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     public RationalNumber getInterharmonic() {
 		return interharmonic;
 	}
-    
-    @Override	
+
+    @Override
     public RationalNumber getArgument() {
 		return argument;
 	}
@@ -427,7 +430,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     public int getCpp() {
 		return cpp;
 	}
-    
+
     @Override
 	public int getConsumptionTier() {
 		return consumptionTier;
@@ -470,7 +473,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 
     @Override
     public void update() {
-        setFullAliasName();
+        this.buildFullAliasName();
         dataModel.mapper(ReadingType.class).update(this);
     }
 
@@ -491,70 +494,33 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     	}
     }
 
-    private void setFullAliasName() {
-		StringBuilder fullAlias = new StringBuilder();
+    private void buildFullAliasName() {
+		List<String> fullAliasNameElements = new ArrayList<>();
 		if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
-			fullAlias.append("[").append(getTranslationWithDefault(this.getMeasuringPeriod().getDescription())).append("] ");
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.MeasuringPeriod.getFullAliasNameElement(this.getMeasuringPeriod(), this.thesaurus));
 		} else if (this.getMacroPeriod().equals(MacroPeriod.DAILY) || this.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
-			fullAlias.append("[").append(getTranslationWithDefault(this.getMacroPeriod().getDescription())).append("] ");
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.MacroPeriod.getFullAliasNameElement(this.getMacroPeriod(), this.thesaurus));
 		}
-		switch (this.getCommodity()) {
-			case ELECTRICITY_PRIMARY_METERED:
-				fullAlias.append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.PRIMARY).format()).append(" ");
-				break;
-			case ELECTRICITY_SECONDARY_METERED:
-				fullAlias.append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.SECONDARY).format()).append(" ");
-				break;
-		}
-		fullAlias.append(getAliasWithAccumulationPrefix(this.getAliasName(), getAccumulation()));
+		fullAliasNameElements.add(ReadingTypeTranslationKeys.Commodity.getFullAliasNameElement(this.getCommodity(), this.thesaurus));
+		fullAliasNameElements.add(this.getAliasName());
 		if (this.getUnit().isApplicable()) {
-			fullAlias.append(" (").append(getTranslationWithDefault(this.getMultiplier().getSymbol())).append(getTranslationWithDefault(this.getUnit().getSymbol())).append(")");
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.UnitWithMultiplier.getFullAliasNameElement(this.getMultiplier(), this.getUnit(), this.thesaurus));
 		}
 		if (this.getPhases().isApplicable()) {
-			fullAlias.append(" ").append(getTranslationWithDefault(this.getPhases().getDescription()));
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.Phase.getFullAliasNameElement(this.getPhases(), this.thesaurus));
 		}
 		if (this.getTou() != 0) {
-			fullAlias.append(" ").append(getTranslationWithDefault("ToU")).append(" ").append(this.getTou());
+			fullAliasNameElements.add(ReadingTypeTranslationKeys.TimeOfUse.getFullAliasNameElement(this.getTou(), this.thesaurus));
 		}
-        fullAliasName =  fullAlias.toString();
-    }
-
-
-	private String getAliasWithAccumulationPrefix(String alias, Accumulation accumulation) {
-		return AccumulationAliasPrefix.getPrefix(accumulation) + alias;
+		fullAliasName = fullAliasNameElements.stream().filter(s -> !Checks.is(s).emptyOrOnlyWhiteSpace()).collect(Collectors.joining(" "));
 	}
 
-	/**
-	 * Adds the proper prefix
-	 */
-	private enum AccumulationAliasPrefix {
-		BULK("Bulk ", Accumulation.BULKQUANTITY),
-		SUM("Sum ", Accumulation.SUMMATION),
-		DELTA("Delta ", Accumulation.DELTADELTA),
-		NONE("", Accumulation.NOTAPPLICABLE);
-
-		private final String prefix;
-		private final Accumulation accumulation;
-
-		AccumulationAliasPrefix(String prefix, Accumulation accumulation) {
-			this.prefix = prefix;
-			this.accumulation = accumulation;
-		}
-
-		static String getPrefix(Accumulation accumulation) {
-			return Stream.of(values()).filter(accumulationAliasPrefix -> accumulationAliasPrefix.accumulation.equals(accumulation)).findFirst().orElseGet(() -> NONE).prefix;
-		}
-
-	}
-
-
-	@Override
+    @Override
     public String getFullAliasName() {
-		setFullAliasName();
-        return fullAliasName;
+	    if (this.fullAliasName == null) {
+		    this.buildFullAliasName();
+	    }
+	    return fullAliasName;
     }
 
-    private String getTranslationWithDefault(String value) {
-        return thesaurus.getString(value, value);
-    }
 }

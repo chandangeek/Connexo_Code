@@ -49,6 +49,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
@@ -88,7 +89,7 @@ public class ReadingEstimateTest {
                 new IdsModule(),
                 new BpmModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
+                new MeteringModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
@@ -114,21 +115,10 @@ public class ReadingEstimateTest {
     @Test
     public void testEstimate() {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
-        Meter meter;
-        String readingTypeCode;
+        Meter meter = createMeter(meteringService);
+        String readingTypeCode = buildReadingType();
         Instant existDate = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant newDate = ZonedDateTime.of(2014, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter").create();
-            ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                    .accumulate(Accumulation.BULKQUANTITY)
-                    .flow(FlowDirection.FORWARD)
-                    .measure(MeasurementKind.ENERGY)
-                    .in(KILO, WATTHOUR);
-            readingTypeCode = builder.code();
-            ctx.commit();
-        }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), existDate);
             reading.addQuality("3.5.258");
@@ -138,19 +128,19 @@ public class ReadingEstimateTest {
         }
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
         Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isTrue();
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), existDate).isPresent()).isTrue();
+        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"), existDate).get().isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
         // added a value adds an added rq
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
+            ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
             reading1.addQuality("3.8.1"); // estimated by rule 1
-        	ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
+            ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
             reading2.addQuality("3.8.2"); // estimated by rule 2
             channel.getCimChannel(readingType).get().estimateReadings(ImmutableList.of(reading1, reading2));
             assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1), existDate).isPresent()).isTrue();
             assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), existDate).isPresent()).isFalse();
-            assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isFalse();
+            assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"), existDate).get().isActual()).isFalse();
             assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2), newDate).isPresent()).isTrue();
             Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
             assertThat(channelReading).isPresent();
@@ -160,59 +150,70 @@ public class ReadingEstimateTest {
     }
 
     @Test
-    public void testEstimateOfBulkAffectsDelta() {
+    public void testEstimateOfBulkAffectsDeltaAndNextDelta() {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
-        Meter meter;
-        String readingTypeCode;
-        Instant existDate = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        Instant newDate = ZonedDateTime.of(2014, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Meter meter = createMeter(meteringService);
+        String readingTypeCode = buildReadingType();
+        Instant dateA = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant dateB = ZonedDateTime.of(2014, 2, 1, 0, 15, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant dateC = ZonedDateTime.of(2014, 2, 1, 0, 30, 0, 0, ZoneId.systemDefault()).toInstant();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter").create();
-            ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                    .accumulate(Accumulation.BULKQUANTITY)
-                    .period(TimeAttribute.MINUTE15)
-                    .flow(FlowDirection.FORWARD)
-                    .measure(MeasurementKind.ENERGY)
-                    .in(WATTHOUR);
-            readingTypeCode = builder.code();
-            ctx.commit();
-        }
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), existDate);
-            reading.addQuality("3.5.258");
-            reading.addQuality("3.6.1");
-            meter.store(MeterReadingImpl.of(reading));
+            ReadingImpl r1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), dateA);
+            r1.addQuality("3.5.258");
+            r1.addQuality("3.6.1");
+            ReadingImpl r2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), dateB);
+            ReadingImpl r3 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), dateC);
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            meterReading.addAllReadings(Arrays.asList(r1, r2, r3));
+            meter.store(meterReading);
             ctx.commit();
         }
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
         Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isTrue();
-        // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
-        // added a value adds an added rq
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), dateA).isPresent()).isTrue();
+        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"), dateA).get().isActual()).isTrue();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
+            ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), dateA);
             reading1.addQuality("3.8.1"); // estimated by rule 1
-            ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
+            ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), dateB);
             reading2.addQuality("3.8.2"); // estimated by rule 2
             CimChannel bulkCimChannel = channel.getCimChannel(readingType).get();
             bulkCimChannel.estimateReadings(ImmutableList.of(reading1, reading2));
-            assertThat(bulkCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1), existDate).isPresent()).isTrue();
-            assertThat(bulkCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), existDate).isPresent()).isFalse();
-            assertThat(bulkCimChannel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isFalse();
-            assertThat(bulkCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2), newDate).isPresent()).isTrue();
+
+            assertThat(bulkCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1), dateA).isPresent()).isTrue();
+            assertThat(bulkCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), dateA).isPresent()).isFalse();
+            assertThat(bulkCimChannel.findReadingQuality(new ReadingQualityType("3.6.1"), dateA).get().isActual()).isFalse();
+            assertThat(bulkCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2), dateB).isPresent()).isTrue();
 
             CimChannel deltaCimChannel = channel.getCimChannel(channel.getMainReadingType()).get();
-            assertThat(deltaCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1), existDate).isPresent()).isTrue();
-            assertThat(deltaCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2), newDate).isPresent()).isTrue();
+            assertThat(deltaCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1), dateA).isPresent()).isTrue();
+            assertThat(deltaCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2), dateB).isPresent()).isTrue();
+            assertThat(deltaCimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2), dateC).isPresent()).isTrue();
 
-            Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
+            Optional<BaseReadingRecord> channelReading = channel.getReading(dateA);
             assertThat(channelReading).isPresent();
-            assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(2), MetricMultiplier.ZERO, WATTHOUR));
+            assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(2), MetricMultiplier.KILO, WATTHOUR));
             ctx.commit();
         }
     }
 
+    private Meter createMeter(MeteringService meteringService) {
+        Meter meter;
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+            meter = amrSystem.newMeter("myMeter").create();
+            ctx.commit();
+        }
+        return meter;
+    }
 
+    private String buildReadingType() {
+        ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .period(TimeAttribute.MINUTE15)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.FORWARD)
+                .measure(MeasurementKind.ENERGY)
+                .in(KILO, WATTHOUR);
+        return builder.code();
+    }
 }

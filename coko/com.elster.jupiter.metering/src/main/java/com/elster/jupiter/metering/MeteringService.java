@@ -130,6 +130,8 @@ public interface MeteringService {
 
     Finder<UsagePoint> getUsagePoints(@NotNull UsagePointFilter filter);
 
+    ReadingTypeFieldsFactory getReadingTypeFieldCodesFactory();
+
     Finder<ReadingType> getReadingTypesByMridFilter(@NotNull ReadingTypeMridFilter filter);
 
     MultiplierType createMultiplierType(String name);

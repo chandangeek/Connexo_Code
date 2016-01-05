@@ -5,22 +5,21 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+
 import com.google.common.collect.ImmutableList;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.text.MessageFormat;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -60,25 +59,9 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     @Mock
     private DataModel dataModel;
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
     private ReadingTypeImpl readingType;
-
-
-    @Before
-    public void initBefore() {
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            return invocationOnMock.getArguments()[1];  // return the default value
-        });
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocation -> {
-            String defaultFormat = invocation.getArgumentAt(0, TranslationKey.class).getDefaultFormat();
-            NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-            when(nlsMessageFormat.format(anyVararg()))
-                    .thenAnswer(invocation1 -> MessageFormat.format(defaultFormat, invocation.getArguments()));
-            return nlsMessageFormat;
-        });
-    }
 
     @Override
     protected boolean canBeSubclassed() {
@@ -110,12 +93,7 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     @Before
     public void setUp() {
-        when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeImpl(dataModel, thesaurus);
-            }
-        });
+        when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(invocationOnMock -> new ReadingTypeImpl(dataModel, thesaurus));
     }
 
     @After
