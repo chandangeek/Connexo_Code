@@ -136,7 +136,7 @@ public class RegisterTypeImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.REGISTER_TYPE_OBIS_CODE_IS_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     public void testCreateWithoutObisCode() {
         String registerTypeName = "testCreateWithoutObisCode";
         this.setupProductSpecsInExistingTransaction();
