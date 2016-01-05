@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -18,6 +21,8 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
@@ -100,6 +105,8 @@ public class DeviceDeleteTest {
     @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
+    private CustomPropertySetService customPropertySetService;
+    @Mock
     private Query<OpenIssue> openIssueQuery;
     @Mock
     private Query<HistoricalIssue> historicalIssueQuery;
@@ -135,6 +142,10 @@ public class DeviceDeleteTest {
     private EnumeratedEndDeviceGroup.Entry entry;
     @Mock
     private MeterActivation currentActiveMeterActivation;
+    @Mock
+    private DeviceType deviceType;
+    @Mock
+    private DeviceConfiguration deviceConfiguration;
 
 
     @Before
@@ -147,6 +158,7 @@ public class DeviceDeleteTest {
         when(issueService.query(HistoricalIssue.class)).thenReturn(historicalIssueQuery);
         when(historicalIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(issueService.findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.<IssueStatus>empty());
+        when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
     }
 
     @Test
@@ -208,6 +220,18 @@ public class DeviceDeleteTest {
         verify(currentActiveMeterActivation).endAt(now);
     }
 
+    @Test
+    public void deleteWithCustomPropertySets() {
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.deviceType.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        DeviceImpl device = getNewDeviceWithMockedServices();
+        device.delete();
+
+        verify(customPropertySetService).removeValuesFor(customPropertySet, device);
+    }
+
     private void setupWithActiveMeterActivation() {
         setupMocksForKoreMeter();
         doReturn(Optional.of(currentActiveMeterActivation)).when(meter).getCurrentMeterActivation();
@@ -249,10 +273,12 @@ public class DeviceDeleteTest {
     }
 
     private DeviceImpl getNewDeviceWithMockedServices() {
-        return new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
                 connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider,
-                meteringGroupsService);
+                meteringGroupsService, customPropertySetService);
+        device.initialize(this.deviceConfiguration, "For testing purposes", "mRID");
+        return device;
     }
 
 }

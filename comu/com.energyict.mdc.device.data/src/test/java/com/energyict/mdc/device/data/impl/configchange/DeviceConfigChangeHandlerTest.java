@@ -4,18 +4,23 @@ import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -26,6 +31,7 @@ import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
@@ -33,16 +39,30 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.internal.verification.Times;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.EventConstants;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -100,6 +120,18 @@ public class DeviceConfigChangeHandlerTest {
         when(deviceSearchDomain.supports(Device.class)).thenReturn(true);
         when(deviceSearchDomain.getId()).thenReturn("Device");
         when(deviceSearchDomain.getProperties()).thenReturn(Arrays.asList(deviceTypeProperty, deviceConfigProperty));
+        when(deviceSearchDomain.getPropertiesValues(Matchers.any())).thenAnswer(
+                inv -> deviceSearchDomain.getProperties()
+                .stream()
+                .map(props -> ((Function<SearchableProperty, SearchablePropertyValue>)inv.getArguments()[0]).apply(props))
+                .collect(Collectors.toList())
+        );
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        when(valueFactory.fromStringValue(Matchers.anyString())).thenAnswer(inv -> inv.getArguments()[0]);
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(deviceConfigProperty.getSpecification()).thenReturn(propertySpec);
+        when(deviceTypeProperty.getSpecification()).thenReturn(propertySpec);
         when(searchService.findDomain(Device.class.getName())).thenReturn(Optional.of(deviceSearchDomain));
         when(deviceService.findDeviceConfigChangeRequestById(DEVICE_CONFIG_CHANGE_REQUEST_ID)).thenReturn(Optional.of(deviceConfigChangeRequest));
         when(deviceType.getId()).thenReturn(DEVICE_TYPE_ID);
@@ -109,12 +141,28 @@ public class DeviceConfigChangeHandlerTest {
         when(deviceConfigChangeRequest.addDeviceInAction(any())).thenReturn(deviceConfigChangeInAction);
     }
 
+    private SearchablePropertyValue.ValueBean getDeviceTypeValueBean(){
+        SearchablePropertyValue.ValueBean bean = new SearchablePropertyValue.ValueBean();
+        bean.propertyName = DeviceConfigChangeHandler.deviceTypeSearchPropertyName;
+        bean.operator = SearchablePropertyOperator.EQUAL;
+        bean.values = Collections.singletonList(String.valueOf(DEVICE_TYPE_ID));
+        return bean;
+    }
+
+    private SearchablePropertyValue.ValueBean getDeviceConfigValueBean(){
+        SearchablePropertyValue.ValueBean bean = new SearchablePropertyValue.ValueBean();
+        bean.propertyName = DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName;
+        bean.operator = SearchablePropertyOperator.EQUAL;
+        bean.values = Collections.singletonList(String.valueOf(DEVICE_CONFIG_ID));
+        return bean;
+    }
+
+
     @Test
     public void searchFilterTest() throws JsonProcessingException {
-        DevicesForConfigChangeSearch.DeviceSearchItem deviceTypeSearchItem = new DevicesForConfigChangeSearch.DeviceSearchItem(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, DevicesForConfigChangeSearch.Operator.IN, Collections.singletonList(String.valueOf(DEVICE_TYPE_ID)));
-        DevicesForConfigChangeSearch.DeviceSearchItem deviceConfigSearchItem = new DevicesForConfigChangeSearch.DeviceSearchItem(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, DevicesForConfigChangeSearch.Operator.IN, Collections.singletonList(String.valueOf(DEVICE_CONFIG_ID)));
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = new DevicesForConfigChangeSearch();
-        devicesForConfigChangeSearch.searchItems = Arrays.asList(deviceTypeSearchItem, deviceConfigSearchItem);
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, getDeviceTypeValueBean());
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, getDeviceConfigValueBean());
 
         ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(DESTINATION_CONFIG_ID, Collections.emptyList(), devicesForConfigChangeSearch, DEVICE_CONFIG_CHANGE_REQUEST_ID);
 
@@ -131,10 +179,9 @@ public class DeviceConfigChangeHandlerTest {
 
     @Test
     public void noSearchWhenFixedListIsProvidedTest() throws JsonProcessingException {
-        DevicesForConfigChangeSearch.DeviceSearchItem deviceTypeSearchItem = new DevicesForConfigChangeSearch.DeviceSearchItem(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, DevicesForConfigChangeSearch.Operator.IN, Collections.singletonList(String.valueOf(DEVICE_TYPE_ID)));
-        DevicesForConfigChangeSearch.DeviceSearchItem deviceConfigSearchItem = new DevicesForConfigChangeSearch.DeviceSearchItem(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, DevicesForConfigChangeSearch.Operator.IN, Collections.singletonList(String.valueOf(DEVICE_CONFIG_ID)));
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = new DevicesForConfigChangeSearch();
-        devicesForConfigChangeSearch.searchItems = Arrays.asList(deviceTypeSearchItem, deviceConfigSearchItem);
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, getDeviceTypeValueBean());
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, getDeviceConfigValueBean());
 
         String deviceMRID1 = "deviceMRDI1";
         when(deviceService.findByUniqueMrid(deviceMRID1)).thenReturn(Optional.empty());
@@ -158,10 +205,9 @@ public class DeviceConfigChangeHandlerTest {
 
     @Test
     public void fixedMridListChangeConfigTest() throws JsonProcessingException {
-        DevicesForConfigChangeSearch.DeviceSearchItem deviceTypeSearchItem = new DevicesForConfigChangeSearch.DeviceSearchItem(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, DevicesForConfigChangeSearch.Operator.IN, Collections.singletonList(String.valueOf(DEVICE_TYPE_ID)));
-        DevicesForConfigChangeSearch.DeviceSearchItem deviceConfigSearchItem = new DevicesForConfigChangeSearch.DeviceSearchItem(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, DevicesForConfigChangeSearch.Operator.IN, Collections.singletonList(String.valueOf(DEVICE_CONFIG_ID)));
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = new DevicesForConfigChangeSearch();
-        devicesForConfigChangeSearch.searchItems = Arrays.asList(deviceTypeSearchItem, deviceConfigSearchItem);
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, getDeviceTypeValueBean());
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, getDeviceConfigValueBean());
 
         String helloFromMyTest = "HelloFromMyTest";
 
@@ -172,14 +218,19 @@ public class DeviceConfigChangeHandlerTest {
         when(deviceDataModelService.messageService()).thenReturn(messageService);
         when(messageService.getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION)).thenReturn(Optional.of(destinationSpec));
         when(jsonService.serialize(any())).thenReturn(helloFromMyTest);
+        State activeState = mock(State.class);
+        when(activeState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
         String deviceMRID1 = "deviceMRDI1";
         Device device1 = mock(Device.class);
+        when(device1.getState()).thenReturn(activeState);
         when(deviceService.findByUniqueMrid(deviceMRID1)).thenReturn(Optional.of(device1));
         String deviceMRID2 = "deviceMRDI2";
         Device device2 = mock(Device.class);
+        when(device2.getState()).thenReturn(activeState);
         when(deviceService.findByUniqueMrid(deviceMRID2)).thenReturn(Optional.of(device2));
         String deviceMRID3 = "deviceMRDI3";
         Device device3 = mock(Device.class);
+        when(device3.getState()).thenReturn(activeState);
         when(deviceService.findByUniqueMrid(deviceMRID3)).thenReturn(Optional.of(device3));
 
         List<String> deviceMRIDs = Arrays.asList(deviceMRID1, deviceMRID2, deviceMRID3);
@@ -196,11 +247,47 @@ public class DeviceConfigChangeHandlerTest {
     }
 
     @Test
+    public void testChangeConfigForDecommissionedDevice() throws JsonProcessingException {
+        DevicesForConfigChangeSearch devicesForConfigChangeSearch = new DevicesForConfigChangeSearch();
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, getDeviceTypeValueBean());
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, getDeviceConfigValueBean());
+
+
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        when(destinationSpec.message(anyString())).thenReturn(messageBuilder);
+        MessageService messageService = mock(MessageService.class);
+        when(deviceDataModelService.messageService()).thenReturn(messageService);
+        when(messageService.getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION)).thenReturn(Optional.of(destinationSpec));
+        State decommissionedState = mock(State.class);
+        when(decommissionedState.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
+        String deviceMRID1 = "deviceMRDI1";
+        Device device1 = mock(Device.class);
+        when(device1.getState()).thenReturn(decommissionedState);
+        when(deviceService.findByUniqueMrid(deviceMRID1)).thenReturn(Optional.of(device1));
+
+        List<String> deviceMRIDs = Arrays.asList(deviceMRID1);
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(DESTINATION_CONFIG_ID, deviceMRIDs, devicesForConfigChangeSearch, DEVICE_CONFIG_CHANGE_REQUEST_ID);
+        mockSearchBuilder(mockMessageHandlerInternals(itemizeConfigChangeQueueMessage));
+        DeviceConfigChangeHandler deviceConfigChangeHandler = getTestInstance();
+
+        Message queueMessage = mock(Message.class);
+        NlsMessageFormat format = mock(NlsMessageFormat.class);
+        when(format.format(anyVararg())).thenReturn("some message");
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
+        deviceConfigChangeHandler.process(queueMessage);
+
+        verify(messageBuilder, never()).send();
+        verify(destinationSpec, never()).message(Matchers.anyString());
+    }
+
+
+    @Test
     @Expected(value = DeviceConfigurationChangeException.class, message = "You need to search a specific device configuration in order to use the bulk action for change device configuration")
     public void noDeviceConfigInSearchFilterTest() throws JsonProcessingException {
-        DevicesForConfigChangeSearch.DeviceSearchItem deviceTypeSearchItem = new DevicesForConfigChangeSearch.DeviceSearchItem(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, DevicesForConfigChangeSearch.Operator.IN, Collections.singletonList(String.valueOf(DEVICE_TYPE_ID)));
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = new DevicesForConfigChangeSearch();
-        devicesForConfigChangeSearch.searchItems = Collections.singletonList(deviceTypeSearchItem);
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, getDeviceTypeValueBean());
+
 
         ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(DESTINATION_CONFIG_ID, Collections.emptyList(), devicesForConfigChangeSearch, DEVICE_CONFIG_CHANGE_REQUEST_ID);
 
@@ -215,10 +302,11 @@ public class DeviceConfigChangeHandlerTest {
     @Test
     @Expected(value = DeviceConfigurationChangeException.class, message = "You need to search on a unique device configuration in order to use the bulk action for change device configuration")
     public void multipleDeviceConfigsInSearchFilter() throws JsonProcessingException {
-        DevicesForConfigChangeSearch.DeviceSearchItem deviceTypeSearchItem = new DevicesForConfigChangeSearch.DeviceSearchItem(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, DevicesForConfigChangeSearch.Operator.IN, Collections.singletonList(String.valueOf(DEVICE_TYPE_ID)));
-        DevicesForConfigChangeSearch.DeviceSearchItem deviceConfigSearchItem = new DevicesForConfigChangeSearch.DeviceSearchItem(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, DevicesForConfigChangeSearch.Operator.IN, Arrays.asList("1","2","3"));
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = new DevicesForConfigChangeSearch();
-        devicesForConfigChangeSearch.searchItems = Arrays.asList(deviceTypeSearchItem,  deviceConfigSearchItem);
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, getDeviceTypeValueBean());
+        SearchablePropertyValue.ValueBean deviceConfigValueBean = getDeviceConfigValueBean();
+        deviceConfigValueBean.values = Arrays.asList("1", "2", "3");
+        devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, deviceConfigValueBean);
 
         ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(DESTINATION_CONFIG_ID, Collections.emptyList(), devicesForConfigChangeSearch, DEVICE_CONFIG_CHANGE_REQUEST_ID);
 

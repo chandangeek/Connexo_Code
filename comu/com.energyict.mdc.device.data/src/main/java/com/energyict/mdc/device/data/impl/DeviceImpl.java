@@ -4,6 +4,9 @@ import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -126,6 +129,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -177,6 +181,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     private final ValidationService validationService;
     private final SecurityPropertyService securityPropertyService;
     private final MeteringGroupsService meteringGroupsService;
+    private final CustomPropertySetService customPropertySetService;
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
@@ -185,14 +190,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     private long id;
 
     private final Reference<DeviceType> deviceType = ValueReference.absent();
-    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_REQUIRED + "}")
+    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED + "}")
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String mRID;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String serialNumber;
@@ -247,7 +252,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
             Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
             Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider,
             Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider,
-            MeteringGroupsService meteringGroupsService) {
+            MeteringGroupsService meteringGroupsService,
+            CustomPropertySetService customPropertySetService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -263,6 +269,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
         this.firmwareComTaskExecutionProvider = firmwareComTaskExecutionProvider;
         this.meteringGroupsService = meteringGroupsService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
@@ -387,8 +394,22 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         deleteSecuritySettings();
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
+        this.removeCustomProperties();
         this.obsoleteKoreDevice();
         this.getDataMapper().remove(this);
+    }
+
+    private void removeCustomProperties() {
+        this.getDeviceType().getCustomPropertySets().forEach(this::removeCustomPropertiesFor);
+    }
+
+    private void removeCustomPropertiesFor(RegisteredCustomPropertySet customPropertySet) {
+        this.removeCustomPropertiesFor(customPropertySet.getCustomPropertySet());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removeCustomPropertiesFor(CustomPropertySet customPropertySet) {
+        this.customPropertySetService.removeValuesFor(customPropertySet, this);
     }
 
     private void obsoleteKoreDevice() {
