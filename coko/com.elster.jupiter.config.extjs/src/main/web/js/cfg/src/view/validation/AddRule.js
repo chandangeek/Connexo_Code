@@ -72,7 +72,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             width: 600,
                             listeners: {
                                 afterrender: function (field) {
-                                    field.focus(false, 500);
+                                    field.focus(false, 200);
                                 }
                             }
                         },
