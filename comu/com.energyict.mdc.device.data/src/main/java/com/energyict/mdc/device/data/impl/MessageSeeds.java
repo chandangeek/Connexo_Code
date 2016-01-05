@@ -14,16 +14,12 @@ import static java.util.logging.Level.SEVERE;
  * @since 2014-03-06 (14:41)
  */
 public enum MessageSeeds implements MessageSeed {
-    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required"),
     CODING_RELATION_IS_ALREADY_OBSOLETE(1001, "relation.isAlreadyObsolete", "Cannot remove a property because the relation (of type ''{0}'') that holds it is already obsolete"),
     CODING_NO_PROPERTIES_EXPECTED(1002, "noAttributesExpected", "Was not expecting a value to be added for property ''{0}'' because the pluggable does not have any properties"),
     UNEXPECTED_RELATION_TRANSACTION_ERROR(1003, "unExpectedRelationTransactionError", "Unexpected problem occurred in the relation transaction framework"),
     COMPORT_TYPE_NOT_SUPPORTED(1004, Keys.COMPORT_TYPE_NOT_SUPPORTED, "The communication port type of the communication port pool must be supported by the connection type"),
     CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED(1006, Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED, "A connection task requires a connection type pluggable class"),
     CONNECTION_TASK_COMPORT_POOL_REQUIRED(1007, Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED, "A connection task requires a communication port pool"),
-    MRID_IS_REQUIRED(1008, Keys.MRID_REQUIRED, "The MRID is required"),
-    DEVICE_TYPE_IS_REQUIRED(1009, Keys.DEVICE_TYPE_REQUIRED, "The device type is required"),
-    DEVICE_CONFIGURATION_IS_REQUIRED(1010, Keys.DEVICE_CONFIGURATION_REQUIRED, "The device configuration is required"),
     FIELD_TOO_LONG(1011, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     VETO_COMPORTPOOL_DELETION(1012, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by at least one device"),
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by a data collection KPI"),
@@ -166,12 +162,8 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public static class Keys {
-        public static final String NAME_REQUIRED = "X.name.required";
         public static final String FIELD_REQUIRED = "X.field.required";
         public static final String FIELD_TOO_LONG = "invalidFieldLength";
-        public static final String MRID_REQUIRED = "mRIDRequired";
-        public static final String DEVICE_TYPE_REQUIRED = "deviceTypeRequired";
-        public static final String DEVICE_CONFIGURATION_REQUIRED = "deviceConfigurationRequired";
         public static final String COMPORT_TYPE_NOT_SUPPORTED = "comPortTypeOfComPortPoolMustBeSupportedByConnectionType";
         public static final String CONNECTION_TASK_DEVICE_REQUIRED = "connectionType.device.required";
         public static final String CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED = "connectionType.partialConnectionTask.required";
