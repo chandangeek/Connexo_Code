@@ -12,6 +12,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -78,19 +79,8 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public String getStringBeyondComponent(String key, String defaultMessage) {
-        if (translations.containsKey(key)) {
-            return translations.get(key).translate(getLocale()).orElse(defaultMessage);
-        } else {
-            Optional<NlsKeyImpl> first = getAdditionalKey(key);
-            if (first.isPresent()) {
-                translations.put(key, first.get());
-                return translations.get(key).translate(getLocale()).orElse(defaultMessage);
-            } else {
-                return defaultMessage;
-            }
-        }
+        return this.getStringBeyondComponent(getLocale(), key, defaultMessage);
     }
-
 
     @Override
     public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
@@ -99,6 +89,8 @@ class ThesaurusImpl implements IThesaurus {
         } else {
             Optional<NlsKeyImpl> first = getAdditionalKey(key);
             if (first.isPresent()) {
+                // Load translations to avoid that they are not loaded when this happens to be the first call
+                this.ensureTranslationsLoaded();
                 translations.put(key, first.get());
                 return translations.get(key).translate(locale).orElse(defaultMessage);
             } else {
@@ -109,23 +101,22 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public String getString(String key, String defaultMessage) {
-        if (translations.isEmpty()) {
-            initTranslations(component, layer);
-        }
-        if (!translations.containsKey(key)) {
-            if (!translations.containsKey(key)) {
-                return defaultMessage;
-            }
-        }
-        return translations.get(key).translate(getLocale()).orElse(defaultMessage);
+        return this.getString(getLocale(), key, defaultMessage);
     }
 
     @Override
     public String getString(Locale locale, String key, String defaultMessage) {
+        this.ensureTranslationsLoaded();
         if (!translations.containsKey(key)) {
             return defaultMessage;
         }
         return translations.get(key).translate(locale).orElse(defaultMessage);
+    }
+
+    private void ensureTranslationsLoaded() {
+        if (translations.isEmpty()) {
+            initTranslations(component, layer);
+        }
     }
 
     public Locale getLocale() {
@@ -134,54 +125,40 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public void addTranslations(Iterable<? extends Translation> translations) {
-        Map<NlsKey, List<Translation>> map = new HashMap<>();
-        for (Translation translation : translations) {
-            if (!map.containsKey(translation.getNlsKey())) {
-                map.put(translation.getNlsKey(), new ArrayList<>());
+        List<NlsKey> newKeys = new ArrayList<>();
+        initTranslations(this.component, this.layer);
+        translations.forEach(translation -> {
+            if (!this.translations.containsKey(translation.getNlsKey().getKey())) {
+                newKeys.add(newNlsKey(translation.getNlsKey().getKey(), translation.getTranslation()));
             }
-            map.get(translation.getNlsKey()).add(translation);
-        }
-        for (Map.Entry<NlsKey, List<Translation>> entry : map.entrySet()) {
-            NlsKey entryKey = entry.getKey();
-            Optional<NlsKey> found = dataModel.mapper(NlsKey.class).getOptional(entryKey.getComponent(), entryKey.getLayer(), entryKey.getKey());
-            NlsKeyImpl nlsKey = (NlsKeyImpl) found.orElseGet(() -> nlsKeyProvider.get().init(entryKey));
-            nlsKey.clearTranslations();
-            for (Translation translation : entry.getValue()) {
-                nlsKey.add(translation.getLocale(), translation.getTranslation());
-                if (Locale.ENGLISH.equals(translation.getLocale())) {
-                    nlsKey.setDefaultMessage(translation.getTranslation());
-                }
-            }
-            nlsKey.save();
-            this.translations.put(nlsKey.getKey(), nlsKey);
-        }
+        });
+        addNewTranslations(newKeys);
     }
 
     void createNewTranslationKeys(TranslationKeyProvider provider) {
-        initTranslations(component, layer);
-        List<NlsKey> newKeys = provider.getKeys().stream().filter(tk -> !translations.containsKey(tk.getKey())).map(this::newNlsKey).collect(Collectors.toList());
-
-        if (!newKeys.isEmpty()) {
-            // remove duplicate keys
-            Set<String> uniqueIds = new HashSet<>();
-            List<NlsKey> uniqueKeys = new ArrayList<>();
-
-            for (NlsKey key : newKeys) {
-                if (uniqueIds.add(key.getKey())) {
-                    uniqueKeys.add(key);
-                }
+        List<NlsKey> newKeys = new ArrayList<>();
+        initTranslations(this.component, this.layer);
+        provider.getKeys().forEach(translation -> {
+            if (!this.translations.containsKey(translation.getKey())) {
+                newKeys.add(newNlsKey(translation.getKey(), translation.getDefaultFormat()));
             }
+        });
+        addNewTranslations(newKeys);
+    }
 
+    private void addNewTranslations(List<NlsKey> nlsKeys) {
+        if (!nlsKeys.isEmpty()) {
+            Set<String> uniqueIds = new HashSet<>();
+            List<NlsKey> uniqueKeys = nlsKeys.stream().filter(key -> uniqueIds.add(key.getKey())).collect(Collectors.toList());
             dataModel.mapper(NlsKey.class).persist(uniqueKeys);
             initTranslations(component, layer);
         }
-
     }
 
-    private NlsKey newNlsKey(TranslationKey translationKey) {
-        NlsKeyImpl nlsKey = nlsKeyProvider.get().init(component, layer, translationKey.getKey());
-        nlsKey.setDefaultMessage(translationKey.getDefaultFormat());
-        nlsKey.add(Locale.ENGLISH, translationKey.getDefaultFormat());
+    private NlsKey newNlsKey(String key, String defaultFormat) {
+        NlsKeyImpl nlsKey = nlsKeyProvider.get().init(component, layer, key);
+        nlsKey.setDefaultMessage(defaultFormat);
+        nlsKey.add(Locale.ENGLISH, defaultFormat);
         return nlsKey;
     }
 
@@ -214,9 +191,7 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public Map<String, String> getTranslations() {
-        if (translations.isEmpty()) {
-            initTranslations(component, layer);
-        }
+        this.ensureTranslationsLoaded();
         Map<String, String> map = new TreeMap<>();
         for (Map.Entry<String, NlsKeyImpl> entry : translations.entrySet()) {
             map.put(entry.getKey(), translate(entry.getValue()));
