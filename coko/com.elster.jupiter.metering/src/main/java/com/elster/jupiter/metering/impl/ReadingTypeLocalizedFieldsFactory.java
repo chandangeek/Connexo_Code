@@ -47,7 +47,7 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
                         .collect(Collectors.<TimeAttribute, Integer, String>toMap(TimeAttribute::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.MeasuringPeriod(c)).format()))),
         ACCUMULATION(ReadingTypeFilter.ReadingTypeFields.ACCUMULATION.getName(),
                 (thesaurus) -> Arrays.stream(Accumulation.values()).filter(e -> e.getId() != 0)
-                        .collect(Collectors.<Accumulation, Integer, String>toMap(Accumulation::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.Accumulation(c)).format()))),
+                        .collect(Collectors.<Accumulation, Integer, String>toMap(Accumulation::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.AccumulationFields(c)).format()))),
         FLOW_DIRECTION(ReadingTypeFilter.ReadingTypeFields.FLOW_DIRECTION.getName(),
                 (thesaurus) -> Arrays.stream(FlowDirection.values()).filter(e -> e.getId() != 0)
                         .collect(Collectors.<FlowDirection, Integer, String>toMap(FlowDirection::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.FlowDirection(c)).format()))),

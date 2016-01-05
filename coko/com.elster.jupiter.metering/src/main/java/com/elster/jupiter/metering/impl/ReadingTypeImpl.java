@@ -502,6 +502,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 			fullAliasNameElements.add(ReadingTypeTranslationKeys.MacroPeriod.getFullAliasNameElement(this.getMacroPeriod(), this.thesaurus));
 		}
 		fullAliasNameElements.add(ReadingTypeTranslationKeys.Commodity.getFullAliasNameElement(this.getCommodity(), this.thesaurus));
+		fullAliasNameElements.add(ReadingTypeTranslationKeys.Accumulation.getFullAliasNameElement(this.getAccumulation(), this.thesaurus));
 		fullAliasNameElements.add(this.getAliasName());
 		if (this.getUnit().isApplicable()) {
 			fullAliasNameElements.add(ReadingTypeTranslationKeys.UnitWithMultiplier.getFullAliasNameElement(this.getMultiplier(), this.getUnit(), this.thesaurus));

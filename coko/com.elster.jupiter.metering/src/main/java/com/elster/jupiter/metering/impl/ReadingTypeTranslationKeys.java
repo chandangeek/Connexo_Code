@@ -311,10 +311,44 @@ public final class ReadingTypeTranslationKeys {
         }
     }
 
-    public static class Accumulation implements TranslationKey {
+    public enum Accumulation implements TranslationKey {
+        DELTA("readingType.accumulation.delta", "Delta", com.elster.jupiter.cbo.Accumulation.DELTADELTA),
+        BULK("readingType.accumulation.bulk", "Bulk", com.elster.jupiter.cbo.Accumulation.BULKQUANTITY),
+        SUM("readingType.accumulation.sum", "Sum", com.elster.jupiter.cbo.Accumulation.SUMMATION);
+
+        private final String key;
+        private final String defaultFormat;
         private final com.elster.jupiter.cbo.Accumulation accumulation;
 
-        public Accumulation(com.elster.jupiter.cbo.Accumulation accumulation) {
+        Accumulation(String key, String defaultFormat, com.elster.jupiter.cbo.Accumulation accumulation) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+            this.accumulation = accumulation;
+        }
+
+        @Override
+        public String getKey() {
+            return this.key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.defaultFormat;
+        }
+
+        public static String getFullAliasNameElement(com.elster.jupiter.cbo.Accumulation accumulation, Thesaurus thesaurus) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.accumulation.equals(accumulation))
+                    .findFirst()
+                    .map(key -> thesaurus.getFormat(key).format()).orElse("");
+        }
+    }
+
+    public static class AccumulationFields implements TranslationKey {
+        private final com.elster.jupiter.cbo.Accumulation accumulation;
+
+        public AccumulationFields(com.elster.jupiter.cbo.Accumulation accumulation) {
             super();
             this.accumulation = accumulation;
         }
@@ -332,14 +366,15 @@ public final class ReadingTypeTranslationKeys {
         public static Stream<TranslationKey> allKeys() {
             return Stream
                     .of(com.elster.jupiter.cbo.Accumulation.values())
-                    .map(Accumulation::new)
-                    .map(Accumulation::asTranslationKey);
+                    .map(AccumulationFields::new)
+                    .map(AccumulationFields::asTranslationKey);
         }
 
         private TranslationKey asTranslationKey() {
             return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
         }
     }
+
 
     public static class FlowDirection implements TranslationKey {
         private final com.elster.jupiter.cbo.FlowDirection flowDirection;
@@ -472,10 +507,11 @@ public final class ReadingTypeTranslationKeys {
         Multiplier.allKeys().forEach(allKeys::add);
         Unit.allKeys().forEach(allKeys::add);
         Aggregate.allKeys().forEach(allKeys::add);
-        Accumulation.allKeys().forEach(allKeys::add);
+        Collections.addAll(allKeys, Accumulation.values());
         FlowDirection.allKeys().forEach(allKeys::add);
         MeasurementKind.allKeys().forEach(allKeys::add);
         CommodityFields.allKeys().forEach(allKeys::add);
+        AccumulationFields.allKeys().forEach(allKeys::add);
         Arrays.stream(Currency.values()).map(Currency::asTranslationKey).forEach(allKeys::add);
         return allKeys;
     }
