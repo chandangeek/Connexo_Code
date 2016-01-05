@@ -467,7 +467,7 @@ Ext.define('Uni.service.Search', {
             });
         }
 
-        me.fireEvent('change', widget);
+        me.fireEvent('change', widget, null);
         return widget;
     },
 

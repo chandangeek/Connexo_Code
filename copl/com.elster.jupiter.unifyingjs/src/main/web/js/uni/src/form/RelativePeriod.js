@@ -73,6 +73,8 @@ Ext.define('Uni.form.RelativePeriod', {
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('form.relativePeriod.preview', 'UNI', 'Preview'),
+                combineErrors: true,
+                msgTarget: 'under',
                 items: [
                     {
                         xtype: 'component',
@@ -82,6 +84,14 @@ Ext.define('Uni.form.RelativePeriod', {
                             fontWeight: 'normal'
                         },
                         html: ''
+                    },
+                    {
+                        // added for validation
+                        xtype: 'displayfield',
+                        name: me.startPeriodCfg && me.startPeriodCfg.errorId
+                            ? me.startPeriodCfg.errorId
+                            : undefined,
+                        hidden: true
                     }
                 ]
             }

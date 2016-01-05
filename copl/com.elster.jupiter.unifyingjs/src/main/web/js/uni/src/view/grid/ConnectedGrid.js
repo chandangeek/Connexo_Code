@@ -102,8 +102,12 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                         }
                     }
                 },
-                height: 400,
-                width: 200
+                height: 368,
+                width: 200,
+                style: {
+                    'padding-bottom': '0',
+                    'margin-bottom': '30px'
+                }
             },
             {
                 xtype: 'container',

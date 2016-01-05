@@ -153,12 +153,17 @@ Ext.define('Uni.property.view.property.Base', {
      * @param {Uni.property.model.Property} property
      */
     setProperty: function (property) {
+        var value;
         this.property = property;
-
         if (property) {
+            if (property.get('value') == 0 || property.get('value')) {
+                value = property.get('value');
+            } else {
+                value = undefined;
+            }
             this.setKey(property.get('key'));
             this.setLocalizedName(property.get('name'));
-            this.setValue(!property.get('value') ? undefined : property.get('value'));
+            this.setValue(value);
             this.updateResetButton();
             this.updateEditButton();
         }
@@ -235,13 +240,13 @@ Ext.define('Uni.property.view.property.Base', {
      */
     showPopupEnteredValueEqualsInheritedValue: function (field, property) {
         var me = this,
-            key = property.get('key');
+            name = property.get('name');
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.yes', 'UNI', 'Yes'),
             cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
         }).show({
-            msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), key),
-            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'UNI', 'Set \'{0}\' to its default value?'), key),
+            msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), name),
+            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'UNI', 'Set \'{0}\' to its default value?'), name),
             config: {
                 property: me,
                 field: field

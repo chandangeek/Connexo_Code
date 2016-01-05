@@ -82,7 +82,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                                 }
 
                                 data.push({
-                                    name: 'Last',
+                                    name: Uni.I18n.translate('form.field.onPeriod.optionDayOfMonth.day.last', 'UNI', 'Last'),
                                     value: 31
                                 });
 

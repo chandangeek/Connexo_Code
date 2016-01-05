@@ -39,7 +39,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
 
                         listConfig: {
                             cls: 'isu-combo-color-list',
-                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'UNI', 'No readingtype found')
+                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'UNI', 'No reading types found')
                         },
 
                         queryMode: 'remote',

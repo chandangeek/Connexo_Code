@@ -47,7 +47,7 @@ Ext.define("Ext.ux.exporter.Exporter", {
             formatter = this.getFormatterByName(formatter);
 
             var store = grid.getStore() || config.store;
-            var columns = Ext.Array.filter(grid.columns, function(col) {
+            var columns = Ext.Array.filter(grid.getColumnManager().getColumns(), function(col) {
                 return !col.hidden && (!col.xtype || col.xtype != "uni-actioncolumn");
                 //return !col.hidden; // && (!col.xtype || col.xtype != "actioncolumn");
             });

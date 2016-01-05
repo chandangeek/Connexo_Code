@@ -14,7 +14,6 @@ Ext.define('Uni.view.navigation.Help', {
         itemId: 'global-help-menu',
         plain: true,
         border: false,
-        shadow: false,
         defaults: {
             isMenuItem: false // workaround to avoid firing click event twice
         },

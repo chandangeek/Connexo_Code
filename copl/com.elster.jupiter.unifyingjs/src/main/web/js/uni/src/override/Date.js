@@ -1,64 +1,28 @@
 Ext.define('Uni.override.Date', {
-    override: 'Ext.picker.Date',
+    override: 'Ext.Date',
 
-    runAnimation: function(isHide){
-        var me = this,
-            picker = this.monthPicker,
-            options = {
-                duration: 200,
-                callback: function() {
-                    picker.setVisible(!isHide);
-                    // See showMonthPicker
-                    picker.ownerCmp = isHide ? null : me;
-                }
-            };
+    dayNames: [
+        Uni.I18n.translate('general.day.sunday', 'UNI', 'Sunday'),
+        Uni.I18n.translate('general.day.monday', 'UNI', 'Monday'),
+        Uni.I18n.translate('general.day.tuesday', 'UNI', 'Tuesday'),
+        Uni.I18n.translate('general.day.wednesday', 'UNI', 'Wednesday'),
+        Uni.I18n.translate('general.day.thursday', 'UNI', 'Thursday'),
+        Uni.I18n.translate('general.day.friday', 'UNI', 'Friday'),
+        Uni.I18n.translate('general.day.saturday', 'UNI', 'Saturday')
+    ],
 
-        if (isHide) {
-            picker.el.slideOut('t', options);
-        } else {
-            picker.el.slideIn('t', options);
-        }
-    },
-
-    hideMonthPicker: function(animate){
-        var me = this,
-            picker = me.monthPicker;
-
-        if (picker && picker.isVisible()) {
-            if (me.shouldAnimate(animate)) {
-                me.runAnimation(true);
-            } else {
-                picker.hide();
-                // See showMonthPicker
-                picker.ownerCmp = null;
-            }
-        }
-        return me;
-    },
-
-    showMonthPicker: function(animate) {
-        var me = this,
-            el = me.el,
-            picker;
-
-        if (me.rendered && !me.disabled) {
-            picker = me.createMonthPicker();
-            if (!picker.isVisible()) {
-                picker.setValue(me.getActive());
-                picker.setSize(el.getSize());
-                picker.setPosition(-el.getBorderWidth('l'), -el.getBorderWidth('t'));
-                if (me.shouldAnimate(animate)) {
-                    me.runAnimation(false);
-                } else {
-                    picker.show();
-                    // We need to set the ownerCmp so that owns() can correctly
-                    // match up the component hierarchy, however when positioning the picker
-                    // we don't want it to position like a normal floater because we render it to
-                    // month picker element itself.
-                    picker.ownerCmp = me;
-                }
-            }
-        }
-        return me;
-    }
+    monthNames: [
+        Uni.I18n.translate('general.month.january', 'UNI', 'January'),
+        Uni.I18n.translate('general.month.february', 'UNI', 'February'),
+        Uni.I18n.translate('general.month.march', 'UNI', 'March'),
+        Uni.I18n.translate('general.month.april', 'UNI', 'April'),
+        Uni.I18n.translate('general.month.may', 'UNI', 'May'),
+        Uni.I18n.translate('general.month.june', 'UNI', 'June'),
+        Uni.I18n.translate('general.month.july', 'UNI', 'July'),
+        Uni.I18n.translate('general.month.august', 'UNI', 'August'),
+        Uni.I18n.translate('general.month.september', 'UNI', 'September'),
+        Uni.I18n.translate('general.month.october', 'UNI', 'October'),
+        Uni.I18n.translate('general.month.november', 'UNI', 'November'),
+        Uni.I18n.translate('general.month.december', 'UNI', 'December')
+    ]
 });

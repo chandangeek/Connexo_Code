@@ -196,8 +196,6 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         }
 
         me.menu.setLoading(false);
-        //me.updateLayout();
-
         Ext.resumeLayouts(true);
     },
 

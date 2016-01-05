@@ -61,8 +61,13 @@ Ext.define('Uni.property.view.property.Date', {
             } else {
                 value = new Date(value);
             }
+
+            // verify if value is a valid datetime
+            if (!isNaN( value.getTime())){
+                this.callParent([value]);
+            }
         }
-        this.callParent([value]);
+
     },
 
     getValue: function () {
