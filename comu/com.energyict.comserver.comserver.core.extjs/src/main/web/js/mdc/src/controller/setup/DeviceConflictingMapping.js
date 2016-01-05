@@ -2,7 +2,7 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
     extend: 'Ext.app.Controller',
     deviceTypeId: null,
     mappingId: null,
-    fromAll: false,
+    returnInfo: null,
     requires: [],
 
     views: [
@@ -32,6 +32,7 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
         {ref: 'securitySettingsAddsPanel', selector: '#securitySettingsAddsPanel'},
         {ref: 'deviceConflictingMappingEditPage', selector: 'deviceConflictingMappingEdit'}
     ],
+    returnInfo : {from: 'unsolvedConflicts', id: ''},
 
     init: function () {
         this.control({
@@ -46,12 +47,12 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
     },
 
     showOverview: function (deviceTypeId) {
-        this.fromAll = false;
+        this.returnInfo = {from: 'unsolvedConflicts', id: deviceTypeId};
         this.showMappingsComplete('showUnsolved', deviceTypeId)
     },
 
     showAll: function (deviceTypeId) {
-        this.fromAll = true;
+        this.returnInfo = {from: 'allConflicts', id: deviceTypeId};
         this.showMappingsComplete('showAll', deviceTypeId)
     },
 
@@ -126,8 +127,28 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         me.deviceTypeId = deviceTypeId;
 
-        cancelLink = me.fromAll ? router.getRoute('administration/devicetypes/view/conflictmappings/all').buildUrl({deviceTypeId: me.deviceTypeId})
-            : router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: me.deviceTypeId});
+        switch (me.returnInfo.from) {
+            case('unsolvedConflicts') :
+            {
+                cancelLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: me.deviceTypeId});
+            }
+                break;
+            case('allConflicts') :
+            {
+                cancelLink = router.getRoute('administration/devicetypes/view/conflictmappings/all').buildUrl({deviceTypeId: me.deviceTypeId});
+            }
+                break;
+            case('changeDeviceConfiguration') :
+            {
+                cancelLink = router.getRoute('devices/device/changedeviceconfiguration').buildUrl({mRID: me.returnInfo.id});
+            }
+                break;
+            case('changeDeviceConfigurationBulk') :
+            {
+                cancelLink = router.getRoute('search/bulkAction').buildUrl();
+            }
+                break;
+        }
 
         viewport.setLoading(true);
         conflictingMappingModel.getProxy().setUrl(deviceTypeId);

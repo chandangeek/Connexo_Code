@@ -61,7 +61,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         me.control({
             '#add-devicegroup-browse #staticDynamicRadioButton': {
-                change: me.prepareStep2
+                change: function(f, val) {
+                    this.isDynamic = val.dynamic;
+                }
             },
             '#add-devicegroup-browse adddevicegroup-wizard button[navigationBtn=true]': {
                 click: me.moveTo
@@ -111,12 +113,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             me.getModel(deviceGroupModelName).load(deviceGroupId, {
                 success: function (record) {
                     var isDynamic,
-                        devices,
-                        state;
+                        devices;
 
                     if (widget.rendered) {
-                        isDynamic = record.get('dynamic');
-                        state = {
+                        me.isDynamic = isDynamic = record.get('dynamic');
+                        me.state = {
                             domain: 'com.energyict.mdc.device.data.Device',
                             filters: isDynamic
                                 ? Ext.decode(record.get('filter'), true)
@@ -132,7 +133,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         Ext.suspendLayouts();
                         widget.down('devicegroup-add-navigation').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                         widget.down('adddevicegroup-wizard').loadRecord(record);
-                        me.prepareStep2(null, {dynamic: isDynamic}, null, state);
                         Ext.resumeLayouts(true);
                         if (!isDynamic) {
                             devices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPagination');
@@ -154,6 +154,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             });
         } else {
             widget.down('adddevicegroup-wizard').loadRecord(Ext.create(deviceGroupModelName));
+            me.state = {
+                domain: 'com.energyict.mdc.device.data.Device',
+                filters: []
+            }
         }
         me.service.on('searchResultsBeforeLoad', me.availableClearAll, me);
         widget.on('destroy', function () {
@@ -187,8 +191,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             }
         }
 
-
-
         if (direction > 0) {
             me.validateCurrentStep(currentStep, changeStep);
         } else {
@@ -206,11 +208,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         switch (stepNumber) {
             case 1:
-                me.validateStep1(doCallback);
+                me.validateStep1(function() {
+                    doCallback();
+                    me.prepareStep2();
+                });
                 break;
             case 2:
-                if (me.validateStep2() && doCallback()) {
-                    callback();
+                if (me.validateStep2()) {
+                    doCallback();
                 }
                 break;
             default:
@@ -328,17 +333,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         }
     },
 
-    prepareStep2: function (field, newValue, oldValue, state) {
+    prepareStep2: function () {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
             step2 = wizard.down('device-group-wizard-step2'),
-            defaultState = {
-                domain: 'com.energyict.mdc.device.data.Device',
-                filters: []
-            },
             domainsStore = me.service.getSearchDomainsStore(),
-            isDynamic = newValue.dynamic,
             staticGrid,
+            isDynamic = me.isDynamic,
             selectionGroupType;
 
         step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
@@ -360,16 +361,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             me.service.excludedCriteria = 'deviceGroup';
         }
 
-        wizard.setLoading(true);
         if (domainsStore.isLoading()) {
             domainsStore.on('load', function () {
-                me.service.applyState(state || defaultState, function(){
-                    wizard.setLoading(false);
+                me.service.applyState(me.state, function(){
                 });
             }, me, {single: true});
         } else {
-            me.service.applyState(state || defaultState, function(){
-                wizard.setLoading(false);
+            me.service.applyState(me.state, function(){
             });
         }
     },

@@ -25,7 +25,6 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                     items: [
                         {
                             xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                             labelAlign: 'top',
                             layout: 'vbox',
                             defaults: {

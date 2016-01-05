@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
             },
             {
                 header: Uni.I18n.translate('deviceconnectionmethod.direction', 'MDC', 'Direction'),
-                dataIndex: 'direction',
+                dataIndex: 'displayDirection',
                 flex: 2
             },
             {

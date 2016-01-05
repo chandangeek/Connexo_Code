@@ -241,7 +241,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
         if (form.isValid()) {
 
-            if (btn.action === 'Add') {
+            if (btn.action === 'add') {
                 formValues.measurementType = {id: me.getRegisterTypeCombo().getValue()};
                 formValues.collectedReadingType = collectedReadingTypeField.getValue();
                 formValues.useMultiplier = useMultiplier;
@@ -288,7 +288,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     }
                 });
 
-            } else if (btn.action === 'Save') {
+            } else if (btn.action === 'edit') {
                 form.updateRecord();
 
                 if (useMultiplier) {
@@ -492,9 +492,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             params: {},
                             method: 'GET',
                             success: function (response) {
+                                me.getApplication().fireEvent('loadLoadProfile', JSON.parse(response.responseText));
                                 var widget = Ext.widget('loadProfileConfigurationDetailForm',
                                         {
-                                            loadProfileConfigurationChannelAction: Uni.I18n.translate('general.add','MDC','Add'),
+                                            loadProfileConfigurationChannelAction: 'add',
                                             deviceTypeId: deviceTypeId,
                                             deviceConfigurationId: deviceConfigurationId,
                                             loadProfileConfigurationId: loadProfileConfigurationId
@@ -533,7 +534,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         var me = this,
             widget = Ext.widget('loadProfileConfigurationDetailForm',
                 {
-                    loadProfileConfigurationChannelAction: 'Save',
+                    loadProfileConfigurationChannelAction: 'edit',
                     deviceTypeId: deviceTypeId,
                     deviceConfigurationId: deviceConfigurationId,
                     loadProfileConfigurationId: loadProfileConfigurationId

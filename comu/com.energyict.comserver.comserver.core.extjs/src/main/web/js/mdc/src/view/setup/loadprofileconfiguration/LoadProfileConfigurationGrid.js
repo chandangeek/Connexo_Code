@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
                 renderer: function (value, metaData, record) {
                     return '<a href="'
                         + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(Ext.merge(me.router.arguments, {loadProfileConfigurationId: record.getId()}))
-                        + '">' + value + '</a>';
+                        + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
             },

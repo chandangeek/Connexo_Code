@@ -12,11 +12,18 @@ Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject', {
         {name: 'isActive', type: 'boolean'},
         {name: 'startTime', dateFormat: 'time', type: 'date'},
         {name: 'endTime', dateFormat: 'time', type: 'date'},
-        {name: 'versionId', type: 'integer'}
+        {name: 'versionId', type: 'integer'},
+        {name: 'objectTypeId', type: 'integer'},
+        {name: 'objectTypeVersion', type: 'integer'}
     ],
 
     associations: [
-        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
+        {
+            name: 'properties',
+            type: 'hasMany',
+            model: 'Uni.property.model.Property',
+            associationKey: 'properties',
+            foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
                 return 'Uni.property.model.Property';
             }

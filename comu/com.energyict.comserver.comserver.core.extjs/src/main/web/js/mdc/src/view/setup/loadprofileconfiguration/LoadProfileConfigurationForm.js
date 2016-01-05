@@ -46,7 +46,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                         store: 'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable',
                         required: true,
                         allowBlank: false,
-                        fieldLabel: 'Load profile type',
+                        forceSelection: !me.edit,
+                        //fieldLabel: 'Load profile type',
+                        fieldLabel: Uni.I18n.translate('general.loadProfileType', 'MDC', 'Load profile type'),
                         emptyText: Uni.I18n.translate('loadprofileconfiguration.selectLoadProfileType','MDC','Select a load profile type'),
                         name: 'id',
                         displayField: 'name',
@@ -62,6 +64,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                                         me.down('#obis-code-field').setValue(record.get('obisCode'));
                                     }
                                 }
+                            },
+                            afterrender: function (field) {
+                                field.focus(false, 500);
                             }
                         }
                     },

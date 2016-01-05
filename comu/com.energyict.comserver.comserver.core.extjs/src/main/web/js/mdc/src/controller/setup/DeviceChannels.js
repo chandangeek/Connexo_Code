@@ -218,7 +218,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     editable: false,
                     showToday: false,
                     value: me.dataValidationLastChecked,
-                    fieldLabel: Uni.I18n.translate('devicechannel.validateNow.item1', 'MDC', 'The data of the load profile will be validated starting from'),
+                    fieldLabel: Uni.I18n.translate('devicechannel.validateNow.item1', 'MDC', 'The data of the channel will be validated starting from'),
                     labelWidth: 375,
                     labelPad: 0.5
                 },

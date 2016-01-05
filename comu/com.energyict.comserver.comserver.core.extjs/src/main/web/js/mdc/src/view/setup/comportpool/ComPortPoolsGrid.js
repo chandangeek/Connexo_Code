@@ -30,7 +30,14 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
             {
                 header: Uni.I18n.translate('comPortPool.preview.direction', 'MDC', 'Direction'),
                 dataIndex: 'direction',
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    if (value === 'Inbound') {
+                        return Uni.I18n.translate('general.inbound', 'MDC', 'Inbound');
+                    } else {
+                        return Uni.I18n.translate('general.outbound', 'MDC', 'Outbound');
+                    }
+                }
             },
             {
                 header: Uni.I18n.translate('general.type', 'MDC', 'Type'),

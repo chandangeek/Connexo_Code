@@ -133,8 +133,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             success: function (record) {
                 itemPanel = me.getItemPanel();
                 if (itemPanel) {
-                    itemPanel.down('#comtaskPreviewFieldsPanel').loadRecord(record);
-                    itemPanel.down('#comtaskPreviewFieldsPanel').setLoading(false);
+                    previewForm.loadRecord(record);
+                    previewForm.setLoading(false);
                 }
             }
         });
@@ -191,9 +191,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             widget = Ext.widget('comtaskCreateEdit'),
             taskId = router.arguments['id'],
             connectedGrid = widget.down('#messagesConnectedGrid'),
+            timeUnitsStore = this.getStore('Mdc.store.TimeUnits'),
             allMessagesStore = connectedGrid.getAllItemsStore(),
             selectedMessagesStore = connectedGrid.getSelectedItemsStore();
 
+        timeUnitsStore.load();
         allMessagesStore.removeAll();
         selectedMessagesStore.removeAll();
         this.getApplication().fireEvent('changecontentevent', widget);
@@ -330,7 +332,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         iconFail.tooltip = Ext.create('Ext.tip.ToolTip', { target: iconFail, html: Ext.String.htmlEncode(textFail) });
     },
 
-    loadModelToEditForm: function (id, widget, selectedMessagesStore, allMessagesStore) {
+    loadModelToEditForm: function (taskId, widget, selectedMessagesStore, allMessagesStore) {
         var self = this,
             editView = self.getTaskEdit(),
             model = self.getModel('Mdc.model.CommunicationTask'),
@@ -339,18 +341,24 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
         widget.setLoading(true);
         allMessagesStore.load({
-            params: {availableFor: id},
+            params: {availableFor: taskId},
             callback: function () {
-                model.load(id, {
+                widget.setLoading(true);
+                model.load(taskId, {
                     success: function (record) {
-                        self.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]));
+                        self.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
                         self.getApplication().fireEvent('loadCommunicationTask', record);
                         form.loadRecord(record);
+                        var atLeastOneCommand = false;
                         Ext.Array.each(record.get('commands'), function (command) {
                             self.addTagButton(command);
+                            atLeastOneCommand = true;
+                        });
+                        if (atLeastOneCommand) {
+                            widget.down('#noActionsAddedMsg').hide();
                             widget.down('#addCommandsToTask').hide();
                             widget.down('#addAnotherCommandsButton').show();
-                        });
+                        }
                         Ext.Array.each(record.get('messages'), function (message) {
                             selectedMessagesStore.add(message);
                         });
@@ -674,6 +682,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             btnToRemoveAfterValidation && btnToRemoveAfterValidation.destroy();
 
             if (self.commands.length === 1) {
+                editView.down('#noActionsAddedMsg').hide();
                 editView.down('#addCommandsToTask').hide();
                 editView.down('#addAnotherCommandsButton').show();
             } else if (self.commands.length === categoryContainer.getStore().totalCount) {
@@ -852,6 +861,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     }
                     self.getTaskEdit().down('#addAnotherCommandsButton').show();
                     if (self.commands.length < 1) {
+                        self.getTaskEdit().down('#noActionsAddedMsg').show();
                         self.getTaskEdit().down('#addCommandsToTask').show();
                         self.getTaskEdit().down('#addAnotherCommandsButton').hide();
                     }

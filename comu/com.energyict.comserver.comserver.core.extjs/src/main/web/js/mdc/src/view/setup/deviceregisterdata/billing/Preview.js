@@ -16,7 +16,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
         items: [
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                 labelAlign: 'top',
                 layout: 'vbox',
                 defaults: {

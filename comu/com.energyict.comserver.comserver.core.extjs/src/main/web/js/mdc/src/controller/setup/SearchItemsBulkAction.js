@@ -14,7 +14,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     ],
     stores: [
         'Mdc.store.CommunicationSchedulesWithoutPaging',
-        'Mdc.store.DeviceConfigurations'
+        'Mdc.store.DeviceConfigurations',
+        'Mdc.store.BulkDeviceConfigurations'
     ],
     refs: [
         {
@@ -198,11 +199,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             finishBtn = wizard.down('#finishButton'),
             statusPage = me.getStatusPage(),
             scheduleIds = [],
-            deviceMRID = [],
+            devicesMRID = [],
             url = '/api/ddr/devices/schedules',
             request = {},
-            jsonData,
-            params;
+            jsonData;
 
         finishBtn.disable();
 
@@ -211,7 +211,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 scheduleIds.push(item.getId());
             });
             Ext.each(me.devices, function (item) {
-                deviceMRID.push(item.get('mRID'));
+                devicesMRID.push(item.get('mRID'));
             });
             request.action = me.operation;
             request.scheduleIds = scheduleIds;
@@ -219,13 +219,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 var store = me.getDevicesGrid().getStore();
                 request.filter =  store.getProxy().encodeFilters(store.filters.getRange());
             } else {
-                request.deviceMRIDs = deviceMRID;
+                request.deviceMRIDs = devicesMRID;
             }
             jsonData = Ext.encode(request);
             Ext.Ajax.request({
                 url: url,
                 method: 'PUT',
-                //       params: params,
                 jsonData: jsonData,
                 timeout: 180000,
                 success: function (response) {
@@ -246,8 +245,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 statusPage.setLoading(false);
                 if (success) {
                     wizard.setLoading(false);
+                    var devicesQty = Ext.isEmpty(me.devices) ? Uni.I18n.translate('searchItems.bulk.general.all', 'MDC', 'all') : me.devices.length;
                     statusPage.showChangeDeviceConfigSuccess(Uni.I18n.translate('searchItems.bulk.devicesAddedToQueueTitle', 'MDC', 'This task has been put on the queue successfully'),
-                        Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', me.devices.length, 'MDC', "The {0} devices are queued to change their configuration", "The {0} device is queued to change its configuration", "The {0} devices are queued to change their configuration"))
+                        Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', devicesQty, 'MDC', "The {0} devices are queued to change their configuration", "The {0} device is queued to change its configuration", "The {0} devices are queued to change their configuration"))
                     );
                     finishBtn.enable();
                 }
@@ -401,22 +401,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
     checkConflictMappings: function (fromConfig, toConfig, callback) {
         var me = this,
-        //TODO: change URL conflicts
-            url = '/api/ddc/devices/conflictingmappings',
-            jsonData = {
-                'fromconfig': fromConfig,
-                'toconfig': toConfig
-            };
+            url = '/api/dtc/devicetypes/' + me.deviceType + '/deviceconfigurations/' + fromConfig + '/conflictmappings/' + toConfig + '/unsolved';
         Ext.Ajax.request({
             url: url,
             method: 'GET',
-            jsonData: jsonData,
             timeout: 180000,
             callback: function (operation, success, response) {
                 var conflictMappings = false,
                     resp = Ext.JSON.decode(response.responseText, true);
                 if (success && resp) {
-                    conflictMappings = resp['conflictingMappings'];
+                    if(resp.total) conflictMappings = resp.conflictMappings[0].id;
                 }
                 callback(conflictMappings)
             }
@@ -426,36 +420,50 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
     changeDeviceConfig: function (fromConfig, toConfig, callback) {
         var me = this,
-        //TODO: change URL for update CDC
-            url = '/api/ddc/devices',
+            store = me.getDevicesGrid().getStore(),
+            url = '/api/ddr/devices/changedeviceconfig',
             jsonData = {
                 'action': 'ChangeDeviceConfiguration',
-                'devices': [],
+                'deviceMRIDs': [],
+                'filter' : store.getProxy().encodeFilters(store.filters.getRange()),
                 'newDeviceConfiguration': toConfig
             };
-        me.devices.each(function (item) {
-            jsonData['devices'].push(item.get('mRID'))
-        });
+        if(!me.allDevices){
+            me.devices.forEach(function (item) {
+                jsonData['deviceMRIDs'].push(item.get('mRID'))
+            });
+        }
+
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
             jsonData: jsonData,
             timeout: 180000,
-            callback: function (operation, success, response) {
+            callback: function (operation, success) {
                 callback(success)
             }
         });
     },
-    //todo split this function
+
+    changeDeviceConfigAvailable: function (filters) {
+        var result = [];
+        Ext.each(filters, function (item) {
+            if (item.id === 'deviceType' || item.id === 'deviceConfiguration') {
+                if (item.value[0].criteria.length == 1) {
+                    result.push(item.id);
+                }
+            }
+        });
+        return result.length == 2;
+    },
+
     changeContent: function (nextCmp, currentCmp) {
-        var me = this,
-            additionalText,
+        var me = this, errorPanel = null, additionalText, progressBar,
             router = me.getController('Uni.controller.history.Router'),
+            search = me.getController('Mdc.controller.Search'),
             wizard = me.getSearchItemsWizard(),
             layout = wizard.getLayout(),
-            errorContainer = currentCmp.down('#stepSelectionError'),
-            errorPanel = null,
-            progressBar;
+            errorContainer = currentCmp.down('#stepSelectionError');
 
         switch (currentCmp.name) {
             case 'selectDevices':
@@ -465,7 +473,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     me.devices = me.getDevicesGrid().getSelectionModel().getSelection();
                 }
 
-                if (!me.allDevices && me.isDeviceConfigEqual(me.devices)) {
+                if (me.changeDeviceConfigAvailable(search.service.getFilters())) {
                     nextCmp.down('#searchitemschangeconfig').enable();
                 } else {
                     nextCmp.down('#searchitemschangeconfig').disable();
@@ -481,27 +489,38 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 me.operation = currentCmp.down('#searchitemsactionselect').getValue().operation;
                 if (nextCmp.name == 'selectActionItems') {
                     if (me.operation == 'changeconfig') {
-                        var changeDeviceConfigForm = nextCmp.down('#change-device-configuration');
+                        var configStore = me.getStore('Mdc.store.BulkDeviceConfigurations'),
+                            changeDeviceConfigForm = nextCmp.down('#change-device-configuration'),
+                            currentConfigField = nextCmp.down('#current-device-config-selection');
+
                         nextCmp.down('#select-schedules-panel').hide();
                         changeDeviceConfigForm.show();
                         changeDeviceConfigForm.getForm().clearInvalid();
-                        var configStore = me.getStore('Mdc.store.DeviceConfigurations'),
-                            device = me.devices[0],
-                            deviceConfigName = device.get('deviceConfigurationName'),
-                            deviceConfigId = device.get('deviceConfigurationId'),
-                            currentConfigField = nextCmp.down('#current-device-config-selection');
 
-                        me.deviceType = device.get('deviceTypeId');
-                        currentConfigField.setValue(deviceConfigName);
-                        configStore.getProxy().setUrl({deviceType: me.deviceType});
-                        wizard.setLoading(true);
-                        configStore.load(function (operation, success) {
-                            wizard.setLoading(false);
-                            configStore.filter({
-                                filterFn: function (record) {
-                                    return record.get('id') !== deviceConfigId
+                        if (me.allDevices) {
+                            Ext.each(search.service.getFilters(), function (item) {
+                                switch (item.id) {
+                                    case 'deviceType':
+                                        me.deviceType = parseInt(item.value[0].criteria[0]);
+                                        break;
+                                    case 'deviceConfiguration':
+                                        me.deviceConfigId = parseInt(item.value[0].criteria[0]);
+                                        break;
                                 }
                             });
+                        } else {
+                            var device = me.devices[0];
+                            me.deviceType = device.get('deviceTypeId');
+                            me.deviceConfigId = device.get('deviceConfigurationId');
+                        }
+
+                        configStore.getProxy().setUrl({deviceType: me.deviceType});
+
+                        wizard.setLoading(true);
+                        configStore.load(function (operation, success) {
+                            var deviceConfig = this.getById(me.deviceConfigId);
+                            currentConfigField.setValue(deviceConfig.get('name'));
+                            this.removeAt(this.findExact('id', me.deviceConfigId));
                             if (success && (configStore.getCount() < 1)) {
                                 wizard.down('#nextButton').disable();
                                 nextCmp.down('#new-device-config-selection').hide();
@@ -511,7 +530,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 nextCmp.down('#new-device-config-selection').show();
                                 nextCmp.down('#no-device-configuration').hide();
                             }
-
+                            wizard.setLoading(false);
                         });
                     } else {
                         nextCmp.down('#select-schedules-panel').show();
@@ -550,7 +569,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     } else {
                         wizard.setLoading(true);
                         nextCmp.removeAll();
-                        me.checkConflictMappings(me.configData['fromconfig'], me.configData['toconfig'], function (unsolvedConflicts) {
+                        me.checkConflictMappings(me.deviceConfigId, me.configData['toconfig'], function (unsolvedConflicts) {
                             wizard.setLoading(false);
                             if (unsolvedConflicts) {
                                 me.getNavigationMenu().markInvalid();
@@ -558,8 +577,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                     text = Ext.String.format(Uni.I18n.translate('searchItems.bulk.devConfigUnsolvedConflictsMsg', 'MDC', 'The configuration of devices with current configuration \'{0}\' cannot be changed to \'{1}\' due to unsolved conflicts.'), me.configNames.fromconfig, me.configNames.toconfig);
                                 text = text.replace('{fromconfig}', me.configNames.fromconfig).replace('{toconfig}', me.configNames.toconfig);
                                 if (Mdc.privileges.DeviceType.canAdministrate()) {
-                                    var solveLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: me.deviceType});
-
+                                    var solveLink = router.getRoute('administration/devicetypes/view/conflictmappings/edit').buildUrl({deviceTypeId: me.deviceType, id: unsolvedConflicts});
+                                    me.getController('Mdc.controller.setup.DeviceConflictingMapping').returnInfo = {
+                                        from: 'changeDeviceConfigurationBulk'
+                                    };
                                     wizard.down('#confirmButton').disable();
                                     nextCmp.showChangeDeviceConfigConfirmation(title, text, solveLink, null, 'error');
                                 } else {
@@ -673,9 +694,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     }
                     break;
                  case 'changeconfig':
-                        titleText = Uni.I18n.translate('searchItems.bulk.changeDevConfigTitle', 'MDC', 'Change device configuration of all devices');  
+                        titleText = Uni.I18n.translate('searchItems.bulk.changeDevConfigTitle', 'MDC', 'Change device configuration of all devices');
                     break;
-                
+
             }
         } else {
             switch (me.operation) {

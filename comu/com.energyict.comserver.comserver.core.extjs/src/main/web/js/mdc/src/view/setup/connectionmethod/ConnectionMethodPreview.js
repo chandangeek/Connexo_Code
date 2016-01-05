@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'direction',
+                                    name: 'displayDirection',
                                     fieldLabel: Uni.I18n.translate('connectionmethod.direction', 'MDC', 'Direction')
                                 },
                                 {
@@ -190,7 +190,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                         align: 'stretch'
                     },
                     defaults: {
-                        labelWidth: 250
+                        labelWidth: 250,
+                        labelAlign: 'left'
                     },
                     items: [
                         {

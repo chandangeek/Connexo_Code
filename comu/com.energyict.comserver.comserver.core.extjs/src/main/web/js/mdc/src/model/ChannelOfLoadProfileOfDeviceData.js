@@ -9,6 +9,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'collectedValue', type: 'float', useNull: true},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
+        {name: 'validationActive', type: 'auto'},
         {name: 'mainValidationInfo', type: 'auto'},
         {name: 'bulkValidationInfo', type: 'auto'},
         {name: 'confirmed', type: 'auto'},

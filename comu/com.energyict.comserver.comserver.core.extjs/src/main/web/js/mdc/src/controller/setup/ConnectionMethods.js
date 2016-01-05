@@ -101,7 +101,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     showConnectionMethods: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+        timeUnitsStore = me.getStore('TimeUnits');
 
+        timeUnitsStore.load();
         if (mainView) mainView.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigurationId;
@@ -131,24 +133,31 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     previewConnectionMethod: function () {
-        var connectionMethod = this.getConnectionmethodsgrid().getSelectionModel().getSelection();
+        var connectionMethod = this.getConnectionmethodsgrid().getSelectionModel().getSelection(),
+            timeUnitsStore = me.getStore('TimeUnits');
+
         if (connectionMethod.length == 1) {
 
-            var toggleDefaultMenuItemText =
-                connectionMethod[0].get('isDefault') ?
+            var record = connectionMethod[0],
+                toggleDefaultMenuItemText =
+                    record.get('isDefault') ?
                     Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') :
-                    Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default');
+                    Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'),
+                translatedTimeUnit = timeUnitsStore.findRecord('timeUnit', record.get('rescheduleRetryDelay').timeUnit).get('localizedValue'),
+                count = record.get('rescheduleRetryDelay').count;
             if(this.getToggleDefaultMenuItem())
                 this.getToggleDefaultMenuItem().setText(toggleDefaultMenuItemText);
 
-            this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
-            var connectionMethodName = connectionMethod[0].get('name');
+            record.set('rescheduleRetryDelay', {count: count,timeUnit: translatedTimeUnit});
+
+            this.getConnectionMethodPreviewForm().loadRecord(record);
+            var connectionMethodName = record.get('name');
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);
             this.getConnectionMethodPreview().setTitle(Ext.String.htmlEncode(connectionMethodName));
             var menuItem =  this.getConnectionMethodPreview().down('#toggleDefaultMenuItem');
-            menuItem && menuItem.setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
-            this.getConnectionMethodPreview().down('property-form').loadRecord(connectionMethod[0]);
-            if (connectionMethod[0].propertiesStore.data.items.length > 0) {
+            menuItem && menuItem.setText(record.get('isDefault') === true ? Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
+            this.getConnectionMethodPreview().down('property-form').loadRecord(record);
+            if (record.propertiesStore.data.items.length > 0) {
                 this.getConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(true);
             } else {
                 this.getConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(false);

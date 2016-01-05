@@ -55,7 +55,6 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
                 items: [
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.general', 'MDC', 'General'),
                         labelAlign: 'top',
                         layout: 'vbox',
                         flex: 1,

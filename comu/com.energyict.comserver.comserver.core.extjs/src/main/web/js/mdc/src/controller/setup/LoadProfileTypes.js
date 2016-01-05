@@ -15,7 +15,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.RegisterTypesToAdd',
         'Mdc.store.SelectedRegisterTypesForLoadProfileType',
-        'Mdc.store.Intervals'
+        'Mdc.store.Intervals',
+        'Mdc.store.Clipboard'
     ],
 
     models: [
@@ -222,7 +223,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }, false);
     },
 
-    showEdit: function (id) {
+    showEdit: function (loadProfileTypeId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             returnLink = router.getRoute('administration/loadprofiletypes').buildUrl(),
@@ -233,12 +234,12 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             widget,
             form;
 
-
         if (editPage) {
-            if (!id) {
+            if (!loadProfileTypeId) {
                 Ext.suspendLayouts();
                 editPage.setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
                 editPage.getLayout().setActiveItem(0);
+                editPage.down('#load-profile-type-edit-form').showGridOrMessage();
                 Ext.resumeLayouts(true);
                 return;
             }
@@ -253,31 +254,17 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         form.down('combobox[name=timeDuration]').bindStore(intervalsStore);
         intervalsStore.load();
 
-        if (me.getRegisterTypesGrid().getStore().getCount() < 1) {
-            me.getRegisterTypesGrid().setHeight(200);
-        }
-
-        me.getRegisterTypesGrid().getStore().on('datachanged', function (store) {
-            if (store.getCount() < 1) {
-                me.getRegisterTypesGrid().setHeight(200);
-            } else {
-                delete me.getRegisterTypesGrid().height;
-            }
-        });
-
-        if (id) {
+        if (loadProfileTypeId) {
             widget.setLoading(true);
-            me.getModel('Mdc.model.LoadProfileType').load(id, {
+            me.getModel('Mdc.model.LoadProfileType').load(loadProfileTypeId, {
                 success: function (record) {
                     me.getApplication().fireEvent('loadProfileType', record);
 
-                    me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'), false);
-
                     if (intervalsStore.getCount()) {
-                        form.loadRecord(record);
+                        me.loadRecordOrClipboard(record)
                     } else {
                         intervalsStore.on('load', function () {
-                            form.loadRecord(record);
+                            me.loadRecordOrClipboard(record)
                         }, me, {single: true});
                     }
 
@@ -290,10 +277,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 },
                 callback: function (record) {
                     if (router.currentRoute !== 'administration/loadprofiletypes/edit/addregistertypes') {
-                        me.getEditPage().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]));
+                        me.getEditPage().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
                     }
                     widget.setLoading(false);
                     form.setEdit(true, returnLink, addRegisterTypesLink);
+                    form.showGridOrMessage();
                 }
             });
         } else {
@@ -301,7 +289,24 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             form.setEdit(false, returnLink, addRegisterTypesLink);
             form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
             form.down('[name=timeDuration]').select(0);
+            form.showGridOrMessage();
         }
+    },
+
+    loadRecordOrClipboard: function(record) {
+        var me = this;
+        if(me.getStore('Mdc.store.Clipboard').get('model')) {
+            record = me.getStore('Mdc.store.Clipboard').get('model');
+        } else {
+            me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'), false);
+        }
+        me.getEditForm().loadRecord(record);
+    },
+
+    storeCurrentValues: function () {
+        var clipboard = this.getStore('Mdc.store.Clipboard');
+        this.getEditForm().updateRecord();
+        clipboard.set('model', this.getEditForm().getRecord());
     },
 
     showRegisterTypesAddView: function (id) {
@@ -319,6 +324,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         } else {
             store.getProxy().url = store.getProxy().baseUrl;
         }
+        me.storeCurrentValues();
 
         Ext.suspendLayouts();
         editPage.getLayout().setActiveItem(1);
@@ -384,7 +390,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         } else {
             registerTypesStore.add(selection);
         }
-
         registerTypesGrid.setVisible(!all);
         page.down('#all-register-types').setVisible(all);
         page.down('#all-register-types-field').setValue(all);
@@ -434,14 +439,10 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
-
                 if (json && json.errors) {
                     Ext.Array.each(json.errors, function (item) {
                         if (item.id.indexOf("interval") !== -1) {
                             me.getEditPage().down('#timeDuration').setActiveError(item.msg);
-                        }
-                        if (item.id.indexOf("readingType") !== -1) {
-                            me.getEditPage().down('#register-types-fieldcontainer').setActiveError(item.msg);
                         }
                     });
                     basicForm.markInvalid(json.errors);

@@ -22,14 +22,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid',
     allDescription: Uni.I18n.translate(
         'setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.allDescription',
         'MDC',
-        'Select all items (related to filters on previous screen)'
+        'Select all items'
     ),
 
     selectedLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.selectedLabel', 'MDC', 'Selected register types'),
     selectedDescription: Uni.I18n.translate(
         'setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.selectedDescription',
         'MDC',
-        'Select items in table'
+        'Select items in the table'
     ),
 
     columns: [

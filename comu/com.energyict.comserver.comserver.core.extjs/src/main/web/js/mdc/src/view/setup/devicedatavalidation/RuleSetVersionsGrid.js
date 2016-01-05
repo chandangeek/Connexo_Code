@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: 'Versions per page',
+                itemsPerPageMsg: Uni.I18n.translate('validation.version.pagingtoolbarbottom.itemsPerPageMsg', 'MDC', 'Versions per page'),
                 dock: 'bottom',
                 isSecondPagination: me.isSecondPagination,
                 params: {ruleSetId: me.ruleSetId}
