@@ -54,14 +54,9 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                     roles.add(new RoleImpl(role));
                 }
 
-                // Since the plugged in AuthorizationManager is ignored in 6.1.0 (see below), add the default admin role as a workaround
-                roles.add(new RoleImpl("admin"));
-
                 ConnexoUberfireSubject subject = new ConnexoUberfireSubject(principal.getName(), roles);
 
                 SecurityFactory.setSubject(subject);
-
-                // Due to a bug, this setting is ignored in 6.1.0; it has been addressed in 6.2.0
                 SecurityFactory.setAuthzManager(new ConnexoAuthorizationManager());
 
                 filterChain.doFilter(new ConnexoFlowRequestWrapper(subject, request), response);
