@@ -118,19 +118,6 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
 
         me.dockedItems = [
             {
-                xtype: 'filter-toolbar',
-                itemId: 'firmware-campaigns-grid-sort-toolbar',
-                dock: 'top',
-                title: Uni.I18n.translate('general.sort', 'FWC', 'Sort'),
-                showClearButton: false,
-                content: {
-                    xtype: 'button',
-                    ui: 'tag',
-                    iconCls: 'x-btn-sort-item-desc',
-                    text: Uni.I18n.translate('general.startedOn', 'FWC', 'Started on')
-                }
-            },
-            {
                 xtype: 'pagingtoolbartop',
                 itemId: 'firmware-campaigns-grid-paging-toolbar-top',
                 dock: 'top',
