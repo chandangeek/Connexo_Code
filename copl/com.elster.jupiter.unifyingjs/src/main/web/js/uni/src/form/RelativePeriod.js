@@ -132,7 +132,7 @@ Ext.define('Uni.form.RelativePeriod', {
 
         onField.setVisible(!optionCurrentDisabled || !optionDayOfMonthDisabled || !optionDayOfWeekDisabled);
 
-        var hourfieldVisibility = (frequency === 'hours' || frequency === 'minutes')
+        var hourfieldVisibility = (frequency === 'hours' || frequency === 'minutes');
         atHourField.setVisible(!hourfieldVisibility);
         atHourField.setDisabled(frequency === 'hours' || frequency === 'minutes');
         atMinuteField.setDisabled(frequency === 'minutes');
