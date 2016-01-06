@@ -27,7 +27,7 @@ public class IntervalIsRequiredException extends LocalizedException {
      * @return the newly create IntervalIsRequiredException
      */
     public static IntervalIsRequiredException forLoadProfileType(Thesaurus thesaurus) {
-        return new IntervalIsRequiredException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED);
+        return new IntervalIsRequiredException(thesaurus, MessageSeeds.FIELD_IS_REQUIRED);
     }
 
 }
