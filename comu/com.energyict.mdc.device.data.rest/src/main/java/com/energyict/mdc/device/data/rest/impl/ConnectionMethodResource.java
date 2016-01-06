@@ -108,7 +108,9 @@ public class ConnectionMethodResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo, ConnectionMethodInfo<ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> info) {
+    public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId,
+                                           @Context UriInfo uriInfo,
+                                           ConnectionMethodInfo<ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> info) {
         info.id = connectionMethodId;
         ConnectionTask task = resourceHelper.lockConnectionTaskOrThrowException(info);
         Device device = task.getDevice();
@@ -118,7 +120,7 @@ public class ConnectionMethodResource {
         info.writeTo(task, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         task.saveAllProperties();
         pauseOrResumeTask(info, task);
-        task.save();
+//        task.save();
         if (info.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
         } else if (wasConnectionTaskDefault) {

@@ -141,11 +141,11 @@ public class ResourceHelper {
     }
 
     public void lockDeviceTypeOrThrowException(long id, long version) {
-        DeviceType deviceType = deviceConfigurationService.findDeviceType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE, id));
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_TYPE, id));
         deviceConfigurationService
                 .findAndLockDeviceType(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(deviceType.getName())
-                        .withActualVersion(() -> deviceType.getVersion())
+                        .withActualVersion(deviceType::getVersion)
                         .supplier());
     }
 
@@ -157,11 +157,11 @@ public class ResourceHelper {
     }
 
     public void lockLoadProfileTypeOrThrowException(long id, long version) {
-        LoadProfileType loadProfileType = masterDataService.findLoadProfileType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE, id));
+        LoadProfileType loadProfileType = masterDataService.findLoadProfileType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_LOAD_PROFILE_TYPE, id));
         masterDataService
                 .findAndLockLoadProfileTypeByIdAndVersion(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(loadProfileType.getName())
-                        .withActualVersion(() -> loadProfileType.getVersion())
+                        .withActualVersion(loadProfileType::getVersion)
                         .supplier());
     }
 
@@ -173,11 +173,11 @@ public class ResourceHelper {
     }
 
     public void lockRegisterTypeOrThrowException(long id, long version) {
-        RegisterType registerType = masterDataService.findRegisterType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE, id));
+        RegisterType registerType = masterDataService.findRegisterType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_REGISTER_TYPE, id));
         masterDataService
                 .findAndLockRegisterTypeByIdAndVersion(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(registerType.getDescription())
-                        .withActualVersion(() -> registerType.getVersion())
+                        .withActualVersion(registerType::getVersion)
                         .supplier());
     }
 
@@ -591,7 +591,7 @@ public class ResourceHelper {
     }
 
     public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Device device, long cpsId) {
-        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.ofNullable(null), device.getDeviceType().getId(), device.getDeviceType().getVersion());
+        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.empty(), device.getDeviceType().getId(), device.getDeviceType().getVersion());
     }
 
     public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Channel channel, long cpsId) {
@@ -894,7 +894,7 @@ public class ResourceHelper {
     }
 
     public Range<Instant> getCurrentTimeInterval(Device device, long cpsId) {
-        return getCurrentTimeInterval(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.ofNullable(null), device.getDeviceType().getId(), device.getDeviceType().getVersion());
+        return getCurrentTimeInterval(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.empty(), device.getDeviceType().getId(), device.getDeviceType().getVersion());
     }
 
     public Range<Instant> getCurrentTimeInterval(Channel channel, long cpsId) {

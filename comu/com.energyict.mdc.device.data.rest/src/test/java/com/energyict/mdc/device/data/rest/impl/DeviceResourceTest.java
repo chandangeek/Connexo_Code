@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -814,7 +814,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceEventType.getType()).thenReturn(EndDeviceType.NA);
         when(endDeviceEventType.getDomain()).thenReturn(EndDeviceDomain.BATTERY);
         when(endDeviceEventType.getSubDomain()).thenReturn(EndDeviceSubDomain.VOLTAGE);
-        when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventorAction.DECREASED);
+        when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventOrAction.DECREASED);
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
 
         LogBookInfo info = target("/devices/mrid/logbooks/1").request().get(LogBookInfo.class);
@@ -914,7 +914,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         EndDeviceType type = EndDeviceType.NA;
         EndDeviceDomain domain = EndDeviceDomain.BATTERY;
         EndDeviceSubDomain subDomain = EndDeviceSubDomain.ACCESS;
-        EndDeviceEventorAction eventorAction = EndDeviceEventorAction.ACTIVATED;
+        EndDeviceEventOrAction eventorAction = EndDeviceEventOrAction.ACTIVATED;
 
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);

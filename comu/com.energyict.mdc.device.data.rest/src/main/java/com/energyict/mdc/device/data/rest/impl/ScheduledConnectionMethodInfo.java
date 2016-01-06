@@ -88,15 +88,9 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         if (this.properties != null) {
             for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
-                if (propertyValue != null) {
+                if (propertyValue != null || !hasInheritedPropertyValue(partialConnectionTask, propertySpec)) { // really should start using propertyHasValue!!!!!!!
                     scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), propertyValue);
-                } else {
-                    Optional<PropertyValueInfo<?>> propertyValueInfo = findPropertyValueInfo(this.properties, propertySpec.getName());
-                    //if inherited value is empty it means that user really wants to use empty value
-                    if (propertyValueInfo.isPresent() && (propertyValueInfo.get().inheritedValue == null || "".equals(propertyValueInfo.get().inheritedValue))) {
-                        scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), null);
-                    }
-                }
+                } // no 'else': we're creating a connection task: no existing property to remove!
             }
         }
         return scheduledConnectionTaskBuilder.add();
