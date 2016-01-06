@@ -86,13 +86,17 @@ Ext.define('Login.controller.Login', {
             scope: this,
             success: function (response, opt) {
                 var token = response.getResponseHeader('X-AUTH-TOKEN');
-                localStorage.setItem('X-AUTH-TOKEN', token);
 
-                Ext.Ajax.defaultHeaders = {
-                    'Authorization': 'Bearer ' + token
-                };
+                    localStorage.setItem('X-AUTH-TOKEN', token);
+                if(token){
+                    Ext.Ajax.defaultHeaders = {
+                        'Authorization': 'Bearer ' + token
+                    };
+                }
 
-                me.loginOK();
+                    me.loginOK();
+
+
             },
             failure: function (response, opt) {
                 me.loginNOK();
