@@ -24,6 +24,7 @@ import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.issues.Warning;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
@@ -82,7 +83,8 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
         }).collect(Collectors.toList());
         meterReading.addAllIntervalBlocks(intervalBlocks);
         meterReading.addAllReadings(registerReadingsToStore);
-        device.store(meterReading);
+        List<Warning> warnings = device.store(meterReading);
+        warnings.forEach(logger::warning);
         updateLastReading();
         resetState();
     }
