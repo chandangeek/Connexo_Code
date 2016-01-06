@@ -6,13 +6,11 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,6 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -28,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.config.cps.DeviceTypeOneCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@SuppressWarnings("unused")
 public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device, DeviceTypeOneDomainExtension> {
 
     public static final String TABLE_NAME = "RVK_CPS_DEVICE_ONE";
@@ -36,13 +36,11 @@ public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device,
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
 
-    @SuppressWarnings("unused")
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
-    @SuppressWarnings("unused")
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -53,14 +51,15 @@ public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device,
     }
 
     @Inject
-    public DeviceTypeOneCustomPropertySet(PropertySpecService propertySpecService) {
-        super();
-        this.propertySpecService = propertySpecService;
+    public DeviceTypeOneCustomPropertySet(PropertySpecService propertySpecService, DeviceService deviceService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setDeviceService(deviceService);
     }
 
     @Activate
     public void activate() {
-        System.err.println(TABLE_NAME);
+        System.out.println(TABLE_NAME);
     }
 
     @Override
@@ -100,40 +99,40 @@ public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device,
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec testNumberPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                .description("kw")
-                .setDefaultValue(0)
-                .markRequired()
-                .finish();
-        PropertySpec testStringPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new StringFactory())
-                .name(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
-                .description("infoString")
-                .setDefaultValue("description")
-                .finish();
-        PropertySpec testNumberEnumPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
-                .description("A")
-                .addValues(7, 77, 777)
-                .setDefaultValue(77)
-                .finish();
-        PropertySpec testStringEnumPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
-                .description("infoEnumString")
-                .addValues("alfa", "beta", "gamma")
-                .setDefaultValue("gamma")
-                .finish();
-        PropertySpec testBooleanPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BooleanFactory())
-                .name(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                .description("flag")
-                .setDefaultValue(false)
-                .finish();
-        return Arrays.asList(testNumberPropertySpec, testStringPropertySpec, testNumberEnumPropertySpec, testStringEnumPropertySpec, testBooleanPropertySpec);
+        return Arrays.asList(
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                        .describedAs("kw")
+                        .setDefaultValue(BigDecimal.ZERO)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
+                        .describedAs("infoString")
+                        .setDefaultValue("description")
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
+                        .describedAs("A")
+                        .addValues(BigDecimal.valueOf(7L), BigDecimal.valueOf(77L), BigDecimal.valueOf(777L))
+                        .setDefaultValue(BigDecimal.valueOf(77L))
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
+                        .describedAs("infoEnumString")
+                        .addValues("alfa", "beta", "gamma")
+                        .setDefaultValue("gamma")
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), DeviceTypeOneDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                        .describedAs("flag")
+                        .setDefaultValue(false)
+                        .finish());
     }
 
     private static class DeviceOnePeristenceSupport implements PersistenceSupport<Device, DeviceTypeOneDomainExtension> {
@@ -169,7 +168,7 @@ public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device,
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         @Override

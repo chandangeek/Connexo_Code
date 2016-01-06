@@ -6,12 +6,11 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,6 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.config.cps.DeviceTypeThreeCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@SuppressWarnings("unused")
 public class DeviceTypeThreeCustomPropertySet implements CustomPropertySet<Device, DeviceTypeThreeDomainExtension> {
 
     public static final String TABLE_NAME = "RVK_CPS_DEVICE_THREE";
@@ -35,13 +36,11 @@ public class DeviceTypeThreeCustomPropertySet implements CustomPropertySet<Devic
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
 
-    @SuppressWarnings("unused")
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
-    @SuppressWarnings("unused")
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -52,14 +51,15 @@ public class DeviceTypeThreeCustomPropertySet implements CustomPropertySet<Devic
     }
 
     @Inject
-    public DeviceTypeThreeCustomPropertySet(PropertySpecService propertySpecService) {
-        super();
-        this.propertySpecService = propertySpecService;
+    public DeviceTypeThreeCustomPropertySet(PropertySpecService propertySpecService, DeviceService deviceService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setDeviceService(deviceService);
     }
 
     @Activate
     public void activate() {
-        System.err.println(TABLE_NAME);
+        System.out.println(TABLE_NAME);
     }
 
     @Override
@@ -99,20 +99,20 @@ public class DeviceTypeThreeCustomPropertySet implements CustomPropertySet<Devic
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec testNumberPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                .description("kw")
-                .setDefaultValue(0)
-                .markRequired()
-                .finish();
-        PropertySpec testStringPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new StringFactory())
-                .name(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
-                .description("infoString")
-                .setDefaultValue("description")
-                .finish();
-        return Arrays.asList(testNumberPropertySpec, testStringPropertySpec);
+        return Arrays.asList(
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                        .describedAs("kw")
+                        .setDefaultValue(BigDecimal.ZERO)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
+                        .describedAs("infoString")
+                        .setDefaultValue("description")
+                        .finish());
     }
 
     private static class DeviceThreePeristenceSupport implements PersistenceSupport<Device, DeviceTypeThreeDomainExtension> {
@@ -148,23 +148,23 @@ public class DeviceTypeThreeCustomPropertySet implements CustomPropertySet<Devic
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.databaseName())
-                    .number()
-                    .map(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                    .notNull()
-                    .add();
+                .column(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.databaseName())
+                .number()
+                .map(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                .notNull()
+                .add();
             table
-                    .column(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.databaseName())
-                    .varChar()
-                    .map(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
-                    .notNull()
-                    .add();
+                .column(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.databaseName())
+                .varChar()
+                .map(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
+                .notNull()
+                .add();
         }
     }
 }
