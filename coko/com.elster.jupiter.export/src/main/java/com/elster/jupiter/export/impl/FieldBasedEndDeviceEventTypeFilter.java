@@ -1,7 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.HasNumericCode;
@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -34,7 +35,7 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
     private transient EndDeviceType type;
     private transient EndDeviceDomain domain;
     private transient EndDeviceSubDomain subDomain;
-    private transient EndDeviceEventorAction eventOrAction;
+    private transient EndDeviceEventOrAction eventOrAction;
 
     private long version;
     private Instant createTime;
@@ -46,7 +47,7 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
         this.meteringService = meteringService;
     }
 
-    FieldBasedEndDeviceEventTypeFilter init(IStandardDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
+    FieldBasedEndDeviceEventTypeFilter init(IStandardDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventOrAction eventOrAction) {
         this.dataSelector.set(selector);
         this.type = type;
         this.domain = domain;
@@ -63,7 +64,7 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
         return this;
     }
 
-    static FieldBasedEndDeviceEventTypeFilter from(DataModel dataModel, IStandardDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
+    static FieldBasedEndDeviceEventTypeFilter from(DataModel dataModel, IStandardDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventOrAction eventOrAction) {
         return dataModel.getInstance(FieldBasedEndDeviceEventTypeFilter.class).init(selector, type, domain, subDomain, eventOrAction);
     }
 
@@ -120,7 +121,7 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
                 s -> type = EndDeviceType.get(Integer.parseInt(s)),
                 s -> domain = EndDeviceDomain.get(Integer.parseInt(s)),
                 s -> subDomain = EndDeviceSubDomain.get(Integer.parseInt(s)),
-                s -> eventOrAction = EndDeviceEventorAction.get(Integer.parseInt(s))
+                s -> eventOrAction = EndDeviceEventOrAction.get(Integer.parseInt(s))
         );
         IntStream.range(0, fields.length)
                 .filter(i -> fields[i].charAt(0) != '*')
