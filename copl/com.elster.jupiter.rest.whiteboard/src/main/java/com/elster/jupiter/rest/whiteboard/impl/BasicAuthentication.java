@@ -34,19 +34,18 @@ public class BasicAuthentication implements Authentication {
             user = userService.authenticateBase64(authentication.split(" ")[1]);
             SecurityToken.getInstance().removeCookie(request, response);
             refreshCookie = true;
-        } else{
-            if (xsrf.isPresent()){
-                refreshCookie = false;
-                if (authentication != null && authentication.startsWith("Bearer ") && !authentication.startsWith("Bearer undefined")) {
-                    if (!SecurityToken.getInstance().doComparison(xsrf.get(),authentication.substring(authentication.lastIndexOf(" ")+1)))
+        } else {
+            refreshCookie = false;
+            if (xsrf.isPresent()) {
+                if (authentication != null && authentication.startsWith("Bearer ")) {
+                    if (!SecurityToken.getInstance().doComparison(xsrf.get(), authentication.substring(authentication.lastIndexOf(" ") + 1))) {
                         return deny(request, response);
+                    }
                 }
                 user = SecurityToken.getInstance().verifyToken(xsrf.get().getValue(), request, response, userService);
-            } else if (authentication != null && authentication.startsWith("Bearer ")){
-                refreshCookie = false;
-                user = SecurityToken.getInstance().verifyToken(authentication.substring(authentication.lastIndexOf(" ")+1), request, response, userService);
+            } else if (authentication != null && authentication.startsWith("Bearer ")) {
+                user = SecurityToken.getInstance().verifyToken(authentication.substring(authentication.lastIndexOf(" ") + 1), request, response, userService);
             }
-
         }
         return user.isPresent() ? allow(request, response, user.get(), refreshCookie) : deny(request, response);
     }
@@ -58,26 +57,25 @@ public class BasicAuthentication implements Authentication {
         Optional<Cookie> xsrf = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         Optional<String> token;
         if (!xsrf.isPresent() || refreshCookie) {
-            token = SecurityToken.getInstance().createToken(user,0);
-            if(token.isPresent()){
+            token = SecurityToken.getInstance().createToken(user, 0);
+            if (token.isPresent()) {
                 response.setHeader("X-AUTH-TOKEN", token.get());
-                response.setHeader("Authorization", "Bearer " + token);
-                SecurityToken.getInstance().createCookie("X-CONNEXO-TOKEN", token.get(), "/", -1, true, response);
+                response.setHeader("Authorization", "Bearer " + token.get());
+                SecurityToken.getInstance().createCookie("X-CONNEXO-TOKEN", token.get(), "/", response);
             }
-        }else if(xsrf.isPresent() && request.getHeader("Authorization")!=null){
-            token = Optional.of((request.getHeader("Authorization").lastIndexOf(" ")+1>0) ? request.getHeader("Authorization").substring(request.getHeader("Authorization").lastIndexOf(" ") + 1) : request.getHeader("Authorization"));
-            if(token.isPresent()){
+        } else if (xsrf.isPresent() && request.getHeader("Authorization") != null) {
+            token = Optional.of((request.getHeader("Authorization").lastIndexOf(" ") + 1 > 0) ? request.getHeader("Authorization").substring(request.getHeader("Authorization").lastIndexOf(" ") + 1) : request.getHeader("Authorization"));
+            if (token.isPresent()) {
                 response.setHeader("X-AUTH-TOKEN", token.get());
                 response.setHeader("Authorization", "Bearer " + token.get());
             }
 
-        }else if(xsrf.isPresent()){
-            token = Optional.of((xsrf.get().getValue().lastIndexOf(" ")+1>0) ? xsrf.get().getValue().substring(xsrf.get().getValue().lastIndexOf(" ") + 1) : xsrf.get().getValue());
-            if(token.isPresent()){
-                response.setHeader("X-AUTH-TOKEN",token.get());
+        } else if (xsrf.isPresent()) {
+            token = Optional.of((xsrf.get().getValue().lastIndexOf(" ") + 1 > 0) ? xsrf.get().getValue().substring(xsrf.get().getValue().lastIndexOf(" ") + 1) : xsrf.get().getValue());
+            if (token.isPresent()) {
+                response.setHeader("X-AUTH-TOKEN", token.get());
                 response.setHeader("Authorization", "Bearer " + token.get());
             }
-
         }
         userService.addLoggedInUser(user);
         return true;
