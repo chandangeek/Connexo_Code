@@ -303,8 +303,8 @@ Ext.define('Uni.form.field.OnPeriod', {
     getOnValue: function () {
         var me = this,
             selectedValue = me.selectedValue,
-            dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').getValue(),
-            dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').getValue();
+            dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').disabled ? null : me.getOptionDayOfMonthContainer().down('combobox').getValue(),
+            dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').disabled ? null : me.getOptionDayOfWeekContainer().down('combobox').getValue();
 
         var result = {
             onCurrentDay: selectedValue === 'currentday'
