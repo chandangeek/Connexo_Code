@@ -25,7 +25,7 @@ public class ComServerStatusInfoFactory {
         ComServerStatusInfo info = new ComServerStatusInfo();
         info.comServerName = status.getComServerName();
         info.comServerId=status.getComServerId();
-        info.comServerType =  getTranslatedComServerType(status.getComServerType());
+        info.comServerType =  getComServerType(status.getComServerType());
         info.running = status.isRunning();
         info.blocked = status.isBlocked();
         info.uri = defaultUri;
@@ -34,6 +34,14 @@ public class ComServerStatusInfoFactory {
             info.blockedSince = status.getBlockTimestamp();
         }
         return info;
+    }
+
+    private String getComServerType(ComServerType comServerType) {
+        return COM_SERVER_TYPE_ADAPTER.marshal(comServerType);
+    }
+
+    private String getTranslatedComServerType(String comServerTypeString) {
+        return thesaurus.getString(comServerTypeString, comServerTypeString);
     }
 
     private String getTranslatedComServerType(ComServerType comServerType) {
@@ -46,10 +54,14 @@ public class ComServerStatusInfoFactory {
         statusInfo.comServerId = comServerId;
         statusInfo.comServerName = comServerName;
         statusInfo.uri = defaultUri;
-        statusInfo.comServerType = getTranslatedComServerType(comServerType);
+        statusInfo.comServerType = getComServerType(comServerType);
         statusInfo.blocked = false;
         statusInfo.running = false;
         return statusInfo;
     }
 
+    public ComServerStatusInfo translate(ComServerStatusInfo statusInfo) {
+        statusInfo.comServerType = getTranslatedComServerType(statusInfo.comServerType);
+        return statusInfo;
+    }
 }

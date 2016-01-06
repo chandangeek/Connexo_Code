@@ -95,7 +95,7 @@ public class ComServerStatusSummaryResource {
                     target(statusUri).
                     request(MediaType.APPLICATION_JSON).
                     get(ComServerStatusInfo.class);
-            statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfo);
+            statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfoFactory.translate(comServerStatusInfo));
         }
         catch (ClientErrorException | ProcessingException e) {
             /* Occurrence of ProcessingException was established when debugging the situation
@@ -105,7 +105,7 @@ public class ComServerStatusSummaryResource {
              * most likely because the ComServer is not running. */
             LOGGER.info(() -> "ComServer " + comServerName + " is most likely not running");
             ComServerStatusInfo statusInfo = comServerStatusInfoFactory.from(comServerId, comServerName, statusUri, comServerType);
-            statusSummaryInfo.comServerStatusInfos.add(statusInfo);
+            statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfoFactory.translate(statusInfo));
         }
     }
 
