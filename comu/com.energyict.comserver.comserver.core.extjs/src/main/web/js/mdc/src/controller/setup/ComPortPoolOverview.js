@@ -101,6 +101,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
         }
 
         if (activeChange != 'notChange') {
+            record.set('active', activeChange);
             record.save({
                 isNotEdit: true,
                 success: function (model) {
