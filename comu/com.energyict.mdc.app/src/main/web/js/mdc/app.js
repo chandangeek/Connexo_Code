@@ -81,8 +81,7 @@ Ext.onReady(function () {
     // </debug>
     Ext.Ajax.on("beforerequest", function(conn){
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
-        conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : 'Bearer '.concat(xAuthToken);
-
+        conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : xAuthToken;
     });
     Ext.Ajax.on("requestcomplete", function(conn, response){
 
@@ -92,10 +91,16 @@ Ext.onReady(function () {
 
     loader.onReady(function () {
 
-        Ext.Ajax.defaultHeaders = {
-            'X-CONNEXO-APPLICATION-NAME': 'MDC', // a function that return the main application
-            'Authorization': 'Bearer ' + localStorage.getItem('X-AUTH-TOKEN')
-        };
+        if(localStorage.getItem('X-AUTH-TOKEN')){
+            Ext.Ajax.defaultHeaders = {
+                'X-CONNEXO-APPLICATION-NAME': 'MDC', // a function that return the main application
+                'Authorization': 'Bearer ' + localStorage.getItem('X-AUTH-TOKEN')
+            };
+        }else{
+            Ext.Ajax.defaultHeaders = {
+                'X-CONNEXO-APPLICATION-NAME': 'MDC'
+            };
+        }
 
         Ext.Loader.setConfig({
             // <debug>
