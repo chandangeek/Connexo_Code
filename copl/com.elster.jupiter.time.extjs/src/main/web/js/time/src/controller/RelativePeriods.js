@@ -153,19 +153,22 @@ Ext.define('Tme.controller.RelativePeriods', {
             categoriesCombo.on({
                 expand: {
                     fn: function () {
-                        var button = Ext.create('Ext.button.Button', {
-                            text: Uni.I18n.translate('general.clearSelectedItems', 'TME', 'Clear selected item(s)'),
-                            ui: 'link',
-                            handler: function () {
-                                categoriesCombo.reset();
-                            }
-                        });
                         var spec = {
                             id: 'clear-all',
                             tag: 'div'
                         };
                         var container = Ext.DomHelper.insertFirst(categoriesCombo.getPicker().el.down('ul'), spec);
-                        button.render(container);
+                        var button = Ext.create('Ext.button.Button' , {
+                            itemId: 'clear-all-button',
+                            text: Uni.I18n.translate('general.clearSelectedItems', 'TME', 'Clear selected item(s)'),
+                            ui: 'link',
+                            renderTo: container,
+                            listeners : {
+                                click : function(){
+                                    debugger;
+                                }
+                            }
+                        });
                     },
                     single: true
                 }
