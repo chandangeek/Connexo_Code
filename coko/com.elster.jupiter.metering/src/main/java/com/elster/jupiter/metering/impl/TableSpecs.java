@@ -343,7 +343,7 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_RQ_READINGTYPE").references(MTR_READINGTYPE.name()).onDelete(DeleteRule.RESTRICT).map("readingType").on(readingTypeColumn).add();
             table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn, readingTypeColumn).add();
             table
-                .index("MTR_READINGQUALITY_VAL_OVERVIEW")
+                .index("MTR_READINGQUALITY_VAL_OVERVW")
                 .on(channelColumn, typeColumn, actual)
                 .add();
         }
