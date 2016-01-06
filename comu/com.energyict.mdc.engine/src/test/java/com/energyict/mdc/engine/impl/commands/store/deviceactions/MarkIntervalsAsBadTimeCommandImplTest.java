@@ -96,7 +96,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
                 .hasSize(1);
         Issue issue = loadProfileCommand.getIssues().get(0);
         assertThat(issue).isInstanceOf(Warning.class);
-        assertThat(issue.getDescription()).isEqualTo("intervalsMarkedAsBadTime");
+        assertThat(issue.getDescription()).isEqualTo("Load profile intervals will be marked as bad time: The time difference (600 seconds) exceeds the configured allowed maximum (60 seconds)");
 
         assertNotNull(loadProfileCommand.getCollectedData());
         Assert.assertEquals("Should only contain 1 collectedData object", 1, loadProfileCommand.getCollectedData().size());

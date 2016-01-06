@@ -66,7 +66,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
         assertThat(command.toJournalMessageDescription(LogLevel.DEBUG)).contains("maximumClockShift: 111 seconds");
     }
 
@@ -89,7 +89,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
@@ -97,13 +97,14 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).hasSize(1);
         assertThat(command.getWarnings()).hasSize(1);
         assertThat(command.getProblems()).isEmpty();
-        assertThat(command.getIssues().get(0).getDescription()).isEqualTo("timediffXlargerthanmaxdefined");
+        assertThat(command.getIssues().get(0).getDescription()).isEqualTo("Time difference is larger (500.000) than the maximum defined on the ComTask, setting the time will not be performed");
     }
 
     @Test
     public void smallerThanMaxClockShiftTest() {
         Clock currentTime = Clock.fixed(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
         when(executionContextServiceProvider.clock()).thenReturn(currentTime);
+        when(commandRootServiceProvider.clock()).thenReturn(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -117,15 +118,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        CommandRoot commandRoot = mock(CommandRoot.class);
-        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        IssueService issueService = executionContextServiceProvider.issueService();
-        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
-        Clock clock = executionContextServiceProvider.clock();
-        when(commandRootServiceProvider.clock()).thenReturn(clock);
-        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
@@ -140,6 +133,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
     public void largerThanMaxShiftSmallerThanMaxDiffTest() {
         Clock currentTime = Clock.fixed(new DateTime(2013, DateTimeConstants.SEPTEMBER, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
         when(executionContextServiceProvider.clock()).thenReturn(currentTime);
+        when(commandRootServiceProvider.clock()).thenReturn(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -153,15 +147,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        CommandRoot commandRoot = mock(CommandRoot.class);
-        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        IssueService issueService = executionContextServiceProvider.issueService();
-        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
-        Clock clock = executionContextServiceProvider.clock();
-        when(commandRootServiceProvider.clock()).thenReturn(clock);
-        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
@@ -176,6 +162,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
     public void largerThanMaxShiftSmallerThanMaxDiffButNegativeTest() {
         Clock currentTime = Clock.fixed(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
         when(executionContextServiceProvider.clock()).thenReturn(currentTime);
+        when(commandRootServiceProvider.clock()).thenReturn(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -189,15 +176,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        CommandRoot commandRoot = mock(CommandRoot.class);
-        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        IssueService issueService = executionContextServiceProvider.issueService();
-        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
-        Clock clock = executionContextServiceProvider.clock();
-        when(commandRootServiceProvider.clock()).thenReturn(clock);
-        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
@@ -233,7 +212,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
@@ -267,7 +246,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(commandRootServiceProvider.clock()).thenReturn(clock);
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, commandRoot, null);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
