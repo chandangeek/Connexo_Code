@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
@@ -12,8 +13,8 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.TOPOLOGY_COMMAND;
     }
 

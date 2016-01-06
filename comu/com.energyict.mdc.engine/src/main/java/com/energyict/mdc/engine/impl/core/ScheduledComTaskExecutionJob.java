@@ -85,7 +85,7 @@ public class ScheduledComTaskExecutionJob extends ScheduledJobImpl {
             PreparedComTaskExecution preparedComTaskExecution = prepare();
             if (this.establishConnection()) {
                 connectionOk = true;
-                this.performPreparedComTaskExecution(preparedComTaskExecution);
+                this.performPreparedComTaskExecution(preparedComTaskExecution, false);
             }
         } catch (ConnectionSetupException e){
             int totalNumberOfComTasks = this.comTaskExecution.getComTasks().size();
@@ -100,7 +100,7 @@ public class ScheduledComTaskExecutionJob extends ScheduledJobImpl {
             if (connectionOk) {
                 try {
                     this.completeConnection();
-                }catch(ConnectionException ce){
+                } catch(ConnectionException ce){
                     disconnectionFailed =  new ConnectionFailureException(MessageSeeds.CONNECTION_FAILURE, ce);
                 }
             }

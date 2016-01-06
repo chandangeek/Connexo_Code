@@ -1,20 +1,21 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -48,7 +49,7 @@ public class CommandFactoryTest extends CommonCommandImplTests {
         CommandFactory.createLegacyCommandsFromTask(commandRoot, scheduledComTask, protocolTasks);
 
         // Asserts
-        verify(commandRoot).getLegacyLoadProfileLogBooksCommand(loadProfilesTask, logBooksTask, commandRoot, scheduledComTask);
+        verify(commandRoot).findOrCreateLegacyLoadProfileLogBooksCommand(loadProfilesTask, logBooksTask, commandRoot, scheduledComTask);
     }
 
     @Test
@@ -64,7 +65,7 @@ public class CommandFactoryTest extends CommonCommandImplTests {
         CommandFactory.createLegacyCommandsFromTask(commandRoot, scheduledComTask, protocolTasks);
 
         // Asserts
-        verify(commandRoot).getLegacyLoadProfileLogBooksCommand(loadProfilesTask, null, commandRoot, scheduledComTask);
+        verify(commandRoot).findOrCreateLegacyLoadProfileLogBooksCommand(loadProfilesTask, null, commandRoot, scheduledComTask);
     }
 
     @Test
@@ -80,6 +81,6 @@ public class CommandFactoryTest extends CommonCommandImplTests {
         CommandFactory.createLegacyCommandsFromTask(commandRoot, scheduledComTask, protocolTasks);
 
         // Asserts
-        verify(commandRoot).getLegacyLoadProfileLogBooksCommand(null, logBooksTask, commandRoot, scheduledComTask);
+        verify(commandRoot).findOrCreateLegacyLoadProfileLogBooksCommand(null, logBooksTask, commandRoot, scheduledComTask);
     }
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
@@ -7,7 +8,6 @@ import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.util.List;
 
@@ -22,21 +22,21 @@ public interface ComCommand {
     /**
      * @return the {@link ComCommandType type} of this command.
      */
-    public ComCommandType getCommandType();
+    ComCommandType getCommandType();
 
     /**
      * Get the root of this command which serves as a root for unique {@link ComCommand ComCommands}.
      *
      * @return the {@link CommandRoot}
      */
-    public CommandRoot getCommandRoot();
+    CommandRoot getCommandRoot();
 
     /**
      * Get all the issue which occurred during the execution of this {@link ComCommand}.
      *
      * @return a List of occurred {@link Issue issues}
      */
-    public List<Issue> getIssues();
+    List<Issue> getIssues();
 
     /**
      * Get all the problems which occurred during the execution of this {@link ComCommand}.
@@ -46,7 +46,7 @@ public interface ComCommand {
      * @return a List of occurred {@link Problem}s
      * @see #getIssues()
      */
-    public List<Problem> getProblems ();
+    List<Problem> getProblems();
 
     /**
      * Get all the warnings which occurred during the execution of this {@link ComCommand}.
@@ -56,14 +56,14 @@ public interface ComCommand {
      * @return a List of occurred {@link Warning}s
      * @see #getIssues()
      */
-    public List<Warning> getWarnings ();
+    List<Warning> getWarnings();
 
     /**
      * Get all the {@link CollectedData} which is collected during this {@link ComCommand}.
      *
      * @return the {@link CollectedData}
      */
-    public List<CollectedData> getCollectedData();
+    List<CollectedData> getCollectedData();
 
     /**
      * Perform the actions which are owned by this {@link ComCommand}.
@@ -71,28 +71,28 @@ public interface ComCommand {
      * @param deviceProtocol the {@link DeviceProtocol} which will perform the actions
      * @param executionContext The ExecutionContext
      */
-    public void execute (DeviceProtocol deviceProtocol, ExecutionContext executionContext);
+    void execute(DeviceProtocol deviceProtocol, ExecutionContext executionContext);
 
     /**
      * Add the given {@link CollectedData} to the collectedDataList.
      *
      * @param collectedData the {@link CollectedData} to add
      */
-    public void addCollectedDataItem(CollectedData collectedData);
+    void addCollectedDataItem(CollectedData collectedData);
 
     /**
      * All all the {@link CollectedData} items in the given list to the collectedDataList.
      *
      * @param collectedDataList all the {@link CollectedData} to add
      */
-    public void addListOfCollectedDataItems(List<? extends CollectedData> collectedDataList);
+    void addListOfCollectedDataItems(List<? extends CollectedData> collectedDataList);
 
     /**
      * Gets the {@link CompletionCode} of this Command.
      *
      * @return The CompletionCode
      */
-    public CompletionCode getCompletionCode ();
+    CompletionCode getCompletionCode();
 
     /**
      * Gets the minimum LogLevel that needs to be activated
@@ -104,7 +104,7 @@ public interface ComCommand {
      *
      * @return The minimum ComServer.LogLevel
      */
-    public LogLevel getJournalingLogLevel ();
+    LogLevel getJournalingLogLevel();
 
     /**
      * Converts this ComCommand to a String that will be used
@@ -114,7 +114,7 @@ public interface ComCommand {
      * @return The human readable description of this ComCommand
      * @param serverLogLevel The LogLevel set on the ComServer
      */
-    public String toJournalMessageDescription (LogLevel serverLogLevel);
+    String toJournalMessageDescription(LogLevel serverLogLevel);
 
     /**
      * Creates a human readable description of all issues;
@@ -122,6 +122,6 @@ public interface ComCommand {
      *
      * @return The human readable description of the issues
      */
-    public String issuesToJournalMessageDescription();
+    String issuesToJournalMessageDescription();
 
 }

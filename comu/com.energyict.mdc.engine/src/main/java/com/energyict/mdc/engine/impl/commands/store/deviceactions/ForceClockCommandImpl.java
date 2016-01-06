@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
@@ -30,7 +31,7 @@ public class ForceClockCommandImpl extends SimpleComCommand implements ForceCloc
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.FORCE_CLOCK_COMMAND;
     }
 

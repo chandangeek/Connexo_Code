@@ -1,7 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -20,8 +23,10 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.tasks.ComTask;
 
+import java.text.MessageFormat;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -74,6 +79,11 @@ public abstract class AbstractComCommandExecuteTest {
     public void setupServiceProvider() {
         when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
         when(thesaurus.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
+
         DeviceService deviceService = mock(DeviceService.class, RETURNS_DEEP_STUBS);
         IssueServiceImpl issueService = new IssueServiceImpl(this.clock, this.nlsService);
         when(executionContextServiceProvider.clock()).thenReturn(this.clock);
@@ -85,6 +95,7 @@ public abstract class AbstractComCommandExecuteTest {
         when(commandRootServiceProvider.clock()).thenReturn(this.clock);
         when(commandRootServiceProvider.issueService()).thenReturn(issueService);
         when(commandRootServiceProvider.deviceService()).thenReturn(deviceService);
+        when(commandRootServiceProvider.thesaurus()).thenReturn(thesaurus);
     }
 
     @After
@@ -136,4 +147,26 @@ public abstract class AbstractComCommandExecuteTest {
         return executionContext;
     }
 
+    class SimpleNlsMessageFormat implements NlsMessageFormat {
+
+        private final String defaultFormat;
+
+        SimpleNlsMessageFormat(TranslationKey translationKey) {
+            this.defaultFormat = translationKey.getDefaultFormat();
+        }
+
+        SimpleNlsMessageFormat(MessageSeed messageSeed) {
+            this.defaultFormat = messageSeed.getDefaultFormat();
+        }
+
+        @Override
+        public String format(Object... args) {
+            return MessageFormat.format(this.defaultFormat, args);
+        }
+
+        @Override
+        public String format(Locale locale, Object... args) {
+            return MessageFormat.format(this.defaultFormat, args);
+        }
+    }
 }

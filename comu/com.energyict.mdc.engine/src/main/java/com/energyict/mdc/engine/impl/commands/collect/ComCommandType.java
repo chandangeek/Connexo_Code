@@ -13,8 +13,8 @@ import java.util.List;
  */
 public interface ComCommandType {
 
-    public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution);
+    void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution);
 
-    public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution);
+    void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution);
 
 }

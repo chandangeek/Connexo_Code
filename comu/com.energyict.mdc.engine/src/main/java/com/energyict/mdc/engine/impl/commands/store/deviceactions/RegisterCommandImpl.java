@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
@@ -62,7 +63,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         } else {
             registers = device.getAllRegistersForMRID(comTaskExecution.getDevice().getmRID());
         }
-        ReadRegistersCommand readRegistersCommand = getCommandRoot().getReadRegistersCommand(this, comTaskExecution);
+        ReadRegistersCommand readRegistersCommand = getCommandRoot().findOrCreateReadRegistersCommand(this, comTaskExecution);
         readRegistersCommand.addRegisters(registers);
         deviceRegisterList = new DeviceRegisterList(device.getDeviceIdentifier());
     }
@@ -118,7 +119,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
      * @return the ComCommandTypes  of this command
      */
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.REGISTERS_COMMAND;
     }
 

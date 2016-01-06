@@ -21,12 +21,6 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -35,9 +29,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the MarkIntervalsAsBadTimeCommandImpl component
@@ -80,12 +81,12 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
 
         when(loadProfilesTask.getMinClockDiffBeforeBadTime()).thenReturn(Optional.of(minClockDiffBeforeBadTime));
         CommandRoot commandRoot = createCommandRoot();
-        LoadProfileCommand loadProfileCommand = spy(commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution));
-        TimeDifferenceCommand timeDifferenceCommand = commandRoot.getTimeDifferenceCommand(loadProfileCommand, comTaskExecution);
+        LoadProfileCommand loadProfileCommand = spy(commandRoot.findOrCreateLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution));
+        TimeDifferenceCommand timeDifferenceCommand = commandRoot.findOrCreateTimeDifferenceCommand(loadProfileCommand, comTaskExecution);
         ExecutionContext executionContext = this.newTestExecutionContext();
         timeDifferenceCommand.execute(deviceProtocol, executionContext);
 
-        MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
+        MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.findOrCreateMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
         loadProfileCommand.addCollectedDataItem(createDeviceCollectedLoadProfile());
         markIntervalsAsBadTimeCommand.execute(deviceProtocol, executionContext);
 
@@ -95,7 +96,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
                 .hasSize(1);
         Issue issue = loadProfileCommand.getIssues().get(0);
         assertThat(issue).isInstanceOf(Warning.class);
-        assertThat(issue.getDescription()).isEqualTo("intervalsMarkedAsBadTime");
+        assertThat(issue.getDescription()).isEqualTo("Load profile intervals will be marked as bad time: The time difference (600 seconds) exceeds the configured allowed maximum (60 seconds)");
 
         assertNotNull(loadProfileCommand.getCollectedData());
         Assert.assertEquals("Should only contain 1 collectedData object", 1, loadProfileCommand.getCollectedData().size());
@@ -120,12 +121,12 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
 
         when(loadProfilesTask.getMinClockDiffBeforeBadTime()).thenReturn(Optional.of(minClockDiffBeforeBadTime));
         CommandRoot commandRoot = createCommandRoot();
-        LoadProfileCommand loadProfileCommand = commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
-        TimeDifferenceCommand timeDifferenceCommand = commandRoot.getTimeDifferenceCommand(loadProfileCommand, comTaskExecution);
+        LoadProfileCommand loadProfileCommand = commandRoot.findOrCreateLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
+        TimeDifferenceCommand timeDifferenceCommand = commandRoot.findOrCreateTimeDifferenceCommand(loadProfileCommand, comTaskExecution);
         ExecutionContext executionContext = this.newTestExecutionContext();
         timeDifferenceCommand.execute(deviceProtocol, executionContext);
 
-        MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
+        MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.findOrCreateMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
         loadProfileCommand.addCollectedDataItem(createDeviceCollectedLoadProfile());
         markIntervalsAsBadTimeCommand.execute(deviceProtocol, executionContext);
 

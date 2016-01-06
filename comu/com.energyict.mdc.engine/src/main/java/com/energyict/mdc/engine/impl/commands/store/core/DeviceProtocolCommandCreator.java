@@ -55,6 +55,7 @@ public class DeviceProtocolCommandCreator implements CommandCreator {
     }
 
     private void doSetupNewDevice(CommandRoot root, TypedProperties protocolDialectProperties, ComChannelPlaceHolder comChannel, OfflineDevice offlineDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, ComTaskExecution comTaskExecution) {
+        CommandFactory.initializeCommandRootForNextSecurityGroupOfCommands(root);
         CommandFactory.createAddProperties(root, comTaskExecution, offlineDevice.getAllProperties(), protocolDialectProperties, deviceProtocolSecurityPropertySet);
         CommandFactory.createSetDeviceCacheCommand(root, comTaskExecution, offlineDevice);
         CommandFactory.createDeviceProtocolInitialization(root,comTaskExecution, offlineDevice, comChannel);

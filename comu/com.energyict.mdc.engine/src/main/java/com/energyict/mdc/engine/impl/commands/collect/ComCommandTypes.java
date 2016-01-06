@@ -44,12 +44,12 @@ public enum ComCommandTypes implements ComCommandType {
     CLOCK_COMMAND(ClockTask.class) {
         @Override
         public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getClockCommand((ClockTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateClockCommand((ClockTask) protocolTask, root, comTaskExecution);
         }
 
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getClockCommand((ClockTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateClockCommand((ClockTask) protocolTask, root, comTaskExecution);
         }
     },
     SET_CLOCK_COMMAND,
@@ -62,25 +62,25 @@ public enum ComCommandTypes implements ComCommandType {
     TOPOLOGY_COMMAND(TopologyTask.class) {
         @Override
         public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getTopologyCommand((TopologyTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateTopologyCommand((TopologyTask) protocolTask, root, comTaskExecution);
         }
 
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getTopologyCommand((TopologyTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateTopologyCommand((TopologyTask) protocolTask, root, comTaskExecution);
         }
     },
 
     LOAD_PROFILE_COMMAND(LoadProfilesTask.class) {
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getLoadProfileCommand((LoadProfilesTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateLoadProfileCommand((LoadProfilesTask) protocolTask, root, comTaskExecution);
         }
 
         @Override
         public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
             LogBooksTask logBooksTask = checkGetLogBooksTask(protocolTasks);
-            root.getLegacyLoadProfileLogBooksCommand((LoadProfilesTask) protocolTask, logBooksTask, root, comTaskExecution);
+            root.findOrCreateLegacyLoadProfileLogBooksCommand((LoadProfilesTask) protocolTask, logBooksTask, root, comTaskExecution);
         }
 
         /**
@@ -109,12 +109,12 @@ public enum ComCommandTypes implements ComCommandType {
     BASIC_CHECK_COMMAND(BasicCheckTask.class) {
         @Override
         public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getBasicCheckCommand((BasicCheckTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateBasicCheckCommand((BasicCheckTask) protocolTask, root, comTaskExecution);
         }
 
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getBasicCheckCommand((BasicCheckTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateBasicCheckCommand((BasicCheckTask) protocolTask, root, comTaskExecution);
         }
     },
     VERIFY_SERIAL_NUMBER_COMMAND,
@@ -122,12 +122,12 @@ public enum ComCommandTypes implements ComCommandType {
     REGISTERS_COMMAND(RegistersTask.class) {
         @Override
         public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getRegisterCommand((RegistersTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateRegisterCommand((RegistersTask) protocolTask, root, comTaskExecution);
         }
 
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getRegisterCommand((RegistersTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateRegisterCommand((RegistersTask) protocolTask, root, comTaskExecution);
         }
     },
     READ_REGISTERS_COMMAND,
@@ -135,31 +135,31 @@ public enum ComCommandTypes implements ComCommandType {
     STATUS_INFORMATION_COMMAND(StatusInformationTask.class) {
         @Override
         public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getStatusInformationCommand(root, comTaskExecution);
+            root.findOrCreateStatusInformationCommand(root, comTaskExecution);
         }
 
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getStatusInformationCommand(root, comTaskExecution);
+            root.findOrCreateStatusInformationCommand(root, comTaskExecution);
         }
     },
 
     MESSAGES_COMMAND(MessagesTask.class) {
         @Override
         public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getMessagesCommand((MessagesTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateMessagesCommand((MessagesTask) protocolTask, root, comTaskExecution);
         }
 
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getMessagesCommand((MessagesTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateMessagesCommand((MessagesTask) protocolTask, root, comTaskExecution);
         }
     },
 
     LOGBOOKS_COMMAND(LogBooksTask.class) {
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getLogBooksCommand((LogBooksTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateLogBooksCommand((LogBooksTask) protocolTask, root, comTaskExecution);
         }
 
         @Override
@@ -167,7 +167,7 @@ public enum ComCommandTypes implements ComCommandType {
             LoadProfilesTask loadProfilesTask = checkGetLoadProfilesTask(protocolTasks);
             // Only need action when there is no load profiles task
             if (loadProfilesTask == null) {
-                root.getLegacyLoadProfileLogBooksCommand(null, (LogBooksTask) protocolTask, root, comTaskExecution);
+                root.findOrCreateLegacyLoadProfileLogBooksCommand(null, (LogBooksTask) protocolTask, root, comTaskExecution);
             }
         }
 
@@ -208,12 +208,12 @@ public enum ComCommandTypes implements ComCommandType {
     FIRMWARE_COMMAND(FirmwareManagementTask.class){
         @Override
         public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getFirmwareCommand((FirmwareManagementTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateFirmwareCommand((FirmwareManagementTask) protocolTask, root, comTaskExecution);
         }
 
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getFirmwareCommand((FirmwareManagementTask) protocolTask, root, comTaskExecution);
+            root.findOrCreateFirmwareCommand((FirmwareManagementTask) protocolTask, root, comTaskExecution);
         }
     };
 
@@ -222,11 +222,11 @@ public enum ComCommandTypes implements ComCommandType {
      */
     private Class<? extends ProtocolTask> protocolTaskClass;
 
-    private ComCommandTypes(Class<? extends ProtocolTask> protocolTaskClass) {
+    ComCommandTypes(Class<? extends ProtocolTask> protocolTaskClass) {
         this.protocolTaskClass = protocolTaskClass;
     }
 
-    private ComCommandTypes() {
+    ComCommandTypes() {
     }
 
     /**

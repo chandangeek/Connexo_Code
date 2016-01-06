@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import java.time.Clock;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 import java.text.MessageFormat;
+import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
 
@@ -53,7 +54,7 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.TIME_DIFFERENCE_COMMAND;
     }
 

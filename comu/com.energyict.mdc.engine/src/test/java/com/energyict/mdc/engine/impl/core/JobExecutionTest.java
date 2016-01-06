@@ -1,5 +1,13 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -24,7 +32,6 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -51,22 +58,15 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.base.Strings;
 import org.joda.time.DateTime;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -234,7 +234,7 @@ public class JobExecutionTest {
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(ct));
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getComTask()).thenReturn(this.comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(this.comTask));
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
@@ -287,7 +287,7 @@ public class JobExecutionTest {
         when(this.offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
         when(serverDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
-        jobExecution.prepareAll(Arrays.asList(comTaskExecution));
+        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
         verify(genericDeviceProtocol, times(1)).organizeComCommands(any(CommandRoot.class));
     }
 
@@ -308,7 +308,7 @@ public class JobExecutionTest {
         when(this.offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(serverDeviceProtocolPluggableClass);
         when(serverDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        jobExecution.prepareAll(Arrays.asList(comTaskExecution));
+        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
         verify(genericDeviceProtocol, never()).organizeComCommands(any(CommandRoot.class));
     }
 
@@ -332,9 +332,9 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commands).isNotEmpty();
-        assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotEmpty();
+        assertThat(commandTypes).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
     }
 
     @Test
@@ -359,9 +359,9 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commands).isNotEmpty();
-        assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotEmpty();
+        assertThat(commandTypes).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
     }
 
     @Test
@@ -383,9 +383,9 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commands).isNotEmpty();
-        assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotEmpty();
+        assertThat(commandTypes).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND);
 
     }
 
@@ -410,9 +410,9 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commands).isNotEmpty();
-        assertThat(commands.keySet()).containsSequence(ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotEmpty();
+        assertThat(commandTypes).containsSequence(ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
 
     }
 
@@ -421,6 +421,7 @@ public class JobExecutionTest {
         Date meterTime = new DateTime(2013, 9, 18, 16, 0, 0, 0).toDate();
         Date systemTime = new DateTime(2013, 9, 18, 15, 0, 0, 0).toDate();
         when(this.clock.instant()).thenReturn(systemTime.toInstant());
+        when(this.clock.millis()).thenReturn(systemTime.getTime());
         when(deviceProtocol.getTime()).thenReturn(meterTime);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         ScheduledComTaskExecutionGroup jobExecution = getJobExecutionForBasicCheckInFrontTests();
@@ -438,7 +439,6 @@ public class JobExecutionTest {
         when(basicCheckTask.verifyClockDifference()).thenReturn(true);
         createMockedComTaskWithGivenProtocolTasks(basicCheckTask);
 
-        // Business method
         JobExecution.PreparedComTaskExecution preparedComTaskExecution =
                 jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
@@ -446,7 +446,9 @@ public class JobExecutionTest {
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort, true));
 
         scheduledComTaskExecutionGroup.establishConnection();
-        scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
+
+        // Business method
+        scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution, false);
 
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().basickCheckHasFailed()).isTrue();
     }
@@ -480,7 +482,7 @@ public class JobExecutionTest {
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort, true));
 
         scheduledComTaskExecutionGroup.establishConnection();
-        scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
+        scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution, false);
 
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().basickCheckHasFailed()).isTrue();
     }
@@ -498,7 +500,7 @@ public class JobExecutionTest {
 
     private void createMockedComTaskWithGivenProtocolTasks(ProtocolTask... protocolTasks) {
         ComTask comTask = mock(ComTask.class);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
         when(comTaskExecution.getProtocolTasks()).thenReturn(Arrays.asList(protocolTasks));
         when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(protocolTasks));
     }

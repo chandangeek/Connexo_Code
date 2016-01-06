@@ -10,8 +10,9 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.TopologyTask;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -41,7 +42,7 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         when(deviceProtocol.getDeviceTopology()).thenReturn(collectedTopology);
         CommandRoot commandRoot = createCommandRoot();
         when(this.topologyTask.getTopologyAction()).thenReturn(TopologyAction.UPDATE);
-        TopologyCommand topologyCommand = commandRoot.getTopologyCommand(topologyTask, commandRoot, comTaskExecution);
+        TopologyCommand topologyCommand = commandRoot.findOrCreateTopologyCommand(topologyTask, commandRoot, comTaskExecution);
 
         // Business method
         topologyCommand.execute(deviceProtocol, newTestExecutionContext());
@@ -61,7 +62,7 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         when(deviceProtocol.getDeviceTopology()).thenReturn(collectedTopology);
         CommandRoot commandRoot = createCommandRoot();
         when(this.topologyTask.getTopologyAction()).thenReturn(TopologyAction.UPDATE);
-        TopologyCommand topologyCommand = commandRoot.getTopologyCommand(topologyTask, commandRoot, comTaskExecution);
+        TopologyCommand topologyCommand = commandRoot.findOrCreateTopologyCommand(topologyTask, commandRoot, comTaskExecution);
 
         // Business method
         String description = topologyCommand.toJournalMessageDescription(LogLevel.TRACE);

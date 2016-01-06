@@ -16,8 +16,6 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
-import org.fest.assertions.data.MapEntry;
-
 import java.time.Clock;
 import java.util.logging.Logger;
 
@@ -82,11 +80,14 @@ public class GenericDeviceProtocolTest {
         root.addUniqueCommand(setClockCommand, null);
 
         CommandRoot result = protocol.organizeComCommands(root);
-        assertThat(result.getCommands()).hasSize(root.getCommands().size() - 1);
-        assertThat(result.getCommands()).contains(MapEntry.entry(setClockCommand.getCommandType(), setClockCommand));
-        assertThat(result.getCommands()).doesNotContain(MapEntry.entry(readRegistersCommand.getCommandType(), readRegistersCommand));
-        assertThat(root.getCommands()).contains(MapEntry.entry(setClockCommand.getCommandType(), setClockCommand));
-        assertThat(root.getCommands()).contains(MapEntry.entry(readRegistersCommand.getCommandType(), readRegistersCommand));
+        assertThat(result.getCommandTypes()).hasSize(root.getCommandTypes().size() - 1);
+        assertThat(result.getExistingCommandsOfType(ComCommandTypes.SET_CLOCK_COMMAND)).containsOnly(this.setClockCommand);
+        assertThat(result.getCommandTypes()).doesNotContain(ComCommandTypes.READ_REGISTERS_COMMAND);
+        assertThat(result.getExistingCommandsOfType(ComCommandTypes.READ_REGISTERS_COMMAND)).isEmpty();
+        assertThat(root.getCommandTypes()).contains(ComCommandTypes.SET_CLOCK_COMMAND);
+        assertThat(root.getExistingCommandsOfType(ComCommandTypes.SET_CLOCK_COMMAND)).containsOnly(this.setClockCommand);
+        assertThat(root.getCommandTypes()).contains(ComCommandTypes.READ_REGISTERS_COMMAND);
+        assertThat(root.getExistingCommandsOfType(ComCommandTypes.READ_REGISTERS_COMMAND)).containsOnly(this.readRegistersCommand);
     }
 
     private ExecutionContext newTestExecutionContext(ExecutionContext.ServiceProvider serviceProvider) {

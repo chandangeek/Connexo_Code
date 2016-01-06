@@ -8,8 +8,10 @@ import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -38,7 +40,8 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl implements Mete
     protected void doExecute(ComServerDAO comServerDAO) {
         try {
             for (Map.Entry<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
-                comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
+                List<Warning> warnings = comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
+                warnings.forEach(this::logWarning);
             }
 
             for (Map.Entry<LoadProfileIdentifier, Instant> loadProfileDateEntry : lastReadings.entrySet()) {
@@ -52,6 +55,10 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl implements Mete
         catch (RuntimeException e) {
             this.getExecutionLogger().logUnexpected(e, this.getComTaskExecution());
         }
+    }
+
+    private void logWarning(Warning warning) {
+        getExecutionLogger().addIssue(CompletionCode.Ok, warning, getComTaskExecution());
     }
 
     @Override

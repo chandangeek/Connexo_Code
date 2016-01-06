@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
@@ -43,12 +44,12 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
         if (!(MeterProtocolAdapter.class.isAssignableFrom(deviceProtocol.getClass()))) {
             String meterSerialNumber = deviceProtocol.getSerialNumber();
             if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
-                addIssue(getIssueService().newProblem(getCommandType(), "CSC-CONF-112", meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
+                addIssue(getIssueService().newProblem(getCommandType(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH.getKey(), meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
                 throw DeviceConfigurationException.serialNumberMisMatch(meterSerialNumber, offlineDevice.getSerialNumber(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH);
             }
         }
         else {
-            addIssue(getIssueService().newWarning(deviceProtocol, "notPossibleToVerifySerialNumber", deviceProtocol.getSerialNumber(), deviceProtocol.getClass().getSimpleName()));
+            addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER.getKey(), deviceProtocol.getSerialNumber(), deviceProtocol.getClass().getSimpleName()));
         }
     }
 
@@ -58,7 +59,7 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.VERIFY_SERIAL_NUMBER_COMMAND;
     }
 

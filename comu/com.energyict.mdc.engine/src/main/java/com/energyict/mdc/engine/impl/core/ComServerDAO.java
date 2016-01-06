@@ -16,6 +16,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -280,7 +281,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param deviceIdentifier the identifier of the Device
      * @param meterReading the readings to store
      */
-    void storeMeterReadings(DeviceIdentifier<Device> deviceIdentifier, MeterReading meterReading);
+    List<Warning> storeMeterReadings(DeviceIdentifier<Device> deviceIdentifier, MeterReading meterReading);
 
     /**
      * Finds the OfflineDevice that is uniquely identified

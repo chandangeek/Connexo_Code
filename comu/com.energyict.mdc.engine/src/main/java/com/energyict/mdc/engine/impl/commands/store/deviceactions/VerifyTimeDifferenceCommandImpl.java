@@ -1,9 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
@@ -12,8 +14,6 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
-
-import com.elster.jupiter.time.TimeDuration;
 
 import java.util.Optional;
 
@@ -55,8 +55,8 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
         if (Math.abs(this.timeDifference.getMilliSeconds()) > this.maximumClockDifference.getMilliSeconds()) {
             addIssue(getIssueService().newProblem(
                     getCommandType(),
-// Todo: Add to MessageSeeds
-                    "Time difference exceeds the configured maximum\\: The time difference ({0}) is larger than the configured allowed maximum ({1})",
+                    getThesaurus(),
+                    MessageSeeds.MAXIMUM_TIME_DIFFERENCE_EXCEEDED,
                     this.timeDifference,
                     this.maximumClockDifference),
                     CompletionCode.TimeError);
@@ -74,7 +74,7 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.VERIFY_TIME_DIFFERENCE_COMMAND;
     }
 

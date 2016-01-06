@@ -17,11 +17,6 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LogBooksTask;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -29,6 +24,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -150,7 +150,7 @@ public class LogBooksCommandImplTest {
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot commandRoot = mock(CommandRoot.class);
         ReadLogBooksCommand readLogBooksCommand = mock(ReadLogBooksCommand.class);
-        when(commandRoot.getReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
+        when(commandRoot.findorCreateReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
 
         LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
 
@@ -173,7 +173,7 @@ public class LogBooksCommandImplTest {
         CommandRoot.ServiceProvider serviceProvider = mock(CommandRoot.ServiceProvider.class);
         when(commandRoot.getServiceProvider()).thenReturn(serviceProvider);
         ReadLogBooksCommand readLogBooksCommand = mock(ReadLogBooksCommand.class);
-        when(commandRoot.getReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
+        when(commandRoot.findorCreateReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
 
         LogBooksCommandImpl logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = logBooksCommand.getLogBookReaders();
@@ -207,7 +207,7 @@ public class LogBooksCommandImplTest {
 
         CommandRoot commandRoot = mock(CommandRoot.class);
         ReadLogBooksCommand readLogBooksCommand = mock(ReadLogBooksCommand.class);
-        when(commandRoot.getReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
+        when(commandRoot.findorCreateReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
         CommandRoot.ServiceProvider serviceProvider = mock(CommandRoot.ServiceProvider.class);
         when(commandRoot.getServiceProvider()).thenReturn(serviceProvider);
 

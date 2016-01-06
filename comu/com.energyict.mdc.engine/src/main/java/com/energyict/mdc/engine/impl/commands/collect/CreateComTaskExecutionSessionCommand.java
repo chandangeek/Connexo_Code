@@ -13,6 +13,6 @@ import com.energyict.mdc.tasks.ComTask;
  */
 public interface CreateComTaskExecutionSessionCommand extends ComCommand {
 
-    public ComTask getComTask();
+    ComTask getComTask();
 
 }

@@ -4,9 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommand;
-import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommandType;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortDiscoveryLogger;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
@@ -18,16 +16,16 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.tasks.ComTask;
+
 import org.fest.assertions.core.Condition;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -89,13 +87,10 @@ public class InboundJobExecutionDataProcessorTest {
 
         assertThat(preparedComTaskExecutions).hasSize(1);
         assertThat(preparedComTaskExecutions.get(0).getCommandRoot().getCommands()).hasSize(1);
-        assertThat(preparedComTaskExecutions.get(0).getCommandRoot().getCommands()).has(new Condition<Map<ComCommandType, ComCommand>>() {
+        assertThat(preparedComTaskExecutions.get(0).getCommandRoot().getCommands()).has(new Condition<List<ComCommand>>() {
             @Override
-            public boolean matches(Map<ComCommandType, ComCommand> comCommandTypeComCommandMap) {
-                return comCommandTypeComCommandMap.entrySet().stream()
-                        .filter(comCommandTypeComCommandEntry -> comCommandTypeComCommandEntry.getKey() instanceof CreateComTaskExecutionSessionCommandType)
-                        .filter(comCommandTypeComCommandEntry -> comCommandTypeComCommandEntry.getValue() instanceof CreateComTaskExecutionSessionCommand)
-                        .findFirst().isPresent();
+            public boolean matches(List<ComCommand> comCommands) {
+                return comCommands.stream().anyMatch(comCommand -> comCommand instanceof CreateComTaskExecutionSessionCommand);
             }
         });
     }

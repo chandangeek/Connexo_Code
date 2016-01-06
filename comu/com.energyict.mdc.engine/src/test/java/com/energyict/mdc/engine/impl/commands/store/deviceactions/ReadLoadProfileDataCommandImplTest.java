@@ -61,8 +61,8 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         Device device = mock(Device.class);
         when(device.getmRID()).thenReturn("MyMrid");
         when(comTaskExecution.getDevice()).thenReturn(device);
-        LoadProfileCommand loadProfileCommand = commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
-        ReadLoadProfileDataCommand readLoadProfileDataCommand = commandRoot.getReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution);
+        LoadProfileCommand loadProfileCommand = commandRoot.findOrCreateLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
+        ReadLoadProfileDataCommand readLoadProfileDataCommand = commandRoot.findOrCreateReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution);
         readLoadProfileDataCommand.execute(deviceProtocol, executionContext);
         String journalMessageDescription = readLoadProfileDataCommand.toJournalMessageDescription(LogLevel.INFO);
 
