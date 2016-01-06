@@ -175,7 +175,7 @@ public class SecurityToken {
     public void removeCookie(HttpServletRequest request, HttpServletResponse response) {
         Optional<Cookie> tokenCookie = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         if (tokenCookie.isPresent()) {
-            StringBuilder cookie = new StringBuilder(tokenCookie.get().getName() + "=" + tokenCookie.get().getValue() + "; ");
+            StringBuilder cookie = new StringBuilder(tokenCookie.get().getName() + "=" + null + "; ");
             cookie.append("Path=/; ");
             cookie.append("Expires=Thu, 01 Jan 1970 00:00:01 GMT; ");
             cookie.append("Max-Age=" + 0 + "; ");
