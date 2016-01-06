@@ -81,8 +81,11 @@ public enum MessageSeeds implements MessageSeed {
     VERSION_MISSING(264, "VersionInfoMissing", "Versioning information is missing in the request"),
     CONFLICT_ON_DEVICE(265, "ConflictOnDevice", "The device you attempted to edit was changed by someone else."),
     NO_SUCH_DEVICE_CONFIG(266, "NoSuchDeviceConfig" , "Device type does not contain a device configuration with that id"),
-    NO_SUCH_DEVICE_ID(267, "NoSuchDeviceId" , "No device with id {0}"),
-    CHANGE_DEVICE_CONFIG_CONFLICT(268, "ChangeDeviceConfigConflict" , "Found change device configuration conflict with id {0}")
+    NO_SUCH_DEVICE_TYPE(267, "NoSuchDeviceType" , "Device type does not exist with that id"),
+    NO_SUCH_DEVICE_ID(268, "NoSuchDeviceId" , "No device with id {0}"),
+    CHANGE_DEVICE_CONFIG_CONFLICT(269, "ChangeDeviceConfigConflict" , "Found change device configuration conflict with id {0}"),
+    NO_SUCH_LOAD_PROFILE_TYPE(270, "NoSuchLoadProfileType" , "Load profile type does not exist with that id"),
+    NO_SUCH_REGISTER_TYPE(270, "NoSuchRegisterType" , "Register type does not exist with that id"),
     ;
     private final int number;
     private final String key;
