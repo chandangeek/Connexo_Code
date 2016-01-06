@@ -250,6 +250,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private SchedulingService schedulingService;
         private LicenseService licenseService;
         private IssueService issueService;
+        private com.energyict.mdc.issues.IssueService mdcIssueService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -313,6 +314,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);
                 this.issueService = injector.getInstance(IssueService.class);
+                this.mdcIssueService = injector.getInstance(com.energyict.mdc.issues.IssueService.class);
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
@@ -334,7 +336,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 mock(QueryService.class),
                                 mock(com.energyict.mdc.tasks.TaskService.class),
                                 mock(MasterDataService.class),
-                                transactionService, injector.getInstance(JsonService.class));
+                                transactionService, injector.getInstance(JsonService.class),
+                                mdcIssueService);
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }

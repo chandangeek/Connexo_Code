@@ -61,7 +61,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -101,6 +100,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private volatile MessageService messagingService;
     private volatile UserService userService;
     private volatile IssueService issueService;
+    private volatile com.energyict.mdc.issues.IssueService mdcIssueService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
@@ -152,7 +152,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
             SchedulingService schedulingService, MessageService messageService,
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
-            TransactionService transactionService, JsonService jsonService) {
+            TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -181,6 +181,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.setMasterDataService(masterDataService);
         this.setTransactionService(transactionService);
         this.setJsonService(jsonService);
+        this.setMdcIssueService(mdcIssueService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -431,6 +432,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.masterDataService = masterDataService;
     }
 
+    @Reference
+    public void setMdcIssueService(com.energyict.mdc.issues.IssueService mdcIssueService) {
+        this.mdcIssueService = mdcIssueService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -474,6 +480,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(JsonService.class).toInstance(jsonService);
+                bind(com.energyict.mdc.issues.IssueService.class).toInstance(mdcIssueService);
             }
         };
     }

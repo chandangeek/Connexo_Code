@@ -59,7 +59,6 @@ public class IpConnectionPersistenceSupport implements PersistenceSupport<Connec
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         table
             .column(IpConnectionProperties.IP_ADDRESS.propertyName())
-            .notNull()
             .varChar()
             .map(IpConnectionProperties.IP_ADDRESS.propertyName())
             .add();

@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -41,6 +43,7 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -110,8 +113,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -292,6 +299,8 @@ public class InMemoryIntegrationPersistence {
     private void initializePrivileges() {
         ((PrivilegesProvider)deviceConfigurationService).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
+        ((PrivilegesProvider)deviceDataModelService).getModuleResources().stream()
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
     private void initializeMocks(String testName) {
@@ -300,11 +309,29 @@ public class InMemoryIntegrationPersistence {
         this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
         when(this.principal.hasPrivilege(any(), anyString())).thenReturn(true);
+        Privilege ePrivilege1 = mockPrivilege(EditPrivilege.LEVEL_1);
+        Privilege vPrivilege1 = mockPrivilege(ViewPrivilege.LEVEL_1);
+        Set<Privilege> privileges = new HashSet<>();
+        privileges.add(ePrivilege1);
+        privileges.add(vPrivilege1);
+        when(this.principal.getPrivileges()).thenReturn(privileges);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.thesaurus = mock(Thesaurus.class);
         this.issueService = mock(IssueService.class, RETURNS_DEEP_STUBS);
         when(this.issueService.findStatus(any())).thenReturn(Optional.<IssueStatus>empty());
+    }
+
+    private Privilege mockPrivilege(EditPrivilege privilege1) {
+        Privilege privilege = mock(Privilege.class);
+        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
+        return privilege;
+    }
+
+    private Privilege mockPrivilege(ViewPrivilege privilege1) {
+        Privilege privilege = mock(Privilege.class);
+        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
+        return privilege;
     }
 
     public void cleanUpDataBase() throws SQLException {
