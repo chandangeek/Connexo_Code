@@ -57,7 +57,8 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
 
     protected void redirectToLogout(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         updateToken(response, null, 0);
-        response.sendRedirect(getConnexoExternalUrl() + "/apps/login/index.html?logout");
+        String page = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getServletPath())+1);
+        response.sendRedirect(getConnexoExternalUrl() + "/apps/login/index.html?logout&page=" + page);
     }
 
     protected String getConnexoInternalUrl() {
