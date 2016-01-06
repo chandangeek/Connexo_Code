@@ -141,6 +141,8 @@ public class RelativeDateInfo {
             operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, startFixedDay));
             operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.EQUAL, startFixedMonth));
             operations.add(new RelativeOperation(RelativeField.YEAR, RelativeOperator.EQUAL, startFixedYear));
+            dayOfWeekEnabled = false;
+            dayOfMonthEnabled = false;
         } else if (onDayOfMonth != null && dayOfMonthEnabled) {
             operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, onDayOfMonth));
         }
