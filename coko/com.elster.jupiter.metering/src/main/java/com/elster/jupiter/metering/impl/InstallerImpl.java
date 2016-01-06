@@ -1,8 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MarketRoleKind;
@@ -100,7 +100,7 @@ public class InstallerImpl {
                 for (EndDeviceType deviceType : endDeviceTypes(fields[0])) {
                     for (EndDeviceDomain domain : domains(fields[1])) {
                         for (EndDeviceSubDomain subDomain : subDomains(fields[2])) {
-                            for (EndDeviceEventorAction eventOrAction : eventOrActions(fields[3])) {
+                            for (EndDeviceEventOrAction eventOrAction : eventOrActions(fields[3])) {
                                 String code = EndDeviceEventTypeCodeBuilder
                                         .type(deviceType)
                                         .domain(domain)
@@ -127,8 +127,9 @@ public class InstallerImpl {
         }
     }
 
-    private Iterable<EndDeviceEventorAction> eventOrActions(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceEventorAction.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceEventorAction.NA) : Arrays.asList(EndDeviceEventorAction.valueOf(sanitized(field)));
+    private Iterable<EndDeviceEventOrAction> eventOrActions(String field) {
+        return "*".equals(field) ? Arrays.asList(EndDeviceEventOrAction.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceEventOrAction.NA) : Arrays.asList(EndDeviceEventOrAction
+                .valueOf(sanitized(field)));
     }
 
     private String sanitized(String field) {
