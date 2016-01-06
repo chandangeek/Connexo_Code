@@ -59,7 +59,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     public static final String DEFAULT_DEVICE_ID = "";
     public static final BigDecimal DEFAULT_CIPHERING_TYPE = new BigDecimal(CipheringType.GLOBAL.getType());
     public static final Boolean DEFAULT_NTA_SIMULATION_TOOL = false;
-    public static final Boolean DEFAULT_BULK_REQUEST = false;
+    public static final Boolean DEFAULT_BULK_REQUEST = true;
     public static final BigDecimal DEFAULT_CONFORMANCE_BLOCK_VALUE_LN = new BigDecimal(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
     public static final BigDecimal DEFAULT_CONFORMANCE_BLOCK_VALUE_SN = new BigDecimal(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
     public static final String DEFAULT_SYSTEM_IDENTIFIER = "EICTCOMM";
