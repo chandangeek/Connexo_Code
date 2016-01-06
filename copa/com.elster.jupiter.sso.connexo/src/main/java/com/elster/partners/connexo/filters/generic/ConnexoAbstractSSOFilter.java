@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by dragos on 11/19/2015.
@@ -125,11 +125,21 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     protected void updateToken(HttpServletResponse response, String newValue, int maxAge) {
         response.setHeader("X-AUTH-TOKEN", newValue);
 
-        Cookie tokenCookie = new Cookie("X-CONNEXO-TOKEN", newValue);
-        tokenCookie.setPath("/");
-        tokenCookie.setMaxAge(maxAge); // in seconds
-        tokenCookie.setHttpOnly(true);
-        response.addCookie(tokenCookie);
+        DateFormat dateFormatter = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss 'GMT'", Locale.US);
+        dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND, maxAge);
+        StringBuilder cookie = new StringBuilder("X-CONNEXO-TOKEN=" + newValue + "; ");
+        cookie.append("Path=/; ");
+        if(maxAge > 0){
+            cookie.append("Expires=" + dateFormatter.format(calendar.getTime()) + "; ");
+        }
+        else{
+            cookie.append("Expires=Thu, 01 Jan 1970 00:00:01 GMT; ");
+        }
+        cookie.append("Max-Age=" + maxAge + "; ");
+        cookie.append("HttpOnly");
+        response.setHeader("Set-Cookie", cookie.toString());
     }
 
     private void loadProperties() {
