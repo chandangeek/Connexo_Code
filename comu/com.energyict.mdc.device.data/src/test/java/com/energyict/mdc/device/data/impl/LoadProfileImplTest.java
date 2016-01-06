@@ -320,8 +320,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
             @Override
             public boolean matches(Channel channel) {
-                return channel.getCalculatedReadingType().isPresent()
-                        && channel.getCalculatedReadingType().get().getMRID().equals(deltaActiveEnergySecondary15MinMrid);
+                return channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).isPresent()
+                        && channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).get().getMRID().equals(deltaActiveEnergySecondary15MinMrid);
             }
         });
     }
@@ -339,8 +339,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
             @Override
             public boolean matches(Channel channel) {
-                return channel.getCalculatedReadingType().isPresent()
-                        && channel.getCalculatedReadingType().get().getMRID().equals(deltaActiveEnergyPrimary15MinMrid);
+                return channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).isPresent()
+                        && channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).get().getMRID().equals(deltaActiveEnergyPrimary15MinMrid);
             }
         });
     }

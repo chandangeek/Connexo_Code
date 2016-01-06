@@ -128,6 +128,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     BigDecimal getMultiplier();
 
+    Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp);
+
     Instant getMultiplierEffectiveTimeStamp();
 
     /**

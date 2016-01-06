@@ -601,6 +601,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     }
 
     @Override
+    public Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
+        List<MeterActivation> meterActivationsMostRecentFirst = getMeterActivationsMostRecentFirst();
+        Optional<MeterActivation> meterActivationForEffectiveTimeStamp = meterActivationsMostRecentFirst.stream().filter(meterActivation -> meterActivation.getInterval().toOpenClosedRange().contains(multiplierEffectiveTimeStamp)).findAny();
+        if(meterActivationForEffectiveTimeStamp.isPresent()){
+            return meterActivationForEffectiveTimeStamp.get().getMultiplier(getDefaultMultiplierType());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Instant getMultiplierEffectiveTimeStamp() {
         List<MeterActivation> meterActivationsMostRecentFirst = getMeterActivationsMostRecentFirst();
         Instant effectiveTimeStamp = clock.instant();

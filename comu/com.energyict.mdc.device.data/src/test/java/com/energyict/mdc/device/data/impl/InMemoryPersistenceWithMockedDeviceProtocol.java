@@ -273,6 +273,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         return this.issueService;
     }
 
+    public Clock getClock() {
+        return clock;
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {

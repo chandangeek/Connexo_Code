@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -34,8 +35,18 @@ public class NumericalRegisterImpl extends RegisterImpl<NumericalReading, Numeri
     }
 
     @Override
-    public Optional<ReadingType> getCalculatedReadingType() {
-        return getMultiplier().isPresent()? getRegisterSpec().getCalculatedReadingType() : Optional.empty();
+    public Optional<ReadingType> getCalculatedReadingType(Instant timeStamp) {
+        return getMultiplier(timeStamp).isPresent()? getRegisterSpec().getCalculatedReadingType() : Optional.empty();
+    }
+
+    private Optional<BigDecimal> getMultiplier(Instant timeStamp) {
+        if (getRegisterSpec().isUseMultiplier()) {
+            Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
+            if(multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1){
+                return multiplierAt;
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

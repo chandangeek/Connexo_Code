@@ -69,7 +69,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     }
 
     @Override
-    public Optional<ReadingType> getCalculatedReadingType() {
+    public Optional<ReadingType> getCalculatedReadingType(Instant timeStamp) {
         return Optional.empty();
     }
 
