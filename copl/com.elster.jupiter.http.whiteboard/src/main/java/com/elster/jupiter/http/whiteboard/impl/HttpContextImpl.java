@@ -91,9 +91,9 @@ public class HttpContextImpl implements HttpContext {
         boolean refreshCookie = false;
         if (authentication == null) {
 
-            if (xsrf.isPresent())
+            if (xsrf.isPresent()) {
                 user = SecurityToken.getInstance().verifyToken(xsrf.get().getValue(), request, response, userService);
-
+            }
             if (!xsrf.isPresent() || !user.isPresent()) {
                 if (login(request, response)) {
                     return false;
@@ -107,11 +107,12 @@ public class HttpContextImpl implements HttpContext {
             }
                return true;
 
-        }  else if (authentication.startsWith("Bearer ") && !authentication.startsWith("Bearer undefined")) {
+        }  else if (authentication.startsWith("Bearer ")) {
             refreshCookie = false;
             if (xsrf.isPresent()) {
-                if (!SecurityToken.getInstance().doComparison(xsrf.get(), authentication.substring(authentication.lastIndexOf(" ") + 1)))
+                if (!SecurityToken.getInstance().doComparison(xsrf.get(), authentication.substring(authentication.lastIndexOf(" ") + 1))) {
                     return deny(request, response);
+                }
                 user = SecurityToken.getInstance().verifyToken(xsrf.get().getValue(), request, response, userService);
             }else{
                 deny(request,response);
@@ -155,8 +156,8 @@ public class HttpContextImpl implements HttpContext {
             token = SecurityToken.getInstance().createToken(user,0);
             if(token.isPresent()){
                 response.setHeader("X-AUTH-TOKEN", token.get());
-                response.setHeader("Authorization", "Bearer " + token);
-                SecurityToken.getInstance().createCookie("X-CONNEXO-TOKEN", token.get(), "/", -1, true, response);
+                response.setHeader("Authorization", "Bearer " + token.get());
+                SecurityToken.getInstance().createCookie("X-CONNEXO-TOKEN", token.get(), "/", response);
             }
         }else if(xsrf.isPresent() && request.getHeader("Authorization")!=null){
             token = Optional.of((request.getHeader("Authorization").lastIndexOf(" ")+1>0) ? request.getHeader("Authorization").substring(request.getHeader("Authorization").lastIndexOf(" ") + 1) : request.getHeader("Authorization"));
