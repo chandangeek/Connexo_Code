@@ -124,7 +124,7 @@ Ext.define('Uni.form.RelativePeriod', {
 
         var optionCurrentDisabled = frequency !== 'months' || useStartDate;
         var optionDayOfMonthDisabled = frequency !== 'months' || useStartDate;
-        var optionDayOfWeekDisabled = frequency !== 'weeks' || useStartDate
+        var optionDayOfWeekDisabled = frequency !== 'weeks' || useStartDate;
 
         onField.setOptionCurrentDisabled(optionCurrentDisabled);
         onField.setOptionDayOfMonthDisabled(optionDayOfMonthDisabled);
