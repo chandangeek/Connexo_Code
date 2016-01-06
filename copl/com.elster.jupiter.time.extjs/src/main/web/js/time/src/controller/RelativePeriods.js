@@ -165,7 +165,7 @@ Ext.define('Tme.controller.RelativePeriods', {
                             renderTo: container,
                             listeners : {
                                 click : function(){
-                                    debugger;
+
                                 }
                             }
                         });
