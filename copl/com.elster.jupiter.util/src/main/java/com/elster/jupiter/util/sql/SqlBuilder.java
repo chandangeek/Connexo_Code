@@ -67,11 +67,11 @@ public final class SqlBuilder implements SqlFragment {
     public void addTimestamp(java.util.Date date) {
     	addTimestamp(date == null ? null : date.toInstant());
     }
-    
+
     public void addDate(Instant date) {
         add(new DateFragment(date));
     }
-    
+
     @Deprecated
     public void addDate(java.util.Date date) {
     	addDate(date == null ? null : date.toInstant());
@@ -108,10 +108,6 @@ public final class SqlBuilder implements SqlFragment {
 
     public void space() {
         builder.append(" ");
-    }
-
-    public void insertAt(int offset, String string) {
-        builder.insert(offset, string);
     }
 
     public void append(String string) {
@@ -177,7 +173,7 @@ public final class SqlBuilder implements SqlFragment {
         result.addInt(from);
         return result;
     }
-    
+
     public SqlBuilder asTop(int n) {
     	SqlBuilder result = new SqlBuilder("select * from (");
         result.add(this);
