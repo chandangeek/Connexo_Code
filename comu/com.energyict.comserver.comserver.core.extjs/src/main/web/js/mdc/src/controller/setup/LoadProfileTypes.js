@@ -294,11 +294,14 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     },
 
     loadRecordOrClipboard: function(record) {
-        var me = this;
-        if(me.getStore('Mdc.store.Clipboard').get('model')) {
-            record = me.getStore('Mdc.store.Clipboard').get('model');
+        var me = this,
+            clipBoardRecord = me.getStore('Mdc.store.Clipboard').get('model');
+
+        if(clipBoardRecord && (!clipBoardRecord.get('id') || clipBoardRecord.get('id') === record.get('id'))) {
+                record = me.getStore('Mdc.store.Clipboard').get('model');
         } else {
             me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'), false);
+            me.getStore('Mdc.store.Clipboard').removeAll(true);
         }
         me.getEditForm().loadRecord(record);
     },
