@@ -120,6 +120,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -189,14 +190,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     private long id;
 
     private final Reference<DeviceType> deviceType = ValueReference.absent();
-    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_REQUIRED + "}")
+    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED + "}")
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String mRID;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String serialNumber;
@@ -330,7 +331,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         }
     }
 
-    private void saveDirtyConnectionProperties(){
+    private void saveDirtyConnectionProperties() {
         this.getConnectionTaskImpls()
                 .filter(ConnectionTaskImpl::hasDirtyProperties)
                 .forEach(ConnectionTaskPropertyProvider::saveAllProperties);
@@ -428,10 +429,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-            .getEntries()
-            .stream()
-            .filter(each -> each.getEndDevice().getId() == endDevice.getId())
-            .findFirst()
+                .getEntries()
+                .stream()
+                .filter(each -> each.getEndDevice().getId() == endDevice.getId())
+                .findFirst()
                 .ifPresent(group::remove);
     }
 
@@ -899,12 +900,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     }
 
     @Override
-    public void store(MeterReading meterReading) {
+    public List<Warning> store(MeterReading meterReading) {
+        OverflowCheck overflowCheck = OverflowCheck.from(dataModel, this);
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateKoreMeter(amrSystem.get());
-            meter.store(meterReading);
+            meter.store(overflowCheck.toCheckedMeterReading(meterReading));
         }
+        return overflowCheck.getWarnings();
     }
 
     @Override
@@ -1039,7 +1042,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval.upperEndpoint()));
         for (MeterActivation meterActivation : meterActivations) {
             Range<Instant> meterActivationInterval = meterActivation.getInterval().toOpenClosedRange().intersection(interval);
-            meterHasData |= meterActivationInterval.lowerEndpoint()!=meterActivationInterval.upperEndpoint();
+            meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
             for (IntervalReadingRecord meterReading : meterReadings) {
@@ -1582,7 +1585,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
                 .collect(Collectors.toList());
     }
 
-    private ConnectionTask add(ConnectionTaskImpl connectionTask){
+    private ConnectionTask add(ConnectionTaskImpl connectionTask) {
         Save.CREATE.validate(DeviceImpl.this.dataModel, connectionTask, Save.Create.class, Save.Update.class);
         DeviceImpl.this.connectionTasks.add(connectionTask);
         if (this.id != 0) {
@@ -1627,7 +1630,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     }
 
     @Override
-    public void removeComTaskExecution(ComTaskExecution comTaskExecution){
+    public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
         this.comTaskExecutions
                 .stream()
                 .filter(x -> x.getId() == comTaskExecution.getId())
@@ -1676,8 +1679,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x-> x.executesComSchedule(comSchedule)).findFirst().
-                orElseThrow(()-> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
+        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule)).findFirst().
+                orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
         removeComTaskExecution(toRemove);
     }
 
@@ -2037,7 +2040,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         public ScheduledComTaskExecution add() {
             executionsToDelete.forEach(DeviceImpl.this::removeComTaskExecution);
             ScheduledComTaskExecution comTaskExecution = super.add();
-            return (ScheduledComTaskExecution ) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
+            return (ScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
         }
     }
 

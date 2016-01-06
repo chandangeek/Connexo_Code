@@ -22,7 +22,7 @@ import static com.elster.jupiter.util.Checks.is;
  */
 public abstract class PersistentNamedObject<D> extends PersistentIdObject<D> {
 
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
