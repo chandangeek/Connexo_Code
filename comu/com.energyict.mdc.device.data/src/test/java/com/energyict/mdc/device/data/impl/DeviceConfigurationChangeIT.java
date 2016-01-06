@@ -13,7 +13,18 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingEngine;
 import com.energyict.mdc.device.data.Channel;
@@ -45,16 +56,17 @@ import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import org.assertj.core.api.Condition;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -66,7 +78,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -79,6 +90,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
+    public static final BigDecimal OVERFLOW_VALUE = BigDecimal.valueOf(1000000000);
     private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
     private final String connectionTaskCreatedTopic = "com/energyict/mdc/device/config/partial(.*)connectiontask/CREATED";
     private final String securitySetCreatedTopic = "com/energyict/mdc/device/config/securitypropertyset/CREATED";
@@ -1275,15 +1287,15 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     private Consumer<LoadProfileType> getLoadProfileSpec(DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder) {
         return loadProfileType -> {
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
-            loadProfileType.getChannelTypes().stream().forEach(channelType -> deviceConfigurationBuilder.newChannelSpec(channelType, loadProfileSpecBuilder));
+            loadProfileType.getChannelTypes().stream().forEach(channelType -> deviceConfigurationBuilder.newChannelSpec(channelType, loadProfileSpecBuilder).overflow(OVERFLOW_VALUE).nbrOfFractionDigits(3));
         };
     }
 
     private Consumer<RegisterType> getNewNumericalRegisterSpec(DeviceType.DeviceConfigurationBuilder deviceConfigBuilder) {
         return registerType -> {
             NumericalRegisterSpec.Builder builder = deviceConfigBuilder.newNumericalRegisterSpec(registerType);
-            builder.setNumberOfDigits(9);
-            builder.setNumberOfFractionDigits(3);
+            builder.overflowValue(OVERFLOW_VALUE);
+            builder.numberOfFractionDigits(3);
         };
     }
 
