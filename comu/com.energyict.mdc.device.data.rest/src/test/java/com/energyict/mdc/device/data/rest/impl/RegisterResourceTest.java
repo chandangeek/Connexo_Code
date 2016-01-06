@@ -306,7 +306,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         NumericalRegister numericalRegister = mock(NumericalRegister.class);
         when(numericalRegister.getRegisterSpec()).thenReturn(registerSpec);
         when(numericalRegister.getReadingType()).thenReturn(collectedReadingType);
-        when(numericalRegister.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
+        when(numericalRegister.getCalculatedReadingType(any())).thenReturn(Optional.of(calculatedReadingType));
         when(numericalRegister.getMultiplier()).thenReturn(multiplier);
         when(numericalRegister.getLastReading()).thenReturn(Optional.empty());
         when(numericalRegister.getDevice()).thenReturn(device);

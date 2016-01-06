@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.Device;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class ChannelInfo {
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
 
-    public static ChannelInfo from(Channel channel) {
+    public static ChannelInfo from(Channel channel, Clock clock) {
         ChannelInfo info = new ChannelInfo();
         info.id = channel.getId();
         info.name = channel.getName();
@@ -47,7 +48,7 @@ public class ChannelInfo {
         info.lastReading = channel.getLastReading().orElse(null);
         info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
-        channel.getCalculatedReadingType().ifPresent(readingType1 -> info.calculatedReadingType = new ReadingTypeInfo(readingType1));
+        channel.getCalculatedReadingType(clock.instant()).ifPresent(readingType1 -> info.calculatedReadingType = new ReadingTypeInfo(readingType1));
         info.overflowValue = channel.getOverflow();
         info.flowUnit = channel.getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getObisCode();
@@ -60,8 +61,8 @@ public class ChannelInfo {
         return info;
     }
 
-    public static List<ChannelInfo> from(List<Channel> channels) {
-        return  channels.stream().map(ChannelInfo::from).collect(Collectors.toList());
+    public static List<ChannelInfo> from(List<Channel> channels, Clock clock) {
+        return  channels.stream().map(channel -> from(channel, clock)).collect(Collectors.toList());
     }
 
     public static List<ChannelInfo> asSimpleInfoFrom(List<Channel> channels) {

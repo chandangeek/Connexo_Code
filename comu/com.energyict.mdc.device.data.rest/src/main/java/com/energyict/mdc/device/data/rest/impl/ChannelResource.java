@@ -463,14 +463,24 @@ public class ChannelResource {
                 .build()
                 .asRanges();
 
-        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getCalculatedReadingType().isPresent()) {
-            readingType = channel.getCalculatedReadingType().get();
+        Instant calculatedReadingTypeTimeStampForEstimationPreview = getCalculatedReadingTypeTimeStampForEstimationPreview(estimateChannelDataInfo);
+        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).isPresent()) {
+            readingType = channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).get();
         }
 
         for (Range<Instant> block : blocks) {
             results.add(estimationHelper.previewEstimate(device, readingType, block, estimator));
         }
         return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
+    }
+
+    private Instant getCalculatedReadingTypeTimeStampForEstimationPreview(EstimateChannelDataInfo estimateChannelDataInfo) {
+        Optional<IntervalInfo> min = estimateChannelDataInfo.intervals.stream().min((o1, o2) -> (o1.start < o2.start ? -1 : 1));
+        if(min.isPresent()){
+            return Instant.ofEpochMilli(min.get().start);
+        } else {
+            return clock.instant();
+        }
     }
 
     @GET @Transactional

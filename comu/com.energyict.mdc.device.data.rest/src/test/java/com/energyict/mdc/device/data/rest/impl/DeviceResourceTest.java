@@ -78,7 +78,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import com.jayway.jsonpath.Option;
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,11 +102,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -620,8 +614,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel2.getLastDateTime()).thenReturn(Optional.empty());
         when(channel1.getLoadProfile()).thenReturn(loadProfile1);
         when(channel2.getLoadProfile()).thenReturn(loadProfile1);
-        when(channel2.getCalculatedReadingType()).thenReturn(Optional.empty());
-        when(channel1.getCalculatedReadingType()).thenReturn(Optional.empty());
+        when(channel2.getCalculatedReadingType(clock.instant())).thenReturn(Optional.empty());
+        when(channel1.getCalculatedReadingType(clock.instant())).thenReturn(Optional.empty());
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(device1.forValidation()).thenReturn(deviceValidation);
         when(channel1.getReadingType()).thenReturn(readingType);
@@ -1404,7 +1398,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(mock.getReadingType()).thenReturn(readingType);
         when(mock.getReadingType().getCalculatedReadingType()).thenReturn(Optional.of(readingType));
         when(mock.getInterval()).thenReturn(new TimeDuration("15 minutes"));
-        when(mock.getCalculatedReadingType()).thenReturn(Optional.empty());
+        when(mock.getCalculatedReadingType(clock.instant())).thenReturn(Optional.empty());
         Unit unit = Unit.get("kWh");
         when(mock.getLastReading()).thenReturn(Optional.empty());
         when(mock.getUnit()).thenReturn(unit);

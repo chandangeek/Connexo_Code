@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,11 +36,11 @@ public class LoadProfileInfo {
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
 
-    public static LoadProfileInfo from(LoadProfile loadProfile) {
+    public static LoadProfileInfo from(LoadProfile loadProfile, Clock clock) {
         LoadProfileInfo info = createLoadProfileInfo(loadProfile);
         List<Channel> channels = loadProfile.getChannels();
         Collections.sort(channels, CHANNEL_COMPARATOR);
-        info.channels=ChannelInfo.from(channels);
+        info.channels=ChannelInfo.from(channels, clock);
         return info;
     }
 

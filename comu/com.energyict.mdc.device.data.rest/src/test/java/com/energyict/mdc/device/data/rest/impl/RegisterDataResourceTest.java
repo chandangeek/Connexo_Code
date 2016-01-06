@@ -19,7 +19,6 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -94,7 +93,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(numericalRegisterSpec.getRegisterType()).thenReturn(registerType);
         when(register.getRegisterSpec()).thenReturn(numericalRegisterSpec);
         when(register.getReadingType()).thenReturn(readingType);
-        when(register.getCalculatedReadingType()).thenReturn(Optional.empty());
+        when(register.getCalculatedReadingType(NOW)).thenReturn(Optional.empty());
 
         BillingReading billingReading = mockBillingReading(actualReading1);
         when(actualReading1.edited()).thenReturn(true);

@@ -237,7 +237,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingType calculatedReadingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
         when(channel.getReadingType()).thenReturn(readingType);
-        when(channel.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
+        when(channel.getCalculatedReadingType(clock.instant())).thenReturn(Optional.of(calculatedReadingType));
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
         Unit unit = Unit.get("kWh");
         when(channel.getLastReading()).thenReturn(Optional.<Instant>empty());
@@ -487,7 +487,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelWithBulkAndCalculatedDelta.getId()).thenReturn(channelId);
         when(channelWithBulkAndCalculatedDelta.getChannelSpec()).thenReturn(channelSpec);
         when(channelWithBulkAndCalculatedDelta.getReadingType()).thenReturn(collectedReadingType);
-        when(channelWithBulkAndCalculatedDelta.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
+        when(channelWithBulkAndCalculatedDelta.getCalculatedReadingType(clock.instant())).thenReturn(Optional.of(calculatedReadingType));
         when(channelWithBulkAndCalculatedDelta.getMultiplier()).thenReturn(multiplier);
         when(channelWithBulkAndCalculatedDelta.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(channelWithBulkAndCalculatedDelta.getLastReading()).thenReturn(Optional.empty());

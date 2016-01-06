@@ -85,7 +85,7 @@ public class LoadProfileResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
-        LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile);
+        LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile, clock);
 
         addValidationInfo(loadProfile, loadProfileInfo);
 

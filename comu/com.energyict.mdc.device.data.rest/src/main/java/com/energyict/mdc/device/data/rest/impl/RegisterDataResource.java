@@ -80,7 +80,7 @@ public class RegisterDataResource {
         List<ReadingInfo> readingInfos =
                 deviceDataInfoFactory.asReadingsInfoList(
                         readings,
-                        register.getRegisterSpec(),
+                        register,
                         device.forValidation().isValidationActive(register, this.clock.instant()), device);
         // sort the list of readings
         Collections.sort(readingInfos, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
@@ -97,14 +97,14 @@ public class RegisterDataResource {
        The Delta value won't be stored in the database yet, as it has a performance impact */
         if(!register.getRegisterSpec().isTextual()){
             NumericalRegister numericalRegister = (NumericalRegister) register;
-            ReadingType readingTypeForCalculation = numericalRegister.getCalculatedReadingType().isPresent()? numericalRegister.getCalculatedReadingType().get():numericalRegister.getReadingType();
+            ReadingType readingTypeForCalculation = numericalRegister.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant())).isPresent()? numericalRegister.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant())).get():numericalRegister.getReadingType();
             boolean cumulative = readingTypeForCalculation.isCumulative();
             if(cumulative){
                 List<NumericalReadingInfo> numericalReadingInfos = readingInfos.stream().map(readingInfo -> ((NumericalReadingInfo) readingInfo)).collect(Collectors.toList());
                 for (int i = 0; i < numericalReadingInfos.size() - 1; i++){
                     NumericalReadingInfo previous = numericalReadingInfos.get(i + 1);
                     NumericalReadingInfo current = numericalReadingInfos.get(i);
-                    if(numericalRegister.getCalculatedReadingType().isPresent() && previous.calculatedValue != null && current.calculatedValue != null){
+                    if(numericalRegister.getCalculatedReadingType(current.timeStamp).isPresent() && previous.calculatedValue != null && current.calculatedValue != null){
                         calculateDelta(current, previous.calculatedValue, current.calculatedValue);
                     } else if(previous.value != null && current.value != null) {
                         calculateDelta(current, previous.value, current.value);
@@ -130,7 +130,7 @@ public class RegisterDataResource {
         Reading reading = register.getReading(Instant.ofEpochMilli(timeStamp)).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp));
         return deviceDataInfoFactory.createReadingInfo(
                 reading,
-                register.getRegisterSpec(),
+                register,
                 device.forValidation().isValidationActive(register, this.clock.instant()), device);
     }
 

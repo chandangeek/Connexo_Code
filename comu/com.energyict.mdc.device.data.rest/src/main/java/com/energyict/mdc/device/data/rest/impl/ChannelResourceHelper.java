@@ -43,7 +43,7 @@ public class ChannelResourceHelper {
 
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (Channel channel : channelsPage) {
-            ChannelInfo channelInfo = ChannelInfo.from(channel);
+            ChannelInfo channelInfo = ChannelInfo.from(channel, clock);
             addValidationInfo(channel, channelInfo);
             channelInfos.add(channelInfo);
         }
@@ -52,14 +52,14 @@ public class ChannelResourceHelper {
 
     public Response getChannel(Supplier<Channel> channelSupplier) {
         Channel channel = channelSupplier.get();
-        ChannelInfo channelInfo = ChannelInfo.from(channel);
+        ChannelInfo channelInfo = ChannelInfo.from(channel, clock);
         addValidationInfo(channel, channelInfo);
         return Response.ok(channelInfo).build();
     }
 
     public Response getChannelValidationInfo(Supplier<Channel> channelSupplier) {
         Channel channel = channelSupplier.get();
-        ChannelInfo channelInfo = ChannelInfo.from(channel);
+        ChannelInfo channelInfo = ChannelInfo.from(channel, clock);
         addValidationInfo(channel, channelInfo);
         return Response.ok(channelInfo.validationInfo).build();
     }
