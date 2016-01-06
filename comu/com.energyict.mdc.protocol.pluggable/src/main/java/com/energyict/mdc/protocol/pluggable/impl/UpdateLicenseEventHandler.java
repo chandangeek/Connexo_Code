@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -30,6 +31,7 @@ public class UpdateLicenseEventHandler implements TopicHandler {
 
     private volatile ServerProtocolPluggableService protocolPluggableService;
     private volatile TransactionService transactionService;
+    private volatile MeteringService meteringService;
     private volatile List<InboundDeviceProtocolService> inboundDeviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<ConnectionTypeService> connectionTypeServices = new CopyOnWriteArrayList<>();
 
@@ -57,7 +59,7 @@ public class UpdateLicenseEventHandler implements TopicHandler {
     }
 
     private void registerDeviceProtocolPluggableClasses() {
-        new DeviceProtocolPluggableClassRegistrar(this.protocolPluggableService, this.transactionService).
+        new DeviceProtocolPluggableClassRegistrar(this.protocolPluggableService, this.transactionService, this.meteringService).
                 registerAll(this.protocolPluggableService.getAllLicensedProtocols());
     }
 
@@ -76,6 +78,12 @@ public class UpdateLicenseEventHandler implements TopicHandler {
     @SuppressWarnings("unused")
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = new FakeTransactionService(transactionService);
+    }
+
+    @Reference(name = "AMeteringService")
+    @SuppressWarnings("unused")
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference(name = "ZInboundDeviceProtocolService", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
