@@ -21,14 +21,3 @@ public class EstimatorPropertiesExceptionInfo {
     }
 }
 
-class PropertyErrorInfo {
-    public String id;
-    public String msg;
-
-    public PropertyErrorInfo() {}
-
-    public PropertyErrorInfo(String id, String msg) {
-        this.id = id;
-        this.msg = msg;
-    }
-}

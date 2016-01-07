@@ -13,7 +13,6 @@ import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
@@ -39,7 +38,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +74,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         connectionTask = mockConnectionTask(9);
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        PartialConnectionTask partialConnectionTask = mockPartialConnectionTask(31L, "AS1440");
+        partialConnectionTask = mockPartialConnectionTask(31L, "AS1440");
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
@@ -168,9 +166,11 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
-        info.properties = new ArrayList<>();
-        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout","connectionTimeout",new PropertyValueInfo<>(new TimeDuration("15 seconds"),null,null,null),new PropertyTypeInfo(SimplePropertyType.TIMEDURATION,null,null,null),false);
-        info.properties.add(propertyInfo);
+        info.properties = Collections.singletonList(
+                new PropertyInfo("connectionTimeout", "connectionTimeout",
+                        new PropertyValueInfo<>(new TimeDuration("15 seconds"), null, null, null),
+                        new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                        false));
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
@@ -298,6 +298,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("connectionTimeout");
+        when(propertySpec.getDisplayName()).thenReturn("hier brandt de lamp");
         when(propertySpec.isRequired()).thenReturn(false);
         when(propertySpec.getValueFactory()).thenReturn(new TimeDurationValueFactory());
         when(pluggableClass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
