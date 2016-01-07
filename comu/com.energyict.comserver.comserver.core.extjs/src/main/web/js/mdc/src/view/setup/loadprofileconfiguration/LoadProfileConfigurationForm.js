@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                                 }
                             },
                             afterrender: function (field) {
-                                field.focus(false, 500);
+                                field.focus(false, 200);
                             }
                         }
                     },
