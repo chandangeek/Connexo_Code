@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.EnumFactory;
@@ -73,11 +74,16 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
         if (!this.valueCompatibleForDisplay(value)) {
             throw new IllegalArgumentException("Value not compatible with domain");
         }
-        return String.valueOf(value);
+        return this.toDisplayAfterValidation(value);
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
         return value instanceof Enum;
+    }
+
+    protected String toDisplayAfterValidation(Object value) {
+        UsagePointConnectedKind usagePoint = (UsagePointConnectedKind) value;
+        return this.thesaurus.getStringBeyondComponent(usagePoint.getKey(), usagePoint.getDefaultFormat());
     }
 
     @Override
