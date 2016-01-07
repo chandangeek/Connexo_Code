@@ -655,6 +655,9 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
         this.licensedProtocolServices.add(licensedProtocolService);
+        if (this.installed) {
+            this.registerDeviceProtocolPluggableClasses();
+        }
     }
 
     @SuppressWarnings("unused")
