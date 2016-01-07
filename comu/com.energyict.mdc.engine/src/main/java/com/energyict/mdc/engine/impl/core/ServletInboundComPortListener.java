@@ -1,10 +1,15 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
+
+import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Implementation of a ComPortListener which servers functionality to use a Jetty server to process
@@ -21,7 +26,7 @@ public class ServletInboundComPortListener extends ServletBasedComPortListenerIm
     private long sleepTime;
 
     public ServletInboundComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
-        super(comPort, serviceProvider.clock(), comServerDAO, deviceCommandExecutor);
+        super(comPort, serviceProvider.clock(), comServerDAO, deviceCommandExecutor, serviceProvider);
         this.embeddedWebServer = serviceProvider.embeddedWebServerFactory().findOrCreateFor(getServletBasedInboundComPort(), comServerDAO, deviceCommandExecutor, serviceProvider);
         this.sleepTime = getComPort().getComServer().getChangesInterPollDelay().getMilliSeconds();
     }
@@ -53,9 +58,16 @@ public class ServletInboundComPortListener extends ServletBasedComPortListenerIm
         try {
             Thread.sleep(sleepTime);
             this.registerActivity();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    @Override
+    protected void setThreadPrinciple() {
+        Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
+        if (user.isPresent()) {
+            getServiceProvider().threadPrincipalService().set(user.get(), "ServletInboundComPortListener", "Executing", Locale.ENGLISH);
         }
     }
 
