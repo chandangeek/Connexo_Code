@@ -1,8 +1,5 @@
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -12,27 +9,19 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.validation.ValidationService;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class PropertyUtils {
 
-    private final Thesaurus thesaurus;
-
     private PropertyInfoFactory propertyInfoFactory = new PropertyInfoFactory();
 
-    @Inject
-    public PropertyUtils(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST);
-    }
-
     private String getTranslatedPropertyName(PropertySpec propertySpec) {
-        return thesaurus.getStringBeyondComponent(propertySpec.getName(), propertySpec.getName());
+        return propertySpec.getDisplayName();
     }
 
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(List<PropertySpec> propertySpecs) {
@@ -40,12 +29,10 @@ public class PropertyUtils {
     }
 
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(List<PropertySpec> propertySpecs, Map<String, Object> values) {
-        List<PropertyInfo> propertyInfos = new ArrayList<>();
-        for (PropertySpec propertySpec : propertySpecs) {
-            PropertyInfo propertyInfo = createPropertyInfo(propertySpec, values);
-            propertyInfos.add(propertyInfo);
-        }
-        return propertyInfos;
+        return propertySpecs
+                .stream()
+                .map(propertySpec -> this.createPropertyInfo(propertySpec, values))
+                .collect(Collectors.toList());
     }
 
     private PropertyInfo createPropertyInfo(PropertySpec propertySpec, Map<String, Object> values) {
@@ -88,7 +75,7 @@ public class PropertyUtils {
         if (possibleValues == null) {
             return null;
         }
-        if (possibleValues.getDefault() != null) {
+        if (possibleValues.getAllValues().size() <= 1) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
         }
