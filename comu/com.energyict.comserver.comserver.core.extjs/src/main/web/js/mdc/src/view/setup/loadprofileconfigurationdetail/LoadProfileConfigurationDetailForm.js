@@ -197,14 +197,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
 
     determineActionText: function() {
         switch(this.loadProfileConfigurationChannelAction) {
-            case 'Add':  return Uni.I18n.translate('general.add', 'MDC', 'Add');
-            case 'Save': return Uni.I18n.translate('general.save', 'MDC', 'Save');
+            case 'add':  return Uni.I18n.translate('general.add', 'MDC', 'Add');
+            case 'edit': return Uni.I18n.translate('general.save', 'MDC', 'Save');
             default:     return this.loadProfileConfigurationChannelAction;
         }
     },
 
     isEdit: function() {
-        return this.loadProfileConfigurationChannelAction === 'Save';
+        return this.loadProfileConfigurationChannelAction === 'edit';
     }
 });
 
