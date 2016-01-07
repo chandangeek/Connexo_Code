@@ -28,14 +28,14 @@ public class BasicAuthentication implements Authentication {
         String authentication = request.getHeader("Authorization");
         Optional<User> user = Optional.empty();
 
-        Optional<Cookie> xsrf = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         boolean refreshCookie = false;
         if (authentication != null && authentication.startsWith("Basic ")) {
+            refreshCookie = true;
+
             user = userService.authenticateBase64(authentication.split(" ")[1]);
             SecurityToken.getInstance().removeCookie(request, response);
-            refreshCookie = true;
         } else {
-            refreshCookie = false;
+            Optional<Cookie> xsrf = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
             if (xsrf.isPresent()) {
                 if (authentication != null && authentication.startsWith("Bearer ")) {
                     if (!SecurityToken.getInstance().doComparison(xsrf.get(), authentication.substring(authentication.lastIndexOf(" ") + 1))) {
@@ -55,35 +55,14 @@ public class BasicAuthentication implements Authentication {
         request.setAttribute(WhiteBoardConfiguration.USERPRINCIPAL, user);
         request.setAttribute(HttpContext.REMOTE_USER, user.getName());
         Optional<Cookie> xsrf = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
-        Optional<String> token;
         if (!xsrf.isPresent() || refreshCookie) {
-            token = SecurityToken.getInstance().createToken(user, 0);
-            if (token.isPresent()) {
-                response.setHeader("X-AUTH-TOKEN", token.get());
-                response.setHeader("Authorization", "Bearer " + token.get());
-                SecurityToken.getInstance().createCookie("X-CONNEXO-TOKEN", token.get(), "/", response);
-            }
-        } else if (xsrf.isPresent() && request.getHeader("Authorization") != null) {
-            token = Optional.of((request.getHeader("Authorization").lastIndexOf(" ") + 1 > 0) ? request.getHeader("Authorization").substring(request.getHeader("Authorization").lastIndexOf(" ") + 1) : request.getHeader("Authorization"));
-            if (token.isPresent()) {
-                response.setHeader("X-AUTH-TOKEN", token.get());
-                response.setHeader("Authorization", "Bearer " + token.get());
-            }
-
-        } else if (xsrf.isPresent()) {
-            token = Optional.of((xsrf.get().getValue().lastIndexOf(" ") + 1 > 0) ? xsrf.get().getValue().substring(xsrf.get().getValue().lastIndexOf(" ") + 1) : xsrf.get().getValue());
-            if (token.isPresent()) {
-                response.setHeader("X-AUTH-TOKEN", token.get());
-                response.setHeader("Authorization", "Bearer " + token.get());
-            }
+            SecurityToken.getInstance().createToken(request, response, user, 0);
         }
         userService.addLoggedInUser(user);
         return true;
     }
 
     private boolean deny(HttpServletRequest request, HttpServletResponse response) {
-        //String realm = userService.getRealm();
-        // response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         Optional<Cookie> xsrf = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         if (xsrf.isPresent())
