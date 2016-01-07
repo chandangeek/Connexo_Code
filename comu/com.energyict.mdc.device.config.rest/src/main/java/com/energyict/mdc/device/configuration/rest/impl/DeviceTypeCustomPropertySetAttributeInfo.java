@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -13,6 +14,7 @@ public class DeviceTypeCustomPropertySetAttributeInfo {
     }
 
     public DeviceTypeCustomPropertySetAttributeInfo(PropertySpec propertySpec) {
+        this();
         this.name = propertySpec.getName();
         this.required = propertySpec.isRequired();
     }
