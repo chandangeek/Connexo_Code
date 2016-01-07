@@ -138,6 +138,32 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                             offsetSeconds: 0
                         });
                         break;
+                    case 'hours':
+                        newEstimationTask.set('schedule', {
+                            count: newEstimationTaskDto.recurrenceNumber,
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'minutes':
+                        newEstimationTask.set('schedule', {
+                            count: newEstimationTaskDto.recurrenceNumber,
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
                 }
             } else {
                 newEstimationTask.set('nextRun', null);
