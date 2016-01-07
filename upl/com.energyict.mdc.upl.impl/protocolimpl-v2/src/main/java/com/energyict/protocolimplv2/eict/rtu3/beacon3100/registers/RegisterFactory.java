@@ -24,7 +24,6 @@ import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
 
 import java.io.IOException;
 import java.util.*;
@@ -110,9 +109,6 @@ public class RegisterFactory {
                 } else if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
                     DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
                     composedRegister.setRegisterValue(valueAttribute);
-                } else if (universalObject.getClassID() == DLMSClassId.EVENT_NOTIFICATION.getClassId()) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), BeaconEventPushNotificationAttributes.SEND_DESTINATION_AND_METHOD.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
                 }
                 dlmsAttributes.addAll(composedRegister.getAllAttributes());
                 composedRegisterMap.put(register.getObisCode(), composedRegister);
@@ -147,7 +143,7 @@ public class RegisterFactory {
                         AbstractDataType memoryStatisticsAttribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
 
                         if (!memoryStatisticsAttribute.isStructure() || memoryStatisticsAttribute.getStructure().nrOfDataTypes() != 4) {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse the memory statistics, should be a structure of with 4 elements"));
+                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse the memory statistics, should be a structure with 4 elements"));
                             continue;
                         } else {
                             //Special parsing for this structure
@@ -173,20 +169,6 @@ public class RegisterFactory {
                             continue;
                         } else {
                             registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
-                        }
-                    } else if(universalObject.getClassID() == DLMSClassId.EVENT_NOTIFICATION.getClassId()) {
-                        AbstractDataType eventPushNotificationAttributes = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-
-                        if (!eventPushNotificationAttributes.isStructure() || eventPushNotificationAttributes.getStructure().nrOfDataTypes() != 3) {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse the beacon event push notification attributes. Should be a structure of with 3 elements"));
-                            continue;
-                        } else {
-                            //Special parsing for this structure
-                            final String transportType = AlarmConfigurationMessage.TransportType.getStringValue(eventPushNotificationAttributes.getStructure().getDataType(0).getTypeEnum().intValue());
-                            final String destinationAddress = eventPushNotificationAttributes.getStructure().getDataType(1).getOctetString().stringValue();
-                            final String messageType = AlarmConfigurationMessage.MessageType.getStringValue(eventPushNotificationAttributes.getStructure().getDataType(2).getTypeEnum().intValue());
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(),
-                                    "Transport type: " + transportType + ", Destination address: " + destinationAddress + ", Message type: " + messageType);
                         }
                     } else {
                         //Generic parsing for all registers & extended registers
