@@ -2,49 +2,33 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.ids.*;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -90,7 +74,8 @@ public class ChannelImplTest extends EqualsContractTest {
     private DataModel dataModel;
     @Mock
     private Clock clock;
-    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    @Mock
+    private Thesaurus thesaurus;
     @Mock
     private NlsMessageFormat messageFormat;
     @Mock
