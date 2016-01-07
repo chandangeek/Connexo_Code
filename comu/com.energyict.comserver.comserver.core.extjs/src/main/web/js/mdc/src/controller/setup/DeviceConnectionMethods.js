@@ -407,6 +407,11 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             router = me.getController('Uni.controller.history.Router'),
             backUrl = router.getRoute('devices/device/connectionmethods').buildUrl();
 
+
+        if (me.getDeviceConnectionMethodEditView().down('property-form').form) {
+            me.getDeviceConnectionMethodEditView().down('property-form').form.clearInvalid()
+        }
+
         if (me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield')) {
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield').clearInvalid();
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutcombobox').clearInvalid();
