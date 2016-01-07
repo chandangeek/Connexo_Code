@@ -149,31 +149,7 @@ Ext.define('Tme.controller.RelativePeriods', {
         });
         me.getApplication().fireEvent('changecontentevent', view);
         var categoriesCombo = view.down('#categories-combo-box');
-        categoriesCombo.store.load(function () {
-            categoriesCombo.on({
-                expand: {
-                    fn: function () {
-                        var spec = {
-                            id: 'clear-all',
-                            tag: 'div'
-                        };
-                        var container = Ext.DomHelper.insertFirst(categoriesCombo.getPicker().el.down('ul'), spec);
-                        var button = Ext.create('Ext.button.Button' , {
-                            itemId: 'clear-all-button',
-                            text: Uni.I18n.translate('general.clearSelectedItems', 'TME', 'Clear selected item(s)'),
-                            ui: 'link',
-                            renderTo: container,
-                            listeners : {
-                                click : function(){
-
-                                }
-                            }
-                        });
-                    },
-                    single: true
-                }
-            });
-        });
+        categoriesCombo.store.load();
     },
 
     showRelativePeriods: function () {
