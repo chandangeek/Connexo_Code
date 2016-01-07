@@ -53,20 +53,15 @@ Ext.define('Ddv.controller.ValidationOverview', {
         }
 
         store.getProxy().setUrl(router.filter);
-
-        //me.getValidationResults().setLoading();
-        store.load(function(records) {
-                // me.getValidationResults().setLoading(false);
-                me.getApplication().fireEvent('changecontentevent',
-                    Ext.widget('ddv-validation-overview',{
-                            router: router,
-                            hiddenGrid: false,
-                            hiddenNoGroup: true
-                    }));
-                me.getHeader().down('#last-updated-field').setValue(
-                    Uni.I18n.translate('validation.validationOverview.lastUpdated', 'DDV', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())])
-                );
-            }
+        me.getApplication().fireEvent('changecontentevent',
+            Ext.widget('ddv-validation-overview',{
+                    router: router,
+                    hiddenGrid: false,
+                    hiddenNoGroup: true
+            }));
+        me.getHeader().down('#last-updated-field').setValue(
+            Uni.I18n.translate('validation.validationOverview.lastUpdated', 'DDV', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())])
         );
+
     }
 });

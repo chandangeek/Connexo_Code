@@ -18,28 +18,27 @@ Ext.define('Ddv.view.Grid', {
                 fixed: true,
                 flex: 1
             },
-             {
-             header: Uni.I18n.translate('validation.validationOverview.serialNumber', 'DDV', 'Serial number'),
-             dataIndex: 'serialNumber',
-             fixed: true,
-             flex: 1
-             },
-             {
-             header: Uni.I18n.translate('validation.validationOverview.deviceType', 'DDV', 'Type'),
-             dataIndex: 'deviceType',
-             fixed: true,
-             flex: 1
-             },
-             {
-             header: Uni.I18n.translate('validation.validationOverview.configuration', 'DDV', 'Configuration'),
-             dataIndex: 'deviceConfig',
-             fixed: true,
-             flex: 1
-             }
+            {
+                header: Uni.I18n.translate('validation.validationOverview.serialNumber', 'DDV', 'Serial number'),
+                dataIndex: 'serialNumber',
+                fixed: true,
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('validation.validationOverview.deviceType', 'DDV', 'Type'),
+                dataIndex: 'deviceType',
+                fixed: true,
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('validation.validationOverview.configuration', 'DDV', 'Configuration'),
+                dataIndex: 'deviceConfig',
+                fixed: true,
+                flex: 1
+            }
         ];
 
-        if (!me.isHidden())
-        {
+        if (!me.isHidden()) {
             me.dockedItems = [
                 {
                     xtype: 'pagingtoolbartop',
