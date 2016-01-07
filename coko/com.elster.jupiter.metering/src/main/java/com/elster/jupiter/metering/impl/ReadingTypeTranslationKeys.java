@@ -272,7 +272,7 @@ public final class ReadingTypeTranslationKeys {
     public static class TimeOfUse {
 
         public static TranslationKey translationKey() {
-            return new SimpleTranslationKey("readingType.timeOfUse", "Time of use");
+            return new SimpleTranslationKey("readingType.timeOfUse", "Tou");
         }
 
         public static String getFullAliasNameElement(int timeOfUse, Thesaurus thesaurus) {
