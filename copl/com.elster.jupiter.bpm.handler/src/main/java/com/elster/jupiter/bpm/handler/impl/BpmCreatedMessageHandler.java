@@ -24,8 +24,7 @@ public class BpmCreatedMessageHandler implements MessageHandler{
     public void process(Message message) {
         BpmProcess bpmProcess =  jsonService.deserialize(message.getPayload(), BpmProcess.class);
         String targetURL = "/rest/runtime/"+bpmProcess.getDeploymentId()+"/process/"+bpmProcess.getId()+"/start"+getProcessParameters(bpmProcess.getParameters());
-        bpmRestClient.setBearerAuthString(bpmProcess.getAuth());
-        bpmRestClient.doPost(targetURL, null);
+        bpmRestClient.doPost(targetURL, null, bpmProcess.getAuth());
     }
 
     private String getProcessParameters(Map<String, Object> params) {
