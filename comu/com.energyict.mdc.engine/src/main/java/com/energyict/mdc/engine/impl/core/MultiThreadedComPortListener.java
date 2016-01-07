@@ -1,11 +1,15 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 
+import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -103,6 +107,14 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
             Thread.sleep(RESOURCE_FREE_TIMEOUT.getMilliSeconds());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    @Override
+    protected void setThreadPrinciple() {
+        Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
+        if (user.isPresent()) {
+            getServiceProvider().threadPrincipalService().set(user.get(), "MultiThreadedComPortListener", "Executing", Locale.ENGLISH);
         }
     }
 
