@@ -47,7 +47,7 @@ public class SecurityToken {
     private SecurityToken() {
     }
 
-    public Optional<String> createToken(User user, long count) {
+    public Optional<String> createToken(HttpServletRequest request, HttpServletResponse response, User user, long count) {
         Optional<String> token = Optional.empty();
         try {
             Optional<RSAKey> rsaKey = getRSAKey(PRIVATE_KEY, "PRV");
@@ -76,6 +76,9 @@ public class SecurityToken {
                 signedJWT.sign(signer);
                 token = Optional.of(signedJWT.serialize());
 
+                response.setHeader("X-AUTH-TOKEN", token.get());
+                response.setHeader("Authorization", "Bearer " + token.get());
+                createCookie("X-CONNEXO-TOKEN",token.get(),"/",response);
             }
 
         } catch (NoSuchAlgorithmException e) {
@@ -96,11 +99,13 @@ public class SecurityToken {
                     long userId = Long.valueOf(signedJWT.get().getJWTClaimsSet().getSubject());
                     Optional<User> user = userService.getLoggedInUser(userId);
                     if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {
+                        response.setHeader("X-AUTH-TOKEN", token);
+                        response.setHeader("Authorization", "Bearer " + token);
                         return user;
                     } else if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime() + TIMEOUT*1000))) {
                         if(!userService.findUser(user.get().getName(), user.get().getDomain()).isPresent()) return Optional.empty();
                         long count = (Long) signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt");
-                        Optional<String> newToken = createToken(userService.getLoggedInUser(userId).get(),++count);
+                        Optional<String> newToken = createToken(request, response, userService.getLoggedInUser(userId).get(),++count);
                         if(newToken.isPresent()){
                             response.setHeader("X-AUTH-TOKEN", newToken.get());
                             response.setHeader("Authorization", "Bearer " + newToken.get());
