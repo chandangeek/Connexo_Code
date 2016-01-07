@@ -1,10 +1,8 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportDestination;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -16,7 +14,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -76,7 +73,7 @@ public class DataExportTaskInfo {
         active = dataExportTask.isActive();
         String selector = dataExportTask.getDataSelector();
         SelectorType selectorType = SelectorType.forSelector(selector);
-        if(selectorType.equals(SelectorType.DEFAULT_READINGS)){
+        if (selectorType.equals(SelectorType.DEFAULT_READINGS)) {
             populateReadingTypeDataExport(dataExportTask, thesaurus);
         } else if (selectorType.equals(SelectorType.DEFAULT_EVENTS)){
             populateEventTypeDataExport(dataExportTask,thesaurus);
