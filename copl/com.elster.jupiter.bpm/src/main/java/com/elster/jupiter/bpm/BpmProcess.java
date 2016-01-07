@@ -7,6 +7,7 @@ public class BpmProcess{
 
     private String deploymentId;
     private String id;
+    private String auth;
     private Map<String, Object> parameters;
 
     @SuppressWarnings("unused")
@@ -20,6 +21,13 @@ public class BpmProcess{
         this.parameters = parameters;
     }
 
+    public BpmProcess(String deploymentId, String id, Map<String, Object> parameters, String auth){
+        this.deploymentId = deploymentId;
+        this.id = id;
+        this.parameters = parameters;
+        this.auth = auth;
+    }
+
     public String getDeploymentId() {
         return deploymentId;
     }
@@ -30,5 +38,9 @@ public class BpmProcess{
 
     public Map<String, Object> getParameters() {
         return this.parameters;
+    }
+
+    public String getAuth() {
+        return auth;
     }
 }

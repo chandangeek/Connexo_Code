@@ -169,6 +169,19 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     }
 
     @Override
+    public boolean startProcess(String deploymentId, String process, Map<String, Object> parameters, String auth) {
+        boolean result = false;
+        Optional<DestinationSpec> found = messageService.getDestinationSpec(BPM_QUEUE_DEST);
+        if (found.isPresent()) {
+            String json = jsonService.serialize(new BpmProcess(deploymentId, process, parameters, auth));
+            found.get().message(json).send();
+            result = true;
+        }
+        return result;
+    }
+
+
+    @Override
     public String getModuleName() {
         return BpmService.COMPONENTNAME;
     }

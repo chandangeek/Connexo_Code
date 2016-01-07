@@ -20,6 +20,8 @@ public interface BpmService {
 
     boolean startProcess(String deploymentId, String processId, Map<String, Object> parameters);
 
+    boolean startProcess(String deploymentId, String processId, Map<String, Object> parameters, String auth);
+
     BpmServer getBpmServer();
 
     BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status);

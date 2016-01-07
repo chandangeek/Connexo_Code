@@ -11,6 +11,8 @@ public interface BpmServer {
 
     String getUrl();
 
+    void setBearerAuthString(String bearerAuthString);
+
     long doPost(String resourceURL, String payload);
 
     String doGet(String resourceURL);

@@ -17,18 +17,19 @@ public class BpmServerImpl implements BpmServer {
     private static final String BPM_USER = "com.elster.jupiter.bpm.user";
     private static final String BPM_PASSWORD = "com.elster.jupiter.bpm.password";
 
-    private static final String DEFAULT_BPM_URL = "http://localhost:8081/jbpm-console";
-    private static final String DEFAULT_BPM_USER = "admin";
-    private static final String DEFAULT_BPM_PASSWORD = "admin";
+    private static final String DEFAULT_BPM_URL = "http://localhost:8081/flow";
 
     private String url;
-    private String authString;
+    private String basicAuthString;
+    private String bearerAuthString;
 
     BpmServerImpl(BundleContext context) {
         this.setUrlFromContext(context);
         String user = this.getUserFromContext(context);
         String password = this.getPasswordFromContext(context);
-        this.authString = "Basic " + new String(Base64.getEncoder().encode((user + ":" + password).getBytes()));
+        if(user != null && password != null) {
+            this.basicAuthString = "Basic " + new String(Base64.getEncoder().encode((user + ":" + password).getBytes()));
+        }
     }
 
     private void setUrlFromContext(BundleContext context) {
@@ -45,9 +46,6 @@ public class BpmServerImpl implements BpmServer {
         if (context != null) {
             user = context.getProperty(BPM_USER);
         }
-        if (user == null) {
-            user = DEFAULT_BPM_USER;
-        }
         return user;
     }
 
@@ -56,24 +54,24 @@ public class BpmServerImpl implements BpmServer {
         if (context != null) {
             password = context.getProperty(BPM_PASSWORD);
         }
-        if (password == null) {
-            password = DEFAULT_BPM_PASSWORD;
-        }
         return password;
     }
 
+    @Override
     public String getUrl() {
         return url;
     }
 
+    @Override
     public String doGet(String targetURL) {
         HttpURLConnection httpConnection = null;
+        String auth = (basicAuthString != null)?basicAuthString:bearerAuthString;
         try {
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("GET");
-            httpConnection.setRequestProperty("Authorization", authString);
+            httpConnection.setRequestProperty("Authorization", auth);
             httpConnection.setRequestProperty("Accept", "application/json");
             if (httpConnection.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : "
@@ -98,16 +96,17 @@ public class BpmServerImpl implements BpmServer {
         }
     }
 
+    @Override
     public long doPost(String targetURL, String payload) {
         long check = 0;
         HttpURLConnection httpConnection = null;
+        String auth = (basicAuthString != null)?basicAuthString:bearerAuthString;
         try {
-
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("POST");
-            httpConnection.setRequestProperty("Authorization", authString);
+            httpConnection.setRequestProperty("Authorization", auth);
             httpConnection.setRequestProperty("Accept", "application/json");
             httpConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             if(payload != null) {
@@ -117,8 +116,6 @@ public class BpmServerImpl implements BpmServer {
                 osw.close();
             }
             if (httpConnection.getResponseCode() != 200) {
-//                throw new RuntimeException("Failed : HTTP error code : "
-//                        + httpConnection.getResponseCode());
                 check = -1;
             }
         } catch (IOException e) {
@@ -129,6 +126,11 @@ public class BpmServerImpl implements BpmServer {
             }
             return check;
         }
+    }
+
+    @Override
+    public void setBearerAuthString(String bearerAuthString) {
+        this.bearerAuthString = bearerAuthString;
     }
 }
 
