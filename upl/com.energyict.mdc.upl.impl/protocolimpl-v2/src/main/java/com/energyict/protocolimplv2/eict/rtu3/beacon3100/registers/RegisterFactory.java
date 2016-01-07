@@ -115,7 +115,7 @@ public class RegisterFactory {
             }
         }
 
-        ComposedCosemObject composedCosemObject = new ComposedCosemObject(this.getDlmsSession(), true, dlmsAttributes);
+        ComposedCosemObject composedCosemObject = new ComposedCosemObject(this.getDlmsSession(), this.getDlmsSession().getProperties().isBulkRequest(), dlmsAttributes);
         List<CollectedRegister> result = new ArrayList<>();
         for (OfflineRegister offlineRegister : allRegisters) {
             ComposedRegister composedRegister = composedRegisterMap.get(offlineRegister.getObisCode());
