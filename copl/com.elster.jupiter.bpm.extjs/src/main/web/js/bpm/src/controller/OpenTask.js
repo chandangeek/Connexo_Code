@@ -228,9 +228,6 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this;
 
         me.saveAssigneeUser(button);
-        setTimeout(function () {
-            me.saveEditTask(button);
-        }, 300);
 
     },
 
@@ -246,6 +243,7 @@ Ext.define('Bpm.controller.OpenTask', {
         assignUser.save({
             success: function () {
                 assigneeForm.setLoading(false);
+                me.saveEditTask(button);
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -254,6 +252,7 @@ Ext.define('Bpm.controller.OpenTask', {
                 }
 
                 assigneeForm.setLoading(false);
+                me.saveEditTask(button);
             }
         })
     },
