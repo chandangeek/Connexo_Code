@@ -120,6 +120,7 @@ Ext.define('Uni.form.field.DateTime', {
                     xtype: 'numberfield',
                     allowDecimals: false,
                     submitValue: false,
+                    allowExponential: false,
                     value: 0,
                     valueToRaw: me.formatDisplayOfTime,
                     listeners: {
