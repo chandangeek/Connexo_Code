@@ -59,7 +59,12 @@ public class ConnexoFactsWebServiceManager {
                 rs = rssbs.remoteAdministrationCall(rsr);
                 if (rs != null){
                     if("SUCCESS".equals(rs.getStatusCode()) ) {
-                        return Optional.of("SUCCESS");
+                        if(rs.getPerson().getRoleCode().equals("YFREPORTCONSUMER")){
+                            return updateUser(username);
+                        }
+                        else {
+                            return Optional.of("SUCCESS");
+                        }
                     }
                     if(rs.getErrorCode() == 9) { // license breach
                         return Optional.of("LICENSE_BREACH");
@@ -104,6 +109,49 @@ public class ConnexoFactsWebServiceManager {
         rsr.setPassword(this.adminPwd);
         rsr.setOrgId(new Integer(1));
         rsr.setFunction("ADDUSER");
+        rsr.setPerson(person);
+
+        if (rssbs != null) {
+            try {
+                rs = rssbs.remoteAdministrationCall(rsr);
+                if (rs != null){
+                    if("SUCCESS".equals(rs.getStatusCode()) ) {
+                        return Optional.of("SUCCESS");
+                    }
+                    if(rs.getErrorCode() == 9) { // license breach
+                        return Optional.of("LICENSE_BREACH");
+                    }
+                }
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    Optional<String> updateUser(String username)  {
+
+        AdministrationServiceResponse rs = null;
+        AdministrationServiceRequest rsr = new AdministrationServiceRequest();
+        AdministrationServiceService ts = new AdministrationServiceServiceLocator(this.host, this.port, this.contextPath + "/services/AdministrationService", this.protocol.equals("https"));
+        AdministrationServiceSoapBindingStub rssbs = null;
+        try {
+            rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+
+        AdministrationPerson person = new AdministrationPerson();
+
+        person.setUserId(username);
+        person.setRoleCode("YFCORPWRITER");
+
+        rsr.setLoginId(this.adminUser);
+        rsr.setPassword(this.adminPwd);
+        rsr.setOrgId(new Integer(1));
+        rsr.setFunction("UPDATEUSER");
         rsr.setPerson(person);
 
         if (rssbs != null) {

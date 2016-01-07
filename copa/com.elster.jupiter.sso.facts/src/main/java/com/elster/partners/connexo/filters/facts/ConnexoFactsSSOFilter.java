@@ -53,7 +53,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
     }
 
     private boolean isForbidden(HttpServletRequest request, ConnexoPrincipal principal) {
-        return !request.getRequestURI().startsWith("/facts/services/") && !principal.getRoles().contains("Report designer");
+        return !request.getRequestURI().startsWith("/facts/services/") && !request.getRequestURI().equals("/facts/JsAPI") && !principal.getRoles().contains("Report designer");
     }
 
     private void redirectToEntry(HttpServletRequest request, HttpServletResponse response) throws IOException {
