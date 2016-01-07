@@ -99,8 +99,7 @@ public class BpmResource {
             //for (DeploymentInfo deployment : deploymentInfos.getDeployments()) {
             try {
                 DeploymentInfo deployment = deploymentInfos.deployments.get(0);
-                bpmService.getBpmServer().setBearerAuthString(auth);
-                jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deployment.identifier + "/history/instances");
+                jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deployment.identifier + "/history/instances", auth);
                 if (!"".equals(jsonContent)) {
                     JSONObject obj = new JSONObject(jsonContent);
                     arr = obj.getJSONArray("result");
@@ -124,8 +123,7 @@ public class BpmResource {
         JSONObject obj = null;
         String jsonContent;
         try {
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deploymentId + "/history/instance/" + instanceId);
+            jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deploymentId + "/history/instance/" + instanceId, auth);
             if (!"".equals(jsonContent)) {
                 obj = (new JSONObject(jsonContent)).getJSONArray("result").getJSONObject(0);
             }
@@ -144,8 +142,7 @@ public class BpmResource {
         JSONArray arr = null;
         String jsonContent;
         try {
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deploymentId + "/history/instance/" + instanceId + "/node");
+            jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deploymentId + "/history/instance/" + instanceId + "/node", auth);
             if (!"".equals(jsonContent)) {
                 arr = (new JSONObject(jsonContent)).getJSONArray("result");
             }
@@ -167,8 +164,7 @@ public class BpmResource {
         JSONArray arr = null;
         String jsonContent;
         try {
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deploymentId + "/history/instance/" + instanceId + "/variable");
+            jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deploymentId + "/history/instance/" + instanceId + "/variable", auth);
             if (!"".equals(jsonContent)) {
                 arr = (new JSONObject(jsonContent)).getJSONArray("result");
             }
@@ -182,7 +178,7 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment");
+            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment", auth);
             if (!"".equals(jsonContent)) {
                 arr = new JSONArray(jsonContent);
             }
@@ -215,8 +211,7 @@ public class BpmResource {
             for(String each : deployemntIds){
                 rest += "&deploymentid=" + each;
             }
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet(rest);
+            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 total = Integer.valueOf(obj.get("total").toString());
@@ -242,8 +237,7 @@ public class BpmResource {
         try {
             String rest = "/rest/tasks/";
             rest += String.valueOf(id);
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet(rest);
+            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 taskInfo = new TaskInfo(obj);
@@ -263,8 +257,7 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processDefinitionList");
@@ -317,8 +310,7 @@ public class BpmResource {
             rest += "/assign?username=" + userName;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
-                bpmService.getBpmServer().setBearerAuthString(auth);
-                response = bpmService.getBpmServer().doPost(rest, null);
+                response = bpmService.getBpmServer().doPost(rest, null, auth);
             } catch (RuntimeException e) {
             }
             if(response < 0){
@@ -374,8 +366,7 @@ public class BpmResource {
                 rest += "?duedate=" + date;
             }
             try {
-                bpmService.getBpmServer().setBearerAuthString(auth);
-                bpmService.getBpmServer().doPost(rest, null);
+                bpmService.getBpmServer().doPost(rest, null, auth);
             } catch (RuntimeException e) {
 
             }
@@ -437,8 +428,7 @@ public class BpmResource {
                 String jsonContent;
                 JSONArray arr = null;
                 try {
-                    bpmService.getBpmServer().setBearerAuthString(auth);
-                    jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+                    jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
                     if (!"".equals(jsonContent)) {
                         JSONObject jsnobject = new JSONObject(jsonContent);
                         arr = jsnobject.getJSONArray("processDefinitionList");
@@ -468,8 +458,7 @@ public class BpmResource {
             List<String> privileges = getPropertyList(filterProperties.get("privileges").get(0), "privilege");
             JSONArray arr = null;
             try {
-                bpmService.getBpmServer().setBearerAuthString(auth);
-                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
                 if (!"".equals(jsonContent)) {
                     JSONObject jsnobject = new JSONObject(jsonContent);
                     arr = jsnobject.getJSONArray("processDefinitionList");
@@ -506,8 +495,7 @@ public class BpmResource {
             String jsonContent;
             JSONArray arr = null;
             try {
-                bpmService.getBpmServer().setBearerAuthString(auth);
-                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
                 if (!"".equals(jsonContent)) {
                     JSONObject jsnobject = new JSONObject(jsonContent);
                     arr = jsnobject.getJSONArray("processDefinitionList");
@@ -554,8 +542,7 @@ public class BpmResource {
             if (!req.equals("")) {
                 rest += req;
             }
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet(rest);
+            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 total = Integer.valueOf(obj.get("total").toString());
@@ -594,8 +581,7 @@ public class BpmResource {
             if (!req.equals("")) {
                 rest += req;
             }
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet(rest);
+            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 total = Integer.valueOf(obj.get("total").toString());
@@ -624,8 +610,7 @@ public class BpmResource {
             if (!req.equals("")) {
                 rest += req+"&tasks=2&currentuser=" + securityContext.getUserPrincipal().getName() ;
             }
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            bpmService.getBpmServer().doPost(rest, null);
+            bpmService.getBpmServer().doPost(rest, null, auth);
 
         } catch (RuntimeException e) {
         }
@@ -662,8 +647,7 @@ public class BpmResource {
         TaskContentInfos taskContentInfos = null;
         try {
             String rest = "/rest/tasks/" + id + "/content";
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet(rest);
+            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 if(!jsonContent.equals("Connection refused: connect")){
                     obj = new JSONObject(jsonContent);
@@ -698,8 +682,7 @@ public class BpmResource {
         TaskContentInfos taskContentInfos = null;
         try {
             String rest = "/rest/tasks/process/" + deploymentId + "/content/"+ processId;
-            bpmService.getBpmServer().setBearerAuthString(auth);
-            jsonContent = bpmService.getBpmServer().doGet(rest);
+            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 obj = new JSONObject(jsonContent);
             }
@@ -794,11 +777,10 @@ public class BpmResource {
         if(!err.isEmpty()){
           return  Response.status(400).entity(new LocalizedFieldException(err)).build();
         }
-        bpmService.getBpmServer().setBearerAuthString(auth);
         JSONObject obj = null;
         if(taskContentInfos.action.equals("startTask")){
             String rest = "/rest/tasks/" + id + "/contentstart/" + userName + "/";
-            postResult = bpmService.getBpmServer().doPost(rest, null);
+            postResult = bpmService.getBpmServer().doPost(rest, null, auth);
         }
         if(taskContentInfos.action.equals("completeTask")){
             Map<String, Object> outputBindingContents = getOutputContent(taskContentInfos, id, null, auth);
@@ -808,7 +790,7 @@ public class BpmResource {
             try {
                 stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
-                postResult = bpmService.getBpmServer().doPost(rest, stringJson);
+                postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth);
             } catch (JsonProcessingException e) {
             }
         }
@@ -820,7 +802,7 @@ public class BpmResource {
             try {
                 stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentsave";
-                postResult = bpmService.getBpmServer().doPost(rest, stringJson);
+                postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth);
             } catch (JsonProcessingException e) {
             }
         }
