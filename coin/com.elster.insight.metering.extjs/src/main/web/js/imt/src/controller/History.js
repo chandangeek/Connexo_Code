@@ -235,7 +235,7 @@ Ext.define('Imt.controller.History', {
                             }
            			    },
            			    datavalidation: {
-                            title: Uni.I18n.translate('general.label.usagepoint.registers', 'IMT', 'Registers'),
+                            title: Uni.I18n.translate('general.label.usagepoint.validation.configuration', 'IMT', 'Validation configuration'),
                             route: 'datavalidation',
                             controller: 'Imt.validation.controller.UsagePointDataValidation',
                             action: 'showUsagePointDataValidationMainView',
@@ -325,7 +325,21 @@ Ext.define('Imt.controller.History', {
                                     route: 'manage',
                                     controller: 'Imt.metrologyconfiguration.controller.Edit',
                                     action: 'manageValidationRuleSets',
-                                } 
+                                },
+                                associatedvalidationrulesets: {
+                                    title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.associated', 'IMT', 'Linked validation rule sets'),
+                                    route: 'associatedvalidationrulesets',
+                                    controller: 'Imt.metrologyconfiguration.controller.ValidationRuleSets',
+                                    action: 'showValidationRuleSetsOverview',
+	                                items: {
+	                                	addruleset: {
+	                                        title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Add validation rule set'),
+	                                        route: 'addruleset',
+	                                        controller: 'Imt.metrologyconfiguration.controller.ValidationRuleSets',
+	                                        action: 'showAddValidationRuleSets'
+	                                    },
+	                                }
+                                }
                             }
                         }
                     }

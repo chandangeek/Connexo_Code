@@ -52,34 +52,43 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                         }
                     }, 
                     {
-                        xtype: 'fieldcontainer',
-        //                columnWidth: 0.5,
-                        fieldLabel: Uni.I18n.translate('general.validationRuleSets', 'IMT', 'Validation rule sets'),
-       //                 labelAlign: 'right',
-//                        layout: {
-//                            type: 'vbox'
-//                        },
-                        defaults: {
-                            xtype: 'button',
-                            ui: 'link',
-                            href: '#/administration/metrologyconfiguration/' + me.mcid + '/associatedvalidationrulesets', 
-                           // href: 'javascript:void(0)'
-                        },
-                        items: [
-                            {
-                                name: 'validationRuleSetCount',
-                              //  xtype: 'button',
-                              //  ui: 'link',
-                              //  href: '#/administration/metrologyconfiguration',
-                              //  text: Uni.I18n.translate('deviceconfig.registerconfigs', 'IMT', 'Validation rule set(s)'),
-                                text: Uni.I18n.translatePlural('general.validationRuleSets', me.count, 'IMT',
-                                        'No validation rule sets', '1 validation rule set', '{0} validation rule sets'),
-                                itemId: 'validationRuleSetLink'
-                            },
-                        ]
-                    }
+               	 		fieldLabel: Uni.I18n.translate('general.label.validationRuleSets', 'IMT', 'Validation rule sets'),
+                        xtype: 'multiselect',                            
+                        itemId: 'metrology-config-linked-val-rules-set',
+                        name: 'linkedValidationRulesSets',
+                        width: 500,
+                        store: 'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
+                        queryMode: 'local',
+                        valueField: 'id',
+                        displayField: 'name',
+                        maxHeight: 100,
+                        listConfig: { border: true }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'no-validation-rulesets',
+                        hidden: true,
+                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'IMT', 'No validation rule ser assigned yet.') + '</div>',
+                        htmlEncode: false,
+                        labelwidth: 500,
+                        width: 235
+                    },
+//                    {
+//                        xtype: 'fieldcontainer',
+//                        ui: 'actions',
+//                        fieldLabel: '&nbsp',
+//                        items: [
+//                            {
+//                                text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Cancel'),
+//                                xtype: 'button',
+//                                ui: 'action',
+//                                itemId: 'backLink',
+//                                href: me.router.getRoute('administration/metrologyconfiguration').buildUrl(),
+//                            }
+//                        ]
+//                    }
                 ]
-            },
+            }
         ];
         me.callParent();
     }

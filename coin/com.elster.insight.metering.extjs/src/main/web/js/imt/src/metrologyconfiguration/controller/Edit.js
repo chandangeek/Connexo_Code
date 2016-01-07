@@ -58,8 +58,13 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
     },
     editMetrologyConfiguration: function(mcid) {
     	var me = this,
-    	    widget = Ext.widget('metrologyConfigurationEdit'),
+    		router = me.getController('Uni.controller.history.Router'),
+    	    widget,
     	    model = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration');
+    	 widget = Ext.widget('metrologyConfigurationEdit', {
+    		 mcid: mcid,
+             edit: true,
+         });
     	me.getApplication().fireEvent('changecontentevent', widget);
     	widget.setEdit(true, '#');
         widget.setLoading(true);
@@ -75,6 +80,9 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 widget.setLoading(false);
             }
         });
+        
+       
+
     },    
   
     saveMetrologyConfiguration: function (button) {
@@ -108,13 +116,13 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 	    if (form.getForm().isValid()) {
 	        model = me.formToModel();
 	
-	        button.setDisabled(true);
+//	        button.setDisabled(true);
 	        page.setLoading('Saving...');
 	        formErrorsPanel.hide();
 	        model.save({
 	            callback: function (model, operation, success) {
 	                page.setLoading(false);
-	                button.setDisabled(false);
+//	                button.setDisabled(false);
 	
 	                if (success) {
 	                    me.onSuccessSaving(operation.action, model.get('name'));
@@ -202,7 +210,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
       linkedStore.getProxy().setUrl(id);
       linkedStore.load();
       linkableStore.getProxy().setUrl(id);
-      linkableStore.load();	    
+      linkableStore.load();   
         
         var view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup',{router: router, mcid: id});
         me.getApplication().fireEvent('changecontentevent', view);

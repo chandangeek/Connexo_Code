@@ -96,7 +96,8 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
     previewMetrologyConfiguration: function (record) {
         var me = this,
             widget = Ext.widget('metrologyConfigurationListPreview', {record: record}),  
-            form = widget.down('#metrologyConfigurationListPreviewForm'),
+//            form = widget.down('#metrologyConfigurationListPreviewForm'),
+            form = widget.down('#metrologyConfigurationAttributesForm'),
             previewContainer = me.getMetrologyConfigurationListSetup().down('#previewComponentContainer');
         
         form.loadRecord(record);

@@ -2,7 +2,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.metrologyConfigurationEdit',
     itemId: 'metrologyConfigurationEdit',
-
     edit: false,
 
     content: [
@@ -50,14 +49,14 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationEdit', {
                             xtype: 'button',
                             ui: 'link',
                             itemId: 'cancelLink',
-                            href: '#administration/metrologyconfiguration'
+                            href: '#/administration/metrologyconfiguration/'
                         }
                     ]
                 }
             ]
         }
     ],
-
+    
     isEdit: function () {
         return this.edit;
     },
