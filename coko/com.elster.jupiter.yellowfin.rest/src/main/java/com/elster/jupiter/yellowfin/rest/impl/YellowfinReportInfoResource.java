@@ -53,7 +53,7 @@ public class YellowfinReportInfoResource {
             ReportInfos reportInfos = new ReportInfos();
             reportInfos.addAll(
                     yellowfinService.getUserReports(user.getName(), category, subCategory, reportUUID).
-                            orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                            orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
 
             return reportInfos;
         }
@@ -82,20 +82,19 @@ public class YellowfinReportInfoResource {
         if(found.equals("SUCCESS")) {
             if (reportId != 0) {
                 filterInfos.addAll(
-                        yellowfinService.getReportFilters(reportId).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
+                        yellowfinService.getReportFilters(reportId).orElseThrow(() -> new WebApplicationException(this.errorMessage, Response.Status.SERVICE_UNAVAILABLE)));
             } else {
                 if (reportUUID != null) {
                     ReportInfos reportInfos = new ReportInfos();
                     reportInfos.addAll(
                             yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
-                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
                     if (reportInfos.total > 0) {
                         List<ReportInfo> reportInfo = reportInfos.reports;
                         filterInfos.addAll(
                                 yellowfinService.getReportFilters(reportInfo.get(0).getReportId()).
-                                        orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                                        orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
                     }
-
                 }
             }
             return filterInfos;
@@ -125,19 +124,19 @@ public class YellowfinReportInfoResource {
         if(found.equals("SUCCESS")) {
             if (reportId != 0) {
                 filterInfos.addAll(
-                        yellowfinService.getFilterListItems(filterId, reportId).orElseThrow(() -> new WebApplicationException("Connection to Connexo Facts engine failed.", Response.Status.SERVICE_UNAVAILABLE)));
+                        yellowfinService.getFilterListItems(filterId, reportId).orElseThrow(() -> new WebApplicationException(this.errorMessage, Response.Status.SERVICE_UNAVAILABLE)));
             } else {
                 if (reportUUID != null) {
                     ReportInfos reportInfos = new ReportInfos();
                     reportInfos.addAll(
                             yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
-                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
                     if (reportInfos.total > 0) {
                         List<ReportInfo> reportInfo = new ArrayList<>();
                         reportInfo = reportInfos.reports;
                         filterInfos.addAll(
                                 yellowfinService.getFilterListItems(filterId, reportInfo.get(0).getReportId()).
-                                        orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("error.facts.unavailable").build())));
+                                        orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
                     }
                 }
             }
