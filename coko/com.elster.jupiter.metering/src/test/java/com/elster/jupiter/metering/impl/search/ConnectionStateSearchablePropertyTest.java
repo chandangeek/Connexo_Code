@@ -191,11 +191,13 @@ public class ConnectionStateSearchablePropertyTest {
         ConnectionStateSearchableProperty property = this.getTestInstance();
         UsagePointConnectedKind valueToDisplay = UsagePointConnectedKind.UNKNOWN;
 
+        when(this.thesaurus.getStringBeyondComponent(eq(UsagePointConnectedKind.UNKNOWN.getKey()), anyString())).thenReturn("Unknown");
+        when(this.thesaurus.getString(eq(UsagePointConnectedKind.UNKNOWN.getKey()), anyString())).thenReturn("Unknown");
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(valueToDisplay.toString());
+        assertThat(displayValue).isEqualTo(UsagePointConnectedKind.UNKNOWN.getDisplayName(thesaurus));
     }
 
     private ConnectionStateSearchableProperty getTestInstance() {

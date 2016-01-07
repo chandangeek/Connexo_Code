@@ -187,11 +187,13 @@ public class ServiceCategorySearchablePropertyTest {
         ServiceCategorySearchableProperty property = this.getTestInstance();
         ServiceKind valueToDisplay = ServiceKind.ELECTRICITY;
 
+        when(this.thesaurus.getStringBeyondComponent(eq(ServiceKind.ELECTRICITY.getKey()), anyString())).thenReturn("Electricity");
+        when(this.thesaurus.getString(eq(ServiceKind.ELECTRICITY.getKey()), anyString())).thenReturn("Electricity");
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(valueToDisplay.toString());
+        assertThat(displayValue).isEqualTo(ServiceKind.ELECTRICITY.getDisplayName(thesaurus));
     }
 
     private ServiceCategorySearchableProperty getTestInstance() {
