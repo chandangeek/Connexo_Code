@@ -1,16 +1,13 @@
 package com.energyict.mdc.pluggable.rest;
 
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.properties.NumberValidationRules;
 import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValidationRule;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
@@ -19,9 +16,10 @@ import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.pluggable.rest.impl.MdcPluggableRestApplication;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
+
+import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
@@ -30,8 +28,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.inject.Inject;
-import javax.ws.rs.core.UriInfo;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
@@ -42,13 +38,6 @@ import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.
  * and their corresponding PropertySpecs
  */
 public class MdcPropertyUtils {
-
-    private final Thesaurus thesaurus;
-
-    @Inject
-    public MdcPropertyUtils(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(MdcPluggableRestApplication.COMPONENT_NAME, Layer.REST);
-    }
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
         convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList, SHOW_VALUES, WITHOUT_PRIVILEGES);
@@ -107,7 +96,7 @@ public class MdcPropertyUtils {
     }
 
     private String getTranslatedPropertyName(PropertySpec propertySpec) {
-        return thesaurus.getStringBeyondComponent(propertySpec.getName(), propertySpec.getName());
+        return propertySpec.getDisplayName();
     }
 
     private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec propertySpec, ValueVisibility valueVisibility, PrivilegePresence privilegePresence) {
