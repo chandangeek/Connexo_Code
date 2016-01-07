@@ -155,6 +155,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, readingRecord));
         when(readingRecord.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord.getReportedDateTime()).thenReturn(LAST_READING);
+        when(readingRecord.getTimeStamp()).thenReturn(NOW);
         ReadingQualityRecord readingQualityPowerFail = mockReadingQuality("3.2.32");
         ReadingQualityRecord readingQualityWrongSystem = mockReadingQuality("112.0.0");//should be filtered out
         ReadingQualityRecord readingQualityDataValid = mockReadingQuality("3.0.0");//should be filtered out
@@ -172,6 +173,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(editedReadingRecord.wasAdded()).thenReturn(false);
         when(editedReadingRecord.edited()).thenReturn(true);
         when(editedReadingRecord.getReportedDateTime()).thenReturn(LAST_READING);
+        when(editedReadingRecord.getTimeStamp()).thenReturn(NOW);
 
         when(confirmedProfileReading.getRange()).thenReturn(interval);
         when(confirmedProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, confirmedReadingRecord));
@@ -179,6 +181,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(confirmedReadingRecord.edited()).thenReturn(false);
         when(confirmedReadingRecord.confirmed()).thenReturn(true);
         when(confirmedReadingRecord.getReportedDateTime()).thenReturn(LAST_READING);
+        when(confirmedReadingRecord.getTimeStamp()).thenReturn(NOW);
 
         when(removedProfileReading.getRange()).thenReturn(interval);
         when(removedProfileReading.getReadingTime()).thenReturn(LAST_READING);
@@ -237,7 +240,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingType calculatedReadingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
         when(channel.getReadingType()).thenReturn(readingType);
-        when(channel.getCalculatedReadingType(clock.instant())).thenReturn(Optional.of(calculatedReadingType));
+        when(channel.getCalculatedReadingType(any())).thenReturn(Optional.of(calculatedReadingType));
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
         Unit unit = Unit.get("kWh");
         when(channel.getLastReading()).thenReturn(Optional.<Instant>empty());

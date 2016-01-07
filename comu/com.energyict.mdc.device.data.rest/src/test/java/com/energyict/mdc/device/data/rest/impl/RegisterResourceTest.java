@@ -310,6 +310,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(numericalRegister.getMultiplier()).thenReturn(multiplier);
         when(numericalRegister.getLastReading()).thenReturn(Optional.empty());
         when(numericalRegister.getDevice()).thenReturn(device);
+        when(numericalRegister.getLastReadingDate()).thenReturn(Optional.empty());
         multiplier.ifPresent(multiplierValue -> when(device.getMultiplier()).thenReturn(multiplierValue));
         when(device.getRegisters()).thenReturn(Collections.singletonList(numericalRegister));
     }
