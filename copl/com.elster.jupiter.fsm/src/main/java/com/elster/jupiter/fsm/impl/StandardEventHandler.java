@@ -1,12 +1,14 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.events.*;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.CurrentStateExtractor;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
-import com.elster.jupiter.pubsub.EventHandler;
+import com.elster.jupiter.orm.CacheClearedEvent;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.util.streams.Functions;
 import org.osgi.service.component.annotations.Component;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,14 +39,15 @@ import java.util.stream.Stream;
  */
 @Component(name="com.elster.jupiter.fsm.events.standard", service = Subscriber.class, immediate = true)
 @SuppressWarnings("unused")
-public class StandardEventHandler extends EventHandler<LocalEvent> {
+public class StandardEventHandler implements Subscriber {
     private volatile EventService eventService;
     private volatile ServerFiniteStateMachineService stateMachineService;
     private volatile List<CurrentStateExtractor> currentStateExtractors = new CopyOnWriteArrayList<>();
+    private volatile Map<EventType, Optional<StandardStateTransitionEventType>> eventTypeCache = new ConcurrentHashMap<>();
+    private volatile Map<StandardStateTransitionEventType, List<FiniteStateMachine>> finiteStateMachineCache = new ConcurrentHashMap<>();
 
     // For OSGi pruposes
     public StandardEventHandler() {
-        super(LocalEvent.class);
     }
 
     // For testing purposes or friendly components
@@ -55,22 +59,51 @@ public class StandardEventHandler extends EventHandler<LocalEvent> {
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... eventDetails) {
+    public void handle(Object notification, Object... notificationDetails) {
+        if (notification instanceof LocalEvent) {
+            onEvent((LocalEvent) notification, notificationDetails);
+        } else if (notification instanceof CacheClearedEvent) {
+            handleClearCacheEvent((CacheClearedEvent) notification);
+        }
+
+    }
+
+    private void handleClearCacheEvent(CacheClearedEvent event) {
+        if (FiniteStateMachineService.COMPONENT_NAME.equals(event.getComponentName())) {
+            eventTypeCache.clear();
+            finiteStateMachineCache.clear();
+        }
+    }
+
+    @Override
+    public Class<?>[] getClasses() {
+        return new Class<?>[]{LocalEvent.class, CacheClearedEvent.class};
+    }
+
+
+    private void onEvent(LocalEvent event, Object... eventDetails) {
         this.findStandardStateTransitionEventType(event.getType()).ifPresent(eventType -> this.handle(event, eventType));
     }
 
     private Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType) {
         if (eventType.isEnabledForUseInStateMachines()) {
-            return this.stateMachineService.findStandardStateTransitionEventType(eventType);
+            return retrieveStandardStateTransitionEventType(eventType);
         }
         else {
             return Optional.empty();
         }
     }
 
+    private Optional<StandardStateTransitionEventType> retrieveStandardStateTransitionEventType(EventType eventType) {
+        if (!eventTypeCache.containsKey(eventType)) {
+            eventTypeCache.put(eventType, this.stateMachineService.findStandardStateTransitionEventType(eventType));
+        }
+        return eventTypeCache.get(eventType);
+    }
+
     private void handle(LocalEvent event, StandardStateTransitionEventType eventType) {
         List<StateTransitionTriggerEvent> triggerEvents = new ArrayList<>();
-        for (FiniteStateMachine stateMachine : this.stateMachineService.findFiniteStateMachinesUsing(eventType)) {
+        for (FiniteStateMachine stateMachine : getFiniteStateMachinesForEventType(eventType)) {
             triggerEvents.addAll(this.currentStateExtractors.stream()
                     .map(e -> e.extractFrom(event, stateMachine))
                     .flatMap(Functions.asStream())
@@ -78,6 +111,13 @@ public class StandardEventHandler extends EventHandler<LocalEvent> {
                     .collect(Collectors.toList()));
         }
         triggerEvents.forEach(StateTransitionTriggerEvent::publish);
+    }
+
+    private List<FiniteStateMachine> getFiniteStateMachinesForEventType(StandardStateTransitionEventType eventType) {
+        if (!finiteStateMachineCache.containsKey(eventType)) {
+            finiteStateMachineCache.put(eventType, this.stateMachineService.findFiniteStateMachinesUsing(eventType));
+        }
+        return finiteStateMachineCache.get(eventType);
     }
 
     private StateTransitionTriggerEventImpl newTriggerEvent(LocalEvent event, StandardStateTransitionEventType eventType, FiniteStateMachine stateMachine, CurrentStateExtractor.CurrentState cs) {

@@ -6,6 +6,12 @@ import com.elster.jupiter.fsm.CurrentStateExtractor;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.Event;
 
 import java.math.BigDecimal;
@@ -14,12 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -74,7 +74,7 @@ public class StandardEventHandlerTest {
         when(this.jupiterEventType.isEnabledForUseInStateMachines()).thenReturn(false);
 
         // Business method
-        handler.onEvent(this.localEvent);
+        handler.handle(this.localEvent);
 
         // Asserts
         verify(this.localEvent).getType();
@@ -87,7 +87,7 @@ public class StandardEventHandlerTest {
         when(this.stateMachineService.findStandardStateTransitionEventType(this.jupiterEventType)).thenReturn(Optional.empty());
 
         // Business method
-        handler.onEvent(this.localEvent);
+        handler.handle(this.localEvent);
 
         // Asserts
         verify(this.stateMachineService).findStandardStateTransitionEventType(this.jupiterEventType);
@@ -98,7 +98,7 @@ public class StandardEventHandlerTest {
         StandardEventHandler handler = this.testEventHandlerWithoutExtractors();
 
         // Business method
-        handler.onEvent(this.localEvent);
+        handler.handle(this.localEvent);
 
         // Asserts
         verify(this.localEvent).getType();
@@ -110,7 +110,7 @@ public class StandardEventHandlerTest {
         StandardEventHandler handler = this.testEventHandlerWithoutExtractors();
 
         // Business method
-        handler.onEvent(this.localEvent);
+        handler.handle(this.localEvent);
 
         // Asserts
         verify(this.eventService, never()).postEvent(anyString(), any());
@@ -126,7 +126,7 @@ public class StandardEventHandlerTest {
             .thenReturn(Arrays.asList(stateMachine));
 
         // Business method
-        handler.onEvent(this.localEvent);
+        handler.handle(this.localEvent);
 
         // Asserts
         verify(currentStateExtractor).extractFrom(this.localEvent, stateMachine);
@@ -147,7 +147,7 @@ public class StandardEventHandlerTest {
             .thenReturn(Arrays.asList(stateMachine));
 
         // Business method
-        handler.onEvent(this.localEvent);
+        handler.handle(this.localEvent);
 
         // Asserts
         verify(currentStateExtractor1).extractFrom(this.localEvent, stateMachine);
@@ -164,7 +164,7 @@ public class StandardEventHandlerTest {
             .thenReturn(Arrays.asList(stateMachine));
 
         // Business method
-        handler.onEvent(this.localEvent);
+        handler.handle(this.localEvent);
 
         // Asserts
         verify(this.eventService, never()).postEvent(anyString(), any());
@@ -183,7 +183,7 @@ public class StandardEventHandlerTest {
             .thenReturn(Arrays.asList(stateMachine));
 
         // Business method
-        handler.onEvent(this.localEvent);
+        handler.handle(this.localEvent);
 
         // Asserts
         ArgumentCaptor<StateTransitionTriggerEvent> triggerEventArgumentCaptor = ArgumentCaptor.forClass(StateTransitionTriggerEvent.class);
@@ -199,6 +199,7 @@ public class StandardEventHandlerTest {
         assertThat(triggerEventProperties.get(PROP1_NAME)).isEqualTo(PROP1_VALUE);
         assertThat(triggerEventProperties.get(PROP2_NAME)).isEqualTo(PROP2_VALUE);
     }
+
 
     private StandardEventHandler testEventHandlerWithoutExtractors() {
         return new StandardEventHandler(this.eventService, this.stateMachineService);
