@@ -1,5 +1,6 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
@@ -43,7 +44,14 @@ public class RxTxPaknetModemComponentServiceImpl extends RxTxSerialComponentServ
     @Override
     @SuppressWarnings("unused")
     public void setPropertySpecService(PropertySpecService propertySpecService) {
-        super.setPropertySpecService(propertySpecService);
+        super.doSetPropertySpecService(propertySpecService);
+    }
+
+    @Reference
+    @Override
+    @SuppressWarnings("unused")
+    public void setNlsService(NlsService nlsService) {
+        this.setThesaurusWith(nlsService);
     }
 
     @Override

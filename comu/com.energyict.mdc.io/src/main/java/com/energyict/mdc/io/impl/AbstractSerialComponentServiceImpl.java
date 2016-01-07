@@ -1,5 +1,7 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
@@ -193,9 +195,16 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
         return propertySpecService;
     }
 
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    protected abstract void setPropertySpecService(PropertySpecService propertySpecService);
+
+    protected void doSetPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    protected abstract void setNlsService(NlsService nlsService);
+
+    protected void setThesaurusWith(NlsService nlsService) {
+        this.setThesaurus(nlsService.getThesaurus(SerialComponentService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     protected Thesaurus getThesaurus() {
