@@ -112,6 +112,9 @@ public abstract class AbstractCimChannel implements CimChannel {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public abstract IReadingType getReadingType();
+
     private Condition isActual() {
         return where("actual").isEqualTo(true);
     }
