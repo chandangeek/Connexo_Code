@@ -9,6 +9,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -39,7 +40,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -768,7 +769,7 @@ public class ResourceHelper {
 
     @SuppressWarnings("unchecked")
     public CustomPropertySetInfo getRegisterCustomPropertySetInfo(Register register, Instant effectiveTimestamp) {
-        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
+        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = getRegisteredCustomPropertySet(register);
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isViewableByCurrentUser()) {
             if (!registeredCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
                 return new CustomPropertySetInfo(
@@ -808,13 +809,27 @@ public class ResourceHelper {
 
     @SuppressWarnings("unchecked")
     public void setRegisterCustomPropertySet(Register register, CustomPropertySetInfo info) {
-        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
-        if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isEditableByCurrentUser()) {
-            customPropertySetService.setValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), register.getDevice().getId());
+        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(register)
+                .orElseThrow(conflictException(info));
+
+        if (registeredCustomPropertySet.isEditableByCurrentUser() && matches(info, registeredCustomPropertySet)) {
+            customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), register.getDevice().getId());
             register.getRegisterSpec().save();
         } else {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, info.id);
+            throw conflictException(info).get();
         }
+    }
+
+    private Supplier<LocalizedException> conflictException(CustomPropertySetInfo info) {
+        return () -> exceptionFactory.newException(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, info.id);
+    }
+
+    private boolean matches(CustomPropertySetInfo info, RegisteredCustomPropertySet registeredCustomPropertySet) {
+        return registeredCustomPropertySet.getCustomPropertySet().getId().equals(info.customPropertySetId);
+    }
+
+    private Optional<RegisteredCustomPropertySet> getRegisteredCustomPropertySet(Register register) {
+        return register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
     }
 
     @SuppressWarnings("unchecked")

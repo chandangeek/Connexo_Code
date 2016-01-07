@@ -24,6 +24,7 @@ public class CustomPropertySetInfo {
     public Long startTime;
     public Long endTime;
     public Boolean isActive;
+    public String customPropertySetId;
     public List<PropertyInfo> properties;
 
     public CustomPropertySetInfo() {
@@ -39,6 +40,7 @@ public class CustomPropertySetInfo {
         this.editable = registeredCustomPropertySet.isEditableByCurrentUser();
         this.timesliced = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
         this.properties = properties;
+        this.customPropertySetId = registeredCustomPropertySet.getCustomPropertySet().getId();
     }
 
     public CustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet, List<PropertyInfo> properties, long objectId, long objectVersion, long objectTypeId, long objectTypeVersion, Range<Instant> effective) {
@@ -55,5 +57,6 @@ public class CustomPropertySetInfo {
         this.startTime = effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : null;
         this.endTime = effective.hasUpperBound() ? effective.upperEndpoint().toEpochMilli() : null;
         this.isActive = !properties.isEmpty() && properties.get(0).getPropertyValueInfo().getValue() != null;
+        this.customPropertySetId = registeredCustomPropertySet.getCustomPropertySet().getId();
     }
 }
