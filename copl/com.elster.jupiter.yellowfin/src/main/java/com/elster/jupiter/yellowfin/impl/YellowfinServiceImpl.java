@@ -238,12 +238,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService, T
         person.setPassword("test");
         person.setFirstName("Connexo");
         person.setLastName(username);
-        if(username.equals(yellowfinWebServiceUser)) {
-            person.setRoleCode("YFADMIN");
-        }
-        else {
-            person.setRoleCode("YFCORPWRITER");
-        }
+        person.setRoleCode("YFREPORTCONSUMER");
         person.setEmailAddress(username + "@elster.com");
 
         rsr.setLoginId(yellowfinWebServiceUser);
