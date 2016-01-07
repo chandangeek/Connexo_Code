@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.search;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
@@ -68,7 +69,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Override

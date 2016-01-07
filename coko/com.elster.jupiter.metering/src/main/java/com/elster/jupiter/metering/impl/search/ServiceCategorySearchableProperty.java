@@ -69,13 +69,17 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
         if (!this.valueCompatibleForDisplay(value)) {
             throw new IllegalArgumentException("Value not compatible with domain");
         }
-        return String.valueOf(value);
+        return this.toDisplayAfterValidation(value);
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
         return value instanceof Enum;
     }
 
+    protected String toDisplayAfterValidation(Object value) {
+        ServiceKind serviceKind = (ServiceKind) value;
+        return this.thesaurus.getStringBeyondComponent(serviceKind.getKey(), serviceKind.getDefaultFormat());
+    }
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService.newPropertySpecBuilder(new EnumFactory(ServiceKind.class))
