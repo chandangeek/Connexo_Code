@@ -8,11 +8,12 @@ use File::Path qw(rmtree);
 use File::Path qw(make_path);
 use File::Copy;
 use Socket;
+use Sys::Hostname;
 
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20150428";
+my $INSTALL_VERSION="v20160106";
 my $OS="$^O";
 my $JAVA_HOME=$ENV{"JAVA_HOME"};
 my $CURRENT_DIR=getcwd;
@@ -115,7 +116,6 @@ sub read_config {
 			chomp($row);
 			if ( "$row" ne "") {
 				my @val=split('=',$row);
-				if ( "$val[0]" eq "HOST_NAME" )			{$HOST_NAME=$val[1];}
 				if ( "$val[0]" eq "CONNEXO_HTTP_PORT" ) {$CONNEXO_HTTP_PORT=$val[1];}
 				if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )  {$TOMCAT_HTTP_PORT=$val[1];}
 				if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
@@ -144,37 +144,96 @@ sub read_config {
 		}
 		close($FH);
 	} else {
-		print "Connexo parameters\n";
+		print "Parameters input\n";
 		print "------------------\n";
-		print "Please enter the database url (format: jdbc:oracle:thin:\@dbHost:dbPort:dbSID): ";
-		chomp($jdbcUrl=<STDIN>);
-		print "Please enter the database user: ";
-		chomp($dbUserName=<STDIN>);
-		print "Please enter the database password: ";
-		chomp($dbPassword=<STDIN>);
-		print "Please enter the Connexo http port: ";
-		chomp($CONNEXO_HTTP_PORT=<STDIN>);
-		print "Do you want to install Connexo as a daemon: (yes/no)";
-		chomp($CONNEXO_SERVICE=<STDIN>);
-	}
+		print "Do you want to install Connexo: (yes/no)";
+		chomp($INSTALL_CONNEXO=<STDIN>);
+        if ("$INSTALL_CONNEXO" eq "yes") {
+            print "Please enter the database url (format: jdbc:oracle:thin:\@dbHost:dbPort:dbSID): ";
+            chomp($jdbcUrl=<STDIN>);
+            print "Please enter the database user: ";
+            chomp($dbUserName=<STDIN>);
+            print "Please enter the database password: ";
+            chomp($dbPassword=<STDIN>);
+            print "Please enter the Connexo http port: ";
+            chomp($CONNEXO_HTTP_PORT=<STDIN>);
+            print "Do you want to install Connexo as a daemon: (yes/no)";
+            chomp($CONNEXO_SERVICE=<STDIN>);
+        }
+        
+        print "\n";
+		print "Do you want to install Facts: (yes/no)";
+		chomp($INSTALL_FACTS=<STDIN>);
+        if ("$INSTALL_FACTS" eq "yes") {
+            print "Please enter the oracle database host name for Facts: ";
+            chomp($FACTS_DB_HOST=<STDIN>);
+            print "Please enter the oracle database port for Facts: ";
+            chomp($FACTS_DB_PORT=<STDIN>);
+            print "Please enter the oracle database name for Facts: ";
+            chomp($FACTS_DB_NAME=<STDIN>);
+            print "Please enter the database user for Facts: ";
+            chomp($FACTS_DBUSER=<STDIN>);
+            print "Please enter the database password for Facts database user: ";
+            chomp($FACTS_DBPASSWORD=<STDIN>);
+        }
+
+        print "\n";
+		print "Do you want to install Flow: (yes/no)";
+		chomp($INSTALL_FLOW=<STDIN>);
+        if ("$INSTALL_FLOW" eq "yes") {
+            print "Please enter the database url for Connexo Flow (format: jdbc:oracle:thin:\@dbHost:dbPort:dbSID): ";
+            chomp($FLOW_JDBC_URL=<STDIN>);
+            print "Please enter the database user for Connexo Flow: ";
+            chomp($FLOW_DB_USER=<STDIN>);
+            print "Please enter the database password for Connexo Flow: ";
+            chomp($FLOW_DB_PASSWORD=<STDIN>);
+            print "Please enter the mail server host name: ";
+            chomp($SMTP_HOST=<STDIN>);
+            print "Please enter the mail server port: ";
+            chomp($SMTP_PORT=<STDIN>);
+            print "Please enter the mail server user: ";
+            chomp($SMTP_USER=<STDIN>);
+            print "Please enter the mail server user password: ";
+            chomp($SMTP_PASSWORD=<STDIN>);
+        }
+        
+        print "\n";
+        if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
+            if ("$INSTALL_CONNEXO" ne "yes") {
+                print "Please enter the Connexo http port: ";
+                chomp($CONNEXO_HTTP_PORT=<STDIN>);
+            }
+            print "Please enter the Tomcat http port: ";
+            chomp($TOMCAT_HTTP_PORT=<STDIN>);
+            $TOMCAT_SHUTDOWN_PORT=$TOMCAT_HTTP_PORT+10;
+            $TOMCAT_AJP_PORT=$TOMCAT_HTTP_PORT+11;
+            $TOMCAT_SSH_PORT=$TOMCAT_HTTP_PORT+12;
+            $TOMCAT_DAEMON_PORT=$TOMCAT_HTTP_PORT+13;
+        }
+
+        print "\n";
+		print "Do you want to install WSO2IS: (yes/no)";
+		chomp($INSTALL_WSO2IS=<STDIN>);
+		print "Please enter the version of your services (e.g. 10.1) or leave empty: ";
+		chomp($SERVICE_VERSION=<STDIN>);        
+    }
+    $HOST_NAME=hostname;
 	$CONNEXO_URL="http://$HOST_NAME:$CONNEXO_HTTP_PORT";
-	$TOMCAT_SHUTDOWN_PORT=$TOMCAT_HTTP_PORT+10;
-	$TOMCAT_AJP_PORT=$TOMCAT_HTTP_PORT+11;
-	$TOMCAT_SSH_PORT=$TOMCAT_HTTP_PORT+12;
-	$TOMCAT_DAEMON_PORT=$TOMCAT_HTTP_PORT+13;
 }
 
 sub read_uninstall_config {
-	open(my $FH,"< $config_cmd") or die "Could not open $config_cmd: $!";
-	while (my $row = <$FH>) {
-		$row=~s/set (.*)/$1/;
-		chomp($row);
-		if ( "$row" ne "") {
-			my @val=split('=',$row);
-			if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
-		}
-	}
-	close($FH);
+    print "Please enter the version of you services (e.g. 10.1) or leave empty: ";
+    chomp($SERVICE_VERSION=<STDIN>);
+	#open(my $FH,"< $config_cmd") or die "Could not open $config_cmd: $!";
+	#while (my $row = <$FH>) {
+	#	$row=~s/set (.*)/$1/;
+	#	chomp($row);
+	#	if ( "$row" ne "") {
+	#		my @val=split('=',$row);
+	#		if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
+	#	}
+	#}
+	#close($FH);
 }
 
 sub check_port {
@@ -221,10 +280,6 @@ sub install_connexo {
 		print $FH "com.elster.jupiter.datasource.jdbcuser=$dbUserName\n";
 		print $FH "com.elster.jupiter.datasource.jdbcpassword=$dbPassword\n";
 		print $FH "\n";
-		#print $FH "mail.smtp.host=\n";
-		#print $FH "mail.user=\n";
-		#print $FH "mail.password=\n";
-		#print $FH "mail.from=\n";
 		close($FH);
 
 		print "\n\nInstalling Connexo database schema ...\n";
@@ -239,9 +294,9 @@ sub install_connexo {
 			my $CLASSPATH = join(":", ".", glob("$CONNEXO_DIR/lib/*.jar"));
 			system("\"$JAVA_HOME/bin/java\" $VM_OPTIONS -cp \"$CLASSPATH\" com.elster.jupiter.launcher.ConnexoLauncher --install");
 			if ("$CONNEXO_SERVICE" eq "yes") {
-				copy("$CONNEXO_DIR/bin/connexo","/etc/init.d/connexo") or die "File cannot be copied: $!";
-				chmod 0755,"/etc/init.d/connexo";
-				replace_in_file("/etc/init.d/connexo",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+				copy("$CONNEXO_DIR/bin/connexo","/etc/init.d/Connexo$SERVICE_VERSION") or die "File cannot be copied: $!";
+				chmod 0755,"/etc/init.d/Connexo$SERVICE_VERSION";
+				replace_in_file("/etc/init.d/Connexo$SERVICE_VERSION",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
 				copy("$CONNEXO_DIR/bin/start-connexo.temp","$CONNEXO_DIR/bin/start-connexo.sh") or die "File cannot be copied: $!";
 				chmod 0755,"$CONNEXO_DIR/bin/start-connexo.sh";
 				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
@@ -255,11 +310,6 @@ sub install_tomcat {
 	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
 		print "\n\nExtracting Apache Tomcat 7 ...\n";
 		print "==========================================================================\n";
-
-		if ( !$parameter_file ) {
-			print "Please enter the Tomcat http port: ";
-			chomp($TOMCAT_HTTP_PORT=<STDIN>);
-		}
 
 		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dconnexo.url=$CONNEXO_URL;-Dbtm.root=$CATALINA_HOME;-Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties;-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=$CATALINA_HOME/conf/connexo.properties";
 
@@ -284,13 +334,26 @@ sub install_tomcat {
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
-			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\n";
+			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -XX:PemSize=64m -XX:MaxPermSize=256m -Xmx512M -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\n";
 			close($FH);
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
 			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$CATALINA_HOME -Dorg.uberfire.metadata.index.dir=$CATALINA_HOME -Dorg.uberfire.nio.git.ssh.cert.dir=$CATALINA_HOME -Dorg.guvnor.m2repo.dir=$CATALINA_HOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\"\n";
 			close($FH);
+			
+			open(my $FH,"> /etc/init.d/ConnexoTomcat$SERVICE_VERSION") or die "Could not open /etc/init.d/ConnexoTomcat$SERVICE_VERSION: $!";
+                        print $FH "#!/bin/sh\n";
+                        print $FH "#\n";
+                        print $FH "#Startup script for Tomcat\n";
+                        print $FH "#\n";
+                        print $FH "#chkconfig: - 99 01\n";
+                        print $FH "#description: This script starts Tomcat\n";
+                        print $FH "#processname: jsvc\n";
+			print $FH "\n";
+            print $FH "\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" --catalina-home \"$CATALINA_HOME\" --java-home \"$JAVA_HOME\" --tomcat-user tomcat \$1";
+			close($FH);
+            chmod 0755,"/etc/init.d/ConnexoTomcat$SERVICE_VERSION";
 		}
 	}
 }
@@ -315,10 +378,13 @@ sub install_wso2 {
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			system("\"$WSO2_DIR/yajsw-stable-11.11/bat/installService.bat\" < NUL");
 		} else {
+            $ENV{PATH}="$JAVA_HOME/bin/:$ENV{PATH}";
+			$ENV{java_home}="$JAVA_HOME";
+			$ENV{carbon_home}="$WSO2_DIR/wso2is-4.5.0";
 			chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/installDaemon.sh";
 			chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/installDaemonNoPriv.sh";
 			chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/wrapper.sh";
-			system("\"$WSO2_DIR/yajsw-stable-11.11/bin/installDaemon.sh\" /dev/null 2>&1");
+			system("\"$WSO2_DIR/yajsw-stable-11.11/bin/installDaemonNoPriv.sh\" /dev/null 2>&1");
 		}
 		print "WSO2 Identity Server successfully installed\n";
 	}
@@ -335,18 +401,6 @@ sub install_facts {
 
 		print "\n\nInstalling Connexo Facts ...\n";
 		print "==========================================================================\n";
-		if ( !$parameter_file ) {
-			print "Please enter the oracle database host name for Facts: ";
-			chomp($FACTS_DB_HOST=<STDIN>);
-			print "Please enter the oracle database port for Facts: ";
-			chomp($FACTS_DB_PORT=<STDIN>);
-			print "Please enter the oracle database name for Facts: ";
-			chomp($FACTS_DB_NAME=<STDIN>);
-			print "Please enter the database user for Facts: ";
-			chomp($FACTS_DBUSER=<STDIN>);
-			print "Please enter the database password for Facts database user: ";
-			chomp($FACTS_DBPASSWORD=<STDIN>);
-		}
 
 		chdir "$CONNEXO_DIR/bin";
 		if ("$FACTS_LICENSE" ne "") {
@@ -401,6 +455,11 @@ sub install_facts {
 		    copy("$CONNEXO_DIR/partners/facts/facts.filter.jar","$FACTS_DIR/WEB-INF/lib/facts.filter.jar");
         }
 		print "Connexo Facts successfully installed\n";
+
+        open(my $FH,">> $config_file") or die "Could not open $config_file: $!";
+		print $FH "com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
+		#print $FH "com.elster.jupiter.yellowfin.externalurl=http://$HOST_NAME/facts\n";
+		close($FH);
 	}
 }
 
@@ -428,23 +487,6 @@ sub install_flow {
 
 		print "\n\nInstalling Connexo Flow ...\n";
 		print "==========================================================================\n";
-		if ( !$parameter_file ) {
-			print "Please enter the database url for Connexo Flow (format: jdbc:oracle:thin:\@dbHost:dbPort:dbSID): ";
-			chomp($FLOW_JDBC_URL=<STDIN>);
-			print "Please enter the database user for Connexo Flow: ";
-			chomp($FLOW_DB_USER=<STDIN>);
-			print "Please enter the database password for Connexo Flow: ";
-			chomp($FLOW_DB_PASSWORD=<STDIN>);
-
-			print "Please enter the mail server host name: ";
-			chomp($SMTP_HOST=<STDIN>);
-			print "Please enter the mail server port: ";
-			chomp($SMTP_PORT=<STDIN>);
-			print "Please enter the mail server user: ";
-			chomp($SMTP_USER=<STDIN>);
-			print "Please enter the mail server user password: ";
-			chomp($SMTP_PASSWORD=<STDIN>);
-		}
 
 		if (!-d "$FLOW_DIR") { make_path("$FLOW_DIR"); }
 		copy("$CONNEXO_DIR/partners/flow/flow.war","$FLOW_DIR/flow.war");
@@ -496,6 +538,10 @@ sub install_flow {
 		    copy("$CONNEXO_DIR/partners/flow/flow.filter.jar","$FLOW_DIR/WEB-INF/lib/flow.filter.jar");
         }
 		print "Connexo Flow successfully installed\n";
+
+        open(my $FH,">> $config_file") or die "Could not open $config_file: $!";
+		print $FH "com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
+		close($FH);
 	}
 }
 
@@ -511,16 +557,14 @@ sub start_connexo {
 		if ("$CONNEXO_SERVICE" eq "yes") {
 			print "\n\nStarting Connexo ...\n";
 			print "==========================================================================\n";
-			open(my $FH,">> $config_file") or die "Could not open $config_file: $!";
-			print $FH "com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
-			print $FH "com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
-			close($FH);
 			if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 				system("sc config \"Connexo$SERVICE_VERSION\"  start= delayed-auto");
 				system("sc failure \"Connexo$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
 				system("sc start Connexo$SERVICE_VERSION");
 			} else {
-				system("/sbin/service connexo start");
+				system("/sbin/service Connexo$SERVICE_VERSION start");
+				system("/sbin/chkconfig --add Connexo$SERVICE_VERSION");
+                system("/sbin/chkconfig Connexo$SERVICE_VERSION on");
 			}
 		}
 	}
@@ -528,8 +572,11 @@ sub start_connexo {
 
 sub start_tomcat {
 	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
-		print "\n\nStarting Apache Tomcat 7 ...\n";
+		print "\n\nStarting Apache Tomcat ...\n";
 		print "==========================================================================\n";
+        if (("$INSTALL_FACTS" eq "yes") && ("$INSTALL_FLOW" ne "yes")) {
+            copy("$CONNEXO_DIR/partners/flow/resources.properties","$CATALINA_HOME/conf/resources.properties");
+        }
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			system("sc config \"ConnexoTomcat$SERVICE_VERSION\"  start= delayed-auto");
 			system("sc failure \"ConnexoTomcat$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
@@ -550,7 +597,10 @@ sub start_tomcat {
 			}
 			chmod 0755,"$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc";
 			chmod 0755,"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh";
-			system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" start");
+			#system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" start");
+			system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
+            system("/sbin/chkconfig --add ConnexoTomcat$SERVICE_VERSION");
+            system("/sbin/chkconfig ConnexoTomcat$SERVICE_VERSION on");
 		}
 
 		if ("$INSTALL_FACTS" eq "yes") {
@@ -589,26 +639,37 @@ sub uninstall_all {
 	my $WSO2_DIR="$CONNEXO_DIR/partners";
 	$ENV{CARBON_HOME}="$WSO2_DIR/wso2is-4.5.0";
 	if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-		print "Stop and remove connexo service";
+		print "Stop and remove Connexo$SERVICE_VERSION service";
 		system("\"$CONNEXO_DIR/bin/ConnexoService.exe\" /uninstall Connexo$SERVICE_VERSION");
 		print "Stop and remove tomcat service";
 		system("\"$CONNEXO_DIR/partners/tomcat/bin/service.bat\" remove ConnexoTomcat$SERVICE_VERSION");
-		print "Stop and remove wso service";
+		while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*/) ne "") {
+			sleep 3;
+		}
+        print "Stop and remove wso service";
 		system("$CONNEXO_DIR/partners/yajsw-stable-11.11/bat/uninstallService.bat");
 	} else {
-		print "Stop and remove connexo service";
-		system("/sbin/service connexo stop");
+		print "Stop and remove Connexo$SERVICE_VERSION service";
+		system("/sbin/service Connexo$SERVICE_VERSION stop");
 		sleep 3;
 		system("pgrep -u connexo | xargs kill -9");
 		sleep 3;
 		system("userdel -r connexo");
-		unlink("/etc/init.d/connexo");
-		print "Stop and remove tomcat service";
-		system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" stop");
+		system("/sbin/chkconfig --del Connexo$SERVICE_VERSION");
+		unlink("/etc/init.d/Connexo$SERVICE_VERSION");
+		print "Stop and remove ConnexoTomcat$SERVICE_VERSION service";
+		system("/sbin/service ConnexoTomcat$SERVICE_VERSION stop");
 		sleep 3;
 		system("userdel -r tomcat");
+        system("/sbin/chkconfig --del ConnexoTomcat$SERVICE_VERSION");
+		unlink("/etc/init.d/ConnexoTomcat$SERVICE_VERSION");
 		print "Stop and remove wso service";
-		#uninstall wso
+        $ENV{PATH}="$JAVA_HOME/bin/:$ENV{PATH}";
+		$ENV{java_home}="$JAVA_HOME";
+		chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/uninstallDaemon.sh";
+		chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/uninstallDaemonNoPriv.sh";
+		chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/wrapper.sh";
+		system("\"$WSO2_DIR/yajsw-stable-11.11/bin/uninstallDaemonNoPriv.sh\" /dev/null 2>&1");
 	}
 	print "Remove folders (tomcat, wso2is, yajsw)\n";
 	if (-d "$CONNEXO_DIR/partners/tomcat") { rmtree("$CONNEXO_DIR/partners/tomcat"); }
