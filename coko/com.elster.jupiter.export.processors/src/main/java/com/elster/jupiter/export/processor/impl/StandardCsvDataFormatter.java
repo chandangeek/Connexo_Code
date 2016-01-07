@@ -33,6 +33,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -56,8 +57,6 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
 
     public static final String VALID_STRING = "valid";
     public static final String INVALID_STRING = "suspect";
-    public static final String SEMICOLON_VALUE = "Semicolon (;)";
-    public static final String COMMA_VALUE = "Comma (,)";
     public static final String SEMICOLON_SEPARATOR = ";";
     public static final String COMMA_SEPARATOR = ",";
     public static final String DEFAULT_SEPARATOR = COMMA_SEPARATOR;

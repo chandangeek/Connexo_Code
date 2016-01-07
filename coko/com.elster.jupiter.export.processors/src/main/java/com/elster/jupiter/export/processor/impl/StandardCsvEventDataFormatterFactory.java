@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.streams.FancyJoiner;
@@ -85,7 +86,7 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .addValues(separatorValues.toArray(String[]::new))
-                        .markExhaustive()
+                        .markExhaustive(PropertySelectionMode.COMBOBOX)
                         .setDefaultValue(this.thesaurus.getFormat(FormatterProperties.defaultSeparator()).format())
                         .finish());
         return propertySpecs;
