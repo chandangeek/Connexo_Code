@@ -80,15 +80,16 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
 
         // Business method
         installAndActivateAction.execute(activationTime, Arrays.asList(lastCheckedProperty));
+        Device reloadedDevice = getReloadedDevice(device);
 
         // Asserts
-        assertThat(device.getLifecycleDates()).isNotNull();
-        assertThat(device.getLifecycleDates().getManufacturedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getPurchasedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getReceivedDate()).isPresent();
-        assertThat(device.getLifecycleDates().getInstalledDate()).contains(activationTime);
-        assertThat(device.getLifecycleDates().getRemovedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getRetiredDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates()).isNotNull();
+        assertThat(reloadedDevice.getLifecycleDates().getManufacturedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getPurchasedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getReceivedDate()).isPresent();
+        assertThat(reloadedDevice.getLifecycleDates().getInstalledDate()).contains(activationTime);
+        assertThat(reloadedDevice.getLifecycleDates().getRemovedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getRetiredDate()).isEmpty();
     }
 
     @Test
@@ -172,15 +173,16 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
 
         // Business method
         installAndActivateAction.execute(activationTime, Arrays.asList(lastCheckedProperty));
+        Device reloadedDevice = getReloadedDevice(device);
 
         // Asserts
-        assertThat(device.getLifecycleDates()).isNotNull();
-        assertThat(device.getLifecycleDates().getManufacturedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getPurchasedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getReceivedDate()).isPresent();
-        assertThat(device.getLifecycleDates().getInstalledDate()).contains(activationTime);
-        assertThat(device.getLifecycleDates().getRemovedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getRetiredDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates()).isNotNull();
+        assertThat(reloadedDevice.getLifecycleDates().getManufacturedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getPurchasedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getReceivedDate()).isPresent();
+        assertThat(reloadedDevice.getLifecycleDates().getInstalledDate()).contains(activationTime);
+        assertThat(reloadedDevice.getLifecycleDates().getRemovedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getRetiredDate()).isEmpty();
     }
 
     @Test
@@ -233,14 +235,16 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         // Business method
         installAndActivateAction.execute(deactivationTime, Collections.emptyList());
 
+        Device reloadedDevice = getReloadedDevice(device);
+
         // Asserts
-        assertThat(device.getLifecycleDates()).isNotNull();
-        assertThat(device.getLifecycleDates().getManufacturedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getPurchasedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getReceivedDate()).isPresent();
-        assertThat(device.getLifecycleDates().getInstalledDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getRemovedDate()).contains(deactivationTime);
-        assertThat(device.getLifecycleDates().getRetiredDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates()).isNotNull();
+        assertThat(reloadedDevice.getLifecycleDates().getManufacturedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getPurchasedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getReceivedDate()).isPresent();
+        assertThat(reloadedDevice.getLifecycleDates().getInstalledDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getRemovedDate()).contains(deactivationTime);
+        assertThat(reloadedDevice.getLifecycleDates().getRetiredDate()).isEmpty();
     }
 
     @Test
@@ -264,7 +268,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         when(lastCheckedProperty.getValue()).thenReturn(initialActivationTime);
         ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
         installAndActivateAction.execute(initialActivationTime, Arrays.asList(lastCheckedProperty));
-        device = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
+        device = getReloadedDevice(device);
         State state = device.getState();
         assertThat(DefaultState.from(state)).isPresent();
         assertThat(DefaultState.from(state)).contains(DefaultState.ACTIVE);
@@ -275,7 +279,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         CustomStateTransitionEventType deactivatedEventType = DefaultCustomStateTransitionEventType.DEACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
         ExecutableAction deactivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, deactivatedEventType).get();
         deactivateAction.execute(deactivationTime, Collections.emptyList());
-        device = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
+        device = getReloadedDevice(device);
         state = device.getState();
         assertThat(DefaultState.from(state)).isPresent();
         assertThat(DefaultState.from(state)).contains(DefaultState.INACTIVE);
@@ -287,15 +291,16 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
 
         // Business method
         activateAction.execute(activationTime, Arrays.asList(lastCheckedProperty));
+        Device reloadedDevice = getReloadedDevice(device);
 
         // Asserts
-        assertThat(device.getLifecycleDates()).isNotNull();
-        assertThat(device.getLifecycleDates().getManufacturedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getPurchasedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getReceivedDate()).isPresent();
-        assertThat(device.getLifecycleDates().getInstalledDate()).contains(activationTime);
-        assertThat(device.getLifecycleDates().getRemovedDate()).contains(deactivationTime);
-        assertThat(device.getLifecycleDates().getRetiredDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates()).isNotNull();
+        assertThat(reloadedDevice.getLifecycleDates().getManufacturedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getPurchasedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getReceivedDate()).isPresent();
+        assertThat(reloadedDevice.getLifecycleDates().getInstalledDate()).contains(activationTime);
+        assertThat(reloadedDevice.getLifecycleDates().getRemovedDate()).contains(deactivationTime);
+        assertThat(reloadedDevice.getLifecycleDates().getRetiredDate()).isEmpty();
     }
 
     @Test
@@ -317,14 +322,20 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         // Business method
         action.execute(decommissioningTime, Collections.emptyList());
 
+        Device reloadedDevice = getReloadedDevice(device);
+
         // Asserts
-        assertThat(device.getLifecycleDates()).isNotNull();
-        assertThat(device.getLifecycleDates().getManufacturedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getPurchasedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getReceivedDate()).isPresent();
-        assertThat(device.getLifecycleDates().getInstalledDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getRemovedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getRetiredDate()).contains(decommissioningTime);
+        assertThat(reloadedDevice.getLifecycleDates()).isNotNull();
+        assertThat(reloadedDevice.getLifecycleDates().getManufacturedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getPurchasedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getReceivedDate()).isPresent();
+        assertThat(reloadedDevice.getLifecycleDates().getInstalledDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getRemovedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getRetiredDate()).contains(decommissioningTime);
+    }
+
+    private Device getReloadedDevice(Device device) {
+        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
     }
 
     @Test
@@ -343,14 +354,16 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         // Business method
         action.execute(decommissioningTime, Collections.emptyList());
 
+        Device reloadedDevice = getReloadedDevice(device);
+
         // Asserts
-        assertThat(device.getLifecycleDates()).isNotNull();
-        assertThat(device.getLifecycleDates().getManufacturedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getPurchasedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getReceivedDate()).isPresent();
-        assertThat(device.getLifecycleDates().getInstalledDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getRemovedDate()).isEmpty();
-        assertThat(device.getLifecycleDates().getRetiredDate()).contains(decommissioningTime);
+        assertThat(reloadedDevice.getLifecycleDates()).isNotNull();
+        assertThat(reloadedDevice.getLifecycleDates().getManufacturedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getPurchasedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getReceivedDate()).isPresent();
+        assertThat(reloadedDevice.getLifecycleDates().getInstalledDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getRemovedDate()).isEmpty();
+        assertThat(reloadedDevice.getLifecycleDates().getRetiredDate()).contains(decommissioningTime);
     }
 
     private void changeInitialState(DefaultState defaultState) {

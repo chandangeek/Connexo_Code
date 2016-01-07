@@ -88,6 +88,7 @@ import java.nio.file.FileSystems;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -130,6 +131,7 @@ public class InMemoryIntegrationPersistence {
         properties.put("protocols", "all");
         when(license.getLicensedValues()).thenReturn(properties);
         when(this.clock.instant()).thenReturn(Instant.now());
+        when(this.clock.getZone()).thenReturn(ZoneId.systemDefault());
         this.injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
