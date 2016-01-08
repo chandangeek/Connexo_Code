@@ -95,14 +95,25 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
 
     previewMetrologyConfiguration: function (record) {
         var me = this,
+        	router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('metrologyConfigurationListPreview', {record: record}),  
-            form = widget.down('#metrologyConfigurationListPreviewForm'),
-            previewContainer = me.getMetrologyConfigurationListSetup().down('#previewComponentContainer');
-        
-        form.loadRecord(record);
-        widget.setTitle(record.get('name'));
-        previewContainer.removeAll();
-        previewContainer.add(widget);
+            linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
+            previewContainer = me.getMetrologyConfigurationListSetup().down('#previewComponentContainer'),
+            count,
+            actualForm;
+        me.mcid = record.get('id');
+        linkedStore.removeAll();
+        linkedStore.getProxy().setUrl(me.mcid);
+    	linkedStore.load(function () {
+    		me.count = this.getCount();
+    	    actualForm = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm', {router: router, mcid: me.mcid, count: me.count});
+    	    actualForm.loadRecord(record);
+    	    widget.add(actualForm);
+    	    widget.setTitle(record.get('name'));
+            previewContainer.removeAll();
+            previewContainer.add(widget);
+        });
+
     },
     removeMetrologyConfiguration: function (record) {
         var me = this,

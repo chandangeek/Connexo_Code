@@ -52,43 +52,24 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                         }
                     }, 
                     {
-               	 		fieldLabel: Uni.I18n.translate('general.label.validationRuleSets', 'IMT', 'Validation rule sets'),
-                        xtype: 'multiselect',                            
-                        itemId: 'metrology-config-linked-val-rules-set',
-                        name: 'linkedValidationRulesSets',
-                        width: 500,
-                        store: 'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
-                        queryMode: 'local',
-                        valueField: 'id',
-                        displayField: 'name',
-                        maxHeight: 100,
-                        listConfig: { border: true }
-                    },
-                    {
-                        xtype: 'displayfield',
-                        itemId: 'no-validation-rulesets',
-                        hidden: true,
-                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'IMT', 'No validation rule ser assigned yet.') + '</div>',
-                        htmlEncode: false,
-                        labelwidth: 500,
-                        width: 235
-                    },
-//                    {
-//                        xtype: 'fieldcontainer',
-//                        ui: 'actions',
-//                        fieldLabel: '&nbsp',
-//                        items: [
-//                            {
-//                                text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Cancel'),
-//                                xtype: 'button',
-//                                ui: 'action',
-//                                itemId: 'backLink',
-//                                href: me.router.getRoute('administration/metrologyconfiguration').buildUrl(),
-//                            }
-//                        ]
-//                    }
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.validationRuleSets', 'IMT', 'Validation rule sets'),
+                        defaults: {
+                            xtype: 'button',
+                            ui: 'link',
+                            href: '#/administration/metrologyconfiguration/' + me.mcid + '/associatedvalidationrulesets', 
+                        },
+                        items: [
+                            {
+                                name: 'validationRuleSetCount',
+                                text: Uni.I18n.translatePlural('general.validationRuleSets', me.count, 'IMT',
+                                        'No validation rule sets', '1 validation rule set', '{0} validation rule sets'),
+                                itemId: 'validationRuleSetLink'
+                            },
+                        ]
+                    }
                 ]
-            }
+            },
         ];
         me.callParent();
     }

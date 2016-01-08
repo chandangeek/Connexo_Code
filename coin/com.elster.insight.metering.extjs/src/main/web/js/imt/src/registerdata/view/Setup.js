@@ -8,9 +8,10 @@ Ext.define('Imt.registerdata.view.Setup', {
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
     router: null,
+    usagepoint: null,
     initComponent: function () {
         var me = this;
-
+  //      panel.title = me.router.getRoute().getTitle();
         me.side = [
             {
                 xtype: 'panel',
@@ -20,7 +21,9 @@ Ext.define('Imt.registerdata.view.Setup', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        mRID: me.mRID
+                   //     usagepoint: me.usagepoint,
+                        mRID: me.mRID,
+                        toggleId: 'registerLink',
                     }
                 ]
             }
@@ -44,10 +47,11 @@ Ext.define('Imt.registerdata.view.Setup', {
                 },
                 items: [{
                     xtype: 'preview-container',    
-                    title: Uni.I18n.translate('registerdata.label.register.list', 'IMT', 'Registers'),
+//                    title: Uni.I18n.translate('registerdata.label.register.list', 'IMT', 'Registers'),
                     grid: {
                         xtype: 'registerList',
                         mRID: me.mRID,
+                        usagepoint: me.usagepoint,
                         router: me.router
                     },
                     emptyComponent: {
@@ -66,6 +70,5 @@ Ext.define('Imt.registerdata.view.Setup', {
             }
         ];
         me.callParent(arguments);
-        me.down('#registerList').setTitle(me.mRID);
     }
 });

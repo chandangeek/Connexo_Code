@@ -12,7 +12,6 @@ Ext.define('Imt.registerdata.view.RegisterDataSetup', {
     router: null,
     initComponent: function () {
         var me = this;
-
         me.side = [
             {
                 xtype: 'panel',
@@ -30,19 +29,20 @@ Ext.define('Imt.registerdata.view.RegisterDataSetup', {
         ];
         
         me.content = [
+              
             {
                 xtype: 'panel',
                 ui: 'large',
                 itemId: 'registerDataSetupPanel',
-                title: Uni.I18n.translate('registerdata.label.register.readings', 'IMT', 'Register Readings'),
+           //     title: me.registerId, //Uni.I18n.translate('registerdata.label.register.readings', 'IMT', 'Register Readings'),
                 layout: {
                     type: 'fit',
                     align: 'stretch'
                 },
                 defaults: {
                     style: {
-                        marginRight: '20px',
-                        padding: '20px'
+//                        marginRight: '20px',
+//                        padding: '20px'
                     }
                 },       
 

@@ -12,7 +12,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
             {
                 text: Uni.I18n.translate('general.label.overview', 'IMT', 'Overview'),
                 itemId: 'metrology-configuration-overview-link',
-                href: me.router.getRoute('administration/metrologyconfiguration').buildUrl({mcid: me.mcid})
+                href: me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: me.mcid})
             },           
             {
                 title: 'Configurations',

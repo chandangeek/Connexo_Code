@@ -3,11 +3,25 @@ Ext.define('Imt.registerdata.view.Preview', {
     alias: 'widget.registerPreview',
     itemId: 'registerPreview',
     record: null,
-
+    usagepoint: null,
+    router: null,
     requires: [
         'Imt.registerdata.view.ActionMenu',
-        'Uni.form.field.ReadingTypeDisplay'
+        'Uni.form.field.ReadingTypeDisplay',
+        'Imt.registerdata.view.RegisterValidationPreview'
     ],
+    
+    tools: [
+            {
+                xtype: 'button',
+                text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                itemId: 'actionButton',
+                iconCls: 'x-uni-action-iconD',
+                menu: {
+                    xtype: 'registerActionMenu'
+                }
+            }
+        ],
 
     initComponent: function () {
         var me = this;
@@ -59,6 +73,10 @@ Ext.define('Imt.registerdata.view.Preview', {
                                 name: 'lastReadingValue'
                             }
                         ]
+                    },
+                    {
+                        xtype: 'registerValidationPreview',
+                        router: me.router
                     }
                 ]
             }
