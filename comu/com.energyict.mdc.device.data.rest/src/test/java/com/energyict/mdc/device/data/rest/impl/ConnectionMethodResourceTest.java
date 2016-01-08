@@ -298,7 +298,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("connectionTimeout");
-        when(propertySpec.getDisplayName()).thenReturn("hier brandt de lamp");
+        when(propertySpec.getDisplayName()).thenReturn("Connection timeout");
         when(propertySpec.isRequired()).thenReturn(false);
         when(propertySpec.getValueFactory()).thenReturn(new TimeDurationValueFactory());
         when(pluggableClass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
