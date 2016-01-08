@@ -1,8 +1,10 @@
 package com.energyict.mdc.dynamic;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
+
+import aQute.bnd.annotation.ProviderType;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec stringPropertySpec (String name);
+    PropertySpec stringPropertySpec(String name);
 
     /**
      * Creates a {@link PropertySpec} for a String value with a default value.
@@ -31,7 +33,7 @@ public interface PropertySpecFactory {
      * @param defaultValue The default value in case the property is not specified
      * @return The PropertySpec
      */
-    public PropertySpec stringPropertySpec (String name, String defaultValue);
+    PropertySpec stringPropertySpec(String name, String defaultValue);
 
     /**
      * Creates a {@link PropertySpec} for a BigDecimal value.
@@ -39,7 +41,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec bigDecimalPropertySpec (String name);
+    PropertySpec bigDecimalPropertySpec(String name);
 
     /**
      * Creates a {@link PropertySpec} for a BigDecimal value with a default value.
@@ -48,7 +50,7 @@ public interface PropertySpecFactory {
      * @param defaultValue The default value in case the property is not specified
      * @return The PropertySpec
      */
-    public PropertySpec bigDecimalPropertySpec (String name, BigDecimal defaultValue);
+    PropertySpec bigDecimalPropertySpec(String name, BigDecimal defaultValue);
 
     /**
      * Creates a {@link PropertySpec} for a BigDecimal value which only allows the given values.
@@ -57,7 +59,7 @@ public interface PropertySpecFactory {
      * @param values The allowed values for the PropertySpec
      * @return the PropertySpec
      */
-    public PropertySpec bigDecimalPropertySpecWithValues (String name, BigDecimal... values);
+    PropertySpec bigDecimalPropertySpecWithValues(String name, BigDecimal... values);
 
     /**
      * Creates a {@link PropertySpec} for a Boolean value.
@@ -71,7 +73,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec booleanPropertySpec (String name);
+    PropertySpec booleanPropertySpec(String name);
 
     /**
      * Creates a {@link PropertySpec} for a {@link TimeDuration} value.
@@ -79,7 +81,7 @@ public interface PropertySpecFactory {
      * @param name The name of the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec timeDurationPropertySpec (String name);
+    PropertySpec timeDurationPropertySpec(String name);
 
     /**
      * Creates a {@link PropertySpec} for a {@link TimeDuration} value with a default value.
@@ -88,7 +90,7 @@ public interface PropertySpecFactory {
      * @param defaultValue The default value in case the property is not specified
      * @return The PropertySpec
      */
-    public PropertySpec timeDurationPropertySpec (String name, TimeDuration defaultValue);
+    PropertySpec timeDurationPropertySpec(String name, TimeDuration defaultValue);
 
     /**
      * Converts a list with string keys to the new List<PropertySpec> format.
@@ -96,6 +98,6 @@ public interface PropertySpecFactory {
      * @param keys The list of keys
      * @return The list of PropertySpecs
      */
-    public List<PropertySpec> toPropertySpecs(List<String> keys);
+    List<PropertySpec> toPropertySpecs(List<String> keys);
 
 }

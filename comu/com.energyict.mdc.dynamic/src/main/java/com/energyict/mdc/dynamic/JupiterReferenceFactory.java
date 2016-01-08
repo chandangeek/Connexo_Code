@@ -1,11 +1,10 @@
 package com.energyict.mdc.dynamic;
 
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -62,11 +61,6 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     }
 
     @Override
-    public boolean requiresIndex () {
-        return true;
-    }
-
-    @Override
     public boolean isPersistent (T businessObject) {
         return businessObject.getId() != 0;
     }
@@ -88,16 +82,6 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     @Override
     public Object valueToDatabase (T object) {
         return object.getId();
-    }
-
-    @Override
-    public void bind(PreparedStatement statement, int offset, T value) throws SQLException {
-        statement.setLong(offset, value.getId());
-    }
-
-    @Override
-    public void bind(SqlBuilder builder, T value) {
-        builder.addLong(value.getId());
     }
 
     @Override
