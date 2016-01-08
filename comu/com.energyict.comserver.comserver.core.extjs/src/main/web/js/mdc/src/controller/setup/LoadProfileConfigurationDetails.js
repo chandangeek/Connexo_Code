@@ -170,7 +170,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         window.location.href = '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.deviceConfigurationId) + '/loadprofiles/' + encodeURIComponent(this.loadProfileConfigurationId) + '/channels/' + encodeURIComponent(lastSelected.getData().id) + '/edit';
     },
 
-    showConfirmationPanel: function (toDelete) {
+    showConfirmationPanel: function () {
         var me = this, lastSelected = me.getChannelsGrid().getSelectionModel().getLastSelected();
 
         Ext.create('Uni.view.window.Confirmation').show({
@@ -602,7 +602,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
                                         me.onMultiplierChange(multiplierRadioGroup); // (1) Keep this order
                                         if (deviceConfig.get('active')) { // (2) Keep this order
-                                            multiplierRadioGroup.setDisabled(false);
+                                            multiplierRadioGroup.setDisabled(true);
                                         }
                                         calculatedReadingTypeCombo.setDisabled(deviceConfig.get('active'));
 
