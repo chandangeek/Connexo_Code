@@ -66,6 +66,5 @@ Ext.define('Mdc.model.RegisterConfiguration', {
     proxy: {
         type: 'rest',
         url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/registerconfigurations'
-        //url: 'http://localhost:3000/registerConfigurations'
     }
 });
