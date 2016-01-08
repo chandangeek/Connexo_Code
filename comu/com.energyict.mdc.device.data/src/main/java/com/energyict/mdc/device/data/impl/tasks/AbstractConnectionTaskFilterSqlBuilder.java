@@ -1,17 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.report.AbstractTaskFilterSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.orm.QueryExecutor;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -35,20 +33,8 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     private final Set<String> restrictedDeviceStates;
     private final QueryExecutor<Device> queryExecutor;
     private boolean appendLastComSessionJoinClause;
-    private final Set<DefaultState> allowedDeviceStates;
 
-    public AbstractConnectionTaskFilterSqlBuilder(Clock clock, List<EndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor) {
-        super(clock);
-        this.connectionTypes = new HashSet<>();
-        this.comPortPools = new HashSet<>();
-        this.deviceTypes = new HashSet<>();
-        this.appendLastComSessionJoinClause = false;
-        this.deviceGroups = new ArrayList<>(deviceGroups);
-        this.queryExecutor = queryExecutor;
-        this.allowedDeviceStates = Collections.emptySet();
-    }
-
-    AbstractConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
+    public AbstractConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
         super(clock);
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);

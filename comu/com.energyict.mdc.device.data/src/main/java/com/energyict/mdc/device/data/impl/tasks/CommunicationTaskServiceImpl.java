@@ -2,13 +2,8 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.time.TimeDuration;
@@ -47,7 +42,6 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.orm.LiteralSql;
 import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
 
@@ -66,6 +60,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -81,13 +76,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private static final Logger LOGGER = Logger.getLogger(CommunicationTaskServiceImpl.class.getName());
 
     private final DeviceDataModelService deviceDataModelService;
-    private final MeteringService meteringService;
 
     @Inject
-    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, MeteringService meteringService) {
+    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
-        this.meteringService = meteringService;
     }
 
     @Override
@@ -582,7 +575,13 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort) {
-        List<OutboundComPortPool> comPortPools = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort(comPort).stream().filter(ComPortPool::isActive).collect(Collectors.toList());
+        List<OutboundComPortPool> comPortPools =
+                this.deviceDataModelService
+                        .engineConfigurationService()
+                        .findContainingComPortPoolsForComPort(comPort)
+                        .stream()
+                        .filter(ComPortPool::isActive)
+                        .collect(Collectors.toList());
         if (!comPortPools.isEmpty()) {
             long nowInSeconds = this.toSeconds(this.deviceDataModelService.clock().instant());
             DataMapper<ComTaskExecution> mapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
@@ -755,10 +754,6 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             return Collections.emptyIterator();
         }
 
-    }
-
-    private Optional<AmrSystem> getMdcAmrSystem() {
-        return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
     }
 
 }

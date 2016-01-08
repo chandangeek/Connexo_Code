@@ -67,6 +67,8 @@ import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeIm
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;

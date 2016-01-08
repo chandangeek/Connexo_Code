@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,9 +58,9 @@ public interface DeviceService {
      * @param version the version of the device
      * @return the requested Device or null if none was found
      */
-    public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
+    Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
 
-    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version);
+    Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version);
 
     /**
      * Finds the Device based on his unique External name.
@@ -122,7 +123,7 @@ public interface DeviceService {
      * @param destinationDeviceConfigId      the ID fo the DestinationDeviceConfig
      * @param destinationDeviceConfigVersion the version to check   @return the given device with the new configuration applied
      */
-    public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion);
+    Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion);
 
     /**
      * Change the DeviceConfiguration for the given set of Devices to the provided destinationDeviceConfiguration.
@@ -132,6 +133,6 @@ public interface DeviceService {
      * @param devicesForConfigChangeSearch
      * @param deviceMRIDs                    a list of device MRIDs
      */
-    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs);
+    void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs);
 
 }

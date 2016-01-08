@@ -17,6 +17,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -68,6 +69,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -526,7 +528,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void createRealServices() {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, protocolPluggableService);
         this.connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
-        this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
+        this.communicationTaskService = new CommunicationTaskServiceImpl(this);
         this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService, meteringService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
