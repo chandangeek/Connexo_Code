@@ -27,7 +27,6 @@ import com.energyict.mdc.device.data.impl.PropertyFactory;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.impl.ValidPluggableClassId;
-import com.energyict.mdc.device.data.impl.*;
 import com.energyict.mdc.device.data.impl.configchange.ServerConnectionTaskForConfigChange;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -41,12 +40,10 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -373,13 +370,17 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     public void executionCompleted() {
         this.doNotTouchParentDevice();
-        this.doExecutionCompleted();
-        this.update(ConnectionTaskFields.COM_SERVER.fieldName(), ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName());
+        List<String> updatedFields = new ArrayList<>();
+        this.doExecutionCompleted(updatedFields);
+        this.update(updatedFields.toArray(new String[updatedFields.size()]));
+
     }
 
-    protected void doExecutionCompleted() {
+    protected void doExecutionCompleted(List<String> updatedFields) {
         this.setExecutingComServer(null);
+        updatedFields.add(ConnectionTaskFields.COM_SERVER.fieldName());
         this.lastSuccessfulCommunicationEnd = clock.instant();
+        updatedFields.add(ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName());
     }
 
     public String getName() {
