@@ -1,10 +1,7 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.BeaconEventPushNotificationAttributes;
 import com.energyict.obis.ObisCode;
 
@@ -33,6 +30,14 @@ public class BeaconEventPushNotificationConfig extends AbstractCosemObject {
     @Override
     protected int getClassId() {
         return DLMSClassId.EVENT_NOTIFICATION.getClassId();
+    }
+
+    public AbstractDataType readIsPushEventEnabled() throws IOException {
+        return readDataType(BeaconEventPushNotificationAttributes.IS_ENABLED);
+    }
+
+    public AbstractDataType readDestinationAndMethod() throws IOException {
+        return readDataType(BeaconEventPushNotificationAttributes.SEND_DESTINATION_AND_METHOD);
     }
 
     public void writeSendDestinationAndMethod(int transportType, String destinationAddress, int messageType) throws IOException {
