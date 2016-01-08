@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -24,7 +23,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * This Info element represents the PartialConnectionTask in the domain model
@@ -38,6 +36,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     @XmlJavaTypeAdapter(ConnectionTaskLifecycleStateAdapter.class)
     public ConnectionTask.ConnectionTaskLifecycleStatus status;
     public String connectionType;
+    public String displayDirection;
     public String comPortPool;
     public boolean isDefault;
     public Integer comWindowStart;
@@ -74,15 +73,10 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
             if (this.properties != null) {
                 for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                     Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
-                    if (propertyValue != null) {
+                    if (propertyValue != null || !hasInheritedPropertyValue(partialConnectionTask, propertySpec)) {
                         connectionTask.setProperty(propertySpec.getName(), propertyValue);
                     } else {
-                        Optional<PropertyValueInfo<?>> propertyValueInfo = findPropertyValueInfo(this.properties, propertySpec.getName());
-                        if (propertyValueInfo.isPresent() && (propertyValueInfo.get().inheritedValue == null || "".equals(propertyValueInfo.get().inheritedValue))) {
-                            connectionTask.setProperty(propertySpec.getName(), null);
-                        } else {
-                            connectionTask.removeProperty(propertySpec.getName());//it means that we really want to use inherited value
-                        }
+                        connectionTask.removeProperty(propertySpec.getName());//it means that we really want to use inherited value
                     }
                 }
             }
@@ -91,8 +85,9 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         }
     }
 
-    protected Optional<PropertyValueInfo<?>> findPropertyValueInfo(List<PropertyInfo> properties, String key) {
-        return properties.stream().filter(propertyInfo -> key.equals(propertyInfo.key)).map(PropertyInfo::getPropertyValueInfo).findFirst();
+    protected boolean hasInheritedPropertyValue(PartialConnectionTask partialConnectionTask, PropertySpec propertySpec) {
+        Object property = partialConnectionTask.getTypedProperties().getProperty(propertySpec.getName());
+        return property !=null && !"".equals(property);
     }
 
     public abstract ConnectionTask<?, ?> createTask(EngineConfigurationService engineConfigurationService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);

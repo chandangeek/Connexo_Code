@@ -1,13 +1,20 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -15,11 +22,14 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
+import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -34,13 +44,16 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -85,6 +98,8 @@ public class DeviceResource {
     private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
+    private final DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
+    private final TransactionService transactionService;
 
     @Inject
     public DeviceResource(
@@ -115,7 +130,9 @@ public class DeviceResource {
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
-            DeviceAttributesInfoFactory deviceAttributesInfoFactory) {
+            DeviceAttributesInfoFactory deviceAttributesInfoFactory,
+            DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
+            TransactionService transactionService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -144,9 +161,11 @@ public class DeviceResource {
         this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
+        this.devicesForConfigChangeSearchFactory = devicesForConfigChangeSearchFactory;
+        this.transactionService = transactionService;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getAllDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
@@ -163,7 +182,7 @@ public class DeviceResource {
         return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADD_DEVICE)
@@ -183,16 +202,61 @@ public class DeviceResource {
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
     }
 
+    @PUT @Transactional
+    @Path("/changedeviceconfig")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
+    public Response changeDeviceConfig(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter, @Context SecurityContext securityContext) {
+        if (request.action == null || (!request.action.equalsIgnoreCase("ChangeDeviceConfiguration"))) {
+            throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
+        }
+        DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(request.newDeviceConfiguration)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
+        DevicesForConfigChangeSearch devicesForConfigChangeSearch;
+        if(request.filter != null) {
+            devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(new JsonQueryFilter(request.filter));
+        } else {
+            devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(queryFilter);
+        }
+        deviceService.changeDeviceConfigurationForDevices(destinationConfiguration,
+                devicesForConfigChangeSearch,
+                request.deviceMRIDs.toArray(new String[request.deviceMRIDs.size()]));
+        return Response.ok().build();
+    }
+
     @PUT//the method designed like 'PATCH'
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info) {
-        Device device = resourceHelper.lockDeviceOrThrowException(info);
-        updateGateway(info, device);
-        device.save();
-        return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
+    public Response updateDevice(@PathParam("id") long id, DeviceInfo info) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(info.mRID);
+        if (device.getDeviceConfiguration().getId() != info.deviceConfigurationId) {
+            DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
+            try {
+                device = updateDeviceConfig(device, info.version, destinationConfiguration, destinationConfiguration.getVersion());
+            } catch (CannotChangeDeviceConfigStillUnresolvedConflicts e) {
+                final long deviceConfigurationId = device.getDeviceConfiguration().getId();
+                long conflictId = device.getDeviceType().getDeviceConfigConflictMappings().stream()
+                        .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == deviceConfigurationId
+                                && conflict.getDestinationDeviceConfiguration().getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e).getId();
+                return Response.status(Response.Status.BAD_REQUEST).entity(Pair.of("changeDeviceConfigConflict", conflictId).asMap()).build();
+            }
+        } else {
+            try (TransactionContext context = transactionService.getContext()) {
+                device = resourceHelper.lockDeviceOrThrowException(info);
+                updateGateway(info, device);
+                device.save();
+                context.commit();
+            }
+        }
+        return Response.ok().entity(deviceInfoFactory.from(device, getSlaveDevicesForDevice(device))).build();
+    }
+
+    public Device updateDeviceConfig(Device device, long deviceVersion, DeviceConfiguration destinationConfiguration, long deviceConfigurationVersion) {
+            return deviceService.changeDeviceConfigurationForSingleDevice(device.getId(), deviceVersion, destinationConfiguration.getId(), deviceConfigurationVersion);
     }
 
     private DeviceInfo updateGateway(DeviceInfo info, Device device) {
@@ -231,7 +295,7 @@ public class DeviceResource {
         return slaves;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -240,7 +304,7 @@ public class DeviceResource {
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}/attributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -249,7 +313,7 @@ public class DeviceResource {
         return Response.ok(deviceAttributesInfoFactory.from(device)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{mRID}/attributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE})
@@ -260,7 +324,7 @@ public class DeviceResource {
         return Response.ok(deviceAttributesInfoFactory.from(device)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -270,7 +334,7 @@ public class DeviceResource {
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -284,17 +348,127 @@ public class DeviceResource {
         return customPropertySetInfo;
     }
 
-    @PUT
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/versions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public PagedInfoList getDeviceCustomPropertyVersioned(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<CustomPropertySetInfo> customPropertySetInfoList = resourceHelper.getVersionedCustomPropertySetHistoryInfos(device, cpsId);
+        return PagedInfoList.fromCompleteList("versions", customPropertySetInfoList, queryParameters);
+    }
+
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public CustomPropertySetInfo getDeviceCustomPropertyVersionedHistory(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getDeviceCustomPropertySetInfos(device, Instant.ofEpochMilli(timeStamp))
+                .stream()
+                .filter(f -> f.id == cpsId)
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+        return customPropertySetInfo;
+    }
+
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/currentinterval")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(device, cpsId));
+
+        return IntervalInfo.from(interval.toClosedOpenRange());
+    }
+
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/conflicts")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(device, cpsId, resourceHelper.getTimeRange(startTime, endTime));
+        Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
+        return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
+    }
+
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/conflicts/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(device, cpsId, resourceHelper.getTimeRange(startTime, endTime), Instant.ofEpochMilli(timeStamp));
+        Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
+        return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
+    }
+
+    @PUT @Transactional
     @Path("/{mRID}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response editDeviceCustomAttribute(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
         Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, mRID, customPropertySetInfo.version);
+        resourceHelper.lockDeviceTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         resourceHelper.setDeviceCustomPropertySetInfo(lockedDevice, cpsId, customPropertySetInfo);
         return Response.ok().build();
     }
 
-    @GET
+    @POST @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/versions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response addDeviceCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, mRID, customPropertySetInfo.version);
+        resourceHelper.lockDeviceTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        if (intervalErrors.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
+        }
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos =
+                resourceHelper.getOverlapsWhenCreate(lockedDevice, cpsId, resourceHelper.getTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime))
+                        .stream()
+                        .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
+                        .filter(resourceHelper.filterGaps(forced))
+                        .collect(Collectors.toList());
+        if (!overlapInfos.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
+                    .build();
+        }
+        resourceHelper.addDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo);
+        return Response.ok().build();
+    }
+
+    @PUT @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response editDeviceCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, mRID, customPropertySetInfo.version);
+        resourceHelper.lockDeviceTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        if (intervalErrors.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
+        }
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos =
+                resourceHelper.getOverlapsWhenUpdate(lockedDevice, cpsId, resourceHelper.getTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime), Instant.ofEpochMilli(timeStamp))
+                        .stream()
+                        .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
+                        .filter(resourceHelper.filterGaps(forced))
+                        .collect(Collectors.toList());
+        if (!overlapInfos.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
+                    .build();
+        }
+        resourceHelper.setDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo, Instant.ofEpochMilli(timeStamp));
+        return Response.ok().build();
+    }
+
+    @GET @Transactional
     @Path("/{mRID}/privileges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -317,7 +491,7 @@ public class DeviceResource {
      * @param mrid Device's mRID
      * @return List of categories + device message specs, indicating if message spec will be picked up by a comtask or not
      */
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{mRID}/messagecategories")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
@@ -338,7 +512,7 @@ public class DeviceResource {
                     .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
                     .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
                     .filter(dms -> device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
-                    .sorted((dms1, dms2) -> dms1.getName().compareToIgnoreCase(dms2.getName()))
+                    .sorted(Comparator.comparing(DeviceMessageSpec::getName))
                     .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
                     .collect(Collectors.toList());
             if (!deviceMessageSpecs.isEmpty()) {
@@ -442,7 +616,7 @@ public class DeviceResource {
         return deviceLifeCycleActionResourceProvider.get();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}/topology/communication")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,

@@ -4,14 +4,15 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.pluggable.rest.impl.*;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -48,8 +49,9 @@ public class DeviceProtocolPropertyResource {
         return this;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getDeviceProperties() {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         DeviceProtocolPluggableClass pluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
@@ -63,17 +65,19 @@ public class DeviceProtocolPropertyResource {
         return Response.ok(info).build();
     }
     
-    @GET
+    @GET @Transactional
     @Path("/{protocolId}")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getDeviceProperties(@PathParam("protocolId") Long protocolId) {
         return this.getDeviceProperties();
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{protocolId}")
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateDeviceProperties(DeviceProtocolInfo info, @PathParam("protocolId") Long protocolId) {
         info.id = protocolId;
         DeviceProtocolPluggableClass pluggableClass = resourceHelper.lockDeviceProtocolPluggableClassOrThrowException(info);

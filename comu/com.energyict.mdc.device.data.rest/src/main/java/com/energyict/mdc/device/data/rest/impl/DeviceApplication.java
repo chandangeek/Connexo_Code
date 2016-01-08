@@ -32,7 +32,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -60,8 +60,34 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
+import com.energyict.mdc.device.data.kpi.rest.KpiResource;
+import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
+import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -119,12 +145,12 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile SearchService searchService;
     private volatile LoadProfileService loadProfileService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private volatile CustomPropertySetService customPropertySetService;
 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
                 RestValidationExceptionMapper.class,
                 ExceptionLogger.class,
                 DeviceResource.class,
@@ -278,7 +304,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 keys.add(new SimpleTranslationKey(subDomain.toString(), subDomain.getMnemonic()));
             }
         }
-        for (EndDeviceEventorAction eventOrAction : EndDeviceEventorAction.values()) {
+        for (EndDeviceEventOrAction eventOrAction : EndDeviceEventOrAction.values()) {
             if (uniqueIds.add(eventOrAction.toString())) {
                 keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
             }
@@ -470,6 +496,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(loadProfileService).to(LoadProfileService.class);
             bind(searchService).to(SearchService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(DevicesForConfigChangeSearchFactory.class).to(DevicesForConfigChangeSearchFactory.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
         }
     }

@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DeviceSchedulesInfo {
-    public long id;
+    public long id; // identifies either comtask or comtaskexecution, dependening on context!!!
     public long masterScheduleId;
     public String name;
     public TemporalExpressionInfo schedule;

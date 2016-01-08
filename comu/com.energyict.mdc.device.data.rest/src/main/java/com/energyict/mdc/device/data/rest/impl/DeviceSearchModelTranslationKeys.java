@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum DeviceSearchModelTranslationKeys implements TranslationKey {
-    MRID("mRID", "mRID"),
+    MRID("mRID", "MRID"),
     SERIALNUMBER("serialNumber", "Serial number"),
     DEVICETYPENAME("deviceTypeName", "Device type"),
     DEVICETYPEID("deviceTypeId", "Device type id"),
@@ -12,12 +12,12 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     DEVICEPROTOCOLPLUGGEABLECLASSID("deviceProtocolPluggeableClassId", "Device protocol pluggable class id"),
     YEAROFCERTIFICATION("yearOfCertification", "Year of certification"),
     BATCH("batch", "Batch"),
-    MASTERDEVICEMRID("masterDevicemRID", "Master device mRID"),
+    MASTERDEVICEMRID("masterDevicemRID", "Master device MRID"),
     MASTERDEVICEID("masterDeviceId", "Master device id"),
     NBROFDATACOLLECTIONISSUES("nbrOfDataCollectionIssues", "Number of data collection issues"),
     OPENDATAVALIDATIONISSUE("openDataValidationIssue", "Open data validation issue"),
     HASREGISTERS("hasRegisters", "Has registers"),
-    HASLOGBOOKS("hasLogBooks", "Has log books"),
+    HASLOGBOOKS("hasLogBooks", "Has logbooks"),
     HASLOADPROFILES("hasLoadProfiles", "Has load profiles"),
     ISDIRECTLYADDRESSED("isDirectlyAddressed", "Is directly addressed"),
     ISGATEWAY("isGateway", "Is gateway"),

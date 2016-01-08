@@ -222,11 +222,12 @@ public class ValidationInfoFactory {
         return veeReadingInfo;
     }
 
-    VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
+    VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading, Boolean validationActive) {
         VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
         veeReadingInfo.mainValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.mainValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.readingQualities = getReadingQualities(reading);
+        veeReadingInfo.validationActive = validationActive;
         if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
             veeReadingInfo.bulkValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
             veeReadingInfo.bulkValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
@@ -296,9 +297,14 @@ public class ValidationInfoFactory {
                 qualities.stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.ACCEPTED);
     }
 
-    DetailedValidationInfo createDetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
+    DetailedValidationInfo createMinimalValidationInfo(Boolean active) {
         DetailedValidationInfo detailedValidationInfo = new DetailedValidationInfo();
         detailedValidationInfo.validationActive = active;
+        return detailedValidationInfo;
+    }
+
+    DetailedValidationInfo createDetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
+        DetailedValidationInfo detailedValidationInfo = createMinimalValidationInfo(active);
         detailedValidationInfo.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
         detailedValidationInfo.suspectReason = getSuspectReasonMap(dataValidationStatuses).entrySet();
         if (lastChecked.isPresent()) {

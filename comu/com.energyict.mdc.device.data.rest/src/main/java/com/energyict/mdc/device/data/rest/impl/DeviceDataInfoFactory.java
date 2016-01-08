@@ -29,7 +29,6 @@ import com.energyict.mdc.device.data.TextRegister;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,15 +43,13 @@ public class DeviceDataInfoFactory {
     private final ValidationInfoFactory validationInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final Thesaurus thesaurus;
-    private final Clock clock;
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
 
     @Inject
-    public DeviceDataInfoFactory(ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, Thesaurus thesaurus, Clock clock, ValidationRuleInfoFactory validationRuleInfoFactory) {
+    public DeviceDataInfoFactory(ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, Thesaurus thesaurus, ValidationRuleInfoFactory validationRuleInfoFactory) {
         this.validationInfoFactory = validationInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.thesaurus = thesaurus;
-        this.clock = clock;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
     }
 
@@ -61,7 +58,7 @@ public class DeviceDataInfoFactory {
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
         channelIntervalInfo.intervalFlags = new ArrayList<>();
-        channelIntervalInfo.validationStatus = isValidationActive;
+        channelIntervalInfo.validationActive = isValidationActive;
         channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
 
@@ -88,7 +85,7 @@ public class DeviceDataInfoFactory {
             // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
             channelIntervalInfo.mainValidationInfo = new MinimalVeeReadingValueInfo();
             channelIntervalInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
-            if(channelIntervalInfo.isBulk) {
+            if (channel.getReadingType().isCumulative()) {
                 channelIntervalInfo.bulkValidationInfo = new MinimalVeeReadingValueInfo();
                 channelIntervalInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
@@ -101,7 +98,7 @@ public class DeviceDataInfoFactory {
         return value != null ? value.setScale(channel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
 
-    public LoadProfileDataInfo createLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, List<Channel> channels) {
+    public LoadProfileDataInfo createLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, List<Channel> channels, Boolean validationStatus) {
         LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
@@ -141,8 +138,9 @@ public class DeviceDataInfoFactory {
                 // This means it is a missing value what hasn't been validated( = detected ) yet
                 MinimalVeeReadingInfo notValidatedMissing = new MinimalVeeReadingInfo();
                 notValidatedMissing.dataValidated = false;
+                notValidatedMissing.validationStatus = validationStatus;
                 notValidatedMissing.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
-                if(channel.getReadingType().isCumulative()) {
+                if (channel.getReadingType().isCumulative()) {
                     notValidatedMissing.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
                 }
                 channelIntervalInfo.channelValidationData.put(channel.getId(), notValidatedMissing);
@@ -241,15 +239,19 @@ public class DeviceDataInfoFactory {
         return flagsReadingInfo;
     }
 
-    public RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo){
+    public RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo) {
         if (register instanceof BillingRegister) {
-            return createBillingRegisterInfo((BillingRegister) register, registerValidationInfo);
+            BillingRegisterInfo info = createBillingRegisterInfo((BillingRegister) register);
+            info.detailedValidationInfo = registerValidationInfo;
+            return info;
         } else if (register instanceof NumericalRegister) {
-            return createNumericalRegisterInfo((NumericalRegister) register, registerValidationInfo);
+            NumericalRegisterInfo info = createNumericalRegisterInfo((NumericalRegister) register);
+            info.detailedValidationInfo = registerValidationInfo;
+            return info;
         } else if (register instanceof TextRegister) {
-            return createTextRegisterInfo((TextRegister)register);
+            return createTextRegisterInfo((TextRegister) register);
         } else if (register instanceof FlagsRegister) {
-            return createFlagsRegisterInfo((FlagsRegister)register);
+            return createFlagsRegisterInfo((FlagsRegister) register);
         }
 
         throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
@@ -275,33 +277,31 @@ public class DeviceDataInfoFactory {
         lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, registerSpec, false));
     }
 
-    public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register, DetailedValidationInfo registerValidationInfo) {
+    public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register) {
         BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
         addCommonRegisterInfo(register, billingRegisterInfo);
-        billingRegisterInfo.detailedValidationInfo = registerValidationInfo;
         return billingRegisterInfo;
     }
 
-    public FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister){
+    public FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister) {
         FlagsRegisterInfo flagsRegisterInfo = new FlagsRegisterInfo();
         addCommonRegisterInfo(flagsRegister, flagsRegisterInfo);
         return flagsRegisterInfo;
     }
 
-    public TextRegisterInfo createTextRegisterInfo(TextRegister textRegister){
+    public TextRegisterInfo createTextRegisterInfo(TextRegister textRegister) {
         TextRegisterInfo textRegisterInfo = new TextRegisterInfo();
         addCommonRegisterInfo(textRegister, textRegisterInfo);
         return textRegisterInfo;
     }
 
-    public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister, DetailedValidationInfo registerValidationInfo){
+    public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister) {
         NumericalRegisterInfo numericalRegisterInfo = new NumericalRegisterInfo();
         addCommonRegisterInfo(numericalRegister, numericalRegisterInfo);
-        NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)numericalRegister.getRegisterSpec();
+        NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) numericalRegister.getRegisterSpec();
         numericalRegisterInfo.numberOfDigits = registerSpec.getNumberOfDigits();
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         numericalRegisterInfo.overflow = registerSpec.getOverflowValue();
-        numericalRegisterInfo.detailedValidationInfo = registerValidationInfo;
         return numericalRegisterInfo;
     }
 }

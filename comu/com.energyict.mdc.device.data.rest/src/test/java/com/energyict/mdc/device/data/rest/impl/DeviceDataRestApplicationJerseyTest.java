@@ -80,6 +80,7 @@ import static org.mockito.Mockito.when;
 public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     static long firmwareComTaskId = 445632136865L;
+    static long firmwareComTaskExecutionId = 446532136865L;
 
     @Mock(extraInterfaces = ComTask.class)
     SystemComTask firmwareComTask;
@@ -234,6 +235,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        when(readingType.isCumulative()).thenReturn(true);
         return readingType;
     }
 

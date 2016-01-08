@@ -10,4 +10,5 @@ public class BulkRequestInfo {
     public String filter;
     public List<String> deviceMRIDs;
     public List<Long> scheduleIds;
+    public long newDeviceConfiguration;
 }

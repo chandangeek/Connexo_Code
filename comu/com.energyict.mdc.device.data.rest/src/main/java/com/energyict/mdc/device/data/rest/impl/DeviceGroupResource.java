@@ -16,8 +16,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
@@ -44,13 +43,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -65,7 +62,6 @@ import static java.util.stream.Collectors.toList;
 @Path("/devicegroups")
 public class DeviceGroupResource {
     private final MeteringGroupsService meteringGroupsService;
-    private final RestQueryService restQueryService;
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final SearchService searchService;
@@ -74,10 +70,9 @@ public class DeviceGroupResource {
     private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, SearchService searchService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, MeteringService meteringService, DeviceService deviceService, SearchService searchService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper) {
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
-        this.restQueryService = restQueryService;
         this.deviceService = deviceService;
         this.searchService = searchService;
         this.exceptionFactory = exceptionFactory;
@@ -85,25 +80,43 @@ public class DeviceGroupResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     // not protected by privileges yet because a combo-box containing all the groups needs to be shown when creating an export task
-    public PagedInfoList getDeviceGroups(@BeanParam JsonQueryParameters queryParameters, @QueryParam("type") String typeName, @Context UriInfo uriInfo) {
-        com.elster.jupiter.rest.util.QueryParameters koreQueryParameters = com.elster.jupiter.rest.util.QueryParameters.wrap(uriInfo.getQueryParameters());
-        Query<EndDeviceGroup> query;
-        if (QueryEndDeviceGroup.class.getSimpleName().equalsIgnoreCase(typeName)) {
-            query = meteringGroupsService.getQueryEndDeviceGroupQuery();
+    public PagedInfoList getDeviceGroups(@QueryParam("type") String typeName, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
+        Query<EndDeviceGroup> query = getDeviceGroupQueryByType(typeName);
+        Condition condition = buildCondition(filter);
+        Order order = Order.ascending("upper(name)");
+        List<EndDeviceGroup> endDeviceGroups;
+        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            int from = queryParameters.getStart().get() + 1;
+            int to = from + queryParameters.getLimit().get();
+            endDeviceGroups = query.select(condition, from, to, order);
         } else {
-            query = meteringGroupsService.getEndDeviceGroupQuery();
+            endDeviceGroups = query.select(condition, order);
         }
-        RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
-        List<EndDeviceGroup> allDeviceGroups = restQuery.select(koreQueryParameters, Order.ascending("upper(name)"));
-        List<DeviceGroupInfo> deviceGroupInfos = deviceGroupInfoFactory.from(allDeviceGroups);
+        List<DeviceGroupInfo> deviceGroupInfos = deviceGroupInfoFactory.from(endDeviceGroups);
         return PagedInfoList.fromPagedList("devicegroups", deviceGroupInfos, queryParameters);
     }
 
-    @GET
+    private Query<EndDeviceGroup> getDeviceGroupQueryByType(@QueryParam("type") String typeName) {
+        if (QueryEndDeviceGroup.class.getSimpleName().equalsIgnoreCase(typeName)) {
+            return meteringGroupsService.getQueryEndDeviceGroupQuery();
+        } else {
+            return meteringGroupsService.getEndDeviceGroupQuery();
+        }
+    }
+
+    private Condition buildCondition(JsonQueryFilter filter) {
+        Condition condition = Condition.TRUE;
+        if (filter.hasProperty("name")) {
+            condition = condition.and(where("name").isEqualTo(filter.getString("name")));
+        }
+        return condition;
+    }
+
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
@@ -111,39 +124,44 @@ public class DeviceGroupResource {
         return deviceGroupInfoFactory.from(resourceHelper.findEndDeviceGroupOrThrowException(id));
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
     public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
-        if (meteringGroupsService.findEndDeviceGroupByName(deviceGroupInfo.name).isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.DEVICEGROUPNAME_ALREADY_EXISTS, deviceGroupInfo.name);
-        }
         EndDeviceGroup endDeviceGroup;
         if (deviceGroupInfo.dynamic) {
-            SearchDomain deviceSearchDomain = findDeviceSearchDomainOrThrowException();
-            JsonQueryFilter searchFilter = new JsonQueryFilter(deviceGroupInfo.filter);
-            if (!searchFilter.hasFilters()) {
-                throw exceptionFactory.newException(MessageSeeds.AT_LEAST_ONE_SEARCH_CRITERIA);
-            }
-            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(buildSearchablePropertyConditions(deviceGroupInfo))
-                    .setName(deviceGroupInfo.name)
-                    .setSearchDomain(deviceSearchDomain)
-                    .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
-                    .setLabel("MDC")
-                    .setMRID("MDC:" + deviceGroupInfo.name)
-                    .create();
+            endDeviceGroup = createQueryEndDeviceGroup(deviceGroupInfo);
         } else {
-            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(buildListOfEndDevices(deviceGroupInfo))
-                    .setName(deviceGroupInfo.name)
-                    .setLabel("MDC")
-                    .setMRID("MDC:" + deviceGroupInfo.name)
-                    .create();
+            endDeviceGroup = createEnumeratedEndDeviceGroup(deviceGroupInfo);
         }
         return Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
     }
 
-    @PUT
+    private EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
+        return meteringGroupsService.createEnumeratedEndDeviceGroup(buildListOfEndDevices(deviceGroupInfo))
+                .setName(deviceGroupInfo.name)
+                .setLabel("MDC")
+                .setMRID("MDC:" + deviceGroupInfo.name)
+                .create();
+    }
+
+    private QueryEndDeviceGroup createQueryEndDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
+        SearchDomain deviceSearchDomain = findDeviceSearchDomainOrThrowException();
+        JsonQueryFilter searchFilter = new JsonQueryFilter(deviceGroupInfo.filter);
+        if (!searchFilter.hasFilters()) {
+            throw exceptionFactory.newException(MessageSeeds.AT_LEAST_ONE_SEARCH_CRITERIA);
+        }
+        return meteringGroupsService.createQueryEndDeviceGroup(buildSearchablePropertyConditions(deviceGroupInfo))
+                .setName(deviceGroupInfo.name)
+                .setSearchDomain(deviceSearchDomain)
+                .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
+                .setLabel("MDC")
+                .setMRID("MDC:" + deviceGroupInfo.name)
+                .create();
+    }
+
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
@@ -163,7 +181,7 @@ public class DeviceGroupResource {
         return Response.ok().entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
@@ -175,30 +193,40 @@ public class DeviceGroupResource {
         return Response.ok().build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     public PagedInfoList getDevicesOfStaticDeviceGroup(@PathParam("id") long deviceGroupId, @BeanParam JsonQueryParameters queryParameters) {
         EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
-        List<Device> devices = Collections.emptyList();
+        List<Device> devices;
         if (endDeviceGroup.isDynamic()) {
-            Finder<?> finder = findDeviceSearchDomainOrThrowException().finderFor(((QueryEndDeviceGroup) endDeviceGroup).getSearchablePropertyConditions());
-            devices = finder.from(queryParameters).find().stream().map(Device.class::cast).collect(Collectors.toList());
+            devices = fetchDevicesOfQueryEndDeviceGroup((QueryEndDeviceGroup) endDeviceGroup, queryParameters);
         } else {
-            List<? extends EndDevice> endDevices;
-            if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
-                endDevices = endDeviceGroup.getMembers(Instant.now(), queryParameters.getStart().get(), queryParameters.getLimit().get());
-            } else {
-                endDevices = endDeviceGroup.getMembers(Instant.now());
-            }
-            if (!endDevices.isEmpty()) {
-                Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(toList()));
-                devices = deviceService.findAllDevices(mdcMembers).sorted("mRID", true).stream().collect(toList());
-            }
+            devices = fetchDevicesOfEnumEndDeviceGroup((EnumeratedEndDeviceGroup) endDeviceGroup, queryParameters);
         }
         return PagedInfoList.fromPagedList("devices", DeviceGroupMemberInfo.from(devices), queryParameters);
+    }
+
+    private List<Device> fetchDevicesOfEnumEndDeviceGroup(EnumeratedEndDeviceGroup endDeviceGroup, JsonQueryParameters queryParameters) {
+        List<Device> devices = new ArrayList<>();
+        List<? extends EndDevice> endDevices;
+        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            endDevices = endDeviceGroup.getMembers(Instant.now(), queryParameters.getStart().get(), queryParameters.getLimit().get());
+        } else {
+            endDevices = endDeviceGroup.getMembers(Instant.now());
+        }
+        if (!endDevices.isEmpty()) {
+            Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(toList()));
+            devices = deviceService.findAllDevices(mdcMembers).sorted("mRID", true).stream().collect(toList());
+        }
+        return devices;
+    }
+
+    private List<Device> fetchDevicesOfQueryEndDeviceGroup(QueryEndDeviceGroup endDeviceGroup, JsonQueryParameters queryParameters) {
+        Finder<?> finder = findDeviceSearchDomainOrThrowException().finderFor(endDeviceGroup.getSearchablePropertyConditions());
+        return finder.from(queryParameters).find().stream().map(Device.class::cast).collect(Collectors.toList());
     }
 
     private SearchablePropertyValue[] buildSearchablePropertyConditions(DeviceGroupInfo deviceGroupInfo) {
