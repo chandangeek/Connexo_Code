@@ -113,7 +113,7 @@ public class QueryUsagePointGroupImplIT {
     @Test
     public void testPersistence() {
         UsagePoint usagePoint = null;
-        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
             usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(UP_MRID).create();
             ctx.commit();
@@ -121,9 +121,9 @@ public class QueryUsagePointGroupImplIT {
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            QueryUsagePointGroup queryUsagePointGroup = meteringGroupsService.createQueryUsagePointGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", UP_MRID)));
-            queryUsagePointGroup.setMRID("mine");
-            queryUsagePointGroup.save();
+            meteringGroupsService.createQueryUsagePointGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", UP_MRID)))
+                    .setMRID("mine")
+                    .create();
             ctx.commit();
         }
 

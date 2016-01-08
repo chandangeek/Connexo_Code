@@ -79,8 +79,8 @@ public enum TableSpecs {
             Table<EndDeviceGroup> table = dataModel.addTable(name(), EndDeviceGroup.class);
             table.map(AbstractEndDeviceGroup.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
-            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH + 4).map("mRID").add();
+            Column name = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("MRID").varChar(NAME_LENGTH + 4).map("mRID").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
@@ -89,7 +89,7 @@ public enum TableSpecs {
             table.column("SEARCHDOMAIN").varChar(NAME_LENGTH).map(QueryEndDeviceGroupImpl.Fields.SEARCH_DOMAIN.fieldName()).add();
             table.addAuditColumns();
             table.primaryKey("MTG_PK_ENUM_ED_GROUP").on(idColumn).add();
-            table.unique("MTG_U_ENUM_ED_GROUP").on(mRIDColumn).add();
+            table.unique("MTG_U_ENUM_ED_GROUP").on(name).add();
         }
     },
     MTG_ENUM_ED_IN_GROUP {

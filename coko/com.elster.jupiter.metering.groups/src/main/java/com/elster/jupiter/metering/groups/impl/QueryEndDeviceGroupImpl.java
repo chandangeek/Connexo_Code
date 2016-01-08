@@ -18,6 +18,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -29,6 +30,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEndDeviceGroup {
 
@@ -47,6 +49,8 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
         }
     }
 
+    @NotNull
+    private String queryProviderName;
     @NotNull
     private String searchDomain;
 
@@ -78,10 +82,10 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     @Override
     public EndDeviceQueryProvider getEndDeviceQueryProvider() {
         try {
-            return meteringGroupService.pollEndDeviceQueryProvider(getQueryProviderName(), Duration.ofMinutes(1)).orElseThrow(() -> new NoSuchQueryProvider(getQueryProviderName()));
+            return meteringGroupService.pollEndDeviceQueryProvider(queryProviderName, Duration.ofMinutes(1)).orElseThrow(() -> new NoSuchQueryProvider(queryProviderName));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new NoSuchQueryProvider(getQueryProviderName());
+            throw new NoSuchQueryProvider(queryProviderName);
         }
     }
 
@@ -101,12 +105,12 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     }
 
     void save() {
-        Save.CREATE.save(dataModel, this);
+        Save.CREATE.save(getDataModel(), this);
     }
 
     @Override
     public void update() {
-        Save.UPDATE.save(dataModel, this);
+        Save.UPDATE.save(getDataModel(), this);
     }
 
     @Override
@@ -121,11 +125,11 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
 
     @Override
     public List<SearchablePropertyValue> getSearchablePropertyValues() {
-        return findSearchDomainOrThrowException().getPropertiesValues(this::mapper);
+        return getSearchDomain().getPropertiesValues(this::mapper);
     }
 
     private SearchBuilder<?> getSearchBuilder() {
-        SearchDomain searchDomain = findSearchDomainOrThrowException();
+        SearchDomain searchDomain = getSearchDomain();
         SearchBuilder<?> searchBuilder = this.searchService.search(searchDomain);
         searchDomain.getPropertiesValues(this::mapper).forEach(value -> {
             try {
@@ -135,11 +139,6 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
             }
         });
         return searchBuilder;
-    }
-
-    private SearchDomain findSearchDomainOrThrowException() {
-        return this.searchService.pollSearchDomain(this.searchDomain, Duration.ofMinutes(1))
-                .orElseThrow(() -> new InvalidQueryDeviceGroupException(thesaurus, MessageSeeds.SEARCH_DOMAIN_NOT_FOUND, this.searchDomain));
     }
 
     private SearchablePropertyValue mapper(SearchableProperty searchableProperty) {
@@ -174,10 +173,21 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
 
     @Override
     public SearchDomain getSearchDomain() {
-        return this.searchService.pollSearchDomain(this.searchDomain, Duration.ofMinutes(1)).get();
+        Supplier<InvalidQueryDeviceGroupException> noSuchDomainException =
+                () -> new InvalidQueryDeviceGroupException(thesaurus, MessageSeeds.SEARCH_DOMAIN_NOT_FOUND, this.searchDomain);
+        try {
+            return this.searchService.pollDomain(this.searchDomain, Duration.ofMinutes(1)).orElseThrow(noSuchDomainException);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw noSuchDomainException.get();
+        }
     }
 
     List<QueryEndDeviceGroupCondition> getConditions() {
         return conditions;
+    }
+
+    void setQueryProviderName(String queryProviderName) {
+        this.queryProviderName = queryProviderName;
     }
 }
