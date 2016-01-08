@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.device.data.QueueMessage;
@@ -52,10 +53,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -109,7 +108,7 @@ public class ConnectionResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/connectiontypepluggableclasses")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -123,7 +122,7 @@ public class ConnectionResource {
         return Response.ok(map).build();
     }
 
-    @GET
+    @GET @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -173,8 +172,15 @@ public class ConnectionResource {
 
         filter.latestResults = new HashSet<>();
         if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
+            List <String> defaultIndicators  = jsonQueryFilter.getStringList(FilterOption.latestResults.name());
+            List <String> trimmedIndicators = new ArrayList<String>();
+            int i = 0;
+            while (i < defaultIndicators.size()) {
+                trimmedIndicators.add(defaultIndicators.get(i).substring(defaultIndicators.get(i).indexOf(".") + 1));
+                i++;
+            }
             List<ComSession.SuccessIndicator> latestResults =
-                    jsonQueryFilter.getStringList(FilterOption.latestResults.name()).stream().map(ComSession.SuccessIndicator::valueOf).collect(Collectors.toList());
+                    trimmedIndicators.stream().map(ComSession.SuccessIndicator::valueOf).collect(Collectors.toList());
             filter.latestResults.addAll(latestResults);
         }
 
@@ -258,7 +264,7 @@ public class ConnectionResource {
         return jsonQueryFilter;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{connectionId}/latestcommunications")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -276,7 +282,7 @@ public class ConnectionResource {
         return PagedInfoList.fromPagedList("communications", comTaskExecutionSessionInfoFactory.from(comTaskExecutionSessions), queryParameters);
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{connectionId}/run")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -305,7 +311,7 @@ public class ConnectionResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/run")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -334,7 +340,7 @@ public class ConnectionResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/properties")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -348,7 +354,7 @@ public class ConnectionResource {
         return Response.ok(info).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/properties")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)

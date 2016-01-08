@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -38,6 +39,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -83,7 +85,7 @@ public class CommunicationResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -92,14 +94,19 @@ public class CommunicationResource {
         if (!queryParameters.getStart().isPresent() || !queryParameters.getLimit().isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<ComTaskExecution> communicationTasks = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart().get(), queryParameters.getLimit().get() + 1);
-        List<ComTaskExecutionInfo> comTaskExecutionInfos =
-                communicationTasks
-                        .stream()
-                        .map(this::toComTaskExecutionInfo)
-                        .collect(Collectors.toList());
+        try {
+            List<ComTaskExecution> communicationTasks = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart().get(), queryParameters.getLimit().get() + 1);
+            List<ComTaskExecutionInfo> comTaskExecutionInfos =
+                    communicationTasks
+                            .stream()
+                            .map(this::toComTaskExecutionInfo)
+                            .collect(Collectors.toList());
+            return Response.ok(PagedInfoList.fromPagedList("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
 
-        return Response.ok(PagedInfoList.fromPagedList("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
+        } catch (IllegalArgumentException e){
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(
+                    "{\"success\": false, \"message\": \"" + e.getMessage() + "\",\"errors\": [{\"message\": \"" + e.getMessage() + "\"}]}").build());
+        }
     }
 
     private ComTaskExecutionInfo toComTaskExecutionInfo(ComTaskExecution comTaskExecution) {
@@ -107,7 +114,7 @@ public class CommunicationResource {
         return this.comTaskExecutionInfoFactory.from(comTaskExecution, lastComTaskExecutionSession);
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{comTaskExecId}/run")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -124,7 +131,7 @@ public class CommunicationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{comTaskExecId}/runnow")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -141,7 +148,7 @@ public class CommunicationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/run")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -153,7 +160,7 @@ public class CommunicationResource {
         return queueCommunicationBulkAction(communicationsBulkRequestInfo, "scheduleNow");
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/runnow")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
