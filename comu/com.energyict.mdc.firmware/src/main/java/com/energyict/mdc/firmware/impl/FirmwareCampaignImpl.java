@@ -1,15 +1,5 @@
 package com.energyict.mdc.firmware.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -23,6 +13,16 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -215,10 +215,13 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         if (firmwareMessageSpec.isPresent()){
             Map<String, Object> convertedProperties = new HashMap<>();
             for (FirmwareCampaignProperty property : properties) {
-                PropertySpec propertySpec = firmwareMessageSpec.get().getPropertySpec(property.getKey());
-                if (propertySpec != null){
-                    convertedProperties.put(property.getKey(), propertySpec.getValueFactory().fromStringValue(property.getValue()));
-                }
+                firmwareMessageSpec
+                        .get()
+                        .getPropertySpec(property.getKey())
+                        .ifPresent(propertySpec ->
+                                convertedProperties.put(
+                                        property.getKey(),
+                                        propertySpec.getValueFactory().fromStringValue(property.getValue())));
             }
             return convertedProperties;
         }
