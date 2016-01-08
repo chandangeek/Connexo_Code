@@ -1,20 +1,6 @@
 package com.elster.jupiter.properties.impl;
 
-import com.elster.jupiter.properties.BasicPropertySpec;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
-import com.elster.jupiter.properties.BoundedLongPropertySpecImpl;
-import com.elster.jupiter.properties.CanFindByStringKey;
-import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.ListValuePropertySpec;
-import com.elster.jupiter.properties.LongFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.RelativePeriodFactory;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.StringReferenceFactory;
-import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.*;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import org.osgi.service.component.annotations.Component;
@@ -131,6 +117,14 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     public PropertySpec boundedDecimalPropertySpec(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit) {
         BoundedBigDecimalPropertySpecImpl propertySpec = new BoundedBigDecimalPropertySpecImpl(name, lowerLimit, upperLimit);
         propertySpec.setRequired(required);
+        return propertySpec;
+    }
+
+    @Override
+    public PropertySpec boundedDecimalPropertySpecWithDefaultValue(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit, BigDecimal defaultValue) {
+        BoundedBigDecimalPropertySpecImpl propertySpec = new BoundedBigDecimalPropertySpecImpl(name, lowerLimit, upperLimit);
+        propertySpec.setRequired(required);
+        propertySpec.setPossibleValues(new PropertySpecPossibleValuesImpl(defaultValue, false));
         return propertySpec;
     }
 

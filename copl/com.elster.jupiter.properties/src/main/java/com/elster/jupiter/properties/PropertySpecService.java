@@ -1,7 +1,6 @@
 package com.elster.jupiter.properties;
 
 import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.time.RelativePeriod;
 
 import java.math.BigDecimal;
@@ -89,6 +88,19 @@ public interface PropertySpecService {
      * @return The PropertySpec
      */
     public PropertySpec boundedDecimalPropertySpec (String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit);
+
+    /**
+     * Creates a {@link PropertySpec} for BigDecimal values that are limited between the lowerLimit and the
+     * upperLimit (inclusive), and that have a lost of possible values and a default value.
+     *
+     * @param name           The name of the PropertySpec
+     * @param required       A flag that indicates if the PropertySpec should be required or not
+     * @param lowerLimit     The lowest value allowed
+     * @param upperLimit     The largest value allowed
+     * @param defaultValue   The default value
+     * @return The PropertySpec
+     */
+    public PropertySpec boundedDecimalPropertySpecWithDefaultValue(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit, BigDecimal defaultValue);
 
     /**
      * Creates a {@link PropertySpec} for ListValue values that can have single or multiple values at the same time.
