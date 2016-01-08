@@ -235,7 +235,7 @@ public class MdcPropertyUtils {
                 return new TimeDuration("" + count + " " + timeUnit);
             }
             catch (LocalizedFieldValidationException e) {
-                throw new LocalizedFieldValidationException(e.getMessageSeed(), getTranslatedPropertyName(propertySpec) + "." + e.getViolatingProperty(), e.getArgs());
+                throw new LocalizedFieldValidationException(e.getMessageSeed(), propertySpec.getName() + "." + e.getViolatingProperty(), e.getArgs());
             }
         } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), String.class)) {
             return value;
