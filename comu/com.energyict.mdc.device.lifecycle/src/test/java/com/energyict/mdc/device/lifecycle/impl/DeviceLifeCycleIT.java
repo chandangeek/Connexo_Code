@@ -3,7 +3,10 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.impl.TableSpecs;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
@@ -39,7 +42,9 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
 
     @Before
     public void restoreDefaultLifeCycle() {
+        this.inMemoryPersistence.getService(OrmService.class).invalidateCache(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name());
         this.changeInitialState(DefaultState.IN_STOCK);
+
     }
 
     @Test
