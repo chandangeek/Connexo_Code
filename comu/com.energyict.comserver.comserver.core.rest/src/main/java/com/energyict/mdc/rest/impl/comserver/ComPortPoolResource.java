@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -70,7 +70,7 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
-    public ComPortPoolInfo<?> getComPortPool(@PathParam("id") long id) {
+    public ComPortPoolInfo getComPortPool(@PathParam("id") long id) {
         return engineConfigurationService
                 .findComPortPool(id)
                 .map(comPortPool -> comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService))
@@ -85,7 +85,7 @@ public class ComPortPoolResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getAllComPortPools(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        List<ComPortPoolInfo<?>> comPortPoolInfos = new ArrayList<>();
+        List<ComPortPoolInfo> comPortPoolInfos = new ArrayList<>();
         List<ComPortPool> comPortPools = new ArrayList<>();
         String compatibleWithConnectionType = uriInfo.getQueryParameters().getFirst("compatibleWithConnectionType");
         String compatibleWithConnectionTask = uriInfo.getQueryParameters().getFirst("compatibleWithConnectionTask");
@@ -166,7 +166,7 @@ public class ComPortPoolResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> info, @Context UriInfo uriInfo) {
+    public ComPortPoolInfo updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> info, @Context UriInfo uriInfo) {
         ComPortPool comPortPool = resourceHelper.lockComPortPoolOrThrowException(info);
         info.writeTo(comPortPool, protocolPluggableService);
         if (comPortPool instanceof OutboundComPortPool) {

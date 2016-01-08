@@ -81,7 +81,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    public Response deleteComServer(@PathParam("id") long id, ComServerInfo<?,?> info) {
+    public Response deleteComServer(@PathParam("id") long id, ComServerInfo info) {
         info.id = id;
         try {
             resourceHelper.lockComServerOrThrowException(info).makeObsolete();
@@ -112,7 +112,7 @@ public class ComServerResource {
             allComPorts.addAll(outboundComPorts.get());
         }
 
-        for (ComPortInfo<?,?> comPortInfo : allComPorts) {
+        for (ComPortInfo comPortInfo : allComPorts) {
             comPortInfo.createNew(comServer, engineConfigurationService);
         }
         return Response.status(Response.Status.CREATED).entity(comServerInfoFactory.asInfo(comServer)).build();
