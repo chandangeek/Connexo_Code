@@ -47,7 +47,7 @@ public class BasicAuthentication implements Authentication {
                 user = SecurityToken.getInstance().verifyToken(authentication.substring(authentication.lastIndexOf(" ") + 1), request, response, userService);
             }
         }
-        return user.isPresent() ? allow(request, response, user.get(), refreshCookie) : deny(request, response);
+        return (user.isPresent() && !user.get().getPrivileges().isEmpty()) ? allow(request, response, user.get(), refreshCookie) : deny(request, response);
     }
 
     private boolean allow(HttpServletRequest request, HttpServletResponse response, User user, boolean refreshCookie) {
