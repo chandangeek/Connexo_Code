@@ -13,6 +13,7 @@ import com.energyict.protocol.MeterProtocolEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -54,7 +55,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         getEventPushNotificationParser().parseInboundFrame();
         collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
 
-        context.getLogger().info("Received inbound event notification. Message: '" + getMeterProtocolEvent().getMessage() + "', protocol code: '" + getMeterProtocolEvent().getProtocolCode() + "'");
+        context.logOnAllLoggerHandlers("Received inbound event notification. Message: '" + getMeterProtocolEvent().getMessage() + "', protocol code: '" + getMeterProtocolEvent().getProtocolCode() + "'", Level.INFO);
 
         if (isJoinAttempt()) {
             G3GatewayPSKProvider pskProvider = getPskProvider();
@@ -107,7 +108,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-27 17:05:58 +0100 (Fri, 27 Nov 2015)$";
+        return "$Date: 2016-01-08 15:05:08 +0200 (Fri, 08 Jan 2016)$";
     }
 
     @Override

@@ -37,6 +37,7 @@ import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -89,7 +90,7 @@ public class G3GatewayPSKProvider {
             //Close the TCP connection, this will also release the current association to the beacon.
             //The next inbound frame will set it up again.
             try {
-                context.getLogger().warning("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.");
+                context.logOnAllLoggerHandlers("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.", Level.WARNING);
                 if (tcpComChannel != null) {
                     this.tcpComChannel.close();
                 }
@@ -103,7 +104,7 @@ public class G3GatewayPSKProvider {
         if (joiningMacAddresses.isEmpty()) {
             try {
                 //Our job is done here (for now), release the association and close the TCP connection
-                context.getLogger().info("Successfully provided PSKs for all joining nodes, releasing the association and closing the TCP connection.");
+                context.logOnAllLoggerHandlers("Successfully provided PSKs for all joining nodes, releasing the association and closing the TCP connection.", Level.INFO);
                 if (tcpComChannel != null && gatewayProtocol != null) {
                     this.gatewayProtocol.logOff();
                     this.gatewayProtocol.terminate();
@@ -153,9 +154,9 @@ public class G3GatewayPSKProvider {
 
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
         OfflineDevice offlineDevice = context.getInboundDAO().goOffline(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
-        context.getLogger().info("Setting up a new outbound TCP connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)");
+        context.logOnAllLoggerHandlers("Setting up a new outbound TCP connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
         createTcpComChannel();
-        context.getLogger().info("Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)");
+        context.logOnAllLoggerHandlers("Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
         gatewayProtocol.setDeviceCache(dummyCache);
         gatewayProtocol.addProperties(protocolProperties);
         gatewayProtocol.addDeviceProtocolDialectProperties(dialectProperties);
@@ -233,17 +234,17 @@ public class G3GatewayPSKProvider {
                                 Structure macAndKeyPair = createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier);
                                 macKeyPairs.addDataType(macAndKeyPair);
                                 finishedNodes.add(macAddress);
-                                context.getLogger().info("Providing PSK key for joining module '" + macAddress + "'");
+                                context.logOnAllLoggerHandlers("Providing PSK key for joining module '" + macAddress + "'", Level.INFO);
                             } else {
-                                context.getLogger().warning("Device with MAC address " + macAddress + " has an invalid PSK property: '" + psk + "'. Should be 32 hex characters. Skipping.");
+                                context.logOnAllLoggerHandlers("Device with MAC address " + macAddress + " has an invalid PSK property: '" + psk + "'. Should be 32 hex characters. Skipping.", Level.WARNING);
                                 joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                             }
                         } else {
-                            context.getLogger().warning("Device with MAC address " + macAddress + " does not have a PSK property in EIServer, skipping.");
+                            context.logOnAllLoggerHandlers("Device with MAC address " + macAddress + " does not have a PSK property in EIServer, skipping.", Level.WARNING);
                             joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                         }
                     } else {
-                        context.getLogger().warning("No unique device with MAC address " + macAddress + " exists in EIServer, cannot provide PSK key. Skipping.");
+                        context.logOnAllLoggerHandlers("No unique device with MAC address " + macAddress + " exists in EIServer, cannot provide PSK key. Skipping.", Level.WARNING);
                         joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                     }
                 }
