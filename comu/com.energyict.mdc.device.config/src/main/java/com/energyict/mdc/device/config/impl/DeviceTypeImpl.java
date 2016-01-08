@@ -45,6 +45,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -250,7 +251,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public List<RegisteredCustomPropertySet> getDeviceTypeCustomPropertySetUsage() {
+    public List<RegisteredCustomPropertySet> getCustomPropertySets() {
         return deviceTypeCustomPropertySetUsages
                 .stream()
                 .map(DeviceTypeCustomPropertySetUsageImpl::getRegisteredCustomPropertySet)
@@ -258,14 +259,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void addDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet) {
+    public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
         DeviceTypeCustomPropertySetUsageImpl deviceTypeCustomPropertySetUsage = getDataModel().getInstance(DeviceTypeCustomPropertySetUsageImpl.class).initialize(this, registeredCustomPropertySet);
         this.deviceTypeCustomPropertySetUsages.add(deviceTypeCustomPropertySetUsage);
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
     @Override
-    public void removeDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet) {
+    public void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
         Optional<DeviceTypeCustomPropertySetUsageImpl> deviceTypeCustomPropertySetUsage = this.deviceTypeCustomPropertySetUsages.stream()
                 .filter(f -> f.getDeviceType().getId() == this.getId())
                 .filter(f -> f.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
@@ -444,7 +445,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void addLoadProfileType(LoadProfileType loadProfileType) {
         for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : this.loadProfileTypeUsages) {
             if (loadProfileTypeUsage.sameLoadProfileType(loadProfileType)) {
-                throw new LoadProfileTypeAlreadyInDeviceTypeException(this, loadProfileType, this.getThesaurus(), MessageSeeds.DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE);
+                throw new LoadProfileTypeAlreadyInDeviceTypeException(this, loadProfileType, this.getThesaurus());
             }
         }
         DeviceTypeLoadProfileTypeUsage loadProfileTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeLoadProfileTypeUsage.class).initialize(this, loadProfileType);
@@ -520,7 +521,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void addLogBookType(LogBookType logBookType) {
         for (DeviceTypeLogBookTypeUsage logBookTypeUsage : this.logBookTypeUsages) {
             if (logBookTypeUsage.sameLogBookType(logBookType)) {
-                throw new LogBookTypeAlreadyInDeviceTypeException(this, logBookType, this.getThesaurus(), MessageSeeds.DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE);
+                throw new LogBookTypeAlreadyInDeviceTypeException(this, logBookType, this.getThesaurus());
             }
         }
         this.logBookTypeUsages.add(new DeviceTypeLogBookTypeUsage(this, logBookType));
@@ -533,7 +534,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void addRegisterType(RegisterType registerType) {
         for (DeviceTypeRegisterTypeUsage registerTypeUsage : this.registerTypeUsages) {
             if (registerTypeUsage.sameRegisterType(registerType)) {
-                throw new RegisterTypeAlreadyInDeviceTypeException(this, registerType, this.getThesaurus(), MessageSeeds.DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE);
+                throw new RegisterTypeAlreadyInDeviceTypeException(this, registerType, this.getThesaurus());
             }
         }
         DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeRegisterTypeUsage.class).initialize(this, registerType);
@@ -738,8 +739,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private interface NestedBuilder {
-
-        public void add();
+        void add();
     }
 
     private class ChannelSpecBuilder implements NestedBuilder {

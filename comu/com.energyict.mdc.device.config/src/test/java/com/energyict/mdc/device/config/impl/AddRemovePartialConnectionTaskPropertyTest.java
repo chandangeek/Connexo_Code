@@ -1,16 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -40,6 +29,16 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -127,12 +126,10 @@ public class AddRemovePartialConnectionTaskPropertyTest {
     @Mock
     private DeviceProtocol deviceProtocol;
     @Mock
-    private IdBusinessObjectFactory businessObjectFactory;
-    @Mock
     private DeviceConfiguration deviceConfiguration;
 
     @BeforeClass
-    public static void initializeDatabase() throws SQLException {
+    public static void initializeDatabase() {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn(AddRemovePartialConnectionTaskPropertyTest.class.getSimpleName());
@@ -154,7 +151,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
     }
 
     @AfterClass
-    public static void cleanUpDataBase() throws SQLException {
+    public static void cleanUpDataBase() {
         bootstrapModule.deactivate();
     }
 
@@ -212,14 +209,14 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         when(timeOutPropertySpec.isRequired()).thenReturn(false);
         when(timeOutPropertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
         when(this.connectionType.getPropertySpecs()).thenReturn(Arrays.asList(hostPropertySpec, portPropertySpec, timeOutPropertySpec));
-        when(this.connectionType.getPropertySpec(HOST_PROPERTY_SPEC_NAME)).thenReturn(hostPropertySpec);
-        when(this.connectionType.getPropertySpec(PORT_PROPERTY_SPEC_NAME)).thenReturn(portPropertySpec);
-        when(this.connectionType.getPropertySpec(TIMEOUT_PROPERTY_SPEC_NAME)).thenReturn(timeOutPropertySpec);
+        when(this.connectionType.getPropertySpec(HOST_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(hostPropertySpec));
+        when(this.connectionType.getPropertySpec(PORT_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(portPropertySpec));
+        when(this.connectionType.getPropertySpec(TIMEOUT_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(timeOutPropertySpec));
         when(this.connectionTypePluggableClass.getConnectionType()).thenReturn(this.connectionType);
         when(this.connectionTypePluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(hostPropertySpec, portPropertySpec, timeOutPropertySpec));
-        when(this.connectionTypePluggableClass.getPropertySpec(HOST_PROPERTY_SPEC_NAME)).thenReturn(hostPropertySpec);
-        when(this.connectionTypePluggableClass.getPropertySpec(PORT_PROPERTY_SPEC_NAME)).thenReturn(portPropertySpec);
-        when(this.connectionTypePluggableClass.getPropertySpec(TIMEOUT_PROPERTY_SPEC_NAME)).thenReturn(timeOutPropertySpec);
+        when(this.connectionTypePluggableClass.getPropertySpec(HOST_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(hostPropertySpec));
+        when(this.connectionTypePluggableClass.getPropertySpec(PORT_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(portPropertySpec));
+        when(this.connectionTypePluggableClass.getPropertySpec(TIMEOUT_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(timeOutPropertySpec));
     }
 
     private void initializeDataModel() {

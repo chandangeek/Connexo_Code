@@ -1,8 +1,5 @@
-package com.energyict.mdc.device.config.impl.deviceconfigchange;
+package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import org.fest.assertions.core.Condition;
@@ -46,7 +43,7 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(name, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(2);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -86,7 +83,7 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(name2, authenticationDeviceAccessLevel2, encryptionDeviceAccessLevel2);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(4);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -131,7 +128,7 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(name, authenticationDeviceAccessLevel2, encryptionDeviceAccessLevel2);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(4);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -175,7 +172,7 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(name2, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(2);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -210,7 +207,7 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet3 = mockSecurityPropertySet(name1, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(4);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -255,7 +252,7 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet3 = mockSecurityPropertySet(name1, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(4);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -306,7 +303,7 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet6 = mockSecurityPropertySet(name3, authenticationDeviceAccessLevel2, encryptionDeviceAccessLevel2);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet3, securityPropertySet4, securityPropertySet5, securityPropertySet6));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(8);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {

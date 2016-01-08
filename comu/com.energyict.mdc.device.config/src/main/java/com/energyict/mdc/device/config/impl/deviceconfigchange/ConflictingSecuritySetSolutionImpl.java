@@ -18,12 +18,10 @@ import java.util.stream.Collectors;
 @ActionTypeMapHasDestination(groups = {Save.Create.class, Save.Update.class}, getDestination = ConflictingSecuritySetSolutionImpl.DESTINATION_SECURITY_PROPERTY_SET_FIELD_NAME)
 public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution<SecurityPropertySet> implements ConflictingSecuritySetSolution {
 
+    /**
+     * Created a static field for this so it can be used in the javaxValidation annotation
+     */
     static final String DESTINATION_SECURITY_PROPERTY_SET_FIELD_NAME = "destinationSecurityPropertySet";
-
-    @Override
-    public List<SecurityPropertySet> getMappableToDataSources() {
-        return getConflictingMapping().getDestinationDeviceConfiguration().getSecurityPropertySets().stream().filter(securityPropertySet -> securityPropertySet.getAuthenticationDeviceAccessLevel().getId() == getOriginDataSource().getAuthenticationDeviceAccessLevel().getId() && securityPropertySet.getEncryptionDeviceAccessLevel().getId() == getOriginDataSource().getEncryptionDeviceAccessLevel().getId()).collect(Collectors.toList());
-    }
 
     public enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
@@ -40,14 +38,19 @@ public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution
         public String fieldName() {
             return javaFieldName;
         }
-    }
 
+    }
     private Reference<SecurityPropertySet> originSecurityPropertySet = ValueReference.absent();
     private Reference<SecurityPropertySet> destinationSecurityPropertySet = ValueReference.absent();
 
     @Inject
     public ConflictingSecuritySetSolutionImpl(DataModel dataModel) {
         super(dataModel);
+    }
+
+    @Override
+    public List<SecurityPropertySet> getMappableToDataSources() {
+        return getConflictingMapping().getDestinationDeviceConfiguration().getSecurityPropertySets().stream().filter(securityPropertySet -> securityPropertySet.getAuthenticationDeviceAccessLevel().getId() == getOriginDataSource().getAuthenticationDeviceAccessLevel().getId() && securityPropertySet.getEncryptionDeviceAccessLevel().getId() == getOriginDataSource().getEncryptionDeviceAccessLevel().getId()).collect(Collectors.toList());
     }
 
     @Override

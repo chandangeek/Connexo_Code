@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.config.impl.deviceconfigchange;
+package com.energyict.mdc.device.config;
 
 /**
  * Types of actions that can be performed on entities of a Device when one wants to

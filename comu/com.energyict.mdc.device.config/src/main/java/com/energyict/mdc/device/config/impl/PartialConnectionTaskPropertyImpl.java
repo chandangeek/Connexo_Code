@@ -13,6 +13,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link PartialConnectionTaskProperty} interface.
@@ -55,25 +56,23 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     }
 
     private Object getValueObjectFromStringValue(String propertyStringValue) {
-        PropertySpec propertySpec = this.getPropertySpec();
-        if (propertySpec != null) {
-            ValueFactory valueFactory = propertySpec.getValueFactory();
-            return valueFactory.fromStringValue(propertyStringValue);
+        Optional<PropertySpec> propertySpec = this.getPropertySpec();
+        if (propertySpec.isPresent()) {
+            return propertySpec.get().getValueFactory().fromStringValue(propertyStringValue);
         }
         return null;
     }
 
     private String asStringValue(Object value) {
-        PropertySpec propertySpec = this.getPropertySpec();
-        if (propertySpec != null) {
-            ValueFactory valueFactory = propertySpec.getValueFactory();
+        Optional<PropertySpec> propertySpec = this.getPropertySpec();
+        if (propertySpec.isPresent()) {
+            ValueFactory valueFactory = propertySpec.get().getValueFactory();
             if (valueFactory.getValueType().isInstance(value)) {
                 return valueFactory.toStringValue(value);
             }
             // else there is a value mismatch. Rather than fail fast on this value, we opt to delay until save/update, which will report on all invalid values at once
         }
         return null;
-
     }
 
     @Override
@@ -100,10 +99,11 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     }
 
     boolean isRequired() {
-        return this.getPropertySpec().isRequired();
+        Optional<PropertySpec> propertySpec = this.getPropertySpec();
+        return propertySpec.isPresent() && propertySpec.get().isRequired();
     }
 
-    private PropertySpec getPropertySpec() {
+    private Optional<PropertySpec> getPropertySpec() {
         return this.getPartialConnectionTask().getConnectionType().getPropertySpec(name);
     }
 

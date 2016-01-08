@@ -59,17 +59,17 @@ public class LinkableConfigResolverBySql implements LinkableConfigResolver {
         builder.append("select distinct(id) from ((select rs.deviceconfigid as id from dtc_registerspec rs where rs.registertypeid in" +
                 "  (select id from mds_measurementtype rm " +
                 "  where rm.readingtype in (select tivr.readingtypemrid from val_readingtypeinvalrule tivr " +
-                "    where tivr.ruleid in (select vr.id from val_validationrule vr where vr.rulesetid = ");
+                "    where tivr.ruleid in (select vr.id from val_validationrule vr where vr.rulesetversionid in (select id from val_validationrulesetversion vrsv where vrsv.rulesetid = ");
         builder.addLong(ruleSet.getId());
-        builder.append(") )))" +
+        builder.append(")) )))" +
                 " union" +
                 " (select lps.deviceconfigid as id from dtc_loadprofilespec lps where lps.id in " +
                 "  (select cs.loadprofilespecid from dtc_channelspec cs where cs.channeltypeid in" +
                 "  (select id from mds_measurementtype rm " +
                 "  where rm.readingtype in (select tivr.readingtypemrid from val_readingtypeinvalrule tivr " +
-                "    where tivr.ruleid in (select vr.id from val_validationrule vr where vr.rulesetid = ");
+                "    where tivr.ruleid in (select vr.id from val_validationrule vr where vr.rulesetversionid in (select id from val_validationrulesetversion vrsv where vrsv.rulesetid = ");
         builder.addLong(ruleSet.getId());
-        builder.append(") )))))" +
+        builder.append(")) )))))" +
                 "  where id not in (select rsu.deviceconfigid from DTC_DEVCFGVALRULESETUSAGE rsu where rsu.validationrulesetid = ");
         builder.addLong(ruleSet.getId());
         builder.append(")");

@@ -5,7 +5,6 @@ package com.energyict.mdc.device.config;
  * A solution will be either to
  * <ul>
  *     <li>Remove the origin SecuritySet</li>
- *     <li>Add the destination SecuritySet</li>
  *     <li>Map the origin SecuritySet to the destination SecuritySet</li>
  * </ul>
  */

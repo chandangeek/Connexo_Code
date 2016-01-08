@@ -1187,6 +1187,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             }
         }
         return null;
+
     }
 
     @Override
@@ -1196,7 +1197,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         getDataModel().touch(this);
     }
 
-    public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes) {
+    @Override
+    public List<ValidationRule> getValidationRules(Collection<? extends ReadingType> readingTypes) {
         List<ValidationRule> result = new ArrayList<>();
         List<ValidationRuleSet> ruleSets = getValidationRuleSets();
         for (ValidationRuleSet ruleSet : ruleSets) {
