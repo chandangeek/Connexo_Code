@@ -149,14 +149,12 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     }
 
     void setInitialState(State newInitialState) {
-        Optional<StateImpl> oldInitialState = findInitialState();
-        if (oldInitialState.isPresent()) {
-            oldInitialState.get().setInitial(false);
-        }
+        this.findInitialState().ifPresent(s -> s.setInitial(false));
         this.states
                 .stream()
                 .filter(Predicates.not(StateImpl::isObsolete))
-                .filter(candidate -> candidate == newInitialState || newInitialState.getId() > 0 && newInitialState.getId() == candidate.getId())
+                .filter(candidate -> candidate.equals(newInitialState))
+                .filter(candidate -> !candidate.isInitial())
                 .findFirst()
                 .ifPresent(state -> state.setInitial(true));
     }
