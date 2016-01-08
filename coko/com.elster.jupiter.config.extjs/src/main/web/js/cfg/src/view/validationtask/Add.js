@@ -75,7 +75,10 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 xtype: 'combobox',
                                 name: 'grouptypeTrigger',
                                 width: 235,
-                                store: ['End Device', 'Usage Point'],
+                                store: [
+                                    ['dg', Uni.I18n.translate('general.group.device', 'CFG', 'End device')],
+                                    ['upg', Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage point')]
+                                ],
                                 queryMode: 'local'
                             }
                         ]
