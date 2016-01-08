@@ -9,7 +9,9 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.impl.TableSpecs;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -135,6 +137,7 @@ public class AuthorizedActionRequestFactoryIT {
 
     @Before
     public void setupResourceHelper() {
+        this.inMemoryPersistence.getService(OrmService.class).invalidateCache(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name());
         this.resourceHelper =
                 new ResourceHelper(
                         getDeviceLifeCycleConfigurationService(),
