@@ -7,8 +7,6 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -57,45 +55,36 @@ public class CurrentPeriodTable extends AbstractTable{
 
 	public String toString(){
 
-		 StringBuffer strBuff = new StringBuffer();
-		 strBuff.append("CurrentPeriodTable:\n");
-		 strBuff.append("TimeStamp: " + getTimeStamp() +  "\n");
-		 strBuff.append("Tarif: " + getTarif() + "\n");
-		 strBuff.append("A+ PM: " + getActiveEnergy(pointeMobile) + "\n");
-		 strBuff.append("A+ P: "  + getActiveEnergy(pointe) + "\n");
-		 strBuff.append("A+ HPH: " + getActiveEnergy(pleinesdHiver) + "\n");
-		 strBuff.append("A+ HCH:" + getActiveEnergy(creusesdHiver) + "\n");
-		 strBuff.append("A+ HPE: " + getActiveEnergy(pleinesdEte) + "\n");
-		 strBuff.append("A+ HCE: " + getActiveEnergy(creusesdEte) + "\n");
-
-		 strBuff.append("Duration exceeding zoneA " + getDurationExceedingPower(zoneA) + "\n");
-		 strBuff.append("Duration exceeding zoneB " + getDurationExceedingPower(zoneB) + "\n");
-		 strBuff.append("Duration exceeding zoneC " + getDurationExceedingPower(zoneC) + "\n");
-		 strBuff.append("Duration exceeding zondD " + getDurationExceedingPower(zoneD) + "\n");
-
-		 strBuff.append("Max demand zoneA " + getMaxDemand(zoneA) + "\n");
-		 strBuff.append("Max demand zoneB " + getMaxDemand(zoneB) + "\n");
-		 strBuff.append("Max demand zoneC " + getMaxDemand(zoneC) + "\n");
-		 strBuff.append("Max demand zoneD " + getMaxDemand(zoneD) + "\n");
-
-		 strBuff.append("Exceeding power zoneA " + getExceedingPower(zoneA) + "\n");
-		 strBuff.append("Exceeding power zoneB " + getExceedingPower(zoneB) + "\n");
-		 strBuff.append("Exceeding power zoneC " + getExceedingPower(zoneC) + "\n");
-		 strBuff.append("Exceeding power zoneD " + getExceedingPower(zoneD) + "\n");
-
-		 strBuff.append("Coefficient zoneA " + getCoefficient(zoneA) + "\n");
-		 strBuff.append("Coefficient zoneB " + getCoefficient(zoneB) + "\n");
-		 strBuff.append("Coefficient zoneC " + getCoefficient(zoneC) + "\n");
-		 strBuff.append("Coefficient zoneD " + getCoefficient(zoneD) + "\n");
-
-		 strBuff.append("Get tarifVersion next period: " + getTarifVersionNextPeriod() + "\n");
-
-		 strBuff.append("Duration zoneA " + getTarifDuration(zoneA) + "\n");
-		 strBuff.append("Duration zoneB " + getTarifDuration(zoneB) + "\n");
-		 strBuff.append("Duration zoneC " + getTarifDuration(zoneC) + "\n");
-		 strBuff.append("Duration zoneD " + getTarifDuration(zoneD) + "\n");
-
-		 return strBuff.toString();
+		return "CurrentPeriodTable:\n" +
+				"TimeStamp: " + getTimeStamp() + "\n" +
+				"Tarif: " + getTarif() + "\n" +
+				"A+ PM: " + getActiveEnergy(pointeMobile) + "\n" +
+				"A+ P: " + getActiveEnergy(pointe) + "\n" +
+				"A+ HPH: " + getActiveEnergy(pleinesdHiver) + "\n" +
+				"A+ HCH:" + getActiveEnergy(creusesdHiver) + "\n" +
+				"A+ HPE: " + getActiveEnergy(pleinesdEte) + "\n" +
+				"A+ HCE: " + getActiveEnergy(creusesdEte) + "\n" +
+				"Duration exceeding zoneA " + getDurationExceedingPower(zoneA) + "\n" +
+				"Duration exceeding zoneB " + getDurationExceedingPower(zoneB) + "\n" +
+				"Duration exceeding zoneC " + getDurationExceedingPower(zoneC) + "\n" +
+				"Duration exceeding zondD " + getDurationExceedingPower(zoneD) + "\n" +
+				"Max demand zoneA " + getMaxDemand(zoneA) + "\n" +
+				"Max demand zoneB " + getMaxDemand(zoneB) + "\n" +
+				"Max demand zoneC " + getMaxDemand(zoneC) + "\n" +
+				"Max demand zoneD " + getMaxDemand(zoneD) + "\n" +
+				"Exceeding power zoneA " + getExceedingPower(zoneA) + "\n" +
+				"Exceeding power zoneB " + getExceedingPower(zoneB) + "\n" +
+				"Exceeding power zoneC " + getExceedingPower(zoneC) + "\n" +
+				"Exceeding power zoneD " + getExceedingPower(zoneD) + "\n" +
+				"Coefficient zoneA " + getCoefficient(zoneA) + "\n" +
+				"Coefficient zoneB " + getCoefficient(zoneB) + "\n" +
+				"Coefficient zoneC " + getCoefficient(zoneC) + "\n" +
+				"Coefficient zoneD " + getCoefficient(zoneD) + "\n" +
+				"Get tarifVersion next period: " + getTarifVersionNextPeriod() + "\n" +
+				"Duration zoneA " + getTarifDuration(zoneA) + "\n" +
+				"Duration zoneB " + getTarifDuration(zoneB) + "\n" +
+				"Duration zoneC " + getTarifDuration(zoneC) + "\n" +
+				"Duration zoneD " + getTarifDuration(zoneD) + "\n";
 	}
 
 	protected void parse(byte[] data) throws IOException {
@@ -158,26 +147,6 @@ public class CurrentPeriodTable extends AbstractTable{
 			}
 		}
 
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		try{
-			CurrentPeriodTable cpt = new CurrentPeriodTable(null);
-
-	        File file = new File("c://TEST_FILES/CurrentPeriodTable.bin");
-	        FileInputStream fis = new FileInputStream(file);
-	        byte[] data=new byte[(int)file.length()];
-	        fis.read(data);
-	        fis.close();
-	        cpt.parse(data);
-	        System.out.println(cpt.toString());
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
 	}
 
 	public int getTarif() {

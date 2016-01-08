@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.protocolimpl.dlms.g3.messaging.G3MessagingSagemCom;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
+
+import com.energyict.protocolimpl.dlms.g3.messaging.G3MessagingSagemCom;
 
 import javax.inject.Inject;
 
@@ -16,8 +18,8 @@ import javax.inject.Inject;
 public class SagemCom extends AS330D {
 
     @Inject
-    public SagemCom(OrmClient ormClient) {
-        super(ormClient);
+    public SagemCom(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService, ormClient);
     }
 
     @Override

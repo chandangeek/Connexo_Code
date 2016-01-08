@@ -1,11 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging.EMeterMessaging;
 
 import java.io.IOException;
@@ -24,12 +26,12 @@ public class EMeter extends SlaveMeter implements MessageProtocol {
         return new EMeterMessaging();
     }
 
-    public EMeter(){
-        super();
+    public EMeter(PropertySpecService propertySpecService){
+        super(propertySpecService);
     }
 
-    public EMeter(WebRTUZ3 meterProtocol, String serialNumber, int physicalAddress) {
-        super(meterProtocol, serialNumber, physicalAddress);
+    public EMeter(PropertySpecService propertySpecService, WebRTUZ3 meterProtocol, String serialNumber, int physicalAddress) {
+        super(propertySpecService, meterProtocol, serialNumber, physicalAddress);
     }
 
     /**
@@ -107,4 +109,5 @@ public class EMeter extends SlaveMeter implements MessageProtocol {
     public List getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
+
 }

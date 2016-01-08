@@ -1,17 +1,10 @@
 package com.energyict.protocolimpl.generic.csvhandling;
 
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.UserFileShadow;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class CSVParser {
-	
+
 	private String rawText;
 	private List lines = new ArrayList();
 
@@ -25,15 +18,15 @@ public class CSVParser {
 			endOffset = this.rawText.indexOf(new String(new byte[]{0x0D, 0x0A}), beginOffset+1);
 		}
 	}
-	
+
 	public TestObject getTestObject(int index){
 		return (TestObject)this.lines.get(index);
 	}
-	
+
 	public int size(){
 		return this.lines.size();
 	}
-	
+
 	public int getValidSize(){
 		int count = 0;
 		for(int i = 0; i < size(); i++){
@@ -42,8 +35,8 @@ public class CSVParser {
 			}
 		}
 		return count;
-	}	
-	
+	}
+
 	public boolean isValidLine(TestObject to){
 		if(to.size() == 0){
 			return false;
@@ -71,74 +64,6 @@ public class CSVParser {
 			return false;
 		}
 		}
-	}
-	
-	public static void main(String args[])throws IOException {
-		try {
-//			Utilities.createEnvironment();
-//			MeteringWarehouse.createBatchContext(false);
-//			MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-//			int id = 460;
-//			UserFile uf = mw.getUserFileFactory().find(id);
-//
-//			CSVParser csvParser = new CSVParser();
-//			csvParser.parse(uf.loadFileInByteArray());
-//			System.out.println(csvParser.rawText);
-//			System.out.println(((TestObject)csvParser.lines.get(1)).getObisCode());
-//			System.out.println(((TestObject)csvParser.lines.get(2)).getData());
-//			System.out.println(((TestObject)csvParser.lines.get(3)).getData());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-
-	public UserFileShadow convertResultToUserFile(UserFile uf, int folderId) throws IOException {
-		UserFileShadow ufs = new UserFileShadow();
-		ufs.setName(createFileName(uf.getName()));
-		ufs.setExtension("csv");
-//		ufs.setFolderId(folderId);
-		File file = File.createTempFile("Tempfile", ".csv");
-		FileOutputStream fos = new FileOutputStream(file);
-        fos.write(convertToByteArray());
-        fos.close();
-        file.deleteOnExit();
-        ufs.setFile(file);
-        return ufs;
-	}
-	
-	private String createFileName(String ufName){
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(System.currentTimeMillis());
-		
-		String name = "Result - " + ufName + " "
-			+ cal.get(Calendar.YEAR) + "-"
-			+ (cal.get(Calendar.MONTH)+1)+ "-"
-			+ cal.get(Calendar.DAY_OF_MONTH) + " "
-			+ cal.get(Calendar.HOUR_OF_DAY) + "h"
-			+ cal.get(Calendar.MINUTE) + "m"
-			+ cal.get(Calendar.SECOND) + "s";
-		return name;
-	}
-	
-	
-	private byte[] convertToByteArray(){
-		int offset = 0;
-		StringBuffer strBuffer = new StringBuffer();
-		for(int i = 0; i < this.lines.size(); i++){
-			TestObject to = (TestObject)this.lines.get(i);
-			if(!to.getString(0).equalsIgnoreCase("")){
-				for(int j = 0; j < to.size(); j++){
-					strBuffer.append(to.getString(j));
-					if(j != to.size()){
-						strBuffer.append(";");
-					}
-				}
-				strBuffer.append(new String(new byte[]{0x0D, 0x0A}));
-			}
-		}
-		return strBuffer.toString().getBytes();
 	}
 
 	public void addLine(String string) {

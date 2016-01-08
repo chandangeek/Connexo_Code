@@ -1,95 +1,91 @@
 package com.energyict.protocolimpl.kenda.medo;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+/**
+ * ---------------------------------------------------------------------------------<p>
+ * Medo Protocol description:<p>
+ * The protocol consists out of layers<p>
+ * <p/>
+ * 1) The deepest layer is the Parsers layer.  Part of the layer has been made
+ * static and made abstract.  The second layer extends this class.
+ * <p/>
+ * 2) All registers are implemented in classes. The classes always implement the
+ * type of methods: process to parse (deserializes) the byte array in the
+ * object variables,printData visualizes the data matrix (parsed) in the console
+ * and parseToByteArray serializes the object.
+ * <p/>
+ * 3) The MedoCommunicationsFactory deals with all the communication issues.  It
+ * arranges the data flows and communication.  It starts with sending the command
+ * and getting back the right object to parse the data in.  Also the profileData
+ * factory is implemented in this class.
+ * <p/>
+ * 4) This class: Medo.java masters and is the interface from the server
+ * <p/>
+ * Additional classes are implemented mostly to help in the Unit testing.
+ * <p/>
+ * no information on STPERIOD in code 7 can be found, therefore 2 possible implementations
+ * are made, use the properties profileDataPointer to give the starting year of counting
+ * to the protocol.
+ * <p/>
+ * Initial version:<p>
+ * ----------------<p>
+ * Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ * Version: 1.0 <p>
+ * First edit date: 1/07/2008 PST<p>
+ * Last edit date: 13/08/2008  PST<p>
+ * Comments: Beta ready for testing<p>
+ * Released for testing: 13/08/2008<p>
+ * <p/>
+ * Revisions<p>
+ * ----------------<p>
+ * Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ * Version:1.01<p>
+ * First edit date: 26/08/2008<p>
+ * Last edit date: 29/08/2008<p>
+ * Comments: Problems in the profile data read solved. In the MedoRequestReadMeterDemands
+ * on line 23-29 there will be an adaptation, stperiod number is not yet completely reverse
+ * engineered (december last year problem) a flag in the properties has been added<p>
+ * released for testing: 29/08/2008<p>
+ *
+ * @author Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ * @version 1.02 <p>
+ * First edit date: 29/08/2008 PST<p>
+ * Last edit date: 1/09/2008  PST<p>
+ * Comments: Beta+ ready for testing<p>
+ * Released for testing: 1/09/2008<p>
+ */
 public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
 
-    /**
-     * ---------------------------------------------------------------------------------<p>
-     * Medo Protocol description:<p>
-     * The protocol consists out of layers<p>
-     * <p/>
-     * 1) The deepest layer is the Parsers layer.  Part of the layer has been made
-     * static and made abstract.  The second layer extends this class.
-     * <p/>
-     * 2) All registers are implemented in classes. The classes always implement the
-     * type of methods: process to parse (deserializes) the byte array in the
-     * object variables,printData visualizes the data matrix (parsed) in the console
-     * and parseToByteArray serializes the object.
-     * <p/>
-     * 3) The MedoCommunicationsFactory deals with all the communication issues.  It
-     * arranges the data flows and communication.  It starts with sending the command
-     * and getting back the right object to parse the data in.  Also the profileData
-     * factory is implemented in this class.
-     * <p/>
-     * 4) This class: Medo.java masters and is the interface from the server
-     * <p/>
-     * Additional classes are implemented mostly to help in the Unit testing.
-     * <p/>
-     * no information on STPERIOD in code 7 can be found, therefore 2 possible implementations
-     * are made, use the properties profileDataPointer to give the starting year of counting
-     * to the protocol.
-     * <p/>
-     * Initial version:<p>
-     * ----------------<p>
-     * Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-     * Version: 1.0 <p>
-     * First edit date: 1/07/2008 PST<p>
-     * Last edit date: 13/08/2008  PST<p>
-     * Comments: Beta ready for testing<p>
-     * Released for testing: 13/08/2008<p>
-     * <p/>
-     * Revisions<p>
-     * ----------------<p>
-     * Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-     * Version:1.01<p>
-     * First edit date: 26/08/2008<p>
-     * Last edit date: 29/08/2008<p>
-     * Comments: Problems in the profile data read solved. In the MedoRequestReadMeterDemands
-     * on line 23-29 there will be an adaptation, stperiod number is not yet completely reverse
-     * engineered (december last year problem) a flag in the properties has been added<p>
-     * released for testing: 29/08/2008<p>
-     *
-     * @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-     * @Version: 1.02 <p>
-     * First edit date: 29/08/2008 PST<p>
-     * Last edit date: 1/09/2008  PST<p>
-     * Comments: Beta+ ready for testing<p>
-     * Released for testing: 1/09/2008<p>
-     * <p/>
-     * ---------------------------------------------------------------------------------<p>
-     */
-
-    private OutputStream outputStream;
-    private InputStream inputStream;
     private MedoCommunicationsFactory mcf;
     private int outstationID, retry, timeout, delayAfterConnect;
 
@@ -113,39 +109,17 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     // Ack bit, first block bit, last block bit, R/W, 4 bit operation select
 
     // operation select codes, lowest 5 bit of ident
-    private static final byte RESERVED = 0x00;          // internal DIP/Central System function
     private static final byte fullPersTableRead = 0x01;      // ram initialised, table defines modes
-    private static final byte fullPersTableWrite = 0x11;    // ... page 6/16 medo communications protocol
-    private static final byte extendedPersTableRead = 0x02;
-    private static final byte extendedPersTableWrite = 0x12;
     private static final byte readRTC = 0x03;
-    private static final byte setRTC = 0x13;
-    private static final byte trimRTC = 0x14;
     private static final byte firmwareVersion = 0x04;
     private static final byte status = 0x05;
-    private static final byte readRelay = 0x16;
-    private static final byte setRelay = 0x06;
-    private static final byte meterDemands = 0x07;
-    private static final byte totalDemands = 0x08;  // Not available (page 12/16)
-    private static final byte readingTimes = 0x09;
-    private static final byte writingTimes = 0x19;
-    private static final byte readdialReadingCurrent = 0x0A;
-    private static final byte writedialReadingCurrent = 0x1A;
-    private static final byte dialReadingPast = 0x0B;
     private static final byte powerFailDetails = 0x0C;
-    private static final byte readCommissioningCounters = 0x0D;
-    private static final byte writeCommissioningCounters = 0x1D;
-    private static final byte readMemoryDirect = 0x0E;
-    private static final byte writeMemoryDirect = 0x1E;
-    private static final byte priorityTelNo = 0x1F; // N/A
-    private static final byte alarmChanTimes = 0x0F; // N/A
     // first three bits are to be set in BuildIdent method (later)
     // byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 
-    /*
-      * constructors
-      */
-    public Medo() {// blank constructor for testing purposes only
+    @Inject
+    public Medo(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         byte[] blank = {0, 0};
         sourceCode = blank;        // Defines central equipment of origin
         sourceCodeExt = 0;        // Defines peripheral equipment of origin
@@ -153,37 +127,11 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
         destinationCodeExt = 0;    // Defines peripheral equipment of final destination
     }
 
-    public Medo(  // real constructor, sets header correct.
-                  byte[] sourceCode,
-                  byte sourceCodeExt,
-                  byte[] destinationCode,
-                  byte destinationCodeExt) {
-        this.sourceCode = sourceCode;
-        this.sourceCodeExt = sourceCodeExt;
-        this.destinationCode = destinationCode;
-        this.destinationCodeExt = destinationCodeExt;
+    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
     }
 
-//	protected ProtocolConnection doInit(InputStream inputStream,
-//			OutputStream outputStream, int timeoutProperty,
-//			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
-//			int protocolCompatible, Encryptor encryptor,
-//			HalfDuplexController halfDuplexController) throws IOException {
-//
-//		this.inputStream=inputStream;
-//		this.outputStream=outputStream;
-//
-//		return null;
-//	}
-
-    protected void doValidateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-
-    }
-
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         MedoFirmwareVersion mfv = (MedoFirmwareVersion) mcf.transmitData(firmwareVersion, null);
-        //System.out.println("firmware version: "+mfv.getVersion());
         return mfv.getVersion();
     }
 
@@ -207,9 +155,7 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public MedoPowerFailDetails getPowerFailDetails() throws IOException {
-        MedoPowerFailDetails mpfd = (MedoPowerFailDetails) mcf.transmitData(powerFailDetails, null);
-        //mpfd.printData();
-        return mpfd;
+        return (MedoPowerFailDetails) mcf.transmitData(powerFailDetails, null);
     }
 
     public void setTime() throws IOException {
@@ -256,8 +202,6 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
                      Logger arg3) throws IOException {
         // set streams
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
         this.timezone = arg2;
         // build command factory
         this.mcf = new MedoCommunicationsFactory(sourceCode, sourceCodeExt, destinationCode, destinationCodeExt, inputStream, outputStream);
@@ -287,7 +231,7 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     public void disconnect() throws IOException {
     }
 
-    public Object fetchCache(int arg0) throws SQLException, BusinessException {
+    public Object fetchCache(int arg0) {
         return null;
     }
 
@@ -295,17 +239,17 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
         return null;
     }
 
-    public Quantity getMeterReading(int arg0) throws UnsupportedException,
+    public Quantity getMeterReading(int arg0) throws
             IOException {
         return null;
     }
 
-    public Quantity getMeterReading(String arg0) throws UnsupportedException,
+    public Quantity getMeterReading(String arg0) throws
             IOException {
         return null;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return channelMap.getNrOfUsedProtocolChannels();
     }
 
@@ -320,7 +264,7 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public ProfileData getProfileData(Date start, Date stop, boolean arg2)
-            throws IOException, UnsupportedException {
+            throws IOException {
 
         ProfileData pd = mcf.retrieveProfileData(start, stop, getProfileInterval(), arg2);
         if (statusreg.getBatlow() > 0 && arg2) {
@@ -329,19 +273,18 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
         return pd;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (fullperstable == null) {
             fullperstable = getFullPersonalityTable();
         }
         return 60 * fullperstable.getDemper();
     }
 
-    public String getRegister(String arg0) throws IOException,
-            UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String arg0) throws IOException {
         throw new UnsupportedException("No registers configured on meter.");
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
     }
 
     public void release() throws IOException {
@@ -364,35 +307,31 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
         this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "500"));
     }
 
-    public void setRegister(String arg0, String arg1) throws IOException,
-            NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String arg0, String arg1) throws IOException {
     }
 
-    public void updateCache(int arg0, Object arg1) throws SQLException,
-            BusinessException {
+    public void updateCache(int arg0, Object arg1) {
     }
 
-    public List getOptionalKeys() {
-        ArrayList list = new ArrayList();
-        list.add("TimeOut");
-        list.add("Retry");
-        list.add("DelayAfterConnect");
-        return list;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "TimeOut",
+                    "Retry",
+                    "DelayAfterConnect");
     }
 
-    public List getRequiredKeys() {
-        ArrayList list = new ArrayList();
-        return list;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**
@@ -408,8 +347,7 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        RegisterInfo registerInfo = new RegisterInfo("");
-        return registerInfo;
+        return new RegisterInfo("");
     }
 
     public MedoCommunicationsFactory getMcf() {
@@ -423,4 +361,5 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     public int getTimeout() {
         return timeout;
     }
+
 }

@@ -6,27 +6,31 @@
 
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -42,31 +46,31 @@ import java.util.logging.Logger;
  */
 public class Unilog extends AbstractUnilog {
 
-    private final static String KAMSTRUP_ID = "/KAM5";
+    private static final String KAMSTRUP_ID = "/KAM5";
 
     /**
      * Property keys specific for PPM protocol.
      */
-    private final static String PK_TIMEOUT = "Timeout";
-    private final static String PK_RETRIES = "Retries";
-    private final static String PK_FORCE_DELAY = "ForceDelay";
-    private final static String PK_ECHO_CANCELLING = "EchoCancelling";
-    private final static String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
+    private static final String PK_TIMEOUT = "Timeout";
+    private static final String PK_RETRIES = "Retries";
+    private static final String PK_FORCE_DELAY = "ForceDelay";
+    private static final String PK_ECHO_CANCELLING = "EchoCancelling";
+    private static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     private static final String PK_CHANNEL_MAP = "ChannelMap";
 
     /**
      * Property Default values
      */
-    private final static String PD_PASSWORD = "kamstrup";
-    private final static int PD_TIMEOUT = 10000;
-    private final static int PD_RETRIES = 5;
-    private final static int PD_PROFILE_INTERVAL = 3600;
-    private final static long PD_FORCE_DELAY = 170;
-    private final static int PD_ECHO_CANCELING = 0;
-    private final static int PD_IEC1107_COMPATIBLE = 1;
-    private final static int PD_ROUNDTRIP_CORRECTION = 0;
-    private final static int PD_SECURITY_LEVEL = 1;
-    private final static String PD_CHANNEL_MAP = "0,0";
+    private static final String PD_PASSWORD = "kamstrup";
+    private static final int PD_TIMEOUT = 10000;
+    private static final int PD_RETRIES = 5;
+    private static final int PD_PROFILE_INTERVAL = 3600;
+    private static final long PD_FORCE_DELAY = 170;
+    private static final int PD_ECHO_CANCELING = 0;
+    private static final int PD_IEC1107_COMPATIBLE = 1;
+    private static final int PD_ROUNDTRIP_CORRECTION = 0;
+    private static final int PD_SECURITY_LEVEL = 1;
+    private static final String PD_CHANNEL_MAP = "0,0";
 
     /**
      * Property values Required properties will have NO default value Optional
@@ -100,12 +104,10 @@ public class Unilog extends AbstractUnilog {
     private boolean software7E1;
     private static final String PK_SOFTWARE_7E1 = "Software7E1";
 
-    /**
-     * Creates a new instance of Unilog, empty constructor
-     */
-    public Unilog() {
+    @Inject
+    public Unilog(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
 
     /**
      * Validate the properties
@@ -164,7 +166,7 @@ public class Unilog extends AbstractUnilog {
                     .getProperty(MeterProtocol.ROUNDTRIPCORR));
         }
 
-        this.software7E1 = !properties.getProperty(PK_SOFTWARE_7E1, "0").equalsIgnoreCase("0");
+        this.software7E1 = !"0".equals(properties.getProperty(PK_SOFTWARE_7E1, "0"));
 
         if (properties.getProperty(Unilog.PK_CHANNEL_MAP) != null) {
             this.pChannelMap = properties.getProperty(Unilog.PK_CHANNEL_MAP);
@@ -174,29 +176,17 @@ public class Unilog extends AbstractUnilog {
 
     }
 
-    /**
-     * The required keys of the protocol
-     *
-     * @return
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    /**
-     * The optional keys of the protocol
-     *
-     * @return
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(PK_TIMEOUT);
-        result.add(PK_RETRIES);
-        result.add(MeterProtocol.ROUNDTRIPCORR);
-        result.add(PK_SOFTWARE_7E1);
-        result.add(PK_CHANNEL_MAP);
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    PK_TIMEOUT,
+                    PK_RETRIES,
+                    MeterProtocol.ROUNDTRIPCORR,
+                    PK_SOFTWARE_7E1,
+                    PK_CHANNEL_MAP);
     }
 
     /**
@@ -276,7 +266,7 @@ public class Unilog extends AbstractUnilog {
      * @throws UnsupportedException
      * @throws IOException
      */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return pProfileInterval;
     }
 
@@ -290,7 +280,7 @@ public class Unilog extends AbstractUnilog {
      * @throws IOException
      * @throws UnsupportedException
      */
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -330,7 +320,7 @@ public class Unilog extends AbstractUnilog {
      * @throws UnsupportedException
      * @throws IOException
      */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return protocolChannelMap.getNrOfProtocolChannels();
     }
 
@@ -369,7 +359,7 @@ public class Unilog extends AbstractUnilog {
      * @throws IOException
      * @throws UnsupportedException
      */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return ("Unknown");
     }
 

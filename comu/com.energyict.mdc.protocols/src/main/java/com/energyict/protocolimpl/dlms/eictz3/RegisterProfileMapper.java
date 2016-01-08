@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.dlms.eictz3;
 
+import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CapturedObject;
@@ -15,7 +17,6 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 import java.util.Date;
@@ -49,16 +50,6 @@ public class RegisterProfileMapper {
     }
 
     public ObisCode getProfileObisCode(ObisCode obisCode) throws IOException {
-        ObisCode profileObisCode = obisCode;
-        if (obisCode.getD() == ObisCode.CODE_D_MAXIMUM_DEMAND) {
-            profileObisCode = getMaximumDemandRelations().getProfileObisCode(obisCode);
-        }
-        else if (obisCode.getD() == ObisCode.CODE_D_RISING_DEMAND) {
-            profileObisCode = ALLDEMANDS_PROFILE;
-        }
-        else if (obisCode.getD() == ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND) {
-            profileObisCode = ALLCUMULATIVEMAXDEMANDS_PROFILE;
-        }
         return null;
     }
 
@@ -69,7 +60,7 @@ public class RegisterProfileMapper {
             // KV 02092005 bugfix to read historical maxdemand values
             profileObisCode=new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255);
             profileObisCode = getMaximumDemandRelations().getProfileObisCode(profileObisCode);
-            profileObisCode=new ObisCode(profileObisCode.getA(),profileObisCode.getB(),profileObisCode.getC(),profileObisCode.getD(),profileObisCode.getE(),fieldF,fieldF<=0?true:false);
+            profileObisCode=new ObisCode(profileObisCode.getA(),profileObisCode.getB(),profileObisCode.getC(),profileObisCode.getD(),profileObisCode.getE(),fieldF, fieldF <= 0);
         }
         return profileObisCode;
     }
@@ -172,24 +163,6 @@ public class RegisterProfileMapper {
 
         return maximumDemandRelations;
 
-    } // private ObisCodeRelation getMaximumDemandRelations() throws IOException
-
-    private void test() {
-        ObisCode oc = ObisCode.fromString("1.1.1.6.0.4");
-        System.out.println(oc);
-        int fieldF = oc.getF();
-        System.out.println(fieldF);
-        ObisCode oc2 = new ObisCode(oc.getA(),oc.getB(),oc.getC(),oc.getD(),oc.getE(),255);
-        System.out.println(oc2);
-        oc2 = new ObisCode(oc.getA(),oc.getB(),oc.getC(),oc.getD(),oc.getE(),fieldF,fieldF<=0?true:false);
-        System.out.println(oc2);
     }
 
-    static public void main(String[] args) {
-        RegisterProfileMapper rpm = new RegisterProfileMapper(null);
-        rpm.test();
-
-
-    }
-
-} // public class RegisterProfileMapper
+}

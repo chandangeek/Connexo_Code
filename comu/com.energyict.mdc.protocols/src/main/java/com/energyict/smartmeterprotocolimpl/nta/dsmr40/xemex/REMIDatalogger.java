@@ -2,14 +2,15 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
@@ -32,8 +33,8 @@ public class REMIDatalogger extends E350 {
     private XemexLoadProfileBuilder loadProfileBuilder;
 
     @Inject
-    public REMIDatalogger(Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public REMIDatalogger(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService, clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override

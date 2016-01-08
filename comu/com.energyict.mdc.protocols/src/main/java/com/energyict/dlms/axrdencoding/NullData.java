@@ -30,11 +30,12 @@ public class NullData extends AbstractDataType {
     }
 
     public String toString() {
-        StringBuffer strBuffTab = new StringBuffer();
+        StringBuilder strBuffTab = new StringBuilder();
         for (int i=0;i<getLevel();i++) {
 			strBuffTab.append("  ");
 		}
-        return strBuffTab.toString()+"NullData\n";
+        strBuffTab.append("NullData\n");
+        return strBuffTab.toString();
     }
 
     public NullData() {
@@ -50,17 +51,6 @@ public class NullData extends AbstractDataType {
         return 1;
     }
 
-    static public void main(String[]  artgs) {
-        try {
-           NullData v = new NullData(new byte[]{AxdrType.NULL.getTag(),(byte)0x81}, 0);
-           System.out.println(v);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public BigDecimal toBigDecimal() {
         return new BigDecimal("0");
     }
@@ -71,4 +61,5 @@ public class NullData extends AbstractDataType {
     public long longValue() {
         return 0;
     }
+
 }

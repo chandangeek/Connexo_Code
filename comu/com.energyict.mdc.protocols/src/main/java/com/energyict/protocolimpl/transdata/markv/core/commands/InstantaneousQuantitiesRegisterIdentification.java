@@ -18,8 +18,7 @@ import java.util.List;
  */
 public class InstantaneousQuantitiesRegisterIdentification {
 
-
-    static List list = new ArrayList();
+    static List<RegisterDataId> list = new ArrayList<>();
     static {
         list.add(new RegisterDataId(RegisterDataId.POWER_FACTOR3,RegisterDataId.INT,71,1, 0, 0, "Instantaneous value register power factor all phases"));
         list.add(new RegisterDataId(RegisterDataId.VOLTAGE_A,RegisterDataId.INT,505,1, 0, 0, "Instantaneous value register voltage phase A"));
@@ -32,11 +31,8 @@ public class InstantaneousQuantitiesRegisterIdentification {
         list.add(new RegisterDataId(RegisterDataId.VAR3,RegisterDataId.INT,516,1, 0, 0, "Instantaneous value register var all phases"));
     }
 
-    /** Creates a new instance of InstantaneousQuantitiesRegisterIdentification */
-    private InstantaneousQuantitiesRegisterIdentification() {
-    }
-
-    static public List getRegisterDataIds() {
+    public static List<RegisterDataId> getRegisterDataIds() {
         return list;
     }
+
 }

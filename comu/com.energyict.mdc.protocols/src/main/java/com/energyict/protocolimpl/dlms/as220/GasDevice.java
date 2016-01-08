@@ -3,30 +3,29 @@
  */
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
@@ -60,8 +59,8 @@ public class GasDevice extends AS220 implements MessageProtocol{
     private int dif = -1;
 
 	@Inject
-	public GasDevice(OrmClient ormClient) {
-		super(ormClient);
+	public GasDevice(PropertySpecService propertySpecService, OrmClient ormClient) {
+		super(propertySpecService, ormClient);
 	}
 
 	@Override
@@ -83,14 +82,13 @@ public class GasDevice extends AS220 implements MessageProtocol{
     }
 
 	@Override
-	protected void doConnect() throws BusinessException {
+	protected void doConnect() {
 		// search for the channel of the Mbus Device
 		String tempSerial;
-		for(int i = 0; i < MAX_MBUS_CHANNELS; i++){
-			tempSerial = "";
+		for (int i = 0; i < MAX_MBUS_CHANNELS; i++) {
 			try {
 				tempSerial = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(i).getObisCode()).getString();
-				if(tempSerial.equalsIgnoreCase(gmeterSerialnumber)){
+				if (tempSerial.equalsIgnoreCase(gmeterSerialnumber)) {
 					setGasSlotId(i + 1);
                     dif = getMBusDIF();
 				}
@@ -99,8 +97,8 @@ public class GasDevice extends AS220 implements MessageProtocol{
 			}
 		}
 
-		if(getGasSlotId() == -1){
-			throw new BusinessException("No MBus device found with serialNumber " + gmeterSerialnumber + " on the E-meter.");
+		if (getGasSlotId() == -1) {
+			throw new NotFoundException("No MBus device found with serialNumber " + gmeterSerialnumber + " on the E-meter.");
 		}
 	}
 
@@ -156,10 +154,9 @@ public class GasDevice extends AS220 implements MessageProtocol{
 		super.setProperties(properties);
 	}
 
-	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+	private void validateProperties(Properties properties) {
 		this.gmeterSerialnumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
 		this.emeterSerialnumber = properties.getProperty(MeterProtocol.NODEID, "");
-
 	}
 
 	@Override
@@ -193,8 +190,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 			return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
 		} else if(obisCode.equals(ObisCode.fromString("0.0.24.4.129.255"))) {
             ContactorController.ContactorState cs = getgMeter().getGasValveController().getContactorState();
-            RegisterValue registerValue = new RegisterValue(obisCode,null, null, null, null, new Date(), 0, cs.name());
-            return registerValue;
+			return new RegisterValue(obisCode,null, null, null, null, new Date(), 0, cs.name());
         }
         else {
 			throw new NoSuchRegisterException(obisCode.toString() + " is not supported.");
@@ -234,7 +230,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
 	@Override
 	public List<String> getRequiredKeys() {
-		List<String> requiredKeys = new ArrayList<String>();
+		List<String> requiredKeys = new ArrayList<>();
 		requiredKeys.addAll(super.getRequiredKeys());
 		return requiredKeys;
 	}

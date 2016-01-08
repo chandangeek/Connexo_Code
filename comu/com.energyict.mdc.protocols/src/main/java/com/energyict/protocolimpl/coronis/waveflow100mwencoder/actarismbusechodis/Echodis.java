@@ -2,20 +2,23 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechod
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.ActarisMBusInternalData;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.generic.RegisterFactory;
-import com.energyict.protocols.util.ProtocolUtils;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -39,6 +42,11 @@ public class Echodis extends WaveFlow100mW {
 	 * MBus register factory. This contains the parsed data read from the waveflow represeiting MBus CI72 data
 	 */
 	private RegisterFactory[] registerFactories=new RegisterFactory[2];
+
+	@Inject
+	public Echodis(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
 
 	@Override
 	protected void doTheConnect() throws IOException {

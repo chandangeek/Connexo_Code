@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -21,7 +22,6 @@ import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -39,16 +39,13 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
-import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -88,11 +85,6 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
      */
     private ComChannel comChannel;
     /**
-     * Will group this protocols' security features.
-     * As an example the {@link DlmsSecuritySupport} component is used
-     */
-    private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
-    /**
      * Will hold the cache object of the Device related to this protocol
      */
     private DeviceProtocolCache deviceProtocolCache;
@@ -106,15 +98,14 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public SDKDeviceProtocolTestWithAllProperties(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService,
+    public SDKDeviceProtocolTestWithAllProperties(Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService,
                                                   IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
                                                   DlmsSecuritySupport dlmsSecuritySupport) {
-        super(protocolPluggableService, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
+        super(protocolPluggableService, thesaurus, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
         this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
-        this.deviceProtocolSecurityCapabilities = dlmsSecuritySupport;
     }
 
     @Override
@@ -141,46 +132,36 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     }
 
     @Override
-    public PropertySpec getPropertySpec (String name) {
-        for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
-                return propertySpec;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(this.propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKSTRINGPROPERTY, false, new StringFactory()));
-        optionalProperties.add(propertySpecService.stringPropertySpec(SDKMessageSeeds.Keys.SDKSTRINGPROPERTYWITHDEFAULT, false, "Test"));
-        optionalProperties.add(propertySpecService.stringPropertySpecWithValues(SDKMessageSeeds.Keys.SDKSTRINGPROPERTYWITHVALUES, false, "value 1", "value 2", "value 3", "value 4"));
-        optionalProperties.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(SDKMessageSeeds.Keys.SDKSTRINGPROPERTYWITHVALUESANDDEFAULT, false, "value 3", "value 1", "value 2", "value 4", "value 5"));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKLARGESTRINGPROPERTY, false, new LargeStringFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKHEXSTRINGPROPERTY, false, new HexStringFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKPASSWORDPROPERTY, false, PasswordFactory.class));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKBIGDECIMALPROPERTY, false, new BigDecimalFactory()));
-        optionalProperties.add(propertySpecService.bigDecimalPropertySpec(SDKMessageSeeds.Keys.SDKBIGDECIMALWITHDEFAULT, false, new BigDecimal("666.156")));
+        optionalProperties.add(this.propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKSTRINGPROPERTY, false, new StringFactory()));
+        optionalProperties.add(propertySpecService.stringPropertySpec(SDKTranslationKeys.Keys.SDKSTRINGPROPERTYWITHDEFAULT, false, "Test"));
+        optionalProperties.add(propertySpecService.stringPropertySpecWithValues(SDKTranslationKeys.Keys.SDKSTRINGPROPERTYWITHVALUES, false, "value 1", "value 2", "value 3", "value 4"));
+        optionalProperties.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(SDKTranslationKeys.Keys.SDKSTRINGPROPERTYWITHVALUESANDDEFAULT, false, "value 3", "value 1", "value 2", "value 4", "value 5"));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKLARGESTRINGPROPERTY, false, new LargeStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKHEXSTRINGPROPERTY, false, new HexStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKPASSWORDPROPERTY, false, PasswordFactory.class));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKBIGDECIMALPROPERTY, false, new BigDecimalFactory()));
+        optionalProperties.add(propertySpecService.bigDecimalPropertySpec(SDKTranslationKeys.Keys.SDKBIGDECIMALWITHDEFAULT, false, new BigDecimal("666.156")));
         optionalProperties.add(
                 propertySpecService.bigDecimalPropertySpecWithValues(
-                        SDKMessageSeeds.Keys.SDKBIGDECIMALWITHVALUES,
+                        SDKTranslationKeys.Keys.SDKBIGDECIMALWITHVALUES,
                         false,
                         BigDecimal.ZERO,
                         BigDecimal.ONE,
                         new BigDecimal("2"),
                         new BigDecimal("3")));
-        optionalProperties.add(propertySpecService.boundedDecimalPropertySpec(SDKMessageSeeds.Keys.SDKBOUNDEDDECIMAL, false, new BigDecimal(2), new BigDecimal(10)));
-        optionalProperties.add(propertySpecService.positiveDecimalPropertySpec(SDKMessageSeeds.Keys.SDKPOSITIVEDECIMALPROPERTY, false));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKBOOLEANPROPERTY, false, new BooleanFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKDATEPROPERTY, false, new DateFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKTIMEOFDAYPROPERTY, false, new TimeOfDayFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKDATETIMEPROPERTY, false, new DateAndTimeFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKTIMEDURATIONPROPERTY, false, new TimeDurationValueFactory()));
+        optionalProperties.add(propertySpecService.boundedDecimalPropertySpec(SDKTranslationKeys.Keys.SDKBOUNDEDDECIMAL, false, new BigDecimal(2), new BigDecimal(10)));
+        optionalProperties.add(propertySpecService.positiveDecimalPropertySpec(SDKTranslationKeys.Keys.SDKPOSITIVEDECIMALPROPERTY, false));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKBOOLEANPROPERTY, false, new BooleanFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKDATEPROPERTY, false, new DateFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKTIMEOFDAYPROPERTY, false, new TimeOfDayFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKDATETIMEPROPERTY, false, new DateAndTimeFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKTIMEDURATIONPROPERTY, false, new TimeDurationValueFactory()));
 
         optionalProperties.add(
                 propertySpecService.obisCodePropertySpecWithValues(
-                        SDKMessageSeeds.Keys.SDKOBISCODEPROPERTY,
+                        SDKTranslationKeys.Keys.SDKOBISCODEPROPERTY,
                         false,
                         ObisCode.fromString("1.0.1.8.0.255"),
                         ObisCode.fromString("1.0.1.8.1.255"),
@@ -192,9 +173,9 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
         // codetable and userfile not supported
         //optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
         //optionalProperties.add(propertySpecService.referencePropertySpec("SDKUserFileReferenceProperty", false, FactoryIds.USERFILE));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKEAN13PROPERTY, false, new Ean13Factory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKEAN18PROPERTY, false, new Ean18Factory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKENCRYPTEDSTRINGPROPERTY, false, EncryptedStringFactory.class));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKEAN13PROPERTY, false, new Ean13Factory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKEAN18PROPERTY, false, new Ean18Factory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKENCRYPTEDSTRINGPROPERTY, false, EncryptedStringFactory.class));
 
         return optionalProperties;
     }
@@ -269,7 +250,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {
-                this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the " + SDKLoadProfileProtocolDialectProperties.notSupportedLoadProfileObisCodePropertyName + " property");
+                this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the " + SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName() + " property");
                 loadProfileConfiguration.setSupportedByMeter(false);
             }
         }
@@ -331,10 +312,10 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
-                new SDKLoadProfileProtocolDialectProperties(propertySpecService),
-                new SDKStandardDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTimeDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTopologyTaskProtocolDialectProperties(propertySpecService));
+                new SDKLoadProfileProtocolDialect(this.getThesaurus(), this.propertySpecService),
+                new SDKStandardProtocolDialect(this.getThesaurus(), this.propertySpecService),
+                new SDKTimeProtocolDialect(this.getThesaurus(), this.propertySpecService),
+                new SDKTopologyTaskProtocolDialect(this.getThesaurus(), this.propertySpecService));
     }
 
     @Override
@@ -346,31 +327,6 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         this.logger.log(Level.INFO, "Adding the deviceProtocolSecurity properties to the DeviceProtocol instance.");
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return this.deviceProtocolSecurityCapabilities.getSecurityRelationTypeName();
-    }
-
-    @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return this.deviceProtocolSecurityCapabilities.getAuthenticationAccessLevels();
-    }
-
-    @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return this.deviceProtocolSecurityCapabilities.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return this.deviceProtocolSecurityCapabilities.getSecurityPropertySpec(name);
     }
 
     @Override
@@ -418,23 +374,23 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     }
 
     private ObisCode getIgnoredObisCode() {
-        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileProtocolDialectProperties.notSupportedLoadProfileObisCodePropertyName, ObisCode.fromString("0.0.0.0.0.0"));
+        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName(), ObisCode.fromString("0.0.0.0.0.0"));
     }
 
     private TimeDuration getTimeDeviationPropertyForRead() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToReadPropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDialectProperties.ActualFields.CLOCK_OFFSET_WHEN_WRITING.propertySpecName(), new TimeDuration(0));
     }
 
     private TimeDuration getTimeDeviationPropertyForWrite() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToWritePropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDialectProperties.ActualFields.CLOCK_OFFSET_WHEN_READING.propertySpecName(), new TimeDuration(0));
     }
 
     private String getSlaveOneSerialNumber(){
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveOneSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveOneSerialNumberPropertyName, "");
     }
 
     private String getSlaveTwoSerialNumber(){
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveTwoSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveTwoSerialNumberPropertyName, "");
     }
 
     @Override

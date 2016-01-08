@@ -1,7 +1,18 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -20,18 +31,11 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
+import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.protocolimplv2.sdksample.SDKMessageSeeds;
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
+import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -45,6 +49,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,7 +67,7 @@ import java.util.stream.Stream;
  * Date: 06/11/13
  * Time: 11:03
  */
-@Component(name = "com.energyict.mdc.service.deviceprotocols", 
+@Component(name = "com.energyict.mdc.service.deviceprotocols",
         service = {DeviceProtocolService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = "name=" + DeviceProtocolService.COMPONENT_NAME)
@@ -74,6 +79,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile MeteringService meteringService;
     private volatile IssueService issueService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
@@ -98,7 +104,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setMeteringService(meteringService);
         this.setTransactionService(transactionService);
@@ -106,6 +112,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setNlsService(nlsService);
         this.setIssueService(issueService);
         this.setClock(clock);
+        this.setJupiterPropertySpecService(jupiterPropertySpecService);
         this.setPropertySpecService(propertySpecService);
         this.setTopologyService(topologyService);
         this.setSocketService(socketService);
@@ -133,10 +140,12 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(OrmClient.class).toInstance(ormClient);
                 bind(IssueService.class).toInstance(issueService);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(SocketService.class).toInstance(socketService);
                 bind(SerialComponentService.class).toInstance(serialComponentService);
@@ -221,6 +230,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     }
 
     @Reference
+    public void setJupiterPropertySpecService(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
+        this.jupiterPropertySpecService = jupiterPropertySpecService;
+    }
+
+    @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -253,6 +267,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        // Just making sure that this bundle activates after the bundle that provides connections (see com.energyict.mdc.protocol.api.ConnectionProvider)
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -294,7 +313,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Override
     public List<MessageSeed> getSeeds() {
         return Stream.of(
-                Arrays.stream(SDKMessageSeeds.values()),
+                Arrays.stream(IpMessageSeeds.values()),
                 Arrays.stream(MessageSeeds.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
@@ -307,7 +326,13 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Stream.of(
+                Arrays.stream(SDKTranslationKeys.values()),
+                Arrays.stream(DeviceProtocolDialectName.values()),
+                Arrays.stream(CustomPropertySetTranslationKeys.values()),
+                Arrays.stream(TranslationKeys.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     private class CompositeLoadProfileFactory implements LoadProfileFactory {

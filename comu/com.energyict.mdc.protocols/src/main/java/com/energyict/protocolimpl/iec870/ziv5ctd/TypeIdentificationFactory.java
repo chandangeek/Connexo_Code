@@ -137,16 +137,11 @@ public class TypeIdentificationFactory {
     }
 
     public String toString() {
-        StringBuffer result = new StringBuffer()
-                .append("IEC870TypeIdentificationFactory \n");
+        StringBuilder result = new StringBuilder("IEC870TypeIdentificationFactory \n");
         Iterator i = idMap.values().iterator();
         while (i.hasNext())
             result.append(i.next().toString() + "\n");
         return result.toString();
-    }
-
-    public static void main(String args []) {
-        System.out.println(new TypeIdentificationFactory(TimeZone.getDefault()));
     }
 
 }

@@ -13,7 +13,7 @@ public class MessageReadLoadProfiles extends MessageContent {
 
 	private Date from = null;
 	private Date to = null;
-	
+
 	public MessageReadLoadProfiles() {
 		super();
 	}
@@ -21,17 +21,17 @@ public class MessageReadLoadProfiles extends MessageContent {
 	public MessageReadLoadProfiles(Date from, Date to) {
 		super();
 		this.from = from;
-		this.to = to; 
+		this.to = to;
 	}
 
 	public MessageReadLoadProfiles(Element element) {
 		super(element);
 		String fromString = element.getAttribute(FROMATTRIBUTE);
-		if (!fromString.equals("")) {
+		if (!fromString.isEmpty()) {
 			from = new Date(Long.parseLong(fromString));
 		}
 		String toString = element.getAttribute(TOATTRIBUTE);
-		if (!toString.equals("")) {
+		if (!toString.isEmpty()) {
 			to = new Date(Long.parseLong(toString));
 		}
 	}

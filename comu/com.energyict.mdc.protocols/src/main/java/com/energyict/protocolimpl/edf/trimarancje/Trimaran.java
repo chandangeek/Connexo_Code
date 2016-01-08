@@ -11,18 +11,17 @@
 package com.energyict.protocolimpl.edf.trimarancje;
 
 
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -32,17 +31,16 @@ import com.energyict.protocolimpl.edf.trimarancje.core.SPDUFactory;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.Register;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.RegisterFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *@beginchanges
@@ -63,10 +61,10 @@ public class Trimaran extends AbstractProtocol {
     private int flushTimeout;
     private String meterVersion;
 
-    /** Creates a new instance of Trimaran */
-    public Trimaran() {
+    @Inject
+    public Trimaran(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
 
     protected void doConnect() throws IOException {
         getSPDUFactory().logon();
@@ -84,13 +82,11 @@ public class Trimaran extends AbstractProtocol {
 //        this.commChannel=commChannel;
 //    }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getTrimaranProfile().getProfileData();
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
-//        return 600;
-//    	return 300;
+    public int getProfileInterval() throws IOException {
     	getTrimaranProfile().getProfileData();
     	return getTrimaranProfile().getProfileInterval();
     }
@@ -139,17 +135,16 @@ public class Trimaran extends AbstractProtocol {
 
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("InterCharTimeout");
-        result.add("ACKTimeoutTL");
-        result.add("CommandTimeout");
-        result.add("FlushTimeout");
-        result.add("MeterVersion");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "InterCharTimeout",
+                    "ACKTimeoutTL",
+                    "CommandTimeout",
+                    "FlushTimeout",
+                    "MeterVersion");
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 1;
     }
 
@@ -177,7 +172,7 @@ public class Trimaran extends AbstractProtocol {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
 //    	getDataFactory().getPreviousPeriodTable();
 //    	getDataFactory().getCurrentPeriodTable();
 //        return "TARIF="+getDataFactory().getMeterStatusTable().getTarif()+
@@ -206,7 +201,7 @@ public class Trimaran extends AbstractProtocol {
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
 
         List registers = getRegisterFactory().getRegisters();
         Iterator it = registers.iterator();
@@ -217,92 +212,6 @@ public class Trimaran extends AbstractProtocol {
 
         return strBuff.toString();
     }
-
-    static public void main(String args[]) {
-        // TODO code application logic here
-        Trimaran trimaran = new Trimaran();
-        Dialer dialer=null;
-
-        String[] phones=new String[]{"033681497551","0033493746195","0033164498288","0033254601214","0033555877984","0033296550926","0033299834824","0033321853985","0033493746195","0033490868582","0033324564410","0033381506179","0033139811766","0033299825952","0033298531729","0033468082801","0033557519694","0033164498288"};
-        String[] clientPasswords=new String[]{"08402","2494","4398","24398","57017","8870","37542","2801","2494","4488","24776","31158","65427","63668","13576","53840","791","4398"};
-        String preDial="T0";
-        int index=0;
-
-        try {
-////            // ,(byte)0x09,(byte)0x01,(byte)0x0f,(byte)0x00,(byte)0x00,(byte)0x88,(byte)0x11,(byte)0x6a,(byte)0xdc
-////            byte[] data = new byte[]{(byte)0x09,(byte)0x01,(byte)0x0f,(byte)0x00,(byte)0x00,(byte)0x93,(byte)0xff,(byte)0xe0,(byte)0x60};//,(byte)0xcb};
-//            byte[] data = new byte[]{(byte)0x09,(byte)0x02,(byte)0x0f,(byte)0x00,(byte)0x00,(byte)0x93,(byte)0xff};//,(byte)0xe0,(byte)0x53};//,(byte)0xcb};
-////            byte[] data = new byte[]{0x09,0x01,0x0f,0x00,0,(byte)0x88,0x11,(byte)0x6a,(byte)0xdc};
-//            int crc = CRCGenerator.calcCRCFull(data);
-//            System.out.println(Integer.toHexString(crc));
-//            //data = new byte[]{0x04,0x62,0,0}; //,0x0,(byte)0x0};
-//            crc = CRCGenerator.calcCRC(data); //,data.length-2);
-//            System.out.println(Integer.toHexString(crc));
-//            if (true) return;
-
-// direct rs232 connection
-            //dialer =DialerFactory.getDirectDialer().newDialer();
-            dialer =DialerFactory.getDefault().newDialer();
-            //dialer.init("COM1","ATZX5&B0B4C0U4&C1&D1","AT&S0"); //,"AT+MS=1,1,1200,1200","AT&C1&D1&S0");
-            dialer.init("COM1","ATZ30X5&B0B4C0U4&C1&D1&S0","ATL0M0");
-            //dialer.init("COM1");
-            dialer.getSerialCommunicationChannel().setParams(1200,
-                                                            SerialCommunicationChannel.DATABITS_8,
-                                                            SerialCommunicationChannel.PARITY_NONE,
-                                                            SerialCommunicationChannel.STOPBITS_1);
-            //dialer.getSerialCommunicationChannel().setDTR(false);
-
-
-
-            dialer.connect(preDial+phones[index],90000);
-
-//dialer.getSerialCommunicationChannel().setDTR(false); // KV_DEBUG
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            properties.setProperty(MeterProtocol.PASSWORD,clientPasswords[index]);
-            properties.setProperty("ProfileInterval", "600");
-// transfer the properties to the protocol
-            trimaran.setProperties(properties);
-
-// depending on the dialer, set the initial (pre-connect) communication parameters
-//            dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-//                                                                     SerialCommunicationChannel.DATABITS_8,
-//                                                                     SerialCommunicationChannel.PARITY_NONE,
-//                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            trimaran.setHalfDuplexController(dialer.getHalfDuplexController());
-
-            trimaran.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-
-
-
-            trimaran.connect();
-
-
-            System.out.println("*********************** connect() ***********************");
-
-            //System.out.println(trimaran.getDataFactory().getCurrentMonthInfoTable());
-            //System.out.println(trimaran.getDataFactory().getPreviousMonthInfoTable());
-            //System.out.println(trimaran.getDataFactory().getMeterStatusTable());
-            //System.out.println(trimaran.getProfileData(null,null,false));
-
-                   System.out.println(trimaran.getTime());
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                trimaran.disconnect();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 
     public TrimeranConnection getTrimaranConnection() {
         return trimaranConnection;

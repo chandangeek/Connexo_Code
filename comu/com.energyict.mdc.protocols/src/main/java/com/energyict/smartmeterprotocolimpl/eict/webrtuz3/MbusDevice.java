@@ -1,11 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging.MbusDeviceMessaging;
 
 import java.io.IOException;
@@ -18,18 +20,18 @@ import java.util.Properties;
  * Date: 29-aug-2011
  * Time: 15:36:39
  */
-public class MbusDevice extends SlaveMeter implements MessageProtocol{
+public class MbusDevice extends SlaveMeter implements MessageProtocol {
 
     public MessageProtocol getMessageProtocol() {
         return new MbusDeviceMessaging();
     }
 
-    public MbusDevice(){
-        super();
+    public MbusDevice(PropertySpecService propertySpecService){
+        super(propertySpecService);
     }
 
-    public MbusDevice(WebRTUZ3 meterProtocol, String serialNumber, int physicalAddress) {
-        super(meterProtocol, serialNumber, physicalAddress);
+    public MbusDevice(PropertySpecService propertySpecService, WebRTUZ3 meterProtocol, String serialNumber, int physicalAddress) {
+        super(propertySpecService, meterProtocol, serialNumber, physicalAddress);
     }
 
     /**
@@ -107,4 +109,5 @@ public class MbusDevice extends SlaveMeter implements MessageProtocol{
     public List getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
+
 }

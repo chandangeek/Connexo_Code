@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -8,7 +9,7 @@ import java.io.IOException;
 public class RecipientAddress extends AbstractParameter {
 
     String address;
-    
+
     RecipientAddress(RTM rtm) {
         super(rtm);
     }
@@ -19,7 +20,7 @@ public class RecipientAddress extends AbstractParameter {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         address = ProtocolTools.getHexStringFromBytes(data);
     }
 

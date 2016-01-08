@@ -1,21 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 
+import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -123,23 +117,6 @@ public class ObisCodeMapper {
 
     public boolean isSupported(ObisCode obisCode) {
         return getDLMSAttribute(obisCode) != null;
-    }
-
-    public List<DLMSAttribute> getDLMSAttributes(List<Register> registers) {
-        List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
-        for (Register register : registers) {
-            ObisCode obisCode = register.getObisCode();
-            if (isSupported(obisCode)) {
-                dlmsAttributes.add(getDLMSAttribute(obisCode));
-            }
-        }
-        return dlmsAttributes;
-    }
-
-    public static void main(String[] args) throws IOException {
-        byte[] bytesFromHexString = ProtocolTools.getBytesFromHexString("01020203090c07db0717060e12000000000012000006000000000203090c07db0717060e1100000000001200140600000000", "");
-        AbstractDataType decode = AXDRDecoder.decode(bytesFromHexString);
-        System.out.println(decode);
     }
 
 }

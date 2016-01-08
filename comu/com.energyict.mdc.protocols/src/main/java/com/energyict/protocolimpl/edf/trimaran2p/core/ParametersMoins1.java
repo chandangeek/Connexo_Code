@@ -5,6 +5,7 @@ package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -40,25 +41,11 @@ public class ParametersMoins1 extends AbstractTrimaranObject{
 		super(trimaranObjectFactory);
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 	protected int getVariableName() {
 		return variableName_Moins1;
 	}
 
 	protected void parse(byte[] data) throws IOException {
-
-//    	System.out.println("GN_DEBUG> write to file");
-//    	File file = new File("c://TEST_FILES/089807000857ParametersMoins1.bin");
-//    	FileOutputStream fos = new FileOutputStream(file);
-//    	fos.write(data);
-//    	fos.close();
 
 		int offset = 0;
 		TrimaranDataContainer dc = new TrimaranDataContainer();

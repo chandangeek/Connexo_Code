@@ -10,9 +10,10 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.iec1107.abba1700.counters.ProgrammingCounter;
 
 import java.io.IOException;
@@ -475,14 +476,6 @@ public class ObisCodeMapper {
             return new RegisterInfo(obisTranslation.toString());
         }
 
-    } // private Object doGetRegister(ObisCode obisCode, boolean read)
-
-    static public void main(String[] args) {
-        try {
-            System.out.println(ObisCodeMapper.getRegisterInfo(ObisCode.fromString("1.1.0.1.2.VZ")).toString());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
+
 }

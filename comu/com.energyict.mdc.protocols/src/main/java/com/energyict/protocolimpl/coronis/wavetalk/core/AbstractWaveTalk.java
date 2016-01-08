@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.coronis.wavetalk.core;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -21,12 +22,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-abstract public class AbstractWaveTalk extends AbstractProtocol implements ProtocolLink {
+public abstract class AbstractWaveTalk extends AbstractProtocol implements ProtocolLink {
 
-	abstract protected void doTheConnect() throws IOException;
-    abstract protected void doTheInit() throws IOException;
-    abstract protected void doTheDisConnect() throws IOException;
-    abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
+	protected abstract void doTheConnect() throws IOException;
+    protected abstract void doTheInit() throws IOException;
+    protected abstract void doTheDisConnect() throws IOException;
+    protected abstract void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
 
 	/**
 	 * reference to the lower connect latyers of the wavenis stack
@@ -39,8 +40,8 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	private RadioCommandFactory radioCommandFactory;
 
 
-	abstract public AbstractCommonObisCodeMapper getCommonObisCodeMapper();
-	abstract public ParameterFactory getParameterFactory();
+	public abstract AbstractCommonObisCodeMapper getCommonObisCodeMapper();
+	public abstract ParameterFactory getParameterFactory();
 
 	/**
 	 * the correcttime property. this property is set from the protocolreader in order to allow to sync the time...
@@ -52,11 +53,13 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	 */
 	ObisCode loadProfileObisCode;
 
-
-	final public RadioCommandFactory getRadioCommandFactory() {
-		return radioCommandFactory;
+	public AbstractWaveTalk(PropertySpecService propertySpecService) {
+		super(propertySpecService);
 	}
 
+	public final RadioCommandFactory getRadioCommandFactory() {
+		return radioCommandFactory;
+	}
 
 	@Override
 	protected void doConnect() throws IOException {
@@ -96,7 +99,7 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	}
 
 	@Override
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
         return "N/A";
 	}
 

@@ -10,8 +10,6 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.protocols.util.ProtocolUtils;
-
 /**
  *
  * @author Koen
@@ -89,31 +87,6 @@ public class Encryptor6205651 {
         }
         return encryptedData;
 
-    } // public byte[] getEncryptedData(byte[] data,int key)
-
-    static public void main(String[] args) {
-
-        SHA1Encryptor s = new SHA1Encryptor();
-        byte[] passwordKey = new byte[]{(byte)0x62,(byte)0x69,(byte)0x6C,(byte)0x63,(byte)0x6F,(byte)0x62,(byte)0x63,(byte)0x6C};
-        //byte[] serverRandom = new byte[]{(byte)0x30,(byte)0xc4,(byte)0x2a,(byte)0xcf,(byte)0xfc,(byte)0xd6,(byte)0xbc,(byte)0x4e};
-        byte[] serverRandom = new byte[]{(byte)0x9d,(byte)0x97,(byte)0x7a,(byte)0x15,(byte)0xc7,(byte)0xe4,(byte)0xf3,(byte)0x19};
-        int masking = s.getMasking16Bit(serverRandom, passwordKey);
-        System.out.println("0x"+Integer.toHexString(masking));
-
-        Encryptor6205651 e = new Encryptor6205651();
-        //byte[] data = new byte[]{(byte)0x4e,(byte)0xf9,(byte)0x93,(byte)0xf0,(byte)0x2b,(byte)0xe1,(byte)0x45,(byte)0xc2,(byte)0x80,(byte)0x7e,(byte)0x1b,(byte)0x2b,(byte)0x86,(byte)0x26,(byte)0x7c,(byte)0x03,(byte)0xad,(byte)0xbb,(byte)0x9b,(byte)0xA4,(byte)0x6B};
-        //byte[] data = new byte[]{(byte)0x4d,(byte)0xf9,(byte)0x93,(byte)0xf0,(byte)0x2b};
-        //byte[] data = new byte[]{(byte)0x0c,(byte)0x01,(byte)0x00,(byte)0x02,(byte)0x02,(byte)0x0f,(byte)0x00,(byte)0x04,(byte)0x28,(byte)0xb8,(byte)0x21,(byte)0x00,(byte)0x0c,(byte)0x55};
-        //byte[] data = new byte[]{(byte)0x4d,(byte)0xf9,(byte)0x93,(byte)0xf1,(byte)0xbb};
-        byte[] data = new byte[]{(byte)0x4d,(byte)0xf9,(byte)0x93,(byte)0xf1,(byte)0xa3};
-
-        System.out.println(ProtocolUtils.outputHexString(data));
-
-        byte[] encryptedData = e.getEncryptedData(data,masking);
-        System.out.println(ProtocolUtils.outputHexString(encryptedData));
-
-        encryptedData = e.getEncryptedData(encryptedData,masking);
-        System.out.println(ProtocolUtils.outputHexString(encryptedData));
     }
 
-} // public class Encryptor6205651
+}

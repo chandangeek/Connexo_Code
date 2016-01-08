@@ -1,6 +1,21 @@
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.CacheMechanism;
+
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
@@ -22,33 +37,19 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.util.CacheMechanism;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -165,14 +166,13 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
 
     /**
      * Do some extra connect settings
-     *
-     * @throws BusinessException if no correct MBus device is found
      */
-    protected abstract void doConnect() throws BusinessException;
+    protected abstract void doConnect();
 
     protected abstract String getRegistersInfo() throws IOException;
 
-    public DLMSSNAS220(OrmClient ormClient) {
+    public DLMSSNAS220(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService);
         this.ormClient = ormClient;
     }
 
@@ -315,10 +315,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
             doConnect();
             validateSerialNumber();
         } catch (DLMSConnectionException e) {
-            IOException exception = new IOException(e.getMessage());
-            exception.initCause(e);
-            throw exception;
-        } catch (BusinessException e) {
             IOException exception = new IOException(e.getMessage());
             exception.initCause(e);
             throw exception;
@@ -593,12 +589,12 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**
@@ -607,8 +603,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
      * @return a list of strings
      */
     public List<String> getRequiredKeys() {
-        List<String> result = new ArrayList<String>();
-        return result;
+        return Collections.emptyList();
     }
 
     /**
@@ -617,31 +612,30 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
      * @return a list of strings
      */
     public List<String> getOptionalKeys() {
-        List<String> result = new ArrayList<String>();
-        result.add(PR_TIMEOUT);
-        result.add(PR_FORCED_DELAY);
-        result.add(PR_RETRIES);
-        result.add(PR_REQUEST_TIME_ZONE);
-        result.add(PR_SECURITY_LEVEL);
-        result.add(PR_CLIENT_MAC_ADDRESS);
-        result.add(PR_SRV_UP_MACADDR);
-        result.add(PR_SRV_LOW_MACADDR);
-        result.add(PR_EXTENDED_LOGGING);
-        result.add(PR_ADDRESSING_MODE);
-        result.add(PR_CONNECTION);
-        result.add(PR_DATA_KEY);
-        result.add(PR_DATA_AUTH_KEY);
-        result.add(PR_TRANSP_CONNECT_TIME);
-        result.add(PR_TRANSP_BAUDRATE);
-        result.add(PR_TRANSP_DATABITS);
-        result.add(PR_TRANSP_STOPBITS);
-        result.add(PR_TRANSP_PARITY);
-        result.add(PR_PROFILE_TYPE);
-        result.add(PR_OPTICAL_BAUDRATE);
-        result.add(PR_CIPHERING_TYPE);
-        result.add(PR_LIMIT_MAX_NR_OF_DAYS);
-        result.add(PR_READ_PLC_LOG);
-        return result;
+        return Arrays.asList(
+                    PR_TIMEOUT,
+                    PR_FORCED_DELAY,
+                    PR_RETRIES,
+                    PR_REQUEST_TIME_ZONE,
+                    PR_SECURITY_LEVEL,
+                    PR_CLIENT_MAC_ADDRESS,
+                    PR_SRV_UP_MACADDR,
+                    PR_SRV_LOW_MACADDR,
+                    PR_EXTENDED_LOGGING,
+                    PR_ADDRESSING_MODE,
+                    PR_CONNECTION,
+                    PR_DATA_KEY,
+                    PR_DATA_AUTH_KEY,
+                    PR_TRANSP_CONNECT_TIME,
+                    PR_TRANSP_BAUDRATE,
+                    PR_TRANSP_DATABITS,
+                    PR_TRANSP_STOPBITS,
+                    PR_TRANSP_PARITY,
+                    PR_PROFILE_TYPE,
+                    PR_OPTICAL_BAUDRATE,
+                    PR_CIPHERING_TYPE,
+                    PR_LIMIT_MAX_NR_OF_DAYS,
+                    PR_READ_PLC_LOG);
     }
 
     public int requestConfigurationProgramChanges() throws IOException {
@@ -674,7 +668,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
             RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
@@ -684,11 +678,11 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isDirty()) {
@@ -698,7 +692,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

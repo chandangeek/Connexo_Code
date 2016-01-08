@@ -10,29 +10,24 @@
 
 package com.energyict.protocolimpl.itron.datastar;
 
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.itron.datastar.basepages.BasePagesFactory;
 import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  * @version  2.0
@@ -53,10 +48,10 @@ public class Datastar extends SchlumbergerProtocol {
     private DatastarProfile datastarProfile=null;
     boolean allowClockSet;
 
-    /** Creates a new instance of Datastar */
-    public Datastar() {
+    @Inject
+    public Datastar(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getFulcrumProfile().getProfileData(lastReading,includeEvents);
@@ -64,10 +59,6 @@ public class Datastar extends SchlumbergerProtocol {
 
     protected void hangup() throws IOException {
         getBasePagesFactory().writeBasePage(0x0052, new byte[]{(byte)0xFF});
-    }
-
-    protected void offLine() throws IOException {
-        getBasePagesFactory().writeBasePage(0x0053, new byte[]{(byte)0xFF});
     }
 
     protected void doTheDisConnect() throws IOException {
@@ -90,17 +81,15 @@ public class Datastar extends SchlumbergerProtocol {
         setDelayAfterConnect(Integer.parseInt(properties.getProperty("DelayAfterConnect","2000").trim()));
     }
 
-    protected List doTheDoGetOptionalKeys() {
-        List list = new ArrayList();
-        list.add("AllowClockSet");
-        return list;
+    protected List<String> doTheDoGetOptionalKeys() {
+        return Collections.singletonList("AllowClockSet");
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return getBasePagesFactory().getOperatingSetUpBasePage().getProfileInterval()*60;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getBasePagesFactory().getOperatingSetUpBasePage().getNrOfChannels();
     }
 
@@ -114,14 +103,16 @@ public class Datastar extends SchlumbergerProtocol {
             getBasePagesFactory().setRealTimeBasePage();
             //getBasePagesFactory().writeBasePage(0x0061, new byte[]{(byte)0xFF}); // RUN
         }
-        else throw new UnsupportedException("setTime() is supported on the Datastar meter but you have to make sure that the firmware version you have allows a clocksync without clearing the load profile. Therefor, the 'AllowClockSet' (set to 1 to enable) property adds an extra level of security to the timeset functionality.");
+        else {
+            throw new UnsupportedException("setTime() is supported on the Datastar meter but you have to make sure that the firmware version you have allows a clocksync without clearing the load profile. Therefor, the 'AllowClockSet' (set to 1 to enable) property adds an extra level of security to the timeset functionality.");
+        }
     }
 
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "firmware revision="+getBasePagesFactory().getFirmwareAndSoftwareRevision().getFwVersion();
                //", software revision="+getBasePagesFactory().getFirmwareAndSoftwareRevision().getSwVersion()+
                //", options=0x"+Integer.toHexString(getBasePagesFactory().getFirmwareOptionsBasePage().getOptions())+
@@ -130,88 +121,6 @@ public class Datastar extends SchlumbergerProtocol {
 
     public String getSerialNumber() throws IOException {
         return "getSerialNumber() not implemented yet";
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        Datastar datastar = new Datastar();
-        Dialer dialer=null;
-        try {
-
-            String[] phones = new String[]{"00016202253220","00018304014086"};
-            String[] passwords = new String[]{"IBEW814",""};
-            int phoneId=1;
-
-            //dialer =DialerFactory.getDirectDialer().newDialer();
-            dialer =DialerFactory.getDefault().newDialer();
-            dialer.init("COM1");
-
-
-            dialer.getSerialCommunicationChannel().setBaudrate(1200);
-
-            dialer.connect(phones[phoneId],60000);
-
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-
-            properties.setProperty(MeterProtocol.PASSWORD,passwords[phoneId]);
-            //properties.setProperty("UnitType","QTM");
-            //properties.setProperty(MeterProtocol.NODEID,"T412    ");
-
-// transfer the properties to the protocol
-            datastar.setProperties(properties);
-
-// depending on the dialer, set the initial (pre-connect) communication parameters
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-                                                                     SerialCommunicationChannel.DATABITS_8,
-                                                                     SerialCommunicationChannel.PARITY_NONE,
-                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            datastar.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("MST"),Logger.getLogger("name"));
-
-// if optical head dialer, enable the HHU signon mechanism
-
-            System.out.println("*********************** connect() ***********************");
-
-// connect to the meter
-            datastar.connect();
-
-
-            //System.out.println(datastar.readRegister(ObisCode.fromString("1.1.9.16.0.0")));
-//            System.out.println(datastar.getSerialNumber());
-            System.out.println(datastar.getFirmwareVersion());
-            System.out.println(datastar.getCommandFactory().getIdentifyCommand());
-            System.out.println(datastar.getTime());
-
-
-            System.out.println(datastar.getBasePagesFactory().getOperatingSetUpBasePage());
-            System.out.println(datastar.getBasePagesFactory().getMassMemoryBasePages());
-            System.out.println(datastar.getBasePagesFactory().getKYZDividersBasePage());
-
-//            System.out.println("Meter:  "+datastar.getTime());
-//            System.out.println("System: "+new Date());
-//            datastar.setTime();
-
-            Calendar from = ProtocolUtils.getCalendar(datastar.getTimeZone());
-            from.add(Calendar.DAY_OF_MONTH,-4);
-            System.out.println(datastar.getProfileData(from.getTime(),true));
-
-
-//System.out.println(datastar.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-
-            datastar.disconnect();
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-
     }
 
     public BasePagesFactory getBasePagesFactory() {
@@ -225,7 +134,7 @@ public class Datastar extends SchlumbergerProtocol {
 
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         ObisCodeMapper ocm = new ObisCodeMapper(this);
 
         // tables

@@ -1,6 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.BusinessException;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
@@ -68,7 +67,7 @@ public abstract class AbstractMessageBuilder implements MessageBuilder {
      *
      * @return the xml String containing the content for the message.
      */
-    protected abstract String getMessageContent() throws BusinessException;
+    protected abstract String getMessageContent() throws ParserConfigurationException, IOException;
 
     /**
      * Adds a child tag to the given {@link StringBuffer}.

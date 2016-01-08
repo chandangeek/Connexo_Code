@@ -5,6 +5,7 @@ package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -28,13 +29,6 @@ public class TempsFonctionnement extends AbstractTrimaranObject{
 	 */
 	public TempsFonctionnement(TrimaranObjectFactory trimaranObjectFactory) {
 		super(trimaranObjectFactory);
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
 	}
 
 	protected int getVariableName() {

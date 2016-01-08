@@ -1,42 +1,29 @@
 package com.energyict.protocols.impl.channels.ip.socket;
 
-import com.energyict.mdc.common.InvalidValueException;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
+import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author sva
  * @since 18/03/13 - 13:25
  */
 public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
-
-    /**
-     * The delay, expressed in milliseconds, to wait (after the connect) before sending the post dial command
-     */
-    public static final String POST_DIAL_DELAY = "postDialDelay";
-
-    /**
-     * The number of tries the post dial command must be transmitted. E.g.: if set to 3, the post dial command will be transferred three times in a row.
-     * By doing so, we increase probability the receiver has received at least once the post dial command
-     */
-    public static final String POST_DIAL_TRIES = "postDialTries";
-
-    /**
-     * The post dial command that must to be send right after the connection has been established.
-     */
-    public static final String POST_DIAL_COMMAND = "postDialCommand";
 
     /**
      * The default post dial delay is 500 ms
@@ -49,27 +36,19 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     protected static final int DEFAULT_POST_DIAL_TRIES = 1;
 
     @Inject
-    public TcpIpPostDialConnectionType(PropertySpecService propertySpecService, SocketService socketService) {
-        super(propertySpecService, socketService);
+    public TcpIpPostDialConnectionType(Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService) {
+        super(thesaurus, propertySpecService, socketService);
     }
 
     @Override
     public ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
-        properties
-                .stream()
-                .filter(property -> property.getValue() != null)
-                .forEach(property -> this.setProperty(property.getName(), property.getValue()));
-        try {
-            ComChannel comChannel = this.newTcpIpConnection(this.getSocketService(), this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
-            sendPostDialCommand(comChannel);
-            return comChannel;
-        }
-        catch (InvalidValueException e) {
-            throw new ConnectionException(e);
-        }
+        this.copyProperties(properties);
+        ComChannel comChannel = this.newTcpIpConnection(this.getSocketService(), this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+        sendPostDialCommand(comChannel);
+        return comChannel;
     }
 
-    protected void sendPostDialCommand(ComChannel comChannel) throws InvalidValueException {
+    protected void sendPostDialCommand(ComChannel comChannel) {
         if (getPostDialCommandPropertyValue() != null) {
             for (int i = 0; i < getPostDialTriesPropertyValue(); i++) {
                 delayBeforeSend(getPostDialDelayPropertyValue());
@@ -88,81 +67,51 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    protected int getPostDialDelayPropertyValue() throws InvalidValueException {
-        BigDecimal postDialDelay = (BigDecimal) this.getProperty(POST_DIAL_DELAY);
+    protected int getPostDialDelayPropertyValue() {
+        BigDecimal postDialDelay = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.propertySpecName());
         int delay;
         if (postDialDelay == null) {
             delay = DEFAULT_POST_DIAL_DELAY;
         }
         else {
+            // Note that java.validation on the OutboundIpConnectionProperties takes care of validating that value >= 0
             delay = postDialDelay.intValue();
-        }
-
-        if (delay < 0) {
-            throw new InvalidValueException("XcannotBeEqualOrLessThanZero", "\"{0}\" should have a value greater then 0", POST_DIAL_DELAY);
         }
         return delay;
     }
 
-    protected int getPostDialTriesPropertyValue() throws InvalidValueException {
-        BigDecimal postDialTries = (BigDecimal) this.getProperty(POST_DIAL_TRIES);
+    protected int getPostDialTriesPropertyValue() {
+        BigDecimal postDialTries = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName());
         int tries;
         if (postDialTries == null) {
             tries = DEFAULT_POST_DIAL_TRIES;
         }
         else {
+            // java.validation on the OutboundIpConnectionProperties takes care of validating that value >= 0
             tries = postDialTries.intValue();
-        }
-
-        if (tries < 0) {
-            throw new InvalidValueException("XcannotBeEqualOrLessThanZero", "\"{0}\" should have a value greater then 0", POST_DIAL_TRIES);
         }
         return tries;
     }
 
     protected String getPostDialCommandPropertyValue() {
-        return (String) this.getProperty(POST_DIAL_COMMAND);
+        return (String) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.propertySpecName());
     }
 
     private PropertySpec postDialDelayPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(POST_DIAL_DELAY, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.propertySpecName(), false, new BigDecimalFactory());
     }
 
     private PropertySpec postDialRetriesPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(POST_DIAL_TRIES, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName(), false, new BigDecimalFactory());
     }
 
     private PropertySpec postDialCommandPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(POST_DIAL_COMMAND, false, new StringFactory());
+        return this.getPropertySpecService().basicPropertySpec(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.propertySpecName(), false, new StringFactory());
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(this.postDialDelayPropertySpec());
-        propertySpecs.add(this.postDialRetriesPropertySpec());
-        propertySpecs.add(this.postDialCommandPropertySpec());
-        return propertySpecs;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        PropertySpec superPropertySpec = super.getPropertySpec(name);
-        if (superPropertySpec != null) {
-            return superPropertySpec;
-        }
-        else if (POST_DIAL_DELAY.equals(name)) {
-            return this.postDialDelayPropertySpec();
-        }
-        else if (POST_DIAL_TRIES.equals(name)) {
-            return this.postDialRetriesPropertySpec();
-        }
-        else if (POST_DIAL_COMMAND.equals(name)) {
-            return this.postDialCommandPropertySpec();
-        }
-        else {
-            return null;
-        }
+    public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
+        return Optional.of(new TcpIpPostDialCustomPropertySet(this.getThesaurus(), this.getPropertySpecService()));
     }
 
     @Override

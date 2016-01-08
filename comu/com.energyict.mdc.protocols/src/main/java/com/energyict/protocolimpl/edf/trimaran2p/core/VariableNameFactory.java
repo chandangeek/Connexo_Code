@@ -4,12 +4,14 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author gna
@@ -17,7 +19,7 @@ import java.util.Iterator;
  */
 public class VariableNameFactory implements Serializable{
 
-	static ArrayList list = new ArrayList();
+	static List<VariableName> list = new ArrayList<>();
 
 	static {
 		list.add(new VariableName("ParametresPlus1", 40, Unit.get("W"), 1, 129, 2, VariableName.ABSTRACT));
@@ -43,19 +45,13 @@ public class VariableNameFactory implements Serializable{
 	public VariableNameFactory() {
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-	}
-
-    static public VariableName getVariableName(int variableName) throws IOException {
+    public static VariableName getVariableName(int variableName) throws IOException {
         Iterator it = list.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             VariableName obj = (VariableName)it.next();
-            if (obj.getCode() == variableName)
-                return obj;
+            if (obj.getCode() == variableName) {
+	            return obj;
+            }
         }
         throw new IOException("VariableNameFactory, invalid variableName code "+variableName);
     }

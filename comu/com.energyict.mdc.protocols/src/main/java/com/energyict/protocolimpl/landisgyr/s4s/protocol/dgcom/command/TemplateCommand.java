@@ -24,15 +24,10 @@ public class TemplateCommand extends AbstractCommand {
         super(commandFactory);
     }
 
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateCommand(null)));
-    }
-
     protected byte[] prepareBuild() throws IOException {
         return new byte[]{(byte)0x8F,0,0,0,0,0,0,0,0};
     }
 
     protected void parse(byte[] data) throws IOException {
-        int offset=0;
     }
 }

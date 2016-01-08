@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-
 import com.energyict.protocols.mdc.services.impl.OrmClient;
+
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemComMessaging;
 
@@ -21,8 +22,8 @@ import java.time.Clock;
 public class CX20009 extends AM540 {
 
     @Inject
-    public CX20009(Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public CX20009(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService, clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override

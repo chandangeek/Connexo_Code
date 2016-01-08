@@ -19,9 +19,9 @@ import java.io.IOException;
  *
  * @author Koen
  */
-public class RemoteCommunicationStatus extends AbstractTable { 
+public class RemoteCommunicationStatus extends AbstractTable {
 
-    
+
     /*
     Memory storage: Combination of RAM and EEPROM
     Total table size: (bytes) 44
@@ -40,34 +40,30 @@ public class RemoteCommunicationStatus extends AbstractTable {
     */
 
     private PortStatus[] portStatus; //There is a PortStatus entry for remote port 1 and remote port 2.
-							     
+
     /** Creates a new instance of RemoteCommunicationStatus */
     public RemoteCommunicationStatus(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(91,true));
     }
- 
-//     public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new RemoteCommunicationStatus(null)));
-//     } 
 
     public String toString() {
         // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("RemoteCommunicationStatus:\n");
         for (int i=0;i<getPortStatus().length;i++)
             strBuff.append("   portStatus["+i+"]="+getPortStatus()[i]+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int offset = 0;
         setPortStatus(new PortStatus[2]);
         for (int i=0;i<getPortStatus().length;i++) {
-            getPortStatus()[i] = new PortStatus(tableData, offset, getTableFactory()); 
+            getPortStatus()[i] = new PortStatus(tableData, offset, getTableFactory());
             offset += PortStatus.getSize(getTableFactory());
         }
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }
@@ -79,6 +75,6 @@ public class RemoteCommunicationStatus extends AbstractTable {
     public void setPortStatus(PortStatus[] portStatus) {
         this.portStatus = portStatus;
     }
-    
+
 
 }

@@ -1,8 +1,10 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.LeakageEvent;
 
@@ -34,7 +36,7 @@ public class LeakageDetectionStatus extends AbstractParameter {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         status = data[0] & 0xFF;
     }
 

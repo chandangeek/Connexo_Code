@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.dlms.flex;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ProtocolLink;
@@ -9,8 +12,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.dlms.iskrame37x.BillingSet;
 import com.energyict.protocolimpl.dlms.iskrame37x.BillingValue;
 
@@ -80,14 +81,6 @@ public class RegisterProfile {
                 // TODO Auto-generated constructor stub
         }
 
-        /**
-         * @param args
-         */
-        public static void main(String[] args) {
-                // TODO Auto-generated method stub
-
-        }
-
         public void getProfileBuffer(ObisCode dailyObisCode) throws IOException {
                 if (billingSets.size() == 0) {
                         processDataContainer(cof.getProfileGeneric(dailyObisCode).getBuffer());
@@ -98,9 +91,13 @@ public class RegisterProfile {
 
         billingSets.clear();
         int nrOfBillingSets = buffer.getRoot().getNrOfElements();
-        if (DEBUG>=1) System.out.println("nrOfBillingSets : "+nrOfBillingSets);
+        if (DEBUG>=1) {
+            System.out.println("nrOfBillingSets : " + nrOfBillingSets);
+        }
         for (int billingSetId=0;billingSetId<nrOfBillingSets;billingSetId++) {
-                if (DEBUG>=1) System.out.println("************************************************************************************");
+                if (DEBUG>=1) {
+                    System.out.println("************************************************************************************");
+                }
             BillingSet billingSet = getBillingSet(billingSetId,buffer);
             for ( int i = 1; i < buffer.getRoot().getStructure(billingSetId).getElements().length; i++ ){
                 billingSet.addBillingValue(getBillingValues(billingSetId, buffer, i, obisCodeArray[i-1]));
@@ -116,9 +113,8 @@ public class RegisterProfile {
 //              date = ds.getOctetString(0).toDate(protocolLink.getTimeZone());
 
                 ScalerUnit sUnit = getScalerUnit(obisCode);
-                BillingValue billingValue = new BillingValue(billingDate, (long)ds.getValue(item), sUnit, obisCode);
 
-                return billingValue;
+            return new BillingValue(billingDate, (long)ds.getValue(item), sUnit, obisCode);
         }
 
         private BillingSet getBillingSet(int billingSetId, DataContainer buffer) {

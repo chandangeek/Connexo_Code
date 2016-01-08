@@ -30,10 +30,6 @@ public class AddressWriteBasePage extends AbstractBasePage {
         super(basePagesFactory);
     }
 
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new RealTimeBasePage(null)));
-    }
-
     protected BasePageDescriptor preparebuild() throws IOException {
         BasePageDescriptor bs = new BasePageDescriptor(getAddress(), getData().length);
         bs.setData(getData());

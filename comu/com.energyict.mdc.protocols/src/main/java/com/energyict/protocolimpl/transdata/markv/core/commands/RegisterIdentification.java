@@ -26,10 +26,6 @@ import java.util.TimeZone;
  */
 public class RegisterIdentification {
 
-
-    private static final int MAX_NR_OF_CHANNELS=8;
-    private static final int NR_OF_REGISTERTYPES=9;
-
     private int id;
     private boolean sign;
     private int format;
@@ -42,22 +38,10 @@ public class RegisterIdentification {
     private static final int FORMAT_TYPE_NUMBER=1;
     private static final int FORMAT_TYPE_TD=2;
 
-//    int[] FORMAT_TYPE = {0,0,1,1,1,1,1,0,
-//                         0,1,1,1,1,1,2,2,
-//                         2,2,2,2,2,2,2,2};
-//
-//    int[] FORMAT_NROFDIGITS = {0,0,6,6,6,6,6,0,
-//                               0,5,5,5,5,5,0,0,
-//                               0,0,0,0,0,0,0,0};
-
     // KV void type replaced by int 6 digits!
     int[] FORMAT_TYPE = {1,0,1,1,1,1,1,0,
                          0,1,1,1,1,1,2,2,
                          2,2,2,2,2,2,2,2};
-
-    int[] FORMAT_NROFDIGITS = {6,0,6,6,6,6,6,0,
-                               0,5,5,5,5,5,0,0,
-                               0,0,0,0,0,0,0,0};
 
     int[] FORMAT_TDMASK = {0,0,0,0,0,0,0,0,
                            0,0,0,0,0,0,123,321,
@@ -67,11 +51,9 @@ public class RegisterIdentification {
                              0,4,3,2,1,0,0,0,
                              0,0,0,0,0,0,0,0};
 
-    //abstract protected List getRegisterDataIds();
-
-    static List registerDataIds;
+    static List<RegisterDataId> registerDataIds;
     static {
-        registerDataIds = new ArrayList();
+        registerDataIds = new ArrayList<>();
         registerDataIds.addAll(GeneralRegisterIdentification.getRegisterDataIds());
         registerDataIds.addAll(InstantaneousQuantitiesRegisterIdentification.getRegisterDataIds());
         registerDataIds.addAll(SelfReadRegisterIdentification.getRegisterDataIds());
@@ -81,8 +63,7 @@ public class RegisterIdentification {
 
     private RegisterDataId registerDataId;
 
-    /** Creates a new instance of RegisterIdentification */
-    static public List getRegisterDataIds() {
+    public static List<RegisterDataId> getRegisterDataIds() {
         return registerDataIds;
     }
 
@@ -93,9 +74,6 @@ public class RegisterIdentification {
     public String toString() {
        return getRegisterDataId().toString()+", value="+getValue()+", date="+getDate();
     }
-
-
-
 
     public boolean isVoidType() {
         return FORMAT_TYPE[getFormat()]==FORMAT_TYPE_VOID;
@@ -109,14 +87,13 @@ public class RegisterIdentification {
 
     private void parse(String strData, TimeZone timeZone) throws IOException {
 
-//System.out.println(strData);
-
         setId(Integer.parseInt(strData.substring(0,3)));
-        setSign(strData.indexOf("-")>=0);
+        setSign(strData.contains("-"));
         setId(getId()*(isSign()?-1:1));
 
-        if (strData.length() >= 12)
-           setFormat(Integer.parseInt(strData.substring(10,12)));
+        if (strData.length() >= 12) {
+            setFormat(Integer.parseInt(strData.substring(10, 12)));
+        }
 
         setRegisterDataId(findRegisterDataId());
 
@@ -151,8 +128,9 @@ public class RegisterIdentification {
                 buildCalendar(field,temp,cal);
                 setDate(cal.getTime());
             }
-            if (!(isTDRegisterTypeID() == isTDType()))
-                throw new IOException("RegisterIdentification, parse(), Register ("+getRegisterDataId().getId()+") both registertype ("+getRegisterDataId().getType()+") and format ("+getFormat()+") must be of the same type!");
+            if (!(isTDRegisterTypeID() == isTDType())) {
+                throw new IOException("RegisterIdentification, parse(), Register (" + getRegisterDataId().getId() + ") both registertype (" + getRegisterDataId().getType() + ") and format (" + getFormat() + ") must be of the same type!");
+            }
         }
 
     } // private void parse(String strData, TimeZone timeZone)
@@ -162,17 +140,16 @@ public class RegisterIdentification {
         return (getRegisterDataId().getType()==RegisterDataId.TIME);
     }
 
-    private RegisterDataId findRegisterDataId() throws IOException {
-        Iterator it = registerDataIds.iterator();
+    private RegisterDataId findRegisterDataId() {
+        Iterator<RegisterDataId> it = registerDataIds.iterator();
         while(it.hasNext()) {
-            RegisterDataId rdi = (RegisterDataId)it.next();
+            RegisterDataId rdi = it.next();
             if (rdi.getId()==getId()) {
                 return rdi;
             }
         }
 
         return new RegisterDataId(RegisterDataId.OTHER,RegisterDataId.LONG,getId(),-1, 0,0, "Unknown register, id="+getId());
-        //throw new IOException("RegisterIdentification, findRegisterDataId(), no register data id found for id "+getId());
     }
 
     private void buildCalendar(int field, int val, Calendar cal) {
@@ -196,7 +173,7 @@ public class RegisterIdentification {
                 cal.set(Calendar.YEAR,val>=50?val+1900:val+2000);
             break;
         }
-    } // private void buildCalendar(int field, int val, Calendar cal)
+    }
 
     public int getId() {
         return id;
@@ -245,32 +222,6 @@ public class RegisterIdentification {
 
     public void setRegisterDataId(RegisterDataId registerDataId) {
         this.registerDataId = registerDataId;
-    }
-
-    static public void main(String[] args) {
-        try {
-
-
-            RegisterIdentification ri = null; //new RegisterIdentification("005123456-05",TimeZone.getTimeZone("ECT"));
-
-
-//            Iterator it = ri.registerDataIds.iterator();
-//            while(it.hasNext()) {
-//                RegisterDataId rdi = (RegisterDataId)it.next();
-//                System.out.println(rdi);
-//            }
-
-            System.out.println(ri);
-//            ri = new RegisterIdentification("024050810-19",TimeZone.getTimeZone("ECT"));
-//            System.out.println(ri);
-//            ri = new RegisterIdentification("301135200-15",TimeZone.getTimeZone("ECT"));
-//            System.out.println(ri.getRegisterDataId().getObisCode().getUnitElectricity(0));
-            ri = new RegisterIdentification("314090605 17",TimeZone.getTimeZone("ECT"));
-            System.out.println(ri+", "+ri.getRegisterDataId().getObisCode().getUnitElectricity(0));
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public String getStrValue() {

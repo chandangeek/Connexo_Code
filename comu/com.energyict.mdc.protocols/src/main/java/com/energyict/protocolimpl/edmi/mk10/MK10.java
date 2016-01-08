@@ -1,18 +1,18 @@
 
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
-import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -21,7 +21,10 @@ import com.energyict.protocolimpl.edmi.mk10.command.TimeInfo;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
+import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
+import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -70,8 +73,9 @@ public class MK10 extends AbstractProtocol {
 	private boolean logOffDisabled				= true;
     private boolean fullDebugLogging            = false;
 
-    /** Creates a new instance of MK10 */
-	public MK10() {
+    @Inject
+	public MK10(PropertySpecService propertySpecService) {
+	    super(propertySpecService);
 	}
 
 	protected void doConnect() throws IOException {

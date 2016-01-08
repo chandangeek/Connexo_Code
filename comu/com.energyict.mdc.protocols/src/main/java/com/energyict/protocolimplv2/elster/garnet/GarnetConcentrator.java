@@ -1,5 +1,10 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -16,7 +21,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -24,20 +38,18 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
-import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
-import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorVersionResponseStructure;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
+import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
+import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorVersionResponseStructure;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -46,9 +58,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import static com.energyict.mdc.protocol.api.MessageSeeds.*;
+import static com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_REGISTER_DATA;
+import static com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED;
 
 /**
  * @author sva
@@ -70,18 +84,20 @@ public class GarnetConcentrator implements DeviceProtocol {
     private final SerialComponentService serialComponentService;
     private final IssueService issueService;
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
     private final Provider<SecuritySupport> securitySupportProvider;
 
     @Inject
-    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, Clock clock, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Provider<SecuritySupport> securitySupportProvider) {
+    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, Clock clock, Thesaurus thesaurus, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Provider<SecuritySupport> securitySupportProvider) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
         this.issueService = issueService;
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.meteringService = meteringService;
@@ -106,11 +122,10 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
-        result.add(new SioPlainSerialConnectionType(getSerialComponentService()));
-        result.add(new RxTxPlainSerialConnectionType(getSerialComponentService()));
-        return result;
+        return Arrays.asList(
+                new OutboundTcpIpConnectionType(this.thesaurus, getPropertySpecService(), getSocketService()),
+                new SioPlainSerialConnectionType(getSerialComponentService(), this.thesaurus),
+                new RxTxPlainSerialConnectionType(getSerialComponentService(), this.thesaurus));
     }
 
     private SerialComponentService getSerialComponentService() {
@@ -173,7 +188,8 @@ public class GarnetConcentrator implements DeviceProtocol {
                     ResultType.NotSupported,
                     this.issueService.newProblem(
                             loadProfileReader.getProfileObisCode(),
-                            LOADPROFILE_NOT_SUPPORTED.getKey(),
+                            this.thesaurus,
+                            LOADPROFILE_NOT_SUPPORTED,
                             loadProfileReader.getProfileObisCode()));
             collectedLoadProfileConfigurations.add(configuration);
         }
@@ -242,7 +258,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect(propertySpecService), new SerialDeviceProtocolDialect(propertySpecService));
+        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect(this.thesaurus, this.propertySpecService), new SerialDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -251,11 +267,6 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     }
 
-//    @Override
-//    public void addProperties(TypedProperties properties) {
-//        getRequestFactory().getProperties().addProperties(properties);
-//    }
-
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         getRequestFactory().getProperties().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
@@ -263,13 +274,8 @@ public class GarnetConcentrator implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return getSecuritySupport().getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return getSecuritySupport().getSecurityRelationTypeName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.getSecuritySupport().getCustomPropertySet();
     }
 
     @Override
@@ -280,11 +286,6 @@ public class GarnetConcentrator implements DeviceProtocol {
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return getSecuritySupport().getEncryptionAccessLevels();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return getSecuritySupport().getSecurityPropertySpec(name);
     }
 
     @Override
@@ -367,18 +368,19 @@ public class GarnetConcentrator implements DeviceProtocol {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String s) {
-        return getGarnetProperties().getPropertySpec(s);
-    }
-
-    @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         CollectedFirmwareVersion firmwareVersionsCollectedData = collectedDataFactory.createFirmwareVersionsCollectedData(getOfflineDevice().getDeviceIdentifier());
         try {
             firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getRegisterFactory().readFirmwareVersion());
         } catch (GarnetException e) {
-            firmwareVersionsCollectedData.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem("FirmwareVersion", COULD_NOT_PARSE_REGISTER_DATA.getKey()));
+            firmwareVersionsCollectedData.setFailureInformation(
+                    ResultType.InCompatible,
+                    this.issueService.newProblem(
+                            "FirmwareVersion",
+                            this.thesaurus,
+                            COULD_NOT_PARSE_REGISTER_DATA));
         }
         return firmwareVersionsCollectedData;
     }
+
 }

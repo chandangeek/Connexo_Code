@@ -1,21 +1,22 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,8 +30,8 @@ import java.util.List;
 public class MBusDevice extends AbstractNtaMbusDevice {
 
     @Inject
-    public MBusDevice(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+    public MBusDevice(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient, propertySpecService);
     }
 
     @Override
@@ -61,12 +62,12 @@ public class MBusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
 }

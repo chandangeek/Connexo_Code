@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import java.util.Iterator;
+import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -8,23 +9,23 @@ class SeriesResponse implements Response {
 
     private NackCode nackCode;
     private int registerIndex;
-    private TreeMap valueMap; 
+    private Map<Date, E120RegisterValue> valueMap;
 
     SeriesResponse(NackCode nackCode) {
         this.nackCode = nackCode;
-        valueMap = new TreeMap();
+        valueMap = new TreeMap<>();
     }
-    
+
     void setRegisterIndex(int registerIndex) {
         this.registerIndex = registerIndex;
     }
 
-    SeriesResponse addValue( E120RegisterValue value ){
-        valueMap.put(value.getTime(),value);
+    SeriesResponse addValue(E120RegisterValue value) {
+        valueMap.put(value.getTime(), value);
         return this;
     }
-    
-    public NackCode getNackCode(){
+
+    public NackCode getNackCode() {
         return nackCode;
     }
 
@@ -35,27 +36,25 @@ class SeriesResponse implements Response {
     public boolean isOk() {
         return NackCode.OK.equals(nackCode);
     }
-    
-    public Object get(Object key) {
+
+    public E120RegisterValue get(Date key) {
         return valueMap.get(key);
     }
 
-    public Set keySet() {
+    public Set<Date> keySet() {
         return valueMap.keySet();
     }
-    
-    public String toString( ){
-        StringBuffer rslt = new StringBuffer();
-        
+
+    public String toString() {
+        StringBuilder rslt = new StringBuilder();
+
         rslt.append("SeriesResponse [");
         rslt.append("registerIndex: ").append(registerIndex).append(", ");
-        
-        Iterator i = valueMap.values().iterator();
-        while (i.hasNext()) {
-            E120RegisterValue value = (E120RegisterValue) i.next();
+
+        for (E120RegisterValue value : valueMap.values()) {
             rslt.append("\n\t").append(value);
         }
-        
+
         rslt.append("]");
         return rslt.toString();
     }

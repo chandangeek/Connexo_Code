@@ -15,6 +15,7 @@ import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -114,7 +115,7 @@ public class IDISProfileDataReader {
                     }
                 }
             } else {
-                Issue problem = this.issueService.newIssueCollector().addWarning(loadProfileReader, "loadProfileXnotsupported", getCorrectedLoadProfileObisCode(loadProfileReader));
+                Issue problem = this.issueService.newIssueCollector().addWarning(loadProfileReader, MessageSeeds.LOADPROFILE_NOT_SUPPORTED.getKey(), getCorrectedLoadProfileObisCode(loadProfileReader));
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
 

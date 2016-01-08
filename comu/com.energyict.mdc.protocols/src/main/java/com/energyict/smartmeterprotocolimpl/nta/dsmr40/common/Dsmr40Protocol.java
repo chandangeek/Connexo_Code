@@ -1,16 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
@@ -32,8 +33,8 @@ import java.util.logging.Level;
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     @Inject
-    public Dsmr40Protocol(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
-        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+    public Dsmr40Protocol(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+        super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
     }
 
     @Override

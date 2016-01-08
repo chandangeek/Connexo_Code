@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 
 import java.io.IOException;
 
@@ -23,7 +24,7 @@ public class EncoderModelDetection extends AbstractRadioCommand {
     int encoderModelB;
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         int offset = 0;
 
         statusOrNumberOfWheelsForEncoderA = data[offset++] & 0xFF;

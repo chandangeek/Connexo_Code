@@ -1,13 +1,15 @@
 package com.energyict.protocolimpl.instromet.v444;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.instromet.connection.Command;
@@ -17,6 +19,7 @@ import com.energyict.protocolimpl.instromet.core.InstrometProtocol;
 import com.energyict.protocolimpl.instromet.v444.tables.RegisterFactory;
 import com.energyict.protocolimpl.instromet.v444.tables.TableFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,6 +50,11 @@ public class Instromet444 extends InstrometProtocol {
 	private RegisterFactory registerFactory;
 	private List wrapValues = new ArrayList();
 	private int iRoundtripCorrection;
+
+	@Inject
+	public Instromet444(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
 
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		return getInstromet444Profile().getProfileData(lastReading,includeEvents);

@@ -116,52 +116,10 @@ class CP56Time extends Time {
 
     String toBitString(int value, int nrBits ){
         String binary = Integer.toBinaryString( value );
-        for( int i = binary.length(); i < nrBits; i ++ )
+        for( int i = binary.length(); i < nrBits; i ++ ) {
             binary = "0" + binary;
-        return new StringBuffer(binary).toString();
-    }
-
-    public static void main(String args[]){
-
-        //ByteArray x1 = new ByteArray( new byte[] { 0x7b, 0x15, (byte)0x20, (byte)0x91, (byte)0x65, 0x04, 0x06 } );
-/*        ByteArray x1 = new ByteArray( new byte[] { (byte)0xba, (byte)0x45, (byte)0x34, (byte)0x88, (byte)0x86, 0x04, 0x06 } );
-        System.out.println( x1.toBinaryString() );
-
-        CP56Time cpTime = new CP56Time( TimeZone.getDefault(), x1 );
-        System.out.println( cpTime );
-        System.out.println( cpTime.getDate() );
-
-        ByteArray x2 = cpTime.toByteArray();
-        System.out.println( "x2 " + x2 );
-        cpTime = new CP56Time( TimeZone.getDefault(), x1 );
-        System.out.println(cpTime.getDate());
-
-        cpTime = new CP56Time( TimeZone.getDefault(), new Date() );
-        System.out.println( cpTime.toByteArray().toBinaryString() );
-        System.out.println( cpTime.toByteArray().toHexaString() );
-        cpTime =  new CP56Time( TimeZone.getDefault(), cpTime.toByteArray() );
-        System.out.println( cpTime.getDate() );
-
-       */
-        ByteArray x1 = new ByteArray( new byte[] { 0x55, 0x06, (byte)0x04, (byte)0x8a, (byte)0x4b, 0x04, 0x06 } );
-        /*
-        Date d = new Date();
-        CP56Time cpTime1 = new CP56Time( TimeZone.getDefault(), x1 );
-        //CP56Time cpTime2 = new CP56Time( TimeZone.getDefault(), cpTime1.toByteArray() );
-
-        System.out.println( cpTime1.toByteArray() + " " +  d );
-        //System.out.println( /*cpTime2.toByteArray() + " " +  cpTime2.getDate() );
- *
-        */
-
-        Calendar c = Calendar.getInstance();
-        c.set( 2006, 03, 11, 10, 04, 01 );
-
-        System.out.println(c.getTime());
-        CP56Time time = new CP56Time( TimeZone.getDefault(), c.getTime() );
-        System.out.println( x1 );
-        System.out.println( time.toByteArray() );
-
+        }
+        return binary;
     }
 
 }

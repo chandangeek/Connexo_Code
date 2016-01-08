@@ -1,9 +1,22 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.NotInObjectListException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.CacheMechanism;
+
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
@@ -21,18 +34,6 @@ import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -90,8 +91,8 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     private JanzStoredValues storedValues;
 
     @Inject
-    public JanzC280(OrmClient ormClient) {
-        super(ormClient);
+    public JanzC280(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService, ormClient);
     }
 
     @Override

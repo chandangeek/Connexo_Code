@@ -1,6 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 
 import org.xml.sax.Attributes;
@@ -105,18 +104,18 @@ public class CosemAttributeMessageBuilder extends AbstractMessageBuilder {
     /**
      * {@inheritDoc}
      */
-    protected String getMessageContent() throws BusinessException {
+    protected String getMessageContent() {
         if (classId == 0) {
-            throw new BusinessException("<html>ClassId needed</html>");
+            throw new IllegalArgumentException("<html>ClassId needed</html>");
         }
         if (logicalName == null) {
-            throw new BusinessException("<html>LogicalName needed</html>");
+            throw new IllegalArgumentException("<html>LogicalName needed</html>");
         }
         if (attributeId == 0) {
-            throw new BusinessException("<html>AttributeId needed</html>");
+            throw new IllegalArgumentException("<html>AttributeId needed</html>");
         }
         if (value == null) {
-            throw new BusinessException("<html>Value needed</html>");
+            throw new IllegalArgumentException("<html>Value needed</html>");
         }
         StringBuilder contentBuilder = new StringBuilder("<");
         contentBuilder.append(MESSAGETAG);
@@ -132,13 +131,11 @@ public class CosemAttributeMessageBuilder extends AbstractMessageBuilder {
     }
 
     public String getDescription() {
-        StringBuilder descriptionBuilder = new StringBuilder(MESSAGETAG);
-        descriptionBuilder.append(" ");
-        descriptionBuilder.append("ClassId='").append(classId).append("', ");
-        descriptionBuilder.append("LogicalName='").append(logicalName).append("', ");
-        descriptionBuilder.append("AttributeId='").append(attributeId).append("', ");
-        descriptionBuilder.append("Value='").append(value).append("', ");
-        return descriptionBuilder.toString();
+        return MESSAGETAG + " " +
+                "ClassId='" + classId + "', " +
+                "LogicalName='" + logicalName + "', " +
+                "AttributeId='" + attributeId + "', " +
+                "Value='" + value + "', ";
     }
 
     public AdvancedMessageHandler getMessageHandler(MessageBuilder builder) {

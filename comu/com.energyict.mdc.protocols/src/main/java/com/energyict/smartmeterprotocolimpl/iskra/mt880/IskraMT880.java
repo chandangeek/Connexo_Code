@@ -1,10 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -12,14 +11,17 @@ import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.events.MT880EventProfile;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.profiles.LoadProfileBuilder;
 
@@ -53,8 +55,8 @@ public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProt
     private MT880Messaging messaging;
 
     @Inject
-    public IskraMT880(OrmClient ormClient) {
-        super(ormClient);
+    public IskraMT880(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService, ormClient);
     }
 
     @Override

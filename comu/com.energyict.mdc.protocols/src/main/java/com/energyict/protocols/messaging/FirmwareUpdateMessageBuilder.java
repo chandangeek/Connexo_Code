@@ -1,6 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.UserFile;
 
 import org.xml.sax.Attributes;
@@ -103,9 +102,9 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
      * {@inheritDoc}
      */
     @Override
-	protected String getMessageContent() throws BusinessException {
+	protected String getMessageContent() {
         if ((url == null) && (this.getUserFile() == null)) {
-            throw new BusinessException("urlOrUserFileNeeded", "URL or user file needed");
+            throw new IllegalArgumentException("URL or user file needed");
         }
 
         final StringBuilder builder = new StringBuilder("<").append(MESSAGETAG).append(">");

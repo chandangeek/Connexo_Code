@@ -1,25 +1,23 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.properties.PropertySpec;
-
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Collections;
@@ -81,11 +79,6 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs () {
         return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getPropertySpec (String name) {
-        return null;
     }
 
     @Override

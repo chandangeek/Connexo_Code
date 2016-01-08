@@ -5,6 +5,7 @@ package com.energyict.protocolimpl.edf.trimaran2p;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.edf.trimaran2p.core.VariableNameFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.common.Register;
 import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
@@ -105,15 +106,6 @@ public class RegisterFactory {
 				}
 			}
 		}
-	}
-
-	/**
-	 * @param args
-	 * @throws IOException
-	 */
-	public static void main(String[] args) throws IOException {
-		RegisterFactory rf = new RegisterFactory();
-		rf.buildRegisters();
 	}
 
 	public Register findRegister(ObisCode obc) throws NoSuchRegisterException {

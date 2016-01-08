@@ -1,16 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.protocol.api.codetables.Code;
-
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Parser;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeCalendarObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeObject;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,7 +31,7 @@ public class RawTariffScheme extends AbstractField<RawTariffScheme> {
     private boolean[] holidays;
     private RawSpecialDays specialDays;
 
-    public RawTariffScheme(CodeObject codeObject, String tariffName, Date activationDate) throws BusinessException {
+    public RawTariffScheme(CodeObject codeObject, String tariffName, Date activationDate) {
         this.enabled = true;
         this.year = codeObject.getYearFrom();
         this.tariffId = getTariffIdentifier(tariffName);

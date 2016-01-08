@@ -38,13 +38,9 @@ public class DiscoverResult implements Serializable {
     public DiscoverResult() {
     }
 
-//        public static void main(String[] args) {
-//            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new DiscoverResult()));
-//        }
-
     public String toString() {
         // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("DiscoverResult:\n");
         strBuff.append("   discovered=" + isDiscovered() + "\n");
         if (isDiscovered()) {
@@ -135,23 +131,6 @@ public class DiscoverResult implements Serializable {
     public void setProtocolMBUS() {
         setProtocol(MBUS);
     }
-
-//    static public void main(String[] args) {
-//        try {
-//            DiscoverResult dr = new DiscoverResult();
-//            dr.setNetworkId("RS485_1_9600;8;N;1");
-//            dr.setDeviceTypeName("testtype");
-//            dr.setAddress(5);
-//            System.out.println(dr.deviceName());
-//            dr.setNetworkId("RS485_1");
-//            dr.setDeviceTypeName("testtype");
-//            dr.setAddress(5);
-//            System.out.println(dr.deviceName());
-//        }
-//        catch(IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public String getSerialNumber() {
         return serialNumber;

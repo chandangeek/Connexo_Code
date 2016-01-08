@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.sctm.ekm;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
@@ -18,6 +19,7 @@ import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.metcom.Metcom2;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -47,8 +49,9 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     private GenericRegisters genericRegisters;
     private String billingTimeStampId = BILLINGPOINT_TIMESTAMP_ID_DEFAULT;
 
-    /** Creates a new instance of Metcom2 */
-    public EKM() {
+    @Inject
+    public EKM(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         genericRegisters = new GenericRegisters(this);
     }
 

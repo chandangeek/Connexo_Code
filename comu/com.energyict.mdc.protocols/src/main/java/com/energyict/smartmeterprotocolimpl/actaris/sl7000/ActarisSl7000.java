@@ -1,8 +1,25 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -17,22 +34,6 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.messaging.Message;
-import com.energyict.mdc.protocol.api.messaging.MessageTag;
-import com.energyict.mdc.protocol.api.messaging.MessageValue;
-
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.Messages;
@@ -90,8 +91,8 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     private final UserFileFactory userFileFactory;
 
     @Inject
-    public ActarisSl7000(OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
-        super(ormClient);
+    public ActarisSl7000(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+        super(propertySpecService, ormClient);
         this.codeFactory = codeFactory;
         this.userFileFactory = userFileFactory;
     }

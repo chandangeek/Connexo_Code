@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 
 import javax.inject.Inject;
@@ -22,16 +23,19 @@ import java.util.logging.Logger;
  */
 public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
 
+    private final PropertySpecService propertySpecService;
     private final WebRTUZ3 meterProtocol;
     private final String serialNumber;
     private final int physicalAddress;
 
     @Inject
-    public SlaveMeter() {
-        this(null, null, -1);
+    public SlaveMeter(PropertySpecService propertySpecService) {
+        this(propertySpecService, null, null, -1);
     }
 
-    public SlaveMeter(WebRTUZ3 meterProtocol, String serialNumber, int physicalAddress) {
+    public SlaveMeter(PropertySpecService propertySpecService, WebRTUZ3 meterProtocol, String serialNumber, int physicalAddress) {
+        super();
+        this.propertySpecService = propertySpecService;
         this.meterProtocol = meterProtocol;
         this.serialNumber = serialNumber;
         this.physicalAddress = physicalAddress;
@@ -53,12 +57,12 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.propertySpecService);
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.propertySpecService);
     }
 
     /**

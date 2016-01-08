@@ -103,7 +103,7 @@ public class MBusClient extends AbstractCosemObject {
 	 * @throws java.io.IOException
 	 */
 	public void setEncryptionKey(String openKey) throws IOException {
-		if(openKey.equals("")){
+		if(openKey.isEmpty()){
 			setEncryptionKey(new NullData().getBEREncodedByteArray());
 		} else {
 			setEncryptionKey(OctetString.fromString(openKey).getBEREncodedByteArray());

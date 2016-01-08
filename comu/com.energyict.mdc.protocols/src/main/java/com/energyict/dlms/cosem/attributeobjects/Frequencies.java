@@ -151,16 +151,4 @@ public class Frequencies extends Array implements Comparable<Frequencies> {
         }
     }
 
-    public static void main(String[] args) {
-        FrequencyGroup[] freqs = new FrequencyGroup[]{
-                FrequencyGroup.createFrequencyGroup(0, 1),
-                FrequencyGroup.createFrequencyGroup(2, 3),
-                FrequencyGroup.createFrequencyGroup(4, 5),
-                FrequencyGroup.createFrequencyGroup(6, 7),
-                FrequencyGroup.createFrequencyGroup(8, 9)
-        };
-        Frequencies frequencies = Frequencies.fromFrequencyGroups(freqs);
-        System.out.println(frequencies);
-    }
-
 }

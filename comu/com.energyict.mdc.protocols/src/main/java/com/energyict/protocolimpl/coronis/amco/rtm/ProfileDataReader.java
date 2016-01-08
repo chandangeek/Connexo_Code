@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.coronis.amco.rtm;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ApplicationStatus;
@@ -86,7 +87,7 @@ public class ProfileDataReader {
         return new Date(timeStamp);
     }
 
-    private Date getTimeStampOfNewestRecordMonthly(Date toDate, Date lastLoggedValue) throws IOException {
+    private Date getTimeStampOfNewestRecordMonthly(Date toDate, Date lastLoggedValue) {
         Calendar lastLogged = Calendar.getInstance(rtm.getTimeZone());
         lastLogged.setTime(lastLoggedValue);
         lastLogged.setLenient(true);
@@ -117,7 +118,7 @@ public class ProfileDataReader {
         int nrOfIntervals = getNrOfIntervals(lastReading, toDate);
         int initialNrOfIntervals = nrOfIntervals;
         Date lastLoggedValue = new Date();
-        List<List<Integer[]>> rawValues = new ArrayList<List<Integer[]>>();
+        List<List<Integer[]>> rawValues = new ArrayList<>();
 
         int startOffset = -1;
         long initialOffset = -1;
@@ -136,7 +137,7 @@ public class ProfileDataReader {
         for (int port = 0; port < getNumberOfInputsUsed(); port++) {
             nrOfIntervals = initialNrOfIntervals;
             int counter = 0;
-            List<Integer[]> values = new ArrayList<Integer[]>();
+            List<Integer[]> values = new ArrayList<>();
             while (nrOfIntervals > 0) {
                 if (startOffset == -1) {
                     ExtendedDataloggingTable table = rtm.getRadioCommandFactory().readExtendedDataloggingTable(port + 1, (nrOfIntervals < getSteps(nrOfIntervals) ? nrOfIntervals : getSteps(nrOfIntervals)), toDate);
@@ -170,7 +171,7 @@ public class ProfileDataReader {
                 rawValues.add(values);
             }
         }
-        if (rawValues.size() == 0) {
+        if (rawValues.isEmpty()) {
             return profileData;
         }
 
@@ -179,7 +180,7 @@ public class ProfileDataReader {
 
     public ProfileData parseProfileData(GenericHeader genericHeader, boolean requestsAllowed, List<List<Integer[]>> rawValues, ProfileData profileData, boolean monthly, boolean daily, Date toDate, Date lastReading, Date lastLoggedValue, long initialOffset) throws IOException {
 
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         Calendar calendar;
         if (requestsAllowed) {
             calendar = Calendar.getInstance(rtm.getTimeZone());
@@ -217,12 +218,12 @@ public class ProfileDataReader {
         }
 
         int nrOfReadings = rawValues.get(0).size();
-        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+        List<IntervalData> intervalDatas = new ArrayList<>();
         for (int index = 0; index < nrOfReadings; index++) {
-            List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
+            List<IntervalValue> intervalValues = new ArrayList<>();
 
             for (int inputId = 0; inputId < rawValues.size(); inputId++) {
-                int multiplier = genericHeader.getRtmUnit(inputId).getMultiplier();
+                int multiplier = genericHeader.getRtmUnit(inputId, this.rtm).getMultiplier();
                 Integer value = rawValues.get(inputId).get(index)[0];
                 int status = rawValues.get(inputId).get(index)[1];
                 int protocolStatus = rawValues.get(inputId).get(index)[2];
@@ -248,7 +249,7 @@ public class ProfileDataReader {
         return profileData;
     }
 
-    private Calendar roundTimeStamps(boolean monthly, Calendar calendar, int profileIntervalInSeconds) throws IOException {
+    private Calendar roundTimeStamps(boolean monthly, Calendar calendar, int profileIntervalInSeconds) {
         if (rtm.isRoundDownToNearestInterval()) {
             if (monthly || profileIntervalInSeconds == WEEKLY || profileIntervalInSeconds == DAILY) {
                 calendar.set(Calendar.HOUR, 0);
@@ -270,7 +271,7 @@ public class ProfileDataReader {
     }
 
     private List<MeterEvent> checkValid(List<MeterEvent> meterEvents, Date lastReading, Date toDate) {
-        List<MeterEvent> result = new ArrayList<MeterEvent>();
+        List<MeterEvent> result = new ArrayList<>();
         for (MeterEvent meterEvent : meterEvents) {
             if (meterEvent.getTime().after(lastReading) && meterEvent.getTime().before(toDate)) {
                 result.add(meterEvent);
@@ -283,7 +284,7 @@ public class ProfileDataReader {
 
         boolean usesInitialRFCommand = rtm.usesInitialRFCommand();
 
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         ApplicationStatus status = rtm.getParameterFactory().readApplicationStatus();
         int numberOfPorts = rtm.getParameterFactory().readOperatingMode().readNumberOfPorts();
 

@@ -34,20 +34,11 @@ public class DataRecordTypeF_CP32 extends AbstractDataRecordType {
         this.timeZone=timeZone;
     }
 
-//        public DataRecordTypeF_CP32() {
-//        }
-//        public static void main(String[] args) {
-//            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new DataRecordTypeF_CP32()));
-//        }
-
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("DataRecordTypeF_CP32:\n");
-        strBuff.append("   calendar="+getCalendar().getTime()+"\n");
-        strBuff.append("   inValid="+isInValid()+"\n");
-        strBuff.append("   summerTime="+isSummerTime()+"\n");
-        return strBuff.toString();
+        return "DataRecordTypeF_CP32:\n" +
+                "   calendar=" + getCalendar().getTime() + "\n" +
+                "   inValid=" + isInValid() + "\n" +
+                "   summerTime=" + isSummerTime() + "\n";
     }
 
     protected void doParse(byte[] data) throws IOException {
@@ -61,20 +52,6 @@ public class DataRecordTypeF_CP32 extends AbstractDataRecordType {
 
         setInValid((ProtocolUtils.getInt(data,0,1)&0x80)==0x80 ? true : false);
         setSummerTime((ProtocolUtils.getInt(data,1,1)&0x80)==0x80 ? true : false);
-    }
-
-    static public void main(String[] args) {
-
-        try {
-            DataRecordTypeF_CP32 d = new DataRecordTypeF_CP32(TimeZone.getDefault());
-            byte[] data = new byte[]{0x22,0x0b,(byte)0xe3,0x0a};
-            d.parse(data);
-            System.out.println(d);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     public Calendar getCalendar() {

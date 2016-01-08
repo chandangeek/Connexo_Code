@@ -9,9 +9,10 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83RegisterConfig;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83Registry;
@@ -131,7 +132,7 @@ public class MT83ObisCodeMapper {
                 if (this.dataReadoutEnabled) {
                     try {
                         String dateStr = this.dataDumpParser.getRegisterStrValue(toEdis(obisCode));
-                        if (dateStr != null && !dateStr.equalsIgnoreCase("")) {
+                        if (dateStr != null && !dateStr.isEmpty()) {
                             toDate = ProtocolUtils.parseDateTimeWithTimeZone(dateStr.substring(dateStr.lastIndexOf("(") + 1, dateStr.lastIndexOf(")")), "yyMMddHHmmss", timeZone);
                         } else {
                             toDate = ((Date) mt83Registry.getRegister(billingDateRegister));
@@ -157,7 +158,7 @@ public class MT83ObisCodeMapper {
                         try {
                             ObisCode previous = new ObisCode(obisCode.getA(), obisCode.getB(), obisCode.getC(), obisCode.getD(), obisCode.getE(), obisCode.getF() + 1);
                             String dateStr = this.dataDumpParser.getRegisterStrValue(toEdis(previous));
-                            if (dateStr != null && !dateStr.equalsIgnoreCase("")) {
+                            if (dateStr != null && !dateStr.isEmpty()) {
                                 fromDate = ProtocolUtils.parseDateTimeWithTimeZone(dateStr.substring(dateStr.lastIndexOf("(") + 1, dateStr.lastIndexOf(")")), "yyMMddHHmmss", timeZone);
                             } else {
                                 fromDate = ((Date) mt83Registry.getRegister(billingDateRegister));

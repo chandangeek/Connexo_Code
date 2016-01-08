@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import javax.inject.Inject;
@@ -26,12 +27,12 @@ import java.time.Clock;
 public class JanzB280 extends CX20009 {
 
     @Inject
-    public JanzB280(Clock clock, PropertySpecService propertySpecService, SocketService socketService,
+    public JanzB280(Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService,
                     SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService,
                     MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService,
                     CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, MeteringService meteringService,
                     Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService,
+        super(clock, thesaurus, propertySpecService, socketService, serialComponentService, issueService, topologyService,
                 readingTypeUtilService, identificationService, collectedDataFactory, loadProfileFactory, meteringService,
                 dsmrSecuritySupportProvider);
     }

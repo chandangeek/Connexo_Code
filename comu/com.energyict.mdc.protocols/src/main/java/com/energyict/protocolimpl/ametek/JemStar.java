@@ -5,15 +5,17 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
+import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,13 +33,12 @@ import java.util.List;
  */
 public class JemStar extends Jem implements MessageProtocol  {
 
-
-	/** Creates a new instance of JemStar */
-	public JemStar() {
+	@Inject
+	public JemStar(PropertySpecService propertySpecService) {
+		super(propertySpecService);
 	}
 
-
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 
 		//getLogger().info("call overrided method getProfileData("+from+","+includeEvents+")");
 		//getLogger().info("--> here we read the profiledata from the meter and construct a profiledata object");
@@ -422,7 +423,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 	}
 
 
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
+	public int getNumberOfChannels() throws IOException {
 		//getLogger().info("call overrided method getNumberOfChannels() (return 2 as sample)");
 		//getLogger().info("--> report the nr of load profile channels in the meter here");
 		if (this.channelCount==0)
@@ -522,7 +523,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		return "$Revision: 1.3 $";
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		//getLogger().info("call getFirmwareVersion()");
 		//getLogger().info("--> report the firmware version and other important meterinfo here");
 		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x06,0x01,0x10,0x02,0x10,0x03};

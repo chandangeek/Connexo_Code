@@ -1,8 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -12,9 +15,9 @@ import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -34,28 +37,18 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.NONE.toString();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.empty();
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.<AuthenticationDeviceAccessLevel>asList(new NoAuthenticationAccessLevel());
+        return Collections.<AuthenticationDeviceAccessLevel>singletonList(new NoAuthenticationAccessLevel());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return null;
     }
 
     @Override
@@ -84,7 +77,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     }
 
     /**
-     * No authentication level that requires nothing
+     * Authentication level that requires no specific properties.
      */
     protected class NoAuthenticationAccessLevel implements AuthenticationDeviceAccessLevel {
 
@@ -103,4 +96,5 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
             return Collections.emptyList();
         }
     }
+
 }

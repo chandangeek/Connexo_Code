@@ -5,9 +5,10 @@ package com.energyict.protocolimpl.edf.trimaran2p;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.edf.trimaran2p.core.ArreteJournalier;
 import com.energyict.protocolimpl.edf.trimaran2p.core.ArreteProgrammables;
 import com.energyict.protocolimpl.edf.trimaran2p.core.Energies;
@@ -43,14 +44,7 @@ public class ObisCodeMapper {
 		this.trimaran2P = trimaran2P;
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-	}
-
-    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
         return new RegisterInfo(RegisterNameFactory.findObisCode(obisCode));
     }
 

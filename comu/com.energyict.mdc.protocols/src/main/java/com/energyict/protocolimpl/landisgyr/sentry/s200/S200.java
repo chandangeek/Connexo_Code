@@ -10,35 +10,30 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200;
 
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.landisgyr.sentry.s200.core.CommandFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
@@ -54,8 +49,9 @@ public class S200 extends AbstractProtocol {
     private int crnInitialValue;
     private int modeOfOperation;
 
-    /** Creates a new instance of S200 */
-    public S200() {
+    @Inject
+    public S200(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     protected void doConnect() throws IOException {
@@ -143,80 +139,6 @@ public class S200 extends AbstractProtocol {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-
-    static public void main(String[] args) {
-        try {
-
-        String[] phones=new String[]{"0018036281317"};
-        String[] clientPasswords=new String[]{"0000"};
-        String preDial="0";
-        int index=0;
-
-            // ********************** Dialer **********************
-            Dialer dialer = DialerFactory.getDefault().newDialer();
-
-            dialer.init("COM1");
-            dialer.getSerialCommunicationChannel().setParams(9600,
-                                                            SerialCommunicationChannel.DATABITS_8,
-                                                            SerialCommunicationChannel.PARITY_NONE,
-                                                            SerialCommunicationChannel.STOPBITS_1);
-            //dialer.getSerialCommunicationChannel().setDTR(false);
-            dialer.connect(preDial+phones[index],60000);
-
-            //dialer.connect();
-
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-            properties.setProperty(MeterProtocol.PASSWORD,clientPasswords[index]);
-            properties.setProperty(MeterProtocol.NODEID,"1000000");
-            // ********************** EictRtuModbus **********************
-            S200 s200 = new S200();
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)s200).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-
-            s200.setHalfDuplexController(dialer.getHalfDuplexController());
-            s200.setProperties(properties);
-            s200.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("GMT-5"),Logger.getLogger("name"));
-            s200.connect();
-
-            System.out.println(s200.getCommandFactory().getForceStatusCommand());
-            System.out.println(s200.getCommandFactory().getLookAtCommand());
-            for (int i=0;i<s200.getCommandFactory().getLookAtCommand().getNrOfInputs();i++) {
-                System.out.println(s200.getCommandFactory().getMeterDataCommand(i));
-            }
-            System.out.println(s200.getCommandFactory().getRevisionLevelCommand());
-            System.out.println(s200.getCommandFactory().getVerifyCommand());
-
-
-            System.out.println(new Date());
-            System.out.println(s200.getTime());
-            //s200.setTime();
-            //System.out.println(s200.getTime());
-
-
-            System.out.println(s200.getFirmwareVersion());
-            System.out.println(s200.getProfileInterval());
-
-//            DataDumpFactory ddf = new DataDumpFactory(s200.getCommandFactory());
-//            ProtocolUtils.printResponseData(ddf.collectHistoryLogDataBlocks());
-//            System.out.println("-----------------------------------");
-//            ProtocolUtils.printResponseData(ddf.collectLoadProfileDataBlocks(10));
-
-
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_MONTH,-4);
-            System.out.println(s200.getProfileData(cal.getTime(),true));
-
-
-            s200.disconnect();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public S200Connection getS200Connection() {
         return s200Connection;
     }
@@ -257,4 +179,4 @@ public class S200 extends AbstractProtocol {
         this.modeOfOperation = modeOfOperation;
     }
 
-} // S200
+}

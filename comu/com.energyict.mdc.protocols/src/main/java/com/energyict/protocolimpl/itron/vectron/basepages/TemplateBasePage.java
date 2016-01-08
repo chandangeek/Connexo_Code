@@ -26,10 +26,6 @@ public class TemplateBasePage extends AbstractBasePage {
         super(basePagesFactory);
     }
 
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateBasePage(null)));
-    }
-
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x0,0x0);
     }
@@ -40,4 +36,4 @@ public class TemplateBasePage extends AbstractBasePage {
     }
 
 
-} // public class RealTimeBasePage extends AbstractBasePage
+}

@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.generic;
 
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -29,26 +29,13 @@ public abstract class MessageParser {
 
     protected abstract TimeZone getTimeZone();
 
-    public void importMessage(String message, DefaultHandler handler) throws BusinessException {
-        try {
+    public void importMessage(String message, DefaultHandler handler) throws ParserConfigurationException, SAXException, IOException {
+        byte[] bai = message.getBytes();
+        InputStream i = new ByteArrayInputStream(bai);
 
-            byte[] bai = message.getBytes();
-            InputStream i = new ByteArrayInputStream(bai);
-
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            SAXParser saxParser = factory.newSAXParser();
-            saxParser.parse(i, handler);
-
-        } catch (ParserConfigurationException thrown) {
-            thrown.printStackTrace();
-            throw new BusinessException(thrown);
-        } catch (SAXException thrown) {
-            thrown.printStackTrace();
-            throw new BusinessException(thrown);
-        } catch (IOException thrown) {
-            thrown.printStackTrace();
-            throw new BusinessException(thrown);
-        }
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParser saxParser = factory.newSAXParser();
+        saxParser.parse(i, handler);
     }
 
     public String getMessageValue(String msgStr, String str) {

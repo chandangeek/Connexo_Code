@@ -1,16 +1,15 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
-
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -28,16 +27,13 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
-import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -71,11 +67,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
      */
     private ComChannel comChannel;
     /**
-     * Will group this protocols' security features.
-     * As an example the {@link com.energyict.protocolimplv2.security.DlmsSecuritySupport} component is used
-     */
-    private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
-    /**
      * Will hold the cache object of the Device related to this protocol
      */
     private DeviceProtocolCache deviceProtocolCache;
@@ -89,15 +80,14 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public SDKDeviceProtocolTestWithMandatoryProperty(PropertySpecService propertySpecService, IdentificationService identificationService,
+    public SDKDeviceProtocolTestWithMandatoryProperty(Thesaurus thesaurus, PropertySpecService propertySpecService, IdentificationService identificationService,
                                                       CollectedDataFactory collectedDataFactory, ProtocolPluggableService protocolPluggableService,
                                                       DlmsSecuritySupport dlmsSecuritySupport) {
-        super(protocolPluggableService, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
+        super(protocolPluggableService, thesaurus, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.protocolPluggableService = protocolPluggableService;
-        this.deviceProtocolSecurityCapabilities = dlmsSecuritySupport;
     }
 
     @Override
@@ -121,16 +111,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Arrays.asList(DeviceProtocolCapabilities.values());
-    }
-
-    @Override
-    public PropertySpec getPropertySpec (String name) {
-        for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
-                return propertySpec;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -222,7 +202,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {
-                this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the " + SDKLoadProfileProtocolDialectProperties.notSupportedLoadProfileObisCodePropertyName + " property");
+                this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the " + SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName() + " property");
                 loadProfileConfiguration.setSupportedByMeter(false);
             }
         }
@@ -284,10 +264,10 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
-                new SDKLoadProfileProtocolDialectProperties(propertySpecService),
-                new SDKStandardDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTimeDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTopologyTaskProtocolDialectProperties(propertySpecService));
+                new SDKLoadProfileProtocolDialect(this.getThesaurus(), this.propertySpecService),
+                new SDKStandardProtocolDialect(this.getThesaurus(), this.propertySpecService),
+                new SDKTimeProtocolDialect(this.getThesaurus(), this.propertySpecService),
+                new SDKTopologyTaskProtocolDialect(this.getThesaurus(), this.propertySpecService));
     }
 
     @Override
@@ -299,26 +279,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         this.logger.log(Level.INFO, "Adding the deviceProtocolSecurity properties to the DeviceProtocol instance.");
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return this.deviceProtocolSecurityCapabilities.getSecurityRelationTypeName();
-    }
-
-    @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return this.deviceProtocolSecurityCapabilities.getAuthenticationAccessLevels();
-    }
-
-    @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return this.deviceProtocolSecurityCapabilities.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return this.deviceProtocolSecurityCapabilities.getSecurityPropertySpec(name);
     }
 
     @Override
@@ -366,23 +326,23 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     }
 
     private ObisCode getIgnoredObisCode() {
-        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileProtocolDialectProperties.notSupportedLoadProfileObisCodePropertyName, ObisCode.fromString("0.0.0.0.0.0"));
+        return (ObisCode) this.typedProperties.getProperty(SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName(), ObisCode.fromString("0.0.0.0.0.0"));
     }
 
     private TimeDuration getTimeDeviationPropertyForRead() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToReadPropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDialectProperties.ActualFields.CLOCK_OFFSET_WHEN_WRITING.propertySpecName(), new TimeDuration(0));
     }
 
     private TimeDuration getTimeDeviationPropertyForWrite() {
-        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToWritePropertyName, new TimeDuration(0));
+        return (TimeDuration) this.typedProperties.getProperty(SDKTimeDialectProperties.ActualFields.CLOCK_OFFSET_WHEN_READING.propertySpecName(), new TimeDuration(0));
     }
 
     private String getSlaveOneSerialNumber(){
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveOneSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveOneSerialNumberPropertyName, "");
     }
 
     private String getSlaveTwoSerialNumber(){
-        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveTwoSerialNumberPropertyName, "");
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialect.slaveTwoSerialNumberPropertyName, "");
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
@@ -37,7 +36,7 @@ public class RawBandsDescriptor extends AbstractField<RawBandsDescriptor> {
 
     }
 
-    public RawBandsDescriptor(CodeObject codeObject) throws BusinessException {
+    public RawBandsDescriptor(CodeObject codeObject) {
         this();
         int year = codeObject.getYearFrom();
         for (int i = 0; i < startMonth.length; i++) {

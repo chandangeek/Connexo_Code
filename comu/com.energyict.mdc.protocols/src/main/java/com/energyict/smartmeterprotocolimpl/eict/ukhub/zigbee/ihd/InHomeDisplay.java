@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -12,13 +13,15 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
+
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessaging;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import javax.inject.Inject;
 
 /**
  * The InHomeDisplay logical device has limited functionality, currently only serves as placeholder
@@ -26,8 +29,8 @@ import javax.inject.Inject;
 public class InHomeDisplay extends UkHub {
 
     @Inject
-    public InHomeDisplay(OrmClient ormClient, UserFileFactory userFileFactory) {
-        super(ormClient, userFileFactory);
+    public InHomeDisplay(PropertySpecService propertySpecService, OrmClient ormClient, UserFileFactory userFileFactory) {
+        super(propertySpecService, ormClient, userFileFactory);
     }
 
     @Override

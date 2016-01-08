@@ -14,18 +14,17 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -573,20 +572,6 @@ public class ABBA1700Profile {
            System.out.println("Event "+z+" = "+profileData.getEvent(z).getEiCode()+", "+profileData.getEvent(z).getProtocolCode()+" at "+profileData.getEvent(z).getTime());
        }
 
-   } // private void doLogMeterDataCollection(ProfileData profileData)  throws ProtocolReaderException
-
-   static public void main(String[] args) {
-       try {
-           ABBA1700Profile p = new ABBA1700Profile(null,null);
-           File file = new File("rawdata_1200326721707.bin");
-           byte[] data = new byte[(int)file.length()];
-           FileInputStream fis = new FileInputStream(file);
-           fis.read(data);
-           System.out.println(p.parse(new ByteArrayInputStream(data),2));
-       }
-       catch(Exception e) {
-           e.printStackTrace();
-       }
    }
 
 }

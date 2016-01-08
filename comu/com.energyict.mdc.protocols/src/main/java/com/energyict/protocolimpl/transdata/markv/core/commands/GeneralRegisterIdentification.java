@@ -30,7 +30,7 @@ public class GeneralRegisterIdentification {
                                                             {9,17,25,33},
                                                             {363,364,365,366}};
 
-    static List list = new ArrayList();
+    static List<RegisterDataId> list = new ArrayList<>();
     static {
         // General register data ids
         for(int channel=0;channel<4;channel++) {
@@ -57,11 +57,8 @@ public class GeneralRegisterIdentification {
 
     }
 
-    /** Creates a new instance of SelfReadRegisterIdentification */
-    private GeneralRegisterIdentification() {
-    }
-
-    static public List getRegisterDataIds() {
+    public static List<RegisterDataId> getRegisterDataIds() {
         return list;
     }
+
 }

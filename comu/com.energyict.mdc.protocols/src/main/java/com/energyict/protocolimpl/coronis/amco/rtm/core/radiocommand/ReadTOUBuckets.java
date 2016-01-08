@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -37,17 +38,17 @@ public class ReadTOUBuckets extends AbstractRadioCommand {
     }
 
     @Override
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         parse(data, null);
     }
 
-    public void parse(byte[] data, byte[] radioAddress) throws IOException {
+    public void parse(byte[] data, byte[] radioAddress, RTMFactory rtmFactory) throws IOException {
         if (data.length <= 23) {
             return;         //The evoHop module doesn't contain TOU bucket data
         }
 
         getGenericHeader().setRadioAddress(radioAddress);
-        getGenericHeader().parse(data);
+        getGenericHeader().parse(data, rtmFactory);
         numberOfPorts = getGenericHeader().getOperationMode().readNumberOfPorts();
         int offset = 23;    //Skip the generic header
 

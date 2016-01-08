@@ -1,13 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
-import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.UserFile;
@@ -15,6 +8,32 @@ import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.ZigBeeSASStartup;
+import com.energyict.dlms.cosem.ZigBeeSETCControl;
+import com.energyict.dlms.cosem.ZigbeeHanManagement;
+import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
+import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
@@ -27,7 +46,9 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -167,7 +188,7 @@ public class UkHubMessageExecutor extends MessageParser {
                     success = false;
                 }
             }
-        } catch (IOException | BusinessException | SQLException e) {
+        } catch (ParserConfigurationException | SAXException | IOException | SQLException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         }
@@ -386,7 +407,7 @@ public class UkHubMessageExecutor extends MessageParser {
 
     }
 
-    private void readZigBeeStatus() throws IOException, BusinessException, SQLException {
+    private void readZigBeeStatus() throws IOException, SQLException {
         ZigBeeStatus zigBeeStatus = new ZigBeeStatus(getCosemObjectFactory());
         String status = zigBeeStatus.readStatus();
         String fileName = "ZigBeeStatus_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
@@ -400,7 +421,7 @@ public class UkHubMessageExecutor extends MessageParser {
         log(Level.INFO, "Stored ZigBee status parameters in userFile: " + fileName);
     }
 
-    private UserFile createUserFile(UserFileShadow shadow) throws SQLException, BusinessException {
+    private UserFile createUserFile(UserFileShadow shadow) throws SQLException {
         return this.userFileFactory.createUserFile(shadow);
     }
 
@@ -431,7 +452,7 @@ public class UkHubMessageExecutor extends MessageParser {
         log(Level.INFO, "Restore ZigBee Han Keys successful");
     }
 
-    private void backupZigBeeHanParameters() throws IOException, BusinessException, SQLException {
+    private void backupZigBeeHanParameters() throws IOException, SQLException {
         log(Level.INFO, "Sending message : Backup ZigBee Han Keys");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.backup();
@@ -535,7 +556,7 @@ public class UkHubMessageExecutor extends MessageParser {
         hanManagement.removeHan();
     }
 
-    private void readDebugLogbook(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void readDebugLogbook(final MessageHandler messageHandler) throws IOException, SQLException {
         log(Level.INFO, "Sending message : Read Debug logbook");
 
         Calendar from = extractDate(messageHandler.getLogbookFromTimeString());
@@ -584,7 +605,7 @@ public class UkHubMessageExecutor extends MessageParser {
         log(Level.INFO, "Stored readout of debug logbook in userFile: " + fileName);
     }
 
-    private void readElsterLogbook(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void readElsterLogbook(final MessageHandler messageHandler) throws IOException, SQLException {
         log(Level.INFO, "Sending message : Read Elster logbook");
 
         Calendar from = extractDate(messageHandler.getLogbookFromTimeString());

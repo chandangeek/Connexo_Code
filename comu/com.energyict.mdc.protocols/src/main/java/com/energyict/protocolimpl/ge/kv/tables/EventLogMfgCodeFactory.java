@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.ge.kv.tables;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.ansi.c12.tables.EventLogCode;
 import com.energyict.protocolimpl.ansi.c12.tables.EventLogCodeFactory;
 /**
@@ -57,10 +58,4 @@ public class EventLogMfgCodeFactory extends EventLogCodeFactory {
     public EventLogMfgCodeFactory() {
     }
 
-    static public void main(String[] args) {
-        EventLogMfgCodeFactory elmcf = new EventLogMfgCodeFactory();
-        System.out.println(elmcf.getEvent(7, false));
-        System.out.println(elmcf.getEvent(7, true));
-
-    }
 }

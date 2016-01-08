@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.iec1107;
 
-import com.energyict.dialer.connection.Connection;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
+
+import com.energyict.dialer.connection.Connection;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 
@@ -1127,22 +1127,6 @@ public class FlagIEC1107Connection extends Connection {
         if (logger != null) {
             logger.log(level, msg);
         }
-    }
-
-    public static void main(String[] args) {
-        try {
-            FlagIEC1107Connection f = new FlagIEC1107Connection(null, null, 3000, 3, 0, 0, 1, false);
-
-            String strData = "(23CB4DDDE2B76317)";
-            String strCommand = "P2";
-            byte[] data = strData.getBytes();
-            byte[] command = strCommand.getBytes();
-            f.sendRawCommandFrame(command, data);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     //***********************************************************************************

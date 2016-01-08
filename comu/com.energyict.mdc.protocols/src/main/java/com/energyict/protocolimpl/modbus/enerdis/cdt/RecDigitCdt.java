@@ -1,18 +1,19 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -28,6 +29,9 @@ public abstract class RecDigitCdt extends Modbus {
     private BigDecimal ctRatio;
     private BigDecimal ptRatio;
 
+    public RecDigitCdt(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected void doTheConnect() throws IOException { }
     protected void doTheDisConnect() throws IOException {}
@@ -38,15 +42,12 @@ public abstract class RecDigitCdt extends Modbus {
 
     }
 
-    public String getFirmwareVersion()
-        throws IOException, UnsupportedException {
-
+    public String getFirmwareVersion() {
         return "unknown";
-
     }
 
-    protected List doTheGetOptionalKeys() {
-        return new ArrayList();
+    protected List<String> doTheGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     /**
@@ -73,7 +74,7 @@ public abstract class RecDigitCdt extends Modbus {
         return getRecFactory().toString();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 2;
     }
 

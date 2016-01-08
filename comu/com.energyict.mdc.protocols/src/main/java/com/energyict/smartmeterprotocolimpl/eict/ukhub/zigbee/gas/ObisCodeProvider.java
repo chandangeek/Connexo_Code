@@ -1,12 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
+import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocolimpl.utils.ProtocolTools;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -245,44 +242,5 @@ public final class ObisCodeProvider {
     private ObisCodeProvider() {
         // Nothing to do here
     }
-
-    public static void main(String[] args) {
-
-        String fileContent = new String(ProtocolTools.readBytesFromFile("c:\\objectlist.txt"));
-        fileContent = fileContent.replaceAll("\\{", "");
-        fileContent = fileContent.replaceAll("\\}", "");
-        fileContent = fileContent.replaceAll("\\:", ".");
-        fileContent = fileContent.replaceAll("\\-", ".");
-
-        List<String> entries = new ArrayList<String>();
-
-        String[] lines = fileContent.split("\r\n");
-        for (String line : lines) {
-            String[] fields = line.split(",");
-            if (fields.length == 4) {
-                for (int i = 0; i < fields.length; i++) {
-                    fields[i] = fields[i].trim();
-                }
-                try {
-                    int classId = Integer.valueOf(fields[0]);
-                    ObisCode obis = ObisCode.fromString(fields[1]);
-                    DLMSClassId dlmsClassId = DLMSClassId.findById(classId);
-                    String uoString = "new UniversalObject(ObisCode.fromString(\"" + obis + "\"), DLMSClassId." + dlmsClassId.name() + "),";
-                    if (!entries.contains(uoString) && !dlmsClassId.equals(DLMSClassId.UNKNOWN)) {
-                        entries.add(uoString);
-                    }
-                } catch (Exception e) {
-                    System.out.println(e.getClass().getName() + " " + e.getMessage() + " => " + line);
-                }
-            }
-        }
-
-        System.out.println("\r\n\r\n\r\n");
-        for (int i = 0; i < entries.size(); i++) {
-            System.out.println(entries.get(i));
-        }
-
-    }
-
 
 }

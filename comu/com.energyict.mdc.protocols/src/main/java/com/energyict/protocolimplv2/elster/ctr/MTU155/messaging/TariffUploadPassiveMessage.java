@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
@@ -15,8 +16,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeObjectValidator
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Parser;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects.RawTariffScheme;
-
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 
 import java.io.IOException;
 import java.util.Date;
@@ -51,7 +50,7 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
             CodeObject codeObject = validateAndGetCodeObject(codeTableBase64);
             writeCodeTable(codeObject, tariffName, activationDate);
             return null;
-        } catch (IOException | BusinessException e) {
+        } catch (IOException | IllegalStateException e) {
             throw new CTRException(e.getMessage());
         }
     }
@@ -61,14 +60,15 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
             CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(codeTableBase64);
             CodeObjectValidator.validateCodeObject(codeObject);
             return codeObject;
-        } catch (BusinessException e) {
+        } catch (IllegalArgumentException e) {
             throw new CTRException(e.getMessage());
         }
     }
 
-    private void writeCodeTable(CodeObject codeObject, String tariffName, Date activationDate) throws CTRException, BusinessException {
+    private void writeCodeTable(CodeObject codeObject, String tariffName, Date activationDate) throws CTRException {
         RawTariffScheme rawTariffScheme = new RawTariffScheme(codeObject,tariffName, activationDate);
         byte[] rawData = ProtocolTools.concatByteArrays(new CTRObjectID(OBJECT_ID_FUTURE).getBytes(), rawTariffScheme.getBytes());
         getFactory().executeRequest(ReferenceDate.getReferenceDate(2), WriteDataBlock.getRandomWDB(), new CTRObjectID(OBJECT_ID), rawData);
     }
+
 }

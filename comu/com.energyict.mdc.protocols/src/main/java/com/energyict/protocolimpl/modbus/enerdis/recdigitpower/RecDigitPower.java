@@ -3,26 +3,29 @@ package com.energyict.protocolimpl.modbus.enerdis.recdigitpower;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -79,9 +82,12 @@ public class RecDigitPower extends Modbus {
 
 	private RegisterFactory rFactory;
 
-    public RecDigitPower() { }
+	@Inject
+	public RecDigitPower(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
 
-    protected void doTheConnect() throws IOException { }
+	protected void doTheConnect() throws IOException { }
     protected void doTheDisConnect() throws IOException {}
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
@@ -90,12 +96,12 @@ public class RecDigitPower extends Modbus {
 
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "unknown";
     }
 
-    protected List doTheGetOptionalKeys() {
-        return new ArrayList();
+    protected List<String> doTheGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     public String getProtocolVersion() {
@@ -107,7 +113,7 @@ public class RecDigitPower extends Modbus {
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-        throws IOException, UnsupportedException {
+        throws IOException {
 
     	this.interval   = this.getProfileInterval();
     	this.rFactory   = this.getRecFactory();
@@ -220,7 +226,7 @@ public class RecDigitPower extends Modbus {
 		return profileData;
 	}
 
-    IntervalData[] parse(ByteArray active, ByteArray reactive) throws UnsupportedException, IOException{
+    IntervalData[] parse(ByteArray active, ByteArray reactive) throws IOException{
 
 		ByteArray fourByteAct = active.sub( 0, READ_BYTES ), fourByteReact = reactive.sub( 0, READ_BYTES );
 		BigDecimal actualAct = null, actualReact = null, currentPercent, previousPercent;
@@ -359,7 +365,7 @@ public class RecDigitPower extends Modbus {
     	return currentIntData;
     }
 
-    private void timeChecks(long intervalTime) throws UnsupportedException, IOException{
+    private void timeChecks(long intervalTime) throws IOException{
 		while (currentTime.getTime().before(calendar.getTime())){
         	calendar.add( Calendar.SECOND, -getProfileInterval() );
 		}
@@ -385,11 +391,11 @@ public class RecDigitPower extends Modbus {
         currentTime.add(Calendar.SECOND, -interval);
     }
 
-    private BigDecimal toBigDecimal(ByteArray byteArray) throws IOException {
+    private BigDecimal toBigDecimal(ByteArray byteArray) {
     	return rFactory.toBigDecimal(Type.LONG_WORD, byteArray);
     }
 
-    private Date round( Date date ) throws UnsupportedException, IOException {
+    private Date round( Date date ) throws IOException {
         long msRest = date.getTime() % (getProfileInterval() * 1000);
         return new Date(date.getTime() - msRest);
     }
@@ -407,7 +413,7 @@ public class RecDigitPower extends Modbus {
         return result;
     }
 
-    private int getPointer() throws UnsupportedException, IOException {
+    private int getPointer() throws IOException {
         if( pointer == -1 ) {
             pointer = readValue(0x0900, Type.WORD).intValue();
         }
@@ -415,7 +421,7 @@ public class RecDigitPower extends Modbus {
         return pointer;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if( profileInterval == -1 ) {
             profileInterval = readValue( 0x030c, 1)[0];
         }
@@ -426,12 +432,12 @@ public class RecDigitPower extends Modbus {
         return getRegisterFactory().toString();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 2;
     }
 
     public Date getTime() throws IOException {
-        return (Date)getRecFactory().toDate( readValue(0x0000, 4) );
+        return getRecFactory().toDate( readValue(0x0000, 4) );
     }
 
     public RegisterFactory getRecFactory( ) {

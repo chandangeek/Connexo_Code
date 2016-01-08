@@ -1,12 +1,12 @@
 package com.energyict.protocols.impl.channels.serial.direct.serialio;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-
 import com.energyict.protocols.impl.channels.serial.AbstractSerialConnectionType;
 
 import java.util.List;
@@ -20,8 +20,8 @@ import java.util.List;
  */
 public abstract class SioSerialConnectionType extends AbstractSerialConnectionType {
 
-    public SioSerialConnectionType(SerialComponentService serialComponentService) {
-        super(serialComponentService);
+    public SioSerialConnectionType(String customPropertySetId, SerialComponentService serialComponentService, Thesaurus thesaurus) {
+        super(customPropertySetId, serialComponentService, thesaurus);
     }
 
     @Override

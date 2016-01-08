@@ -6,16 +6,19 @@
 
 package com.energyict.protocolimpl.metcom;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -35,8 +38,9 @@ public class Metcom3 extends Metcom {
 
     private static final int DEBUG = 0;
 
-    /** Creates a new instance of Metcom3 */
-    public Metcom3() {
+    @Inject
+    public Metcom3(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public int getNumberOfChannels() throws IOException {
@@ -55,7 +59,7 @@ public class Metcom3 extends Metcom {
         return doGetProfileData(calendarFrom,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar calendarFrom=ProtocolUtils.getCleanCalendar(getTimeZone());
         calendarFrom.setTime(from);
         Calendar calendarTo=ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -67,7 +71,7 @@ public class Metcom3 extends Metcom {
 
     protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException {
        try {
-           ProfileData profileData=null;
+           ProfileData profileData;
            SCTMTimeData from = new SCTMTimeData(calendarFrom);
            SCTMTimeData to = new SCTMTimeData(calendarTo);
            List bufferStructures = new ArrayList();
@@ -81,11 +85,14 @@ public class Metcom3 extends Metcom {
                BufferStructure bs = getBufferStructure(i);
 
                if (getChannelMap().getBuffers()[i]>=0) {
-                   if (getChannelMap().getBuffers()[i] != bs.getNrOfChannels())
-                       throw new IOException("doGetProfileData(), nr of channels configured ("+getChannelMap().getBuffers()[i]+") != nr of channels read from meter ("+bs.getNrOfChannels()+")!");
+                   if (getChannelMap().getBuffers()[i] != bs.getNrOfChannels()) {
+                       throw new IOException("doGetProfileData(), nr of channels configured (" + getChannelMap().getBuffers()[i] + ") != nr of channels read from meter (" + bs.getNrOfChannels() + ")!");
+                   }
                }
 
-               if (DEBUG >= 1) System.out.println("KV_DEBUG> "+bs);
+               if (DEBUG >= 1) {
+                   System.out.println("KV_DEBUG> " + bs);
+               }
                bufferStructures.add(bs);
            }
 
@@ -98,8 +105,9 @@ public class Metcom3 extends Metcom {
                    baos.write(from.getBUFENQData());
                    baos.write(to.getBUFENQData());
                    data = getSCTMConnection().sendRequest(SiemensSCTM.BUFENQ2, baos.toByteArray());
-                   if (data==null)
-                       throw new IOException("Profiledatabuffer "+i+" is empty or not configured! ChannelMap property might be wrong!");
+                   if (data==null) {
+                       throw new IOException("Profiledatabuffer " + i + " is empty or not configured! ChannelMap property might be wrong!");
+                   }
                    datas.add(data);
                }
            }
@@ -129,17 +137,17 @@ public class Metcom3 extends Metcom {
     public String getDefaultChannelMap() {
         return "1,1,1,1";
     }
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("HalfDuplex");
-        result.add("ChannelMap");
-        result.add("RemovePowerOutageIntervals");
-        result.add("LogBookReadCommand");
-        result.add("TimeSetMethod");
-        result.add("Software7E1");
-        return result;
+
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "HalfDuplex",
+                    "ChannelMap",
+                    "RemovePowerOutageIntervals",
+                    "LogBookReadCommand",
+                    "TimeSetMethod",
+                    "Software7E1");
     }
 
     public String getProtocolVersion() {
@@ -149,7 +157,5 @@ public class Metcom3 extends Metcom {
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return null;
     }
-
-
 
 }

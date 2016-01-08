@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
@@ -42,10 +43,6 @@ public class CIField72h extends AbstractCIField {
         this.timeZone=timeZone;
     }
 
-//        public static void main(String[] args) {
-//            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new CIField72h()));
-//        }
-
     protected int getId() {
         return 0x72;
     }
@@ -55,19 +52,16 @@ public class CIField72h extends AbstractCIField {
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("CIField72h:\n");
-        strBuff.append("   meter3LetterId="+meter3LetterId+"\n");
-        strBuff.append("   accessNumber="+getAccessNumber()+"\n");
-        strBuff.append("   deviceType="+getDeviceType()+" (0x"+Integer.toHexString(getDeviceType().getId())+")\n");
-        strBuff.append("   identificationNumber="+getIdentificationNumber()+"\n");
-        strBuff.append("   manufacturerIdentification="+getManufacturerIdentification()+" (0x"+Integer.toHexString(getManufacturerIdentification())+")\n");
-        strBuff.append("   signatureField="+getSignatureField()+"\n");
-        strBuff.append("   statusByte="+getStatusByte()+"\n");
-        strBuff.append("   version="+getVersion()+"\n");
-        strBuff.append("   dataRecords="+getDataRecords()+"\n");
-        return strBuff.toString();
+        return "CIField72h:\n" +
+                "   meter3LetterId=" + meter3LetterId + "\n" +
+                "   accessNumber=" + getAccessNumber() + "\n" +
+                "   deviceType=" + getDeviceType() + " (0x" + Integer.toHexString(getDeviceType().getId()) + ")\n" +
+                "   identificationNumber=" + getIdentificationNumber() + "\n" +
+                "   manufacturerIdentification=" + getManufacturerIdentification() + " (0x" + Integer.toHexString(getManufacturerIdentification()) + ")\n" +
+                "   signatureField=" + getSignatureField() + "\n" +
+                "   statusByte=" + getStatusByte() + "\n" +
+                "   version=" + getVersion() + "\n" +
+                "   dataRecords=" + getDataRecords() + "\n";
     }
 
     public String header() {
@@ -204,23 +198,4 @@ public class CIField72h extends AbstractCIField {
         return val;
     }
 
-    static public void main(String[] args) {
-        try {
-             //                            0           1          2          3           4          5        6          7          8           9          10         11          12        13         14          15         16          17       18          19          20
-//            byte[] data = new byte[]{(byte)0x45,(byte)0x00,(byte)0x48,(byte)0x07,(byte)0x8F,(byte)0x19,(byte)0x15,(byte)0x03,(byte)0xF9,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x0D,(byte)0x78,(byte)0x11,(byte)0x37,(byte)0x30,(byte)0x35,(byte)0x34,(byte)0x30,(byte)0x30,(byte)0x38,(byte)0x34,(byte)0x37,(byte)0x30,(byte)0x30,(byte)0x30,(byte)0x34,(byte)0x30,(byte)0x30,(byte)0x38,(byte)0x32,(byte)0x0C,(byte)0x13,(byte)0x20,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x89,(byte)0x40,(byte)0xFD,(byte)0x1A,(byte)0x01,(byte)0x00};
-
-            byte[] data = new byte[]{0,0,0,0,0,0,0,0,0,0,0,0,(byte)0x85,(byte)0x10,(byte)0x08,(byte)0xe7,(byte)0x5e,(byte)0xf0,(byte)0x51,(byte)0x85,(byte)0x20,(byte)0x08,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0xc5,(byte)0x10,(byte)0x08,(byte)0x2c,(byte)0x1e,(byte)0x30,(byte)0x53,(byte)0xc5,(byte)0x20,(byte)0x08,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x05,(byte)0x16,(byte)0x09,(byte)0x6c,(byte)0x2f,(byte)0x43,(byte)0x45,(byte)0x16,(byte)0x21,(byte)0x94,(byte)0x80,(byte)0x44,(byte)0x05,(byte)0x1b,(byte)0x7c,(byte)0x1b,(byte)0x14,(byte)0x48,(byte)0x45,(byte)0x1b,(byte)0x37,(byte)0x29,(byte)0x59,(byte)0x49,(byte)0x05,(byte)0x20,(byte)0x73,(byte)0xba,(byte)0x97,(byte)0x45,(byte)0x45,(byte)0x20,(byte)0xfd,(byte)0x75,(byte)0xa4,(byte)0x45,(byte)0x05,(byte)0x2b,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x05,(byte)0x3e,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x05,(byte)0x53,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x05,(byte)0x5b,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x05,(byte)0x5f,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x05,(byte)0x63,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x05,(byte)0x6d,(byte)0x1d,(byte)0x01,(byte)0x01,(byte)0x11,(byte)0x01,(byte)0x70,(byte)0x01,(byte)0x01,(byte)0x74,(byte)0x03,(byte)0x01,(byte)0x78,(byte)0x00,(byte)0x01,(byte)0x79,(byte)0x00,(byte)0x01,(byte)0x7a,(byte)0x02}; //,(byte)0x14,(byte)0x16};
-            CIField72h o = new CIField72h(TimeZone.getTimeZone("ECT"));
-            o.parse(data);
-            System.out.println(o);
-
-
-            System.out.println(CIField72h.getManufacturerCode("___"));
-            System.out.println(CIField72h.getManufacturer3Letter(32767));
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 }

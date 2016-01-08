@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,7 +45,7 @@ public class ProtocolChannelMap {
      * @throws InvalidPropertyException
      */
     public ProtocolChannelMap(String channelConfig) throws InvalidPropertyException {
-        this(channelConfig != null ? channelConfig : "", (channelConfig != null) && (channelConfig.indexOf(" ") >= 0)); // KV 06092005 K&P
+        this(channelConfig != null ? channelConfig : "", (channelConfig != null) && (channelConfig.contains(" "))); // KV 06092005 K&P
     }
 
     /**
@@ -56,8 +56,7 @@ public class ProtocolChannelMap {
      * @throws InvalidPropertyException
      */
     public ProtocolChannelMap(String channelConfig, boolean sequence) throws InvalidPropertyException {
-        String config = channelConfig != null ? channelConfig : "";
-        if (sequence && (channelConfig.indexOf(".") >= 0)) { // KV 06092005 K&P
+        if (sequence && (channelConfig.contains("."))) { // KV 06092005 K&P
             mappedChannels = true;
         }
         protocolChannels = new ArrayList();
@@ -74,12 +73,12 @@ public class ProtocolChannelMap {
     }
 
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("ProtocolChannelMap:\n");
         strBuff.append("mappedChannels = ").append(isMappedChannels()).append("\n");
         for (int i = 0; i < protocolChannels.size(); i++) {
             ProtocolChannel pc = (ProtocolChannel) protocolChannels.get(i);
-            strBuff.append(pc + "\n");
+            strBuff.append(pc).append("\n");
         }
         return strBuff.toString();
     }
@@ -121,7 +120,7 @@ public class ProtocolChannelMap {
             channels[channelIds[i]] = mappedChannels ? count++ : 1;
         }
 
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         for (int i = 0; i < channels.length; i++) {
             if (mappedChannels) {
                 strBuff.append(channels[i] == -1 ? "-1" : eiServerChannelIds[channels[i]]);
@@ -136,10 +135,12 @@ public class ProtocolChannelMap {
 
     public String getChannelRegisterMap() {
         boolean init = true;
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         Iterator it = protocolChannels.iterator();
         while (it.hasNext()) {
-            if (!init) strBuff.append(":");
+            if (!init) {
+                strBuff.append(":");
+            }
             init = false;
             ProtocolChannel protocolChannel = (ProtocolChannel) it.next();
             strBuff.append(protocolChannel.getRegister());
@@ -271,94 +272,16 @@ public class ProtocolChannelMap {
      *
      * @return List of ChannelInfo's
      */
-    public List toChannelInfoList() {
-        ArrayList result = new ArrayList();
+    public List<ChannelInfo> toChannelInfoList() {
+        List<ChannelInfo> result = new ArrayList<>();
         int channelCount = getNrOfProtocolChannels();
         for (int i = 0; i < channelCount; i++) {
             ChannelInfo ci = getProtocolChannel(i).toChannelInfo(i);
-            if (ci != null)
+            if (ci != null) {
                 result.add(ci);
+            }
         }
         return result;
-    }
-
-    static public void main(String[] args) {
-        try {
-            ProtocolChannelMap protocolChannelMap = null;
-//            System.out.println("******************************************************");
-            //protocolChannelMap = new ProtocolChannelMap("1,2.4.6+500,0,1,4");
-            protocolChannelMap = new ProtocolChannelMap("0,0,0,0");
-
-            System.out.println(protocolChannelMap);
-
-
-//            System.out.println("******************************************************");
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getRegister());
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getWrapAroundValue());
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).isCumul());
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(0));
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(1));
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(2));
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(3));
-//            System.out.println("nrOfValues="+protocolChannelMap.getProtocolChannel(1).getNrOfValues());
-//            System.out.println("*****");
-//
-//            System.out.println(protocolChannelMap.isProtocolChannelEnabled(2));
-//            System.out.println("nrOfValues="+protocolChannelMap.getProtocolChannel(2).getNrOfValues());
-//            System.out.println(protocolChannelMap.isProtocolChannelEnabled(3));
-//            System.out.println("nrOfValues="+protocolChannelMap.getProtocolChannel(3).getNrOfValues());
-//            System.out.println("*****");
-
-//            System.out.println("******************************************************");
-//            protocolChannelMap = new ProtocolChannelMap("1,2.4.6+5,3");
-//            System.out.println(protocolChannelMap.getNrOfProtocolChannels());
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getRegister());
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getWrapAroundValue());
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).isCumul());
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(0));
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(1));
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(2));
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(3));
-//            System.out.println("******************************************************");
-//            protocolChannelMap = new ProtocolChannelMap("0+9:0:0:0");
-//            System.out.println(protocolChannelMap.getNrOfProtocolChannels());
-//            System.out.println(protocolChannelMap.getProtocolChannel(0).getRegister());
-//            System.out.println(protocolChannelMap.getProtocolChannel(0).getWrapAroundValue());
-//            System.out.println(protocolChannelMap.getProtocolChannel(0).isCumul());
-//            System.out.println(protocolChannelMap.getProtocolChannel(0).getValue(0));
-//            System.out.println("******************************************************");
-//            protocolChannelMap = new ProtocolChannelMap("1,0,1");
-//            System.out.println(protocolChannelMap.getNrOfProtocolChannels());
-//            System.out.println(protocolChannelMap.getProtocolChannel(0).getValue());
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue());
-//            System.out.println(protocolChannelMap.isProtocolChannel(2));
-//            System.out.println(protocolChannelMap.isProtocolChannelZero(1));
-//            System.out.println(protocolChannelMap.channelExists("2"));
-//            protocolChannelMap = new ProtocolChannelMap("2.6 8.3 1.1");
-//            System.out.println(protocolChannelMap.getChannelRegisterMap());
-//            System.out.println(protocolChannelMap.getNrOfProtocolChannels());
-//            System.out.println(protocolChannelMap.getProtocolChannel(0).getValue(0));
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(0));
-//            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(1));
-//            System.out.println(protocolChannelMap.getProtocolChannel(2).getValue(0));
-//            System.out.println(protocolChannelMap.getProtocolChannel(2).getValue(1));
-//            System.out.println(protocolChannelMap.getProtocolChannel(2).isCumul());
-//            System.out.println(protocolChannelMap.isProtocolChannel(2));
-//            System.out.println("***************************************************************");
-//            System.out.println(protocolChannelMap.isProtocolChannelZero(0));
-//            System.out.println("***************************************************************");
-//            System.out.println(protocolChannelMap.channelExists("0"));
-//
-//            protocolChannelMap = new ProtocolChannelMap("1 4 2 0");
-//            System.out.println(protocolChannelMap.getChannelRegisterMap());
-//            System.out.println(protocolChannelMap.getNrOfProtocolChannels());
-            //System.out.println(protocolChannelMap.getProtocolChannel(2).getValue());
-
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public boolean isMappedChannels() {

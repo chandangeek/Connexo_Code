@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.iec1107.abba1700;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
@@ -55,25 +56,6 @@ public class InstantaneousValue {
      */
     public void setQuantity(Quantity quantity) {
         this.quantity = quantity;
-    }
-
-    static public void main(String[] args) {
-        try {
-            {
-            //byte[] data={0x30,0x34,0x30,0x30,0x30,0x30,0x30,0x32,0x31,0x33,0x32,0x33,0x36,0x33};
-            byte[] data={0x00,0x00,0x00,0x02,0x13,0x23,0x63};
-            InstantaneousValue iv = new InstantaneousValue(data);
-            System.out.println(iv.getQuantity());
-            }
-//            {
-//            byte[] data={0x38,0x31,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x30,0x31,0x32,0x33,0x34};
-//            InstantaneousValue iv = new InstantaneousValue(data);
-//            System.out.println(iv.getQuantity());
-//            }
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }

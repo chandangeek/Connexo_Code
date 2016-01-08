@@ -1,28 +1,29 @@
 package com.energyict.protocolimpl.modbus.enerdis.recdigit1800;
 
-import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -46,14 +47,11 @@ public class RecDigit1800 extends Modbus {
 
     private byte[] currentInstantTime = new byte[6];
 
-    final static Unit kWh = Unit.get(BaseUnit.WATT);
-    final static Unit kVAr = Unit.get(BaseUnit.VOLTAMPEREREACTIVE);
+    private static final int ACTIVE = 0;
+    private static final int REACTIVE = 1;
+    private static final int READ_BYTES = 4;
 
-    private final int ACTIVE        = 0;
-    private final int REACTIVE      = 1;
-    private final int READ_BYTES 	= 4;
-
-    private int READ_STEP = 4;
+    private static final int READ_STEP = 4;
     private int tempPointer = 0;
     private int profileInterval = -1;
 	private int tempPermission = 0;
@@ -82,7 +80,10 @@ public class RecDigit1800 extends Modbus {
 
     private IntervalData temp[] = {null, null, null, null, null, null, null, null, null, null};
 
-    public RecDigit1800() { }
+    @Inject
+    public RecDigit1800(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected void doTheConnect() throws IOException { }
     protected void doTheDisConnect() throws IOException {}
@@ -93,13 +94,12 @@ public class RecDigit1800 extends Modbus {
 
     }
 
-    public String getFirmwareVersion()
-        throws IOException, UnsupportedException {
+    public String getFirmwareVersion()throws IOException {
         return "unknown";
     }
 
-    protected List doTheGetOptionalKeys() {
-        return new ArrayList();
+    protected List<String> doTheGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     public String getProtocolVersion() {
@@ -111,7 +111,7 @@ public class RecDigit1800 extends Modbus {
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-        throws IOException, UnsupportedException {
+        throws IOException {
 
 
     	this.interval   = this.getProfileInterval();
@@ -129,15 +129,17 @@ public class RecDigit1800 extends Modbus {
         ProfileData profileData = new ProfileData();
         profileData.setChannelInfos(newChannelInfo());
 
-        IntervalData currentId[] = null;
+        IntervalData currentId[];
 
         calendar = Calendar.getInstance( gettimeZone() );
     	currentTime = Calendar.getInstance( gettimeZone() );
 
-        if( to != null )
-            calendar.setTime( round( to ) );
-        else
-            calendar.setTime( round( new Date() ) );
+        if( to != null ) {
+            calendar.setTime(round(to));
+        }
+        else {
+            calendar.setTime(round(new Date()));
+        }
 
         getLogger().info( "getProfileData( from=" + from + ", to=" + to + " ) " );
 
@@ -148,8 +150,9 @@ public class RecDigit1800 extends Modbus {
 
             currentId = parse(activeArray, reactiveArray);
 
-            if ( !currentTime.getTime().after(from) )
-            	addState = 1;
+            if ( !currentTime.getTime().after(from) ) {
+                addState = 1;
+            }
 
             searchPointer = searchPointer - READ_STEP/4;
             if ( searchPointer < 0 ){
@@ -174,7 +177,9 @@ public class RecDigit1800 extends Modbus {
 
     public void setTime() throws IOException {
 
-    	if (debug) System.out.println( "TESTING THE setTime!" );
+    	if (debug) {
+            System.out.println("TESTING THE setTime!");
+        }
 
     	Calendar instTime = Calendar.getInstance( gettimeZone() );
 
@@ -224,7 +229,7 @@ public class RecDigit1800 extends Modbus {
 		return profileData;
 	}
 
-    IntervalData[] parse(ByteArray active, ByteArray reactive) throws UnsupportedException, IOException{
+    IntervalData[] parse(ByteArray active, ByteArray reactive) throws IOException{
 
 		ByteArray fourByteAct = active.sub( 0, READ_BYTES ), fourByteReact = reactive.sub( 0, READ_BYTES );
 		BigDecimal actualAct = null, actualReact = null, currentPercent, previousPercent;
@@ -363,7 +368,7 @@ public class RecDigit1800 extends Modbus {
     	return currentIntData;
     }
 
-    private void timeChecks(long intervalTime) throws UnsupportedException, IOException{
+    private void timeChecks(long intervalTime) throws IOException{
 		while (currentTime.getTime().before(calendar.getTime())){
         	calendar.add( Calendar.SECOND, -getProfileInterval() );
 		}
@@ -405,7 +410,7 @@ public class RecDigit1800 extends Modbus {
         return bd;
     }
 
-    private Date round( Date date ) throws UnsupportedException, IOException {
+    private Date round( Date date ) throws IOException {
         long msRest = date.getTime() % (getProfileInterval() * 1000);
         return new Date(date.getTime() - msRest);
     }
@@ -444,14 +449,14 @@ public class RecDigit1800 extends Modbus {
         return result;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if( profileInterval == -1 ) {
             profileInterval = readValue( 0x19F4, Type.WORD).intValue();
         }
         return profileInterval;
     }
 
-    private int getPointer() throws UnsupportedException, IOException {
+    private int getPointer() throws IOException {
         return readValue(0x03FC, Type.WORD).intValue();
     }
 
@@ -459,12 +464,12 @@ public class RecDigit1800 extends Modbus {
         return getRecFactory().toString();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 2;
     }
 
     public Date getTime() throws IOException {
-        return (Date)getRecFactory().toDate( readRawValue(0x0000, 4) );
+        return getRecFactory().toDate( readRawValue(0x0000, 4) );
     }
 
     public RegisterFactory getRecFactory( ) {

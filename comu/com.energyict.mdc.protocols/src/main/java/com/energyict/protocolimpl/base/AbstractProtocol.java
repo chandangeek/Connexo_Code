@@ -6,11 +6,10 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DemandResetProtocol;
 import com.energyict.mdc.protocol.api.DialinScheduleProtocol;
 import com.energyict.mdc.protocol.api.HHUEnabler;
@@ -32,7 +31,9 @@ import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -182,11 +183,8 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 
     private int dtrBehaviour; // 0=force low, 1 force high, 2 don't force anything
 
-    /**
-     * Default constructor
-     */
-    public AbstractProtocol() {
-        this(false, null);
+    public AbstractProtocol(PropertySpecService propertySpecService) {
+        this(propertySpecService, false, null);
     }
 
     /**
@@ -194,8 +192,8 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *
      * @param requestDataReadout enable or disable datareadout
      */
-    public AbstractProtocol(boolean requestDataReadout) {
-        this(requestDataReadout, null);
+    public AbstractProtocol(PropertySpecService propertySpecService, boolean requestDataReadout) {
+        this(propertySpecService, requestDataReadout, null);
     }
 
     /**
@@ -203,9 +201,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *
      * @param encryptor Encryption interface
      */
-    public AbstractProtocol(Encryptor encryptor) {
-        this(false, encryptor);
+    public AbstractProtocol(PropertySpecService propertySpecService, Encryptor encryptor) {
+        this(propertySpecService, false, encryptor);
     }
+
     /* Creates a new instance of AbstractProtocol, default constructor
      *  @param requestDataReadout true if the datadump is needed to read registers.
      *         We only use a datadump if there is no possibility in programming mode to read registers individual.
@@ -219,7 +218,8 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @param requestDataReadout enable or disable datareadout
      * @param encryptor          Encryption interface
      */
-    public AbstractProtocol(boolean requestDataReadout, Encryptor encryptor) {
+    public AbstractProtocol(PropertySpecService propertySpecService, boolean requestDataReadout, Encryptor encryptor) {
+        super(propertySpecService);
         this.requestDataReadout = requestDataReadout;
         this.encryptor = encryptor;
     }
@@ -391,12 +391,12 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**
@@ -488,15 +488,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     }
     // Cach mechanism of the MeterProtocol interface
 
-    /**
-     * Override this method to update the cache data in the database
-     *
-     * @param rtuid       database id of the meter
-     * @param cacheObject cache data to store
-     * @throws SQLException thrown when something goes wrong during updating
-     * @throws BusinessException thrown when something goes wrong in the caching businesslogic
-     */
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
     }
 
     /**
@@ -507,16 +499,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     public void setCache(Object cacheObject) {
     }
 
-    /**
-     * Override this method to fetch the cach data from the database
-     *
-     * @param rtuid meter database id
-     * @return cache data object
-     * @throws java.sql.SQLException thrown when something goes wrong during fetch
-     * @throws BusinessException
-     *                               thrown when something goes wrong in the caching businesslogic
-     */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         return null;
     }
 

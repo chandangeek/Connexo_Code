@@ -40,8 +40,8 @@ public class DataParser {
 	 */
 	public Quantity parseQuantityBetweenBrackets(byte[] data, int offset, int pos) throws IOException {
 		String strData = doParseBetweenBrackets(data,offset,pos);
-		BigDecimal bd = null;
-		Unit unit = null;
+		BigDecimal bd;
+		Unit unit;
 		if (strData.indexOf('*') > 0) {
 			// with unit info
 			bd = new BigDecimal(strData.substring(0, strData.indexOf('*')));
@@ -52,7 +52,7 @@ public class DataParser {
 			bd = new BigDecimal(strData);
 			unit = Unit.get("");
 		}
-		return new Quantity(bd,unit == null ? Unit.getUndefined() : unit);
+		return new Quantity(bd, unit == null ? Unit.getUndefined() : unit);
 
 	}
 	public String parseBetweenBrackets(byte[] data, int offset, int pos) throws IOException {
@@ -136,23 +136,4 @@ public class DataParser {
 		return calendar.getTime();
 	}
 
-
-
-	static public void main (String[] args) {
-		try {
-			DataParser dp = new DataParser(TimeZone.getTimeZone("GMT"));
-			String strExpression = "(2004,10,09,14,25,45)";
-			System.out.println(dp.parseDateTime(dp.parseBetweenBrackets(strExpression)));
-
-			strExpression = "(5)(aaa)  (bbb)(1234,4,6)";
-			System.out.println(dp.parseBetweenBrackets(strExpression,2));
-
-			byte[] data = strExpression.getBytes();
-			System.out.println(dp.parseBetweenBrackets(data,0,2));
-
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
-	}
 }

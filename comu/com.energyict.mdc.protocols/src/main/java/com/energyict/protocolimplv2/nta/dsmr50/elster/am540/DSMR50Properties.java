@@ -6,13 +6,12 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
+
+import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.g3.common.G3Properties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -122,12 +121,12 @@ public class DSMR50Properties extends G3Properties {
 
     public boolean useBeaconMirrorDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
-        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        return dialectName != null && dialectName.equals(DeviceProtocolDialectName.BEACON_MIRROR_TCP_DLMS_PROTOCOL.getName());
     }
 
     public boolean useBeaconGatewayDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
-        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        return dialectName != null && dialectName.equals(DeviceProtocolDialectName.BEACON_GATEWAY_TCP_DLMS_PROTOCOL.getName());
     }
 
 

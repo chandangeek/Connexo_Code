@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.SamplingPeriod;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -61,13 +62,13 @@ public class DailyConsumption extends AbstractRadioCommand {
     }
 
     @Override
-    public void parse(byte[] data) throws IOException {
-        parse(data, null);
+    public void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
+        parse(data, null, rtmFactory);
     }
 
-    public void parse(byte[] data, byte[] radioAddress) throws IOException {
+    public void parse(byte[] data, byte[] radioAddress, RTMFactory rtmFactory) throws IOException {
         getGenericHeader().setRadioAddress(radioAddress);
-        getGenericHeader().parse(data);
+        getGenericHeader().parse(data, rtmFactory);
         numberOfPorts = getGenericHeader().getOperationMode().readNumberOfPorts();
         int offset = 23;    //Skip the generic header
 
@@ -79,7 +80,7 @@ public class DailyConsumption extends AbstractRadioCommand {
         offset += 7;
 
         SamplingPeriod period = new SamplingPeriod(getRTM());
-        period.parse(ProtocolTools.getSubArray(data, offset, offset + 1));
+        period.parse(ProtocolTools.getSubArray(data, offset, offset + 1), rtmFactory);
         int multiplier = data[offset + 2] & 0xFF;
         profileInterval = multiplier * period.getSamplingPeriodInSeconds();
 

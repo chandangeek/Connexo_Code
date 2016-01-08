@@ -6,24 +6,28 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -61,11 +65,9 @@ public class Unigas300 extends AbstractUnigas300 {
 
     byte[] dataReadout = null;
 
-    /**
-     * Creates a new instance of Unigas300, empty constructor
-     */
-    public Unigas300() {
-
+    @Inject
+    public Unigas300(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     /**
@@ -209,27 +211,12 @@ public class Unigas300 extends AbstractUnigas300 {
 
     }
 
-    /**
-     * Get the required keys for the Unigas300 protocol.
-     * If a key is required, but not entered during the protocol execution,
-     * the validateProperties method will throw an MissingPropertyException
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    /**
-     * Get the optional keys for the Unigas300 protocol.
-     * If a key is optional, but not entered during the protocol execution,
-     * the default value will be used, and the protocol will continue execution.
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
+    public List<String> getOptionalKeys() {
+        List<String> result = new ArrayList<>();
         result.add("Timeout");
         result.add("Retries");
         result.add("SecurityLevel");

@@ -7,16 +7,19 @@
 package com.energyict.protocolimpl.sctm.enermete70x;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.metcom.Metcom2;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 /**
  *
@@ -40,23 +43,23 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
     RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
     GenericRegisters genericRegisters;
 
-    /** Creates a new instance of Metcom2 */
-    public EnermetE70x() {
+    @Inject
+    public EnermetE70x(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         genericRegisters = new GenericRegisters(this);
     }
 
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("HalfDuplex");
-        result.add("ExtendedLogging");
-        result.add("RemovePowerOutageIntervals");
-        result.add("LogBookReadCommand");
-        result.add("ForcedDelay");
-        result.add("TimeSetMethod");
-        result.add("Software7E1");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "HalfDuplex",
+                    "ExtendedLogging",
+                    "RemovePowerOutageIntervals",
+                    "LogBookReadCommand",
+                    "ForcedDelay",
+                    "TimeSetMethod",
+                    "Software7E1");
     }
 
     public String getProtocolVersion() {
@@ -67,10 +70,12 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
     R e g i s t e r P r o t o c o l  i n t e r f a c e
     *******************************************************************************************/
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        if (genericRegisters.isManufacturerSpecific(obisCode))
+        if (genericRegisters.isManufacturerSpecific(obisCode)) {
             return genericRegisters.getRegisterInfo(obisCode);
-        else
+        }
+        else {
             return ObisCodeMapper.getRegisterInfo(obisCode);
+        }
     }
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         if (genericRegisters.isManufacturerSpecific(obisCode)) {

@@ -1,14 +1,25 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.dlms.cosem.GenericRead;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.protocol.api.*;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.CacheMechanism;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -30,24 +41,17 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -142,7 +146,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     private static final int PROPOSED_DLMS_VERSION = 6;
 
     @Inject
-    public SimpleDLMSProtocol(OrmClient ormClient) {
+    public SimpleDLMSProtocol(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService);
         this.ormClient = ormClient;
     }
 
@@ -829,9 +834,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param rtuid Database ID of the RTU
      * @return the protocol specific cache object
      * @throws java.sql.SQLException Thrown in case of an SQLException
-     * @throws BusinessException     Thrown in case of an BusinessException
      */
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
             RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
@@ -841,7 +845,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
@@ -851,9 +855,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param rtuid       Database ID of the RTU
      * @param cacheObject the protocol specific cach object
      * @throws java.sql.SQLException Thrown in case of an SQLException
-     * @throws BusinessException     Thrown in case of an BusinessException
      */
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isDirty()) {
@@ -863,7 +866,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
@@ -880,12 +883,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
     /**
@@ -903,33 +906,31 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return a List of String objects
      */
     public List<String> getOptionalKeys() {
-        List<String> optionalKeys = new ArrayList<>();
-        optionalKeys.add("ForceDelay");
-        optionalKeys.add("TimeOut");
-        optionalKeys.add("Retries");
-        optionalKeys.add("Connection");
-        optionalKeys.add("SecurityLevel");
-        optionalKeys.add("ClientMacAddress");
-        optionalKeys.add("ServerUpperMacAddress");
-        optionalKeys.add("ServerLowerMacAddress");
-        optionalKeys.add("InformationFieldSize");
-        optionalKeys.add("LoadProfileId");
-        optionalKeys.add("AddressingMode");
-        optionalKeys.add("MaxMbusDevices");
-        optionalKeys.add("IIAPInvokeId");
-        optionalKeys.add("IIAPPriority");
-        optionalKeys.add("IIAPServiceClass");
-        optionalKeys.add("Manufacturer");
-        optionalKeys.add("InformationFieldSize");
-        optionalKeys.add("RoundTripCorrection");
-        optionalKeys.add("IpPortNumber");
-        optionalKeys.add("WakeUp");
-        optionalKeys.add("CipheringType");
-        optionalKeys.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-        optionalKeys.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        optionalKeys.add(NTASecurityProvider.MASTERKEY);
-//        optionalKeys.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
-        return optionalKeys;
+        return Arrays.asList(
+                    "ForceDelay",
+                    "TimeOut",
+                    "Retries",
+                    "Connection",
+                    "SecurityLevel",
+                    "ClientMacAddress",
+                    "ServerUpperMacAddress",
+                    "ServerLowerMacAddress",
+                    "InformationFieldSize",
+                    "LoadProfileId",
+                    "AddressingMode",
+                    "MaxMbusDevices",
+                    "IIAPInvokeId",
+                    "IIAPPriority",
+                    "IIAPServiceClass",
+                    "Manufacturer",
+                    "InformationFieldSize",
+                    "RoundTripCorrection",
+                    "IpPortNumber",
+                    "WakeUp",
+                    "CipheringType",
+                    NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY,
+                    NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY,
+                    NTASecurityProvider.MASTERKEY);
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {

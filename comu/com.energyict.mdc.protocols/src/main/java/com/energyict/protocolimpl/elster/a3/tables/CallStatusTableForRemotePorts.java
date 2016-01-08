@@ -53,18 +53,11 @@ public class CallStatusTableForRemotePorts extends AbstractTable {
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("CallStatusTableForRemotePorts:\n");
-        strBuff.append("   callStatus1="+getCallStatus1()+"\n");
-        strBuff.append("   callStatus2="+getCallStatus2()+"\n");
-        strBuff.append("   callStatus3="+getCallStatus3()+"\n");
-        return strBuff.toString();
+        return "CallStatusTableForRemotePorts:\n" +
+                "   callStatus1=" + getCallStatus1() + "\n" +
+                "   callStatus2=" + getCallStatus2() + "\n" +
+                "   callStatus3=" + getCallStatus3() + "\n";
     }
-
-//     public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new CallStatusTableForRemotePorts(null)));
-//     }
 
     protected void parse(byte[] tableData) throws IOException {
         int offset = 0;

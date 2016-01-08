@@ -1,20 +1,20 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.SerialNumber;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Date;
 
 /**
@@ -25,9 +25,13 @@ import java.util.Date;
  */
 public abstract class AbstractPPM extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
+	public AbstractPPM(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
 	/* (non-Javadoc)
-	 * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
-	 */
+         * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
+         */
 	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
 		throw new UnsupportedException();
 	}
@@ -49,7 +53,7 @@ public abstract class AbstractPPM extends PluggableMeterProtocol implements HHUE
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#fetchCache(int)
 	 */
-	public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+	public Object fetchCache(int rtuid) {
 		return null;
 	}
 
@@ -62,7 +66,7 @@ public abstract class AbstractPPM extends PluggableMeterProtocol implements HHUE
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#updateCache(int, java.lang.Object)
 	 */
-	public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+	public void updateCache(int rtuid, Object cacheObject) {
 	}
 
 	/* (non-Javadoc)

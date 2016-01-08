@@ -60,29 +60,4 @@ public class ClassWriteCommand extends CommandBuilder {
        return checksum;
     }
 
-    static public void main(String[] args) {
-        try {
-        ClassWriteCommand classWriteCommand = new ClassWriteCommand(null);
-
-        byte[] data1 = new byte[]{(byte)0x44,(byte)0x54,(byte)0x31,(byte)0x38,(byte)0x30,(byte)0x30,(byte)0x38,(byte)0x36,(byte)0x30,(byte)0x32,
-                                  (byte)0x30,(byte)0x32,(byte)0x34,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
-                                  (byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
-                                  (byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
-                                  (byte)0x00,(byte)0x00,(byte)0x04,(byte)0x04,(byte)0x00}; //,(byte)0x30};
-
-        byte[] data2 = new byte[]{(byte)0x44,(byte)0x54,(byte)0x31,(byte)0x38,(byte)0x30,(byte)0x30,(byte)0x38,(byte)0x36,(byte)0x30,(byte)0x32,
-                                  (byte)0x30,(byte)0x32,(byte)0x34,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
-                                  (byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
-                                  (byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
-                                  (byte)0x00,(byte)0x00,(byte)0x05,(byte)0x05,(byte)0x00}; //,(byte)0x2E};
-        System.out.println(Integer.toHexString(classWriteCommand.calcChecksum(data1)));
-        System.out.println(Integer.toHexString(classWriteCommand.calcChecksum(data2)));
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-} // public class ClassWriteCommand extends CommandBuilder
+}

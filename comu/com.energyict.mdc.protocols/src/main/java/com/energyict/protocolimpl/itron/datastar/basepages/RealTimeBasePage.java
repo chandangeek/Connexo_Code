@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
 
@@ -32,12 +33,9 @@ public class RealTimeBasePage extends AbstractBasePage {
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("RealTimeBasePage:\n");
-        strBuff.append("   calendar="+getCalendar()+"\n");
-        strBuff.append("   date="+getCalendar().getTime()+"\n");
-        return strBuff.toString();
+        return "RealTimeBasePage:\n" +
+                "   calendar=" + getCalendar() + "\n" +
+                "   date=" + getCalendar().getTime() + "\n";
     }
 
 
@@ -60,18 +58,19 @@ public class RealTimeBasePage extends AbstractBasePage {
     protected void parse(byte[] data) throws IOException {
         TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
 
-        if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
+        if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled()) {
             tz = ProtocolUtils.getWinterTimeZone(tz);
+        }
 
         setCalendar(ProtocolUtils.getCleanCalendar(tz));
-        getCalendar().set(Calendar.DAY_OF_WEEK,(int)ProtocolUtils.getInt(data,0,1));
-        int year = (int)ProtocolUtils.getInt(data,1, 1);
+        getCalendar().set(Calendar.DAY_OF_WEEK, ProtocolUtils.getInt(data,0,1));
+        int year = ProtocolUtils.getInt(data,1, 1);
         getCalendar().set(Calendar.YEAR,year>50?year+1900:year+2000);
-        getCalendar().set(Calendar.MONTH,(int)ProtocolUtils.getInt(data,2, 1)-1);
-        getCalendar().set(Calendar.DAY_OF_MONTH,(int)ProtocolUtils.getInt(data,3, 1));
-        getCalendar().set(Calendar.HOUR_OF_DAY,(int)ProtocolUtils.getInt(data,4, 1));
-        getCalendar().set(Calendar.MINUTE,(int)ProtocolUtils.getInt(data,5, 1));
-        getCalendar().set(Calendar.SECOND,(int)ProtocolUtils.getInt(data,6, 1));
+        getCalendar().set(Calendar.MONTH, ProtocolUtils.getInt(data,2, 1) -1);
+        getCalendar().set(Calendar.DAY_OF_MONTH, ProtocolUtils.getInt(data,3, 1));
+        getCalendar().set(Calendar.HOUR_OF_DAY, ProtocolUtils.getInt(data,4, 1));
+        getCalendar().set(Calendar.MINUTE, ProtocolUtils.getInt(data,5, 1));
+        getCalendar().set(Calendar.SECOND, ProtocolUtils.getInt(data,6, 1));
     }
 
     public Calendar getCalendar() {
@@ -82,4 +81,4 @@ public class RealTimeBasePage extends AbstractBasePage {
         this.calendar = calendar;
     }
 
-} // public class RealTimeBasePage extends AbstractBasePage
+}

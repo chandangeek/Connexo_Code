@@ -59,12 +59,4 @@ public class LogonCommand extends AbstractCommand {
 		this.password = password;
 	}
 
-
-	public static void main(String[] args) {
-		LogonCommand lc = new LogonCommand(null);
-		lc.setLogon("koen");
-		lc.setPassword("1234");
-		lc.prepareBuild();
-
-	}
 }

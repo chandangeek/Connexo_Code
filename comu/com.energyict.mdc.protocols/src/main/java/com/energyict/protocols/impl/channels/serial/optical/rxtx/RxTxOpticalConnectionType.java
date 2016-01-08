@@ -1,5 +1,6 @@
 package com.energyict.protocols.impl.channels.serial.optical.rxtx;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
@@ -25,8 +26,8 @@ import java.util.List;
 public class RxTxOpticalConnectionType extends RxTxSerialConnectionType implements OpticalDriver {
 
     @Inject
-    public RxTxOpticalConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService) {
-        super(serialComponentService);
+    public RxTxOpticalConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService, Thesaurus thesaurus) {
+        super(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME, serialComponentService, thesaurus);
     }
 
     @Override

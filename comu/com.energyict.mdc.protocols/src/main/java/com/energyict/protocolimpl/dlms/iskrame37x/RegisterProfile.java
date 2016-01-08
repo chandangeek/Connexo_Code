@@ -3,6 +3,9 @@
  */
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ProtocolLink;
@@ -12,8 +15,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.rmi.NoSuchObjectException;
@@ -83,14 +84,6 @@ public class RegisterProfile {
 		// TODO Auto-generated constructor stub
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void getProfileBuffer(ObisCode dailyObisCode) throws IOException {
 		if (billingSets.size() == 0) {
 			processDataContainer(cof.getProfileGeneric(dailyObisCode).getBuffer());
@@ -126,13 +119,13 @@ public class RegisterProfile {
 
 	private BillingSet getBillingSet(int billingSetId, DataContainer buffer) {
 
-		int billingReason = -1;
+		int billingReason;
 		billingDate = null;
 		Calendar cal = Calendar.getInstance( protocolLink.getTimeZone() );
 
-		if ( firstDate == null )
+		if ( firstDate == null ) {
 			firstDate = buffer.getRoot().getStructure(billingSetId).getOctetString(EOB_STATUS).toDate(protocolLink.getTimeZone());
-
+		}
 		else if ( buffer.getRoot().getStructure(billingSetId).isOctetString(0) ){
 			firstDate = buffer.getRoot().getStructure(billingSetId).getOctetString(EOB_STATUS).toDate(protocolLink.getTimeZone());
 			billingCalendar = null;
@@ -148,10 +141,13 @@ public class RegisterProfile {
 
         		cal.setTime(billingCalendar.getTime());
 
-        		if ( (cal.get(Calendar.SECOND) == 0) && (cal.get(Calendar.MINUTE) == 0) && (cal.get(Calendar.HOUR_OF_DAY) == 0))
-        			cal.add(Calendar.DATE, -1);
-        		else
-        			cal.set(Calendar.HOUR_OF_DAY,0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
+        		if ( (cal.get(Calendar.SECOND) == 0) && (cal.get(Calendar.MINUTE) == 0) && (cal.get(Calendar.HOUR_OF_DAY) == 0)) {
+			        cal.add(Calendar.DATE, -1);
+		        }
+		        else {
+			        cal.set(Calendar.HOUR_OF_DAY, 0);
+		        }
+				cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
 
         		fromDate = cal.getTime();
 
@@ -168,9 +164,9 @@ public class RegisterProfile {
 		else { // for the monthly no intervaltime is used
 			billingDate = buffer.getRoot().getStructure(billingSetId).getOctetString(EOB_STATUS).toDate(protocolLink.getTimeZone());
 
-			if (billingSetId != 0)
+			if (billingSetId != 0) {
 				fromDate = buffer.getRoot().getStructure(billingSetId - 1).getOctetString(EOB_STATUS).toDate(protocolLink.getTimeZone());
-
+			}
 			else{
         		cal.setTime(billingDate);
         		cal.set(Calendar.DATE, 1); cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
@@ -183,7 +179,9 @@ public class RegisterProfile {
     	int daysSinceLastReset = 0;
     	int nrOfResets = 0;
         BillingSet billingSet = new BillingSet(billingDate,billingReason,daysSinceLastReset,nrOfResets);
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingSet);
+        if (DEBUG>=1) {
+	        System.out.println("KV_DEBUG> " + billingSet);
+        }
         return billingSet;
 	}
 
@@ -194,28 +192,14 @@ public class RegisterProfile {
 
 	public CosemObject getValues(ObisCode obisCode) throws IOException {
 
-//        int billingPoint=0;
         int billingElement = -1;
-
-//        if( (obisCode.toString().indexOf("1.0.1.8.1.VZ")) == 0 ){
-//        	if(DEBUG == 1)System.out.println("Daily billingPoint 1.0.1.8.1.255");
-//        	billingElement = 0;
-//        }
-//
-//        else if( (obisCode.toString().indexOf("1.0.1.8.1.VZ-1 ")) == 0 ){
-//        	if(DEBUG == 1)System.out.println("Daily billingPoint 1.0.1.8.1.255");
-//        	billingElement = 0;
-//        }
-
         billingElement = getElement(obisCode);
 
         HistoricalValue historicalValue = new HistoricalValue();
 
-        if (billingSets.size() <= 0){
+        if (billingSets.size() <= 0) {
         	throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        	}
-//        	return historicalValue;
-//        	throw new UnsupportedOperationException("No items in BillingSet!");
+        }
 
         BillingSet billingSet = (BillingSet)billingSets.get(billingSets.size()-1);
         historicalValue.setBillingDate(billingSet.getBillingDate());
@@ -239,12 +223,14 @@ public class RegisterProfile {
 		for (int i = 0; i < obisCodeArray.length; i++){
 
 			if (obisCode.getF() == 0){
-				if ( obisCode.equals(obisCodeArray1[i]) )
+				if ( obisCode.equals(obisCodeArray1[i]) ) {
 					return i;
+				}
 			}
 			else if (obisCode.getF() == -1){
-				if ( obisCode.equals(obisCodeArray2[i]) )
+				if ( obisCode.equals(obisCodeArray2[i]) ) {
 					return i;
+				}
 			}
 
 		}

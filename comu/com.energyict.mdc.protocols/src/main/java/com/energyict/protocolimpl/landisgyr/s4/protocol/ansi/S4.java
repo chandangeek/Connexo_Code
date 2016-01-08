@@ -10,23 +10,20 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.C12Layer2;
 import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
@@ -43,20 +40,18 @@ import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.Manufacturer
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.S4Fam;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 /**
  *
  * @author  Koen
- * @beginchanges
- * @endchanges
  */
 public class S4 extends AbstractProtocol implements C12ProtocolLink {
 
@@ -74,16 +69,16 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
 
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
 
-    /** Creates a new instance of GEKV */
-    public S4() {
+    @Inject
+    public S4(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading,new Date(),includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return s4LoadProfile.getProfileData(from,to,includeEvents);
     }
 
@@ -105,10 +100,13 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
     }
 
     protected void validateSerialNumber() throws IOException {
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+            return;
+        }
         String sn = getStandardTableFactory().getManufacturerIdentificationTable().getManufacturerSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
+            return;
+        }
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
 
@@ -130,10 +128,12 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
                                   SerialCommunicationChannel.DATABITS_8,
                                   SerialCommunicationChannel.PARITY_NONE,
                                   SerialCommunicationChannel.STOPBITS_1);
-            if (getDtrBehaviour() == 0)
+            if (getDtrBehaviour() == 0) {
                 commChannel.setDTR(false);
-            else if (getDtrBehaviour() == 1)
+            }
+            else if (getDtrBehaviour() == 1) {
                 commChannel.setDTR(true);
+            }
         }
         getPSEMServiceFactory().logOn(c12UserId,replaceSpaces(c12User),getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY);
     }
@@ -164,13 +164,10 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
 
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-
-        result.add("C12User");
-        result.add("C12UserId");
-
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "C12User",
+                    "C12UserId");
     }
 
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
@@ -196,27 +193,35 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
         }
         catch(ResponseIOException e) {
             if (e.getReason()==AbstractResponse.IAR) // table does not exist!
-               getLogger().warning("No clock table available. Probably a demand only meter!");
-            else
-               throw e;
+            {
+                getLogger().warning("No clock table available. Probably a demand only meter!");
+            }
+            else {
+                throw e;
+            }
         }
         return new Date();
 
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         try {
             LoadProfileSet lps = getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet();
-            if (lps!=null)
+            if (lps!=null) {
                 return lps.getNrOfChannelsSet()[0];
-            else
+            }
+            else {
                 return 0;
+            }
         }
         catch(ResponseIOException e) {
             if (e.getReason()==AbstractResponse.IAR) // table does not exist!
-               getLogger().warning("No profile channels available. Probably a demand only meter!");
-            else
-               throw e;
+            {
+                getLogger().warning("No profile channels available. Probably a demand only meter!");
+            }
+            else {
+                throw e;
+            }
         }
         return 0;
     }
@@ -225,7 +230,7 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturer()+", "+
                getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
                "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
@@ -235,14 +240,14 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
     /*
      * Override this method if the subclass wants to set a specific register
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
 
     }
 
     /*
      * Override this method if the subclass wants to get a specific register
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -327,7 +332,7 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
     }
 
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         try {
             LoadProfileSet lps = getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet();
             if (lps!=null)
@@ -346,127 +351,6 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
 
     public TimeZone gettimeZone() {
         return super.getTimeZone();
-    }
-
-    static public void main(String[] args) {
-        try {
-            // ********************** Dialer **********************
-            //Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            Dialer dialer = DialerFactory.getOpticalDialer().newDialer();
-            dialer.init("COM1");
-            dialer.getSerialCommunicationChannel().setParams(9600,
-                                                             SerialCommunicationChannel.DATABITS_8,
-                                                             SerialCommunicationChannel.PARITY_NONE,
-                                                             SerialCommunicationChannel.STOPBITS_1);
-            dialer.connect();
-
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-            properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS,"1");
-            properties.setProperty(MeterProtocol.PASSWORD,"A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6");
-            properties.setProperty("ChannelMap","1,1");
-            //properties.setProperty("HalfDuplex", "10");
-
-            // ********************** EictRtuModbus **********************
-            S4 s4 = new S4();
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)s4).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-
-            s4.setHalfDuplexController(dialer.getHalfDuplexController());
-            s4.setProperties(properties);
-            s4.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-            s4.connect();
-
-
-//            System.out.println(s4.getStandardTableFactory().getManufacturerIdentificationTable());
-//            System.out.println(s4.getStandardTableFactory().getConfigurationTable());
-//            System.out.println(s4.getStandardTableFactory().getEndDeviceModeAndStatusTable());
-//            System.out.println(s4.getManufacturerTableFactory().getGEDeviceTable());
-//            System.out.println(s4.getStandardTableFactory().getDeviceIdentificationTable());
-//
-//            System.out.println(s4.getStandardTableFactory().getClockTable());
-
-            //byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
-            //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
-            //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
-//            byte[] password = {(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6};
-//            s4.getPSEMServiceFactory().secure(password);
-
-            //System.out.println(s4.getManufacturerTableFactory().getMeterProgramConstants1());
-            try {
-               System.out.println(s4.getStandardTableFactory().getActualLogTable());
-            }
-            catch(IOException e) {
-                System.out.println("Table not supported! "+e.toString());
-            }
-            try {
-               System.out.println(s4.getStandardTableFactory().getEventsIdentificationTable());
-            }
-            catch(IOException e) {
-                System.out.println("Table not supported! "+e.toString());
-            }
-
-//            System.out.println(s4.getManufacturerTableFactory().getMeterProgramConstants2());
-//            System.out.println(s4.getManufacturerTableFactory().getDisplayConfigurationTable());
-//            System.out.println(s4.getManufacturerTableFactory().getScaleFactorTable());
-//            System.out.println(s4.getManufacturerTableFactory().getElectricalServiceConfiguration());
-//            System.out.println(s4.getManufacturerTableFactory().getElectricalServiceStatus());
-//
-//            System.out.println(s4.getStandardTableFactory().getActualSourcesLimitingTable());
-//            System.out.println(s4.getStandardTableFactory().getDemandControlTable());
-//            System.out.println(s4.getStandardTableFactory().getDataControlTable());
-//            System.out.println(s4.getStandardTableFactory().getConstantsTable());
-//            System.out.println(s4.getStandardTableFactory().getSourceDefinitionTable());
-//            System.out.println(s4.getStandardTableFactory().getActualRegisterTable());
-//            System.out.println(s4.getStandardTableFactory().getDataSelectionTable());
-//            System.out.println(s4.getStandardTableFactory().getCurrentRegisterDataTable());
-//            System.out.println(s4.getStandardTableFactory().getPreviousSeasonDataTable());
-//            System.out.println(s4.getStandardTableFactory().getPreviousDemandResetDataTable());
-//            System.out.println(s4.getStandardTableFactory().getSelfReadDataTable());
-            //System.out.println(s4.getStandardTableFactory().getPresentRegisterSelectionTable());
-//            System.out.println(s4.getStandardTableFactory().getPresentRegisterDataTable());
-//            System.out.println(s4.getStandardTableFactory().getActualTimeAndTOUTable());
-//            System.out.println(s4.getStandardTableFactory().getTimeOffsetTable());
-//            System.out.println(s4.getStandardTableFactory().getCalendarTable());
-
-            // set time
-            //s4.setTime();
-
-//            System.out.println(s4.getStandardTableFactory().getClockStateTable());
-//            System.out.println(s4.getStandardTableFactory().getActualLoadProfileTable());
-//            System.out.println(s4.getStandardTableFactory().getLoadProfileControlTable());
-//            System.out.println(s4.getStandardTableFactory().getLoadProfileStatusTable());
-
-
-//            byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
-            //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
-            //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
-//            byte[] password = {(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6};
-//            s4.getPSEMServiceFactory().secure(password);
-
-
-//System.out.println("KV_DEBUG> program manufacturer specific table");
-//s4.getPSEMServiceFactory().fullWrite(66, new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//s4.getManufacturerTableFactory().getMeterProgramConstants1().setTableData(new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//s4.getManufacturerTableFactory().getMeterProgramConstants1().transfer();
-
-
-
-//            Calendar cal = Calendar.getInstance();
-//            cal.add(Calendar.DAY_OF_MONTH,-4);
-//            System.out.println(s4.getProfileData(cal.getTime(),true));
-
-            System.out.println(s4.getFirmwareVersion());
-
-
-            s4.disconnect();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     public PSEMServiceFactory getPSEMServiceFactory() {

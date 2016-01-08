@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.mdc.common.NestedIOException;
+
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -57,23 +58,6 @@ public class FirmwareSaxParser {
         } catch (SAXException e) {
         	throw new NestedIOException(e);
         }
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		FirmwareSaxParser o = new FirmwareSaxParser(null);
-		try {
-			o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/firmware.xml",true);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/tariff2.xml");
-		//o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/tariff3.xml");
-
-
 	}
 
 }

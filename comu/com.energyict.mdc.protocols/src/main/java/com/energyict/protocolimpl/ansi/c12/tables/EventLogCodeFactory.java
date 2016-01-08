@@ -19,10 +19,10 @@ import java.util.List;
  *
  * @author Koen
  */
-abstract public class EventLogCodeFactory {
+public abstract class EventLogCodeFactory {
 
-    static List stdList = new ArrayList();
-    static List mfgList = new ArrayList();
+    static List<EventLogCode> stdList = new ArrayList<>();
+    static List<EventLogCode> mfgList = new ArrayList<>();
 
     static {
         // C12.19
@@ -84,7 +84,7 @@ abstract public class EventLogCodeFactory {
 
     }
 
-    static public List getMfgList() {
+    public static List<EventLogCode> getMfgList() {
        return mfgList;
     }
 
@@ -103,22 +103,25 @@ abstract public class EventLogCodeFactory {
 
     private EventLogCode findEventLogCode(int code, boolean manufacturer) {
         if (manufacturer) {
-            Iterator it = mfgList.iterator();
+            Iterator<EventLogCode> it = mfgList.iterator();
             while(it.hasNext()) {
-                EventLogCode elc = (EventLogCode)it.next();
-                if (elc.getCode() == code) return elc;
+                EventLogCode elc = it.next();
+                if (elc.getCode() == code) {
+                    return elc;
+                }
             }
             return new EventLogCode(code, "Unknown manufacturer log code! Code:" + code,"");
         }
         else {
-            Iterator it = stdList.iterator();
+            Iterator<EventLogCode> it = stdList.iterator();
             while(it.hasNext()) {
-                EventLogCode elc = (EventLogCode)it.next();
-                if (elc.getCode() == code) return elc;
+                EventLogCode elc = it.next();
+                if (elc.getCode() == code) {
+                    return elc;
+                }
             }
             return new EventLogCode(code, "Unknown standard log code! Code:" + code,"");
         }
     }
-
 
 }

@@ -1,14 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging;
 
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
@@ -16,7 +16,9 @@ import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,16 +65,9 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
             }
-        } catch (IOException e) {
+        } catch (IOException | ParserConfigurationException | SAXException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
-        } catch (BusinessException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (InterruptedException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-            Thread.currentThread().interrupt();
         }
 
         if (success) {
@@ -83,7 +78,7 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
         }
     }
 
-    private void updateFirmware(MessageHandler messageHandler, String content) throws IOException, InterruptedException {
+    private void updateFirmware(MessageHandler messageHandler, String content) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String firmwareContent = messageHandler.getFirmwareContent();

@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.elster.alpha.alphaplus;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
@@ -22,6 +23,7 @@ import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -37,6 +39,7 @@ import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterF
 import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;
 import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -69,8 +72,9 @@ public class AlphaPlus extends AbstractProtocol implements Alpha {
     long whoAreYouTimeout;
     private int totalRegisterRate;
 
-    /** Creates a new instance of AlphaPlus */
-    public AlphaPlus() {
+    @Inject
+    public AlphaPlus(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {

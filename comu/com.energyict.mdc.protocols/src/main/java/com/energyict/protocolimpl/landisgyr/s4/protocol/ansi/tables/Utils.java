@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
@@ -36,21 +37,6 @@ public class Utils {
         if ((temp&0x8) == 0x8) temp |= 0xF0;
         bd = bd.movePointRight(temp);
         return bd;
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        try {
-            int offset=0;
-            byte[] data = new byte[]{0x55,0x46,(byte)0xF6};
-            System.out.println(getS4FloatingPoint(data,offset));
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        // TODO code application logic here
     }
 
 }

@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.elster.a3.tables;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
 import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
@@ -90,26 +91,19 @@ public class OutageModemConfiguration extends AbstractTable {
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("OutageModemConfiguration:\n");
-        strBuff.append("   answerDelay="+getAnswerDelay()+" s\n");
-        strBuff.append("   averageDelayTime="+getAverageDelayTime()+" s\n");
-        strBuff.append("   callRetryDelay="+getCallRetryDelay()+" (nr of 5 sec delays)\n");
-        strBuff.append("   callTimeout="+getCallTimeout()+" min\n");
-        strBuff.append("   initialWait="+getInitialWait()+"\n");
-        strBuff.append("   maxOutageCallRetries="+getMaxOutageCallRetries()+"\n");
-        strBuff.append("   outageFlags=0x"+Integer.toHexString(getOutageFlags())+"\n");
-        strBuff.append("   outageModemDialString="+getOutageModemDialString()+"\n");
-        strBuff.append("   powerFailDelay="+getPowerFailDelay()+" s\n");
-        strBuff.append("   powerUpDelay="+getPowerUpDelay()+" s\n");
-        strBuff.append("   checkSum=0x"+Integer.toHexString(getCheckSum())+"\n");
-        return strBuff.toString();
+        return "OutageModemConfiguration:\n" +
+                "   answerDelay=" + getAnswerDelay() + " s\n" +
+                "   averageDelayTime=" + getAverageDelayTime() + " s\n" +
+                "   callRetryDelay=" + getCallRetryDelay() + " (nr of 5 sec delays)\n" +
+                "   callTimeout=" + getCallTimeout() + " min\n" +
+                "   initialWait=" + getInitialWait() + "\n" +
+                "   maxOutageCallRetries=" + getMaxOutageCallRetries() + "\n" +
+                "   outageFlags=0x" + Integer.toHexString(getOutageFlags()) + "\n" +
+                "   outageModemDialString=" + getOutageModemDialString() + "\n" +
+                "   powerFailDelay=" + getPowerFailDelay() + " s\n" +
+                "   powerUpDelay=" + getPowerUpDelay() + " s\n" +
+                "   checkSum=0x" + Integer.toHexString(getCheckSum()) + "\n";
     }
-//     public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new OutageModemConfiguration(null)));
-//     }
-
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset = 0;

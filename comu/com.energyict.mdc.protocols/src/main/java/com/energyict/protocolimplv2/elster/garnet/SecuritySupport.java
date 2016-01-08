@@ -1,20 +1,24 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
-import com.energyict.protocolimplv2.security.SecurityRelationTypeName;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
+
+import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author sva
@@ -38,62 +42,50 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
     /**
      * Summarizes the used ID for the AuthenticationLevels.
      */
-    protected enum AuthenticationAccessLevelIds {
+    private enum AuthenticationAccessLevelIds {
         NO_AUTHENTICATION(0);
 
         private final int accessLevel;
 
-        private AuthenticationAccessLevelIds(int accessLevel) {
+        AuthenticationAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
+        int getAccessLevel() {
+            return accessLevel;
+        }
     }
 
     /**
      * Summarizes the used ID for the EncryptionLevels.
      */
-    protected enum EncryptionAccessLevelIds {
+    private enum EncryptionAccessLevelIds {
         MESSAGE_ENCRYPTION(1);
 
         private final int accessLevel;
 
-        private EncryptionAccessLevelIds(int accessLevel) {
+        EncryptionAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
+        int getAccessLevel() {
+            return accessLevel;
+        }
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(propertySpecService)
-        );
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.GARNET_SECURITY.toString();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new GarnetSecuritySupportCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.asList((AuthenticationDeviceAccessLevel) new NoAuthentication());
+        return Collections.singletonList((AuthenticationDeviceAccessLevel) new NoAuthentication());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Arrays.asList((EncryptionDeviceAccessLevel) new MessageEncryption());
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+        return Collections.singletonList((EncryptionDeviceAccessLevel) new MessageEncryption());
     }
 
     /**
@@ -104,7 +96,7 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
 
         @Override
         public int getId() {
-            return EncryptionAccessLevelIds.MESSAGE_ENCRYPTION.accessLevel;
+            return EncryptionAccessLevelIds.MESSAGE_ENCRYPTION.getAccessLevel();
         }
 
         @Override
@@ -128,7 +120,7 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.NO_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.NO_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -141,4 +133,5 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
             return Collections.emptyList();
         }
     }
+
 }

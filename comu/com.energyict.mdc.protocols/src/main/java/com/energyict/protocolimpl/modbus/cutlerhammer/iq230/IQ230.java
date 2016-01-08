@@ -9,26 +9,22 @@
  */
 package com.energyict.protocolimpl.modbus.cutlerhammer.iq230;
 
-import com.energyict.mdc.protocol.api.dialer.core.Dialer;
-import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
-import com.energyict.protocolimpl.modbus.core.Modbus;
-import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 
+import com.energyict.protocolimpl.modbus.core.Modbus;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.time.Clock;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
@@ -36,14 +32,13 @@ import java.util.logging.Logger;
  */
 public class IQ230 extends Modbus {
 
-    ModbusConnection modbusConnection;
-    private RegisterFactory registerFactory;
+    private final Clock clock;
     private MultiplierFactory multiplierFactory = null;
 
-    /**
-     * Creates a new instance of IQ200
-     */
-    public IQ230() {
+    @Inject
+    public IQ230(PropertySpecService propertySpecService, Clock clock) {
+        super(propertySpecService);
+        this.clock = clock;
     }
 
     protected void doTheConnect() throws IOException {
@@ -58,14 +53,13 @@ public class IQ230 extends Modbus {
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "50").trim()));
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         //return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getSlaveId()+", "+getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getAdditionalDataAsString();
-        return "" + (BigDecimal) getRegisterFactory().findRegister("productid").value();
+        return "" + getRegisterFactory().findRegister("productid").value();
     }
 
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        return result;
+    protected List<String> doTheGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     public String getProtocolVersion() {
@@ -77,81 +71,15 @@ public class IQ230 extends Modbus {
     }
 
     public Date getTime() throws IOException {
-        return new Date();
+        return Date.from(this.clock.instant());
     }
-
-
 
     public DiscoverResult discover(DiscoverTools discoverTools) {
         // discovery is implemented in the GenericModbusDiscover protocol
         return null;
     }
 
-    static public void start() {
-        try {
-            // ********************** Dialer **********************
-            Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer.init("COM1");
-            dialer.getSerialCommunicationChannel().setParams(9600,
-                    SerialCommunicationChannel.DATABITS_8,
-                    SerialCommunicationChannel.PARITY_NONE,
-                    SerialCommunicationChannel.STOPBITS_1);
-            dialer.connect();
-
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-            //properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS, "13");
-            properties.setProperty("HalfDuplex", "1");
-            properties.setProperty("RegisterOrderFixedPoint", "1");
-
-            // ********************** EictRtuModbus **********************
-            IQ230 eictRtuModbus = new IQ230();
-//            System.out.println(eictRtuModbus.translateRegister(ObisCode.fromString("1.1.52.7.0.255")));
-
-            eictRtuModbus.setProperties(properties);
-            eictRtuModbus.setHalfDuplexController(dialer.getHalfDuplexController());
-            eictRtuModbus.init(dialer.getInputStream(), dialer.getOutputStream(), TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
-            eictRtuModbus.connect();
-
-            //System.out.println(eictRtuModbus.getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification());
-
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).getReadHoldingRegistersRequest());
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValue());
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(3034).dateValue());
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValueWithParser("BigDecimal"));
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).objectValueWithParser("powerfactor"));
-
-            System.out.println(eictRtuModbus.getFirmwareVersion());
-            //System.out.println(eictRtuModbus.getClass().getName());
-            //System.out.println(eictRtuModbus.getTime());
-
-            //System.out.println(eictRtuModbus.getRegistersInfo(1));
-//            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.32.7.0.255")));
-//            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.52.7.0.255")));
-//            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.72.7.0.255")));
-            //System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
-            //System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
-            //System.out.println(eictRtuModbus.getRegisterFactory().findRegister("productid").values()[0]&0xFF);
-            //System.out.println(eictRtuModbus.getRegisterFactory().findRegister("fpwordorder").values()[0]);
-//            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
-//            System.out.println(eictRtuModbus.getRegistersInfo(0));
-//            System.out.println(eictRtuModbus.getRegistersInfo(1));
-
-            eictRtuModbus.disconnect();
-            dialer.disConnect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    static public void main(String[] args) {
-        IQ230.start();
-        IQ230.start();
-    }
-
-    public BigDecimal getRegisterMultiplier(int address) throws IOException, UnsupportedException {
+    public BigDecimal getRegisterMultiplier(int address) throws IOException {
         return getMultiplierFactory().getMultiplier(address);
     }
 
@@ -161,4 +89,5 @@ public class IQ230 extends Modbus {
         }
         return multiplierFactory;
     }
+
 }

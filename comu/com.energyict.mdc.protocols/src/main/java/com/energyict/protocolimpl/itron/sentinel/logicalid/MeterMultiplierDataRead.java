@@ -25,10 +25,6 @@ public class MeterMultiplierDataRead extends AbstractDataRead {
 		super(dataReadFactory);
 	}
 
-	public static void main(String[] args) {
-		System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new MeterMultiplierDataRead(null)));
-	}
-
 	protected void parse(byte[] data) throws IOException {
 		getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
 		System.out.println(ProtocolUtils.outputHexString(data));

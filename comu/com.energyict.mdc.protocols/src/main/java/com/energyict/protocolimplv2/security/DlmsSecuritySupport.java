@@ -1,20 +1,27 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for a DLMS protocol.
@@ -42,7 +49,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     /**
      * Summarizes the used ID for the AuthenticationLevels.
      */
-    protected enum AuthenticationAccessLevelIds {
+    enum AuthenticationAccessLevelIds {
         NO_AUTHENTICATION(0),
         LOW_LEVEL_AUTHENTICATION(1),
         MANUFACTURER_SPECIFIC_AUTHENTICATION(2),
@@ -56,7 +63,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
             this.accessLevel = accessLevel;
         }
 
-        private int getAccessLevel() {
+        int getAccessLevel() {
             return this.accessLevel;
         }
 
@@ -65,7 +72,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     /**
      * Summarizes the used ID for the EncryptionLevels.
      */
-    protected enum EncryptionAccessLevelIds {
+    enum EncryptionAccessLevelIds {
         NO_MESSAGE_ENCRYPTION(0),
         MESSAGE_ENCRYPTION(1),
         MESSAGE_AUTHENTICATION(2),
@@ -77,24 +84,14 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
             this.accessLevel = accessLevel;
         }
 
-        protected int getAccessLevel() {
+        int getAccessLevel() {
             return this.accessLevel;
         }
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService)
-        );
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.DLMS_SECURITY.toString();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new DlmsSecurityCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -115,16 +112,6 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
                 new MessageAuthentication(),
                 new MessageEncryption(),
                 new MessageEncryptionAndAuthentication());
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -234,7 +221,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return EncryptionAccessLevelIds.NO_MESSAGE_ENCRYPTION.accessLevel;
+            return EncryptionAccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel();
         }
 
         @Override
@@ -256,7 +243,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return EncryptionAccessLevelIds.MESSAGE_ENCRYPTION.accessLevel;
+            return EncryptionAccessLevelIds.MESSAGE_ENCRYPTION.getAccessLevel();
         }
 
         @Override
@@ -281,7 +268,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return EncryptionAccessLevelIds.MESSAGE_AUTHENTICATION.accessLevel;
+            return EncryptionAccessLevelIds.MESSAGE_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -306,7 +293,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return EncryptionAccessLevelIds.MESSAGE_ENCRYPTION_AUTHENTICATION.accessLevel;
+            return EncryptionAccessLevelIds.MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -331,7 +318,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.NO_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.NO_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -353,7 +340,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.LOW_LEVEL_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.LOW_LEVEL_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -380,7 +367,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANUFACTURER_SPECIFIC_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANUFACTURER_SPECIFIC_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -403,7 +390,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MD5_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MD5_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -428,7 +415,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.SHA1_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.SHA1_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -454,7 +441,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.GMAC_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.GMAC_AUTHENTICATION.getAccessLevel();
         }
 
         @Override

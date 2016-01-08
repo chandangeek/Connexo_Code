@@ -1,19 +1,20 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -37,11 +38,9 @@ KV|31032005|Handle DataContainerException
  */
 public class DLMSEMO extends DLMSSN {
 
-    private static final byte DEBUG=0;
-
     @Inject
-    public DLMSEMO(OrmClient ormClient) {
-        super(ormClient);
+    public DLMSEMO(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService, ormClient);
     }
 
     protected String getDeviceID() {

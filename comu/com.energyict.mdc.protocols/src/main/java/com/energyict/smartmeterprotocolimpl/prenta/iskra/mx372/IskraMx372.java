@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -21,6 +21,10 @@ import com.energyict.mdc.protocol.api.dialer.core.Link;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -33,10 +37,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372Messaging;
 
 import javax.inject.Inject;
@@ -78,8 +78,8 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private static final int MBUS = 0x01;
 
     @Inject
-    public IskraMx372(OrmClient ormClient, Clock clock, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
-        super(ormClient);
+    public IskraMx372(PropertySpecService propertySpecService, OrmClient ormClient, Clock clock, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService, ormClient);
         this.clock = clock;
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
@@ -446,7 +446,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     //    M e s s a g e P r o t o c o l  i n t e r f a c e
     //     * @throws IOException
     //     * @throws SQLException
-    //     * @throws BusinessException
     //*******************************************************************************************/
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
         return getMessageProtocol().getLoadProfileRegisterMessageBuilder();
@@ -507,7 +506,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return getMessageProtocol().getPartialLoadProfileMessageBuilder();
     }
 
-    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
+    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws IOException {
         return getMessageProtocol().executeWakeUp(communicationSchedulerId, link, logger);
     }
 

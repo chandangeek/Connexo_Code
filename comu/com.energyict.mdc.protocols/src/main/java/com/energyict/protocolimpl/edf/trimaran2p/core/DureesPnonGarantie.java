@@ -5,6 +5,7 @@ package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -52,12 +53,6 @@ public class DureesPnonGarantie extends AbstractTrimaranObject{
 		strBuff.append("	- DnG previous: " + getDnG(11) + "\n");
 
 		return strBuff.toString();
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
 	}
 
 	protected int getVariableName() {

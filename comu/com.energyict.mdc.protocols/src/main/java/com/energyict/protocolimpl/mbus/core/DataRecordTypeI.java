@@ -37,23 +37,14 @@ public class DataRecordTypeI extends AbstractDataRecordType {
         this.timeZone=timeZone;
     }
 
-//        public DataRecordTypeF_CP32() {
-//        }
-//        public static void main(String[] args) {
-//            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new DataRecordTypeF_CP32()));
-//        }
-
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("DataRecordTypeI");
-        strBuff.append("   calendar="+getCalendar().getTime()+"\n");
-        strBuff.append("   inValid="+isInValid()+"\n");
-        strBuff.append("   summerTime="+isSummerTime()+"\n");
-        strBuff.append("   leapYear="+isLeapYear()+"\n");
-        strBuff.append("   dstShiftInHours="+getDstShiftInHours()+"\n");
 
-        return strBuff.toString();
+        return "DataRecordTypeI" +
+                "   calendar=" + getCalendar().getTime() + "\n" +
+                "   inValid=" + isInValid() + "\n" +
+                "   summerTime=" + isSummerTime() + "\n" +
+                "   leapYear=" + isLeapYear() + "\n" +
+                "   dstShiftInHours=" + getDstShiftInHours() + "\n";
     }
 
     protected void doParse(byte[] data) throws IOException {
@@ -71,20 +62,6 @@ public class DataRecordTypeI extends AbstractDataRecordType {
         setLeapYear((ProtocolUtils.getInt(data,0,1)&0x80)==0x80);
         int temp = (ProtocolUtils.getInt(data,1,1)&0x40)==0x40 ? 1:-1;
         setDstShiftInHours(temp * ((ProtocolUtils.getInt(data,5,1)&0xC0)>>6));
-    }
-
-    static public void main(String[] args) {
-
-        try {
-            DataRecordTypeF_CP32 d = new DataRecordTypeF_CP32(TimeZone.getDefault());
-            byte[] data = new byte[]{0x22,0x0b,(byte)0xe3,0x0a};
-            d.parse(data);
-            System.out.println(d);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     public Calendar getCalendar() {

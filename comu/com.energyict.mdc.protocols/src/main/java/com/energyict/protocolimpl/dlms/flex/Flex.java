@@ -14,14 +14,34 @@ SVA|16072012|Taken a local copy of all stuff reused from Iskra protocol - this i
  */
 package com.energyict.protocolimpl.dlms.flex;
 
-import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -35,35 +55,13 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -73,8 +71,9 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -132,16 +131,9 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     int configProgramChanges = -1;
     int deviation = -1;
 
-    // DLMS PDU offsets
-    private static final byte DL_COSEMPDU_DATA_OFFSET = 0x07;
-
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
     private TimeZone timeZone = null;
-//    private Properties properties=null;
-
-    // filled in when getTime is invoked!
-//    private int dstFlag; // -1=unknown, 0=not set, 1=set
 
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("LGZ");
     private DLMSCache dlmsCache = new DLMSCache();
@@ -151,7 +143,8 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     private final OrmClient ormClient;
 
     @Inject
-    public Flex(OrmClient ormClient) {
+    public Flex(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService);
         this.ormClient = ormClient;
     }
 
@@ -246,30 +239,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             (byte) 0x06,  // dlms version nr
             (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
             (byte) 0x21, (byte) 0x34};
-
-    byte[] aarqlowestlevelOld = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x60, // AARQ
-            (byte) 0x1C, // bytes to follow
-            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
-            (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
-            (byte) 0x01, // initiate request
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
-            (byte) 0x06,  // dlms version nr
-            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
-            (byte) 0xFF, (byte) 0xFF};
-
-    byte[] aarqlowestlevel = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x60, // AARQ
-            (byte) 0x1D, // bytes to follow
-            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
-            (byte) 0xBE, (byte) 0x10, (byte) 0x04, (byte) 0x0E,
-            (byte) 0x01, // initiate request
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
-            (byte) 0x06,  // dlms version nr
-            (byte) 0x5F, (byte) 0x1F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x7E, (byte) 0x1F, // proposed conformance
-            (byte) 0xFF, (byte) 0xFF};
 
     byte[] aarqFlex = {
             (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
@@ -1306,48 +1275,33 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys(), this.getPropertySpecService());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys(), this.getPropertySpecService());
     }
 
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
     public List getOptionalKeys() {
-        List result = new ArrayList(9);
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        result.add("RequestTimeZone");
-        result.add("FirmwareVersion");
-        result.add("SecurityLevel");
-        result.add("ClientMacAddress");
-        result.add("ServerUpperMacAddress");
-        result.add("ServerLowerMacAddress");
-        result.add("ExtendedLogging");
-        result.add("LoadProfileId");
-        result.add("AddressingMode");
-        result.add("Connection");
-
-
-        return result;
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "DelayAfterFail",
+                    "RequestTimeZone",
+                    "FirmwareVersion",
+                    "SecurityLevel",
+                    "ClientMacAddress",
+                    "ServerUpperMacAddress",
+                    "ServerLowerMacAddress",
+                    "ExtendedLogging",
+                    "LoadProfileId",
+                    "AddressingMode",
+                    "Connection");
     }
 
     public int requestTimeZone() throws IOException {
@@ -1366,7 +1320,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, this.ormClient);
             RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
@@ -1376,11 +1330,11 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isDirty()) {
@@ -1390,7 +1344,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
@@ -1474,51 +1428,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
-    }
-
-//    private AXDRDecoder axdrDecoder = AXDRDecoder();
-
-    public static void main(String[] args) throws IOException {
-
-        System.out.println("******************************************************");
-        System.out.println("");
-
-        System.out.println("MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN*MAIN");
-        System.out.println("");
-        AbstractDataType adt;
-        byte[] abstractDataByte, abstractDataByte2;
-        abstractDataByte = new byte[]{(byte) 0x02, (byte) 0x04, (byte) 0x02, (byte) 0x04, (byte) 0x12,
-                (byte) 0x00, (byte) 0x08, (byte) 0x09, (byte) 0x06, (byte) 0x00, (byte) 0x00,
-                (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0xff, (byte) 0x0f, (byte) 0x02,
-                (byte) 0x12, (byte) 0x00, (byte) 0x00, (byte) 0x09, (byte) 0x0c, (byte) 0x07,
-                (byte) 0xd7, (byte) 0x06, (byte) 0x0a, (byte) 0xff, (byte) 0x00, (byte) 0x19,
-                (byte) 0x00, (byte) 0xff, (byte) 0x80, (byte) 0x00, (byte) 0x80, (byte) 0x09,
-                (byte) 0x0c, (byte) 0x07, (byte) 0xd7, (byte) 0x0c, (byte) 0x13, (byte) 0xff,
-                (byte) 0x0a, (byte) 0x1d, (byte) 0x00, (byte) 0xff, (byte) 0x80, (byte) 0x00,
-                (byte) 0x00, (byte) 0x01, (byte) 0x00};
-
-        abstractDataByte2 = new byte[]{(byte) 0x02, (byte) 0x04, (byte) 0x02, (byte) 0x04, (byte) 0x12, (byte) 0x00,
-                (byte) 0x08, (byte) 0x09, (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00,
-                (byte) 0x00, (byte) 0xFF, (byte) 0x0F, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x00,
-                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD7, (byte) 0x06, (byte) 0x0A, (byte) 0xFF,
-                (byte) 0x00, (byte) 0x19, (byte) 0x00, (byte) 0xFF, (byte) 0x80, (byte) 0x00, (byte) 0x80,
-                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD7, (byte) 0x0C, (byte) 0x14, (byte) 0xFF,
-                (byte) 0x08, (byte) 0x12, (byte) 0x00, (byte) 0xFF, (byte) 0x80, (byte) 0x00, (byte) 0x00,
-                (byte) 0x01, (byte) 0x00};
-
-        adt = AXDRDecoder.decode(abstractDataByte);
-        System.out.println(adt);
-        System.out.println("******************************************************");
-        adt = AXDRDecoder.decode(abstractDataByte2);
-        System.out.println(adt);
-        System.out.println("******************************************************");
-
-        String stringLN;
-
-        byte[] LN = {(byte) 0x01, (byte) 0x00, (byte) 0x03, (byte) 0x08, (byte) 0x00, (byte) 0xFF};
-        stringLN = DLMSUtils.getInfoLN(LN);
-        System.out.println(stringLN);
-
     }
 
 }

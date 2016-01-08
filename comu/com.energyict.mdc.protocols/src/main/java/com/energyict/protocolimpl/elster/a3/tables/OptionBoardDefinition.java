@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.elster.a3.tables;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
 
@@ -29,10 +30,7 @@ public class OptionBoardDefinition {
     private int optionBoardVersionGroup; // 1 byte
     private int optionBoardVersionRevisionNr; // 1 byte
 
-//    public OptionBoardDefinition(){
-//
-//    }
-    static Map map = new HashMap();
+    static Map<String, String> map = new HashMap<>();
     static {
         map.put("0A","External modem boar");
         map.put("0B","20mA current loop board");
@@ -62,34 +60,26 @@ public class OptionBoardDefinition {
 
     public String toString() {
         // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("OptionBoardDefinition:\n");
-        if (getOptionBoardType()==null)
+        if (getOptionBoardType()==null) {
             strBuff.append("   Option board not present");
+        }
         else {
-            String type = (String)map.get(getOptionBoardType());
+            String type = map.get(getOptionBoardType());
 
-            strBuff.append("   optionBoardType="+type+"\n");
-            strBuff.append("   optionBoardVersionGroup="+getOptionBoardVersionGroup()+"\n");
-            strBuff.append("   optionBoardVersionRevisionNr="+getOptionBoardVersionRevisionNr()+"\n");
-            strBuff.append("   optionBoardVersionSSPEC="+getOptionBoardVersionSSPEC()+"\n");
+            strBuff.append("   optionBoardType=").append(type).append("\n");
+            strBuff.append("   optionBoardVersionGroup=").append(getOptionBoardVersionGroup()).append("\n");
+            strBuff.append("   optionBoardVersionRevisionNr=").append(getOptionBoardVersionRevisionNr()).append("\n");
+            strBuff.append("   optionBoardVersionSSPEC=").append(getOptionBoardVersionSSPEC()).append("\n");
         }
         return strBuff.toString();
     }
 
-    static public int getSize(TableFactory tableFactory) throws IOException {
-//        ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
-//        ActualTimeAndTOUTable atatt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
-//        ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
-//        ActualLoadProfileTable alpt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();
-
+    public static int getSize(TableFactory tableFactory) {
         return 7;
     }
 
-
-//     public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new OptionBoardDefinition()));
-//     }
 
     public String getOptionBoardType() {
         return optionBoardType;

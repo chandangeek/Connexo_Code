@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -12,7 +16,15 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -21,13 +33,11 @@ import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
-import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -35,12 +45,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
  * Basic implementation of the EIWeb DeviceProtocol.
- * The basic implementation will not do much, mainly serve as a placeholder so the DeviceType can be created
- * <p/>
+ * The basic implementation will not do much, mainly serve as a placeholder so the DeviceType can be created.
+ *
  * Copyrights EnergyICT
  * Date: 9/10/13
  * Time: 12:02 PM
@@ -48,6 +59,7 @@ import java.util.Set;
 public class EIWeb implements DeviceProtocol {
 
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
     private SimplePasswordSecuritySupport securitySupport;
@@ -55,9 +67,10 @@ public class EIWeb implements DeviceProtocol {
     private LegacyMessageConverter messageConverter;
 
     @Inject
-    public EIWeb(Clock clock, PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, SimplePasswordSecuritySupport simplePasswordSecuritySupport) {
+    public EIWeb(Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, SimplePasswordSecuritySupport simplePasswordSecuritySupport) {
         super();
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
         this.securitySupport = simplePasswordSecuritySupport;
@@ -85,13 +98,8 @@ public class EIWeb implements DeviceProtocol {
     }
 
     @Override
-    public PropertySpec getPropertySpec (String name) {
-        return null;
-    }
-
-    @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new EIWebConnectionType(propertySpecService));
+        return Collections.<ConnectionType>singletonList(new EIWebConnectionType(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -188,7 +196,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect(propertySpecService));
+        return Collections.<DeviceProtocolDialect>singletonList(new NoParamsDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -201,13 +209,8 @@ public class EIWeb implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return this.securitySupport.getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return this.securitySupport.getSecurityRelationTypeName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.securitySupport.getCustomPropertySet();
     }
 
     @Override
@@ -218,11 +221,6 @@ public class EIWeb implements DeviceProtocol {
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return this.securitySupport.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return this.securitySupport.getSecurityPropertySpec(name);
     }
 
     @Override
@@ -268,4 +266,5 @@ public class EIWeb implements DeviceProtocol {
     public CollectedFirmwareVersion getFirmwareVersions() {
         return getCollectedDataFactory().createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
     }
+
 }

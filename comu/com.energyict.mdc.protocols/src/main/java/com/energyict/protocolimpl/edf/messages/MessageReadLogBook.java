@@ -10,14 +10,14 @@ public class MessageReadLogBook extends MessageContent {
 	protected final static String ELEMENTNAME = "onDemandReadLogBook";
 	protected final static String FROMATTRIBUTE = "from";
 	protected final static String TOATTRIBUTE = "to";
-	
+
 	private Date from = null;
 	private Date to = null;
-	
+
 	public MessageReadLogBook() {
 		super();
 	}
-	
+
 	public MessageReadLogBook(Date from, Date to) {
 		super();
 		this.from = from;
@@ -27,15 +27,15 @@ public class MessageReadLogBook extends MessageContent {
 	public MessageReadLogBook(Element element) {
 		super(element);
 		String fromString = element.getAttribute(FROMATTRIBUTE);
-		if (!fromString.equals("")) {
+		if (!fromString.isEmpty()) {
 			from = new Date(Long.parseLong(fromString));
 		}
 		String toString = element.getAttribute(TOATTRIBUTE);
-		if (!toString.equals("")) {
+		if (!toString.isEmpty()) {
 			to = new Date(Long.parseLong(toString));
 		}
 	}
-	
+
 	public Date getFrom() {
 		return from;
 	}

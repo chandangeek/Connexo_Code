@@ -3,24 +3,21 @@ package com.energyict.protocolimpl.iec1107.zmd;
 
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -35,7 +32,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * header format
@@ -650,16 +646,14 @@ class Profile extends VDEWProfile {
     class IntervalRow {
 
         private int eiStatus;
-        private List values;
+        private List<BigDecimal> values;
 
         IntervalRow(int eiStatus, String [] values){
-
             this.eiStatus = eiStatus;
-            this.values = new ArrayList();
-
-            for( int i = 0; i < values.length; i ++ )
+            this.values = new ArrayList<>();
+            for( int i = 0; i < values.length; i ++ ) {
                 addInterval(values, i);
-
+            }
         }
 
         /**
@@ -667,14 +661,12 @@ class Profile extends VDEWProfile {
          * When a blank is encountered (---.-) an missing interval flag is set.
          */
         private void addInterval(String[] values, int i) {
-
             if( "---.-".equals(values[i]) ) {
-                this.values.add( new BigDecimal( 0 ) );
+                this.values.add(BigDecimal.ZERO);
                 this.eiStatus |= IntervalStateBits.MISSING;
             } else {
-                this.values.add( new BigDecimal( values[i] ) );
+                this.values.add(new BigDecimal(values[i]));
             }
-
         }
 
         int getEiStatus(){
@@ -682,16 +674,17 @@ class Profile extends VDEWProfile {
         }
 
         BigDecimal get(int idx){
-            return (BigDecimal)values.get(idx);
+            return values.get(idx);
         }
 
         public String toString( ){
-            StringBuffer rslt = new StringBuffer();
-            rslt.append( "[ st " + eiStatus );
+            StringBuilder rslt = new StringBuilder();
+            rslt.append("[ st ").append(eiStatus);
 
-            Iterator i = values.iterator();
-            while( i.hasNext() )
-                rslt.append( ", " ).append( i.next() );
+            Iterator<BigDecimal> i = values.iterator();
+            while( i.hasNext() ) {
+                rslt.append(", ").append(i.next());
+            }
             rslt.append( "]" );
 
             return rslt.toString();
@@ -699,33 +692,25 @@ class Profile extends VDEWProfile {
 
     }
 
-    protected List buildMeterEvents(byte[] data) throws IOException {
-
+    protected List<MeterEvent> buildMeterEvents(byte[] data) throws IOException {
         dump( data, DBG_EVENT_DMP );
-
-        List rslt = new ArrayList();
-
+        List<MeterEvent> rslt = new ArrayList<>();
         Assembly assembly = new Assembly(data);
-        String line = null;
-
+        String line;
         while( (line = assembly.readLine()) != null ) {
-
             String [] field = split(line);
-
             Date time = asDate(field[0]);
             int pCode = Integer.parseInt(field[1], 16);
 
-            if( pCode == 0 ) continue;
+            if (pCode == 0) {
+                continue;
+            }
 
             rslt.add( getMeterEvent(time, pCode) );
-
             dbg( assembly.dbgString() );
             dbg( asDate(field[0]) + " " + getMeterEvent(time, pCode) );
-
         }
-
         return rslt;
-
     }
 
     /* Keep track of parsing progress. */
@@ -753,7 +738,9 @@ class Profile extends VDEWProfile {
     }
 
     private void dbg(String msg){
-        if( DBG ) System.out.println(msg);
+        if( DBG ) {
+            System.out.println(msg);
+        }
     }
 
     /* during dbging, dump data to a file */
@@ -770,59 +757,4 @@ class Profile extends VDEWProfile {
         }
     }
 
-    /*
-     * When running in dbg mode, the profile data is dmped into a file:
-     * c:\dmp.txt.
-     *
-     * When starting Profile.main this file is parsed to profile data.
-     *
-     */
-    public static void main(String [] args) throws IOException {
-
-        Profile p = new Profile( null, new ProtocolLink(){
-
-            public ChannelMap getChannelMap() {     return null; }
-            public byte[] getDataReadout() {        return null; }
-
-            public FlagIEC1107Connection getFlagIEC1107Connection() {
-                return null;
-            }
-            public Logger getLogger() {             return null; }
-            public int getNrOfRetries() {           return 0; }
-
-            public int getNumberOfChannels() throws IOException {
-                return 2;
-            }
-            public String getPassword() {           return null; }
-            public int getProfileInterval() throws IOException { return 900; }
-            public ProtocolChannelMap getProtocolChannelMap() { return null; }
-            public TimeZone getTimeZone() { return TimeZone.getTimeZone("CET"); }
-            public boolean isIEC1107Compatible() { return false; }
-            public boolean isRequestHeader() { return false;
-            }}, null);
-
-
-        File f = new File( DBG_PROFILE_DMP );
-        FileInputStream fis = new FileInputStream(f);
-
-        byte [] data = new byte[(int)f.length()];
-        fis.read(data);
-
-        System.out.println(p.buildProfileData(data));
-//
-//        System.out.println( "------------------------" );
-//
-        f = new File( DBG_EVENT_DMP );
-        fis = new FileInputStream(f);
-
-        data = new byte[(int)f.length()];
-        fis.read(data);
-
-        p.buildMeterEvents(data);
-
-
-
-    }
-
 }
-

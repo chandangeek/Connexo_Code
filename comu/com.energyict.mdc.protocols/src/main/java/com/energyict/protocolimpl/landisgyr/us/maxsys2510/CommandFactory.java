@@ -29,7 +29,7 @@ class CommandFactory {
         c.setTbn(tbn);
         return c;
     }
-    
+
     StandardCommand createY(int crn, TableAddress tableAddress){
         StandardCommand c = new StandardCommand();
         c.setY();
@@ -54,77 +54,70 @@ class CommandFactory {
         c.setTbn(tbn);
         return c;
     }
-    
+
 
     BlockAcknowledgmentCommand createAck( int dbn ){
         return new BlockAcknowledgmentCommand((byte)0x06, dbn);
     }
-    
+
     BlockAcknowledgmentCommand createNack( int dbn ){
         return new BlockAcknowledgmentCommand((byte)0x15, dbn);
     }
-    
-    
+
+
     Command parse( ByteArray byteArray ) throws IOException {
-        
+
         byte [] c = byteArray.getBytes();
-        
+
         if( c[1] == 0x0C ) {
             BlockCommand bc = new BlockCommand( );
             bc.setDbn( byteArray.intValue(7) );
             bc.setData( byteArray.sub( 8, 256 ));
             bc.setEot( c[c.length-1]==0x4 );
-            
+
             return bc;
         }
         else {
         	throw new IOException("Communication error: Unexpected answer from the meter");
         }
     }
-    
-    
-    public static void main(String[] args) {
 
-        CommandFactory cf = new CommandFactory();
-        System.out.println( cf.createX( 5, 0, 0x0e ) );
-        
-    }
-    
+
 }
 
 /**
- * The Z command 
- * 
+ * The Z command
+ *
  * The Z command data field specifies all variables in binary format.  Refer to
  * the following figure.
  *
- * Byte 4 TBN       
- * specifies the Table Number, 1 to 255 to be loaded.  Table 0 is a read-only 
+ * Byte 4 TBN
+ * specifies the Table Number, 1 to 255 to be loaded.  Table 0 is a read-only
  * table.
  *
- * Byte 5 DPMS       
- * Most significant byte of the displacement into the specified table to 
+ * Byte 5 DPMS
+ * Most significant byte of the displacement into the specified table to
  * commence loading.  Loading into a table can begin at byte 0 to byte 65535.
  *
- * Byte 6 DPLS       
- * Least significant byte of the displacement into the specified table to 
+ * Byte 6 DPLS
+ * Least significant byte of the displacement into the specified table to
  * commence loading.  Loading into a table can begin at byte 0 to byte 65535.
  *
- * Byte 7 NBMS       
+ * Byte 7 NBMS
  * Most significant byte of number of blocks to load.
- * 
- * Byte 8 NBLS       
+ *
+ * Byte 8 NBLS
  * Least significant byte of number of blocks to load.
  *
- * Bytes 7 and 8 specify the number of 256 byte blocks to load into the 
- * specified table beginning at the specified displacement.  If bytes 7 and 8 
- * are both zero then the SMD will accept the number of bytes required to fill 
+ * Bytes 7 and 8 specify the number of 256 byte blocks to load into the
+ * specified table beginning at the specified displacement.  If bytes 7 and 8
+ * are both zero then the SMD will accept the number of bytes required to fill
  * up the specified table starting from the specified displacement.
- * 
- * Byte 9 BLB        
- * Byte 9 specifies the number of bytes to be used out of the last 256 byte 
- * block.  If this byte is set to zero, all 256 bytes in the last block are to 
- * be used as valid data.  The entire block is transmitted.  Any unused bytes 
+ *
+ * Byte 9 BLB
+ * Byte 9 specifies the number of bytes to be used out of the last 256 byte
+ * block.  If this byte is set to zero, all 256 bytes in the last block are to
+ * be used as valid data.  The entire block is transmitted.  Any unused bytes
  * are discarded.
  *
  * @author fbo
@@ -316,20 +309,20 @@ class StandardCommand extends Command {
                 boolean bit = ((c >> (7 - i) & 1) == 1);
                 crc <<= 1;
                 if (c15 ^ bit)
-                    crc ^= 0x8005; 
+                    crc ^= 0x8005;
             }
         }
-        
+
         r[13] = (byte)((crc>>8)&0xFF);
         r[14] = (byte)(crc&0x00FF);
 
         return r;
     }
-    
+
     public ByteArray toByteArray() {
         return new ByteArray(getBytes());
     }
-    
+
     boolean isStandardCommand( ){
         return true;
     }
@@ -347,7 +340,7 @@ class XCommand extends Command {
     int cnls;
     byte[] argumnt = new byte [] { 0, 0, 0, 0 };
     byte[] password;
-    
+
     /**
      * @return command record number
      */
@@ -370,7 +363,7 @@ class XCommand extends Command {
     void setCnms(int cnms) {
         this.cnms = cnms;
     }
-    
+
     /**
      * @param cnls
      */
@@ -384,14 +377,14 @@ class XCommand extends Command {
     void setArgumnt(byte[] argumnt) {
         this.argumnt = argumnt;
     }
-    
+
     XCommand setPassword(byte[] pwd) {
         if (pwd.length != 4)
             throw new RuntimeException("Password must be 4 byte");
         this.password = pwd;
         return this;
     }
-    
+
     byte[] getBytes() {
         byte[] r = new byte[15];
         r[0] = 0x02;
@@ -416,28 +409,28 @@ class XCommand extends Command {
                 boolean bit = ((c >> (7 - i) & 1) == 1);
                 crc <<= 1;
                 if (c15 ^ bit)
-                    crc ^= 0x8005; 
+                    crc ^= 0x8005;
             }
         }
-        
+
         r[13] = (byte)((crc>>8)&0xFF);
         r[14] = (byte)(crc&0x00FF);
 
         return r;
     }
-    
+
     public ByteArray toByteArray() {
         return new ByteArray(getBytes());
     }
-    
+
     public String toString() {
         return "XCommand [ " + toByteArray().toHexaString(true) + " ]";
     }
-    
+
 }
 
 class BlockCommand extends Command {
-    
+
     /* Data block number */
     int dbn;
     ByteArray data;
@@ -447,15 +440,15 @@ class BlockCommand extends Command {
     int getDbn() {
         return dbn;
     }
-    
+
     void setDbn(int dbn) {
         this.dbn = dbn;
     }
-    
+
     boolean isEot() {
         return eot;
     }
-    
+
     void setEot(boolean eot) {
         this.eot = eot;
     }
@@ -463,7 +456,7 @@ class BlockCommand extends Command {
     ByteArray getData() {
         return data;
     }
-    
+
     void setData(ByteArray data) {
         this.data = data;
     }
@@ -471,31 +464,31 @@ class BlockCommand extends Command {
     public ByteArray toByteArray() {
         return null;
     }
-    
+
     public boolean isBlockCommand( ){
         return true;
     }
-    
+
     public String toString( ){
         StringBuffer rslt = new StringBuffer();
-        
+
         rslt.append( data.toHexaString(true));
-        
+
         return rslt.toString();
     }
-    
+
 }
 
 class BlockAcknowledgmentCommand extends Command {
-    
+
     byte b2;
     byte dbn;
-    
+
     BlockAcknowledgmentCommand( byte b2, int dbn ) {
         this.b2 = b2;
         this.dbn = (byte)dbn;
     }
-    
+
     byte [] getBytes( ){
         byte[] r = new byte[5];
         r[0] = 0x02;
@@ -510,17 +503,17 @@ class BlockAcknowledgmentCommand extends Command {
                 boolean bit = ((c >> (7 - i) & 1) == 1);
                 crc <<= 1;
                 if (c15 ^ bit)
-                    crc ^= 0x8005; 
+                    crc ^= 0x8005;
             }
         }
-        
+
         r[3] = (byte)((crc>>8)&0xFF);
         r[4] = (byte)(crc&0x00FF);
 
         return r;
 
     }
-    
+
     public ByteArray toByteArray() {
         return new ByteArray(getBytes());
     }
@@ -528,11 +521,11 @@ class BlockAcknowledgmentCommand extends Command {
     boolean isBlockAcknowledgmentCommand(){
         return true;
     }
-    
+
     public String toString() {
         return "BlockAcknowledgmentCommand [ " + toByteArray().toHexaString(true) + " ]";
     }
-    
+
 }
 
 

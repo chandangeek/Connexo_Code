@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.edmi.mk10.command;
 
 import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edmi.mk10.core.AbstractRegisterType;
 import com.energyict.protocolimpl.edmi.mk10.core.RegisterTypeParser;
 import com.energyict.protocolimpl.edmi.mk10.core.RegisterUnitParser;
@@ -36,19 +37,13 @@ public class ReadCommand extends AbstractCommand {
 
 	public String toString() {
 		// Generated code by ToStringBuilder
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("ReadCommand: ");
-		strBuff.append("registerId=0x"+Integer.toHexString(getRegisterId())+", ");
-		strBuff.append("data="+ProtocolUtils.outputHexString(getData())+", ");
 
-		strBuff.append("register="+getRegister()+", ");
-		strBuff.append("unit="+getUnit());
-		return strBuff.toString();
+		return "ReadCommand: " +
+				"registerId=0x" + Integer.toHexString(getRegisterId()) + ", " +
+				"data=" + ProtocolUtils.outputHexString(getData()) + ", " +
+				"register=" + getRegister() + ", " +
+				"unit=" + getUnit();
 	}
-
-	//    public static void main(String[] args) {
-	//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new ReadCommand(null)));
-	//    }
 
 	// Following the EDMI protocoldescription,R and M command should behave the same. Means all accepting 4 bytes as command.
 	// However, only the M command seems to behave like that

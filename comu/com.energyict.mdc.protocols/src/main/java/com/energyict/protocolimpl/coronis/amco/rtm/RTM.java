@@ -1,29 +1,27 @@
 package com.energyict.protocolimpl.coronis.amco.rtm;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.BubbleUp;
-import com.energyict.mdc.protocol.api.BubbleUpObject;
-import com.energyict.protocols.util.EventMapper;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.util.EventMapper;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe.AlarmFrameParser;
-import com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe.BubbleUpFrameParser;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.RadioCommandFactory;
 import com.energyict.protocolimpl.coronis.core.ProtocolLink;
@@ -31,10 +29,12 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 
-public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, BubbleUp {
+public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, RTMFactory {
 
     private ObisCodeMapper obisCodeMapper;
     private WaveFlowConnect rtmConnect;
@@ -58,6 +58,11 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     private int bubbleUpEndHour;
     private int initialRFCommand = 0;
     private boolean roundDownToNearestInterval = false;
+
+    @Inject
+    public RTM(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public ObisCodeMapper getObisCodeMapper() {
         return obisCodeMapper;
@@ -82,7 +87,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         return parameterFactory;
     }
 
-    final public RadioCommandFactory getRadioCommandFactory() {
+    public final RadioCommandFactory getRadioCommandFactory() {
         if (radioCommandFactory == null) {
             radioCommandFactory = new RadioCommandFactory(this);
         }
@@ -134,7 +139,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         }
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         try {
             return profileDataReader.getProfileData(from, to, includeEvents);
         } catch (WaveFlowException e) {
@@ -147,7 +152,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         return verifyProfileInterval;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (isVerifyProfileInterval()) {
             return getParameterFactory().getProfileIntervalInSeconds();
         } else {
@@ -232,12 +237,12 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterInfo(obisCode);
+        return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterValue(obisCode);
+        return obisCodeMapper.getRegisterValue(obisCode, this);
     }
 
     public void applyMessages(List messageEntries) throws IOException {
@@ -265,13 +270,12 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("EnableMultiFrameMode");
-        result.add("verifyProfileInterval");
-        result.add("InitialRFCommand");
-        result.add("RoundDownToNearestInterval");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "EnableMultiFrameMode",
+                    "verifyProfileInterval",
+                    "InitialRFCommand",
+                    "RoundDownToNearestInterval");
     }
 
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
@@ -285,13 +289,15 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
         AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
-        alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()));
+        alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()), this);
         statusAndEvents.add(alarmFrame.getResponse());
         statusAndEvents.add(alarmFrame.getMeterEvents());
         return statusAndEvents;
     }
 
-    public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
-        return BubbleUpFrameParser.parse(data, this);
+    @Override
+    public RTM newInstance() {
+        return new RTM(this.getPropertySpecService());
     }
+
 }

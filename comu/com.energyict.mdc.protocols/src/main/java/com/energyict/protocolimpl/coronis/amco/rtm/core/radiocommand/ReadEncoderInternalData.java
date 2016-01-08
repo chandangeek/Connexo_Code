@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.EncoderModel;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.EncoderUnit;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -121,16 +122,16 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         int offset = 0;
         encoderModelOnPortA = new EncoderModel(getRTM());
-        encoderModelOnPortA.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
+        encoderModelOnPortA.parse(ProtocolTools.getSubArray(data, offset, offset + 2), rtmFactory);
         offset += 2;
 
         encoderModelOnPortB = new EncoderModel(getRTM());
-        encoderModelOnPortB.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
+        encoderModelOnPortB.parse(ProtocolTools.getSubArray(data, offset, offset + 2), rtmFactory);
         offset += 2;
-    
+
         lengthA = data[offset++] & 0xFF;
         lengthB = data[offset++] & 0xFF;
 
@@ -141,7 +142,7 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
             serialNumberA = new String(ProtocolTools.getSubArray(data, offset, offset + 10));
             offset += 10;
             unitA = new EncoderUnit(getRTM());
-            unitA.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
+            unitA.parse(ProtocolTools.getSubArray(data, offset, offset + 2), rtmFactory);
             offset += 2;
             encodedWheelDigitsA = data[offset++] & 0xFF;
             digitsBeforeDecimalPointA = data[offset++] & 0xFF;
@@ -149,7 +150,7 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
             offset += 2;
             manufacturerAdapterCodeA = ProtocolTools.getUnsignedIntFromBytes(data, offset, 2);
             offset += 2;
-            
+
             offset += 2;      //Skip the error code
             offset += 2;      //Skip the checksum
             offset++;         //Skip the carriage return
@@ -162,7 +163,7 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
             serialNumberB = new String(ProtocolTools.getSubArray(data, offset, offset + 10));
             offset += 10;
             unitB = new EncoderUnit(getRTM());
-            unitB.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
+            unitB.parse(ProtocolTools.getSubArray(data, offset, offset + 2), rtmFactory);
             offset += 2;
             encodedWheelDigitsB = data[offset++] & 0xFF;
             digitsBeforeDecimalPointB = data[offset++] & 0xFF;

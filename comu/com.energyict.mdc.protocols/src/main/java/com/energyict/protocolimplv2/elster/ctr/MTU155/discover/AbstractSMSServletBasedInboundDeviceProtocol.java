@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
+
+import com.elster.jupiter.properties.PropertySpec;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,11 +43,6 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     @Override
     public void copyProperties(TypedProperties properties) {
         this.properties.setAllProperties(properties);
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String s) {
-        return getPropertySpecs().stream().filter(propertySpec -> propertySpec.getName().equals(s)).findFirst().orElse(null);
     }
 
     @Override

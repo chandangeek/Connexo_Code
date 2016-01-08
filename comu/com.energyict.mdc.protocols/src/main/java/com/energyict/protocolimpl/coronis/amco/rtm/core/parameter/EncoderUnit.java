@@ -2,7 +2,9 @@ package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 
 import java.io.IOException;
 
@@ -33,7 +35,7 @@ public class EncoderUnit extends RtmUnit {
     }
 
     @Override
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         unitNumber = data[0] & 0xFF;
         scale = (data[1] & 0xFF) - 6;
         scale = (scale == -6) ? 0 : scale;

@@ -1,6 +1,11 @@
 package com.energyict.protocolimpl.modbus.northerndesign.eimeterflex;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule;
+
+import javax.inject.Inject;
+import java.time.Clock;
 
 /**
  * Protocol class for reading out an EIMeter flex SM352 module.
@@ -11,5 +16,8 @@ import com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule;
  */
 @Deprecated
 public final class EIMeterFlexSM352 extends EIMeterFlexSlaveModule {
-
+    @Inject
+    public EIMeterFlexSM352(PropertySpecService propertySpecService, Clock clock) {
+        super(propertySpecService, clock);
+    }
 }

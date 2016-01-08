@@ -22,7 +22,7 @@ import java.util.Date;
  */
 public class Window {
 
-    
+
     /*
     Define the originate windows. The A3 supports 2 windows per port. A window
     defines the time periods when a call is allowed. One entry can be used to
@@ -38,35 +38,27 @@ public class Window {
     private int windowDuration; // 2 bytes Size of the window, HH MM (binary hours followed by binary minutes.)
     private int windowDay; // 1 byte This field allows the window to be defined for specific days (Sunday - Saturday). The A3 will not support specific limits and sets this field to 0x7F..
 
-    
+
 
     /** Creates a new instance of SourceDefinitionEntry */
     public Window(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int timeFormat = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getTimeFormat();
-        setBeginWindowTime(C12ParseUtils.getDateFromSTime(data,offset, timeFormat,tableFactory.getC12ProtocolLink().getTimeZone(),dataOrder)); 
+        setBeginWindowTime(C12ParseUtils.getDateFromSTime(data,offset, timeFormat,tableFactory.getC12ProtocolLink().getTimeZone(),dataOrder));
         offset+=C12ParseUtils.getSTimeSize(timeFormat);
         setWindowDuration(C12ParseUtils.getInt(data,offset,2, dataOrder)); offset+=2;
         setWindowDay(C12ParseUtils.getInt(data,offset++));
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("Window:\n");
-        strBuff.append("   beginWindowTime="+getBeginWindowTime()+"\n");
-        strBuff.append("   windowDay="+getWindowDay()+"\n");
-        strBuff.append("   windowDuration="+getWindowDuration()+"\n");
-        return strBuff.toString();
-    }    
-//     public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new Window()));
-//     } 
-     
-    static public int getSize(TableFactory tableFactory) throws IOException {
+        return "Window:\n" +
+                "   beginWindowTime=" + getBeginWindowTime() + "\n" +
+                "   windowDay=" + getWindowDay() + "\n" +
+                "   windowDuration=" + getWindowDuration() + "\n";
+    }
+    public static int getSize(TableFactory tableFactory) {
         return 5;
-    }   
-
+    }
 
     public int getWindowDuration() {
         return windowDuration;
@@ -92,6 +84,6 @@ public class Window {
         this.beginWindowTime = beginWindowTime;
     }
 
- 
+
 
 }

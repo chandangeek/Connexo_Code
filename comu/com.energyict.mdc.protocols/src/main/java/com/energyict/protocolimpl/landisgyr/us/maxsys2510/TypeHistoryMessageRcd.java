@@ -2,8 +2,6 @@ package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
-import java.util.Date;
-import java.util.Iterator;
 import java.util.TreeMap;
 
 class TypeHistoryMessageRcd {
@@ -214,16 +212,6 @@ class TypeHistoryMessageRcd {
 
     public String toString(){
         return "HistoryMessage [" + Integer.toHexString(id) + ", " + description + " " + this.eiCode + "]";
-    }
-
-    public static void main( String [] args ) {
-        Iterator i = codes.values().iterator();
-
-        while( i.hasNext( ) ) {
-            TypeHistoryMessageRcd rcd = (TypeHistoryMessageRcd)i.next();
-            String dscr = new MeterEvent( new Date(), rcd.getEiCode() ).toString();
-            System.out.println( dscr + "\t" + rcd.getEiCode() + "\t0x" + Integer.toHexString(rcd.id) +  "\t" + rcd.getDescription() );
-        }
     }
 
 }

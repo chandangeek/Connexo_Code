@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,7 +18,6 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -48,6 +48,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
     private volatile MeteringService meteringService;
     private volatile IssueService issueService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
@@ -57,8 +58,8 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
     private volatile CollectedDataFactory collectedDataFactory;
     private volatile CodeFactory codeFactory;
     private volatile UserFileFactory userFileFactory;
-    private volatile Thesaurus thesaurus;
 
+    private volatile Thesaurus thesaurus;
     private Injector injector;
 
     // For OSGi purposes
@@ -67,6 +68,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
     // For testing purposes
     @Inject
     public DeviceProtocolSecurityServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock,
+                                             com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
                                              PropertySpecService propertySpecService, TopologyService topologyService,
                                              SocketService socketService, SerialComponentService serialComponentService,
                                              MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService,
@@ -77,6 +79,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
         this.setMeteringService(meteringService);
         this.setIssueService(issueService);
         this.setClock(clock);
+        this.setJupiterPropertySpecService(jupiterPropertySpecService);
         this.setPropertySpecService(propertySpecService);
         this.setTopologyService(topologyService);
         this.setSocketService(socketService);
@@ -104,6 +107,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
                 bind(IssueService.class).toInstance(issueService);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(SocketService.class).toInstance(socketService);
                 bind(SerialComponentService.class).toInstance(serialComponentService);
@@ -122,6 +126,11 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    @Reference
+    public void setJupiterPropertySpecService(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
+        this.jupiterPropertySpecService = jupiterPropertySpecService;
     }
 
     @Reference

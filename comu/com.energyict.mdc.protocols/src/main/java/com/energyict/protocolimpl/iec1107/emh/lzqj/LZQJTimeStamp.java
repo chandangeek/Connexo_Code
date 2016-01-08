@@ -140,23 +140,6 @@ public class LZQJTimeStamp {
 		return timeZone;
 	}
 
-	static public void main(String[] args) {
-		try {
-			LZQJTimeStamp vts = new LZQJTimeStamp(TimeZone.getTimeZone("ECT"));
-			vts.parse("20501101408");
-			System.out.println(vts.getCalendar().getTime() + ", " + vts.getMode());
-			vts.parse("0501101408");
-			System.out.println(vts.getCalendar().getTime() + ", " + vts.getMode());
-
-			vts.parse("2050210", "02208");
-			System.out.println(vts.getCalendar().getTime() + ", " + vts.getMode());
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
 	/**
 	 * Getter for property calendar.
 	 *

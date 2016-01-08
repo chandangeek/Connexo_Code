@@ -7,11 +7,9 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
@@ -82,29 +80,6 @@ public class CourbeChargePartielle extends AbstractTrimaranObject {
 
     public void setValues(int[] values) {
         this.values = values;
-    }
-
-    public static void main(String arg[]){
-		try {
-
-			CourbeChargePartielle1 ccp1 = new CourbeChargePartielle1(null);
-
-			FileInputStream fis;
-			File file = new File("c://TEST_FILES/CourbeCharge_par.bin");
-			fis = new FileInputStream(file);
-			byte[] data=new byte[(int)file.length()];
-			fis.read(data);
-			fis.close();
-
-			ccp1.parse(data);
-			System.out.println(ccp1);
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
     }
 
 }

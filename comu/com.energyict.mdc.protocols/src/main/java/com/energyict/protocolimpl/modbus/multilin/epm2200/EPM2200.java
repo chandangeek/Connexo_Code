@@ -1,11 +1,14 @@
 package com.energyict.protocolimpl.modbus.multilin.epm2200;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,7 +25,9 @@ import java.util.logging.Logger;
  */
 public class EPM2200 extends Modbus {
 
-    public EPM2200() {
+    @Inject
+    public EPM2200(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     protected void doTheConnect() throws IOException {
@@ -64,9 +69,9 @@ public class EPM2200 extends Modbus {
         try {
             setProperties(discoverTools.getProperties());
             if (getInfoTypeHalfDuplex() != 0) {
-                setHalfDuplexController(discoverTools.getDialer().getHalfDuplexController());
+                setHalfDuplexController(null);
             }
-            init(discoverTools.getDialer().getInputStream(), discoverTools.getDialer().getOutputStream(), TimeZone.getTimeZone("ECT"), Logger.getLogger(EPM2200.class.toString()));
+            init(null, null, TimeZone.getTimeZone("ECT"), Logger.getLogger(EPM2200.class.toString()));
             connect();
 
             String meterName = (String) getRegisterFactory().findRegister("MeterName").value();

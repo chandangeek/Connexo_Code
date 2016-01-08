@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.eig.nexus1272;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 
@@ -111,13 +112,13 @@ public class LimitTriggerLogReader extends AbstractLogReader {
 					}
 
 					String detail = "";
-					if (!val1Str.equals("") && !val2Str.equals("")) {
+					if (!val1Str.isEmpty() && !val2Str.isEmpty()) {
 						detail = val1Str + ", " + val2Str;
 					}
-					else if (!val1Str.equals("")) {
+					else if (!val1Str.isEmpty()) {
 						detail = val1Str;
 					}
-					else if (!val2Str.equals("")) {
+					else if (!val2Str.isEmpty()) {
 						detail = val2Str;
 					}
 					meterEvents.add(new MeterEvent(recDate, MeterEvent.METER_ALARM, "Limit threshold exceeded for limit " + limitNumber + " : " + detail));

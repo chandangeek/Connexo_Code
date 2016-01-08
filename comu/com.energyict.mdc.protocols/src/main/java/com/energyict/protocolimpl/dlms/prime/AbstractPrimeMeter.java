@@ -1,18 +1,17 @@
 package com.energyict.protocolimpl.dlms.prime;
 
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.common.ProfileCache;
 import com.energyict.protocolimpl.dlms.prime.events.PrimeEventLogs;
@@ -41,6 +40,10 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
     private PrimeMeterInfo meterInfo;
     private PrimeMessaging messaging;
     private ProfileCache cache = new ProfileCache();
+
+    public AbstractPrimeMeter(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public String getProtocolVersion() {
         return "$Date: 2014-04-24 17:00:13 +0200 (Thu, 24 Apr 2014) $";
@@ -72,7 +75,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
             String eisSerial = getProperties().getSerialNumber().trim();
             String meterSerialNumber = readSerialNumber().trim();
             getLogger().info("Meter serial number [" + meterSerialNumber + "]");
-            if (eisSerial.length() != 0) {
+            if (!eisSerial.isEmpty()) {
                 if (!eisSerial.equalsIgnoreCase(meterSerialNumber)) {
                     String message = "Configured serial number [" + eisSerial + "] does not match with the meter serial number [" + meterSerialNumber + "]!";
                     getLogger().severe(message);

@@ -12,7 +12,6 @@ import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -116,39 +115,6 @@ public class MaximumDemand extends MainRegister implements Comparable {
         else if (getSorter() == ON_DATETIME)
             return (getDateTime().compareTo(((MaximumDemand)o).getDateTime()));
         return 0;
-    }
-
-    static public void main(String[] args) {
-        try {
-            List mds = new ArrayList();
-            MaximumDemand md;
-            byte[] data2={0,0,0,3,1,0x11,0x11,0x11,0x11,0x11,0x11,0x11};
-            byte[] data3={0,0,4,1,4,0x12,0x12,0x12,0x12,0x12,0x12,0x12};
-            byte[] data1={0,0,0,2,1,0x13,0x13,0x13,0x13,0x13,0x13,0x13};
-            md = new MaximumDemand(data1,TimeZone.getDefault());
-            mds.add(md);
-            md = new MaximumDemand(data2,TimeZone.getDefault());
-            mds.add(md);
-            md = new MaximumDemand(data3,TimeZone.getDefault());
-            mds.add(md);
-            printList(mds);
-            MaximumDemand.sortOnDateTime(mds);
-            printList(mds);
-            MaximumDemand.sortOnQuantity(mds);
-            printList(mds);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    static void printList(List list) {
-        System.out.println("**********************");
-        Iterator it = list.iterator();
-        while(it.hasNext()) {
-            MaximumDemand md = (MaximumDemand)it.next();
-            System.out.println(md.toString());
-        }
     }
 
     /**

@@ -6,12 +6,12 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
@@ -28,11 +28,11 @@ import java.time.Clock;
 public class AM100 extends WebRTUKP {
 
     @Inject
-    public AM100(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService,
+    public AM100(Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService,
                  IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
                  IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService,
                  LoadProfileFactory loadProfileFactory, Provider<DsmrSecuritySupport> dsmrSecurityPropertyProvider) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService,
+        super(clock, thesaurus, propertySpecService, socketService, serialComponentService, issueService, topologyService,
                 readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory,
                 dsmrSecurityPropertyProvider);
     }
@@ -51,4 +51,5 @@ public class AM100 extends WebRTUKP {
     public boolean supportsCommunicationFirmwareVersion() {
         return true;
     }
+
 }

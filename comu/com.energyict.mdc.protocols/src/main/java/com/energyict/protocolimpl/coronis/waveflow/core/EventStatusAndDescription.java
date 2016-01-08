@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.LeakageEvent;
 
 /**
@@ -154,10 +155,10 @@ public class EventStatusAndDescription {
     public static final int ERROR_REGISTER3 = 0x9E;
 
 
-    private WaveFlow waveFlow;
+    private final int deviceType;
 
-    public EventStatusAndDescription(WaveFlow waveFlow) {
-        this.waveFlow = waveFlow;
+    public EventStatusAndDescription(int deviceType) {
+        this.deviceType = deviceType;
     }
 
     public int getProtocolCodeForSimpleBackflow(int input) {
@@ -186,7 +187,6 @@ public class EventStatusAndDescription {
     }
 
     public int getEventCode(int bit) {
-        int deviceType = waveFlow.getDeviceType();
         switch (bit) {
             case 0x02:
                 if (deviceType == 0 || deviceType == 3) {
@@ -208,7 +208,6 @@ public class EventStatusAndDescription {
     }
 
     public int getProtocolCodeForStatus(int bit) {
-        int deviceType = waveFlow.getDeviceType();
         switch (bit) {
             case 0x02:
                 if (deviceType == 0) {
@@ -234,7 +233,6 @@ public class EventStatusAndDescription {
     }
 
     public String getEventDescription(int bit) {
-        int deviceType = waveFlow.getDeviceType();
         switch (bit) {
             case 0x02:
                 if (deviceType == 0) {

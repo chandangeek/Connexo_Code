@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
@@ -102,27 +102,8 @@ public class SiemensSCTM {
 
     public static final byte[] DATETIME={'0','1'};
 
-    //public static final byte[] CLEARINGDATA={'1','1'}; //  KV changed to use multiple buffers...
     public static final byte[] PERIODICBUFFERS={'0','1'};
     public static final byte[] SPONTANEOUSBUFFERS={'5','1'};
-    //public static final byte[] LOADPROFILEBUFFERSTRUCTURE={'2','1'};
-
-    public static void main(String[] args) {
-    	try {
-    		byte[] data = new byte[]{1,1,30,30,35,34,36,30,38,38,30,31,39,(byte)3F,2,20,20,20,20,20,20,20,20,20,20,20,20,20,20,33,30,3,0};
-    		byte[] data2 = new byte[]{(byte)0x01,(byte)0x01,(byte)0x30,(byte)0x30,(byte)0x35,(byte)0x34,(byte)0x36,(byte)0x30,(byte)0x31,
-    								  (byte)0x31,(byte)0x30,(byte)0x31,(byte)0x37,(byte)0x31,(byte)0x02,(byte)0x30,(byte)0x38,(byte)0x31,
-    								  (byte)0x31,(byte)0x30,(byte)0x39,(byte)0x20,(byte)0x37,(byte)0x31,(byte)0x35,(byte)0x34,(byte)0x36,
-    								  (byte)0x31,(byte)0x31,(byte)0x03,(byte)0x13};
-			SiemensSCTM sSctm = new SiemensSCTM(null, null,20,5,"","",1,1);
-
-			System.out.println(sSctm.isChecksumDump(data));
-			System.out.println(sSctm.isChecksumDump(data2));
-		} catch (SiemensSCTMException e) {
-			e.printStackTrace();
-		}
-
-    }
 
     private int forcedDelay;
     /**
@@ -140,7 +121,7 @@ public class SiemensSCTM {
                        String nodeId,
                        int iEchoCancelling, int forcedDelay) throws SiemensSCTMException {
         this(inputStream, outputStream, iTimeout, iMaxRetries, strPass, nodeId, iEchoCancelling, null, forcedDelay);
-    } // public SiemensSCTM(...)
+    }
 
     public SiemensSCTM(InputStream inputStream,
                        OutputStream outputStream,

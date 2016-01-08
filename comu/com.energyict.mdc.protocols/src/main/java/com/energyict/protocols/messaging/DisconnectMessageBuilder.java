@@ -1,7 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.BusinessException;
-
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -26,7 +24,7 @@ public class DisconnectMessageBuilder extends AbstractMessageBuilder {
     /**
      * {@inheritDoc}
      */
-    protected String getMessageContent() throws BusinessException {
+    protected String getMessageContent() {
         return "<" + MESSAGETAG + "/>";
     }
 

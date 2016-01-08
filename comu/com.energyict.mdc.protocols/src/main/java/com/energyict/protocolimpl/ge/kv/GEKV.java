@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.ge.kv;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
@@ -23,6 +24,7 @@ import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.C12Layer2;
 import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
@@ -38,6 +40,7 @@ import com.energyict.protocolimpl.ge.kv.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.KV;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -71,8 +74,9 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink {
 
     private long timeStampAtLogon;
 
-    /** Creates a new instance of GEKV */
-    public GEKV() {
+    @Inject
+    public GEKV(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {

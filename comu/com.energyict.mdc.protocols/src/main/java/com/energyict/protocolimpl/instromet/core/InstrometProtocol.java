@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.instromet.core;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -14,7 +16,11 @@ public abstract class InstrometProtocol extends AbstractProtocol {
 
 	private InstrometConnection instrometConnection=null;
 
-    abstract protected void doTheInit() throws IOException ;
+    public InstrometProtocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
+    protected abstract void doTheInit() throws IOException ;
 
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
     	setInstrometConnection(
@@ -37,7 +43,5 @@ public abstract class InstrometProtocol extends AbstractProtocol {
     protected void setInstrometConnection(InstrometConnection instrometConnection) {
         this.instrometConnection = instrometConnection;
     }
-
-
 
 }

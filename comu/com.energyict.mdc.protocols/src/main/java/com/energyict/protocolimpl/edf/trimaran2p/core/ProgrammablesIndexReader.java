@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
@@ -12,42 +12,35 @@ import java.io.IOException;
  *
  */
 public class ProgrammablesIndexReader extends AbstractTrimaranObject{
-	
+
 	private Programmables programmables;
 	private int variablName;
 
 	/**
-	 * 
+	 *
 	 */
 	public ProgrammablesIndexReader(TrimaranObjectFactory trimaranObjectFactory) {
 		super(trimaranObjectFactory);
 	}
-	
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("*** ProgrammableIndexReader: ***\n");
         strBuff.append("	- Programmable " + getVariableName()+ " : " + getProgrammables()+"\n");
         return strBuff.toString();
-    }  
+    }
 
 	public Programmables getProgrammables() {
 		return programmables;
 	}
-	
+
 	public void setProgrammables(Programmables programmables){
 		this.programmables = programmables;
 	}
-	
+
 	public void setVariableName(int variableName){
 		this.variablName = variableName;
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
 	}
 
 	protected int getVariableName() {

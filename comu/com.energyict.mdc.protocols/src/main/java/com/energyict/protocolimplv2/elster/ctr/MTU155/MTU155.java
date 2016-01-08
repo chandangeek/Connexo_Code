@@ -1,5 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -17,28 +22,30 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
-import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
-import com.energyict.protocols.impl.channels.ip.CTRInboundDialHomeIdConnectionType;
+import com.energyict.protocols.impl.channels.inbound.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionType;
@@ -47,20 +54,27 @@ import com.energyict.protocols.impl.channels.sms.ProximusSmsComChannel;
 import com.energyict.protocols.mdc.protocoltasks.CTRDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
+import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * @author: sva
- * @since: 16/10/12 (10:10)
+ * @author sva
+ * @since 16/10/12 (10:10)
  */
 public class MTU155 implements DeviceProtocol {
 
@@ -98,6 +112,7 @@ public class MTU155 implements DeviceProtocol {
     private Messaging messaging;
 
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final SerialComponentService serialComponentService;
     private final IssueService issueService;
@@ -107,14 +122,16 @@ public class MTU155 implements DeviceProtocol {
     private final Provider<Mtu155SecuritySupport> mtu155SecuritySupportProvider;
 
     @Inject
-    public MTU155(CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, Clock clock,
-                  PropertySpecService propertySpecService, SerialComponentService serialComponentService,
-                  IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService,
-                  TopologyService topologyService, MeteringService meteringService,
-                  Provider<Mtu155SecuritySupport> mtu155SecuritySupportProvider) {
+    public MTU155(
+            CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, Clock clock,
+            Thesaurus thesaurus, PropertySpecService propertySpecService, SerialComponentService serialComponentService,
+            IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService,
+            TopologyService topologyService, MeteringService meteringService,
+            Provider<Mtu155SecuritySupport> mtu155SecuritySupportProvider) {
         this.collectedDataFactory = collectedDataFactory;
         this.loadProfileFactory = loadProfileFactory;
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
         this.meteringService = meteringService;
@@ -241,9 +258,7 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new CTRDeviceProtocolDialect(this.propertySpecService));
-        return dialects;
+        return Collections.singletonList(new CTRDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -288,7 +303,8 @@ public class MTU155 implements DeviceProtocol {
                 ResultType.NotSupported,
                 getIssueService().newWarning(
                         getOfflineDevice(),
-                        com.energyict.mdc.protocol.api.MessageSeeds.DEVICETOPOLOGY_NOT_SUPPORTED.getKey()));
+                        this.thesaurus,
+                        com.energyict.mdc.protocol.api.MessageSeeds.DEVICETOPOLOGY_NOT_SUPPORTED));
         return deviceTopology;
     }
 
@@ -390,7 +406,8 @@ public class MTU155 implements DeviceProtocol {
                             ResultType.InCompatible,
                             getIssueService().newProblem(
                                     logBook,
-                                    com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_ISSUE.getKey(),
+                                    this.thesaurus,
+                                    com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_ISSUE,
                                     logBook.getLogBookObisCode(), e));
                 }
 
@@ -400,7 +417,8 @@ public class MTU155 implements DeviceProtocol {
                         ResultType.NotSupported,
                         getIssueService().newWarning(
                                 logBook,
-                                com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                this.thesaurus,
+                                com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED,
                                 logBook.getLogBookObisCode()));
                 collectedLogBooks.add(collectedLogBook);
             }
@@ -409,13 +427,8 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return securityCapabilities.getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return this.getClass().getSimpleName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.securityCapabilities.getCustomPropertySet();
     }
 
     @Override
@@ -426,11 +439,6 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return securityCapabilities.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return securityCapabilities.getSecurityPropertySpec(name);
     }
 
     @Override
@@ -447,11 +455,11 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> connectionTypes = new ArrayList<>();
-        connectionTypes.add(new CTRInboundDialHomeIdConnectionType(getPropertySpecService()));
-        connectionTypes.add(new InboundProximusSmsConnectionType(getPropertySpecService()));
-        connectionTypes.add(new OutboundProximusSmsConnectionType(getPropertySpecService()));
-        connectionTypes.add(new SioOpticalConnectionType(getSerialComponentService()));
-        connectionTypes.add(new RxTxOpticalConnectionType(getSerialComponentService()));
+        connectionTypes.add(new CTRInboundDialHomeIdConnectionType(thesaurus, getPropertySpecService()));
+        connectionTypes.add(new InboundProximusSmsConnectionType(getPropertySpecService(), thesaurus));
+        connectionTypes.add(new OutboundProximusSmsConnectionType(getPropertySpecService(), thesaurus));
+        connectionTypes.add(new SioOpticalConnectionType(getSerialComponentService(), this.thesaurus));
+        connectionTypes.add(new RxTxOpticalConnectionType(getSerialComponentService(), this.thesaurus));
         return connectionTypes;
     }
 
@@ -469,12 +477,7 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String s) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -483,4 +486,5 @@ public class MTU155 implements DeviceProtocol {
         firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getRequestFactory().getIdentificationStructure().getVf().getValue(0).getStringValue());
         return firmwareVersionsCollectedData;
     }
+
 }

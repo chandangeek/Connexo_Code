@@ -1,5 +1,8 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.ProtocolException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.BitString;
@@ -8,8 +11,6 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -465,14 +466,6 @@ public class P3ImageTransfer extends AbstractCosemObject {
 	 */
 	public Unsigned32 getFirstMissingBlock(){
 		return this.firstMissingBlockOffset;
-	}
-
-	public static void main(String args[]) throws IOException {
-		P3ImageTransfer p = new P3ImageTransfer(null, null);
-		byte[] b = new byte[]{0x01, 0x02, 0x03, (byte)0xFF, (byte)0xFF, 0x06, (byte)0xFF, 0x08, 0x09, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
-		byte[] b2 = new byte[]{(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
-		b = p.trimByteArray(b2);
-		System.out.println(new String(b));
 	}
 
 }

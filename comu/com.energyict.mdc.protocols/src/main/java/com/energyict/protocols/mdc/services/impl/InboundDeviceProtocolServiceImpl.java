@@ -1,6 +1,9 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -12,11 +15,8 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -46,10 +46,11 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     private volatile IssueService issueService;
     private volatile IdentificationService identificationService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
+    private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
     private volatile MeteringService meteringService;
-    private volatile Clock clock;
 
+    private volatile Clock clock;
     private Injector injector;
     private Thesaurus thesaurus;
 
@@ -57,8 +58,10 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     }
 
     @Inject
-    public InboundDeviceProtocolServiceImpl(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, Clock clock, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueService issueService, IdentificationService identificationService, MeteringService meteringService) {
+    public InboundDeviceProtocolServiceImpl(MdcReadingTypeUtilService readingTypeUtilService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, Clock clock, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueService issueService, IdentificationService identificationService, MeteringService meteringService) {
+        this();
         setReadingTypeUtilService(readingTypeUtilService);
+        setJupiterPropertySpecService(jupiterPropertySpecService);
         setPropertySpecService(propertySpecService);
         setClock(clock);
         setNlsService(nlsService);
@@ -89,6 +92,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
                 bind(IssueService.class).toInstance(issueService);
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
+                bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(Clock.class).toInstance(clock);
@@ -120,6 +124,11 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     @Reference
     public void setReadingTypeUtilService(MdcReadingTypeUtilService readingTypeUtilService) {
         this.readingTypeUtilService = readingTypeUtilService;
+    }
+
+    @Reference
+    public void setJupiterPropertySpecService(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
+        this.jupiterPropertySpecService = jupiterPropertySpecService;
     }
 
     @Reference

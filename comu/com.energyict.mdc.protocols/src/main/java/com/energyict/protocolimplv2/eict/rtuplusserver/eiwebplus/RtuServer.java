@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -13,7 +16,15 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -22,19 +33,19 @@ import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.protocolimplv2.elster.garnet.SecuritySupport;
-import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
-import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 import com.energyict.protocols.impl.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialect;
 
+import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
+import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
+
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -64,13 +75,15 @@ public class RtuServer implements DeviceProtocol {
     private final PropertySpecService propertySpecService;
     private final NoOrPasswordSecuritySupport securitySupport;
     private final Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public RtuServer(NoOrPasswordSecuritySupport securitySupport, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Clock clock) {
+    public RtuServer(NoOrPasswordSecuritySupport securitySupport, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Clock clock, Thesaurus thesaurus) {
         this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
         this.clock = clock;
         this.securitySupport = securitySupport;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -91,7 +104,7 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new EIWebPlusConnectionType());
+        return Collections.<ConnectionType>singletonList(new EIWebPlusConnectionType(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -192,7 +205,7 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new EiWebPlusDialect(this.propertySpecService));
+        return Collections.<DeviceProtocolDialect>singletonList(new EiWebPlusDialect(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -206,13 +219,8 @@ public class RtuServer implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return this.securitySupport.getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return this.securitySupport.getSecurityRelationTypeName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.securitySupport.getCustomPropertySet();
     }
 
     @Override
@@ -223,11 +231,6 @@ public class RtuServer implements DeviceProtocol {
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return this.securitySupport.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return this.securitySupport.getSecurityPropertySpec(name);
     }
 
     @Override
@@ -267,16 +270,12 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String s) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         return collectedDataFactory.createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
     }
+
 }

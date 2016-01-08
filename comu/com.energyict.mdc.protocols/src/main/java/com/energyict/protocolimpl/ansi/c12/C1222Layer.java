@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
 import com.energyict.protocolimpl.ansi.c12.EAXPrime.EAXPrimeEncoder;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -406,11 +407,10 @@ public class C1222Layer extends C12Layer2 {
         c1222Buffer.getUserInformation().write(mac);
     }
 
-    private void buildAuthentication(C1222Buffer c1222Buffer) throws ApplicationException, IOException {    // ToDO: SecurityMode 1 needs to be tested out!
+    private void buildAuthentication(C1222Buffer c1222Buffer) throws IOException {    // ToDO: SecurityMode 1 needs to be tested out!
         byte[] clearText = c1222Buffer.getCanonifiedCleartext().toByteArray();
-        byte[] plainText = null;
 
-        getEAXPrimeEncoder().encrypt(clearText, plainText);
+        getEAXPrimeEncoder().encrypt(clearText, null);
         byte[] mac = getEAXPrimeEncoder().getMac();
 
         c1222Buffer.setMac(mac);

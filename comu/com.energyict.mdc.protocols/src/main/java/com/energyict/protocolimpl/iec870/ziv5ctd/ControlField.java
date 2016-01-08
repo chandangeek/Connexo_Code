@@ -55,14 +55,16 @@ public class ControlField implements Marshalable {
 
     static ControlField parse( byte aByte ){
         ControlField controlField = new ControlField();
-        
+
         controlField.control = aByte;
-        
-        if( controlField.isPrm() )
-            controlField.functionCode = FunctionCode.PRIMARY[aByte&0x0F];
-        else
-            controlField.functionCode = FunctionCode.SECONDARY[aByte&0x0F];
-        
+
+        if( controlField.isPrm() ) {
+            controlField.functionCode = FunctionCode.PRIMARY[aByte & 0x0F];
+        }
+        else {
+            controlField.functionCode = FunctionCode.SECONDARY[aByte & 0x0F];
+        }
+
         return controlField;
     }
 
@@ -121,7 +123,7 @@ public class ControlField implements Marshalable {
         }
         return this;
     }
-    
+
     public FunctionCode getFunctionCode(){
         return functionCode;
     }
@@ -131,28 +133,7 @@ public class ControlField implements Marshalable {
     }
 
     public String toString( ){
-        return
-            new StringBuffer()
-                .append("ControlField[")
-                .append("" + toByteArray() )
-                .append("]").toString();
-    }
-
-    public static void main( String [] args ){
-
-        ControlField cf = new ControlField(FunctionCode.PRIMARY[0]);
-        System.out.println( cf );
-        cf.setFcb(true);
-        System.out.println( cf );
-        cf.setFcb(false);
-        System.out.println( cf );
-
-
-        cf.setFcv(true);
-        System.out.println( cf );
-        cf.setFcv(false);
-        System.out.println( cf );
-
+        return "ControlField[" + "" + toByteArray() + "]";
     }
 
 }

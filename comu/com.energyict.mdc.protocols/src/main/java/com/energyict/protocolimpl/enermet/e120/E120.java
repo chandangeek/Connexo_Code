@@ -1,20 +1,22 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -64,24 +66,24 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     /** Maximum nr of intervals that can be fetched in 1 SeriesOnCount request */
     private static final int FETCH_LIMIT = 306;
 
-    final static MessageFormat ERROR_0 = new MessageFormat(
+    static final MessageFormat ERROR_0 = new MessageFormat(
             "Configured profile interval size differs from requested size " +
             "(configured={0}s, meter={1}s)" );
-    final static MessageFormat ERROR_1 = new MessageFormat(
+    static final MessageFormat ERROR_1 = new MessageFormat(
             "Found different nr of entries in: \n {0} \n {1} ");
 
     /** Property Default values */
-    final static int PD_RETRIES = 5;
+    static final int PD_RETRIES = 5;
     /** Property default for the channel configuration */
-    final static String PD_CHANNEL_MAP = "1.29+10:0:0:0";
+    static final String PD_CHANNEL_MAP = "1.29+10:0:0:0";
 
     /** Property keys specific for E120 protocol. */
-    final static String PK_TIMEOUT = "Timeout";
-    final static String PK_RETRIES = "Retries";
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    final static String PK_USER_ID = "userId";
-    final static String PK_PASSWORD = "password";
-    final static String PK_CHANNEL_MAP = "ChannelMap";
+    static final String PK_TIMEOUT = "Timeout";
+    static final String PK_RETRIES = "Retries";
+    static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    static final String PK_USER_ID = "userId";
+    static final String PK_PASSWORD = "password";
+    static final String PK_CHANNEL_MAP = "ChannelMap";
 
     private String pUserId;
     private String pPassword;
@@ -93,6 +95,11 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     private DataType dataType;
 
     private int pRetries;
+
+    @Inject
+    public E120(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected ProtocolConnection doInit(
             InputStream inputStream, OutputStream outputStream,
@@ -237,7 +244,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "<unknown>";
     }
 
@@ -259,7 +266,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-        throws IOException, UnsupportedException {
+        throws IOException {
 
         /* if the to-time is after the metertime, to-time becomes metertime
          * (since you can not fetch future data) */

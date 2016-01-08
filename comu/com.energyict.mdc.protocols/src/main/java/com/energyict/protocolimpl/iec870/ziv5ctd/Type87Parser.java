@@ -52,43 +52,11 @@ public class Type87Parser implements TypeParser {
         io.setStartPeriod( new CP40Time(timeZone, byteArray87.sub(52, 5) ).getDate() );
         io.setEndPeriod( new CP40Time(timeZone, byteArray87.sub(57, 5) ).getDate() );
 
-        return (InformationObject)io;
+        return io;
     }
 
     Quantity wrap(int value, Unit unit) {
         return new Quantity( new BigDecimal(value), unit );
     }
-
-    public static void main( String [] args ) {
-        ByteArray byteArray = new ByteArray(
-                new byte [] {
-            (byte)0x48, (byte)0x05, (byte)0x00, (byte)0x00,
-            (byte)0x48, (byte)0x05, (byte)0x00, (byte)0x00, (byte)0xd0,
-
-            (byte)0xe6, (byte)0x04, (byte)0x00, (byte)0x00,
-            (byte)0xe6, (byte)0x04, (byte)0x00, (byte)0x00, (byte)0xd0,
-
-            (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
-            (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0xd0,
-
-            (byte)0x0a, (byte)0x00, (byte)0x00, (byte)0x00,
-            (byte)0x40, (byte)0xd9, (byte)0xe5, (byte)0x00, (byte)0x00,
-
-            (byte)0x40, (byte)0x06, (byte)0x00, (byte)0x00,
-            (byte)0x00, (byte)0x0f, (byte)0x8b, (byte)0x2a, (byte)0x04,
-
-            (byte)0x06, (byte)0xd0, (byte)0x00, (byte)0x00, (byte)0x00,
-            (byte)0x00, (byte)0x80, (byte)0x03, (byte)0x87, (byte)0x24,
-            (byte)0x06, (byte)0x60, (byte)0x25, (byte)0x8f, (byte)0x4b,
-            (byte)0x04, (byte)0x06, (byte)0x00, (byte)0x00, (byte)0x00,
-            (byte)0x00, (byte)0xd0
-        });
-
-        Type87Parser parser = new Type87Parser( TimeZone.getDefault() );
-        System.out.println( parser.parse(byteArray) );
-
-
-    }
-
 
 }

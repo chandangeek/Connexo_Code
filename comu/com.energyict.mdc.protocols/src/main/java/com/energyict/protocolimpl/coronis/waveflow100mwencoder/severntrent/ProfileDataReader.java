@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent;
 
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
@@ -150,17 +151,18 @@ public class ProfileDataReader {
     }
 
     private List<MeterEvent> buildMeterEvents() throws IOException {
-
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-
+        List<MeterEvent> meterEvents = new ArrayList<>();
         meterEvents.addAll(buildMeterSpecificEvents());
-
         for (LeakageEventTable.LeakEvent leakEvent : waveFlow100mW.getRadioCommandFactory().readLeakageEventTable().getLeakageEvents()) {
             if (leakEvent.isValid()) {
-                meterEvents.add(new MeterEvent(leakEvent.getDate(), MeterEvent.OTHER, leakEvent.getDeviceCode(), leakEvent.getEventDescription() + ", consumptionRate=" + WaveflowProtocolUtils.toHexString(leakEvent.getConsumptionRate())));
+                meterEvents.add(
+                        new MeterEvent(
+                                leakEvent.getDate(),
+                                MeterEvent.OTHER,
+                                leakEvent.getDeviceCode(),
+                                leakEvent.getEventDescription() + ", consumptionRate=" + WaveflowProtocolUtils.toHexString(leakEvent.getConsumptionRate())));
             }
         }
-
         meterEvents.addAll(buildStatusEvents());
         return meterEvents;
     }

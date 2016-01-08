@@ -560,16 +560,6 @@ public class ValueInformationfieldCoding {
         this.difDataField = difDataField;
     }
 
-    static public void main(String[] args) {
-        try {
-            System.out.println(ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(255, 2));
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public ObisCodeCreator getObisCodeCreator() {
         return obisCodeCreator;
     }

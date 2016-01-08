@@ -277,22 +277,8 @@ public class OnlyForTesting {
 				System.out.println("interval calendar = "+intervalCalendar.getTime());
 			}
 
-             //System.out.println("now - 13 d = "+retrievalCalendar.getTime());
              previousIntervalCalendar = intervalCalendar;
          }
      }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        try {
-            // TODO code application logic here
-            OnlyForTesting nm = new OnlyForTesting();
-            nm.start4();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 }

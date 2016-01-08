@@ -1,8 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.common.BusinessException;
-
 import com.elster.jupiter.transaction.Transaction;
+
 import com.energyict.dlms.UniversalObject;
 
 import java.io.IOException;
@@ -17,18 +16,18 @@ import java.sql.SQLException;
  */
 public interface OrmClient {
 
-    public Object getCacheObject(int deviceId) throws IOException;
+    Object getCacheObject(int deviceId) throws IOException;
 
-    public void setCacheObject(int deviceId, Object cacheObject) throws SQLException;
+    void setCacheObject(int deviceId, Object cacheObject) throws SQLException;
 
-    public int getConfProgChange(int deviceId) throws SQLException, BusinessException;
+    int getConfProgChange(int deviceId) throws SQLException;
 
-    public void setConfProgChange(int deviceId, int confProgChange) throws SQLException;
+    void setConfProgChange(int deviceId, int confProgChange) throws SQLException;
 
-    public UniversalObject[] getUniversalObjectList (int deviceId) throws SQLException;
+    UniversalObject[] getUniversalObjectList(int deviceId) throws SQLException;
 
-    public void saveUniversalObjectList(int deviceId, UniversalObject... universalObjects) throws SQLException;
+    void saveUniversalObjectList(int deviceId, UniversalObject... universalObjects) throws SQLException;
 
-    public <T> T execute(Transaction<T> transaction);
+    <T> T execute(Transaction<T> transaction);
 
 }

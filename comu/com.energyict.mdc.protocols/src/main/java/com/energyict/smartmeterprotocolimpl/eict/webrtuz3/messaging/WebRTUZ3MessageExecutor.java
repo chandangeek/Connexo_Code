@@ -1,13 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.UserFile;
@@ -15,8 +8,48 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.lookups.Lookup;
-import com.energyict.mdc.protocol.api.lookups.LookupEntry;
+
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AssociationSN;
+import com.energyict.dlms.cosem.AutoConnect;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
@@ -28,9 +61,14 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -382,23 +420,6 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     log(Level.INFO, "Handling message: Set LoadLimit EmergencyProfile group ID's");
 
                     Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
-                    try {
-                        Lookup lut = getLookup();
-                        if (lut == null) {
-                            throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
-                        } else {
-                            Iterator entriesIt = lut.getEntries().iterator();
-                            Array idArray = new Array();
-                            while (entriesIt.hasNext()) {
-                                LookupEntry lue = (LookupEntry) entriesIt.next();
-                                idArray.addDataType(new Unsigned16(lue.getKey()));
-                            }
-                            epdiLimiter.writeEmergencyProfileGroupIdList(idArray);
-                        }
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
-                        throw new IOException("The given lookupTable id is not a valid entry.");
-                    }
 
                     success = true;
 
@@ -782,7 +803,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     success = false;
                 }
 
-            } catch (BusinessException | IOException e) {
+            } catch (ParserConfigurationException | SAXException | IOException e) {
                 log(Level.INFO, "Message has failed. " + e.getMessage());
             }
             if (success) {
@@ -800,10 +821,6 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
     private Code getCodeTable() throws UnsupportedException {
         throw new UnsupportedException("CodeTables are not supported yet");
-    }
-
-    private Lookup getLookup() throws UnsupportedException {
-        throw new UnsupportedException("LookupTables are not supported yet");
     }
 
     private UserFile getUserFile() throws UnsupportedException {

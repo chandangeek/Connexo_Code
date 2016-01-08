@@ -63,21 +63,15 @@ public class FileAccessReadCommand extends AbstractCommand {
 
     public String toString() {
         // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("FileAccessRead:\n");
-        strBuff.append("   registerId=0x"+Integer.toHexString(getRegisterId())+"\n");
-        strBuff.append("   startRecord="+getStartRecord()+"\n");
-        strBuff.append("   numberOfRecords="+getNumberOfRecords()+"\n");
-        strBuff.append("   recordOffset="+getRecordOffset()+"\n");
-        strBuff.append("   recordSize="+getRecordSize()+"\n");
-        strBuff.append("   data="+ProtocolUtils.outputHexString(getData())+"\n");
-        strBuff.append("   data (string)="+new String(getData())+", ");
-        return strBuff.toString();
+        return "FileAccessRead:\n" +
+                "   registerId=0x" + Integer.toHexString(getRegisterId()) + "\n" +
+                "   startRecord=" + getStartRecord() + "\n" +
+                "   numberOfRecords=" + getNumberOfRecords() + "\n" +
+                "   recordOffset=" + getRecordOffset() + "\n" +
+                "   recordSize=" + getRecordSize() + "\n" +
+                "   data=" + ProtocolUtils.outputHexString(getData()) + "\n" +
+                "   data (string)=" + new String(getData()) + ", ";
     }
-//    public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new FileAccessRead(null)));
-//    }
-
     protected void parse(byte[] data) throws IOException {
         int offset = 2;
         setRegisterId(ProtocolUtils.getInt(data,offset,4));

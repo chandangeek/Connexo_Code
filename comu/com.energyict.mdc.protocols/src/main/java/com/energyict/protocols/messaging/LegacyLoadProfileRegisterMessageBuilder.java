@@ -1,6 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -22,6 +21,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
@@ -143,13 +143,13 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
      * @return the xml String containing the content for the message.
      */
     @Override
-    protected String getMessageContent() throws BusinessException {
+    protected String getMessageContent() {
         if (this.loadProfileId == 0 || this.profileObisCode == null) {
-            throw new BusinessException("needLoadProfile", "LoadProfile needed.");
+            throw new IllegalArgumentException("LoadProfile needed.");
         } else if (this.startReadingTime == null) {
-            throw new BusinessException("emptyStartTime", "StartTime can not be empty.");
+            throw new IllegalArgumentException("StartTime can not be empty.");
         } else if ("".equalsIgnoreCase(this.meterSerialNumber)) {
-            throw new BusinessException("noDeviceSerialNumber", "Device Serial Number must be filled in.");
+            throw new IllegalArgumentException("Device Serial Number must be filled in.");
         }
 
         checkRtuRegistersForLoadProfile();
@@ -184,7 +184,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         return builder.toString();
     }
 
-    private void checkRtuRegistersForLoadProfile() throws BusinessException {
+    private void checkRtuRegistersForLoadProfile() {
         Device device = this.loadProfile.getDevice();
 
         List<com.energyict.mdc.device.data.Register> allRegisters = device.getRegisters();
@@ -201,7 +201,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
                 contains |= register.getRegisterTypeObisCode().equals(channel.getRegisterTypeObisCode());
             }
             if (!contains) {
-                throw new BusinessException("notAllRegisterMappingsDefined", "Not all RegisterMappings from {0} are defined on {1}", this.loadProfile, device);
+                throw new IllegalArgumentException(MessageFormat.format("Not all RegisterMappings from {0} are defined on {1}", this.loadProfile, device));
             }
         }
     }

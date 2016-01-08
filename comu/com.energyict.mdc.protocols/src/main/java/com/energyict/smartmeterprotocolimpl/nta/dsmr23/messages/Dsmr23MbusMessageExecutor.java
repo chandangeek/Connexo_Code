@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
@@ -15,6 +14,8 @@ import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DlmsSession;
@@ -32,14 +33,13 @@ import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Arrays;
@@ -132,7 +132,7 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
             } else if (msgResult.isFailed()) {
                 log(Level.SEVERE, "Message failed : " + msgResult.getInfo());
             }
-        } catch (BusinessException | IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
             log(Level.SEVERE, "Message failed : " + e.getMessage());
         }

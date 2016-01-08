@@ -29,22 +29,15 @@ public class CIField7Ah extends AbstractCIField {
     public CIField7Ah() {
     }
 
-//        public static void main(String[] args) {
-//            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new CIField72h()));
-//        }
-
     protected int getId() {
         return 0x7A;
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("CIField7Ah:\n");
-        strBuff.append("   accessNumber="+getAccessNumber()+"\n");
-        strBuff.append("   statusByte="+getStatusByte()+"\n");
-        strBuff.append("   signatureField="+getSignatureField()+"\n");
-        return strBuff.toString();
+        return "CIField7Ah:\n" +
+                "   accessNumber=" + getAccessNumber() + "\n" +
+                "   statusByte=" + getStatusByte() + "\n" +
+                "   signatureField=" + getSignatureField() + "\n";
     }
 
     protected void doParse(byte[] data) throws IOException {

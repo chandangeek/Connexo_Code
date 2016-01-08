@@ -1,8 +1,10 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
-import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
-import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -31,7 +33,7 @@ public class FirmwareVersion extends AbstractRadioCommand {
 	}
 
 	@Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
 		DataInputStream dais = null;
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));

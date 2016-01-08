@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import javax.inject.Inject;
@@ -18,13 +18,13 @@ import java.util.Properties;
  *
  */
 @Deprecated
-public class DLMSZMD_EXT extends DLMSZMD{
+public class DLMSZMD_EXT extends DLMSZMD {
 
 	private int profileInterval;
 
     @Inject
-    public DLMSZMD_EXT(OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
-        super(ormClient, codeFactory, userFileFactory);
+    public DLMSZMD_EXT(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+        super(propertySpecService, ormClient, codeFactory, userFileFactory);
     }
 
     public int getProfileInterval() {

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -116,7 +117,7 @@ public class AlarmFrameParser {
                 input = D;
                 break;
         }
-        EventStatusAndDescription translator = new EventStatusAndDescription(waveFlow);
+        EventStatusAndDescription translator = new EventStatusAndDescription(waveFlow.getDeviceType());
 
         if ((status & 0x04) == 0x04) {
             events.add(new MeterEvent(date, MeterEvent.METER_ALARM, A.equals(input) ? EventStatusAndDescription.EVENTCODE_REEDFAULT_A : EventStatusAndDescription.EVENTCODE_REEDFAULT_B, "Reed fault detection on input " + input));

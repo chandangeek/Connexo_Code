@@ -11,11 +11,12 @@
 package com.energyict.protocolimpl.transdata.markv.core;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.transdata.markv.MarkV;
@@ -177,18 +178,5 @@ public class MarkVProfile {
         cal.add(Calendar.SECOND,(-1)*(int)offset2IntervalBoundary);
         return cal;
 
-    } // private Calendar checkIfTimeValid()
-
-    static public void main(String[] args) {
-        try {
-            MarkVProfile mp = new MarkVProfile(null);
-            System.out.println(System.currentTimeMillis()/1000);
-            Date date = mp.checkIfTimeValid().getTime();
-            System.out.println(date);
-            System.out.println(System.currentTimeMillis()/1000);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
     }
 }

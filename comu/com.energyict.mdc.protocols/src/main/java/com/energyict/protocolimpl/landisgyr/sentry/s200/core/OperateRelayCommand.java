@@ -23,11 +23,6 @@ public class OperateRelayCommand extends AbstractCommand {
         super(cm);
     }
 
-    // =0x"+Integer.toHexString(
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateCommand(null)));
-    }
-
     protected void parse(byte[] data) throws IOException {
     }
 

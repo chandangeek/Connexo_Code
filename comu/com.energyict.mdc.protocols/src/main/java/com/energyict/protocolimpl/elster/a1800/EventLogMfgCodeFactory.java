@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.elster.a1800;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.ansi.c12.tables.EventLogCode;
 import com.energyict.protocolimpl.ansi.c12.tables.EventLogCodeFactory;
 /**
@@ -41,10 +42,4 @@ public class EventLogMfgCodeFactory extends EventLogCodeFactory {
     public EventLogMfgCodeFactory() {
     }
 
-    static public void main(String[] args) {
-        EventLogMfgCodeFactory elmcf = new EventLogMfgCodeFactory();
-        System.out.println(elmcf.getEvent(0, true));
-        System.out.println(elmcf.getEvent(1, true));
-
-    }
 }

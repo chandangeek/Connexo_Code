@@ -269,61 +269,6 @@ public class SCTMDumpData {
         return null;
     }
 
-    public static void main(String[] args)
-    {
-        try {
-            //String str = new String("1-1:F.F(00)\r\n1-1:0.0.0(62127388)\r\n1-1:0.1.0(01)\r\n1-1:1.2.1(00000.0*kW)\r\n1-1:1.2.2(00000.0*kW)\r\n1-1:1.2.3(00000.0*kW)\r\n1-1:1.2.4(00000.0*kW)\r\n1-1:1.6.1(000.0*kW)\r\n1-1:1.6.2(000.0*kW)\r\n1-1:1.6.3(000.0*kW)\r\n1-1:1.6.4(000.0*kW)\r\n1-1:1.8.1(0002000.030*kWh)\r\n1-1:1.8.2(0000000.0*kWh)\r\n1-1:1.8.3(0000000.0*kWh)\r\n1-1:1.8.4(0000000.0*kWh)\r\n1-1:5.8.1(9000000.123*kvarh)\r\n1-1:5.8.2(0000000.0*kvarh)\r\n1-1:5.8.3(0000000.0*kvarh)\r\n1-1:5.8.4(0000000.0*kvarh)\r\n1-1:8.8.1(0000000.0*kvarh)\r\n1-1:8.8.2(0000000.0*kvarh)\r\n1-1:8.8.3(0000000.0*kvarh)\r\n1-1:8.8.4(0000000.0*kvarh)\r\n!\r\n");
-            //String str = new String("9.2(123456789*Wh)\r\n10.2(0001234*kWh)\r\n10.2&01(1234.567)\r\n9.2*00(0.56789)\r\n10.2*99(0000000)\r\n10.2*98(0000000)\r\n10.2*97(0000000)");
-
-            byte[] frame = readFile();
-            SCTMDumpData dumpData = new SCTMDumpData(frame,0);
-            Quantity q;
-//            q = dumpData.getRegister("8.1"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-//            System.out.println(q.toString());
-//            q = dumpData.getRegister("8.1.&22"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-//            System.out.println(q.toString());
-//            q = dumpData.getRegister("8.1"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-//            System.out.println(q.toString());
-            q = dumpData.getRegister("20"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-            System.out.println(q.toString());
-            //Date date = dumpData.getRegisterDateTime("20",TimeZone.getDefault());
-            //System.out.println(date.toString());
-            q = dumpData.getRegister("6.1"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-            System.out.println(q.toString());
-            q = dumpData.getRegister("6.1*49"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-            System.out.println(q.toString());
-            Date date = dumpData.getRegisterDateTime("6.1*49",TimeZone.getDefault());
-            System.out.println(date.toString());
-
-            System.out.println(dumpData.getBillingCounter());
-            q = dumpData.getRegister("1"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-            System.out.println(q.toString());
-
-//            q = dumpData.getRegister("6.1*21"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-//            System.out.println(q.toString());
-//            q = dumpData.getRegister("6.1*22"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-//            System.out.println(q.toString());
-//            q = dumpData.getRegister("20"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-//            System.out.println(q.toString());
-//            q = dumpData.getRegister("20.*22"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
-//            System.out.println(q.toString());
-//            Date date = dumpData.getRegisterDateTime("8.1",TimeZone.getTimeZone("WET"));
-//            System.out.println(date);
-//
-//            System.out.println("billingCounter = "+dumpData.getBillingCounter());
-//
-//            q = dumpData.getRegister("10.2&01"); //dumpData.getRegister("1-1:5.8.1");
-//            System.out.println(q.toString());
-//            q = dumpData.getRegister("9.2*00"); //dumpData.getRegister("1-1:5.8.1");
-//            System.out.println(q.toString());
-        }
-        catch(Exception  e) {
-           System.out.println(e.getMessage());
-        }
-
-
-    }
-
     /**
      * Getter for property bufferId.
      * @return Value of property bufferId.

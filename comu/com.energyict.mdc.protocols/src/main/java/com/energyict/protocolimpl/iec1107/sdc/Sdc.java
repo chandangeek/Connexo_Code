@@ -6,9 +6,12 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
-// com.energyict.protocolimpl.iec1107.sdc.Sdc
+
+import javax.inject.Inject;
 /**
  *
  * @author  Koen
@@ -23,13 +26,14 @@ KV|01092005|Add manufacturer specific code
  * @endchanges
  */
 public class Sdc extends SdcBase {
-    
+
     RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
-    
-    /** Creates a new instance of Sdc */
-    public Sdc() {
+
+    @Inject
+    public Sdc(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
-    
+
     protected RegisterConfig getRegs() {
         return regs;
     }
@@ -38,5 +42,4 @@ public class Sdc extends SdcBase {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    
-} // class Sdc
+}

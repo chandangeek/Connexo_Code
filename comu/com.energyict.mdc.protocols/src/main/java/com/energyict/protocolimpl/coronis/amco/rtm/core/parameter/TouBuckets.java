@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class TouBuckets extends AbstractParameter {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data, RTMFactory rtmFactory) throws IOException {
         if ((data[0] & 0xFF) == 0xFF) {
             throw new WaveFlowException("Error writing the TOU bucket start hours, make sure there are no window overlaps");
         }

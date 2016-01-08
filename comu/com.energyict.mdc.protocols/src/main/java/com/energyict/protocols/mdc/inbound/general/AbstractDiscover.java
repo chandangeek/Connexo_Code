@@ -1,8 +1,5 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -19,6 +16,10 @@ import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolImplFactory;
@@ -126,16 +127,6 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         propertySpecs.add(this.getPropertySpecService().basicPropertySpec(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), false, new BigDecimalFactory()));
         propertySpecs.add(this.getPropertySpecService().basicPropertySpec(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), false, new BigDecimalFactory()));
         return propertySpecs;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec (String name) {
-        for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec)) {
-                return propertySpec;
-            }
-        }
-        return null;
     }
 
     public int getTimeOutProperty() {

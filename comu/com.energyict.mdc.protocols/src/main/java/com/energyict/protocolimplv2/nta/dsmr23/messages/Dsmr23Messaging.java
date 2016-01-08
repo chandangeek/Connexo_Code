@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -11,13 +13,10 @@ import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMes
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
-import com.energyict.mdc.protocol.api.lookups.Lookup;
-import com.energyict.mdc.protocol.api.lookups.LookupEntry;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -28,7 +27,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.util.Date;
@@ -41,7 +39,6 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
@@ -153,8 +150,6 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                 return convertCodeTableToXML((Code) messageAttribute);
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
-            case emergencyProfileGroupIdListAttributeName:
-                return convertLookupTable((Lookup) messageAttribute);
             case encryptionLevelAttributeName:
                 return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
             case overThresholdDurationAttributeName:
@@ -241,18 +236,6 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         }
         return ProtocolTools.getHexStringFromBytes(result.getBEREncodedByteArray(), "");
     }
-
-    private String convertLookupTable(Lookup messageAttribute) {
-        StringBuilder result = new StringBuilder();
-        for (LookupEntry entry : messageAttribute.getEntries()) {
-            if (result.length() > 0) {
-                result.append(SEPARATOR);
-            }
-            result.append(entry.getKey());
-        }
-        return result.toString();
-    }
-
 
     protected AbstractMessageExecutor getMessageExecutor() {
         return messageExecutor;

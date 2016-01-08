@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.elster.a3.tables;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
 import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
@@ -59,22 +60,15 @@ public class OutageModemStatus extends AbstractTable {
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("OutageModemStatus:\n");
-        strBuff.append("   acctId="+getAcctId()+"\n");
-        strBuff.append("   modemManufacturWeek="+getModemManufacturWeek()+"\n");
-        strBuff.append("   modemManufacturYear="+getModemManufacturYear()+"\n");
-        strBuff.append("   modemStatusFlags=0x"+Integer.toHexString(getModemStatusFlags())+"\n");
-        strBuff.append("   mtrSn="+getMtrSn()+"\n");
-        strBuff.append("   outageTime="+getOutageTime()+"\n");
-        strBuff.append("   sspec3="+getSspec3()+"\n");
-        return strBuff.toString();
+        return "OutageModemStatus:\n" +
+                "   acctId=" + getAcctId() + "\n" +
+                "   modemManufacturWeek=" + getModemManufacturWeek() + "\n" +
+                "   modemManufacturYear=" + getModemManufacturYear() + "\n" +
+                "   modemStatusFlags=0x" + Integer.toHexString(getModemStatusFlags()) + "\n" +
+                "   mtrSn=" + getMtrSn() + "\n" +
+                "   outageTime=" + getOutageTime() + "\n" +
+                "   sspec3=" + getSspec3() + "\n";
     }
-
-//     public static void main(String[] args) {
-//        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new OutageModemStatus(null)));
-//     }
 
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();

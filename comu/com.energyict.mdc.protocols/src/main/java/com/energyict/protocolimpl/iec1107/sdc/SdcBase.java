@@ -7,18 +7,20 @@
 package com.energyict.protocolimpl.iec1107.sdc;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,9 +52,8 @@ public abstract class SdcBase extends AbstractProtocol {
 
     protected abstract RegisterConfig getRegs();
 
-    /** Creates a new instance of Sdc */
-    public SdcBase() {
-        super(false); // true for datareadout;
+    public SdcBase(PropertySpecService propertySpecService) {
+        super(propertySpecService, false); // true for datareadout;
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -67,27 +68,26 @@ public abstract class SdcBase extends AbstractProtocol {
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-    	StringBuilder strBuff = new StringBuilder();
-    	strBuff.append("******************* ExtendedLogging *******************\n");
-    	strBuff.append("1.0.1.8.128.255: Active Energy tariff HV" + "\n");
-    	strBuff.append("1.0.1.8.129.255: Active Energy tariff HP" + "\n");
-    	strBuff.append("1.0.1.8.130.255: Active Energy tariff HC" + "\n");
-    	strBuff.append("1.0.1.8.131.255: Active Energy tariff HSV" + "\n");
-    	strBuff.append("1.0.3.8.128.255: Reactive Energy inductive tariff HV" + "\n");
-    	strBuff.append("1.0.3.8.132.255: Reactive Energy inductive tariff HFV" + "\n");
-    	strBuff.append("1.0.4.8.128.255: Reactive Energy capacitive tariff HV" + "\n");
-    	strBuff.append("1.0.4.8.132.255: Reactive Energy capacitive tariff HFV" + "\n");
-    	strBuff.append("1.0.1.6.128.255: Active Energy maximum demand tariff HV" + "\n");
-    	strBuff.append("1.0.1.6.132.255: Active Energy maximum demand tariff HFV" + "\n");
-    	strBuff.append("1.0.3.6.128.255: Reactive Energy maximum demand inductive tariff HV" + "\n");
-    	strBuff.append("1.0.3.6.132.255: Reactive Energy maximum demand inductive tariff HFV" + "\n");
-    	strBuff.append("1.0.4.6.128.255: Reactive Energy maximum demand capacitive tariff HV" + "\n");
-    	strBuff.append("1.0.4.6.132.255: Reactive Energy maximum demand capacitive tariff HFV" + "\n");
-    	strBuff.append("1.0.1.8.0.255: Active Energy total (all phases)" + "\n");
-    	strBuff.append("1.0.3.8.0.255: Reactive Energy inductive total (all phases)" + "\n");
-    	strBuff.append("1.0.4.8.0.255: Reactive Energy capacitive total (all phases)" + "\n");
-    	strBuff.append("*******************************************************\n");
-    	return strBuff.toString();
+        String strBuff = "******************* ExtendedLogging *******************\n" +
+                "1.0.1.8.128.255: Active Energy tariff HV" + "\n" +
+                "1.0.1.8.129.255: Active Energy tariff HP" + "\n" +
+                "1.0.1.8.130.255: Active Energy tariff HC" + "\n" +
+                "1.0.1.8.131.255: Active Energy tariff HSV" + "\n" +
+                "1.0.3.8.128.255: Reactive Energy inductive tariff HV" + "\n" +
+                "1.0.3.8.132.255: Reactive Energy inductive tariff HFV" + "\n" +
+                "1.0.4.8.128.255: Reactive Energy capacitive tariff HV" + "\n" +
+                "1.0.4.8.132.255: Reactive Energy capacitive tariff HFV" + "\n" +
+                "1.0.1.6.128.255: Active Energy maximum demand tariff HV" + "\n" +
+                "1.0.1.6.132.255: Active Energy maximum demand tariff HFV" + "\n" +
+                "1.0.3.6.128.255: Reactive Energy maximum demand inductive tariff HV" + "\n" +
+                "1.0.3.6.132.255: Reactive Energy maximum demand inductive tariff HFV" + "\n" +
+                "1.0.4.6.128.255: Reactive Energy maximum demand capacitive tariff HV" + "\n" +
+                "1.0.4.6.132.255: Reactive Energy maximum demand capacitive tariff HFV" + "\n" +
+                "1.0.1.8.0.255: Active Energy total (all phases)" + "\n" +
+                "1.0.3.8.0.255: Reactive Energy inductive total (all phases)" + "\n" +
+                "1.0.4.8.0.255: Reactive Energy capacitive total (all phases)" + "\n" +
+                "*******************************************************\n";
+        return strBuff;
     }
 
 
@@ -113,8 +113,7 @@ public abstract class SdcBase extends AbstractProtocol {
     }
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-//    	properties.setProperty("SecurityLevel","0");
-        this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+        this.software7E1 = !"0".equals(properties.getProperty("Software7E1", "0"));
     }
 
     public String getFirmwareVersion() throws IOException {
@@ -200,7 +199,7 @@ public abstract class SdcBase extends AbstractProtocol {
     	ObisCode oc = new ObisCode(1,0,0,0,0,255);
     	String str = readRegister(oc).getText();
     	str = str.substring(str.indexOf(",") + 2 );
-    	if(!getInfoTypeNodeAddress().equalsIgnoreCase("")){
+    	if (!getInfoTypeNodeAddress().isEmpty()) {
 	    	if ( str.compareTo(getInfoTypeNodeAddress().substring(getInfoTypeNodeAddress().indexOf(str.charAt(0)))) == -1 ) {
                 throw new IOException("Incorrect node Address!");
             }

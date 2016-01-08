@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.pact.core.instant;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.pact.core.common.PACTConnection;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 
@@ -138,20 +139,6 @@ public class InstantaneousFactory {
 	}
 
     } // private Quantity parseForQuantity(String value,Instantaneous instantaneous)
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        try {
-           InstantaneousFactory instf = new InstantaneousFactory(null);
-           System.out.println(instf.parseForQuantity("V1","KW-14.56",(Instantaneous)InstantaneousFactory.map.get("V1")).toString());
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     /**
      * Getter for property protocolLink.

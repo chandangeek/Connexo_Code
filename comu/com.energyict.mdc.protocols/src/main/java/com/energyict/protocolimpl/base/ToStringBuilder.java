@@ -53,28 +53,8 @@ public class ToStringBuilder {
     }
 
 
-    /*
-        Use:
-        Add the following main to the class for which you want to generate toString() code
-
-        public static void main(String[] args) {
-            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new YourClass(...)));
-        }
-
-        OR
-
-        public YourClass() {
-        }
-        public static void main(String[] args) {
-            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new YourClass()));
-        }
-
-        copy and paste the output in your code.
-
-     */
-
     public static String genCode(Object obj) {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         try {
             strBuff.append("    public String toString() {\n");
             strBuff.append("        // Generated code by ToStringBuilder\n");
@@ -82,7 +62,7 @@ public class ToStringBuilder {
             BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
             String className=obj.getClass().getName();
             int index = className.lastIndexOf('.')+1;
-            strBuff.append("        strBuff.append(\""+className.substring(index)+":\\n\");\n");
+            strBuff.append("        strBuff.append(\"").append(className.substring(index)).append(":\\n\");\n");
             PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
             for(int i=0;i<pds.length;i++) {
                 Method method = pds[i].getReadMethod();
@@ -91,12 +71,12 @@ public class ToStringBuilder {
                     if (method.getDeclaringClass()==obj.getClass()) {
                         try {
                             if (pds[i].getPropertyType().isArray()) {
-                                strBuff.append("        for (int i=0;i<"+method.getName()+"().length;i++) {\n");
-                                strBuff.append("            strBuff.append(\"       "+pds[i].getName()+"[\"+i+\"]=\"+"+method.getName()+"()[i]+\"\\n\");\n");
+                                strBuff.append("        for (int i=0;i<").append(method.getName()).append("().length;i++) {\n");
+                                strBuff.append("            strBuff.append(\"       ").append(pds[i].getName()).append("[\"+i+\"]=\"+").append(method.getName()).append("()[i]+\"\\n\");\n");
                                 strBuff.append("        }\n");
                             }
                             else {
-                                strBuff.append("        strBuff.append(\"   "+pds[i].getName()+"=\"+"+method.getName()+"()+\"\\n\");\n");
+                                strBuff.append("        strBuff.append(\"   ").append(pds[i].getName()).append("=\"+").append(method.getName()).append("()+\"\\n\");\n");
                             }
                         } catch(Exception e) {
                             e.printStackTrace();

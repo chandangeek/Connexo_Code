@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SocketService;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -17,8 +17,14 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -26,25 +32,21 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocols.exception.UnsupportedMethodException;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
-import com.energyict.protocols.exception.UnsupportedMethodException;
 
 import javax.inject.Provider;
-import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -61,6 +63,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final AbstractDlmsProtocol meterProtocol;
     private final String serialNumber;
@@ -69,10 +72,15 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private final Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider;
     private final Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider;
 
-    public AbstractNtaMbusDevice(PropertySpecService propertySpecService,  TopologyService topologyService,
-                                 Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider,
-                                 Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider,
-                                 WebRTUKP webRTUKP) {
+    public AbstractNtaMbusDevice(
+                Thesaurus thesaurus,
+                PropertySpecService propertySpecService,
+                TopologyService topologyService,
+                Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider,
+                Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider,
+                WebRTUKP webRTUKP) {
+        super();
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.topologyService = topologyService;
         this.authenticationDeviceAccessLevelProvider = authenticationDeviceAccessLevelProvider;
@@ -88,7 +96,6 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
      *
      * @return the DeviceMessageSupport message protocol
      */
-
     public abstract DeviceMessageSupport getDeviceMessageSupport();
 
     protected PropertySpecService getPropertySpecService() {
@@ -101,7 +108,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
+        return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
     }
 
     @Override
@@ -131,7 +138,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(propertySpecService));
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(this.thesaurus, this.propertySpecService));
     }
 
     /**
@@ -180,13 +187,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return getMeterProtocol().getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return getMeterProtocol().getSecurityRelationTypeName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.getMeterProtocol().getCustomPropertySet();
     }
 
     /**
@@ -201,7 +203,6 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
         return authenticationAccessLevels;
     }
 
-
     /**
      * Return the access levels of the master AND a dummy level that indicates that this device can also
      * simply inherit the security properties of the master device, instead of specifying the security properties again
@@ -212,11 +213,6 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
         encryptionAccessLevels.addAll(getMeterProtocol().getEncryptionAccessLevels());
         encryptionAccessLevels.add(encryptionDeviceAccessLevelProvider.get());
         return encryptionAccessLevels;
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return getMeterProtocol().getSecurityPropertySpec(name);
     }
 
     //############## Unsupported methods ##############//
@@ -310,23 +306,14 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
         throw new UnsupportedMethodException(this.getClass(), "getDeviceTopology");
     }
 
-
-
     @Override
     public void copyProperties(TypedProperties properties) {
-
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
-
-    @Override
-    public PropertySpec getPropertySpec(String s) {
-        return null;
-    }
-
 
     @Override
     public DeviceFunction getDeviceFunction() {
@@ -342,4 +329,5 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     public CollectedFirmwareVersion getFirmwareVersions() {
         throw new UnsupportedMethodException(this.getClass(), "getFirmwareVersions");
     }
+
 }

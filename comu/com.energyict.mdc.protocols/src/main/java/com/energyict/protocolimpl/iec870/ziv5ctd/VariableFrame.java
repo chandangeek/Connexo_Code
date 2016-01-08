@@ -19,15 +19,15 @@ public class VariableFrame extends Frame {
         super(address, controlField, rawdata);
         this.asdu = asdu;
     }
-    
+
     public Asdu getAsdu(){
         return asdu;
     }
-    
+
     public CauseOfTransmission getCauseOfTransmission( ){
         return asdu.getTransmissionCause();
     }
-    
+
     Frame requestRespond(LinkLayer linkLayer) throws IOException, ParseException {
         return linkLayer.requestRespond(this);
     }
@@ -54,30 +54,9 @@ public class VariableFrame extends Frame {
         return byteArray;
 
     }
-    
+
     public String toString(){
-        StringBuffer sb = new StringBuffer();
-        sb.append( "VariableFrame [ ")
-          .append( getAsdu() );
-        return sb.toString();
+        return "VariableFrame [ " + getAsdu();
     }
-
-    
-
-    
-    /*
-    public static void main( String [] args ) {
-
-        ControlField cf = new ControlField( FunctionCode.PRIMARY[3] );
-        cf.setPrm(true).setFcb(true).setFcv(true);
-        Asdu asdu =  AsduFactory.instance().getTypeOx7A();
-        asdu.add( InformationObjectFactory.createProfile(null,null) );
-        VariableFrame vFrame = new VariableFrame(Address.DEFAULT, cf, asdu );
-        ByteArray rslt = vFrame.toByteArray();
-        System.out.println( rslt.toHexaString() );
-
-    }
-    */
-
 
 }

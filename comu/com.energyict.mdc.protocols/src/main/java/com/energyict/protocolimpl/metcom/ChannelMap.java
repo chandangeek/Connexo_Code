@@ -74,49 +74,6 @@ public class ChannelMap {
         this.nrOfChannels = nrOfChannels;
     }
 
-    static public void main(String[] args) {
-        ChannelMap channelMap = new ChannelMap("0,0,0,0");
-        System.out.println(channelMap.getNrOfChannels());
-        channelMap = new ChannelMap("");
-        System.out.println(channelMap.getNrOfChannels());
-        channelMap = new ChannelMap("0");
-        System.out.println(channelMap.getNrOfChannels());
-        //channelMap = new ChannelMap(null);
-        //System.out.println(channelMap.getNrOfChannels());
-
-
-        // KV 07052004 added
-        channelMap = new ChannelMap("");
-        System.out.println("total nr of channels: "+channelMap.getTotalNrOfChannels());
-        System.out.println("nr of buffers: "+channelMap.getNrOfBuffers());
-        for(int i=0;i<channelMap.getNrOfBuffers();i++)
-            System.out.println("buffer: "+i+", nr of channels: "+channelMap.getBuffers()[i]+", use="+channelMap.useBuffer(i)+", used="+channelMap.getNrOfUsedBuffers());
-
-        channelMap = new ChannelMap("1,2");
-        System.out.println("total nr of channels: "+channelMap.getTotalNrOfChannels());
-        System.out.println("nr of buffers: "+channelMap.getNrOfBuffers());
-        for(int i=0;i<channelMap.getNrOfBuffers();i++)
-            System.out.println("buffer: "+i+", nr of channels: "+channelMap.getBuffers()[i]+", use="+channelMap.useBuffer(i)+", used="+channelMap.getNrOfUsedBuffers());
-
-        channelMap = new ChannelMap("-1,2");
-        System.out.println("total nr of channels: "+channelMap.getTotalNrOfChannels());
-        System.out.println("nr of buffers: "+channelMap.getNrOfBuffers());
-        for(int i=0;i<channelMap.getNrOfBuffers();i++)
-            System.out.println("buffer: "+i+", nr of channels: "+channelMap.getBuffers()[i]+", use="+channelMap.useBuffer(i)+", used="+channelMap.getNrOfUsedBuffers());
-
-        channelMap = new ChannelMap("-1,-1,2");
-        System.out.println("total nr of channels: "+channelMap.getTotalNrOfChannels());
-        System.out.println("nr of buffers: "+channelMap.getNrOfBuffers());
-        for(int i=0;i<channelMap.getNrOfBuffers();i++)
-            System.out.println("buffer: "+i+", nr of channels: "+channelMap.getBuffers()[i]+", use="+channelMap.useBuffer(i)+", used="+channelMap.getNrOfUsedBuffers());
-
-        channelMap = new ChannelMap("4+,6,7+");
-        System.out.println("total nr of channels: "+channelMap.getTotalNrOfChannels());
-        System.out.println("nr of buffers: "+channelMap.getNrOfBuffers());
-        for(int i=0;i<channelMap.getNrOfBuffers();i++)
-            System.out.println("buffer: "+i+", nr of channels: "+channelMap.getBuffers()[i]+", use="+channelMap.useBuffer(i)+", used="+channelMap.getNrOfUsedBuffers()+", isCumulative="+channelMap.isBufferCumulative(i));
-    }
-
     /**
      * Getter for property nrOfBuffers.
      * @return Value of property nrOfBuffers.

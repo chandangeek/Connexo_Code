@@ -6,7 +6,6 @@
 
 package com.energyict.dlms;
 
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
@@ -31,7 +30,7 @@ public class DLMSObis {
         this.offset=offset;
     }
     /** Creates a new instance of DLMSObis */
-    public DLMSObis(String str) throws IOException {
+    public DLMSObis(String str) {
         this.str = str;
 
         if (str.charAt(0) == '#') {
@@ -123,33 +122,6 @@ public class DLMSObis {
         return getVal(5);
     }
 
-    public int getValueAttributeOffset() throws IOException {
-        if (getDLMSClass() == DLMSClassId.REGISTER.getClassId()) {
-			return 8;
-		} else if (getDLMSClass() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-			return 8;
-		} else if (getDLMSClass() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
-			return 16; // last average value
-		} else if (getDLMSClass() == DLMSClassId.DATA.getClassId()) {
-			return 8;
-		} else {
-			throw new ProtocolException("UniversalObject, wrong object for value attribute!");
-		}
-    }
-    public int getScalerAttributeOffset() throws IOException {
-        if (getDLMSClass() == DLMSClassId.REGISTER.getClassId()) {
-			return 16;
-		} else if (getDLMSClass() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-			return 16;
-		} else if (getDLMSClass() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
-			return 24;
-		} else if (getDLMSClass() == DLMSClassId.DATA.getClassId()) {
-			return 8;
-		} else {
-			throw new ProtocolException("UniversalObject, wrong object for scaler attribute!");
-		}
-    }
-
     public String toString() {
         try {
             return getLNA()+"."+
@@ -165,26 +137,6 @@ public class DLMSObis {
             e.printStackTrace();
         }
         return null;
-    }
-
-
-    public static void main(String[] args)
-    {
-
-        try {
-            DLMSObis ln = new DLMSObis("1.1.82.8.0.255:3");
-            System.out.println(ln.getLNA()+"."+
-                               ln.getLNB()+"."+
-                               ln.getLNC()+"."+
-                               ln.getLND()+"."+
-                               ln.getLNE()+"."+
-                               ln.getLNF()+":"+
-                               ln.getDLMSClass()+":"+
-                               ln.getOffset());
-        }
-        catch(IOException e) {
-            System.out.println(e.getMessage());
-        }
     }
 
 }

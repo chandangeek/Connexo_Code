@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.modbus.core;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
 import java.io.IOException;
@@ -24,9 +25,9 @@ import java.util.List;
  *
  * @author Koen
  */
-abstract public class AbstractRegisterFactory {
+public abstract class AbstractRegisterFactory {
 
-    abstract protected void init();
+    protected abstract void init();
 
     List registers = new ArrayList();
 

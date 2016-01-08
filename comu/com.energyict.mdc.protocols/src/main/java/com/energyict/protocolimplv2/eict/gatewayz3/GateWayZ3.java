@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.eict.gatewayz3;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -24,10 +27,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
@@ -47,13 +48,13 @@ import java.util.Set;
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Inject
-    public GateWayZ3(Clock clock, PropertySpecService propertySpecService, SocketService socketService,
+    public GateWayZ3(Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService,
                      SerialComponentService serialComponentService, IssueService issueService,
                      TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
                      IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
                      MeteringService meteringService, LoadProfileFactory loadProfileFactory,
                      Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService,
+        super(clock, thesaurus, propertySpecService, socketService, serialComponentService, issueService, topologyService,
                 readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory,
                 dsmrSecuritySupportProvider);
     }

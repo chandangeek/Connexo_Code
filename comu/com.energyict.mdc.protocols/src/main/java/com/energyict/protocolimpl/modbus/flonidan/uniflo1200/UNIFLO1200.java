@@ -7,17 +7,18 @@
 
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
@@ -27,11 +28,12 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200P
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -53,7 +55,12 @@ public class UNIFLO1200 extends Modbus {
 	private UNIFLO1200Profile loadProfile;
 	private int loadProfileNumber;
 
-    @Override
+	@Inject
+	public UNIFLO1200(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
+	@Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeout, int retries, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         modbusConnection = new UNIFLO1200Connection(inputStream, outputStream, timeout, getInterframeTimeout(), retries, forcedDelay, echoCancelling, halfDuplexController, getLogger());
         return getModbusConnection();
@@ -86,23 +93,26 @@ public class UNIFLO1200 extends Modbus {
 	}
 
 	protected void validateSerialNumber() throws IOException {
-		if (getInfoTypeSerialNumber() == null) return;
+		if (getInfoTypeSerialNumber() == null) {
+			return;
+		}
 		String serialNumber = (String) getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_SERIAL_NUMBER).value();
 		serialNumber = serialNumber.trim();
-		if (!getInfoTypeSerialNumber().equalsIgnoreCase(serialNumber))
+		if (!getInfoTypeSerialNumber().equalsIgnoreCase(serialNumber)) {
 			throw new InvalidPropertyException("SerialNumber [" + getInfoTypeSerialNumber() + "] doesn't match the serialnumber of the device [" + serialNumber + "] !!!");
+		}
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		return getLoadProfile().getProfileData(from, to, includeEvents);
 	}
 
-	public int getProfileInterval() throws UnsupportedException, IOException {
+	public int getProfileInterval() throws IOException {
 		sendDebug("getProfileInterval()", 5);
 		return getLoadProfile().getProfileInterval();
 	}
 
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
+	public int getNumberOfChannels() throws IOException {
 		return getLoadProfile().getNumberOfChannels();
 	}
 
@@ -110,7 +120,7 @@ public class UNIFLO1200 extends Modbus {
 		return getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_TIME).dateValue();
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		return (String) getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_DEVICE_TYPE).value();
 	}
 
@@ -130,8 +140,9 @@ public class UNIFLO1200 extends Modbus {
 
 		setSecLvl(((Integer)getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_ACTUAL_SECLEVEL).value()).intValue());
 
-		if (getInfoTypeSecurityLevel() != getSecLvl())
+		if (getInfoTypeSecurityLevel() != getSecLvl()) {
 			throw new InvalidPropertyException("SecurityLevel mismatch [" + getInfoTypeSecurityLevel() + " != " + getSecLvl() + "]: Reason may be wrong password or hardware lock.");
+		}
 
 		sendDebug("Actual security lvl: " + getSecLvl(), 2);
 		setLoadProfile(new UNIFLO1200Profile(this));
@@ -142,11 +153,9 @@ public class UNIFLO1200 extends Modbus {
 		sendDebug("doTheDisConnect()", 5);
 	}
 
-	protected List doTheGetOptionalKeys() {
+	protected List<String> doTheGetOptionalKeys() {
 		sendDebug("doTheGetOptionalKeys()", 5);
-        List result = new ArrayList();
-        result.add("LoadProfileNumber");
-		return result;
+        return Collections.singletonList("LoadProfileNumber");
 	}
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
@@ -154,15 +163,17 @@ public class UNIFLO1200 extends Modbus {
 
         setLoadProfileNumber(Integer.parseInt(properties.getProperty("LoadProfileNumber","1").trim()));
 
-        if ((getLoadProfileNumber() > MAX_LOADPROFILE_NUMBER) || (getLoadProfileNumber() < MIN_LOADPROFILE_NUMBER))
-        	throw new InvalidPropertyException(
-        			"Invalid loadProfileNumber (" + getLoadProfileNumber() + ")! " +
-        			"Valid values are: '1' for INTERVAL_LOG, '2' for 24_HOUR_LOG or '3' for MONTH_LOG."
-        			);
+        if ((getLoadProfileNumber() > MAX_LOADPROFILE_NUMBER) || (getLoadProfileNumber() < MIN_LOADPROFILE_NUMBER)) {
+	        throw new InvalidPropertyException(
+			        "Invalid loadProfileNumber (" + getLoadProfileNumber() + ")! " +
+					        "Valid values are: '1' for INTERVAL_LOG, '2' for 24_HOUR_LOG or '3' for MONTH_LOG."
+	        );
+        }
 
 		if (getInfoTypePassword() != null) {
-			if (getInfoTypePassword().length() > 8)
+			if (getInfoTypePassword().length() > 8) {
 				throw new InvalidPropertyException("Password to long! Max length is 8 characters.");
+			}
 			while (getInfoTypePassword().length() < 8) setInfoTypePassword(getInfoTypePassword() + " ");
 		}
 	}
@@ -178,15 +189,15 @@ public class UNIFLO1200 extends Modbus {
 	}
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-    	StringBuffer strBuff = new StringBuffer();
+    	StringBuilder strBuff = new StringBuilder();
     	if (extendedLogging==1) {
     		Iterator it = ((UNIFLO1200RegisterFactory)getRegisterFactory()).getRegisters().iterator();
     		while (it.hasNext()) {
     			AbstractRegister ar = (AbstractRegister)it.next();
     			if (ar.getObisCode()!=null) {
-    				strBuff.append(ar.getObisCode().toString() + ", ");
-    				strBuff.append("unit = " + ar.getUnit() + ", ");
-    				strBuff.append("name = " + ar.getName());
+    				strBuff.append(ar.getObisCode().toString()).append(", ");
+    				strBuff.append("unit = ").append(ar.getUnit()).append(", ");
+    				strBuff.append("name = ").append(ar.getName());
     				strBuff.append("\n");
     			}
     		}
@@ -210,21 +221,6 @@ public class UNIFLO1200 extends Modbus {
 		this.loadProfile = loadProfile;
 	}
 
-	public static void main(String[] args) {
-		try {
-
-			UNIFLO1200Parsers uflp = new UNIFLO1200Parsers(null);
-
-			int[] values = {1,0};
-			UNIFLO1200Parsers.REAL32Parser parser = uflp.new REAL32Parser();
-			System.out.println("Result: " + parser.val(values, null));
-
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
     public void sendDebug(String message, int debuglvl) {
 		if (DEBUG == 0) {
 	    	message = " [" + new Date().toString() + "] > " + message;
@@ -236,6 +232,5 @@ public class UNIFLO1200 extends Modbus {
     		System.out.println(message);
     	}
     }
-
 
 }

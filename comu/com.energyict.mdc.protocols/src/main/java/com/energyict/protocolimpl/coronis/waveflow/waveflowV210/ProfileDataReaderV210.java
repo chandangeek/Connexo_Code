@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.coronis.waveflow.waveflowV210;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.ApplicationStatusParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
@@ -236,7 +237,7 @@ public class ProfileDataReaderV210 {
     private List<MeterEvent> buildMeterEvents(Date lastReading, Date toDate, boolean bubbleUpOrigin) throws IOException {
 
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        EventStatusAndDescription translator = new EventStatusAndDescription(waveFlowV1);
+        EventStatusAndDescription translator = new EventStatusAndDescription(waveFlowV1.getDeviceType());
 
         boolean usesInitialRFCommand = waveFlowV1.usesInitialRFCommand();
         if (!usesInitialRFCommand) {

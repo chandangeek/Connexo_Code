@@ -1,14 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
@@ -17,7 +18,6 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540EventProfile;
@@ -42,8 +42,8 @@ public class AM540 extends E350 {
     private static final String TIMEOUT = "timeout";
 
     @Inject
-    public AM540(Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public AM540(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService, clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
         setHasBreaker(false);
     }
 
@@ -79,7 +79,7 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
             RTUCache rtuCache = new RTUCache(rtuid, this.getOrmClient());
             try {
@@ -90,7 +90,7 @@ public class AM540 extends E350 {
                 return new AM540Cache();
             }
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
@@ -117,13 +117,13 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             AM540Cache dc = (AM540Cache) cacheObject;
             new RTUCache(rtuid, this.getOrmClient()).setBlob(dc);
 
         } else {
-            throw new BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

@@ -30,10 +30,6 @@ public class TimeCommand extends AbstractCommand {
         time=null;
     }
 
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateCommand(null)));
-    }
-
     protected byte[] prepareBuild() {
         if (getTime()==null)
            return new byte[]{(byte)0x01,0,0,0,0,0,0,0,0};

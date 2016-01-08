@@ -3,17 +3,17 @@ package com.energyict.protocolimpl.iec1107.abba1140;
 import com.energyict.protocolimpl.base.Encryptor;
 
 public class CAI700 implements Encryptor {
-    
+
     private static final int DEBUG=0;
-    
+
     static char[] C245hgj={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-    
+
     public CAI700(){}
-    
+
     public char[] CAIMETHOD(String CA27,String CA28) {
-        
+
         char[] CA29 = new char[16];
-        
+
         if (DEBUG >= 1) {
            System.out.println("pw: "+CA27);
            System.out.println("key: "+CA28);
@@ -22,22 +22,22 @@ public class CAI700 implements Encryptor {
         char[] K8057hwf=new char[9];
         char[] LI6348=new char[17];
         char CFG873,CFG837;
-        for(int i=0;i<8;i++) { 
+        for(int i=0;i<8;i++) {
             CfG7821[i]=CA27.charAt(i);
     }
-        
+
     CfG7821[8]='\0';
-    for (int i=0;i<16;i+=2) { 
+    for (int i=0;i<16;i+=2) {
         CFG873=CAIMETHODB(CA28.charAt(i));
         CFG837=CAIMETHODB(CA28.charAt(i+1));
         int iVal=(((int)CFG873)*16)+((int)CFG837);
         K8057hwf[i/2]=(char)iVal;
     }
-    
+
     K8057hwf[8]='\0';
-    for (int i=0;i<8;i++) { 
+    for (int i=0;i<8;i++) {
         LI6348[i]+=K8057hwf[i]^CfG7821[i];}LI6348[8]='\0';
-        for(int i=0;i<8;i++) { 
+        for(int i=0;i<8;i++) {
             int C396uia;
             C396uia=LI6348[i]+LI6348[i+7];
             C396uia=C396uia%256;
@@ -53,7 +53,7 @@ public class CAI700 implements Encryptor {
         C786fim=C612ops.charAt(0);
         int C871ilg=0;
         boolean f613idv=false;
-        while(!f613idv) { 
+        while(!f613idv) {
             if (C245hgj[C871ilg]==C786fim) {
                 f613idv=true;
             }
@@ -63,21 +63,9 @@ public class CAI700 implements Encryptor {
         }
         return (char)C871ilg;
     }
-    
+
     public String encrypt(String passWord, String key) {
         return new String(CAIMETHOD(passWord, key));
     }
-    
-    public static void main(String[] args) {
-        CAI700 pie = new CAI700();
-        char[] cEncryptPasswd;
-        cEncryptPasswd = pie.CAIMETHOD("FEDC0003", "29EDC6D335E59C87");
-        // debug
-        for (int i=0;i<cEncryptPasswd.length ; i++) {
-            System.out.print(cEncryptPasswd[i]);
-        }
-        System.out.println();
-    }    
-    
-    
-} // public class CAI700
+
+}

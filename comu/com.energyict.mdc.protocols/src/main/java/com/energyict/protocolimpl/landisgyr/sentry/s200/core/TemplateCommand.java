@@ -23,20 +23,11 @@ public class TemplateCommand extends AbstractCommand {
         super(cm);
     }
 
-    // =0x"+Integer.toHexString(
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateCommand(null)));
-    }
-
     protected void parse(byte[] data) throws IOException {
     }
 
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('?');
     }
-
-//    protected byte[] prepareData() throws IOException {
-//        return null;
-//    }
 
 }

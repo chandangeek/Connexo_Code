@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.CRCGenerator;
 
 import java.io.ByteArrayOutputStream;
@@ -32,22 +33,17 @@ public class Frame {
     public Frame() {
     }
 
-//        public static void main(String[] args) {
-//            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new Frame()));
-//        }
-
-
     public String toString() {
         // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("Frame:\n");
-        strBuff.append("   checkFrame="+isCheckFrame()+"\n");
-        strBuff.append("   confirm="+isConfirm()+"\n");
-        strBuff.append(ProtocolUtils.outputHexString(getData())+"\n");
-        strBuff.append("   dsdu="+getDsdu()+"\n");
-        strBuff.append("   send="+isSend()+"\n");
+        strBuff.append("   checkFrame=").append(isCheckFrame()).append("\n");
+        strBuff.append("   confirm=").append(isConfirm()).append("\n");
+        strBuff.append(ProtocolUtils.outputHexString(getData())).append("\n");
+        strBuff.append("   dsdu=").append(getDsdu()).append("\n");
+        strBuff.append("   send=").append(isSend()).append("\n");
         try {
-           strBuff.append("   text="+isText()+"\n");
+           strBuff.append("   text=").append(isText()).append("\n");
         }
         catch(IOException e) {
             e.printStackTrace();

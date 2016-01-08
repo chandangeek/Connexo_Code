@@ -2,17 +2,15 @@ package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile;
 
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  * <pre>
@@ -399,7 +397,7 @@ public class EventParser {
     }
 
     public String toString(){
-        StringBuffer rslt = new StringBuffer( );
+        StringBuilder rslt = new StringBuilder( );
 
         Iterator i = map.values().iterator();
         while(i.hasNext()) {
@@ -407,40 +405,6 @@ public class EventParser {
         }
 
         return rslt.toString();
-    }
-
-    /** contains all the test messages from the CEWE documentation for testing
-     * the EventParser */
-    public static void main(String [] args) throws IOException{
-
-        CewePrometer prometer = new CewePrometer();
-        prometer.init(null, null, TimeZone.getDefault(), Logger.getAnonymousLogger());
-        EventParser p = new EventParser(prometer);
-
-        System.out.println(p.toString());
-
-        // Test messages for debugging
-        String [] s = new String [] {
-            "1,010000000000", "2,9F5F8A410000", "3,000000000000",
-            "4,010000000000", "5,000000000000", "6,000000000000",
-            "7,000000000000", "8,000000000000", "9,010000000000",
-            "14,000000000000", "15,A20200000000", "16,550100000000",
-            "17,000000000000", "18,000000000000", "19,000000000000",
-            "20,000000000000", "21,000000000000", "22,000000000000",
-            "23,000000000000", "24,000000000000", "25,000000000000",
-            "26,000400000000", "27,010200000000", "28,042C01000000",
-            "29,031400000000", "30,030000000000", "42,000000000000",
-            "43,000000000000", "44,000000000000", "45,050000000000",
-            "46,000000000000", "1000,000000000000", "1001,000000000000",
-            "1002,000000000000", "1003,000000000000", "1004,000000000000",
-            "1005,000000000000", "1006,000000000000", "1007,000000000000",
-            "1008,000000000000", "1009,000000000000"
-        };
-
-        for (int i = 0; i < s.length; i++) {
-            System.out.println( i + " \t " + p.getMeterEvent(new Date(), s[i]));
-        }
-
     }
 
 }

@@ -1,18 +1,20 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.FirmwareVersion;
@@ -23,6 +25,7 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.EventParser;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.CeweRegisters;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ObisCodeMapper;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
+import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -173,9 +176,14 @@ public class CewePrometer extends AbstractProtocol  {
     private CeweDateFormats dateFormats = null;
     private CeweRegisters registers = null;
 
+    @Inject
+    public CewePrometer(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     /* (non-Javadoc)
-    * @see com.energyict.protocolimpl.base.AbstractProtocol#doInit(java.io.InputStream, java.io.OutputStream, int, int, int, int, int, com.energyict.protocolimpl.base.Encryptor, com.energyict.dialer.core.HalfDuplexController)
-    */
+        * @see com.energyict.protocolimpl.base.AbstractProtocol#doInit(java.io.InputStream, java.io.OutputStream, int, int, int, int, int, com.energyict.protocolimpl.base.Encryptor, com.energyict.dialer.core.HalfDuplexController)
+        */
     protected ProtocolConnection doInit(InputStream in, OutputStream out, int pTimeout, int pRetries, int pForcedDelay, int pEchoCancelling, int pCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         try {
             connection = new IEC1107Connection(in, out, pTimeout, pRetries, pForcedDelay, pEchoCancelling, pCompatible, "ER:", software7E1);

@@ -7,7 +7,6 @@
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -16,10 +15,10 @@ import java.util.StringTokenizer;
  * @author  Koen
  */
 public class CommandParser {
-    
+
     //byte[] data=null;
     String strData=null;
-    
+
     /** Creates a new instance of CommandParser */
     public CommandParser(byte[] data) {
         //this.data=data;
@@ -76,7 +75,7 @@ public class CommandParser {
         int count=index;
         while(strTok.hasMoreTokens()) {
             temp = strTok.nextToken();
-            if ((temp.indexOf(partialTag)>= 0) && (count-- == 0)) {
+            if ((temp.contains(partialTag)) && (count-- == 0)) {
                 temp = temp.substring(temp.indexOf(partialTag) + partialTag.length());
                 strTok = new StringTokenizer(temp,"\t");
                 List values = new ArrayList();
@@ -88,33 +87,5 @@ public class CommandParser {
         }
         return null;
     }
-    
-    private void printList(List list) {
-        if (list == null)
-            System.out.println("not found!");
-        else {
-            Iterator it = list.iterator();
-            while(it.hasNext()) {
-                String val = (String)it.next();
-                System.out.print(val+" ");
-            }
-            System.out.println();
-        }
-    }
-    
-    static public void main(String[] args) {
-        String test="\r\nLINE-1\t1201\t5678\t9087\r\nLINE-1\t2234\t0101\t5432\r\nLINE-1\t2024\t0102\t9876\r\n";
-        CommandParser cp = new CommandParser(test.getBytes());
-        cp.printList(cp.getValues("LINE-1"));
-        cp.printList(cp.getValues("LINE-2",1));
-        cp.printList(cp.getValues("LINE-1",2));
 
-        cp.printList(new ArrayList());
-
-        test="\n1125-1\t03EC\t0009\t0000\t0000\t0000\t0000\t0000\t0000\r\n1120-1\t03EC\t0009\t0000\t0000\t0000\t0000\t0000\t0010\n";
-        cp = new CommandParser(test.getBytes());
-        cp.printList(cp.getValuesForTagEndingWith("-1", 0));
-        cp.printList(cp.getValuesForTagEndingWith("-2", 0));
-        cp.printList(cp.getValuesForTagEndingWith("-1", 1));
-    }
 }

@@ -2,11 +2,12 @@ package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import org.w3c.dom.Document;
@@ -179,7 +180,7 @@ public class LoadProfile extends AbstractActarisObject {
     }
 
     private void parseAbsoluteLoadProfile(String scaleStr, String data) {
-        int scale = (scaleStr == null || scaleStr.equals("")) ? 0 : Integer.parseInt(scaleStr);
+        int scale = (scaleStr == null || scaleStr.isEmpty()) ? 0 : Integer.parseInt(scaleStr);
 
         byte[] decoded = new Base64EncoderDecoder().decode(data);
 

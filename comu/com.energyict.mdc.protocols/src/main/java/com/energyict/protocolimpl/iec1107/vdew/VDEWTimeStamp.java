@@ -21,9 +21,9 @@ import java.util.TimeZone;
  */
 public class VDEWTimeStamp {
 
-	static public final int MODE_WINTERTIME=0;
-	static public final int MODE_SUMMERTIME=1;
-	static public final int MODE_UTCTIME=2;
+	public static final int MODE_WINTERTIME=0;
+	public static final int MODE_SUMMERTIME=1;
+	public static final int MODE_UTCTIME=2;
 
 	private static final int MAXYEAR = 2050;
     private static final String YEAR = "yy";
@@ -88,13 +88,13 @@ public class VDEWTimeStamp {
         int monthIndex = getDateIndex(MONTH);
         int dayIndex = getDateIndex(DAY);
 
-        calendar.set(calendar.YEAR, (getYear1900_2000(time[yearIndex])));
-        calendar.set(calendar.MONTH, (time[monthIndex] - 1));
-        calendar.set(calendar.DAY_OF_MONTH, time[dayIndex]);
-		calendar.set(calendar.HOUR_OF_DAY,ProtocolUtils.bcd2byte(timePart,offset));
-		calendar.set(calendar.MINUTE,ProtocolUtils.bcd2byte(timePart,2+offset));
+        calendar.set(Calendar.YEAR, (getYear1900_2000(time[yearIndex])));
+        calendar.set(Calendar.MONTH, (time[monthIndex] - 1));
+        calendar.set(Calendar.DAY_OF_MONTH, time[dayIndex]);
+		calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.bcd2byte(timePart,offset));
+		calendar.set(Calendar.MINUTE,ProtocolUtils.bcd2byte(timePart,2+offset));
 		if ((timePart.length == 6) || (timePart.length == 7)) {
-			calendar.set(calendar.SECOND,ProtocolUtils.bcd2byte(timePart,4+offset));
+			calendar.set(Calendar.SECOND,ProtocolUtils.bcd2byte(timePart,4+offset));
 		}
 	}
 
@@ -132,13 +132,13 @@ public class VDEWTimeStamp {
         int dayIndex = getDateIndex(DAY);
 
         calendar = ProtocolUtils.getCleanCalendar(tz);
-        calendar.set(calendar.YEAR, (getYear1900_2000(time[yearIndex])));
-        calendar.set(calendar.MONTH, (time[monthIndex] - 1));
-        calendar.set(calendar.DAY_OF_MONTH, time[dayIndex]);
-        calendar.set(calendar.HOUR_OF_DAY, ProtocolUtils.bcd2byte(data, 6 + offset));
-        calendar.set(calendar.MINUTE, ProtocolUtils.bcd2byte(data, 8 + offset));
+        calendar.set(Calendar.YEAR, (getYear1900_2000(time[yearIndex])));
+        calendar.set(Calendar.MONTH, (time[monthIndex] - 1));
+        calendar.set(Calendar.DAY_OF_MONTH, time[dayIndex]);
+        calendar.set(Calendar.HOUR_OF_DAY, ProtocolUtils.bcd2byte(data, 6 + offset));
+        calendar.set(Calendar.MINUTE, ProtocolUtils.bcd2byte(data, 8 + offset));
         if ((data.length == 12) || (data.length == 13)) {
-            calendar.set(calendar.SECOND, ProtocolUtils.bcd2byte(data, 10 + offset));
+            calendar.set(Calendar.SECOND, ProtocolUtils.bcd2byte(data, 10 + offset));
         }
     }
 
@@ -173,33 +173,15 @@ public class VDEWTimeStamp {
 	 * Getter for property timeZone.
 	 * @return Value of property timeZone.
 	 */
-	public java.util.TimeZone getTimeZone() {
+	public TimeZone getTimeZone() {
 		return timeZone;
-	}
-
-	static public void main(String[] args) {
-		try {
-			VDEWTimeStamp vts = new VDEWTimeStamp(TimeZone.getTimeZone("ECT"));
-			vts.parse("20501101408");
-			System.out.println(vts.getCalendar().getTime()+", "+vts.getMode());
-			vts.parse("0501101408");
-			System.out.println(vts.getCalendar().getTime()+", "+vts.getMode());
-
-			vts.parse("2050210","02208");
-			System.out.println(vts.getCalendar().getTime()+", "+vts.getMode());
-
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
-
 	}
 
 	/**
 	 * Getter for property calendar.
 	 * @return Value of property calendar.
 	 */
-	public java.util.Calendar getCalendar() {
+	public Calendar getCalendar() {
 		return calendar;
 	}
 
@@ -214,6 +196,5 @@ public class VDEWTimeStamp {
 	private int getYear1900_2000(int year) {
 		return year + ((year <= (MAXYEAR - 2000) ? 2000 : 1900));
 	}
-
 
 }

@@ -1,16 +1,16 @@
 package com.energyict.protocols.impl.channels;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
-
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -45,13 +45,8 @@ public class EmptyConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return null;
+    public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
+        return Optional.empty();
     }
 
     @Override

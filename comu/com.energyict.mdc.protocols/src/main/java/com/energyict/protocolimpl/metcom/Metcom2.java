@@ -7,17 +7,21 @@
 package com.energyict.protocolimpl.metcom;
 
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
+import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +41,6 @@ KV|06042006|Add IntervalStatusBehaviour custom property to correct power fail st
  */
 public class Metcom2 extends Metcom{
 
-
     // TABENQ1(E1) list numbers
     protected final String REG_NR_OF_CHANNELS="60200";
     protected final String REG_PROFILEINTERVAL="70101";
@@ -47,39 +50,35 @@ public class Metcom2 extends Metcom{
     protected int iMeterProfileInterval=-1;
     protected int digitsPerDecade=-1;
 
-    /** Creates a new instance of Metcom2 */
-    public Metcom2() {
+    @Inject
+    public Metcom2(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
-
-    public int getDigitsPerDecade() throws UnsupportedException, IOException {
-        if (digitsPerDecade == -1)
+    public int getDigitsPerDecade() throws IOException {
+        if (digitsPerDecade == -1) {
             digitsPerDecade = Integer.parseInt(getRegister(DIGITS_PER_VALUE).trim());
+        }
         return digitsPerDecade;
     }
 
-//    private static final String[]  meterReadings = {"8.1","8.2","8.3","8.4","9.1","9.2","10.1","10.2","6.1","6.2","6.3","6.4","2.1","2.2","2.3","2.4"}; // KV at KP 27032003
-
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
-        //if (channelId > meterReadings.length) throw new IOException("Siemens7ED62, getMeterReading, invalid channelId");
-        //return getDumpData().getRegister(meterReadings[channelId]);
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
-        //return getDumpData().getRegister(name);
     }
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (iNROfChannels == -1) {
            iNROfChannels = Integer.parseInt(getRegister(REG_NR_OF_CHANNELS).trim());
         }
         return iNROfChannels;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (iMeterProfileInterval == -1) {
            iMeterProfileInterval = (Integer.parseInt(getRegister(REG_PROFILEINTERVAL).trim())*60);
         }
@@ -105,7 +104,7 @@ public class Metcom2 extends Metcom{
         return doGetProfileData(calendarFrom,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
            Calendar calendarFrom=ProtocolUtils.getCleanCalendar(getTimeZone());
            calendarFrom.setTime(from);
            Calendar calendarTo=ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -121,10 +120,10 @@ public class Metcom2 extends Metcom{
            SCTMTimeData to = new SCTMTimeData(calendarTo);
 
            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-           baos.write(getSCTMConnection().PERIODICBUFFERS);
+           baos.write(SiemensSCTM.PERIODICBUFFERS);
            baos.write(from.getBUFENQData());
            baos.write(to.getBUFENQData());
-           byte[] data = getSCTMConnection().sendRequest(getSCTMConnection().BUFENQ2, baos.toByteArray());
+           byte[] data = getSCTMConnection().sendRequest(SiemensSCTM.BUFENQ2, baos.toByteArray());
            if (data != null) {
                SCTMProfileSingleBufferMetcom2 sctmp = new SCTMProfileSingleBufferMetcom2(data);
                profileData = sctmp.getProfileData(getProfileInterval(),getTimeZone(), getNumberOfChannels(), getDigitsPerDecade(), isRemovePowerOutageIntervals(), getIntervalStatusBehaviour());
@@ -152,17 +151,17 @@ public class Metcom2 extends Metcom{
     public String getDefaultChannelMap() {
         return "";
     }
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("HalfDuplex");
-        result.add("RemovePowerOutageIntervals");
-        result.add("LogBookReadCommand");
-        result.add("IntervalStatusBehaviour");
-        result.add("TimeSetMethod");
-        result.add("Software7E1");
-        return result;
+
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "HalfDuplex",
+                    "RemovePowerOutageIntervals",
+                    "LogBookReadCommand",
+                    "IntervalStatusBehaviour",
+                    "TimeSetMethod",
+                    "Software7E1");
     }
 
     public String getProtocolVersion() {

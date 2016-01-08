@@ -4,6 +4,7 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -41,12 +42,6 @@ public class TrimaranObjectFactory {
 	 */
 	public TrimaranObjectFactory(Trimaran2P trimaran2P) {
 		setTrimaran(trimaran2P);
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
 	}
 
 	/**

@@ -1,6 +1,14 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
@@ -21,12 +29,6 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -34,7 +36,6 @@ import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -126,8 +127,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 
     protected int maxRecPduSize;
 
-    protected AbstractDLMSProtocol(OrmClient ormClient) {
-        super();
+    protected AbstractDLMSProtocol(PropertySpecService propertySpecService, OrmClient ormClient) {
+        super(propertySpecService);
         this.ormClient = ormClient;
     }
 
@@ -206,7 +207,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException {
         if (rtuid != 0) {
 
             /* Use the RTUCache to get the blob from the database */
@@ -222,7 +223,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException {
         if (rtuid != 0) {
             /* Use the RTUCache to set the blob (cache) to the database */
             RTUCache rtu = new RTUCache(rtuid, ormClient);

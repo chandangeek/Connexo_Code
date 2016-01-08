@@ -1,94 +1,96 @@
 package com.energyict.protocolimpl.elster.opus;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-public class Opus extends AbstractProtocol{
-	/**
-	 * ---------------------------------------------------------------------------------<p>
-	 * Protocol description:<p>
-	 * The protocol consists out of layers<p>
-	 * 1) Parsers object is the deepest layer handling serialization
-	 * 		and deserialization of matrixes and primitive types to byte arrays
-	 * <p>
-	 * 2) OpusBuildPacket inherits the Parsers object, this object is
-	 * 		responsible for the correct building and unpacking of the frames
-	 * 		it is both used for putting data in the right frame as feeding
-	 * 		it with a received frame as byte array to put it back into
-	 * 		a OpusBuildPacket object.  Deserializing the byte array allows
-	 * 		the user to get the data array from the object.<p>
-	 * <p>
-	 * 3) OpusCommandFactory deals with the commands.  The previously described
-	 * 		OpusBuildPacket is only called from here. The factory has 3 internal
-	 * 		layers: command selection, command building, command executing.
-	 * 		Basically this factory is an interface called each time the same way.
-	 * 		A number of globals should be set in the factory, some should be
-	 * 		passed with the command method.  Settings to be passed to the factory,
-	 * 		that don't have the property to change frequently are set by setters. Settings
-	 * 		that might change frequently are: type of command, number of attempts to
-	 * 		execute the command, timeout and a calendar object containing data on the
-	 * 		time frame to retrieve data from.
-	 * 		The command executing is done using 4 state machines, handling a total
-	 * 		of almost 70 commands.  Commands not yet implemented either because
-	 * 		they must not be used (setting special function registers in the meter) or
-	 * 		because they are related to other types of meters but were described in
-	 * 		the datasheet are all commands ranging from 121 to 999<p>
-	 *
-	 * <p>
-	 *  4) Opus: this is the meter protocol, in the connect method some meter props are
-	 *  	read.
-	 *  <p>
-	 *  Initial version:<p>
-	 *  ----------------<p>
-	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-	 *  Version: 1.0 <p>
-	 *  First edit date: 9/07/2008 PST<p>
-	 *  Last edit date: 31/07/2008  PST<p>
-	 *  Comments: Beta ready for testing<p>
-	 *  Released for testing: 31/07/2008<p>
-	 *  <p>
-	 *  Revisions<p>
-	 *  ----------------<p>
-	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-	 *  @Version:1.01<p>
-	 *  First edit date:13/08/2008 <p>
-	 *  Last edit date:13/08/2008 <p>
-	 *  Comments:changes in command factory: empty matrix handling and offset calculation <p>
-	 *  	debug, firmware problem solved with error throw<p>
-	 *  released for testing:13/08/2008
-	 *
-	 *  Author: <p>
-	 *  Version:<p>
-	 *  First edit date: <p>
-	 *  Last edit date: <p>
-	 *  Comments:<p>
-	 *  released for testing:<p>
-	 * ---------------------------------------------------------------------------------<p>
-	 *
-	 */
+/**
+ * ---------------------------------------------------------------------------------<p>
+ * Protocol description:<p>
+ * The protocol consists out of layers<p>
+ * 1) Parsers object is the deepest layer handling serialization
+ * 		and deserialization of matrixes and primitive types to byte arrays
+ * <p>
+ * 2) OpusBuildPacket inherits the Parsers object, this object is
+ * 		responsible for the correct building and unpacking of the frames
+ * 		it is both used for putting data in the right frame as feeding
+ * 		it with a received frame as byte array to put it back into
+ * 		a OpusBuildPacket object.  Deserializing the byte array allows
+ * 		the user to get the data array from the object.<p>
+ * <p>
+ * 3) OpusCommandFactory deals with the commands.  The previously described
+ * 		OpusBuildPacket is only called from here. The factory has 3 internal
+ * 		layers: command selection, command building, command executing.
+ * 		Basically this factory is an interface called each time the same way.
+ * 		A number of globals should be set in the factory, some should be
+ * 		passed with the command method.  Settings to be passed to the factory,
+ * 		that don't have the property to change frequently are set by setters. Settings
+ * 		that might change frequently are: type of command, number of attempts to
+ * 		execute the command, timeout and a calendar object containing data on the
+ * 		time frame to retrieve data from.
+ * 		The command executing is done using 4 state machines, handling a total
+ * 		of almost 70 commands.  Commands not yet implemented either because
+ * 		they must not be used (setting special function registers in the meter) or
+ * 		because they are related to other types of meters but were described in
+ * 		the datasheet are all commands ranging from 121 to 999<p>
+ *
+ * <p>
+ *  4) Opus: this is the meter protocol, in the connect method some meter props are
+ *  	read.
+ *  <p>
+ *  Initial version:<p>
+ *  ----------------<p>
+ *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ *  Version: 1.0 <p>
+ *  First edit date: 9/07/2008 PST<p>
+ *  Last edit date: 31/07/2008  PST<p>
+ *  Comments: Beta ready for testing<p>
+ *  Released for testing: 31/07/2008<p>
+ *  <p>
+ *  Revisions<p>
+ *  ----------------<p>
+ *  @author Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+ *  @version 1.01<p>
+ *  First edit date:13/08/2008 <p>
+ *  Last edit date:13/08/2008 <p>
+ *  Comments:changes in command factory: empty matrix handling and offset calculation <p>
+ *  	debug, firmware problem solved with error throw<p>
+ *  released for testing:13/08/2008
+ *
+ *  Author: <p>
+ *  Version:<p>
+ *  First edit date: <p>
+ *  Last edit date: <p>
+ *  Comments:<p>
+ *  released for testing:<p>
+ * ---------------------------------------------------------------------------------<p>
+ *
+ */
+public class Opus extends AbstractProtocol {
 
 	private ProtocolChannelMap channelMap=null;
 
@@ -110,14 +112,9 @@ public class Opus extends AbstractProtocol{
 
 	private TimeZone timezone;
 
-
-	public Opus(){
-	}
-
-	public Opus(String oldPassword, String newPassword, int outstationID){
-		this.oldPassword=oldPassword;
-		this.newPassword=newPassword;
-		this.outstationID=outstationID;
+	@Inject
+	public Opus(PropertySpecService propertySpecService) {
+		super(propertySpecService);
 	}
 
 	public void connect() throws IOException {
@@ -145,7 +142,7 @@ public class Opus extends AbstractProtocol{
 	public void disconnect() throws IOException {
 	}
 
-	public Object fetchCache(int arg0) throws SQLException, BusinessException {
+	public Object fetchCache(int arg0) {
 		return null;
 	}
 
@@ -153,12 +150,13 @@ public class Opus extends AbstractProtocol{
 		return null;
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		return this.firmwareVersion;
 	}
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
-        if (this.channelMap.getNrOfProtocolChannels() == -1)
-            throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
+	public int getNumberOfChannels() throws IOException {
+        if (this.channelMap.getNrOfProtocolChannels() == -1) {
+	        throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
+        }
 		return this.channelMap.getNrOfProtocolChannels();
 	}
 
@@ -174,12 +172,12 @@ public class Opus extends AbstractProtocol{
 		return getProfileData(fromTime, cal.getTime(), includeEvents);
 	}
 
-	public ProfileData getProfileData(Date fromTime, Date toTime, boolean event) throws IOException, UnsupportedException {
-		Calendar now=Calendar.getInstance(timezone);
+	public ProfileData getProfileData(Date fromTime, Date toTime, boolean event) throws IOException {
+		Calendar now= Calendar.getInstance(timezone);
 		Calendar endtime=Calendar.getInstance(timezone);
 		endtime.setTime(toTime);
 		long millis=endtime.getTimeInMillis();
-		if(now.getTimeInMillis()-1000*getProfileInterval()<millis){
+		if (now.getTimeInMillis()-1000*getProfileInterval()<millis) {
 			endtime.setTimeInMillis(millis-1000*getProfileInterval());
 			toTime=endtime.getTime();
 		}
@@ -188,7 +186,7 @@ public class Opus extends AbstractProtocol{
 		return ogpd.getProfileData(fromTime, toTime, event, this.channelMap, this.ocf, this.numChan, getProfileInterval(), this.attempts, this.timeOut);
 	}
 
-	public int getProfileInterval() throws UnsupportedException, IOException {
+	public int getProfileInterval() throws IOException {
 		return this.interval;
 	}
 
@@ -228,7 +226,7 @@ public class Opus extends AbstractProtocol{
 		ocf.command(101, attempts, timeOut, null);
 	}
 
-	public void initializeDevice() throws IOException, UnsupportedException {
+	public void initializeDevice() throws IOException {
 	}
 
 	public void release() throws IOException {
@@ -251,21 +249,15 @@ public class Opus extends AbstractProtocol{
 
 	}
 
-	public void updateCache(int arg0, Object arg1) throws SQLException,
-			BusinessException {
+	public void updateCache(int arg0, Object arg1) {
 	}
 
-	public List getOptionalKeys() {
-		ArrayList list = new ArrayList();
-		list.add("ChannelMap");
-		list.add("TimeOut");
-		return list;
+	public List<String> getOptionalKeys() {
+		return Arrays.asList("ChannelMap", "TimeOut");
 	}
 
-	public List getRequiredKeys() {
-		ArrayList list = new ArrayList();
-		list.add("Password");
-		return list;
+	public List<String> getRequiredKeys() {
+		return Collections.singletonList("Password");
 	}
 
 	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
