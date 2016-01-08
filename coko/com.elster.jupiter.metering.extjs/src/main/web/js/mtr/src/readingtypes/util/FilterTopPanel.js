@@ -64,12 +64,22 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
         {
             type: 'combobox',
             dataIndex: 'macroPeriod',
-            emptyText: Uni.I18n.translate('readingTypes.attribute.interval', 'MTR', 'Interval'),
+            emptyText: Uni.I18n.translate('readingTypes.attribute.timePeriodOfInterest', 'MTR', 'Time-period of interest'),
             displayField: 'displayName',
             valueField: 'code',
             multiSelect: true,
             itemId: 'reading-type-interval',
             store: 'Mtr.readingtypes.attributes.store.Interval'
+        },
+        {
+            type: 'combobox',
+            dataIndex: 'measurementPeriod',
+            emptyText: Uni.I18n.translate('readingTypes.attribute.time', 'MTR', 'Time'),
+            displayField: 'displayName',
+            valueField: 'code',
+            multiSelect: true,
+            itemId: 'reading-type-time',
+            store: 'Mtr.readingtypes.attributes.store.MeasuringPeriod'
         }
     ],
 
