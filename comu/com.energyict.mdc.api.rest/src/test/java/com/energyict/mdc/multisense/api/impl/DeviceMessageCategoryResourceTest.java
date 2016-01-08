@@ -33,7 +33,7 @@ public class DeviceMessageCategoryResourceTest extends MultisensePublicApiJersey
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(14);
         assertThat(model.<String>get("data[0].name")).isEqualTo("All");
         assertThat(model.<String>get("data[0].description")).isEqualTo("Description of All");
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devicemessagecategories/14");
 
     }
@@ -47,7 +47,7 @@ public class DeviceMessageCategoryResourceTest extends MultisensePublicApiJersey
         assertThat(model.<Integer>get("$.id")).isEqualTo(13);
         assertThat(model.<String>get("$.name")).isEqualTo("All");
         assertThat(model.<String>get("$.description")).isEqualTo("Description of All");
-        assertThat(model.<String>get("$.link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devicemessagecategories/13");
     }
 

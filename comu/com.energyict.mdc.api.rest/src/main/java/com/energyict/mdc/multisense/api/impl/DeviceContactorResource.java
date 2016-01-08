@@ -2,6 +2,8 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -23,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -65,6 +68,7 @@ public class DeviceContactorResource {
      * @statuscode 202 The contacter state was accepted and a message was created to send the state to the meter
      */
     @PUT
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
@@ -84,7 +88,9 @@ public class DeviceContactorResource {
                 path(DeviceMessageResource.class, "getDeviceMessage").
                 build(mRID, messageId);
 
-        return Response.accepted().location(uri).build();
+        LinkInfo linkInfo = new LinkInfo();
+        linkInfo.link = Link.fromUri(uri).build();
+        return Response.accepted(linkInfo).location(uri).build();
     }
 
     /**
@@ -138,6 +144,9 @@ public class DeviceContactorResource {
     }
 
     private DeviceMessageId getMessageId(ContactorInfo contactorInfo) {
+        if (contactorInfo.status==null) {
+            throw exceptionFactory.newException(MessageSeeds.EXPECTED_CONTACTOR_STATUS);
+        }
         // TODO load limiting DeviceMessageId.LOAD_BALANCING...
         switch (contactorInfo.status) {
             case connected:

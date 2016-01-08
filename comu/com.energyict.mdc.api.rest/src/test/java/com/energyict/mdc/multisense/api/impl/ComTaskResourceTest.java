@@ -27,9 +27,9 @@ public class ComTaskResourceTest extends MultisensePublicApiJerseyTest {
         DeviceMessageCategory cat4 = mockDeviceMessageCategory(111, "cat4");
         MessagesTask protocolTask = mock(MessagesTask.class);
         when(protocolTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(cat4));
-        ComTask comTask31 = mockComTask(31, "Last");
+        ComTask comTask31 = mockComTask(31, "Last", 3333L);
         when(comTask31.getProtocolTasks()).thenReturn(Collections.singletonList(protocolTask));
-        ComTask comTask32 = mockComTask(32, "Avante");
+        ComTask comTask32 = mockComTask(32, "Avante", 3333L);
         when(comTask32.getProtocolTasks()).thenReturn(Collections.emptyList());
         Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(comTask31, comTask32));
         when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
@@ -47,7 +47,7 @@ public class ComTaskResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Integer>get("data[0].categories[0].id")).isEqualTo(111);
         assertThat(model.<String>get("data[0].categories[0].link.params.rel")).isEqualTo("related");
         assertThat(model.<String>get("data[0].categories[0].link.href")).isEqualTo("http://localhost:9998/devicemessagecategories/111");
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/comtasks/31");
     }
 }

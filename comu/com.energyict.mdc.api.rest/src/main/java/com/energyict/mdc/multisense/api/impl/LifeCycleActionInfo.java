@@ -9,5 +9,5 @@ public class LifeCycleActionInfo extends LinkInfo {
     public String name;
     public Instant effectiveTimestamp;
     public Collection<PropertyInfo> properties;
-    public Long deviceVersion;
+    public LinkInfo device;
 }

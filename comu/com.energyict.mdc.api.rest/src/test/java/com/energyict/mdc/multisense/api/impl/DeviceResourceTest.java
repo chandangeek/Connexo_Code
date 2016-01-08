@@ -53,21 +53,21 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        DeviceType water = mockDeviceType(10, "water");
-        DeviceType gas = mockDeviceType(11, "gas");
-        DeviceType elec1 = mockDeviceType(101, "Electricity 1");
-        DeviceType elec2 = mockDeviceType(101, "Electricity 2");
-        DeviceType elec3 = mockDeviceType(101, "Electricity 3");
-        DeviceType elec4 = mockDeviceType(101, "Electricity 4");
-        DeviceType elec5 = mockDeviceType(101, "Electricity 5");
+        DeviceType water = mockDeviceType(10, "water", 3333L);
+        DeviceType gas = mockDeviceType(11, "gas", 3333L);
+        DeviceType elec1 = mockDeviceType(101, "Electricity 1", 3333L);
+        DeviceType elec2 = mockDeviceType(101, "Electricity 2", 3333L);
+        DeviceType elec3 = mockDeviceType(101, "Electricity 3", 3333L);
+        DeviceType elec4 = mockDeviceType(101, "Electricity 4", 3333L);
+        DeviceType elec5 = mockDeviceType(101, "Electricity 5", 3333L);
         Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(water, gas, elec1, elec2, elec3, elec4, elec5));
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
 
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(13L, "Default configuration", elec1);
-        Device device = mockDevice("DAV", "65749846514", deviceConfiguration);
-        deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration);
-        DeviceConfiguration deviceConfiguration2 = mockDeviceConfiguration(23L, "Default configuration", elec2);
-        Device device3 = mockDevice("PIO", "54687651356", deviceConfiguration2);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(13L, "Default configuration", elec1, 3333L);
+        Device device = mockDevice("DAV", "65749846514", deviceConfiguration, 3333L);
+        deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 223L);
+        DeviceConfiguration deviceConfiguration2 = mockDeviceConfiguration(23L, "Default configuration", elec2, 3333L);
+        Device device3 = mockDevice("PIO", "54687651356", deviceConfiguration2, 3333L);
         Finder<Device> deviceFinder = mockFinder(Arrays.asList(device, deviceXas, device3));
         when(this.deviceService.findAllDevices(any(Condition.class))).thenReturn(deviceFinder);
     }
@@ -119,7 +119,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<List>get("data")).hasSize(2);
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(1);
         assertThat(model.<String>get("data[0].name")).isEqualTo("action.name.1");
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/1");
         assertThat(model.<List>get("data[0].properties")).hasSize(1);
         assertThat(model.<String>get("data[0].properties[0].key")).isEqualTo("string.property");
@@ -128,7 +128,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Boolean>get("data[0].properties[0].required")).isEqualTo(true);
         assertThat(model.<Integer>get("data[1].id")).isEqualTo(2);
         assertThat(model.<String>get("data[1].name")).isEqualTo("action.name.2");
-        assertThat(model.<String>get("data[1].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[1].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[1].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/2");
         assertThat(model.<List>get("data[1].properties")).hasSize(1);
         assertThat(model.<String>get("data[1].properties[0].key")).isEqualTo("string.property");
@@ -146,7 +146,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
-        info.deviceVersion = 333L;
+        info.device = new LinkInfo();
+        info.device.version = 223L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();
@@ -179,7 +180,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
-        info.deviceVersion = 333L;
+        info.device = new LinkInfo();
+        info.device.version = 223L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         info.effectiveTimestamp = now;
@@ -254,7 +256,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, datePropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Collections.singletonList(executableAction1));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
-        info.deviceVersion = 333L;
+        info.device = new LinkInfo();
+        info.device.version = 223L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();
@@ -294,8 +297,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
 
     @Test
     public void testDeviceTypeWithConfig() throws Exception {
-        DeviceType serial = mockDeviceType(4, "Serial");
-        DeviceType serial2 = mockDeviceType(6, "Serial 2");
+        DeviceType serial = mockDeviceType(4, "Serial", 3333L);
+        DeviceType serial2 = mockDeviceType(6, "Serial 2", 3333L);
         Finder<DeviceType> finder = mockFinder(Arrays.asList(serial, serial2));
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
 

@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -32,18 +33,18 @@ import static java.util.stream.Collectors.toList;
 public class ConfigurationSecurityPropertySetResource {
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private final ConfigurationSecurityPropertySetFactory securityPropertySetInfoFactory;
+    private final ConfigurationSecurityPropertySetInfoFactory securityPropertySetInfoFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public ConfigurationSecurityPropertySetResource(DeviceConfigurationService deviceConfigurationService,
-                                                    ConfigurationSecurityPropertySetFactory securityPropertySetInfoFactory, ExceptionFactory exceptionFactory) {
+                                                    ConfigurationSecurityPropertySetInfoFactory securityPropertySetInfoFactory, ExceptionFactory exceptionFactory) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ConfigurationSecurityPropertySetInfo> getSecurityPropertySets(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigurationId,
@@ -61,7 +62,7 @@ public class ConfigurationSecurityPropertySetResource {
         return PagedInfoList.from(securityPropertySetInfos, queryParameters, uriBuilder, uriInfo);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{securityPropertySetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})

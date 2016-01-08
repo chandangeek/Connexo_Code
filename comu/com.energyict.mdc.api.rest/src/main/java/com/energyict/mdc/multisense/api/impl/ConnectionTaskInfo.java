@@ -5,6 +5,9 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 
@@ -12,12 +15,14 @@ import java.util.List;
  * Created by bvn on 7/13/15.
  */
 public class ConnectionTaskInfo extends LinkInfo {
+    @NotNull(groups = {POST.class, PUT.class})
     public ConnectionTaskType direction;
     public LinkInfo connectionMethod;
     @XmlJavaTypeAdapter(ConnectionTaskLifecycleStateAdapter.class)
     public ConnectionTask.ConnectionTaskLifecycleStatus status;
     public String connectionType;
     public LinkInfo comPortPool;
+    public LinkInfo device;
     public Boolean isDefault;
 
     // Scheduled

@@ -44,7 +44,7 @@ public class DeviceProtocolPluggableClassResourceTest extends MultisensePublicAp
         assertThat(model.<Integer>get("$.data[0].encryptionAccessLevels[0].id")).isEqualTo(3);
         assertThat(model.<String>get("$.data[0].encryptionAccessLevels[0].link.params.rel")).isEqualTo("related");
         assertThat(model.<String>get("$.data[0].encryptionAccessLevels[0].link.href")).isEqualTo("http://localhost:9998/pluggableclasses/31/encryptionaccesslevels/3");
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/pluggableclasses/31");
     }
 

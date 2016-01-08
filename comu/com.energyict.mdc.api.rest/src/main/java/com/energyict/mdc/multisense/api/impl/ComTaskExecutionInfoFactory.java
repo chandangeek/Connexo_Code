@@ -21,15 +21,20 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskExecutionInfo, ComTaskExecution> {
 
@@ -37,14 +42,52 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
     private final ConnectionTaskService connectionTaskService;
     private final SchedulingService schedulingService;
     private final TaskService taskService;
+    private final Provider<DeviceInfoFactory> deviceInfoFactoryProvider;
+    private final Provider<ConnectionTaskInfoFactory> connectionTaskInfoFactoryProvider;
+    private final Provider<ComTaskInfoFactory> comTaskInfoFactoryProvider;
+    private final Provider<ComScheduleInfoFactory> comScheduleInfoFactoryProvider;
 
     @Inject
-    public ComTaskExecutionInfoFactory(ExceptionFactory exceptionFactory, ConnectionTaskService connectionTaskService, SchedulingService schedulingService, TaskService taskService) {
+    public ComTaskExecutionInfoFactory(ExceptionFactory exceptionFactory, ConnectionTaskService connectionTaskService,
+                                       SchedulingService schedulingService, TaskService taskService,
+                                       Provider<DeviceInfoFactory> deviceInfoFactoryProvider,
+                                       Provider<ConnectionTaskInfoFactory> connectionTaskInfoFactoryProvider,
+                                       Provider<ComTaskInfoFactory> comTaskInfoFactoryProvider,
+                                       Provider<ComScheduleInfoFactory> comScheduleInfoFactoryProvider) {
         this.exceptionFactory = exceptionFactory;
         this.connectionTaskService = connectionTaskService;
         this.schedulingService = schedulingService;
         this.taskService = taskService;
+        this.deviceInfoFactoryProvider = deviceInfoFactoryProvider;
+        this.connectionTaskInfoFactoryProvider = connectionTaskInfoFactoryProvider;
+        this.comTaskInfoFactoryProvider = comTaskInfoFactoryProvider;
+        this.comScheduleInfoFactoryProvider = comScheduleInfoFactoryProvider;
     }
+
+    public LinkInfo asLink(ComTaskExecution comTaskExecution, Relation relation, UriInfo uriInfo) {
+        ComTaskExecutionInfo info = new ComTaskExecutionInfo();
+        copySelectedFields(info,comTaskExecution,uriInfo, Arrays.asList("id","version"));
+        info.link = link(comTaskExecution,relation,uriInfo);
+        return info;
+    }
+
+    public List<LinkInfo> asLink(Collection<ComTaskExecution> comTaskExecutions, Relation relation, UriInfo uriInfo) {
+        return comTaskExecutions.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
+    }
+
+    private Link link(ComTaskExecution comTaskExecution, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
+                .rel(relation.rel())
+                .title("ComTask execution")
+                .build(comTaskExecution.getDevice().getmRID(), comTaskExecution.getId());
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(ComTaskExecutionResource.class)
+                .path(ComTaskExecutionResource.class, "getComTaskExecution");
+    }
+
 
     public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, UriInfo uriInfo, Collection<String> fields) {
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
@@ -55,52 +98,32 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
     @Override
     protected Map<String, PropertyCopier<ComTaskExecutionInfo, ComTaskExecution>> buildFieldMap() {
         Map<String, PropertyCopier<ComTaskExecutionInfo, ComTaskExecution>> map = new HashMap<>();
-        map.put("id", (comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.id = comTaskExecution.getId());
-        map.put("link", ((comTaskExecutionInfo, comTaskExecution, uriInfo) ->
-            comTaskExecutionInfo.link = Link.fromUriBuilder(uriInfo.
-                    getBaseUriBuilder().
-                    path(ComTaskExecutionResource.class).
-                    path(ComTaskExecutionResource.class, "getComTaskExecution")).
-                    rel(LinkInfo.REF_SELF).
-                    title("Communication task execution").
-                    build(comTaskExecution.getDevice().getmRID(), comTaskExecution.getId())
-        ));
-        map.put("device", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> {
-            comTaskExecutionInfo.device = new LinkInfo();
+        map.put("id", (comTaskExecutionInfo, comTaskExecution, uriInfo) -> {
+            comTaskExecutionInfo.id = comTaskExecution.getId();
+            if (comTaskExecutionInfo.device==null) {
+                comTaskExecutionInfo.device = new LinkInfo();
+            }
             comTaskExecutionInfo.device.id = comTaskExecution.getDevice().getId();
-            comTaskExecutionInfo.device.link = Link.fromUriBuilder(uriInfo.
-                    getBaseUriBuilder().
-                    path(DeviceResource.class).
-                    path(DeviceResource.class, "getDevice")).
-                    rel(LinkInfo.REF_PARENT).
-                    title("Device").
-                    build(comTaskExecution.getDevice().getmRID());
-        }));
+        });
+        map.put("version", (comTaskExecutionInfo, comTaskExecution, uriInfo) -> {
+            comTaskExecutionInfo.version = comTaskExecution.getVersion();
+            if (comTaskExecutionInfo.device==null) {
+                comTaskExecutionInfo.device = new LinkInfo();
+            }
+            comTaskExecutionInfo.device.version = comTaskExecution.getDevice().getVersion();
+        });
+        map.put("link", ((comTaskExecutionInfo, comTaskExecution, uriInfo) ->
+            comTaskExecutionInfo.link = link(comTaskExecution, Relation.REF_SELF, uriInfo)));
+        map.put("device", ((comTaskExecutionInfo, comTaskExecution, uriInfo) ->
+            comTaskExecutionInfo.device = deviceInfoFactoryProvider.get().asLink(comTaskExecution.getDevice(), Relation.REF_PARENT, uriInfo)));
         map.put("connectionTask", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> {
             if (comTaskExecution.getConnectionTask().isPresent()) {
-                comTaskExecutionInfo.connectionTask = new LinkInfo();
-                comTaskExecutionInfo.connectionTask.id = comTaskExecution.getConnectionTask().get().getId();
-                comTaskExecutionInfo.connectionTask.link =
-                        Link.fromUriBuilder(uriInfo.
-                            getBaseUriBuilder().
-                            path(ConnectionTaskResource.class).
-                            path(ConnectionTaskResource.class, "getConnectionTask").
-                            resolveTemplate("mrid", comTaskExecution.getDevice().getmRID()).
-                            resolveTemplate("connectionTaskId", comTaskExecution.getConnectionTask().get().getId())).
-                        rel(LinkInfo.REF_RELATION).
-                        title("Connection Task").
-                        build();
+                comTaskExecutionInfo.connectionTask = connectionTaskInfoFactoryProvider.get().asLink(comTaskExecution.getConnectionTask().get(), Relation.REF_RELATION, uriInfo);
             }
         }));
         map.put("comTask", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> {
             if (SingleComTaskComTaskExecution.class.isAssignableFrom(comTaskExecution.getClass())) {
-                UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                        .path(ComTaskResource.class)
-                        .path(ComTaskResource.class, "getComTask");
-                comTaskExecutionInfo.comTask = new LinkInfo();
-                ComTask comTask1 = ((SingleComTaskComTaskExecution) comTaskExecution).getComTask();
-                comTaskExecutionInfo.comTask.id = comTask1.getId();
-                comTaskExecutionInfo.comTask.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("Communication task").build(comTask1.getId());
+                comTaskExecutionInfo.comTask = comTaskInfoFactoryProvider.get().asLink(((SingleComTaskComTaskExecution) comTaskExecution).getComTask(), Relation.REF_RELATION, uriInfo);
             }
         }));
         map.put("nextExecution", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.nextExecution = comTaskExecution.getNextExecutionTimestamp()));
@@ -109,15 +132,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         map.put("ignoreNextExecutionSpecForInbound", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.ignoreNextExecutionSpecForInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound()));
         map.put("schedule", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> {
             if (comTaskExecution.usesSharedSchedule()) {
-                UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                        .path(ComScheduleResource.class)
-                        .path(ComScheduleResource.class, "getComSchedule");
-                comTaskExecutionInfo.schedule = new LinkInfo();
-                comTaskExecutionInfo.schedule.link = Link.fromUriBuilder(uriBuilder)
-                        .rel(LinkInfo.REF_RELATION)
-                        .title("Shared communication schedule")
-                        .build(((ScheduledComTaskExecution) comTaskExecution).getComSchedule().getId());
-                comTaskExecutionInfo.schedule.id = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule().getId();
+                comTaskExecutionInfo.schedule = comScheduleInfoFactoryProvider.get().asLink(((ScheduledComTaskExecution) comTaskExecution).getComSchedule(), Relation.REF_RELATION, uriInfo);
             }
         }));
         map.put("type", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> {

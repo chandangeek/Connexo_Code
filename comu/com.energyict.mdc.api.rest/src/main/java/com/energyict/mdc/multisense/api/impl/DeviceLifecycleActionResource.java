@@ -6,6 +6,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -62,7 +63,7 @@ public class DeviceLifecycleActionResource {
         this.clock = clock;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{actionId}")
@@ -78,7 +79,7 @@ public class DeviceLifecycleActionResource {
     }
 
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<LifeCycleActionInfo> getDeviceExecutableActions(@PathParam("mrid") String mRID,
@@ -99,7 +100,7 @@ public class DeviceLifecycleActionResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
@@ -109,11 +110,14 @@ public class DeviceLifecycleActionResource {
                 @PathParam("actionId") long actionId,
                 @BeanParam JsonQueryParameters queryParameters,
                 LifeCycleActionInfo info){
-        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         if (info==null) {
             throw exceptionFactory.newException(MessageSeeds.CONTENT_EXPECTED);
         }
-        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.deviceVersion)
+        if (info.device == null || info.device.version == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device");
+        }
+        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
         ExecutableAction requestedAction = getExecutableActionByIdOrThrowException(actionId, device);
         if (requestedAction.getAction() instanceof AuthorizedTransitionAction){

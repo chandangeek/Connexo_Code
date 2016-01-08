@@ -4,6 +4,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -11,17 +12,19 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.DeviceLifeCycleActionViolationExceptionMapper;
+import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
 import com.energyict.mdc.multisense.api.impl.utils.RestExceptionMapper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -30,14 +33,21 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.hibernate.validator.HibernateValidator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Singleton;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import javax.validation.spi.ValidationProvider;
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -45,12 +55,10 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.multisense.public.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/comu", "app=MDC", "name=" + PublicRestApplication.COMPONENT_NAME, "version=v2.0"})
-public class PublicRestApplication extends Application implements TranslationKeyProvider {
-
-    private final Logger logger = Logger.getLogger(PublicRestApplication.class.getName());
+public class PublicRestApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "MRA"; // Mdc Rest Api
@@ -73,11 +81,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile Clock clock;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile CommunicationTaskService communicationTaskService;
 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
                 ExceptionLogger.class,
 
                 AuthenticationDeviceAccessLevelResource.class,
@@ -97,6 +105,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 DeviceMessageResource.class,
                 DeviceProtocolPluggableClassResource.class,
                 DeviceResource.class,
+                DeviceSecurityPropertySetResource.class,
                 DeviceTypeResource.class,
                 EncryptionDeviceAccessLevelResource.class,
                 PartialConnectionTaskResource.class,
@@ -163,6 +172,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
     public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
         this.deviceMessageService = deviceMessageService;
     }
@@ -185,6 +199,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -221,6 +240,27 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
+    private Factory<Validator> getValidatorFactory() {
+        return new Factory<Validator>() {
+            private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+                    .providerResolver(() -> ImmutableList.<ValidationProvider<?>>of(new HibernateValidator()))
+                    .configure()
+//                .constraintValidatorFactory(getConstraintValidatorFactory())
+                    .messageInterpolator(thesaurus)
+                    .buildValidatorFactory();
+
+            @Override
+            public Validator provide() {
+                return validatorFactory.getValidator();
+            }
+
+            @Override
+            public void dispose(Validator validator) {
+
+            }
+        };
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -243,33 +283,36 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(schedulingService).to(SchedulingService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(communicationTaskService).to(CommunicationTaskService.class);
+            bindFactory(getValidatorFactory()).to(Validator.class);
 
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
-            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class).in(Singleton.class);
-            bind(ExceptionFactory.class).to(ExceptionFactory.class).in(Singleton.class);
-            bind(ResourceHelper.class).to(ResourceHelper.class).in(Singleton.class);
+            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
 
-            bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class).in(Singleton.class);
-            bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class).in(Singleton.class);
-            bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class).in(Singleton.class);
-            bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class).in(Singleton.class);
-            bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class).in(Singleton.class);
-            bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class).in(Singleton.class);
-            bind(PartialConnectionTaskInfoFactory.class).to(PartialConnectionTaskInfoFactory.class).in(Singleton.class);
-            bind(ComTaskInfoFactory.class).to(ComTaskInfoFactory.class).in(Singleton.class);
-            bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class).in(Singleton.class);
-            bind(ProtocolTaskInfoFactory.class).to(ProtocolTaskInfoFactory.class).in(Singleton.class);
-            bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class).in(Singleton.class);
-            bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class).in(Singleton.class);
-            bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class).in(Singleton.class);
-            bind(ConfigurationSecurityPropertySetFactory.class).to(ConfigurationSecurityPropertySetFactory.class).in(Singleton.class);
-            bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class).in(Singleton.class);
-            bind(ComTaskEnablementInfoFactory.class).to(ComTaskEnablementInfoFactory.class).in(Singleton.class);
-            bind(ProtocolDialectConfigurationPropertiesInfoFactory.class).to(ProtocolDialectConfigurationPropertiesInfoFactory.class).in(Singleton.class);
-            bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class).in(Singleton.class);
-            bind(ComScheduleInfoFactory.class).to(ComScheduleInfoFactory.class).in(Singleton.class);
-            bind(DeviceMessageSpecificationInfoFactory.class).to(DeviceMessageSpecificationInfoFactory.class).in(Singleton.class);
-            bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class).in(Singleton.class);
+            bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
+            bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class);
+            bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class);
+            bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class);
+            bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);
+            bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class);
+            bind(PartialConnectionTaskInfoFactory.class).to(PartialConnectionTaskInfoFactory.class);
+            bind(ComTaskInfoFactory.class).to(ComTaskInfoFactory.class);
+            bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class);
+            bind(ProtocolTaskInfoFactory.class).to(ProtocolTaskInfoFactory.class);
+            bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class);
+            bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class);
+            bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class);
+            bind(ConfigurationSecurityPropertySetInfoFactory.class).to(ConfigurationSecurityPropertySetInfoFactory.class);
+            bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class);
+            bind(ComTaskEnablementInfoFactory.class).to(ComTaskEnablementInfoFactory.class);
+            bind(ProtocolDialectConfigurationPropertiesInfoFactory.class).to(ProtocolDialectConfigurationPropertiesInfoFactory.class);
+            bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class);
+            bind(ComScheduleInfoFactory.class).to(ComScheduleInfoFactory.class);
+            bind(DeviceMessageSpecificationInfoFactory.class).to(DeviceMessageSpecificationInfoFactory.class);
+            bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class);
+            bind(DeviceSecurityPropertySetInfoFactory.class).to(DeviceSecurityPropertySetInfoFactory.class);
         }
     }
 

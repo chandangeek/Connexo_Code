@@ -2,9 +2,11 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
-import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -18,9 +20,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -37,6 +36,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -62,7 +64,7 @@ public class DeviceMessageResource {
         this.deviceMessageService = deviceMessageService;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{messageId}")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
@@ -77,7 +79,7 @@ public class DeviceMessageResource {
     }
 
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public PagedInfoList<DeviceMessageInfo> getDeviceMessages(@PathParam("mrid") String mRID,
@@ -95,13 +97,23 @@ public class DeviceMessageResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public Response createDeviceMessage(@PathParam("mrid") String mrid, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        if (deviceMessageInfo.device==null || deviceMessageInfo.device.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device.version");
+        }
+        if (deviceMessageInfo.messageSpecification==null || deviceMessageInfo.messageSpecification.id==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_MESSAGE_SPEC_ID);
+        }
+        if (deviceMessageInfo.releaseDate==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_RELEASE_DATE);
+        }
+
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, deviceMessageInfo.device.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessageId deviceMessageId = DeviceMessageId.havingId(deviceMessageInfo.messageSpecification.id);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(deviceMessageInfo.releaseDate);
         DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService
@@ -128,17 +140,35 @@ public class DeviceMessageResource {
         return Response.created(uri).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     @Path("/{messageId}")
     public Response updateDeviceMessage(@PathParam("mrid") String mrid, @PathParam("messageId") long messageId,
                                         DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
+        if (deviceMessageInfo.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
+        }
+        if (deviceMessageInfo.device==null || deviceMessageInfo.device.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device.version");
+        }
+        if (deviceMessageInfo.messageSpecification==null || deviceMessageInfo.messageSpecification.id==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_MESSAGE_SPEC_ID);
+        }
+        if (deviceMessageInfo.releaseDate==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_RELEASE_DATE);
+        }
+        if (deviceMessageInfo.protocolInfo==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_PROTOCOL_INFO);
+        }
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, deviceMessageInfo.device.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
+        DeviceMessage deviceMessage = deviceMessageService.findAndLockDeviceMessageByIdAndVersion(messageId, deviceMessageInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
+        if (deviceMessage.getDevice().getId()!=device.getId()) {
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_MESSAGE);
+        }
 
         deviceMessage.setProtocolInformation(deviceMessageInfo.protocolInfo);
         deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
@@ -149,7 +179,7 @@ public class DeviceMessageResource {
         return Response.ok().entity(deviceMessageInfoFactory.from(reloadedDeviceMessage, uriInfo, Collections.emptyList())).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)

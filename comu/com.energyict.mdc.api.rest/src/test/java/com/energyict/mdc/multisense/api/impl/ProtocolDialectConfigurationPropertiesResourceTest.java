@@ -19,8 +19,8 @@ public class ProtocolDialectConfigurationPropertiesResourceTest extends Multisen
 
     @Test
     public void testAllGetProtocolDialectConfigurationPropertiesPaged() throws Exception {
-        DeviceType deviceType = mockDeviceType(21, "Some type");
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getId()).thenReturn(31L);
@@ -38,14 +38,14 @@ public class ProtocolDialectConfigurationPropertiesResourceTest extends Multisen
         assertThat(model.<List>get("data")).hasSize(1);
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(31);
         assertThat(model.<String>get("data[0].name")).isEqualTo("west vloms");
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devicetypes/21/deviceconfigurations/22/protocoldialectconfigurationproperties/31");
     }
 
     @Test
     public void testGetSingleProtocolDialectConfigurationPropertiesWithFields() throws Exception {
-        DeviceType deviceType = mockDeviceType(21, "Some type");
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getId()).thenReturn(31L);
@@ -65,8 +65,8 @@ public class ProtocolDialectConfigurationPropertiesResourceTest extends Multisen
     public void testProtocolDialectConfigurationPropertiesFields() throws Exception {
         Response response = target("/devicetypes/x/deviceconfigurations/x/protocoldialectconfigurationproperties").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(3);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "name");
+        assertThat(model.<List>get("$")).hasSize(4);
+        assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "name", "version");
     }
 
 

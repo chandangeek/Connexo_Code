@@ -1,33 +1,27 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.energyict.mdc.common.rest.UnitAdapter;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -36,6 +30,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Comparator;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -53,7 +49,7 @@ public class DeviceMessageEnablementResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     @Path("/{deviceMessageEnablementId}")
@@ -75,7 +71,7 @@ public class DeviceMessageEnablementResource {
         return deviceMessageEnablement;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public PagedInfoList<DeviceMessageEnablementInfo> getDeviceMessageEnablements(
@@ -106,19 +102,28 @@ public class DeviceMessageEnablementResource {
         return deviceMessageEnablementInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public Response createDeviceMessageEnablement(
             @PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
             DeviceMessageEnablementInfo info, @Context UriInfo uriInfo) {
-        DeviceConfiguration deviceConfiguration = deviceConfigurationService.
-                findDeviceType(deviceTypeId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE))
-                .getConfigurations().stream().filter(dc -> dc.getId() == deviceConfigId)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
+        if (info.deviceConfiguration==null || info.deviceConfiguration.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "deviceConfiguration.version");
+        }
+        if (info.deviceConfiguration.deviceType==null || info.deviceConfiguration.deviceType.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "deviceConfiguration.deviceType.version");
+        }
+        deviceConfigurationService.
+                findAndLockDeviceType(deviceTypeId, info.deviceConfiguration.deviceType.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_TYPE));
+
+        DeviceConfiguration deviceConfiguration = deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(deviceConfigId, info.deviceConfiguration.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
+        if (deviceConfiguration.getDeviceType().getId()!=deviceTypeId) {
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG);
+        }
         if (info.messageId==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_MESSAGE_ID);
         }

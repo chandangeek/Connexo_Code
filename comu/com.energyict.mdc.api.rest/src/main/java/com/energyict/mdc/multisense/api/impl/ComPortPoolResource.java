@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -42,25 +43,25 @@ public class ComPortPoolResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ComPortPoolInfo> getComPortPools(@BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         List<ComPortPoolInfo> page = ListPager.
                 of(engineConfigurationService.findAllComPortPools()).
                 from(queryParameters).stream().
-                map(cpp -> comPortPoolFactory.asHypermedia(cpp, uriInfo, fieldSelection.getFields())).
+                map(cpp -> comPortPoolFactory.from(cpp, uriInfo, fieldSelection.getFields())).
                 collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(ComPortPoolResource.class);
         return PagedInfoList.from(page, queryParameters, uriBuilder, uriInfo);
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ComPortPoolInfo getComPortPool(@PathParam("id") long id, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         ComPortPool comPortPool = engineConfigurationService.findComPortPool(id).orElseThrow(() -> exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NOT_FOUND));
-        return comPortPoolFactory.asHypermedia(comPortPool, uriInfo, fieldSelection.getFields());
+        return comPortPoolFactory.from(comPortPool, uriInfo, fieldSelection.getFields());
     }
 }

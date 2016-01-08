@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
@@ -16,10 +17,11 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,10 +40,35 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
     private final DeviceLifeCycleService deviceLifeCycleService;
 
     @Inject
-    public DeviceInfoFactory(BatchService batchService, TopologyService topologyService, DeviceLifeCycleService deviceLifeCycleService) {
+    public DeviceInfoFactory(BatchService batchService, TopologyService topologyService,
+                             DeviceLifeCycleService deviceLifeCycleService) {
         this.batchService = batchService;
         this.topologyService = topologyService;
         this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
+    public LinkInfo asLink(Device device, Relation relation, UriInfo uriInfo) {
+        DeviceInfo info = new DeviceInfo();
+        copySelectedFields(info, device, uriInfo, Arrays.asList("id", "version"));
+        info.link = link(device,relation,uriInfo);
+        return info;
+    }
+
+    public List<LinkInfo> asLink(Collection<Device> devices, Relation relation, UriInfo uriInfo) {
+        return devices.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
+    }
+
+    private Link link(Device device, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
+                .rel(relation.rel())
+                .title("Device")
+                .build(device.getmRID());
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(DeviceResource.class)
+                .path(DeviceResource.class, "getDevice");
     }
 
     public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, Collection<String> fields) {
@@ -57,7 +84,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
     protected Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceInfo, Device>> map = new HashMap<>();
         map.put("id", (deviceInfo, device, uriInfo) -> deviceInfo.id = device.getId());
-        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel(LinkInfo.REF_SELF).title("self reference").build(device.getmRID()));
+        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = link(device, Relation.REF_SELF, uriInfo));
         map.put("name", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
         map.put("mRID", (deviceInfo, device, uriInfo) -> deviceInfo.mRID = device.getmRID());
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());
@@ -92,7 +119,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                 deviceInfo.masterDevice = new DeviceInfo();
                 deviceInfo.masterDevice.mRID = physicalGateway.get().getmRID();
                 UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").resolveTemplate("mrid", physicalGateway.get().getmRID());
-                deviceInfo.masterDevice.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("gateway").build();
+                deviceInfo.masterDevice.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).title("gateway").build();
             }
         });
         map.put("slaveDevices", (deviceInfo, device, uriInfo) -> {
@@ -117,7 +144,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                     map(connectionTask -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = connectionTask.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("Connection method").build(connectionTask.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).title("Connection method").build(connectionTask.getId());
                         return linkInfo;
                     }).
                     collect(toList());
@@ -125,12 +152,12 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
         map.put("deviceConfiguration", (deviceInfo, device, uriInfo) -> {
             deviceInfo.deviceConfiguration = new DeviceConfigurationInfo();
             deviceInfo.deviceConfiguration.id = device.getDeviceConfiguration().getId();
-            deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
+            deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel(Relation.REF_PARENT.rel()).title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
             deviceInfo.deviceConfiguration.deviceType = new LinkInfo();
             deviceInfo.deviceConfiguration.deviceType.id = device.getDeviceType().getId();
             deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(
                     uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}"))
-                    .rel(LinkInfo.REF_PARENT)
+                    .rel(Relation.REF_PARENT.rel())
                     .title("Device type")
                     .build(device.getDeviceType().getId());
         });
@@ -144,7 +171,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                                 .resolveTemplate("mrid", msg.getDevice().getmRID());
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = msg.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("Device message").build(msg.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).title("Device message").build(msg.getId());
                         return linkInfo;
                     }).collect(toList());
         });
@@ -157,17 +184,17 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                     .map(cte->{
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = cte.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("Communication task execution").build(cte.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).title("Communication task execution").build(cte.getId());
                         return linkInfo;
                     })
                     .collect(toList());
 
             deviceInfo.deviceConfiguration = new DeviceConfigurationInfo();
             deviceInfo.deviceConfiguration.id = device.getDeviceConfiguration().getId();
-            deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
+            deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel(Relation.REF_PARENT.rel()).title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
             deviceInfo.deviceConfiguration.deviceType = new LinkInfo();
             deviceInfo.deviceConfiguration.deviceType.id = device.getDeviceType().getId();
-            deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device type").build(device.getDeviceType().getId());
+            deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel(Relation.REF_PARENT.rel()).title("Device type").build(device.getDeviceType().getId());
         });
         return map;
     }
@@ -179,7 +206,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                 path(DeviceResource.class).
                 path(DeviceResource.class, "getDevice").
                 resolveTemplate("mrid", device.getmRID());
-        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("slave device").build();
+        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).title("slave device").build();
         return linkInfo;
     }
 
