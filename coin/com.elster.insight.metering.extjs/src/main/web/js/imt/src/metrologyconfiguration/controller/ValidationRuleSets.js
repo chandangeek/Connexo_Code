@@ -279,8 +279,8 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationRuleSets', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removeConfirmation', 'IMT', 'Remove \'{0}\'?', [record.data.name]),
-            msg: Uni.I18n.translate('validation.deviceconfig.remove.confirmation.msg', 'IMT',
-                'This validation rule set type will no longer be available on the device configuration.'),
+            msg: Uni.I18n.translate('validation.metrologyconfig.remove.confirmation.msg', 'IMT',
+                'This validation rule set type will no longer be available on the metrology configuration.'),
             config: {
                 me: me,
                 record: record

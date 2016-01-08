@@ -12,11 +12,11 @@ Ext.define('Imt.metrologyconfiguration.view.validation.RuleSetActionMenu', {
             itemId: 'viewRuleSet',
             action: 'viewRuleSet'
         },
-        {
-            text: Uni.I18n.translate('general.remove', 'IMT', 'Remove'),
-            privileges: Cfg.privileges.Validation.deviceConfiguration,
-            itemId: 'removeRuleSet',
-            action: 'removeRuleSet'
-        }
+//        {
+//            text: Uni.I18n.translate('general.remove', 'IMT', 'Remove'),
+//            privileges: Cfg.privileges.Validation.deviceConfiguration,
+//            itemId: 'removeRuleSet',
+//            action: 'removeRuleSet'
+//        }
     ]
 });

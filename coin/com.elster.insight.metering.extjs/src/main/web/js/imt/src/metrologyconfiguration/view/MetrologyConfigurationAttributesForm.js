@@ -53,25 +53,15 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                     }, 
                     {
                         xtype: 'fieldcontainer',
-        //                columnWidth: 0.5,
                         fieldLabel: Uni.I18n.translate('general.validationRuleSets', 'IMT', 'Validation rule sets'),
-       //                 labelAlign: 'right',
-//                        layout: {
-//                            type: 'vbox'
-//                        },
                         defaults: {
                             xtype: 'button',
                             ui: 'link',
                             href: '#/administration/metrologyconfiguration/' + me.mcid + '/associatedvalidationrulesets', 
-                           // href: 'javascript:void(0)'
                         },
                         items: [
                             {
                                 name: 'validationRuleSetCount',
-                              //  xtype: 'button',
-                              //  ui: 'link',
-                              //  href: '#/administration/metrologyconfiguration',
-                              //  text: Uni.I18n.translate('deviceconfig.registerconfigs', 'IMT', 'Validation rule set(s)'),
                                 text: Uni.I18n.translatePlural('general.validationRuleSets', me.count, 'IMT',
                                         'No validation rule sets', '1 validation rule set', '{0} validation rule sets'),
                                 itemId: 'validationRuleSetLink'

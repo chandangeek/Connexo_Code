@@ -21,7 +21,6 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     ],
     refs: [
         {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'},
-//        {ref: 'validationRuleSetLink', selector: '#validationRuleSetLink'},
     ],
 
     init: function () {
@@ -35,7 +34,6 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
             metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
             linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-           // validationRuleSetLink,
             count,
             actualModel,
             actualForm;  
@@ -62,13 +60,6 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
                 widget.down('metrologyConfigurationActionMenu').record=record;
-
-//                validationRuleSetLink = me.getValidationRuleSetLink();
-//                validationRuleSetLink.href = '#/administration/metrologyconfiguration/' + encodeURIComponent(id) + '/associatedvalidationrulesets';
-//                validationRuleSetLink.setText( 
-//                    Uni.I18n.translatePlural('general.validationRuleSets', linkedStore.getCount(), 'IMT',
-//                        'No validation rule sets', '1 validation rule set', '{0} validation rule sets'));
-//                validationRuleSetLink.enable();
                 pageMainContent.setLoading(false);
 
             }

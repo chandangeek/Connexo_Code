@@ -29,15 +29,15 @@ Ext.define('Imt.metrologyconfiguration.view.validation.RuleSetView', {
                     reasons: [
                         Uni.I18n.translate('validation.empty.versions.list.item1', 'IMT', 'No validation rule set versions have been added yet.'),
                     ],
-                    stepItems: [
-                        {
-							text: Uni.I18n.translate('validation.addValidationRulesetVersion', 'IMT', 'Add validation rule set version'),
-                            privileges : Cfg.privileges.Validation.deviceConfiguration,
-                            ui: 'action',
-                            action: 'addValidationVersion',
-                            href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/versions/add'
-                        }
-                    ]
+//                    stepItems: [
+//                        {
+//							text: Uni.I18n.translate('validation.addValidationRulesetVersion', 'IMT', 'Add validation rule set version'),
+//                            privileges : Cfg.privileges.Validation.deviceConfiguration,
+//                            ui: 'action',
+//                            action: 'addValidationVersion',
+//                            href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/versions/add'
+//                        }
+//                    ]
                 },
                 grid: {
                     xtype: 'validation-versions-grid',
@@ -61,13 +61,13 @@ Ext.define('Imt.metrologyconfiguration.view.validation.RuleSetView', {
 
         me.setTitle(validationRuleSet.get('name'));
         me.validationRuleSetId = validationRuleSet.get('id');
-        if (addButton.rendered) {
-            addButton.setHref(href);
-        } else {
-            addButton.on('afterrender', function() {
-                addButton.setHref(href);
-            }, me, {single:true});
-        }
+//        if (addButton.rendered) {
+//            addButton.setHref(href);
+//        } else {
+//            addButton.on('afterrender', function() {
+//                addButton.setHref(href);
+//            }, me, {single:true});
+//        }
 
         grid.store.load({params: {
             ruleSetId: me.validationRuleSetId

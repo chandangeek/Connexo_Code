@@ -49,14 +49,14 @@ Ext.define('Imt.metrologyconfiguration.view.validation.RuleSetsGrid', {
                 displayMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMsgRuleSet', 'IMT', '{0} - {1} of {2} validation rule sets'),
                 displayMoreMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMoreMsgRuleSet', 'IMT', '{0} - {1} of more than {2} validation rule sets'),
                 emptyMsg: Uni.I18n.translate('validation.pagingtoolbartop.emptyMsgRuleSet', 'IMT', 'There are no validation rule sets to display'),
-                items: [
-                    {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('validation.addValidationRuleSets', 'IMT', 'Add validation rule sets'),
-                    //    privileges: Cfg.privileges.Validation.deviceConfiguration,
-                        href: '#/administration/metrologyconfiguration/' + encodeURIComponent(me.mcid) + '/associatedvalidationrulesets/addruleset'
-                    }
-                ]
+//                items: [
+//                    {
+//                        xtype: 'button',
+//                        text: Uni.I18n.translate('validation.addValidationRuleSets', 'IMT', 'Add validation rule sets'),
+//                    //    privileges: Cfg.privileges.Validation.deviceConfiguration,
+//                        href: '#/administration/metrologyconfiguration/' + encodeURIComponent(me.mcid) + '/associatedvalidationrulesets/addruleset'
+//                    }
+//                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',

@@ -7,7 +7,6 @@ Ext.define('Imt.metrologyconfiguration.view.validation.RulesOverview', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Imt.metrologyconfiguration.view.validation.RuleSetsGrid',
         'Imt.metrologyconfiguration.view.validation.RulesGrid',
- //       'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Imt.metrologyconfiguration.view.validation.RuleSetView'
     ],
 
@@ -25,8 +24,6 @@ Ext.define('Imt.metrologyconfiguration.view.validation.RulesOverview', {
                     {
                         xtype: 'metrology-configuration-side-menu',
                         itemId: 'stepsMenu',
-//                        deviceTypeId: me.deviceTypeId,
-//                        deviceConfigurationId: me.deviceConfigId,
                         router: me.router,
                         mcid: me.mcid
                     }
@@ -46,8 +43,6 @@ Ext.define('Imt.metrologyconfiguration.view.validation.RulesOverview', {
                         grid: {
                             xtype: 'validation-rulesets-grid',
                             itemId: 'grd-validation-rule-sets',
-//                            deviceTypeId: me.deviceTypeId,
-//                            deviceConfigId: me.deviceConfigId
                             router: me.router,
                             mcid: me.mcid
                         },
@@ -59,13 +54,13 @@ Ext.define('Imt.metrologyconfiguration.view.validation.RulesOverview', {
                                 Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item1', 'IMT', 'No validation rule sets have been defined yet.'),
                                 Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item2', 'IMT', 'Validation rule sets exist, but you do not have permission to view them.')
                             ],
-                            stepItems: [
-                                {
-                                    text: Uni.I18n.translate('validation.addValidationRuleSets', 'IMT', 'Add validation rule sets'),
-                              //      privileges : Cfg.privileges.Validation.deviceConfiguration,
-                                    href: '#/administration/metrologyconfiguration/' + me.mcid + '/associatedvalidationrulesets/addruleset'
-                                }
-                            ]
+//                            stepItems: [
+//                                {
+//                                    text: Uni.I18n.translate('validation.addValidationRuleSets', 'IMT', 'Add validation rule sets'),
+//                              //      privileges : Cfg.privileges.Validation.deviceConfiguration,
+//                                    href: '#/administration/metrologyconfiguration/' + me.mcid + '/associatedvalidationrulesets/addruleset'
+//                                }
+//                            ]
                         },
                         previewComponent: {
                             xtype: 'validation-ruleset-view'
