@@ -86,7 +86,7 @@ Ext.define('Dsh.controller.Connections', {
             'connections-details #communicationsdetails': {
                 selectionchange: this.onCommunicationSelectionChange
             },
-            '#connectionsActionMenu': {
+            '#connectionsDetailsActionMenu': {
                 show: this.initConnectionMenu,
                 click: this.chooseAction
             },

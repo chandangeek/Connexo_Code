@@ -97,7 +97,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 xtype: 'uni-actioncolumn',
                 menu: {
                     xtype: 'connection-action-menu',
-                    itemId: 'connectionsActionMenu'
+                    itemId: 'connectionsDetailsActionMenu'
                 }
             }
         ]
