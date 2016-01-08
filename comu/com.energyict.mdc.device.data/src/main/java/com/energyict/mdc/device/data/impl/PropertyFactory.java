@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
-
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.google.common.collect.Range;
+import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
 import java.time.Instant;
 import java.util.List;
@@ -23,15 +21,7 @@ public interface PropertyFactory<T extends HasDynamicProperties, PT extends Plug
      * @param date The Date
      * @return The properties that are active on the specified Date.
      */
-    public List<PT> loadProperties (Instant date);
-
-    /**
-     * Loads the properties that are active in the specified TimePeriod.
-     *
-     * @param period The TimePeriod
-     * @return The properties that are active in the specified TimePeriod.
-     */
-    public List<PT> loadProperties (Range<Instant> period);
+    List<PT> loadProperties(Instant date);
 
     /**
      * Creates a new PT with the specified name and value
@@ -42,6 +32,6 @@ public interface PropertyFactory<T extends HasDynamicProperties, PT extends Plug
      * @param activeDate The Date on which the value becomes active
      * @return The newly created PT
      */
-    public PT newProperty(String name, Object value, Instant activeDate);
+    PT newProperty(String name, Object value, Instant activeDate);
 
 }

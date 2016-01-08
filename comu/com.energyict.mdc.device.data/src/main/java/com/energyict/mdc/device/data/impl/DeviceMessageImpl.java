@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 /**
  * Straightforward implementation of a ServerDeviceMessage
  */
-@ValidDeviceMessageId(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
+@ValidDeviceMessageId(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
 @UserHasTheMessagePrivilege(groups = {Save.Create.class, Save.Update.class})
 @HasValidDeviceMessageAttributes(groups = {Save.Create.class, Save.Update.class})
 public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> implements ServerDeviceMessage {

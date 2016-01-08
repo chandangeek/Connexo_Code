@@ -53,7 +53,6 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(ValidationService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(Clock.class);
-        requireBinding(RelationService.class);
         requireBinding(ProtocolPluggableService.class);
         requireBinding(SchedulingService.class);
         requireBinding(DeviceMessageSpecificationService.class);

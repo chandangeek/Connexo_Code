@@ -1,7 +1,21 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -282,9 +296,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         if (newDefaultConnectionTask != null) {
             newDefaultConnectionTask.setAsDefault();
         }
-        else {
-            this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARDEFAULT.topic(), device);
-        }
     }
 
     private void clearOldDefault(Device device, ConnectionTaskImpl newDefaultConnectionTask) {
@@ -293,7 +304,10 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 .stream()
                 .filter(connectionTask -> isPreviousDefault(newDefaultConnectionTask, connectionTask))
                 .map(ConnectionTaskImpl.class::cast)
-                .forEach(ConnectionTaskImpl::clearDefault);
+                .forEach(connectionTask -> {
+                    connectionTask.clearDefault();
+                    this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARDEFAULT.topic(), connectionTask);
+                });
     }
 
     @Override

@@ -16,13 +16,8 @@ public class ChannelReadingTypeUnitOfMeasureSearchableProperty extends AbstractR
     }
 
     @Override
-    public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addChannelSpec();
-    }
-
-    @Override
-    public String getSpecTableAlias() {
-        return "ch_msr_type";
+    public String getMeasurementTypeJoinSql() {
+        return "DTC_CHANNELSPEC join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.ID = DTC_CHANNELSPEC.CHANNELTYPEID";
     }
 
     @Override

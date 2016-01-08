@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -29,44 +30,46 @@ import java.util.Map;
  */
 public interface DeviceDataModelService {
 
-    DataModel dataModel();
+    public DataModel dataModel();
 
-    Thesaurus thesaurus();
+    public Thesaurus thesaurus();
 
-    Clock clock();
+    public Clock clock();
 
-    SchedulingService schedulingService();
+    public SchedulingService schedulingService();
 
-    EngineConfigurationService engineConfigurationService();
+    public EngineConfigurationService engineConfigurationService();
 
-    KpiService kpiService();
+    public KpiService kpiService();
 
-    TaskService taskService();
+    public TaskService taskService();
 
-    ProtocolPluggableService protocolPluggableService();
+    public ProtocolPluggableService protocolPluggableService();
 
-    DeviceConfigurationService deviceConfigurationService();
+    public DeviceConfigurationService deviceConfigurationService();
 
-    ServerConnectionTaskService connectionTaskService();
+    TransactionService getTransactionService();
 
-    ConnectionTaskReportService connectionTaskReportService();
+    public ServerConnectionTaskService connectionTaskService();
 
-    ServerCommunicationTaskService communicationTaskService();
+    public ServerCommunicationTaskService communicationTaskService();
 
-    CommunicationTaskReportService communicationTaskReportService();
+    public ServerDeviceService deviceService();
 
-    ServerDeviceService deviceService();
+    public DataCollectionKpiService dataCollectionKpiService();
 
-    DataCollectionKpiService dataCollectionKpiService();
+    public BatchService batchService();
 
-    BatchService batchService();
+    public MessageService messageService();
 
-    void executeUpdate(SqlBuilder sqlBuilder);
+    public JsonService jsonService();
 
-    Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider);
+    public void executeUpdate(SqlBuilder sqlBuilder);
 
-    Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder);
+    public Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider);
 
-    Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters);
+    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder);
+
+    public Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters);
 
 }

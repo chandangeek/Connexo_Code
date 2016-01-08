@@ -52,6 +52,8 @@ import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -62,6 +64,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -90,6 +93,7 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -109,30 +113,16 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationFinder;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
 import com.energyict.mdc.device.config.impl.FiniteStateFinder;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTypeFinder;
-import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
-import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
-import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
-import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
-import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
+import com.energyict.mdc.device.data.impl.finders.*;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
-import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.ModemConnectionType;
-import com.energyict.mdc.device.data.impl.tasks.ModemNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
+import com.energyict.mdc.device.data.impl.tasks.*;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -160,7 +150,6 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -169,15 +158,16 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -192,15 +182,14 @@ import static org.mockito.Mockito.*;
 public class InMemoryIntegrationPersistence {
 
     private BundleContext bundleContext;
-    private Principal principal;
+    private User principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
     private EventService eventService;
     private NlsService nlsService;
     private static final Clock clock = mock(Clock.class);
     private JsonService jsonService;
-    private RelationService relationService;
+    private CustomPropertySetService customPropertySetService;
     private EngineConfigurationService engineConfigurationService;
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
@@ -230,6 +219,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
     private FiniteStateMachineService finiteStateMachineService;
+    private Injector injector;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -251,13 +241,13 @@ public class InMemoryIntegrationPersistence {
         when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(any(PluggableClass.class))).thenReturn(new SimpleDiscoveryProtocol());
         deviceProtocolService = mock(DeviceProtocolService.class);
         when(deviceProtocolService.createProtocol(DeviceMessageImplTest.MessageTestDeviceProtocol.class.getName())).thenReturn(new DeviceMessageImplTest.MessageTestDeviceProtocol());
-        when(deviceProtocolService.createProtocol(TestProtocol.class.getName())).thenReturn(new TestProtocol());
+        when(deviceProtocolService.createProtocol(TestProtocol.class.getName())).thenReturn(new TestProtocol(propertySpecService));
         TestProtocolWithRequiredStringAndOptionalNumericDialectProperties testProtocolThatUseMocking = new TestProtocolWithRequiredStringAndOptionalNumericDialectProperties();
         when(deviceProtocolService.createProtocol(TestProtocolWithRequiredStringAndOptionalNumericDialectProperties.class.getName())).thenReturn(testProtocolThatUseMocking);
         Properties properties = new Properties();
         properties.put("protocols", "all");
         when(license.getLicensedValues()).thenReturn(properties);
-        Injector injector = Guice.createInjector(
+        injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
@@ -288,6 +278,7 @@ public class InMemoryIntegrationPersistence {
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
+                new CustomPropertySetsModule(),
                 new PluggableModule(),
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
@@ -308,7 +299,7 @@ public class InMemoryIntegrationPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
-            this.ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(OrmService.class);
             injector.getInstance(CustomPropertySetService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
@@ -323,7 +314,7 @@ public class InMemoryIntegrationPersistence {
             this.estimationService = injector.getInstance(EstimationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
-            this.relationService = injector.getInstance(RelationService.class);
+            this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
@@ -346,8 +337,8 @@ public class InMemoryIntegrationPersistence {
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(CustomPropertySetService.class);
             initializeFactoryProviders();
-            createOracleAliases(dataModel.getConnection(true));
             initializePrivileges();
             ctx.commit();
         }
@@ -355,6 +346,8 @@ public class InMemoryIntegrationPersistence {
 
     private void initializePrivileges() {
         ((PrivilegesProvider)deviceConfigurationService).getModuleResources().stream()
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
+        ((PrivilegesProvider)deviceDataModelService).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
@@ -373,36 +366,40 @@ public class InMemoryIntegrationPersistence {
             finders.add(new DeviceConfigurationFinder(deviceConfigurationService));
             finders.add(new FiniteStateFinder(finiteStateMachineService));
             finders.add(new DeviceGroupFinder(meteringGroupsService));
+            finders.add(new DeviceFinder(dataModel));
             return finders;
         });
-    }
-
-    private void createOracleAliases(Connection connection) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
-                "CREATE VIEW IF NOT EXISTS USER_TABLES AS select table_name from INFORMATION_SCHEMA.TABLES where table_schema = 'PUBLIC'"
-        )) {
-            preparedStatement.execute();
-        }
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
-                "CREATE VIEW IF NOT EXISTS USER_IND_COLUMNS AS select index_name, table_name, column_name, ordinal_position AS column_position from INFORMATION_SCHEMA.INDEXES where table_schema = 'PUBLIC'"
-        )) {
-            preparedStatement.execute();
-        }
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
-                "CREATE TABLE IF NOT EXISTS USER_SEQUENCES ( SEQUENCE_NAME VARCHAR2 (30) NOT NULL, MIN_VALUE NUMBER, MAX_VALUE NUMBER, INCREMENT_BY NUMBER NOT NULL, CYCLE_FLAG VARCHAR2 (1), ORDER_FLAG VARCHAR2 (1), CACHE_SIZE NUMBER NOT NULL, LAST_NUMBER NUMBER NOT NULL)"
-        )) {
-            preparedStatement.execute();
-        }
     }
 
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
+        when(this.principal.hasPrivilege(any(), anyString())).thenReturn(true);
+        Privilege ePrivilege1 = mockPrivilege(EditPrivilege.LEVEL_1);
+        Privilege vPrivilege1 = mockPrivilege(ViewPrivilege.LEVEL_1);
+        Set<Privilege> privileges = new HashSet<>();
+        privileges.add(ePrivilege1);
+        privileges.add(vPrivilege1);
+        when(this.principal.getPrivileges()).thenReturn(privileges);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.thesaurus = mock(Thesaurus.class);
+        this.issueService = mock(IssueService.class, RETURNS_DEEP_STUBS);
+        when(this.issueService.findStatus(any())).thenReturn(Optional.<IssueStatus>empty());
+    }
+
+    private Privilege mockPrivilege(EditPrivilege privilege1) {
+        Privilege privilege = mock(Privilege.class);
+        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
+        return privilege;
+    }
+
+    private Privilege mockPrivilege(ViewPrivilege privilege1) {
+        Privilege privilege = mock(Privilege.class);
+        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
+        return privilege;
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -433,8 +430,8 @@ public class InMemoryIntegrationPersistence {
         return transactionService;
     }
 
-    public RelationService getRelationService() {
-        return relationService;
+    public CustomPropertySetService getCustomPropertySetService() {
+        return this.customPropertySetService;
     }
 
     public ProtocolPluggableService getProtocolPluggableService() {
@@ -479,6 +476,34 @@ public class InMemoryIntegrationPersistence {
 
     public Thesaurus getThesaurus() {
         return this.deviceDataModelService.thesaurus();
+    }
+
+    public NlsService getNlsService() {
+        return nlsService;
+    }
+
+    public LicenseService getLicenseService() {
+        return licenseService;
+    }
+
+    public ConnectionTypeService getConnectionTypeService() {
+        return connectionTypeService;
+    }
+
+    public InboundDeviceProtocolService getInboundDeviceProtocolService() {
+        return inboundDeviceProtocolService;
+    }
+
+    public DeviceProtocolService getDeviceProtocolService() {
+        return deviceProtocolService;
+    }
+
+    public ValidationService getValidationService() {
+        return validationService;
+    }
+
+    public FiniteStateMachineService getFiniteStateMachineService() {
+        return finiteStateMachineService;
     }
 
     public Clock getClock() {
@@ -539,19 +564,14 @@ public class InMemoryIntegrationPersistence {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
-            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(IssueService.class).toInstance(issueService);
             bind(Thesaurus.class).toInstance(thesaurus);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
 
     public User getMockedUser(){
-        return (User) this.principal;
+        return this.principal;
     }
 
     public UserService getUserService() {
@@ -572,6 +592,10 @@ public class InMemoryIntegrationPersistence {
 
     public BatchService getBatchService() {
         return batchService;
+    }
+
+    public DeviceConfigConflictMappingHandler getDeviceConfigConflictMappingHandler(){
+        return injector.getInstance(DeviceConfigConflictMappingHandler.class);
     }
 
     public DeviceSearchDomain getDeviceSearchDomain() {

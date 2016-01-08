@@ -1,29 +1,31 @@
 package com.energyict.mdc.device.data.impl;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Priority;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.data.EstimationRuleSetResolver", service = EstimationResolver.class)
 public class DeviceConfigurationEstimationRuleSetResolver implements EstimationResolver {
-    
+
     private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
-    
+
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
@@ -37,11 +39,10 @@ public class DeviceConfigurationEstimationRuleSetResolver implements EstimationR
     @Override
     public List<EstimationRuleSet> resolve(MeterActivation meterActivation) {
         if (hasMdcMeter(meterActivation)) {
-            return deviceService.findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()))
-                    .map(device -> device.forEstimation())
-                        .filter(DeviceEstimation::isEstimationActive)
-                        .map(deviceEstimation -> deviceEstimation.getEstimationRuleSetActivations().stream())
-                        .orElseGet(Stream::empty)
+            return getDeviceForEstimation(meterActivation.getMeter().get())
+                    .filter(DeviceEstimation::isEstimationActive)
+                    .map(deviceEstimation -> deviceEstimation.getEstimationRuleSetActivations().stream())
+                    .orElseGet(Stream::empty)
                     .filter(DeviceEstimationRuleSetActivation::isActive)
                     .map(DeviceEstimationRuleSetActivation::getEstimationRuleSet)
                     .collect(Collectors.toList());
@@ -58,8 +59,24 @@ public class DeviceConfigurationEstimationRuleSetResolver implements EstimationR
     public Priority getPriority() {
         return Priority.NORMAL;
     }
-    
+
+    @Override
+    public boolean isEstimationActive(Meter meter) {
+        return getDeviceForEstimation(meter).map(DeviceEstimation::isEstimationActive).orElse(false);
+    }
+
     private boolean hasMdcMeter(MeterActivation meterActivation) {
-        return meterActivation.getMeter().isPresent() && meterActivation.getMeter().get().getAmrSystem().is(KnownAmrSystem.MDC);
+        return meterActivation.getMeter().isPresent() && isMdcMeter(meterActivation.getMeter().get());
+    }
+
+    private boolean isMdcMeter(Meter meter) {
+        return meter.getAmrSystem().is(KnownAmrSystem.MDC);
+    }
+
+    private Optional<DeviceEstimation> getDeviceForEstimation(Meter meter) {
+        if (!isMdcMeter(meter)) {
+            return Optional.empty();
+        }
+        return deviceService.findDeviceById(Long.valueOf(meter.getAmrId())).map(Device::forEstimation);
     }
 }

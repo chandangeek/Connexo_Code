@@ -20,22 +20,25 @@ public class RegisterObisCodeSearchableProperty extends AbstractObisCodeSearchab
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addRegisterSpec();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.openBracket();
-        sqlBuilder.add(this.toSqlFragment("reg_spec.deviceobiscode", condition, now));
-        sqlBuilder.append(" OR ");
-        sqlBuilder.openBracket();
-        sqlBuilder.append(" reg_spec.deviceobiscode is null ");
-        sqlBuilder.append(" AND ");
-        sqlBuilder.add(this.toSqlFragment("reg_msr_type.obiscode", condition, now));
-        sqlBuilder.closeBracket();
-        sqlBuilder.closeBracket();
-        return sqlBuilder;
+        SqlBuilder builder = new SqlBuilder();
+        builder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
+        builder.append("select DTC_REGISTERSPEC.DEVICECONFIGID " +
+                "from DTC_REGISTERSPEC " +
+                "join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.ID = DTC_REGISTERSPEC.REGISTERTYPEID " +
+                "where ");
+        builder.add(this.toSqlFragment("DTC_REGISTERSPEC.deviceobiscode", condition, now));
+        builder.append(" OR ");
+        builder.openBracket();
+        builder.append(" DTC_REGISTERSPEC.deviceobiscode is null ");
+        builder.append(" AND ");
+        builder.add(this.toSqlFragment("MDS_MEASUREMENTTYPE.obiscode", condition, now));
+        builder.closeBracket();
+        builder.closeBracket();
+        return builder;
     }
 
     @Override

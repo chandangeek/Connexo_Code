@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
@@ -69,10 +70,9 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         }
     }
 
-    public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
-    	this.setActualBuilder(WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME));
-    	SqlBuilder sqlBuilder = dataMapper.builder(communicationTaskAliasName());
-    	getActualBuilder().append(sqlBuilder);
+    public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder) {
+        this.setActualBuilder(WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME));
+        getActualBuilder().append(sqlBuilder);
         String sqlStartClause = sqlBuilder.getText();
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         while (statusIterator.hasNext()) {
@@ -87,8 +87,13 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         }
         this.appendWhereOrAnd();
         this.append("obsolete_date is null");
-        this.append(" order by lastexecutiontimestamp desc");
-        return this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize);
+        return this.getActualBuilder();
+    }
+
+    public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
+        ClauseAwareSqlBuilder sqlBuilder = build(dataMapper.builder(communicationTaskAliasName()));
+        sqlBuilder.append(" order by lastexecutiontimestamp desc");
+        return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize);
     }
 
     @Override

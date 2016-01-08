@@ -20,14 +20,18 @@ public class LogbookNameSearchableProperty extends AbstractNameSearchablePropert
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addLogbookType();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.openBracket();
-        sqlBuilder.add(this.toSqlFragment(JoinClauseBuilder.Aliases.LOGBOOK_TYPE + ".name", condition, now));
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".id IN (");
+        sqlBuilder.append("select DEVICEID " +
+                "from DDC_LOGBOOK " +
+                "join DTC_LOGBOOKSPEC on DTC_LOGBOOKSPEC.ID = DDC_LOGBOOK.LOGBOOKSPECID " +
+                "join MDS_LOGBOOKTYPE on MDS_LOGBOOKTYPE.ID = DTC_LOGBOOKSPEC.LOGBOOKTYPEID " +
+                "where ");
+        sqlBuilder.add(this.toSqlFragment("MDS_LOGBOOKTYPE.NAME", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }

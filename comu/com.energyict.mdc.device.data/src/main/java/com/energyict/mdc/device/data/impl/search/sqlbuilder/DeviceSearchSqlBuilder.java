@@ -109,25 +109,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
-    public JoinClauseBuilder addConnectionTask() {
-        this.joins.add(Joins.ConnectionTask);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addComTaskExecution() {
-        this.joins.add(Joins.ComTaskExecution);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addComSchedule() {
-        this.joins.add(Joins.ComTaskExecution);
-        this.joins.add(Joins.ComSchedule);
-        return this;
-    }
-
-    @Override
     public JoinClauseBuilder addUsagePoint() {
         this.joins.add(Joins.EndDevice);
         this.joins.add(Joins.MeterActivation);
@@ -168,93 +149,8 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
-    public JoinClauseBuilder addRegisterSpec() {
-        this.joins.add(Joins.RegisterSpec);
-        this.joins.add(Joins.RegisterMeasurementType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addRegisterReadingType() {
-        this.joins.add(Joins.RegisterSpec);
-        this.joins.add(Joins.RegisterMeasurementType);
-        this.joins.add(Joins.RegisterReadingType);
-        return this;
-    }
-
-    @Override
     public JoinClauseBuilder addDeviceType() {
         this.joins.add(Joins.DeviceType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addChannelReadingType() {
-        this.joins.add(Joins.ChannelSpec);
-        this.joins.add(Joins.ChannelMeasurementType);
-        this.joins.add(Joins.ChannelReadingType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addChannelSpec() {
-        this.joins.add(Joins.ChannelSpec);
-        this.joins.add(Joins.ChannelMeasurementType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addLogbook() {
-        this.joins.add(Joins.LogBook);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addLogbookSpec() {
-        this.joins.add(Joins.LogBook);
-        this.joins.add(Joins.LogbookSpec);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addLogbookType() {
-        this.joins.add(Joins.LogBook);
-        this.joins.add(Joins.LogbookSpec);
-        this.joins.add(Joins.LogbookType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addLoadProfile() {
-        this.joins.add(Joins.LoadProfile);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addLoadProfileSpec() {
-        this.joins.add(Joins.LoadProfile);
-        this.joins.add(Joins.LoadProfileSpec);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addLoadProfileType() {
-        this.joins.add(Joins.LoadProfile);
-        this.joins.add(Joins.LoadProfileSpec);
-        this.joins.add(Joins.LoadProfileType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addComTaskEnablement() {
-        this.joins.add(Joins.ComTaskEnablement);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addComTask() {
-        this.joins.add(Joins.ComTaskEnablement);
-        this.joins.add(Joins.ComTask);
         return this;
     }
 

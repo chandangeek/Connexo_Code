@@ -15,13 +15,8 @@ public class RegisterReadingTypeTimeOfUseSearchableProperty extends AbstractRead
     }
 
     @Override
-    public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addRegisterSpec();
-    }
-
-    @Override
-    public String getSpecTableAlias() {
-        return "reg_msr_type";
+    public String getMeasurementTypeJoinSql() {
+        return "DTC_REGISTERSPEC join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.ID = DTC_REGISTERSPEC.REGISTERTYPEID";
     }
 
     @Override

@@ -22,12 +22,6 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addFiniteState();
 
-    JoinClauseBuilder addConnectionTask();
-
-    JoinClauseBuilder addComTaskExecution();
-
-    JoinClauseBuilder addComSchedule();
-
     JoinClauseBuilder addBatch();
 
     JoinClauseBuilder addUsagePoint();
@@ -42,31 +36,7 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addDeviceEstimation();
 
-    JoinClauseBuilder addRegisterSpec();
-
-    JoinClauseBuilder addRegisterReadingType();
-
     JoinClauseBuilder addDeviceType();
-
-    JoinClauseBuilder addChannelReadingType();
-
-    JoinClauseBuilder addChannelSpec();
-
-    JoinClauseBuilder addLogbook();
-
-    JoinClauseBuilder addLogbookSpec();
-
-    JoinClauseBuilder addLogbookType();
-
-    JoinClauseBuilder addLoadProfile();
-
-    JoinClauseBuilder addLoadProfileSpec();
-
-    JoinClauseBuilder addLoadProfileType();
-
-    JoinClauseBuilder addComTaskEnablement();
-
-    JoinClauseBuilder addComTask();
 
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
@@ -78,12 +48,6 @@ public interface JoinClauseBuilder {
         public static final String DEVICE = "dev";
         public static final String END_DEVICE = "ed";
         public static final String DEVICE_TYPE = "dev_Type";
-        public static final String DEVICE_LOGBOOK = "dev_lb";
-        public static final String LOGBOOK_SPEC = "lb_spec";
-        public static final String LOGBOOK_TYPE = "lb_type";
-        public static final String DEVICE_LOADPROFILE = "dev_lp";
-        public static final String LOADPROFILE_SPEC = "lp_spec";
-        public static final String LOADPROFILE_TYPE = "lp_type";
         public static final String COM_TASK_ENABLEMENT = "cten";
         public static final String COM_TASK = "ctsk";
         public static final String PROTOCOL_DIALECT_PROPS = "pdprops";

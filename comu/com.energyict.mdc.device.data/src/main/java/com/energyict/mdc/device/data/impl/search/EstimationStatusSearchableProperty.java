@@ -11,6 +11,8 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +58,11 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         return this.toSqlFragment("est.active", condition, now);
+    }
+
+    @Override
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
+        statement.setString(bindPosition, (Boolean) value ? "Y" : "N");
     }
 
     @Override

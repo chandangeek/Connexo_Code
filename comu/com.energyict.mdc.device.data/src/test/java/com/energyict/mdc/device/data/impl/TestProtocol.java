@@ -1,10 +1,32 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.impl.security.BasicAuthenticationCustomPropertySet;
+import com.energyict.mdc.device.data.impl.security.BasicAuthenticationSecurityProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.*;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -13,6 +35,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
+import javax.inject.Inject;
 import java.util.*;
 
 /**
@@ -21,6 +44,18 @@ import java.util.*;
  * Time: 08:22
  */
 public class TestProtocol implements DeviceProtocol {
+
+    private final PropertySpecService propertySpecService;
+
+    public static final String MYOPTIONALPROPERTY = "MyOptionalProperty";
+
+
+    @Inject
+    public TestProtocol(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
 
@@ -118,7 +153,7 @@ public class TestProtocol implements DeviceProtocol {
 
     @Override
     public Set<DeviceMessageId> getSupportedMessages() {
-        return EnumSet.noneOf(DeviceMessageId.class);
+        return new HashSet<>(Arrays.asList(DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
     }
 
     @Override
@@ -149,13 +184,20 @@ public class TestProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Collections.emptyList();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(getCustomPropertySet(this.propertySpecService));
     }
 
-    @Override
-    public String getSecurityRelationTypeName() {
-        return "WeakSecurity";
+    public static CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> getCustomPropertySet(PropertySpecService propertySpecService) {
+        return new BasicAuthenticationCustomPropertySet(propertySpecService);
+    }
+
+    private PropertySpec getUserNamePropertySpec() {
+        return new BasicPropertySpec(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), new StringFactory());
+    }
+
+    private PropertySpec getPasswordPropertySpec() {
+        return new BasicPropertySpec(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), new StringFactory());
     }
 
     @Override
@@ -173,7 +215,7 @@ public class TestProtocol implements DeviceProtocol {
 
             @Override
             public List<PropertySpec> getSecurityProperties() {
-                return Collections.emptyList();
+                return Arrays.asList(getPasswordPropertySpec(), getUserNamePropertySpec());
             }
         });
     }
@@ -196,11 +238,6 @@ public class TestProtocol implements DeviceProtocol {
                 return Collections.emptyList();
             }
         });
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return null;
     }
 
     @Override
@@ -230,16 +267,16 @@ public class TestProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
+        return Collections.singletonList(getOptionalPropertySpec());
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return null;
+    public PropertySpec getOptionalPropertySpec(){
+        return new BasicPropertySpec(MYOPTIONALPROPERTY, false, new StringFactory());
     }
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         return null;
     }
+
 }

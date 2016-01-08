@@ -123,6 +123,10 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
         return this.actualBuilder.asPageBuilder(from, to);
     }
 
+    public SqlBuilder asBuilder() {
+        return this.actualBuilder;
+    }
+
     @Override
     public PreparedStatement prepare(Connection connection) throws SQLException {
         return this.actualBuilder.prepare(connection);

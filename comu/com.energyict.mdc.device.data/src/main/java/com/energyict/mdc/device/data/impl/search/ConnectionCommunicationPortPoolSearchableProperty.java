@@ -61,10 +61,8 @@ public class ConnectionCommunicationPortPoolSearchableProperty extends AbstractS
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.openBracket();
-        sqlBuilder.append("dev.ID in (" + "select device from ddc_connectiontask left join dtc_partialconnectiontask" +
-                " on dtc_partialconnectiontask.id=ddc_connectiontask.partialconnectiontask  where ddc_connectiontask.obsolete_date" +
-                " is null and ");
-        sqlBuilder.add(this.toSqlFragment("dtc_partialconnectiontask.comportpool", condition, now));
+        sqlBuilder.append("dev.ID in (select device from ddc_connectiontask where ddc_connectiontask.obsolete_date is null and ");
+        sqlBuilder.add(this.toSqlFragment("ddc_connectiontask.comportpool", condition, now));
         sqlBuilder.closeBracket();
         sqlBuilder.closeBracket();
         return sqlBuilder;

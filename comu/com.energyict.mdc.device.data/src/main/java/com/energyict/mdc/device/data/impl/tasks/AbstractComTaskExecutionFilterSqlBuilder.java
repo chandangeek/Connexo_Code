@@ -32,17 +32,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     private final Set<ComSchedule> comSchedules;
     private final QueryExecutor<Device> queryExecutor;
     private final List<EndDeviceGroup> deviceGroups;
-    private final Set<DefaultState> allowedDeviceStates;
-
-    public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, QueryExecutor<Device> queryExecutor) {
-        super(clock);
-        this.deviceTypes = new HashSet<>();
-        this.comTasks = new HashSet<>();
-        this.comSchedules = new HashSet<>();
-        this.deviceGroups = Collections.emptyList();
-        this.queryExecutor = queryExecutor;
-        this.allowedDeviceStates = Collections.emptySet();
-    }
+    private final Set<String> restrictedDeviceStates;
 
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, ComTaskExecutionFilterSpecification filter, QueryExecutor<Device> queryExecutor) {
         super(clock);
@@ -50,8 +40,8 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.comTasks = new HashSet<>(filter.comTasks);
         this.comSchedules = new HashSet<>(filter.comSchedules);
         this.deviceGroups = new ArrayList<>(filter.deviceGroups);
+        this.restrictedDeviceStates = new HashSet<>(filter.restrictedDeviceStates);
         this.queryExecutor = queryExecutor;
-        this.allowedDeviceStates = Collections.emptySet();
     }
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
@@ -76,7 +66,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     }
 
     protected void appendDeviceInStateSql(){
-        this.appendDeviceInStateSql(communicationTaskAliasName(), this.allowedDeviceStates);
+        this.appendDeviceNotInStateSql(communicationTaskAliasName(), this.restrictedDeviceStates);
     }
 
     private void appendComTaskSql() {

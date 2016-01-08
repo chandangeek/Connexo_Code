@@ -111,6 +111,19 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
                 }
 
+    protected <T> void appendNotInClause(String columnName, Collection<T> objects, Function<T, ? extends CharSequence> objectMapper) {
+        if (objects.size() == 1) {
+            this.append(columnName);
+            this.append(" <> ");
+            this.append(objectMapper.apply(objects.iterator().next()));
+        } else {
+            this.append(DecoratedStream.decorate(objects.stream())
+                    .partitionPer(MAX_ELEMENTS_FOR_IN_CLAUSE)
+                    .map(chunk -> chunk.stream().filter(Objects::nonNull).map(objectMapper).collect(Collectors.joining(", ")))
+                    .collect(Collectors.joining(") AND " + columnName + " NOT IN (" , columnName + " NOT IN (", ") ")));
+        }
+    }
+
     protected <T extends HasId> void appendInClause(String columnName, Set<T> idBusinessObjects) {
         this.appendInClause(columnName, idBusinessObjects, obj -> String.valueOf(obj.getId()));
     }
@@ -151,20 +164,22 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
     }
 
-    protected void appendDeviceInStateSql(String targetTableName, Collection<DefaultState> allowedDeviceStates) {
-        DeviceStateSqlBuilder deviceStateSqlBuilder;
-        if (allowedDeviceStates.isEmpty()){
-            deviceStateSqlBuilder = DeviceStateSqlBuilder.forDefaultExcludedStates(targetTableName);
+    protected void appendDeviceNotInStateSql(String targetTableName, Set<String> restrictedDeviceStates) {
+        if (!restrictedDeviceStates.isEmpty()) {
+            long currentTime = this.clock.millis();
+            this.appendWhereOrAnd();
+            this.append(" (");
+            this.append(targetTableName);
+            this.append(".device in");
+            this.append(" (select ED.amrid");
+            this.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");
+            this.appendNotInClause("FS.NAME", restrictedDeviceStates, stateName -> "'" + stateName + "'");
+            this.append(") FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
+            this.append(String.valueOf(currentTime));
+            this.append(" and ES.ENDTIME > ");
+            this.append(String.valueOf(currentTime));
+            this.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)) ");
         }
-        else {
-            EnumSet<DefaultState> states = EnumSet.noneOf(DefaultState.class);
-            states.addAll(allowedDeviceStates);
-            deviceStateSqlBuilder = DeviceStateSqlBuilder.includeStates(targetTableName, states);
-        }
-        this.appendWhereOrAnd();
-        this.append(" (");
-        deviceStateSqlBuilder.appendRestrictedStatesCondition(this.actualBuilder.toSqlWhereBuilder(), this.clock);
-        this.append(")");
     }
 
     protected void appendIntervalWhereClause(String tableName, String columnName, Interval interval, IntervalBindStrategy intervalBindStrategy) {

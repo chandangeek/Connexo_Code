@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.ChannelDataUpdater;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -39,7 +40,7 @@ import static java.util.stream.Collectors.toList;
  * Date: 3/17/14
  * Time: 3:57 PM
  */
-public class LoadProfileImpl implements LoadProfile {
+public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
     private final DataModel dataModel;
 
@@ -136,6 +137,12 @@ public class LoadProfileImpl implements LoadProfile {
 
     private void updateLastReading() {
         this.dataModel.update(this, "lastReading");
+    }
+
+    @Override
+    public void setNewLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
+        this.loadProfileSpec.set(loadProfileSpec);
+        this.dataModel.update(this, "loadProfileSpec");
     }
 
     abstract static class LoadProfileUpdater implements LoadProfile.LoadProfileUpdater {
@@ -251,7 +258,7 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public ObisCode getObisCode() {
-            return channelSpec.getObisCode();
+            return channelSpec.getDeviceObisCode();
         }
 
         @Override

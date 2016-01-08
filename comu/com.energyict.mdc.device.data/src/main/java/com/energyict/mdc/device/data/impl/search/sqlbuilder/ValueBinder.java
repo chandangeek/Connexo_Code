@@ -4,5 +4,5 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public interface ValueBinder {
-    void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException;
+    void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException;
 }

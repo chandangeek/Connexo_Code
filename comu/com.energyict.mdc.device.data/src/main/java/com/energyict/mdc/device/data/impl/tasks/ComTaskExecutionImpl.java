@@ -567,7 +567,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     public void executionCompleted() {
         this.markSuccessfullyCompleted();
         this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
-        this.update(ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
+        this.update(ComTaskExecutionFields.COMPORT.fieldName(),
+                    ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
                     ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
                     ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
                     ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
@@ -594,9 +595,9 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         } else {
             this.doExecutionFailed();
         }
-        this.update(ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
+        this.update(ComTaskExecutionFields.COMPORT.fieldName(),
+                    ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
                     ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
-                    ComTaskExecutionFields.COMPORT.fieldName(),
                     ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
                     ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
                     ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());

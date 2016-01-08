@@ -553,7 +553,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties, ConnectionTaskPropertyValidator validator) throws ConnectionException {
         validator.validate(properties);
         ConnectionType connectionType = this.getConnectionType();
-        List<ConnectionProperty> connectionProperties = this.toConnectionProperties(this.getProperties());
+        List<ConnectionProperty> connectionProperties = this.castToConnectionProperties(this.getProperties());
         connectionProperties.add(new ComPortNameProperty(comPort));
         return connectionType.connect(connectionProperties);
     }
@@ -569,11 +569,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             return Integer.MAX_VALUE;
         } else {
             if (this.maxNumberOfTries == -1) {
-                for (ComTaskExecution scheduledComTask : getScheduledComTasks()) {
-                    if (this.maxNumberOfTries < scheduledComTask.getMaxNumberOfTries()) {
-                        this.maxNumberOfTries = scheduledComTask.getMaxNumberOfTries();
-                    }
-                }
+                this.maxNumberOfTries =
+                        this.getScheduledComTasks()
+                                .stream()
+                                .map(ComTaskExecution::getMaxNumberOfTries)
+                                .min(Integer::compare)
+                                .orElse(-1);
             }
             return this.maxNumberOfTries;
         }

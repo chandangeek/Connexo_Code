@@ -4,8 +4,11 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -69,5 +72,12 @@ public class ComTaskExecutionFilterSpecification {
      * or an empty set if the filter should not take this into account.
      */
     public Set<EndDeviceGroup> deviceGroups = new HashSet<>();
+
+    /**
+     * The Set of device states
+     * Comtasks of devices in such states will be excluded from the result
+     * Default value: exclude comtasks of "In stock" and "Decommissioned" devices
+     */
+    public Set<String> restrictedDeviceStates = new HashSet<>(Arrays.asList(DefaultState.IN_STOCK.getKey(), DefaultState.DECOMMISSIONED.getKey()));
 
 }

@@ -20,19 +20,23 @@ public class LogbookObisCodeSearchableProperty extends AbstractObisCodeSearchabl
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addLogbookType();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.openBracket();
-        sqlBuilder.add(this.toSqlFragment(JoinClauseBuilder.Aliases.LOGBOOK_SPEC + ".OBISCODE", condition, now));
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".id IN (");
+        sqlBuilder.append("select DEVICEID " +
+                "from DDC_LOGBOOK " +
+                "join DTC_LOGBOOKSPEC on DTC_LOGBOOKSPEC.ID = DDC_LOGBOOK.LOGBOOKSPECID " +
+                "join MDS_LOGBOOKTYPE on MDS_LOGBOOKTYPE.ID = DTC_LOGBOOKSPEC.LOGBOOKTYPEID " +
+                "where ");
+        sqlBuilder.add(this.toSqlFragment("DTC_LOGBOOKSPEC.OBISCODE", condition, now));
         sqlBuilder.append(" OR ");
         sqlBuilder.openBracket();
-        sqlBuilder.append(JoinClauseBuilder.Aliases.LOGBOOK_SPEC + ".OBISCODE is null");
+        sqlBuilder.append("DTC_LOGBOOKSPEC.OBISCODE is null");
         sqlBuilder.append(" AND ");
-        sqlBuilder.add(this.toSqlFragment(JoinClauseBuilder.Aliases.LOGBOOK_TYPE + ".OBISCODE", condition, now));
+        sqlBuilder.add(this.toSqlFragment("MDS_LOGBOOKTYPE.OBISCODE", condition, now));
         sqlBuilder.closeBracket();
         sqlBuilder.closeBracket();
         return sqlBuilder;

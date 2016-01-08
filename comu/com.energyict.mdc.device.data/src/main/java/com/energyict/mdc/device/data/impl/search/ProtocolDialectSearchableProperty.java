@@ -11,7 +11,6 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
@@ -22,6 +21,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +39,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
     private DeviceSearchDomain domain;
     private SearchableProperty parent;
     private List<ProtocolDialect> protocolDialects = Collections.emptyList();
+    private DisplayStrategy displayStrategy = DisplayStrategy.NAME_ONLY;
 
     @Inject
     public ProtocolDialectSearchableProperty(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus) {
@@ -60,7 +61,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return ((ProtocolDialect) value).getName();
+        return this.displayStrategy.toDisplay((ProtocolDialect) value);
     }
 
     @Override
@@ -70,9 +71,6 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        if (!(condition instanceof Contains)) {
-            throw new IllegalAccessError("Condition must be IN or NOT IN");
-        }
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.openBracket();
         sqlBuilder.add(this.toSqlFragment(JoinClauseBuilder.Aliases.DEVICE_TYPE + ".DEVICEPROTOCOLPLUGGABLEID", condition, now));
@@ -80,17 +78,9 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
         return sqlBuilder;
     }
 
-    /**
-     * workaround because ProtocolDialect can not implement HasId and it is not a simple Java class,
-     * {@link AbstractSearchableDeviceProperty.ProxyAwareSqlFragment#bindSingleValue(PreparedStatement, Object, int)},
-     * as a result we unable to bind instances of this class into prepared statement
-     */
     @Override
-    public void visitContains(Contains contains) {
-        super.visitContains(contains.getOperator().contains(contains.getFieldName(), contains.getCollection()
-                .stream()
-                .map(obj -> ((ProtocolDialect) obj).getPluggableClass().getId())
-                .collect(Collectors.toList())));
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
+        statement.setLong(bindPosition, ((ProtocolDialect) value).getPluggableClass().getId());
     }
 
     @Override
@@ -155,9 +145,15 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     private void refreshWithConstrictionValues(List<Object> deviceTypes) {
         this.validateObjectsType(deviceTypes);
+        if (deviceTypes.size() > 1) {
+            this.displayStrategy = DisplayStrategy.WITH_PROTOCOL;
+        }
+        else {
+            this.displayStrategy = DisplayStrategy.NAME_ONLY;
+        }
         this.protocolDialects = deviceTypes.stream()
                 .map(DeviceType.class::cast)
-                .flatMap(deviceType -> getProtocolDialectsOnDeviceType(deviceType))
+                .flatMap(this::getProtocolDialectsOnDeviceType)
                 .sorted((pd1, pd2) -> pd1.getName().compareToIgnoreCase(pd2.getName()))
                 .collect(Collectors.toList());
     }
@@ -247,5 +243,23 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
         public DeviceProtocolDialect getProtocolDialect() {
             return this.protocolDialect;
         }
+    }
+
+    private enum DisplayStrategy {
+        NAME_ONLY {
+            @Override
+            public String toDisplay(ProtocolDialect protocolDialect) {
+                return protocolDialect.getName();
+            }
+        },
+
+        WITH_PROTOCOL {
+            @Override
+            public String toDisplay(ProtocolDialect protocolDialect) {
+                return protocolDialect.getName() + " (" + protocolDialect.getPluggableClass().getName() + ")";
+            }
+        };
+
+        public abstract String toDisplay(ProtocolDialect protocolDialect);
     }
 }

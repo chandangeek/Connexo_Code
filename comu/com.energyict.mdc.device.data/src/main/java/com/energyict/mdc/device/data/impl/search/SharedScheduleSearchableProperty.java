@@ -53,15 +53,16 @@ public class SharedScheduleSearchableProperty extends AbstractSearchableDevicePr
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addComSchedule();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".id IN ");
         sqlBuilder.openBracket();
-        sqlBuilder.add(this.toSqlFragment("csh.id", condition, now));
-        sqlBuilder.append(" AND cte.obsolete_date is null ");
+        sqlBuilder.append("select DEVICE from DDC_COMTASKEXEC where ");
+        sqlBuilder.add(this.toSqlFragment("DDC_COMTASKEXEC.comschedule", condition, now));
+        sqlBuilder.append(" AND DDC_COMTASKEXEC.obsolete_date is null");
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }

@@ -1,21 +1,13 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
-import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 public class ChannelReadingTypeNameSearchableProperty extends AbstractReadingTypeNameSearchableProperty<ChannelReadingTypeNameSearchableProperty> {
 
@@ -33,11 +25,19 @@ public class ChannelReadingTypeNameSearchableProperty extends AbstractReadingTyp
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addChannelReadingType();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return this.toSqlFragment("ch_rt.aliasname", condition, now);
+        SqlBuilder builder = new SqlBuilder();
+        builder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
+        builder.append("select DTC_CHANNELSPEC.DEVICECONFIGID " +
+                "from DTC_CHANNELSPEC " +
+                "join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.ID = DTC_CHANNELSPEC.CHANNELTYPEID " +
+                "join MTR_READINGTYPE on MTR_READINGTYPE.MRID = MDS_MEASUREMENTTYPE.READINGTYPE " +
+                "where ");
+        builder.add(this.toSqlFragment("MTR_READINGTYPE.ALIASNAME", condition, now));
+        builder.closeBracket();
+        return builder;
     }
 }

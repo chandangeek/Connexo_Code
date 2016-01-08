@@ -6,7 +6,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.List;
@@ -58,8 +57,9 @@ public interface DeviceService {
      * @param version the version of the device
      * @return the requested Device or null if none was found
      */
-    Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
-    Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version);
+    public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
+
+    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version);
 
     /**
      * Finds the Device based on his unique External name.
@@ -111,5 +111,27 @@ public interface DeviceService {
     List<Device> findDevicesByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
 
     Query<Device> deviceQuery();
+
+    /**
+     * Change the DeviceConfiguration of the device to the provided destinationDeviceConfiguration.
+     * <b>NOTE:</b> Make sure you don't create your own transaction. This will be performed during the execution
+     * of this method. Multiple transactions are required to perform Business Locks.
+     *
+     * @param deviceId
+     * @param deviceVersion
+     * @param destinationDeviceConfigId      the ID fo the DestinationDeviceConfig
+     * @param destinationDeviceConfigVersion the version to check   @return the given device with the new configuration applied
+     */
+    public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion);
+
+    /**
+     * Change the DeviceConfiguration for the given set of Devices to the provided destinationDeviceConfiguration.
+     * The action will be queued and the processing is asynchronously.
+     *
+     * @param destinationDeviceConfiguration the configuration which should be applied
+     * @param devicesForConfigChangeSearch
+     * @param deviceMRIDs                    a list of device MRIDs
+     */
+    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs);
 
 }

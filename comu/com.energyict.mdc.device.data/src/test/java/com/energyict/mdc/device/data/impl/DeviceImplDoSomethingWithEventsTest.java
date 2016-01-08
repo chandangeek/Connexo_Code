@@ -93,6 +93,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -114,7 +115,6 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -137,14 +137,8 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import com.google.inject.Scopes;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -211,7 +205,8 @@ public class DeviceImplDoSomethingWithEventsTest {
     @Before
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
+        when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
@@ -296,12 +291,12 @@ public class DeviceImplDoSomethingWithEventsTest {
         private DeviceDataModelService deviceDataModelService;
         private IdentificationServiceImpl identificationService;
         private Clock clock = Clock.systemDefaultZone();
-        private RelationService relationService;
         private EngineConfigurationService engineConfigurationService;
         private SchedulingService schedulingService;
         private com.energyict.mdc.tasks.TaskService mdcTaskService;
         private LicenseService licenseService;
         private IssueService issueService;
+        private com.energyict.mdc.issues.IssueService mdcIssueService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -362,10 +357,10 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.estimationService = injector.getInstance(EstimationService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
                 this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
-                this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);
                 this.issueService = injector.getInstance(IssueService.class);
+                this.mdcIssueService = injector.getInstance(com.energyict.mdc.issues.IssueService.class);
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
@@ -376,10 +371,9 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.issueService,
                                 mock(PropertySpecService.class),
                                 mock(com.elster.jupiter.properties.PropertySpecService.class),
-                                this.relationService, this.protocolPluggableService, this.engineConfigurationService,
-                                this.deviceConfigurationService, this.meteringService,
-                                this.validationService, this.estimationService,
-                                this.schedulingService,
+                                mock(CustomPropertySetService.class),
+                                this.protocolPluggableService, this.engineConfigurationService,
+                                this.deviceConfigurationService, this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),
                                 injector.getInstance(SecurityPropertyService.class),
                                 injector.getInstance(UserService.class),
@@ -387,7 +381,9 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(MeteringGroupsService.class),
                                 mock(QueryService.class),
                                 mock(com.energyict.mdc.tasks.TaskService.class),
-                                mock(MasterDataService.class));
+                                mock(MasterDataService.class),
+                                transactionService, injector.getInstance(JsonService.class),
+                                mdcIssueService);
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
@@ -456,24 +452,9 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(LoadProfileService.class).to(LoadProfileServiceImpl.class).in(Scopes.SINGLETON);
                 bind(LogBookService.class).to(LogBookServiceImpl.class).in(Scopes.SINGLETON);
                 bind(DataCollectionKpiService.class).to(DataCollectionKpiServiceImpl.class).in(Scopes.SINGLETON);
-                bind(DeviceDataModelService.class).toProvider(new Provider<DeviceDataModelService>() {
-                    @Override
-                    public DeviceDataModelService get() {
-                        return deviceDataModelService;
-                    }
-                });
-                bind(IdentificationServiceImpl.class).toProvider(new Provider<IdentificationServiceImpl>() {
-                    @Override
-                    public IdentificationServiceImpl get() {
-                        return identificationService;
-                    }
-                });
-                bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                    @Override
-                    public DataModel get() {
-                        return dataModel;
-                    }
-                });
+                bind(DeviceDataModelService.class).toProvider(() -> deviceDataModelService);
+                bind(IdentificationServiceImpl.class).toProvider(() -> identificationService);
+                bind(DataModel.class).toProvider(() -> dataModel);
                 bind(IdentificationService.class).to(IdentificationServiceImpl.class).in(Scopes.SINGLETON);
             }
 

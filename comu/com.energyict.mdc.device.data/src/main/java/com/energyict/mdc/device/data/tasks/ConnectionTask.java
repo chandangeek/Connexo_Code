@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.pluggable.PluggableClassUsage;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
@@ -51,6 +52,7 @@ import java.util.Optional;
 @ProviderType
 public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialConnectionTask>
     extends
+        ConnectionProvider,
         ConnectionTaskPropertyProvider,
         PluggableClassUsage<ConnectionType, ConnectionTypePluggableClass, ConnectionTaskProperty>,
         ConnectionTaskExecutionAspects,

@@ -14,6 +14,8 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
@@ -23,6 +25,10 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -43,6 +49,9 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -74,7 +83,7 @@ public enum TableSpecs {
     DDC_DEVICE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<Device> table = dataModel.addTable(name(), Device.class);
+            Table<Device> table = dataModel.addTable(name(), Device.class).alsoReferredToAs(BaseDevice.class);
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
@@ -174,7 +183,7 @@ public enum TableSpecs {
     DDC_CONNECTIONTASK {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<ConnectionTask> table = dataModel.addTable(name(), ConnectionTask.class);
+            Table<ConnectionTask> table = dataModel.addTable(name(), ConnectionTask.class).alsoReferredToAs(ConnectionProvider.class);
             table.map(ConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
@@ -247,7 +256,7 @@ public enum TableSpecs {
     DDC_PROTOCOLDIALECTPROPS {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class);
+            Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class).alsoReferredToAs(DeviceProtocolDialectPropertyProvider.class);
             table.map(ProtocolDialectPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
@@ -407,7 +416,6 @@ public enum TableSpecs {
             Table<ComTaskExecutionSession> table = dataModel.addTable(name(), ComTaskExecutionSession.class);
             table.map(ComTaskExecutionSessionImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column device = table.column("DEVICE").number().notNull().add();
             Column session = table.column("COMSESSION").number().notNull().add();
             table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
@@ -676,6 +684,54 @@ public enum TableSpecs {
         }
     },
 
+    DDC_CONFIGCHANGEREQUEST {
+        @Override
+        void addTo(DataModel dataModel) {
+            final Table<DeviceConfigChangeRequest> table = dataModel.addTable(name(), DeviceConfigChangeRequest.class);
+            table.map(DeviceConfigChangeRequestImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column config = table.column("DEVICECONFIG").number().notNull().add();
+            table.addAuditColumns();
+
+            table.primaryKey("PK_DDC_DCCREQUEST").on(idColumn).add();
+            table.foreignKey("FK_DDC_DCCREQUEST_CONF").
+                    on(config).
+                    references(DeviceConfiguration.class).
+                    map(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).
+                    onDelete(CASCADE).
+                    add();
+        }
+    },
+
+    DDC_CONFIGCHANGEINACTION {
+        @Override
+        void addTo(DataModel dataModel) {
+            final Table<DeviceConfigChangeInAction> table = dataModel.addTable(name(), DeviceConfigChangeInAction.class);
+            table.map(DeviceConfigChangeInActionImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column device = table.column("DEVICE").number().notNull().add();
+            Column configRequest = table.column("DEVICECONFIGREQUEST").number().notNull().add();
+            table.addAuditColumns();
+
+            table.primaryKey("PK_DDC_CONFIGCHANGEINACTION").on(idColumn).add();
+            table.foreignKey("FK_DDC_CONFCHANGACT_DEV").
+                    on(device).
+                    references(DDC_DEVICE.name()).
+                    map(DeviceConfigChangeInActionImpl.Fields.DEVICE_REFERENCE.fieldName()).
+                    onDelete(CASCADE).
+                    add();
+            table.foreignKey("FK_DDC_CONFCHANGREQ_CONF").
+                    on(configRequest).
+                    references(DDC_CONFIGCHANGEREQUEST.name()).
+                    map(DeviceConfigChangeInActionImpl.Fields.DEVICE_CONFIG_REQUEST_REFERENCE.fieldName()).
+                    reverseMap(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_CHANGE_IN_ACTION.fieldName()).
+                    composition().
+                    onDelete(CASCADE).
+                    add();
+            table.unique("UK_DDC_CONFIGCHIA_REQ").on(device, configRequest).add();
+
+        }
+    },
     ;
 
     abstract void addTo(DataModel component);

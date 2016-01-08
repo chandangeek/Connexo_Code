@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.DeviceDataServices;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.DeviceDataServices;
 
 import java.util.logging.Level;
 
@@ -15,17 +14,12 @@ import static java.util.logging.Level.SEVERE;
  * @since 2014-03-06 (14:41)
  */
 public enum MessageSeeds implements MessageSeed {
-    LEGACY(100, "legacy.exception", "Coding: BusinessException or SQLException from legacy code that has not been ported to the jupiter ORM framework"),
-    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required"),
     CODING_RELATION_IS_ALREADY_OBSOLETE(1001, "relation.isAlreadyObsolete", "Cannot remove a property because the relation (of type ''{0}'') that holds it is already obsolete"),
     CODING_NO_PROPERTIES_EXPECTED(1002, "noAttributesExpected", "Was not expecting a value to be added for property ''{0}'' because the pluggable does not have any properties"),
     UNEXPECTED_RELATION_TRANSACTION_ERROR(1003, "unExpectedRelationTransactionError", "Unexpected problem occurred in the relation transaction framework"),
     COMPORT_TYPE_NOT_SUPPORTED(1004, Keys.COMPORT_TYPE_NOT_SUPPORTED, "The communication port type of the communication port pool must be supported by the connection type"),
     CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED(1006, Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED, "A connection task requires a connection type pluggable class"),
     CONNECTION_TASK_COMPORT_POOL_REQUIRED(1007, Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED, "A connection task requires a communication port pool"),
-    MRID_IS_REQUIRED(1008, Keys.MRID_REQUIRED, "The MRID is required"),
-    DEVICE_TYPE_IS_REQUIRED(1009, Keys.DEVICE_TYPE_REQUIRED, "The device type is required"),
-    DEVICE_CONFIGURATION_IS_REQUIRED(1010, Keys.DEVICE_CONFIGURATION_REQUIRED, "The device configuration is required"),
     FIELD_TOO_LONG(1011, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     VETO_COMPORTPOOL_DELETION(1012, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by at least one device"),
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by a data collection KPI"),
@@ -37,7 +31,6 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION(2004, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION, "A connection task must be added against a partial connection task (id={0}, configuration id={1}) from the same device configuration (id={2})"),
     CONNECTION_TASK_IS_ALREADY_OBSOLETE(2005, Keys.CONNECTION_TASK_IS_ALREADY_OBSOLETE, "The connection task ''{0}'' on device {1} cannot be made obsolete because it is already obsolete since {2,date,yyyy-MM-dd HH:mm:ss}"),
     CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE(2006, Keys.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE, "The connection task ''{0}'' on device {1} cannot be made obsolete because it is currently being executed by communication server ''{2}''"),
-    CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE(2007, Keys.CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE, "The connection task ''{0}'' on device {1} cannot be updated because it is already obsolete since {2,date,yyyy-MM-dd HH:mm:ss}"),
     DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE(2008, Keys.DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE, "The default connection task ''{0}'' on device {1} cannot be removed because it is still in use by communication tasks"),
     CONNECTION_TASK_INVALID_PROPERTY(2009, Keys.CONNECTION_TASK_INVALID_PROPERTY, "Invalid value"),
     CONNECTION_TASK_PROPERTY_NOT_IN_SPEC(2010, Keys.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC, "ConnectionType ''{0}'' does not contain a specification for attribute ''{1}''"),
@@ -108,7 +101,24 @@ public enum MessageSeeds implements MessageSeed {
     NO_METER_ACTIVATION_AT(2078, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}"),
     LAST_CHECKED_CANNOT_BE_NULL(2079, Keys.LAST_CHECKED_CANNOT_BE_NULL, "The new last checked timestamp cannot be null"),
     LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
-    DUPLICATE_COMTASK(2081, Keys.DUPLICATE_COMTASK, "One or more communication tasks in the communication schedule are already scheduled on the device"),
+    CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG(2081, Keys.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG, "You can not change the configuration of device {0} to the configuration it already has"),
+    CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED(2082, Keys.CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED, "You can not change the configuration of device {0} to the configuration {1} because there are still unsolved conflicts"),
+    CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE(2083, Keys.CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE, "You can not change the configuration of a device to a configuration of another devicetype"),
+    NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION(2084, Keys.NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION, "No destination device configuration found for id {0} and version {1}"),
+    VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED(2085, Keys.VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED, "There is currently an active configuration change happening, your change would create new conflicts, please wait untill the action has finished."),
+    DUPLICATE_COMTASK(2086, Keys.DUPLICATE_COMTASK, "One or more communication tasks in the communication schedule are already scheduled on the device"),
+    INVALID_SEARCH_DOMAIN(2087, Keys.INVALID_SEARCH_DOMAIN, "You are trying to look for an invalid search domain : {0}"),
+    NO_DESTINATION_SPEC_FOUND(2088, Keys.NO_DESTINATION_SPEC_FOUND, "No destination spec found for : {0}"),
+    NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND(2089, Keys.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, "No device config change business lock found for id {0}"),
+    NO_DEVICE_FOUND_FOR_MRID(2090, Keys.NO_DEVICE_FOUND_FOR_MRID, "No device found for mrid {0}"),
+    INCORRECT_DEVICE_VERSION(2091, Keys.INCORRECT_DEVICE_VERSION, "No device found for id {0} and version {1}"),
+    NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND(2092, Keys.NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND, "No device config change business lock for single device found for id {0}"),
+    BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG(2093, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG, "You need to search a specific device configuration in order to use the bulk action for change device configuration"),
+    BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG(2094, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG, "You need to search on a unique device configuration in order to use the bulk action for change device configuration"),
+    BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE(2095, Keys.BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE, "You provided an invalid search value for the property {0}"),
+    PRIORITY_NOT_IN_RANGE(2096, Keys.PRIORITY_NOT_IN_RANGE, "Value must be between {min} and {max}"),
+    CHANGE_CONFIG_WRONG_DEVICE_STATE(2097, Keys.CHANGE_CONFIG_WRONG_DEVICE_STATE, "Device configuration cannot be changed on device with MRID: {0} as this device has the {1} state."),
+    READING_OVERFLOW_DETECTED(2098, Keys.READING_OVERFLOW_DETECTED, "Reading of device {0} and reading type {1} overflowed at {2}, corrected value from {3} to {4}.", Level.WARNING),
     ;
 
     private final int number;
@@ -153,12 +163,8 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public static class Keys {
-        public static final String NAME_REQUIRED = "X.name.required";
         public static final String FIELD_REQUIRED = "X.field.required";
         public static final String FIELD_TOO_LONG = "invalidFieldLength";
-        public static final String MRID_REQUIRED = "mRIDRequired";
-        public static final String DEVICE_TYPE_REQUIRED = "deviceTypeRequired";
-        public static final String DEVICE_CONFIGURATION_REQUIRED = "deviceConfigurationRequired";
         public static final String COMPORT_TYPE_NOT_SUPPORTED = "comPortTypeOfComPortPoolMustBeSupportedByConnectionType";
         public static final String CONNECTION_TASK_DEVICE_REQUIRED = "connectionType.device.required";
         public static final String CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED = "connectionType.partialConnectionTask.required";
@@ -168,7 +174,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CONNECTION_TASK_IS_ALREADY_OBSOLETE = "connectionTask.isAlreadyObsolete";
         public static final String CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE = "connectionTask.isExecutingAndCannotObsolete";
         public static final String DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE = "defaultConnectionTask.isInUseAndCannotObsolete";
-        public static final String CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE = "connectionTask.isObsoleteAndCannotUpdate";
         public static final String CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED = "connectionTask.pluggableClass.required";
         public static final String CONNECTION_TASK_COMPORT_POOL_REQUIRED = "connectionTask.comPortPool.required";
         public static final String CONNECTION_TASK_INVALID_PROPERTY = "connectionTask.property.invalid";
@@ -247,5 +252,21 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_METER_ACTIVATION_AT = "no.meteractivation";
         public static final String LAST_CHECKED_CANNOT_BE_NULL = "lastChecked.null";
         public static final String LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED = "lastChecked.after.currentLastChecked";
+        public static final String CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG = "cannotChangeDeviceToSameConfig";
+        public static final String CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED = "cannotChangeConfigStillUnsolvedConflicts";
+        public static final String CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE = "cannotChangeToConfigOfOtherDeviceType";
+        public static final String NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION = "noDestinationDeviceConfigFoundForVersion";
+        public static final String VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED = "activeConfigChangeNoNewConflictsAllowed";
+        public static final String INVALID_SEARCH_DOMAIN = "device.invalidSearchDomain";
+        public static final String NO_DESTINATION_SPEC_FOUND = "device.noDestinationSpecFound";
+        public static final String NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND = "device.configchange.noBusinessLock";
+        public static final String NO_DEVICE_FOUND_FOR_MRID = "no.device.found.mrid";
+        public static final String INCORRECT_DEVICE_VERSION = "incorrect.device.version";
+        public static final String NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND = "device.configchange.single.device.noBusinessLock";
+        public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG = "bulk.device.configchange.needto.search.on.config";
+        public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG = "bulk.device.configchange.needto.search.on.unique.config";
+        public static final String BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE = "bulk.device.configchange.invalid.search.item";
+        public static final String CHANGE_CONFIG_WRONG_DEVICE_STATE = "change.config.wrong.device.state";
+        public static final String READING_OVERFLOW_DETECTED = "reading.overflow";
     }
 }

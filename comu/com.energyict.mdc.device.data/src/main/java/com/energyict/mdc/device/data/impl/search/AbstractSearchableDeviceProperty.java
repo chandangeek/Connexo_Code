@@ -94,7 +94,34 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitComparison(Comparison comparison) {
-        this.underConstruction.add(new ComparisonFragment(this, this.columnName, comparison));
+        if (Operator.BETWEEN == comparison.getOperator() && comparison.getValues().length > 0 && comparison.getValues()[0] instanceof TimeDuration) {
+            visitBetweenComparisonWithTimeDuration((TimeDuration) comparison.getValues()[0], (TimeDuration) comparison.getValues()[1]);
+        } else {
+            this.underConstruction.add(new ComparisonFragment(this, this.columnName, comparison));
+        }
+    }
+
+    private void visitBetweenComparisonWithTimeDuration(TimeDuration from, TimeDuration to) {
+        //SUBSTR(column, instr(column, ':') + 1) = {unit} AND SUBSTR(column, 1, instr(column, ':') - 1) BETWEEN {from} AND {to}
+        this.underConstruction.append("substr(");
+        this.underConstruction.append(columnName);
+        this.underConstruction.append(", instr(");
+        this.underConstruction.append(columnName);
+        this.underConstruction.append(", '");
+        this.underConstruction.append(TimeDurationValueFactory.VALUE_UNIT_SEPARATOR);
+        this.underConstruction.append("') + 1 ) = ");
+        this.underConstruction.addInt(from.getTimeUnitCode());
+        this.underConstruction.append(" AND ");
+        this.underConstruction.append("substr(");
+        this.underConstruction.append(columnName);
+        this.underConstruction.append(", 1, instr(");
+        this.underConstruction.append(columnName);
+        this.underConstruction.append(", '");
+        this.underConstruction.append(TimeDurationValueFactory.VALUE_UNIT_SEPARATOR);
+        this.underConstruction.append("') - 1) between ");
+        this.underConstruction.addInt(from.getCount());
+        this.underConstruction.append(" AND ");
+        this.underConstruction.addInt(to.getCount());
     }
 
     @Override
@@ -107,13 +134,13 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitTrue(Constant trueCondition) {
-        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, "Y")));
+        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, Boolean.TRUE)));
     }
 
     @Override
     public void visitFalse(Constant falseCondition) {
         this.underConstruction.openBracket();
-        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, "N")));
+        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, Boolean.FALSE)));
         this.underConstruction.append(" OR ");
         this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.ISNULL.compare(this.columnName)));
         this.underConstruction.closeBracket();
@@ -157,19 +184,15 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     }
 
     @Override
-    public void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
         if (value instanceof HasId) {
             HasId hasId = (HasId) value;
             statement.setLong(bindPosition, hasId.getId());
         } else if (value instanceof HasIdAndName) {
             HasIdAndName hasId = (HasIdAndName) value;
             statement.setObject(bindPosition, hasId.getId());
-        } else if (value instanceof TimeDuration) {
-            new TimeDurationValueFactory().bind(statement, bindPosition, (TimeDuration) value);
-        } else if (value instanceof Instant){
-            statement.setLong(bindPosition, ((Instant) value).toEpochMilli());
         } else {
-            statement.setObject(bindPosition, value);
+            getSpecification().getValueFactory().bind(statement, bindPosition, value);
         }
     }
 
@@ -181,8 +204,8 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
             this.valueBinder = valueBinder;
         }
 
-        protected void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
-            this.valueBinder.bindSingleValue(statement, value, bindPosition);
+        protected void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
+            this.valueBinder.bindSingleValue(statement, bindPosition, value);
         }
     }
 
@@ -225,7 +248,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         public int bind(PreparedStatement statement, int position) throws SQLException {
             int bindPosition = position;
             for (Object value : this.comparison.getValues()) {
-                this.bindSingleValue(statement, value, bindPosition);
+                this.bindSingleValue(statement, bindPosition, value);
                 bindPosition++;
             }
             return bindPosition;
@@ -246,7 +269,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         public int bind(PreparedStatement statement, int position) throws SQLException {
             int bindPosition = position;
             for (Object value : this.contains.getCollection()) {
-                this.bindSingleValue(statement, value, bindPosition);
+                this.bindSingleValue(statement, bindPosition, value);
                 bindPosition++;
             }
             return bindPosition;

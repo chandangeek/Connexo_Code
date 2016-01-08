@@ -20,22 +20,25 @@ public class ChannelObisCodeSearchableProperty extends AbstractObisCodeSearchabl
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addChannelSpec();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.openBracket();
-        sqlBuilder.add(this.toSqlFragment("ch_spec.obiscode", condition, now));
-        sqlBuilder.append(" OR ");
-        sqlBuilder.openBracket();
-        sqlBuilder.append(" ch_spec.obiscode is null ");
-        sqlBuilder.append(" AND ");
-        sqlBuilder.add(this.toSqlFragment("ch_msr_type.obiscode", condition, now));
-        sqlBuilder.closeBracket();
-        sqlBuilder.closeBracket();
-        return sqlBuilder;
+        SqlBuilder builder = new SqlBuilder();
+        builder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
+        builder.append("select DTC_CHANNELSPEC.DEVICECONFIGID " +
+                "from DTC_CHANNELSPEC " +
+                "join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.ID = DTC_CHANNELSPEC.CHANNELTYPEID " +
+                "where ");
+        builder.add(this.toSqlFragment("DTC_CHANNELSPEC.OBISCODE", condition, now));
+        builder.append(" OR ");
+        builder.openBracket();
+        builder.append(" DTC_CHANNELSPEC.OBISCODE is null ");
+        builder.append(" AND ");
+        builder.add(this.toSqlFragment("MDS_MEASUREMENTTYPE.obiscode", condition, now));
+        builder.closeBracket();
+        builder.closeBracket();
+        return builder;
     }
 
     @Override

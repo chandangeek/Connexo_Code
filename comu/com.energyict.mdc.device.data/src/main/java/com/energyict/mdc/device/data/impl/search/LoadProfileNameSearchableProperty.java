@@ -20,14 +20,18 @@ public class LoadProfileNameSearchableProperty extends AbstractNameSearchablePro
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addLoadProfileType();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.openBracket();
-        sqlBuilder.add(this.toSqlFragment(JoinClauseBuilder.Aliases.LOADPROFILE_TYPE + ".name", condition, now));
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".id in (");
+        sqlBuilder.append("select DEVICEID " +
+                "from DDC_LOADPROFILE " +
+                "join DTC_LOADPROFILESPEC on DTC_LOADPROFILESPEC.ID = DDC_LOADPROFILE.LOADPROFILESPECID " +
+                "join MDS_LOADPROFILETYPE on MDS_LOADPROFILETYPE.ID = DTC_LOADPROFILESPEC.LOADPROFILETYPEID " +
+                "where ");
+        sqlBuilder.add(this.toSqlFragment("MDS_LOADPROFILETYPE.name", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }

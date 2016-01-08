@@ -9,6 +9,7 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.energyict.mdc.common.search.SearchDomains;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -16,6 +17,7 @@ import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuild
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -84,6 +86,16 @@ public class DeviceSearchDomain implements SearchDomain {
     }
 
     @Override
+    public String displayName() {
+        return deviceDataModelService.thesaurus().getFormat(PropertyTranslationKeys.DEVICE_DOMAIN).format();
+    }
+
+    @Override
+    public List<String> targetApplications() {
+        return Collections.singletonList(SearchDomains.SEARCH_DOMAIN_APPLICATION_KEY);
+    }
+
+    @Override
     public boolean supports(Class aClass) {
         return Device.class.equals(aClass);
     }
@@ -125,6 +137,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(RegisterReadingTypeNameSearchableProperty.class).init(this, registerGroup),
                 injector.getInstance(RegisterReadingTypeTimeOfUseSearchableProperty.class).init(this, registerGroup),
                 injector.getInstance(RegisterReadingTypeUnitOfMeasureSearchableProperty.class).init(this, registerGroup),
+                injector.getInstance(RegisterLastReadingSearchableProperty.class).init(this, registerGroup),
                 injector.getInstance(ProtocolDialectSearchableProperty.class).init(this, deviceTypeSearchableProperty),
                 injector.getInstance(ChannelReadingTypeNameSearchableProperty.class).init(this, channelGroup),
                 injector.getInstance(ChannelReadingTypeUnitOfMeasureSearchableProperty.class).init(this, channelGroup),
@@ -142,10 +155,18 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(ComTaskNameSearchableProperty.class).init(this, comTaskGroup),
                 injector.getInstance(ComTaskSecuritySettingSearchableProperty.class).init(this, comTaskGroup, deviceTypeSearchableProperty),
                 injector.getInstance(ComTaskConnectionMethodSearchableProperty.class).init(this, comTaskGroup),
+                injector.getInstance(ComTaskUrgencySearchableProperty.class).init(this, comTaskGroup),
+                injector.getInstance(ComTaskNextCommunicationSearchableProperty.class).init(this, comTaskGroup),
                 injector.getInstance(ComTaskLastCommunicationSearchableProperty.class).init(this, comTaskGroup),
+                injector.getInstance(ComTaskStatusSearchableProperty.class).init(this, comTaskGroup),
+                injector.getInstance(ComTaskScheduleTypeSearchableProperty.class).init(this, comTaskGroup),
+                injector.getInstance(ComTaskScheduleNameSearchableProperty.class).init(this, comTaskGroup),
+                injector.getInstance(ComTaskPlannedDateSearchableProperty.class).init(this, comTaskGroup),
                 injector.getInstance(ConnectionNameSearchableProperty.class).init(this, connectionGroup),
                 injector.getInstance(ConnectionDirectionSearchableProperty.class).init(this, connectionGroup),
                 injector.getInstance(ConnectionCommunicationPortPoolSearchableProperty.class).init(this, connectionGroup),
+                injector.getInstance(ConnectionSimultaneousSearchableProperty.class).init(this, connectionGroup),
+                injector.getInstance(ConnectionStatusSearchableProperty.class).init(this, connectionGroup),
                 injector.getInstance(TransitionShipmentDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionInstallationDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionDeactivationDateSearchableProperty.class).init(this, transitionGroup),
@@ -180,12 +201,18 @@ public class DeviceSearchDomain implements SearchDomain {
                 if (!uniqueDeviceProtocolDialects.add(deviceProtocolDialectName)) {
                     continue;
                 }
-                String relationTableName = this.protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(),
-                        deviceProtocolDialectName).findRelationType().getDynamicAttributeTableName();
-                for (PropertySpec propertySpec : protocolDialect.getProtocolDialect().getPropertySpecs()) {
-                    dynamicProperties.add(injector.getInstance(ProtocolDialectDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName));
-                }
+                this.protocolPluggableService
+                        .getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(), deviceProtocolDialectName)
+                        .getDeviceProtocolDialect()
+                        .getCustomPropertySet().ifPresent(deviceProtocolCustomPropSet -> {
+                    String relationTableName = deviceProtocolCustomPropSet.getPersistenceSupport().tableName();
+                    protocolDialect
+                            .getProtocolDialect()
+                            .getPropertySpecs()
+                            .stream()
+                            .map(propertySpec -> injector.getInstance(ProtocolDialectDynamicSearchableProperty.class).init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName))
+                            .forEach(dynamicProperties::add);
+                });
             }
             return dynamicProperties;
         }
@@ -286,8 +313,4 @@ public class DeviceSearchDomain implements SearchDomain {
                 this.deviceDataModelService.dataModel());
     }
 
-    @Override
-    public String displayName() {
-        return deviceDataModelService.thesaurus().getFormat(PropertyTranslationKeys.DEVICE_DOMAIN).format();
-    }
 }
