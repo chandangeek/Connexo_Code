@@ -89,7 +89,6 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -109,6 +108,7 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
