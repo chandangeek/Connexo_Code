@@ -110,10 +110,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private Map<String, Object> getProperties(CreationRuleTemplate template){
         Map<String, Object> properties = new HashMap<>();
         if (template.getName().equals(BASIC_DATA_COLLECTION_RULE_TEMPLATE)){
-             properties.put(BasicDataCollectionRuleTemplate.EVENTTYPE,
-                     template.getPropertySpec(BasicDataCollectionRuleTemplate.EVENTTYPE).getValueFactory().fromStringValue(type));
-             properties.put(BasicDataCollectionRuleTemplate.AUTORESOLUTION,
-                     template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).getValueFactory().fromStringValue("1"));
+             properties.put(
+                     BasicDataCollectionRuleTemplate.EVENTTYPE,
+                     template.getPropertySpec(BasicDataCollectionRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
+             properties.put(
+                     BasicDataCollectionRuleTemplate.AUTORESOLUTION,
+                     template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("1"));
 
         }else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)){
             ListValue<HasIdAndName>  deviceConfigurations = getAllDefaultConfigurations();

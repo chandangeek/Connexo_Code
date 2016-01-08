@@ -1,5 +1,11 @@
 package com.elster.jupiter.demo.impl.commands.devices;
 
+import com.elster.jupiter.demo.impl.Builders;
+import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
+import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -9,16 +15,11 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
-
-import com.elster.jupiter.demo.impl.Builders;
-import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
-import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
-import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.TimeZone;
 import java.util.function.Consumer;
@@ -54,7 +55,7 @@ import java.util.function.Consumer;
  */
 public class CreateG3SlaveCommand {
 
-    private final static String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
+    private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
     public enum SlaveDeviceConfiguration {
         AS3000 {
@@ -72,7 +73,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty("ClientMacAddress", "1");
+                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
             }
         },
         AS220 {
@@ -90,7 +91,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty("ClientMacAddress", 1);
+                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
             }
         };
 
@@ -188,8 +189,8 @@ public class CreateG3SlaveCommand {
 
         TypedProperties getSecuritySetProperties(){
             TypedProperties securitySetProperties = TypedProperties.empty();
-            securitySetProperties.setProperty("ClientMacAddress", props.getProperty("ClientMacAddress"));
-            securitySetProperties.setProperty("Password", new Password((String) props.getProperty("HLSsecretASCII")));
+            securitySetProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), props.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()));
+            securitySetProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password((String) props.getProperty("HLSsecretASCII")));
             return securitySetProperties;
         }
 
@@ -210,12 +211,12 @@ public class CreateG3SlaveCommand {
         public void accept(DeviceConfiguration configuration) {
              configuration.createSecurityPropertySet(SECURITY_SET_NAME)
                      .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue())
-                    .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
-                    .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
-                    .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
-                    .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
-                    .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
-                    .build();
+                     .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
+                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
+                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
+                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
+                     .build();
         }
     }
 
@@ -248,6 +249,4 @@ public class CreateG3SlaveCommand {
         }
     }
 
-
 }
-

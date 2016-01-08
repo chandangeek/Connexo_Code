@@ -17,8 +17,8 @@ import java.util.Optional;
  */
 public class AppServerBuilder extends NamedBuilder<AppServer, AppServerBuilder> {
 
-    private final static String DEFAULT_EXPORTPATH = "D:\\Data-Export";
-    private final static String DEFAULT_IMPORTPATH = "D:\\Data-Import";
+    private static final String DEFAULT_EXPORTPATH = "D:\\Data-Export";
+    private static final String DEFAULT_IMPORTPATH = "D:\\Data-Import";
 
     private final AppService appService;
     private final CronExpressionParser cronExpressionParser;
@@ -89,7 +89,7 @@ public class AppServerBuilder extends NamedBuilder<AppServer, AppServerBuilder> 
         Path importDirectory = Paths.get(importPath);
         appServer.setImportDirectory(importDirectory);
 
-        messageService.getSubscribers().stream().forEach(subscriber -> appServer.createSubscriberExecutionSpec(subscriber, threadCount));
+        messageService.getNonSystemManagedSubscribers().stream().forEach(subscriber -> appServer.createSubscriberExecutionSpec(subscriber, threadCount));
         dataExportService.setExportDirectory(appServer, Paths.get(exportPath));
         appServer.activate();
         return appServer;

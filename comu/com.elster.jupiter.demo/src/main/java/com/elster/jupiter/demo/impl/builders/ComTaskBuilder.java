@@ -55,7 +55,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         return this;
     }
 
-    public ComTaskBuilder withStatusInformationTask(boolean statusInformationTaskFlag){
+    public ComTaskBuilder forStatusInformationTask(boolean statusInformationTaskFlag){
         this.statusInformationTask = statusInformationTaskFlag;
         return this;
     }

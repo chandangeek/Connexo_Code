@@ -50,9 +50,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -73,7 +71,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -92,6 +89,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -111,7 +109,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -164,12 +161,14 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
-import com.energyict.protocolimpl.elster.a3.AlphaA3;
-import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
+
+import com.energyict.protocolimpl.elster.a3.AlphaA3;
+import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -185,8 +184,6 @@ import org.osgi.service.log.LogService;
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
@@ -201,13 +198,16 @@ import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DemoTest {
     private static final Logger LOG = Logger.getLogger(DemoTest.class.getName());
 
     protected static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private User currentUser;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -468,15 +468,15 @@ public class DemoTest {
         assertThat(scheduledConnectionTask.isSimultaneousConnectionsAllowed()).isFalse();
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
-            assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
+            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString()).getValue()).isEqualTo("10.0.0.135");
+            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString()).getValue()).isEqualTo(new BigDecimal(4059));
             assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(3);
             for (SecurityProperty securityProperty : gateway.getSecurityProperties(securityPropertySet)) {
-                if ("ClientMacAddress".equals(securityProperty.getName())) {
+                if (SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
-                } else if ("AuthenticationKey".equals(securityProperty.getName())) {
+                } else if (SecurityPropertySpecName.AUTHENTICATION_KEY.toString().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("00112233445566778899AABBCCDDEEFF");
-                } else if ("EncryptionKey".equals(securityProperty.getName())) {
+                } else if (SecurityPropertySpecName.ENCRYPTION_KEY.toString().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("11223344556677889900AABBCCDDEEFF");
                 }
             }
@@ -746,7 +746,6 @@ public class DemoTest {
 
     protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            createOracleTablesSubstitutes();
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
             injector.getInstance(FiniteStateMachineService.class);
@@ -757,20 +756,6 @@ public class DemoTest {
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();
-    }
-
-    private void createOracleTablesSubstitutes() {
-        OrmServiceImpl ormService = (OrmServiceImpl) injector.getInstance(OrmService.class);
-        try (Connection connection = ormService.getConnection(true)) {
-            SqlBuilder sqlBuilder = new SqlBuilder("CREATE VIEW USER_TABLES AS (select * from INFORMATION_SCHEMA.TABLES)");
-            sqlBuilder.prepare(connection).execute();
-            sqlBuilder = new SqlBuilder("CREATE VIEW USER_SEQUENCES AS (select * from INFORMATION_SCHEMA.SEQUENCES)");
-            sqlBuilder.prepare(connection).execute();
-            sqlBuilder = new SqlBuilder("CREATE VIEW USER_IND_COLUMNS AS (select INDEX_NAME, TABLE_NAME, COLUMN_NAME, '1' COLUMN_POSITION from INFORMATION_SCHEMA.INDEXES AS ind)");
-            sqlBuilder.prepare(connection).execute();
-        } catch (SQLException e) {
-            LOG.severe("Errors during creating substitutes for ORACLE tables. It may cause unpredictable work.");
-        }
     }
 
     private void createRequiredProtocols() {
