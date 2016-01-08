@@ -70,7 +70,7 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
                 (thesaurus) -> Stream.of(1, 60, 120, 180, 240, 360)
                         .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
         TIME_OF_USE("timeOfUse",
-                (thesaurus) -> Stream.of(1, 2, 3, 4, 5).collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
+                (thesaurus) -> Stream.of(1, 2, 3, 4, 5, 6, 7, 8).collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
         CPP("criticalPeakPeriod",
                 (thesaurus) -> Stream.of(1, 2, 3, 4, 5, 6, 7)
                         .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
