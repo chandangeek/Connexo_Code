@@ -49,9 +49,10 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     }
 
     @Override
-    protected void doExecutionCompleted() {
-        super.doExecutionCompleted();
+    protected void doExecutionCompleted(List<String> updatedFields) {
+        super.doExecutionCompleted(updatedFields);
         resetCurrentRetryCount();
+        updatedFields.add(ConnectionTaskFields.CURRENT_RETRY_COUNT.fieldName());
     }
 
     @Override
