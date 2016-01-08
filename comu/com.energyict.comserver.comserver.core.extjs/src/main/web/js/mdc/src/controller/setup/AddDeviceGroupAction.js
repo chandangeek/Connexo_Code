@@ -352,7 +352,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             me.service.excludedCriteria = undefined;
             staticGrid = step2.down('static-group-devices-grid');
             staticGrid.setVisible(false);
-            staticGrid.setLoading(true);
+            if(wizard.isEdit) {
+                staticGrid.setLoading(true);
+            }
             if(!devices.getRange()){
                 selectionGroupType = {};
                 staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
@@ -370,22 +372,30 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         if (domainsStore.isLoading()) {
 
             domainsStore.on('load', function () {
-                staticGrid.setVisible(true);
-                staticGrid.setLoading(true);
+                if(!isDynamic) {
+                    staticGrid.setVisible(true);
+                    if(wizard.isEdit) {
+                        staticGrid.setLoading(true);
+                        store.on('load', function () {
+                            staticGrid.setLoading(false);
+                        })
+                    }
+                }
                 me.service.applyState(me.state, function(){
-
                 });
-                store.on('load', function() {
-                    staticGrid.setLoading(false);
-                })
+
             }, me, {single: true});
         } else {
             me.service.applyState(me.state, function(){
-                 staticGrid.setVisible(true);
-                staticGrid.setLoading(true);
-                store.on('load', function() {
-                    staticGrid.setLoading(false);
-                })
+                if(!isDynamic){
+                    staticGrid.setVisible(true);
+                    if(wizard.isEdit) {
+                        staticGrid.setLoading(true);
+                        store.on('load', function () {
+                            staticGrid.setLoading(false);
+                        })
+                    }
+                }
             });
         }
     },
