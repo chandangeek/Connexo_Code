@@ -48,6 +48,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 itemId: 'form-errors',
                                 xtype: 'uni-form-error-message',
                                 name: 'form-errors',
+                                width: 600,
                                 margin: '0 0 10 0',
                                 hidden: true
                             },
