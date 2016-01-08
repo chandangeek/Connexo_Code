@@ -9,7 +9,7 @@ import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 import org.osgi.service.event.EventConstants;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public enum DataCollectionEventDescription implements EventDescription {
             "com/energyict/mdc/connectiontask/COMPLETION",
             CommunicationErrorType.CONNECTION_FAILURE,
             ConnectionLostEvent.class,
-            MessageSeeds.EVENT_TITLE_CONNECTION_LOST) {
+            TranslationKeys.EVENT_TITLE_CONNECTION_LOST) {
         public boolean validateEvent(Map<?, ?> map) {
             if (super.validateEvent(map)) {
                 return !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
@@ -38,7 +38,7 @@ public enum DataCollectionEventDescription implements EventDescription {
             "com/energyict/mdc/connectiontask/COMPLETION",
             CommunicationErrorType.COMMUNICATION_FAILURE,
             DeviceCommunicationFailureEvent.class,
-            MessageSeeds.EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE) {
+            TranslationKeys.EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE) {
         public boolean validateEvent(Map<?, ?> map) {
             if (super.validateEvent(map)) {
                 return !isEmptyString(map, ModuleConstants.FAILED_TASK_IDS);
@@ -56,27 +56,27 @@ public enum DataCollectionEventDescription implements EventDescription {
             "com/energyict/mdc/connectiontask/FAILURE",
             CommunicationErrorType.CONNECTION_SETUP_FAILURE,
             UnableToConnectEvent.class,
-            MessageSeeds.EVENT_TITLE_UNABLE_TO_CONNECT),
+            TranslationKeys.EVENT_TITLE_UNABLE_TO_CONNECT),
 
     UNKNOWN_INBOUND_DEVICE(
             "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE",
             null,
             UnknownInboundDeviceEvent.class,
-            MessageSeeds.EVENT_TITLE_UNKNOWN_INBOUND_DEVICE) {
+            TranslationKeys.EVENT_TITLE_UNKNOWN_INBOUND_DEVICE) {
     },
 
     UNKNOWN_OUTBOUND_DEVICE(
             "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE",
             null,
             UnknownSlaveDeviceEvent.class,
-            MessageSeeds.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE);
+            TranslationKeys.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE);
 
     private String topic;
     private CommunicationErrorType errorType;
-    private MessageSeeds title;
+    private TranslationKeys title;
     private Class<? extends DataCollectionEvent> eventClass;
 
-    private DataCollectionEventDescription(String topic, CommunicationErrorType errorType, Class<? extends DataCollectionEvent> eventClass, MessageSeeds title) {
+    private DataCollectionEventDescription(String topic, CommunicationErrorType errorType, Class<? extends DataCollectionEvent> eventClass, TranslationKeys title) {
         this.topic = topic;
         this.errorType = errorType;
         this.eventClass = eventClass;
@@ -87,7 +87,7 @@ public enum DataCollectionEventDescription implements EventDescription {
         return errorType;
     }
 
-    public MessageSeeds getTitle() {
+    public TranslationKeys getTitle() {
         return title;
     }
 

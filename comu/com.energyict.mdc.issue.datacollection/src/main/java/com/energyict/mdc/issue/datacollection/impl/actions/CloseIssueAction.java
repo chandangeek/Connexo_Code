@@ -1,9 +1,9 @@
 package com.energyict.mdc.issue.datacollection.impl.actions;
 
-import com.elster.jupiter.issue.security.Privileges;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
@@ -84,14 +84,14 @@ public class CloseIssueAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicableForUser(User user) {
-        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.CLOSE_ISSUE.equals(p.getName())).findAny().isPresent();
+        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.Constants.CLOSE_ISSUE.equals(p.getName())).findAny().isPresent();
     }
 
     private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
         Object value = properties.get(CLOSE_STATUS);
         if (value != null) {
             @SuppressWarnings("unchecked")
-            String statusKey = getPropertySpec(CLOSE_STATUS).getValueFactory().toStringValue(value);
+            String statusKey = getPropertySpec(CLOSE_STATUS).get().getValueFactory().toStringValue(value);
             return issueService.findStatus(statusKey);
         }
         return Optional.empty();
@@ -100,9 +100,9 @@ public class CloseIssueAction extends AbstractIssueAction {
     private Optional<String> getCommentFromParameters(Map<String, Object> properties) {
         Object value = properties.get(COMMENT);
         if (value != null) {
-            @SuppressWarnings("unchecked")
-            String comment = getPropertySpec(COMMENT).getValueFactory().toStringValue(value);
-            return Optional.ofNullable(comment);
+            return this.getPropertySpec(COMMENT)
+                    .map(PropertySpec::getValueFactory)
+                    .map(valueFactory -> valueFactory.toStringValue(value));
         }
         return Optional.empty();
     }

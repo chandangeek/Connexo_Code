@@ -1,17 +1,10 @@
 package com.energyict.mdc.issue.datacollection.impl.i18n;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
 
-import com.elster.jupiter.nls.TranslationKey;
-
-/**
- * Insert your comments here.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-09-03 (15:36)
- */
 public enum TranslationKeys implements TranslationKey {
 
     BASIC_TEMPLATE_DATACOLLECTION_NAME("TemplateBasicDataCollectionName", "Create issue when specific event occurs"),
@@ -49,7 +42,14 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_WRONG_STATUS("action.wrong.status", "You are trying to apply the incorrect status"),
     CLOSE_ACTION_ISSUE_WAS_CLOSED("action.issue.was.closed", "Issue was closed"),
     CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
-    CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue");
+    CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
+
+    EVENT_TITLE_UNKNOWN_INBOUND_DEVICE("EventTitleUnknownInboundDevice", "Unknown inbound device"),
+    EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE("EventTitleUnknownOutboundDevice", "Unknown outbound device"),
+    EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE("EventTitleDeviceCommunicationFailure", "Device communication failure"),
+    EVENT_TITLE_UNABLE_TO_CONNECT("EventTitleUnableToConnect", "Unable to connect"),
+    EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost"),
+    ;
 
     private final String key;
     private final String defaultFormat;
