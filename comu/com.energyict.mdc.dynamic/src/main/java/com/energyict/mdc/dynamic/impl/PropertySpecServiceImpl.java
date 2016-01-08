@@ -153,6 +153,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
+    public PropertySpec boundedDecimalPropertySpecWithDefaultValue(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit, BigDecimal defaultValue) {
+        return basicPropertySpecService.boundedDecimalPropertySpecWithDefaultValue(name, required, lowerLimit, upperLimit, defaultValue);
+    }
+
+    @Override
     public PropertySpec timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue) {
         return this.timeDurationPropertySpec(name, "", required, defaultValue);
     }
