@@ -31,6 +31,11 @@ public class LogBookReader {
     private final DeviceIdentifier<?> deviceIdentifier;
 
     /**
+     * Holds the serialNumber of the meter for this LogBook
+     */
+    private final String meterSerialNumber;
+
+    /**
      * The LogBookIdentifier, which unique defines the LogBook to read.
      */
     private final LogBookIdentifier logBookIdentifier;
@@ -39,9 +44,10 @@ public class LogBookReader {
      * @param logBookObisCode   Holds the ObisCode from the LogBook to read
      * @param lastLogBook       Holds the Date from where to start fetching data from the LogBook
      * @param logBookIdentifier The LogBookIdentifier, which unique defines the LogBook to read.
-     * @param deviceIdentifier The serial number of the meter of the logbook
+     * @param deviceIdentifier  the unique identifier of the LogBook
+     * @param meterSerialNumber the serialNumber of the device which owns this LogBook
      */
-    public LogBookReader(Clock clock, ObisCode logBookObisCode, Optional<Instant> lastLogBook, LogBookIdentifier logBookIdentifier, DeviceIdentifier<?> deviceIdentifier) {
+    public LogBookReader(Clock clock, ObisCode logBookObisCode, Optional<Instant> lastLogBook, LogBookIdentifier logBookIdentifier, DeviceIdentifier<?> deviceIdentifier, String meterSerialNumber) {
         if (!lastLogBook.isPresent()) {
             this.lastLogBook = clock.instant().atOffset(ZoneOffset.UTC).minus(Period.ofMonths(1)).toInstant();
         } else {
@@ -50,6 +56,7 @@ public class LogBookReader {
         this.logBookObisCode = logBookObisCode;
         this.logBookIdentifier = logBookIdentifier;
         this.deviceIdentifier = deviceIdentifier;
+        this.meterSerialNumber = meterSerialNumber;
     }
 
     /**
@@ -86,6 +93,10 @@ public class LogBookReader {
      */
     public LogBookIdentifier getLogBookIdentifier() {
         return logBookIdentifier;
+    }
+
+    public String getMeterSerialNumber() {
+        return meterSerialNumber;
     }
 
     @Override
