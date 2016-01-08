@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -21,7 +20,7 @@ import java.util.List;
  * <br/><br/>
  * <b>NOTE:</b> It is strongly advised to use the {@link DeviceIdentifierById} instead of this one.
  * The SerialNumber of a device doesn't have to be unique. If this identifier finds more than one
- * device with the same serialNumber, then a {@link NotFoundException} will be thrown indicating that.
+ * device with the same serialNumber, then a {@link DuplicateException} will be thrown indicating that.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (11:16)

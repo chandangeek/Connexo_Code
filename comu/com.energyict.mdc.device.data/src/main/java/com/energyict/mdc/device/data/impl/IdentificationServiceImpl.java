@@ -78,8 +78,8 @@ public class IdentificationServiceImpl implements IdentificationService {
     }
 
     @Override
-    public DeviceIdentifier createDeviceIdentifierByCallHomeId(String serialNumber) {
-        return new DeviceIdentifierByPropertyValue(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), serialNumber, deviceService);
+    public DeviceIdentifier createDeviceIdentifierByCallHomeId(String callHomeId) {
+        return new DeviceIdentifierByPropertyValue(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), callHomeId, deviceService);
     }
 
     @Override
