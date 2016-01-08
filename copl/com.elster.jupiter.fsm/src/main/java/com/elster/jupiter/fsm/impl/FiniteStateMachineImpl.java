@@ -153,7 +153,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
         this.states
                 .stream()
                 .filter(Predicates.not(StateImpl::isObsolete))
-                .filter(candidate -> candidate.equals(newInitialState))
+                .filter(candidate -> candidate == newInitialState || newInitialState.getId() > 0 && newInitialState.getId() == candidate.getId())
                 .filter(candidate -> !candidate.isInitial())
                 .findFirst()
                 .ifPresent(state -> state.setInitial(true));
