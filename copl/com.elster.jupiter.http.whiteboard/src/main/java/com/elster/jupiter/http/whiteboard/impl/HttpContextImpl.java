@@ -122,7 +122,7 @@ public class HttpContextImpl implements HttpContext {
             user = userService.authenticateBase64(authentication.split(" ")[1]);
         }
 
-        return user.isPresent() ? allow(request, response, user.get(), refreshCookie) : deny(request, response);
+        return (user.isPresent() && !user.get().getPrivileges().isEmpty()) ? allow(request, response, user.get(), refreshCookie) : deny(request, response);
     }
 
 
