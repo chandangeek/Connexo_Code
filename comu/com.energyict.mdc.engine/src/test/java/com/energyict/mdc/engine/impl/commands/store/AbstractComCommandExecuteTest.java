@@ -148,24 +148,24 @@ public abstract class AbstractComCommandExecuteTest {
 
     class SimpleNlsMessageFormat implements NlsMessageFormat {
 
-        private final String defaultFormat;
+        private final String key;
 
         SimpleNlsMessageFormat(TranslationKey translationKey) {
-            this.defaultFormat = translationKey.getDefaultFormat();
+            this.key = translationKey.getKey();
         }
 
         SimpleNlsMessageFormat(MessageSeed messageSeed) {
-            this.defaultFormat = messageSeed.getDefaultFormat();
+            this.key = messageSeed.getKey();
         }
 
         @Override
         public String format(Object... args) {
-            return MessageFormat.format(this.defaultFormat, args);
+            return this.key;    // Don't format, just return the key
         }
 
         @Override
         public String format(Locale locale, Object... args) {
-            return MessageFormat.format(this.defaultFormat, args);
+            return this.key;    // Don't format, just return the key
         }
     }
 }

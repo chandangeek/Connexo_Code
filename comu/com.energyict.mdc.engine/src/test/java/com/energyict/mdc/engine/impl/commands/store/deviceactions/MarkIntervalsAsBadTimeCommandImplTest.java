@@ -5,6 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
@@ -96,7 +97,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
                 .hasSize(1);
         Issue issue = loadProfileCommand.getIssues().get(0);
         assertThat(issue).isInstanceOf(Warning.class);
-        assertThat(issue.getDescription()).isEqualTo("Load profile intervals will be marked as bad time: The time difference (600 seconds) exceeds the configured allowed maximum (60 seconds)");
+        assertThat(issue.getDescription()).isEqualTo(MessageSeeds.INTERVALS_MARKED_AS_BAD_TIME.getKey());
 
         assertNotNull(loadProfileCommand.getCollectedData());
         Assert.assertEquals("Should only contain 1 collectedData object", 1, loadProfileCommand.getCollectedData().size());

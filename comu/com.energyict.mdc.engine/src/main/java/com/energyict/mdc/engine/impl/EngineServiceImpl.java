@@ -495,10 +495,10 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         }
 
         @Override
-        public DeviceIdentifier createDeviceIdentifierByCallHomeId(String serialNumber) {
+        public DeviceIdentifier createDeviceIdentifierByCallHomeId(String callHomeId) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createDeviceIdentifierByCallHomeId(serialNumber))
+                    .map(s -> s.createDeviceIdentifierByCallHomeId(callHomeId))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
