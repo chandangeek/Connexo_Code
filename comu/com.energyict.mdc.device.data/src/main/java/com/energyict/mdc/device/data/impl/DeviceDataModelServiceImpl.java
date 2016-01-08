@@ -158,7 +158,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Inject
     public DeviceDataModelServiceImpl(
             BundleContext bundleContext,
-            OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
+            OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService jupiterTaskService, IssueService issueService,
             PropertySpecService propertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
             CustomPropertySetService customPropertySetService, ProtocolPluggableService protocolPluggableService,
             EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
