@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.exceptions.DeviceCommandException;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandKey;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -204,7 +205,10 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     }
 
     private void addToRoot(ComCommand comCommand, CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addUniqueCommand(comCommand, comTaskExecution);
+        ComCommandKey key = new ComCommandKey(comCommand.getCommandType(), comTaskExecution, root.getSecuritySetCommandGroupId());
+        if (!root.getComCommand(key).isPresent()) {
+            root.addUniqueCommand(comCommand, comTaskExecution);
+        }
     }
 
     protected DeviceProtocol getDeviceProtocol() {
