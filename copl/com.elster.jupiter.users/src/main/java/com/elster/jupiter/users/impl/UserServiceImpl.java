@@ -782,12 +782,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public void addLoggedInUser(User user) {
-        if(!this.loggedInUsers.contains(user)){
+        if (!this.loggedInUsers.contains(user)) {
             this.loggedInUsers.add(user);
-        }else{
-            this.getLoggedInUser(user.getId());
         }
     }
+
 
     @Override
     public void removeLoggedUser(User user) {
