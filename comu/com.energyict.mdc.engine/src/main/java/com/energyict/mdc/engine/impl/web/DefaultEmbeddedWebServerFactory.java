@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.web;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -39,7 +38,7 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
             URI eventRegistrationUri = new URI(comServer.getEventRegistrationUriIfSupported());
             return EmbeddedJettyServer.newForEventMechanism(eventRegistrationUri, new EmbeddedJettyServerServiceProvider());
         }
-        catch (BusinessException e) {
+        catch (UnsupportedOperationException e) {
             // Event registration is not supported
             return new VoidEmbeddedWebServer();
         }
@@ -64,7 +63,7 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
             String queryApiPostUri = runningComServer.getComServer().getQueryApiPostUriIfSupported();
             return EmbeddedJettyServer.newForQueryApi(new URI(queryApiPostUri), runningComServer);
         }
-        catch (BusinessException e) {
+        catch (UnsupportedOperationException e) {
             // Event registration is not supported
             return new VoidEmbeddedWebServer();
         }

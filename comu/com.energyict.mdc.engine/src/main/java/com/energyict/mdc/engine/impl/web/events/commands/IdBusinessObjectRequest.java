@@ -1,13 +1,12 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.common.IdBusinessObject;
-
 import java.util.Set;
 
 /**
  * Provides an implementation for the {@link Request} interface
  * that represents a request to register interest
- * in events that relate to a number of {@link IdBusinessObject}s.
+ * in events that relate to a number of business objects
+ * that are uniquely identified by a single long.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:58)

@@ -1,5 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -53,12 +58,6 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -286,13 +285,19 @@ public abstract class JobExecution implements ScheduledJob {
         return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, this.serviceProvider);
     }
 
-    protected void performPreparedComTaskExecution(PreparedComTaskExecution preparedComTaskExecution) {
+    /**
+     * Performs the {@link PreparedComTaskExecution}.
+     *
+     * @param preparedComTaskExecution The PreparedComTaskExecution
+     * @param nextOneIsPhysicalSlave indicates if we can still execute the next comtask in case of communication problems with the current comtask.
+     */
+    protected void performPreparedComTaskExecution(PreparedComTaskExecution preparedComTaskExecution, boolean nextOneIsPhysicalSlave) {
         try {
             /* No need to attempt to lock the ScheduledComTask
              * as we are locking on the ConnectionTask. */
             this.executeAndUpdateSuccessRate(preparedComTaskExecution);
         } catch (ComServerRuntimeException e) {
-            if (checkIfWeCanPerformOtherComTaskExecutionsBasedOnConnectionRelatedExceptions(e)) {
+            if (!checkIfWeCanPerformOtherComTaskExecutionsBasedOnConnectionRelatedExceptions(e, nextOneIsPhysicalSlave, getExecutionContext().errorOccurredAtLogonOrInit())) {
                 throw e;
             } else if (checkWhetherAllNextComTasksShouldNotBeExecutedBasedOnBasicCheckFailure(e)) {
                 getExecutionContext().setBasicCheckFailed(true);
@@ -346,8 +351,8 @@ public abstract class JobExecution implements ScheduledJob {
         return serviceProvider;
     }
 
-    private boolean checkIfWeCanPerformOtherComTaskExecutionsBasedOnConnectionRelatedExceptions(ComServerRuntimeException e) {
-        return CommunicationException.class.isAssignableFrom(e.getClass());
+    private boolean checkIfWeCanPerformOtherComTaskExecutionsBasedOnConnectionRelatedExceptions(ComServerRuntimeException e, boolean nextOneIsPhysicalSlave, boolean errorOccuredDuringLogonOrDeviceInit) {
+        return (!(e instanceof CommunicationException) && !errorOccuredDuringLogonOrDeviceInit) || nextOneIsPhysicalSlave;
     }
 
     private boolean checkWhetherAllNextComTasksShouldNotBeExecutedBasedOnBasicCheckFailure(ComServerRuntimeException e) {
@@ -525,6 +530,33 @@ public abstract class JobExecution implements ScheduledJob {
         this.getExecutionContext().prepareStart(this, comTaskExecution);
         this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort(), true);
         this.getExecutionContext().executionStarted(comTaskExecution);
+    }
+
+    /**
+     * True if the comtask starts with a daisy chained logon (meaning it is a physical slave, not a logical slave!)
+     */
+    protected boolean isOtherPhysicalSlave(PreparedComTaskExecution preparedComTaskExecution) {
+        return preparedComTaskExecution.getCommandRoot().containsDaisyChainedLogOnCommandFor(preparedComTaskExecution.getComTaskExecution());
+    }
+
+    protected void resetBasicCheckFailedFlagOfExecutionContext() {
+        this.executionContext.setBasicCheckFailed(false);
+    }
+
+    /**
+     * True if the next comtask is for a different device and starts with a daisy chained logon (meaning it is a physical slave, not a logical slave!)
+     */
+    protected boolean nextOneIsOtherPhysicalSlave(List<PreparedComTaskExecution> preparedComTaskExecutions, int i) {
+        int nextIndex = i + 1;
+        if (nextIndex < preparedComTaskExecutions.size()) {
+            PreparedComTaskExecution currentComTaskExecution = preparedComTaskExecutions.get(i);
+            PreparedComTaskExecution nextComTaskExecution = preparedComTaskExecutions.get(nextIndex);
+            if (   !currentComTaskExecution.getComTaskExecution().getDevice().equals(nextComTaskExecution.getComTaskExecution().getDevice())
+                && nextComTaskExecution.getCommandRoot().containsDaisyChainedLogOnCommandFor(nextComTaskExecution.getComTaskExecution())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     enum BasicCheckTasks implements Comparator<ProtocolTask> {

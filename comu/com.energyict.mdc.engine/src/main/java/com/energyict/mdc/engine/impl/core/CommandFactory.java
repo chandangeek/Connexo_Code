@@ -201,6 +201,16 @@ public final class CommandFactory {
     }
 
     /**
+     * Instructs the CommandRoot to use the next security group for commands.
+     *
+     * @param root the CommandRoot
+     * @see CommandRoot#nextSecurityCommandGroup()
+     */
+    public static void initializeCommandRootForNextSecurityGroupOfCommands(CommandRoot root) {
+        root.nextSecurityCommandGroup();
+    }
+
+    /**
      * Hide utility class constructor.
      */
     private CommandFactory() {

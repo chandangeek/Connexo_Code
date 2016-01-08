@@ -1,9 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundCapableComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
@@ -12,29 +14,23 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
-
-import com.elster.jupiter.time.TimeDuration;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Clock;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener} component
@@ -62,6 +58,8 @@ public class SingleThreadedComPortListenerTest {
     private EventPublisherImpl eventPublisher;
     @Mock
     private InboundComPortExecutorImpl.ServiceProvider inboundComPortExecutorServiceProvider;
+    @Mock
+    private UserService userService;
 
     private Clock clock = Clock.systemDefaultZone();
 
@@ -75,10 +73,11 @@ public class SingleThreadedComPortListenerTest {
         when(this.inboundComPortExecutorServiceProvider.clock()).thenReturn(this.clock);
         when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
+        when(this.userService.findUser(EngineServiceImpl.COMSERVER_USER)).thenReturn(Optional.empty());
     }
 
     @Test
-    public void testStart() throws BusinessException, InterruptedException {
+    public void testStart() throws InterruptedException {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
@@ -105,7 +104,7 @@ public class SingleThreadedComPortListenerTest {
     }
 
     @Test
-    public void testShutdown() throws BusinessException {
+    public void testShutdown() {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
@@ -133,7 +132,7 @@ public class SingleThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
-    public void testAcceptedInboundCall() throws InterruptedException, BusinessException {
+    public void testAcceptedInboundCall() throws InterruptedException {
         InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getName()).thenReturn("testAcceptedInboundCall");
         ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
@@ -149,6 +148,7 @@ public class SingleThreadedComPortListenerTest {
         when(serviceProvider.threadFactory()).thenReturn(threadFactory);
         when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
         when(serviceProvider.clock()).thenReturn(this.clock);
+        when(serviceProvider.userService()).thenReturn(this.userService);
         LatchDrivenSingleThreadedComPortListener singleThreadedComPortListener =
                 spy(new LatchDrivenSingleThreadedComPortListener(
                         inboundComPort,
@@ -165,6 +165,7 @@ public class SingleThreadedComPortListenerTest {
         //Asserts
         verify(connector, atLeast(1)).accept(); // accept should have been called twice (one time it should have returned a VoidComChannel
         verify(singleThreadedComPortListener, times(1)).handleInboundDeviceProtocol(comChannel);
+        verify(singleThreadedComPortListener, times(1)).setThreadPrinciple();
     }
 
     private class LatchDrivenAcceptInboundComPortConnector implements InboundComPortConnector {

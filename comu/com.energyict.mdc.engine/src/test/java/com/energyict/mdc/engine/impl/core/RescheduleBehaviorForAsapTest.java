@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -137,7 +136,7 @@ public class RescheduleBehaviorForAsapTest {
     }
 
     @Test
-    public void rescheduleSingleFailedComTaskTest() throws SQLException, BusinessException, ConnectionException {
+    public void rescheduleSingleFailedComTaskTest() throws SQLException, ConnectionException {
         ComTaskExecution failedComTaskExecution = getMockedComTaskExecution();
 
         RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -41,7 +40,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -176,7 +175,7 @@ public class ComServerDAOImplTest {
     }
 
     @Test
-    public void testComTaskExecutionCompleted() throws SQLException, BusinessException {
+    public void testComTaskExecutionCompleted() throws SQLException {
         // Business method
         this.comServerDAO.executionCompleted(this.scheduledComTask);
 
@@ -185,7 +184,7 @@ public class ComServerDAOImplTest {
     }
 
     @Test
-    public void testConnectionTaskExecutionCompleted() throws SQLException, BusinessException {
+    public void testConnectionTaskExecutionCompleted() throws SQLException {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(10L);
         when(connectionTaskService.findConnectionTask(anyLong())).thenReturn(Optional.of(connectionTask));
@@ -198,7 +197,7 @@ public class ComServerDAOImplTest {
     }
 
     @Test
-    public void testExecutionFailed() throws SQLException, BusinessException {
+    public void testExecutionFailed() throws SQLException {
         // Business method
         this.comServerDAO.executionFailed(this.scheduledComTask);
 
@@ -206,7 +205,7 @@ public class ComServerDAOImplTest {
         verify(this.communicationTaskService).executionFailedFor(this.scheduledComTask);
     }
 
-    public void testReleaseInterruptedComTasks() throws SQLException, BusinessException {
+    public void testReleaseInterruptedComTasks() throws SQLException {
         // Business method
         this.comServerDAO.releaseInterruptedTasks(this.comServer);
 
@@ -216,7 +215,7 @@ public class ComServerDAOImplTest {
     }
 
     @Test
-    public void testReleaseTimedOutComTasks() throws SQLException, BusinessException {
+    public void testReleaseTimedOutComTasks() throws SQLException {
         // Business method
         this.comServerDAO.releaseTimedOutTasks(this.comServer);
 
@@ -280,7 +279,7 @@ public class ComServerDAOImplTest {
     }
 
     @Test
-    public void testUpdateIpAddress() throws SQLException, BusinessException {
+    public void testUpdateIpAddress() throws SQLException {
         TypedProperties properties = mock(TypedProperties.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(10L);

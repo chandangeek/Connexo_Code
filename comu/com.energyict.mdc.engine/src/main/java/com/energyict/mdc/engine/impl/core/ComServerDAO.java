@@ -4,7 +4,11 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
@@ -12,13 +16,23 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.*;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.*;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +62,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @return The ComServer that relates to this machine or <code>null</code> if the host name of
      *         the machine is <strong>NOT</strong> the name of a registered ComServer.
      */
-    public ComServer getThisComServer ();
+    ComServer getThisComServer();
 
     /**
      * Gets the ComServer that relates to the machine with the specified host name.
@@ -56,7 +70,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @return The ComServer that relates to the machine with the specified host name
      *         or <code>null</code> if there is no such ComServer.
      */
-    public ComServer getComServer (String systemName);
+    ComServer getComServer(String systemName);
 
     /**
      * Refreshes the specified ComServer, i.e. checks for updates
@@ -69,7 +83,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *         <code>null</code> if the ComServer was deleted or made obsolete or
      *         exactly the same Comserver if no changes were found
      */
-    public ComServer refreshComServer (ComServer comServer);
+    ComServer refreshComServer(ComServer comServer);
 
     /**
      * Finds and returns all the ComJobs that are ready
@@ -79,7 +93,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @return The List of ComJobs that represent all the ComTaskExecutions that are ready to be executed
      * @see OutboundComPort
      */
-    public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort);
+    List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort);
 
     /**
      * Finds and returns all the ComTaskExecutions that are ready
@@ -94,7 +108,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param comPort The InboundComPort
      * @return The List of ComTaskExecutions that are ready to be executed
      */
-    public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort);
+    List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort);
 
     /**
      * Finds the {@link ConnectionTaskProperty connection properties}
@@ -103,7 +117,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param connectionTask The ConnectionTask
      * @return The List of ConnectionTaskProperty
      */
-    public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask);
+    List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask);
 
     /**
      * Attempts to lock the ScheduledConnectionTask for
@@ -119,9 +133,9 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param comServer The ComServer
      * @return <code>true</code> iff the lock succeeds
      */
-    public ScheduledConnectionTask attemptLock (ScheduledConnectionTask connectionTask, ComServer comServer);
+    ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer);
 
-    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer);
+    boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer);
 
     /**
      * Unlocks the ScheduledConnectionTask, basically undoing the effect
@@ -129,7 +143,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param connectionTask The OutboundConnectionTask
      */
-    public void unlock (ScheduledConnectionTask connectionTask);
+    void unlock(ScheduledConnectionTask connectionTask);
 
     /**
      * Unlocks the OutboundConnectionTask, basically undoing the effect
@@ -137,7 +151,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param connectionTask The OutboundConnectionTask
      */
-    public void unlock (OutboundConnectionTask connectionTask);
+    void unlock(OutboundConnectionTask connectionTask);
 
     /**
      * Attempts to lock the ComTaskExecution for
@@ -153,7 +167,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param comPort The ComPort
      * @return <code>true</code> iff the lock succeeds
      */
-    public boolean attemptLock (ComTaskExecution comTaskExecution, ComPort comPort);
+    boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort);
 
     /**
      * Unlocks the ComTaskExecution, basically undoing the effect
@@ -161,7 +175,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param comTaskExecution The ComTaskExecution
      */
-    public void unlock (ComTaskExecution comTaskExecution);
+    void unlock(ComTaskExecution comTaskExecution);
 
     /**
      * Notifies that execution of the specified OutboundConnectionTask
@@ -170,21 +184,21 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param connectionTask The OutboundConnectionTask
      * @param comServer The ComServer that started the execution
      */
-    public void executionStarted (ConnectionTask connectionTask, ComServer comServer);
+    void executionStarted(ConnectionTask connectionTask, ComServer comServer);
 
     /**
      * Notifies that execution of the specified OutboundConnectionTask completed.
      *
      * @param connectionTask The OutboundConnectionTask
      */
-    public void executionCompleted (ConnectionTask connectionTask);
+    void executionCompleted(ConnectionTask connectionTask);
 
     /**
      * Notifies that execution of the specified OutboundConnectionTask failed.
      *
      * @param connectionTask The OutboundConnectionTask
      */
-    public void executionFailed (ConnectionTask connectionTask);
+    void executionFailed(ConnectionTask connectionTask);
 
     /**
     * Notifies that execution of the specified ComTaskExecution has been started
@@ -193,35 +207,35 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     * @param comPort The ComPort that has started the execution of the ComTaskExecution
      *@param executeInTransaction
      */
-    public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
+    void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
 
     /**
      * Notifies that execution of the specified ComTaskExecution completed.
      *
      * @param comTaskExecution The ComTaskExecution
      */
-    public void executionCompleted (ComTaskExecution comTaskExecution);
+    void executionCompleted(ComTaskExecution comTaskExecution);
 
     /**
      * Notifies that execution of the specified ComTaskExecutions completed.
      *
      * @param comTaskExecutions The List of completed ComTaskExecution
      */
-    public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions);
+    void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions);
 
     /**
      * Notifies that execution of the specified ComTaskExecution failed.
      *
      * @param comTaskExecution The ComTaskExecution
      */
-    public void executionFailed (ComTaskExecution comTaskExecution);
+    void executionFailed(ComTaskExecution comTaskExecution);
 
     /**
      * Notifies that execution of the specified ComTaskExecution failed.
      *
      * @param comTaskExecutions The List of failed ComTaskExecution
      */
-    public void executionFailed (List<? extends ComTaskExecution> comTaskExecutions);
+    void executionFailed(List<? extends ComTaskExecution> comTaskExecutions);
 
     /**
      * Cleans up any marker flags on ComTaskExecutions
@@ -234,7 +248,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param comServer The ComServer that is currently starting up.
      */
-    public void releaseInterruptedTasks (ComServer comServer);
+    void releaseInterruptedTasks(ComServer comServer);
 
     /**
      * Cleans up any marker flags on ComTaskExecutions
@@ -249,7 +263,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param comServer The ComServer
      * @return The best time to wait before making another call
      */
-    public TimeDuration releaseTimedOutTasks (ComServer comServer);
+    TimeDuration releaseTimedOutTasks(ComServer comServer);
 
 
     /**
@@ -259,7 +273,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param builder The ComSessionShadow
      * @return The newly created ComSession
      */
-    public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator);
+    ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator);
 
     /**
      * Stores the given list of Reading readings on the Meter.
@@ -267,7 +281,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param deviceIdentifier the identifier of the Device
      * @param meterReading the readings to store
      */
-    public void storeMeterReadings(DeviceIdentifier<Device> deviceIdentifier, MeterReading meterReading);
+    List<Warning> storeMeterReadings(DeviceIdentifier<Device> deviceIdentifier, MeterReading meterReading);
 
     /**
      * Finds the OfflineDevice that is uniquely identified
@@ -277,7 +291,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param offlineDeviceContext  the offlineContext identifying what needs to be offline
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
-    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext);
+    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext);
 
     /**
      * Finds the BaseRegister that is uniquely identified
@@ -286,11 +300,11 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param identifier The RegisterIdentifier
      * @return The offline version of the Register that is identified by the RegisterIdentifier
      */
-    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier);
+    Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier);
 
-    public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
+    Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
 
-    public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier);
+    Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier);
 
     /**
      * Finds the <b>offline</b> version of the {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessage}
@@ -300,7 +314,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @return The <b>offline</b> version of the DeviceMessage that is identified by the MessageIdentifier
      * or null if the DeviceMessage could not be found
      */
-    public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier);
+    Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier);
 
     /**
      * Updates the ip address of the BaseDevice device
@@ -311,7 +325,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param connectionTask The ConnectionTask
      * @param connectionTaskPropertyName The name of the ConnectionTask's property that holds the ip address
      */
-    public void updateIpAddress (String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName);
+    void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName);
 
     /**
      * Updates a protocol property of the BaseDevice
@@ -321,7 +335,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param propertyName     The name of the generic communication property
      * @param propertyValue    The new property value
      */
-    public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
+    void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
     /**
      * Updates the gateway device of the BaseDevice device
@@ -330,7 +344,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param deviceIdentifier The DeviceIdentifier
      * @param gatewayDeviceIdentifier The device identifier of the new gateway device or null (to be used in case no gateway is present)
      */
-    public void updateGateway (DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier);
+    void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier);
 
     /**
      * Store configuration information of a BaseDevice device
@@ -345,7 +359,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param fileExtension The extension for the UserFile
      * @param contents The contents of the UserFile   @see UserFile#getExtension()
      */
-    public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents);
+    void storeConfigurationFile(DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents);
 
     /**
      * Signals the occurrence of an event.
@@ -353,7 +367,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param topic The name of the event topic where the event will be published
      * @param source The source that produced the event and that also holds the event data that will be published
      */
-    public void signalEvent (String topic, Object source);
+    void signalEvent(String topic, Object source);
 
     /**
      * Updates the new DeviceStatus and protocolInformation
@@ -364,7 +378,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param newDeviceMessageStatus the status to update the message to
      * @param protocolInformation    the protocolInformation to add to the DeviceMessage
      */
-    public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation);
+    void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation);
 
     /**
      * Tests if the ComTaskExecution that is uniquely identified
@@ -373,7 +387,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param comTaskExecutionId The ComTaskExecution
      * @return A flag that indicates if the ComTaskExecution is still pending
      */
-    public boolean isStillPending (long comTaskExecutionId);
+    boolean isStillPending(long comTaskExecutionId);
 
     /**
      * Tests if all of the ComTaskExecutions are still TaskStatus#Pending.
@@ -381,28 +395,28 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param comTaskExecutionIds The collection of ComTaskExecution identifiers
      * @return A flag that indicates if all of the ComTaskExecution are still pending
      */
-    public boolean areStillPending (Collection<Long> comTaskExecutionIds);
+    boolean areStillPending(Collection<Long> comTaskExecutionIds);
 
     /**
      * Executes the given Transaction.
      *
      * @param transaction the transaction to execute
      */
-    public <T> T executeTransaction(Transaction<T> transaction);
+    <T> T executeTransaction(Transaction<T> transaction);
 
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier);
+    DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier);
 
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier);
+    DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier);
 
-    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading);
+    void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading);
 
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook);
+    void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook);
 
-    public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments);
+    void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments);
 
-    public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours);
+    void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours);
 
-    public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation);
+    void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation);
 
     void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions);
 

@@ -5,6 +5,7 @@ import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
@@ -95,17 +96,17 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
          * The Execute method will chronologically execute all the commands so this one should be first
          */
 
-        this.verifyLoadProfilesCommand = getCommandRoot().getVerifyLoadProfileCommand(this, comTaskExecution);
+        this.verifyLoadProfilesCommand = getCommandRoot().findOrCreateVerifyLoadProfileCommand(this, comTaskExecution);
 
-        this.readLoadProfileDataCommand = getCommandRoot().getReadLoadProfileDataCommand(this, comTaskExecution);
+        this.readLoadProfileDataCommand = getCommandRoot().findOrCreateReadLoadProfileDataCommand(this, comTaskExecution);
 
         if (this.loadProfilesTask.isMarkIntervalsAsBadTime()) {
-            this.timeDifferenceCommand = getCommandRoot().getTimeDifferenceCommand(this, comTaskExecution);
-            this.markIntervalsAsBadTimeCommand = getCommandRoot().getMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
+            this.timeDifferenceCommand = getCommandRoot().findOrCreateTimeDifferenceCommand(this, comTaskExecution);
+            this.markIntervalsAsBadTimeCommand = getCommandRoot().findOrCreateMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
         }
 
         if (this.loadProfilesTask.createMeterEventsFromStatusFlags()) {
-            this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().getCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
+            this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().findOrCreateCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
         }
 
         createLoadProfileReaders(comTaskExecution.getDevice().getmRID());
@@ -134,7 +135,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.LOAD_PROFILE_COMMAND;
     }
 
@@ -215,7 +216,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      * @return the masterIdentifier
      */
     private String getMasterDeviceIdentifier(OfflineLoadProfileChannel lpChannel, OfflineLoadProfile offlineLoadProfile) {
-        return lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().equals("")? offlineLoadProfile.getDeviceIdentifier().getIdentifier() : lpChannel.getMasterSerialNumber();
+        return lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().isEmpty()? offlineLoadProfile.getDeviceIdentifier().getIdentifier() : lpChannel.getMasterSerialNumber();
     }
 
     /**

@@ -1,14 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -22,7 +19,6 @@ import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBo
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -35,21 +31,25 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -404,16 +404,16 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         when(loadProfilesTask.createMeterEventsFromStatusFlags()).thenReturn(true);
         when(loadProfilesTask.isMarkIntervalsAsBadTime()).thenReturn(true);
         CommandRoot commandRoot = createCommandRoot();
-        LegacyLoadProfileLogBooksCommand legacyCommand = commandRoot.getLegacyLoadProfileLogBooksCommand(loadProfilesTask, mock(LogBooksTask.class), commandRoot, comTaskExecution);
+        LegacyLoadProfileLogBooksCommand legacyCommand = commandRoot.findOrCreateLegacyLoadProfileLogBooksCommand(loadProfilesTask, mock(LogBooksTask.class), commandRoot, comTaskExecution);
 
         // Asserts
-        assertEquals("Expected 5 subCommands in the command list of the LoadProfileCommand", 5, legacyCommand.getCommands().size());
-        assertEquals("The commandRoot should only contain 1 command, the LoadProfileCommand", 1, commandRoot.getCommands().size());
-        assertTrue("The first command should be the verifyLoadProfileCommand", legacyCommand.getCommands().values().toArray()[0] instanceof VerifyLoadProfilesCommandImpl);
-        assertTrue("The second command should be the readLoadProfileDataCommand", legacyCommand.getCommands().values().toArray()[1] instanceof ReadLegacyLoadProfileLogBooksDataCommand);
-        assertTrue("The third command should be the timeDifferenceCommand", legacyCommand.getCommands().values().toArray()[2] instanceof TimeDifferenceCommand);
-        assertTrue("The fourth command should be the markIntervalsAsBadTimeCommand", legacyCommand.getCommands().values().toArray()[3] instanceof MarkIntervalsAsBadTimeCommand);
-        assertTrue("The fifth command should be the createMeterEventsCommand", legacyCommand.getCommands().values().toArray()[4] instanceof CreateMeterEventsFromStatusFlagsCommand);
+        assertThat(legacyCommand.getCommands()).hasSize(5);
+        assertThat(commandRoot.getCommands()).hasSize(1);
+        assertThat(legacyCommand.getCommands().get(0)).isInstanceOf(VerifyLoadProfilesCommandImpl.class);
+        assertThat(legacyCommand.getCommands().get(1)).isInstanceOf(ReadLegacyLoadProfileLogBooksDataCommand.class);
+        assertThat(legacyCommand.getCommands().get(2)).isInstanceOf(TimeDifferenceCommand.class);
+        assertThat(legacyCommand.getCommands().get(3)).isInstanceOf(MarkIntervalsAsBadTimeCommand.class);
+        assertThat(legacyCommand.getCommands().get(4)).isInstanceOf(CreateMeterEventsFromStatusFlagsCommand.class);
     }
 
     @Test
@@ -505,7 +505,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         CommandRoot.ServiceProvider serviceProvider = mock(CommandRoot.ServiceProvider.class);
         when(commandRoot.getServiceProvider()).thenReturn(serviceProvider);
         ReadLegacyLoadProfileLogBooksDataCommand readLegacyLoadProfileLogBooksDataCommand = mock(ReadLegacyLoadProfileLogBooksDataCommand.class);
-        when(commandRoot.getReadLegacyLoadProfileLogBooksDataCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLegacyLoadProfileLogBooksDataCommand);
+        when(commandRoot.findOrCreateReadLegacyLoadProfileLogBooksDataCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLegacyLoadProfileLogBooksDataCommand);
         LegacyLoadProfileLogBooksCommand legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(null, logBooksTask, device, commandRoot, comTaskExecution);
 
         // asserts
@@ -532,19 +532,19 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
 
         ReadLegacyLoadProfileLogBooksDataCommand readLegacyLoadProfileLogBooksDataCommand = mock(ReadLegacyLoadProfileLogBooksDataCommand.class);
-        when(commandRoot.getReadLegacyLoadProfileLogBooksDataCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLegacyLoadProfileLogBooksDataCommand);
+        when(commandRoot.findOrCreateReadLegacyLoadProfileLogBooksDataCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLegacyLoadProfileLogBooksDataCommand);
 
         VerifyLoadProfilesCommand verifyLoadProfilesCommand = mock(VerifyLoadProfilesCommand.class);
-        when(commandRoot.getVerifyLoadProfileCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(verifyLoadProfilesCommand);
+        when(commandRoot.findOrCreateVerifyLoadProfileCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(verifyLoadProfilesCommand);
 
         MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = mock(MarkIntervalsAsBadTimeCommand.class);
-        when(commandRoot.getMarkIntervalsAsBadTimeCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(markIntervalsAsBadTimeCommand);
+        when(commandRoot.findOrCreateMarkIntervalsAsBadTimeCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(markIntervalsAsBadTimeCommand);
 
         CreateMeterEventsFromStatusFlagsCommand createMeterEventsFromStatusFlagsCommand = mock(CreateMeterEventsFromStatusFlagsCommand.class);
-        when(commandRoot.getCreateMeterEventsFromStatusFlagsCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(createMeterEventsFromStatusFlagsCommand);
+        when(commandRoot.findOrCreateCreateMeterEventsFromStatusFlagsCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(createMeterEventsFromStatusFlagsCommand);
 
         TimeDifferenceCommand timeDifferenceCommand = mock(TimeDifferenceCommand.class);
-        when(commandRoot.getTimeDifferenceCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(timeDifferenceCommand);
+        when(commandRoot.findOrCreateTimeDifferenceCommand(any(LegacyLoadProfileLogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(timeDifferenceCommand);
 
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         OfflineLoadProfile offlineLoadProfile = mock(OfflineLoadProfile.class);

@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
@@ -13,6 +14,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+
 import java.util.List;
 
 /**
@@ -36,7 +38,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.READ_LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND;
     }
 

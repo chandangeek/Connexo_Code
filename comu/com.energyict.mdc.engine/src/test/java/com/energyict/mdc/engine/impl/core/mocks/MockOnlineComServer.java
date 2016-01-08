@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.mocks;
 
-import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -11,14 +10,13 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-import java.time.Instant;
 
 /**
 * Provides a mock implementation for the {@link OnlineComServer} interface.
@@ -277,7 +275,6 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
 
     public TCPBasedInboundComPort createTCPBasedInbound (String name, boolean active, int portNumber, int numberOfSimultaneousConnections)
         throws
-            BusinessException,
             SQLException {
         MockTCPInboundComPort comPort = new MockTCPInboundComPort(this, this.nextComPortId(), name);
         comPort.setActive(active);
@@ -289,7 +286,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
         return comPort;
     }
 
-    public MockOutboundComPort createOutbound (String name, boolean active, int numberOfSimultaneousConnections) throws BusinessException, SQLException {
+    public MockOutboundComPort createOutbound (String name, boolean active, int numberOfSimultaneousConnections) throws SQLException {
         MockOutboundComPort comPort = new MockOutboundComPort(this, this.nextComPortId(), name);
         comPort.setActive(active);
         comPort.setComPortType(ComPortType.TCP);
@@ -399,13 +396,13 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public String getEventRegistrationUriIfSupported () throws BusinessException {
-        throw new BusinessException("eventRegistrationNotSupportedByMockOnlineComServers", "Event registration is not supported by mock online comservers");
+    public String getEventRegistrationUriIfSupported () {
+        throw new UnsupportedOperationException("Event registration is not supported by mock online comservers");
     }
 
     @Override
-    public String getQueryApiPostUriIfSupported () throws BusinessException {
-        throw new BusinessException("queryAPINotSupportedByMockOnlineComServers", "Query API is not supported by mock online comservers");
+    public String getQueryApiPostUriIfSupported () {
+        throw new UnsupportedOperationException("Query API is not supported by mock online comservers");
     }
 
     @Override

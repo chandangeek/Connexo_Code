@@ -95,7 +95,7 @@ public class ProvideInboundResponseDeviceCommandImplTest {
     @Before
     public void setup() {
         when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
-        when(thesaurus.getStringBeyondComponent(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(thesaurus.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
         DeviceService deviceService = mock(DeviceService.class, RETURNS_DEEP_STUBS);
         IssueServiceImpl issueService = new IssueServiceImpl(this.clock, this.nlsService);
         when(executionContextServiceProvider.clock()).thenReturn(this.clock);

@@ -1,6 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -28,7 +33,6 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
@@ -62,18 +66,10 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -189,7 +185,7 @@ public class ScheduledJobImplTest {
     }
 
     @Before
-    public void initMocksAndFactories() throws BusinessException {
+    public void initMocksAndFactories() {
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
@@ -206,7 +202,7 @@ public class ScheduledJobImplTest {
     }
 
     @Test
-    public void prepareDeviceProtocolTest() throws BusinessException {
+    public void prepareDeviceProtocolTest() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
@@ -229,15 +225,15 @@ public class ScheduledJobImplTest {
 
         // asserts
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        Map<ComCommandType, ComCommand> commandMap = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commandMap).isNotNull();
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotNull();
+        assertThat(commandTypes).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
+        assertThat(commandTypes).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
+        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandTypes).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
+        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
+        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
     }
 
     @Test
@@ -270,44 +266,44 @@ public class ScheduledJobImplTest {
 
         // asserts
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        Map<ComCommandType, ComCommand> commandMap = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertThat(commandMap).isNotNull();
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes).isNotNull();
+        assertThat(commandTypes).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
+        assertThat(commandTypes).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
+        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandTypes).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
+        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
+        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
 
         // creating the commands for the middle comtask
         JobExecution.PreparedComTaskExecution preparedComTaskExecution2 = group.prepareOne(comTask2);
 
         // asserts
         assertThat(preparedComTaskExecution2.getCommandRoot()).isNotNull();
-        commandMap = preparedComTaskExecution2.getCommandRoot().getCommands();
-        assertThat(commandMap).isNotNull();
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        List<ComCommandType> commandTypes2 = preparedComTaskExecution2.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes2).isNotNull();
+        assertThat(commandTypes2).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
+        assertThat(commandTypes2).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
+        assertThat(commandTypes2).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandTypes2).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandTypes2).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
+        assertThat(commandTypes2).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
+        assertThat(commandTypes2).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
 
         // creating the commands for the last comtask
         JobExecution.PreparedComTaskExecution preparedComTaskExecution3 = group.prepareOne(comTask3);
 
         assertThat(preparedComTaskExecution3.getCommandRoot()).isNotNull();
-        commandMap = preparedComTaskExecution3.getCommandRoot().getCommands();
-        assertThat(commandMap).isNotNull();
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        List<ComCommandType> commandTypes3 = preparedComTaskExecution3.getCommandRoot().getCommandTypes();
+        assertThat(commandTypes3).isNotNull();
+        assertThat(commandTypes3).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
+        assertThat(commandTypes3).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
+        assertThat(commandTypes3).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandTypes3).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandTypes3).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
+        assertThat(commandTypes3).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
+        assertThat(commandTypes3).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
     }
 
     @Test

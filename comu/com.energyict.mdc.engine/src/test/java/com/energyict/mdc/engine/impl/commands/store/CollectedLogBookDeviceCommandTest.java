@@ -3,24 +3,25 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import java.util.Optional;
-import org.joda.time.DateTime;
 
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,7 +58,7 @@ public class CollectedLogBookDeviceCommandTest {
         final LogBookIdentifier logBookIdentifier = new LogBookIdentifierById(LOGBOOK_ID, logBookService);
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
         NoDeviceCommandServices serviceProvider = new NoDeviceCommandServices();
-        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, null, new MeterDataStoreCommandImpl(serviceProvider));
+        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, null, new MeterDataStoreCommandImpl(null, serviceProvider));
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -90,7 +91,7 @@ public class CollectedLogBookDeviceCommandTest {
                         UNKNOWN));
         deviceLogBook.setMeterEvents(meterEvents);
         NoDeviceCommandServices serviceProvider = new NoDeviceCommandServices();
-        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, null, new MeterDataStoreCommandImpl(serviceProvider));
+        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, null, new MeterDataStoreCommandImpl(null, serviceProvider));
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

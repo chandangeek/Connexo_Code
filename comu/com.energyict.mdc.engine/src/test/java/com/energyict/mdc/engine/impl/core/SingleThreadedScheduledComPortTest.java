@@ -1,6 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -10,11 +14,11 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -53,11 +57,6 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
@@ -228,7 +227,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     @Before
-    public void initializeMocksAndFactories() throws ConnectionException, BusinessException {
+    public void initializeMocksAndFactories() throws ConnectionException {
         when(this.managementBeanFactory.findOrCreateFor(any(ScheduledComPort.class))).thenReturn(this.scheduledComPortMonitor);
         ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
         when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
@@ -334,7 +333,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     @Test(timeout = 7000)
-    public void testExecuteTasksWithNoWork() throws InterruptedException, BusinessException, SQLException {
+    public void testExecuteTasksWithNoWork() throws InterruptedException, SQLException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksWithNoWork");
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
@@ -363,7 +362,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     @Test(timeout = 7000)
-    public void testExecuteTasksInParallel() throws InterruptedException, BusinessException, SQLException, ConnectionException {
+    public void testExecuteTasksInParallel() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallel");
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
@@ -457,7 +456,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     @Test(timeout = 7000)
-    public void testExecuteTasksInParallelWithComTaskLockAttemptFailures() throws InterruptedException, BusinessException, SQLException {
+    public void testExecuteTasksInParallelWithComTaskLockAttemptFailures() throws InterruptedException, SQLException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithComTaskLockAttemptFailures");
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
@@ -498,7 +497,7 @@ public class SingleThreadedScheduledComPortTest {
 
 //    @Test(timeout = 7000)
     @Test
-    public void testExecuteTasksOneByOne() throws InterruptedException, BusinessException, SQLException, ConnectionException {
+    public void testExecuteTasksOneByOne() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOne");
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
@@ -537,7 +536,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     @Test(timeout = 7000)
-    public void testExecuteTasksOneByOneWithConnectionFailure() throws InterruptedException, BusinessException, SQLException, ConnectionException {
+    public void testExecuteTasksOneByOneWithConnectionFailure() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithConnectionFailure");
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
@@ -577,7 +576,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     @Test(timeout = 7000)
-    public void testExecuteTasksOneByOneOutsideComWindow() throws InterruptedException, BusinessException, SQLException, ConnectionException {
+    public void testExecuteTasksOneByOneOutsideComWindow() throws InterruptedException, SQLException, ConnectionException {
         Date now = new DateTime(2013, 8, 22, 9, 0, 0, 0).toDate();    // It's now 9 am
         this.clock = mock(Clock.class);
         when(this.clock.instant()).thenReturn(now.toInstant());
@@ -665,7 +664,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     @Test(timeout = 7000)
-    public void testExecuteTasksOneByOneWithConnectionTaskLockAttemptFailures() throws InterruptedException, BusinessException, SQLException {
+    public void testExecuteTasksOneByOneWithConnectionTaskLockAttemptFailures() throws InterruptedException, SQLException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithConnectionTaskLockAttemptFailures");
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);

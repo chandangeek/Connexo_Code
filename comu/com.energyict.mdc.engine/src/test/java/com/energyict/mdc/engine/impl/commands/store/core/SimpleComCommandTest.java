@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
@@ -8,13 +9,14 @@ import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -141,14 +143,14 @@ public class SimpleComCommandTest {
     private CollectedData mockCollectedDataWithWarning (String description) {
         CollectedData collectedData = mock(CollectedData.class);
         Issue warning = this.mockWarning(description);
-        when(collectedData.getIssues()).thenReturn(Arrays.asList(warning));
+        when(collectedData.getIssues()).thenReturn(Collections.singletonList(warning));
         return collectedData;
     }
 
     private CollectedData mockCollectedDataWithProblem (String description) {
         CollectedData collectedData = mock(CollectedData.class);
         Issue problem = this.mockProblem(description);
-        when(collectedData.getIssues()).thenReturn(Arrays.asList(problem));
+        when(collectedData.getIssues()).thenReturn(Collections.singletonList(problem));
         return collectedData;
     }
 
@@ -164,7 +166,7 @@ public class SimpleComCommandTest {
         }
 
         @Override
-        public ComCommandTypes getCommandType () {
+        public ComCommandType getCommandType () {
             return ComCommandTypes.UNKNOWN;
         }
 

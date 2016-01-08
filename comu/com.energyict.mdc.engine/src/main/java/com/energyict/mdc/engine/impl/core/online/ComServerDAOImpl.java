@@ -51,6 +51,7 @@ import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -500,9 +501,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
+    public List<Warning> storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
         Device device = deviceIdentifier.findDevice();
-        device.store(meterReading);
+        return device.store(meterReading);
     }
 
     @Override
@@ -690,7 +691,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
         LogBook logBook = (LogBook) logBookIdentifier.getLogBook();
-        LogBook.LogBookUpdater logBookUpdater = logBook.getDevice().getLogBookUpdaterFor(logBook);
+        // Refresh device and LogBook to avoid OptimisticLockException
+        Device device = this.serviceProvider.deviceService().findDeviceById(logBook.getDevice().getId()).get();
+        LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
+        LogBook.LogBookUpdater logBookUpdater = device.getLogBookUpdaterFor(refreshedLogBook);
         logBookUpdater.setLastLogBookIfLater(lastLogBook);
         logBookUpdater.setLastReadingIfLater(getClock().instant()); // We assume the event will be persisted with a time difference of only a few milliseconds
         logBookUpdater.update();
@@ -771,7 +775,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
         LoadProfile loadProfile = (LoadProfile) loadProfileIdentifier.findLoadProfile();
-        LoadProfile.LoadProfileUpdater loadProfileUpdater = loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile);
+        // Refresh the device and the LoadProfile to avoid OptimisticLockException
+        Device device = this.serviceProvider.deviceService().findDeviceById(loadProfile.getDevice().getId()).get();
+        LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
+        LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
         loadProfileUpdater.setLastReadingIfLater(lastReading);
         loadProfileUpdater.update();
     }

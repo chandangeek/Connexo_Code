@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -28,7 +28,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 
-import com.elster.jupiter.nls.NlsService;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
@@ -99,7 +98,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     }
 
     @Test
-    public void testComSessionStatisticsUpdatedWhenConnectionIsBeingClosed() throws ConnectionException, BusinessException, SQLException {
+    public void testComSessionStatisticsUpdatedWhenConnectionIsBeingClosed() throws ConnectionException, SQLException {
         OutboundComPort comPort = mock(OutboundComPort.class);
         OutboundConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
@@ -129,7 +128,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     }
 
     @Test
-    public void testComSessionStatisticsCounterValues() throws ConnectionException, BusinessException, SQLException {
+    public void testComSessionStatisticsCounterValues() throws ConnectionException, SQLException {
         OutboundComPort comPort = mock(OutboundComPort.class);
         OutboundConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);

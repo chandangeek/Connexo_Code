@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.common;
 
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
@@ -32,7 +33,7 @@ public class DeviceProtocolSetCacheCommand extends SimpleComCommand {
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND;
     }
 

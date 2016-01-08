@@ -3,9 +3,12 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import java.util.ArrayList;
@@ -96,16 +99,30 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
             List<PreparedComTaskExecution> preparedComTaskExecutions = prepare();
             if (establishConnectionFor(preparedComTaskExecutions)) {
                 connectionOk = true;
-                preparedComTaskExecutions.forEach(this::performPreparedComTaskExecution);
+                for (int i = 0; i < preparedComTaskExecutions.size(); i++) {
+                    PreparedComTaskExecution preparedComTaskExecution = preparedComTaskExecutions.get(i);
+                    if (isOtherPhysicalSlave(preparedComTaskExecution)) {
+                        resetBasicCheckFailedFlagOfExecutionContext(); // Physical slave is not interested in basic check failure of previous physical slave, so reset the flag
+                    }
+                    performPreparedComTaskExecution(preparedComTaskExecution, nextOneIsOtherPhysicalSlave(preparedComTaskExecutions, i));
+                }
             }
         } catch (CommunicationException e) {
             connectionOk = false;
             throw e;
         } finally {
+            ConnectionFailureException disconnectionFailed = null;
             if (connectionOk) {
-                this.completeConnection();
+                try {
+                    this.completeConnection();
+                } catch (ConnectionException ce) {
+                    disconnectionFailed = new ConnectionFailureException(MessageSeeds.CONNECTION_FAILURE, ce);
+                }
             }
             this.closeConnection();
+            if (disconnectionFailed != null){
+                throw disconnectionFailed;
+            }
         }
     }
 

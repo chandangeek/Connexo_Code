@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
@@ -87,7 +88,7 @@ public class ComServlet extends HttpServlet {
     }
 
     private void setThreadPrinciple() {
-        Optional<User> user = this.serviceProvider.userService().findUser("batch executor");
+        Optional<User> user = this.serviceProvider.userService().findUser(EngineServiceImpl.COMSERVER_USER);
         if (user.isPresent()) {
             this.serviceProvider.threadPrincipalService().set(user.get(), "ComServlet", "doPost", Locale.ENGLISH);
         }

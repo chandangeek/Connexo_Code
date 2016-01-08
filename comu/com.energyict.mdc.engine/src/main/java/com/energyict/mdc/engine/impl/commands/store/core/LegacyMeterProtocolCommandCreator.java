@@ -36,18 +36,30 @@ public class LegacyMeterProtocolCommandCreator implements CommandCreator {
             ComTaskExecution comTaskExecution, IssueService issueService) {
 
         if (comTaskExecutionConnectionStep.isLogOnRequired() || comTaskExecutionConnectionStep.isDaisyChainedLogOnRequired()) {
+            CommandFactory.initializeCommandRootForNextSecurityGroupOfCommands(root);
             CommandFactory.createSetDeviceCacheCommand(root, comTaskExecution, offlineDevice);
             CommandFactory.createLegacyInitLoggerCommand(root, comTaskExecution);
             CommandFactory.createAddProperties(root,comTaskExecution, offlineDevice.getAllProperties(), protocolDialectProperties, deviceProtocolSecurityPropertySet);
             CommandFactory.createDeviceProtocolInitialization(root, comTaskExecution, offlineDevice, comChannel);
             CommandFactory.createHandHeldUnitEnabler(root, comTaskExecution, comChannel);
-            CommandFactory.createLogOnCommand(root, comTaskExecution);
+
+            if (comTaskExecutionConnectionStep.isLogOnRequired()) {
+                CommandFactory.createLogOnCommand(root, comTaskExecution);
+            }
+            else {
+                CommandFactory.createDaisyChainedLogOnCommand(root, comTaskExecution);
+            }
         }
 
         CommandFactory.createLegacyCommandsFromTask(root, comTaskExecution, protocolTasks);    // Create a set of legacy commands
 
         if (comTaskExecutionConnectionStep.isLogOffRequired() || comTaskExecutionConnectionStep.isDaisyChainedLogOffRequired()) {
-            CommandFactory.createLogOffCommand(root, comTaskExecution);
+            if (comTaskExecutionConnectionStep.isLogOffRequired()) {
+                CommandFactory.createLogOffCommand(root, comTaskExecution);
+            }
+            else {
+                CommandFactory.createDaisyChainedLogOffCommand(root, comTaskExecution);
+            }
             CommandFactory.createDeviceProtocolTerminate(root, comTaskExecution);
             CommandFactory.createUpdateDeviceCacheCommand(root, comTaskExecution, offlineDevice);
         }

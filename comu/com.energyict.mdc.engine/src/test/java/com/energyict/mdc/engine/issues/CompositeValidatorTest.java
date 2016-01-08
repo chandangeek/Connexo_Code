@@ -36,7 +36,7 @@ public class CompositeValidatorTest {
 
     @Before
     public void initBefore() {
-        when(thesaurus.getStringBeyondComponent(any(), any())).thenAnswer(new Answer<String>() {
+        when(thesaurus.getString(any(), any())).thenAnswer(new Answer<String>() {
             @Override
             public String answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return (String) invocationOnMock.getArguments()[0];

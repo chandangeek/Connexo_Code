@@ -5,6 +5,8 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
@@ -52,7 +54,7 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
                     .map(TimeDuration::getSeconds)
                     .map(TimeDuration::seconds)
                     .orElse(TimeDuration.seconds(0));
-            addIssue(getIssueService().newWarning(getCommandType(), "intervalsMarkedAsBadTime", diffInSeconds, maxDiffInSeconds), CompletionCode.ConfigurationWarning);
+            addIssue(getIssueService().newWarning(getCommandType(), getThesaurus(), MessageSeeds.INTERVALS_MARKED_AS_BAD_TIME, diffInSeconds, maxDiffInSeconds), CompletionCode.ConfigurationWarning);
 
             for (CollectedData collectedData : loadProfileCommand.getCollectedData()) {
                 if (collectedData instanceof DeviceLoadProfile) {
@@ -93,7 +95,7 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
     }
 
     @Override
-    public ComCommandTypes getCommandType() {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.MARK_LOAD_PROFILES_AS_BAD_TIME;
     }
 

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.events;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.RemoteComServer;
@@ -26,9 +25,8 @@ public interface EventRegistrationRequestInitiator {
      *
      * @param comServer The ComServer
      * @return The URL to create a WebSocket
-     * @throws BusinessException Thrown when the specified ComServer does not support events
      */
-    public String getRegistrationURL (ComServer comServer) throws BusinessException;
+    String getRegistrationURL(ComServer comServer);
 
     /**
      * Gets the URL that should be used by the client application
@@ -40,8 +38,7 @@ public interface EventRegistrationRequestInitiator {
      *
      * @param comServerName The name of the ComServer
      * @return The URL to create a WebSocket
-     * @throws BusinessException Thrown when the specified ComServer does not support events
      */
-    public String getRegistrationURL (String comServerName) throws BusinessException;
+    String getRegistrationURL(String comServerName);
 
 }

@@ -1,9 +1,14 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
+
+import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ComPortListener} interface
@@ -29,6 +34,14 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
                 InboundComPortExecutorFactory inboundComPortExecutorFactory) {
         super(comPort, deviceCommandExecutor, serviceProvider);
         this.inboundComPortExecutorFactory = inboundComPortExecutorFactory;
+    }
+
+    @Override
+    protected void setThreadPrinciple() {
+        Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
+        if (user.isPresent()) {
+            getServiceProvider().threadPrincipalService().set(user.get(), "SingleThreadedComPortListener", "Executing", Locale.ENGLISH);
+        }
     }
 
     @Override
