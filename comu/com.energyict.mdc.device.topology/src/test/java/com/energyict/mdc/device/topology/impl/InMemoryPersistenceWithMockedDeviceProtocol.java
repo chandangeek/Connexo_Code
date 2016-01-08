@@ -1,52 +1,8 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.search.impl.SearchModule;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
-import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
-import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.TasksModule;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -72,6 +28,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -82,6 +39,45 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
+import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
+import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -115,9 +111,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
     private EventService eventService;
-    private NlsService nlsService;
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
@@ -126,9 +120,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private MdcReadingTypeUtilService readingTypeUtilService;
     private DeviceDataModelServiceImpl deviceDataModelService;
     private TopologyService topologyService;
-    private TaskService taskService;
     private SchedulingService schedulingService;
-    private ValidationService validationService;
     private DataVaultService dataVaultService;
     private InMemoryBootstrapModule bootstrapModule;
     private Thesaurus thesaurus;
@@ -220,16 +212,16 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             injector.getInstance(PluggableService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             injector.getInstance(CustomPropertySetService.class);
-            this.ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
-            this.nlsService = injector.getInstance(NlsService.class);
+            injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
-            this.taskService = injector.getInstance(TaskService.class);
-            this.validationService = injector.getInstance(ValidationService.class);
+            injector.getInstance(TaskService.class);
+            injector.getInstance(ValidationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.topologyService = injector.getInstance(TopologyService.class);
@@ -291,14 +283,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public EventService getEventService() {
         return eventService;
-    }
-
-    public SchedulingService getSchedulingService() {
-        return schedulingService;
-    }
-
-    public DataModel getDataModel() {
-        return this.deviceDataModelService.dataModel();
     }
 
     private class MockModule extends AbstractModule {
@@ -493,33 +477,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public String createOriginalAndConformRelationNameBasedOnJavaClassname(Class clazz) {
-            return protocolPluggableService.createOriginalAndConformRelationNameBasedOnJavaClassname(clazz);
-        }
-
-        @Override
-        public String createConformRelationTypeName(String name) {
-            return protocolPluggableService.createConformRelationTypeName(name);
-        }
-
-        @Override
-        public String createConformRelationAttributeName(String name) {
-            return protocolPluggableService.createConformRelationAttributeName(name);
-        }
-
-        @Override
         public DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass(DeviceProtocolPluggableClass pluggableClass, String dialectName) {
             return protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(pluggableClass, dialectName);
-        }
-
-        @Override
-        public boolean isDefaultAttribute(RelationAttributeType attributeType) {
-            return protocolPluggableService.isDefaultAttribute(attributeType);
-        }
-
-        @Override
-        public RelationType findSecurityPropertyRelationType(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-            return protocolPluggableService.findSecurityPropertyRelationType(deviceProtocolPluggableClass);
         }
 
         @Override
@@ -542,10 +501,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             return null;
         }
 
-        @Override
-        public boolean hasSecurityRelations(RelationParticipant securityPropertySet, DeviceProtocol deviceProtocol) {
-            return false;
-        }
     }
 
 }

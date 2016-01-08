@@ -1,12 +1,10 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -46,7 +44,7 @@ public class ClearDefaultConnectionTaskEventHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        Device device = (Device) localEvent.getSource();
+        Device device = ((ConnectionTask) localEvent.getSource()).getDevice();
         this.topologyService.setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology(device, null);
     }
 

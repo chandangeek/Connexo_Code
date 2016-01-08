@@ -81,9 +81,9 @@
         </dependency>
         <!-- Testing -->
         <!--<dependency>-->
-        <!--<groupId>com.google.inject</groupId>-->
-        <!--<artifactId>guice</artifactId>-->
-        <!--<version>4.0-beta5</version>-->
+            <!--<groupId>com.google.inject</groupId>-->
+            <!--<artifactId>guice</artifactId>-->
+            <!--<version>4.0-beta5</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -264,4 +264,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
 </project>
