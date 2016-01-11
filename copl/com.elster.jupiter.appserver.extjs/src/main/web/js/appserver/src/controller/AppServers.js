@@ -616,6 +616,12 @@ Ext.define('Apr.controller.AppServers', {
         me.getAddMessageServicesButton().setDisabled(unservedMessageServicesStore.getCount() === 0);
         var unservedImportStore = me.getStore('Apr.store.UnservedImportServices');
         me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
+        if (Ext.isEmpty(servedMessageServicesStore.getRange())) {
+            me.changeMessageGridVisibility(false);
+        }
+        if (Ext.isEmpty(servedImportStore.getRange())) {
+            me.changeImportGridVisibility(false);
+        }
         route =  router.getRoute(me.removeLastPartOfUrl(router.currentRoute));
         Uni.util.History.suspendEventsForNextCall();
         route.forward();
