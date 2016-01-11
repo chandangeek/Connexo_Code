@@ -54,9 +54,9 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "11_1";
+gTopicId = "12_1";
 </script>
- <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Deliver_data/Monitor_data_export.htm">
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Processes/Assign_tasks.htm">
  <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Copyright/Legal_notices.htm">
 </head>
 
@@ -67,6 +67,8 @@ gTopicId = "11_1";
  <p class="FM_HGlossary">A</p>
  <p class="FM_PGlossary">Authentication</p>
  <p class="FM_Body">Ensures that both ends of the connection are secure.</p>
+ <p class="FM_PGlossary">Auto-action</p>
+ <p class="FM_Body">Are automated activities that ensure the device is ready for the next state.</p>
  <p class="FM_HGlossary">C</p>
  <p class="FM_PGlossary">Channel</p>
  <p class="FM_Body">A channel contains the energy consumption data collected by a device.</p>
@@ -85,6 +87,8 @@ gTopicId = "11_1";
  <p class="FM_PGlossary">Connection method</p>
  <p class="FM_Body">Allows you to define how to communicate with the device. Some devices can support multiple types of connection methods (GRPS, optical, SMS, etc.).</p>
  <p class="FM_HGlossary">D</p>
+ <p class="FM_PGlossary">Data source</p>
+ <p class="FM_Body">Registers, load profiles and logbooks</p>
  <p class="FM_PGlossary">Device</p>
  <p class="FM_Body">A device represents a physical element in the grid, this can be e.g. a meter, concentrator, gateway, in home display, etc.</p>
  <p class="FM_PGlossary">Device action</p>
@@ -95,6 +99,8 @@ gTopicId = "11_1";
  <p class="FM_Body">Device configurations are used to customise or limit some of the functionality of the device type, but also configure additional parameters to interact with the physical device. The device configuration will determine the actual register specifications together with the number of channels. It also contains information on security levels, connection methods, etc. </p>
  <p class="FM_PGlossary">Device command</p>
  <p class="FM_Body">Is used for infrequent adjustments of device parameters such as resetting a device. Device commands are only available when they are specified in a device protocol and this protocol is applied to the device type.</p>
+ <p class="FM_PGlossary">Device life cycle</p>
+ <p class="FM_Body">Is a collection of states a device goes through during its lifespan.</p>
  <p class="FM_PGlossary">Device type</p>
  <p class="FM_Body">A device type defines the capabilities of a physical device. Every device has exactly one device type that defines which data (such as registers, load profiles and logbooks) can be read from it and what communication protocol is used to read it. A device type doesn't necessarily map to a single physical device model. A device type may represent several models from various manufacturers as long as they have similar behaviour and characteristics.</p>
  <p class="FM_PGlossary">Dynamic device group</p>
@@ -102,6 +108,9 @@ gTopicId = "11_1";
  <p class="FM_HGlossary">E</p>
  <p class="FM_PGlossary">Encryption</p>
  <p class="FM_Body">Ensures that the information within a session is not compromised.</p>
+ <p class="FM_HGlossary">F</p>
+ <p class="FM_PGlossary">Firmware campaign</p>
+ <p class="FM_Body">Is the action of uploading firmware onto every device belonging to a specific device group and configured with one specific device type.</p>
  <p class="FM_HGlossary">G</p>
  <p class="FM_PGlossary">Gateway</p>
  <p class="FM_Body">Device enabling the communication with (sub)meters by routing/translating the communication. A gateway will not store any data and works solely as a pas-through. This has the advantage that the (sub)meter needs a protocol to read the data.</p>
@@ -126,14 +135,14 @@ gTopicId = "11_1";
  <p class="FM_PGlossary">Logbook type</p>
  <p class="FM_Body">A logbook type contains all essential logbook parameters so that this logbook type can be reused for different device types and device configurations, but it doesn’t contain values.</p>
  <p class="FM_HGlossary">M</p>
- <p class="FM_PGlossary">Master data</p>
- <p class="FM_Body">Registers, load profiles and logbooks</p>
  <p class="FM_HGlossary">O</p>
  <p class="FM_PGlossary">OBIS code</p>
  <p class="FM_Body">OBIS stands for Object Identification System. OBIS provides standard identifiers for all data within the metering equipment, both measurement values and abstract values. OBIS uses six value groups in a hierarchical structure.</p>
  <p class="FM_PGlossary">Outbound</p>
  <p class="FM_Body">Data from, for example a communication server, is pushed to a device.</p>
  <p class="FM_HGlossary">P</p>
+ <p class="FM_PGlossary">Pretransition check</p>
+ <p class="FM_Body">Are different requirements that need to be met before the device can transition.</p>
  <p class="FM_PGlossary">Privileges</p>
  <p class="FM_Body">Designate what rights a user has to perform certain actions on a specific resource. This can be for example the viewing, adding, editing or removing of a communication server. A resource is a component of an application, e.g. role is a resource as well as issue rules, licenses and communication servers.</p>
  <p class="FM_PGlossary">Protocol dialect</p>
@@ -154,10 +163,15 @@ gTopicId = "11_1";
  <p class="FM_PGlossary">Rule template (issue)</p>
  <p class="FM_Body">A rule template is a collection of parameters that are specific for a certain rule. The exact values of the parameters are defined in the rule itself. An examples of such a template is the template to create an issue when a slope is detected. All parameters will be shown, but the user will have to compete the reading type, the trend period and the threshold. </p>
  <p class="FM_HGlossary">S</p>
+ <p class="FM_PGlossary">State</p>
+ <p class="FM_Body">Is the current status of a device. The state defines what you can see on the device, which actions the device can execute and what you can do on the device.</p>
  <p class="FM_PGlossary">Static device group</p>
  <p class="FM_Body">is a group of devices that was selected out of a search result based on different search criteria. The composition of this group does not change over time, to add new devices to the group, the search has to be repeated and devices manually added.</p>
  <p class="FM_PGlossary">Shared communication schedule</p>
  <p class="FM_Body">Is a system wide <a title="A communication schedule defines the time and recurrence for reading a particular set of meter data from a device or a group of devices.">communication schedule</a> that can be used for multiple devices.</p>
+ <p class="FM_HGlossary">T</p>
+ <p class="FM_PGlossary">Transition</p>
+ <p class="FM_Body">Is the action where a device goes when one state to another. This transition is linked with pretransition checks and auto-actions.</p>
  <p class="FM_HGlossary">V</p>
  <p class="FM_PGlossary">Validation rules</p>
  <p class="FM_Body">Rules&#160;to check whether collected data is valid by verifying if the data is in accordance with specific market rules.</p>

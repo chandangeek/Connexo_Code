@@ -1,0 +1,1 @@
+gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data>   <entry name=\"validation rules\" value=\"Rules&#160;to check whether collected data is valid by verifying if the data is in accordance with specific market rules.\" />   <entry name=\"validator\" value=\"The validator is a template that sets the rules to check if the collected data is correct.\" />  </data>";

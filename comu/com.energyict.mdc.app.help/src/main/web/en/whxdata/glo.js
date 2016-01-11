@@ -1,1 +1,1 @@
-gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><glossary>  <chunkinfo url=\"gdata1.js\" first=\"authentication\" last=\"validator\" num=\"42\" />  </glossary>";
+gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><glossary>  <chunkinfo url=\"gdata1.js\" first=\"authentication\" last=\"validation rule set\" num=\"46\" />  <chunkinfo url=\"gdata2.js\" first=\"validation rules\" last=\"validator\" num=\"2\" />  </glossary>";

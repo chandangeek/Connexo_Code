@@ -68,7 +68,7 @@ gTopicId = "4.1.0_2";
  <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">You need delta values for this estimation rule.</span></p>
- <p class="FM_Body">With this rule suspect every channel delta value is estimated by calculating the average of reading values from this channel or other reading types at the same time and day in the past. For this rule you need to configure the following parameters:</p>
+ <p class="FM_Body">With this rule every suspect channel delta value is estimated by calculating the average of reading values from this channel or other reading types at the same time and day in the past. For this rule you need to configure the following parameters:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
   <tr style=" height : 25.00pt;" class="t1st">
@@ -97,7 +97,7 @@ gTopicId = "4.1.0_2";
 </tr>
   <tr style=" height : 34.00pt;" class="t2Row">
   <td style="width : 98.691pt; vertical-align : top;">
-  <p class="FM_CellBody">Allow negative values</p>
+  <p class="FM_CellBody" style="text-align  : left;">Allow negative values</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
   <p class="FM_CellBody">Indicates that negative values can be used to estimate data.</p>
@@ -154,7 +154,7 @@ gTopicId = "4.1.0_2";
  <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Bulk readings are required to be able to estimate suspect values with this estimation rule.</span></p>
- <p class="FM_Body">To estimate delta values using the equal distribution rule <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will calculate the difference between the bulk or advance reading after the estimation interval and the bulk or advance reading before the estimation and divide it by the amount of samples in the interval + 1. <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will then use this value as delta value for every suspect value in the interval. For this rule you need to configure the following parameters:</p>
+ <p class="FM_Body">To estimate delta values using the equal distribution rule <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will calculate the difference between the bulk or advance reading after the estimation interval and the bulk or advance reading before the estimation interval. It will then divide this difference by the amount of samples in the interval plus one. <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will then use this value as delta value for every suspect value in the interval. For this rule you need to configure the following parameters:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
   <tr style=" height : 25.00pt;" class="t1st">
@@ -197,7 +197,7 @@ gTopicId = "4.1.0_2";
  <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Bulk readings are required to be able to estimate suspect values with this estimation rule. This rule only works with bulk readings.</span></p>
- <p class="FM_Body">With this rule <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will estimate the suspect bulk readings. The delta values are then calculated based on these bulk readings. To estimate the bulk readings <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>calculates the difference between the bulk reading after the estimation interval and the bulk reading before the interval and divide it by the amount of samples in the interval plus one.</p>
+ <p class="FM_Body">With this rule <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will estimate the suspect bulk readings. The delta values are then calculated based on these bulk readings. To estimate the bulk readings <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;calculates the difference between the bulk reading after the estimation interval and the bulk reading before the interval and divides this difference by the amount of samples in the interval plus one.</p>
  <p class="FM_Body">In the second step <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;adds this difference to the bulk reading before the estimation interval to calculate the first suspect reading. The second estimated suspect reading will be the previous estimated reading plus the calculated difference from the first step. <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;repeats these steps until all suspect readings are estimated.</p>
  <p class="FM_Body">You need to configure the following parameters for this rule:</p>
 
@@ -232,7 +232,7 @@ gTopicId = "4.1.0_2";
  <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Bulk readings are required to be able to estimate suspect values with this estimation rule.</span></p>
- <p class="FM_Body">Using the power gap fill rule <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;changes every suspect reading in estimation interval except the last reading by zero. The last equals the difference between the bulk reading after the interval and the bulk reading preceding the interval. The following parameters need to be configured:</p>
+ <p class="FM_Body">Using the power gap fill rule <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;changes every suspect reading in the estimation interval except the last reading by zero. The last equals the difference between the bulk reading after the interval and the bulk reading preceding the interval. The following parameters need to be configured:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
   <tr style=" height : 25.00pt;" class="t1st">
