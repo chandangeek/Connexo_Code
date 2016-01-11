@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
@@ -9,9 +8,11 @@ import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
+import java.math.BigDecimal;
+
 /**
  * Summarizes all used DeviceSecurityProperty
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 10/01/13
  * Time: 16:40
@@ -78,11 +79,13 @@ public enum DeviceSecurityProperty {
     CLIENT_MAC_ADDRESS {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(new BigDecimalFactory()).
-                    name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()).
-                    markRequired().
-                    finish();
+            return propertySpecService.boundedDecimalPropertySpecWithDefaultValue(
+                    SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
+                    true,
+                    BigDecimal.valueOf(1),
+                    BigDecimal.valueOf(127),
+                    BigDecimal.valueOf(1)
+            );
         }
 
         @Override

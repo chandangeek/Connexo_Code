@@ -73,7 +73,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
             if (isSupported(logBookReader)) {
                 ProfileGeneric profileGeneric;
                 try {
-                    profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getDeviceIdentifier().getIdentifier()));
+                    profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()));
                 } catch (IOException e) {
                     throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
                 }
@@ -132,7 +132,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
     private boolean isSupported(LogBookReader logBookReader) {
         for (ObisCode supportedLogBookObisCode : supportedLogBooks) {
-            if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getDeviceIdentifier().getIdentifier()))) {
+            if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()))) {
                 return true;
             }
         }
