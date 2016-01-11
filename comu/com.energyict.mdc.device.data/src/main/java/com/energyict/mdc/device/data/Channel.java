@@ -79,6 +79,14 @@ public interface Channel extends BaseChannel {
     Optional<BigDecimal> getMultiplier();
 
     /**
+     * Provides the value of the multiplier at the given timeStamp of this channel. The value will only be present if
+     * the multiplier is larger than one (1)
+     *
+     * @return the optional multiplier
+     */
+    Optional<BigDecimal> getMultiplier(Instant timeStamp);
+
+    /**
      * Returns the data of this Channel.
      *
      * @param interval The interval for which data will be returned

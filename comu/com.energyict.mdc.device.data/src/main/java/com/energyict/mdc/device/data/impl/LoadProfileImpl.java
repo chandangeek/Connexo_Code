@@ -276,7 +276,8 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
             return getMultiplier(timeStamp).isPresent() ? channelSpec.getCalculatedReadingType() : channelSpec.getReadingType().getCalculatedReadingType();
         }
 
-        private Optional<BigDecimal> getMultiplier(Instant timeStamp) {
+        @Override
+        public Optional<BigDecimal> getMultiplier(Instant timeStamp) {
             if (getChannelSpec().isUseMultiplier()) {
                 Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
                 if(multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1){

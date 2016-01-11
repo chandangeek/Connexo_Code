@@ -39,7 +39,8 @@ public class BillingRegisterImpl extends RegisterImpl<BillingReading, NumericalR
         return getMultiplier(timeStamp).isPresent()? getRegisterSpec().getCalculatedReadingType() : Optional.empty();
     }
 
-    private Optional<BigDecimal> getMultiplier(Instant timeStamp) {
+    @Override
+    public  Optional<BigDecimal> getMultiplier(Instant timeStamp) {
         if (getRegisterSpec().isUseMultiplier()) {
             Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
             if(multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1){

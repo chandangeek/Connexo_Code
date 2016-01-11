@@ -74,6 +74,11 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     }
 
     @Override
+    public Optional<BigDecimal> getMultiplier(Instant timeStamp) {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<R> getReading(Instant timestamp) {
         List<R> atMostOne = this.getReadings(Range.singleton(timestamp));
         if (atMostOne.isEmpty()) {
