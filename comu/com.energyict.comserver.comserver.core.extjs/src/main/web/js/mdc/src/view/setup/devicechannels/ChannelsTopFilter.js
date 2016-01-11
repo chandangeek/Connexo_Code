@@ -2,6 +2,10 @@ Ext.define('Mdc.view.setup.devicechannels.ChannelsTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mdc-view-setup-devicechannels-channelstopfilter',
 
+    requires: [
+        'Mdc.store.LoadProfilesOfDevice'
+    ],
+
     store: 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
 
     filters: [
