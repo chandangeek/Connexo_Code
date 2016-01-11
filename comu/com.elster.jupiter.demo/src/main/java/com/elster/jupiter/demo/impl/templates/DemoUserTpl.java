@@ -3,7 +3,6 @@ package com.elster.jupiter.demo.impl.templates;
 import com.elster.jupiter.demo.impl.builders.UserBuilder;
 import com.elster.jupiter.users.User;
 
-import java.util.Collections;
 import java.util.Locale;
 
 /**

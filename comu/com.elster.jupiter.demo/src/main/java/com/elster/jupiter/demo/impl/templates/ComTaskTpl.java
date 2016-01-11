@@ -1,13 +1,17 @@
 package com.elster.jupiter.demo.impl.templates;
 
-import com.elster.jupiter.demo.impl.Builders;
-import com.elster.jupiter.demo.impl.builders.ComTaskBuilder;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.util.*;
+import com.elster.jupiter.demo.impl.Builders;
+import com.elster.jupiter.demo.impl.builders.ComTaskBuilder;
+import com.elster.jupiter.time.TimeDuration;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**

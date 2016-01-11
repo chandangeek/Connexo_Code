@@ -5,12 +5,8 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.AddImportScheduleToAppServerPostBuilder;
 import com.elster.jupiter.demo.impl.templates.FileImporterTpl;
-import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.function.Consumer;
 
 /**
  *
