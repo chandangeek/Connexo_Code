@@ -1,7 +1,7 @@
 package com.elster.jupiter.cbo;
 
 public enum TimeAttribute {
-    NOTAPPLICABLE(0, "NotApplicable", 0),
+    NOTAPPLICABLE(0, "Not applicable", 0),
     MINUTE10(1, "10-minute", 10),
     MINUTE15(2, "15-minute", 15),
     MINUTE1(3, "1-minute", 1),
@@ -48,9 +48,9 @@ public enum TimeAttribute {
     HOUR6(81, "6-hour", 360),
     HOUR12(82, "12-hour", 720),
     HOUR3(83, "3-hour", 180),
-    SPECIFIEDINTERVAL(100, "Specified Interval", 0),
-    SPECIFIEDFIXEDBLOCK(101, "Specified Fixed Block", 0),
-    SPECIFIEDROLLINGBLOCK(102, "Specified Rolling Block", 0);
+    SPECIFIEDINTERVAL(100, "Specified interval", 0),
+    SPECIFIEDFIXEDBLOCK(101, "Specified fixed block", 0),
+    SPECIFIEDROLLINGBLOCK(102, "Specified rolling block", 0);
 
     private final int id;
     private final String description;

@@ -1,20 +1,20 @@
 package com.elster.jupiter.cbo;
 
 public enum Aggregate {
-	NOTAPPLICABLE (0,"NotApplicable"),
+	NOTAPPLICABLE (0,"Not applicable"),
 	AVERAGE (2,"Average"),
 	EXCESS (4,"Excess"),
-	HIGHTHRESHOLD(5,"HighThreshold"),
-	LOWTHRESHOLD(7,"LowThreshold"),
+	HIGHTHRESHOLD(5,"High threshold"),
+	LOWTHRESHOLD(7,"Low threshold"),
 	MAXIMUM (8,"Maximum"),
 	MINIMUM (9,"Minimum"),
 	NOMINAL (11,"Nominal"),
 	NORMAL (12,"Normal"),
-	SECONDMAXIMUM (16,"SecondMaximum"),
-	SECONDMINIMUM (17,"SecondMinimum"),
-	THIRDMAXIMUM (23,"ThirdMaximum"),
-	FOURTHMAXIMUM (24,"FourthMaximum"),
-	FIFTHMAXIMIMUM (25,"FifthMaximum"),
+	SECONDMAXIMUM (16,"Second maximum"),
+	SECONDMINIMUM (17,"Second minimum"),
+	THIRDMAXIMUM (23,"Third maximum"),
+	FOURTHMAXIMUM (24,"Fourth maximum"),
+	FIFTHMAXIMIMUM (25,"Fifth maximum"),
 	SUM (26,"Sum"),
 	HIGH(27,"High"),
 	LOW(28,"Low");

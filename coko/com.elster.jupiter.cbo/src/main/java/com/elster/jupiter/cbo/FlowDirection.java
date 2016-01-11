@@ -1,7 +1,7 @@
 package com.elster.jupiter.cbo;
 
 public enum FlowDirection {
-		NOTAPPLICABLE (0,"NotApplicable"),
+		NOTAPPLICABLE (0,"Not applicable"),
 		FORWARD (1,"Forward"),
 		LAGGING (2,"Lagging"),
 		LEADING (3,"Leading"),

@@ -1,13 +1,13 @@
 package com.elster.jupiter.cbo;
 
 public enum MacroPeriod {
-	NOTAPPLICABLE (0,"NotApplicable"),
-	BILLINGPERIOD(8, "Billing Period"),
+	NOTAPPLICABLE (0,"Not applicable"),
+	BILLINGPERIOD(8, "Billing period"),
 	DAILY(11, "Daily"),
 	MONTHLY(13, "Monthly"),
 	SEASONAL (22,"Season"),
 	WEEKLYS (24,"Weekly"),
-	SPECIFIEDPERIOD (32,"Specified Period");
+	SPECIFIEDPERIOD (32,"Specified period");
 
 	private final int id;
 	private final String description;
