@@ -81,7 +81,7 @@ public class RegisterDataResource {
                 deviceDataInfoFactory.asReadingsInfoList(
                         readings,
                         register,
-                        device.forValidation().isValidationActive(register, this.clock.instant()), device);
+                        device.forValidation().isValidationActive(register, this.clock.instant()));
         // sort the list of readings
         Collections.sort(readingInfos, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
         addDeltaCalculationIfApplicable(register, readingInfos);
@@ -131,7 +131,7 @@ public class RegisterDataResource {
         return deviceDataInfoFactory.createReadingInfo(
                 reading,
                 register,
-                device.forValidation().isValidationActive(register, this.clock.instant()), device);
+                device.forValidation().isValidationActive(register, this.clock.instant()));
     }
 
     @PUT @Transactional

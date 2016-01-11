@@ -30,6 +30,7 @@ import com.energyict.mdc.device.data.TextRegister;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,8 +65,8 @@ public class DeviceDataInfoFactory {
         channelIntervalInfo.validationActive = isValidationActive;
         channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
-        channelIntervalInfo.multiplier = channel.getMultiplier().orElseGet(() -> null);
         channelReading.ifPresent(reading -> {
+            channelIntervalInfo.multiplier = channel.getMultiplier(reading.getTimeStamp()).orElseGet(() -> null);
             channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
             addCalculatedValueInfo(channel, channelIntervalInfo, reading);
             channelIntervalInfo.reportedDateTime = reading.getReportedDateTime();
@@ -157,18 +158,18 @@ public class DeviceDataInfoFactory {
         return channelIntervalInfo;
     }
 
-    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, Register<?, ?> register, boolean isValidationStatusActive, Device device) {
+    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, Register<?, ?> register, boolean isValidationStatusActive) {
         return readings
                 .stream()
-                .map(r -> createReadingInfo(r, register, isValidationStatusActive, device))
+                .map(r -> createReadingInfo(r, register, isValidationStatusActive))
                 .collect(Collectors.toList());
     }
 
-    public ReadingInfo createReadingInfo(Reading reading, Register<?, ?> register, boolean isValidationStatusActive, Device device) {
+    public ReadingInfo createReadingInfo(Reading reading, Register<?, ?> register, boolean isValidationStatusActive) {
         if (reading instanceof BillingReading) {
-            return createBillingReadingInfo((BillingReading) reading, register, device, isValidationStatusActive);
+            return createBillingReadingInfo((BillingReading) reading, register, isValidationStatusActive);
         } else if (reading instanceof NumericalReading) {
-            return createNumericalReadingInfo((NumericalReading) reading, register, device, isValidationStatusActive);
+            return createNumericalReadingInfo((NumericalReading) reading, register, isValidationStatusActive);
         } else if (reading instanceof TextReading) {
             return createTextReadingInfo((TextReading) reading);
         } else if (reading instanceof FlagsReading) {
@@ -185,10 +186,10 @@ public class DeviceDataInfoFactory {
         readingInfo.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
     }
 
-    private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, Device device, boolean isValidationStatusActive) {
+    private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive) {
         BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
         setCommonReadingInfo(reading, billingReadingInfo);
-        setMultiplierIfApplicable(billingReadingInfo, device);
+        billingReadingInfo.multiplier = register.getMultiplier(register.getLastReadingDate().orElse(clock.instant())).orElseGet(() -> null);
         if (reading.getQuantity() != null) {
             billingReadingInfo.value = reading.getQuantity().getValue();
             setCalculatedValueIfApplicable(reading, register, billingReadingInfo, 0);
@@ -200,10 +201,10 @@ public class DeviceDataInfoFactory {
         return billingReadingInfo;
     }
 
-    private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, Register<?, ?> register, Device device, boolean isValidationStatusActive) {
+    private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, Register<?, ?> register, boolean isValidationStatusActive) {
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
         setCommonReadingInfo(reading, numericalReadingInfo);
-        setMultiplierIfApplicable(numericalReadingInfo, device);
+        numericalReadingInfo.multiplier = register.getMultiplier(register.getLastReadingDate().orElse(clock.instant())).orElseGet(() -> null);
 
         Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
         int numberOfFractionDigits = ((NumericalRegisterSpec) register.getRegisterSpec()).getNumberOfFractionDigits();
@@ -222,12 +223,6 @@ public class DeviceDataInfoFactory {
             if(calculatedQuantity != null){
                 numericalReadingInfo.calculatedValue = calculatedQuantity.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
             }
-        }
-    }
-
-    private void setMultiplierIfApplicable(NumericalReadingInfo readingInfo, Device device) {
-        if(!device.getMultiplier().equals(BigDecimal.ONE)){
-            readingInfo.multiplier = device.getMultiplier();
         }
     }
 
@@ -290,16 +285,15 @@ public class DeviceDataInfoFactory {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         Optional<? extends Reading> lastReading = register.getLastReading();
-        lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false, device));
+        lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false));
     }
 
     public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register) {
         BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
         addCommonRegisterInfo(register, billingRegisterInfo);
-        register.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant())).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
-        if (register.getRegisterSpec().isUseMultiplier() &&  !register.getDevice().getMultiplier().equals(BigDecimal.ONE)) {
-            billingRegisterInfo.multiplier = register.getDevice().getMultiplier();
-        }
+        Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
+        register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
+        billingRegisterInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         return billingRegisterInfo;
     }
 
@@ -321,8 +315,9 @@ public class DeviceDataInfoFactory {
         NumericalRegisterSpec registerSpec = numericalRegister.getRegisterSpec();
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         numericalRegisterInfo.overflow = registerSpec.getOverflowValue();
-        numericalRegister.getCalculatedReadingType(numericalRegister.getLastReadingDate().orElse(clock.instant())).ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
-        numericalRegisterInfo.multiplier = numericalRegister.getMultiplier().orElseGet(() -> null);
+        Instant timeStamp = numericalRegister.getLastReadingDate().orElse(clock.instant());
+        numericalRegister.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
+        numericalRegisterInfo.multiplier = numericalRegister.getMultiplier(timeStamp).orElseGet(() -> null);
         return numericalRegisterInfo;
     }
 }

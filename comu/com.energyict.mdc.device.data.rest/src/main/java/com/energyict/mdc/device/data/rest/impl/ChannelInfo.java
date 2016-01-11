@@ -56,7 +56,7 @@ public class ChannelInfo {
         info.loadProfileId = channel.getLoadProfile().getId();
         info.version = channel.getLoadProfile().getVersion();
         Device device = channel.getDevice();
-        info.multiplier = channel.getMultiplier().orElseGet(() -> null);
+        info.multiplier = channel.getMultiplier(clock.instant()).orElseGet(() -> null);
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return info;
     }
