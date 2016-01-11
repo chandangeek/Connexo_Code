@@ -1,10 +1,11 @@
 package com.elster.jupiter.orm.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.elster.jupiter.orm.CacheClearedEvent;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.pubsub.Publisher;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public interface TableCache<T> {
 	T get(KeyValue key);
@@ -48,9 +49,15 @@ public interface TableCache<T> {
 		}
 		
 		synchronized public void renew() {
-			this.cache = new HashMap<>(); 
+			this.cache = new HashMap<>();
+			cacheCleared();
 		}
-				
+
+		private void cacheCleared() {
+			Publisher publisher = table.getDataModel().getOrmService().getPublisher();
+			publisher.publish(new CacheClearedEvent(table.getComponentName(), table.getName()));
+		}
+
 		private KeyValue getKey(T entity) {
 			return table.getPrimaryKey(entity);
 		}
