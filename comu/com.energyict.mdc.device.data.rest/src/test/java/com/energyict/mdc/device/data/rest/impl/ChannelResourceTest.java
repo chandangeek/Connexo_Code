@@ -247,7 +247,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getLoadProfile()).thenReturn(loadProfile);
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
         when(channel.getUnit()).thenReturn(unit);
-        when(channel.getMultiplier()).thenReturn(Optional.empty());
+        when(channel.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(deviceValidation.getLastChecked(channel)).thenReturn(Optional.of(NOW));
 
         when(deviceConfiguration.getId()).thenReturn(1L);
@@ -491,7 +491,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelWithBulkAndCalculatedDelta.getChannelSpec()).thenReturn(channelSpec);
         when(channelWithBulkAndCalculatedDelta.getReadingType()).thenReturn(collectedReadingType);
         when(channelWithBulkAndCalculatedDelta.getCalculatedReadingType(clock.instant())).thenReturn(Optional.of(calculatedReadingType));
-        when(channelWithBulkAndCalculatedDelta.getMultiplier()).thenReturn(multiplier);
+        when(channelWithBulkAndCalculatedDelta.getMultiplier(any(Instant.class))).thenReturn(multiplier);
         when(channelWithBulkAndCalculatedDelta.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(channelWithBulkAndCalculatedDelta.getLastReading()).thenReturn(Optional.empty());
         when(channelWithBulkAndCalculatedDelta.getLastDateTime()).thenReturn(Optional.empty());

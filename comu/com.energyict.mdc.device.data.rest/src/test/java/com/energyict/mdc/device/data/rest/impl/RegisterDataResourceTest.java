@@ -94,6 +94,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(register.getRegisterSpec()).thenReturn(numericalRegisterSpec);
         when(register.getReadingType()).thenReturn(readingType);
         when(register.getCalculatedReadingType(any())).thenReturn(Optional.empty());
+        when(register.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(register.getLastReadingDate()).thenReturn(Optional.empty());
 
         BillingReading billingReading = mockBillingReading(actualReading1);

@@ -306,7 +306,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(numericalRegister.getRegisterSpec()).thenReturn(registerSpec);
         when(numericalRegister.getReadingType()).thenReturn(collectedReadingType);
         when(numericalRegister.getCalculatedReadingType(any())).thenReturn(Optional.of(calculatedReadingType));
-        when(numericalRegister.getMultiplier()).thenReturn(multiplier);
+        when(numericalRegister.getMultiplier(any(Instant.class))).thenReturn(multiplier);
         when(numericalRegister.getLastReading()).thenReturn(Optional.empty());
         when(numericalRegister.getDevice()).thenReturn(device);
         when(numericalRegister.getLastReadingDate()).thenReturn(Optional.empty());
