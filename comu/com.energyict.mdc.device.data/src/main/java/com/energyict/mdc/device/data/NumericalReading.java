@@ -15,10 +15,10 @@ import java.math.BigDecimal;
 @ProviderType
 public interface NumericalReading extends Reading {
 
-    public Quantity getQuantity ();
+    Quantity getQuantity();
 
-    public Quantity getQuantityFor(ReadingType readingType);
+    Quantity getQuantityFor(ReadingType readingType);
 
-    public BigDecimal getValue();
+    BigDecimal getValue();
 
 }

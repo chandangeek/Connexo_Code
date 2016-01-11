@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;

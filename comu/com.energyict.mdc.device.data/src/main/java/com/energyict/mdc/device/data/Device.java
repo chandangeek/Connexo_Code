@@ -9,11 +9,24 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.BigDecimalChecker;
 import com.energyict.mdc.common.ComWindow;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -28,6 +41,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
@@ -35,10 +49,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.util.HasName;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -74,7 +86,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @return the receiver's DeviceType
      */
-    public DeviceType getDeviceType();
+    DeviceType getDeviceType();
 
     List<DeviceMessage<Device>> getMessages();
 
@@ -91,7 +103,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @return the used {@link DeviceProtocolPluggableClass}
      */
-    public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
+    DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
 
     /**
      * Gets the device configuration of a device.
@@ -217,23 +229,23 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @param meterReading the meterReadings which will be stored
      */
-    void store(MeterReading meterReading);
+    List<Warning> store(MeterReading meterReading);
 
     boolean hasData();
 
-    public MeterActivation activate(Instant start);
+    MeterActivation activate(Instant start);
 
     /**
      * Terminates the current MeterActivation on this Device.
      *
      * @param when The instant in time when the MeterActivation will end
      */
-    public void deactivate(Instant when);
+    void deactivate(Instant when);
 
     /**
      * Terminates the current MeterActivation on this Device right now.
      */
-    public void deactivateNow();
+    void deactivateNow();
 
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
@@ -306,13 +318,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @return The List of ComTaskExecutions
      */
-    public List<ComTaskExecution> getComTaskExecutions();
+    List<ComTaskExecution> getComTaskExecutions();
 
-    public ManuallyScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ManuallyScheduledComTaskExecution comTaskExecution);
+    ManuallyScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ManuallyScheduledComTaskExecution comTaskExecution);
 
-    public ScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ScheduledComTaskExecution comTaskExecution);
+    ScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ScheduledComTaskExecution comTaskExecution);
 
-    public FirmwareComTaskExecutionUpdater getComTaskExecutionUpdater(FirmwareComTaskExecution comTaskExecution);
+    FirmwareComTaskExecutionUpdater getComTaskExecutionUpdater(FirmwareComTaskExecution comTaskExecution);
 
     void removeComTaskExecution(ComTaskExecution comTaskExecution);
 
@@ -328,13 +340,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param comSchedule The ComSchedule
      * @see ManuallyScheduledComTaskExecution
      */
-    public ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComSchedule comSchedule);
+    ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComSchedule comSchedule);
 
-    public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression);
+    ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression);
 
-    public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement);
+    ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement);
 
-    public ComTaskExecutionBuilder<FirmwareComTaskExecution> newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement);
+    ComTaskExecutionBuilder<FirmwareComTaskExecution> newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement);
 
     List<ProtocolDialectConfigurationProperties> getProtocolDialects();
 
@@ -345,7 +357,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @param comSchedule The ComSchedule
      */
-    public void removeComSchedule (ComSchedule comSchedule);
+    void removeComSchedule(ComSchedule comSchedule);
 
     /**
      * Adds this device to the mentioned EnumeratedEndDeviceGroup
@@ -354,13 +366,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param enumeratedEndDeviceGroup The EnumeratedEndDeviceGroup
      * @param range The period in time during which this device will be part of the group
      */
-    public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range);
+    void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range);
 
     DeviceValidation forValidation();
 
     DeviceEstimation forEstimation();
 
-    public Optional<UsagePoint> getUsagePoint();
+    Optional<UsagePoint> getUsagePoint();
 
     GatewayType getConfigurationGatewayType();
 
@@ -371,12 +383,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @return A flag that indicates if there are open issues against this Device
      */
-    public boolean hasOpenIssues();
+    boolean hasOpenIssues();
 
     /**
      * @return a list of Issues which have the status open
      */
-    public List<OpenIssue> getOpenIssues();
+    List<OpenIssue> getOpenIssues();
 
     /**
      * Gets the current {@link State} of this Device.
@@ -384,7 +396,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The current State
      * @since 2.0
      */
-    public State getState();
+    State getState();
 
     /**
      * Gets the {@link State} of this Device as it was
@@ -396,11 +408,11 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The State
      * @since 2.0
      */
-    public Optional<State> getState(Instant instant);
+    Optional<State> getState(Instant instant);
 
-    public long getVersion();
+    long getVersion();
 
-    public Instant getCreateTime();
+    Instant getCreateTime();
 
     /**
      * Gets the {@link StateTimeline} for this Device.
@@ -408,7 +420,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The StateTimeline
      * @since 2.0
      */
-    public StateTimeline getStateTimeline();
+    StateTimeline getStateTimeline();
 
     /**
      * Gets the List of {@link DeviceLifeCycleChangeEvent}s for this Device.
@@ -418,7 +430,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The List of DeviceLifeCycleChangeEvent
      * @since 2.0
      */
-    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents();
+    List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents();
 
     /**
      * Gets the CIM dates that relate to thie life cycle of this Device.
@@ -426,7 +438,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The CIMLifecycleDates
      * @since 2.0
      */
-    public CIMLifecycleDates getLifecycleDates();
+    CIMLifecycleDates getLifecycleDates();
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

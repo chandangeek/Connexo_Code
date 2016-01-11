@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -61,32 +62,27 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
-import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
-import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.exceptions.*;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.exceptions.*;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
+import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.impl.tasks.*;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
@@ -96,7 +92,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -104,6 +99,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.time.*;
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.temporal.ChronoField;
@@ -121,9 +117,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.stream.Collectors.toList;
 
+@LiteralSql
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
-public class DeviceImpl implements Device, ServerDeviceForConfigChange {
+@ValidSecurityProperties(groups = {Save.Update.class})
+public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
 
@@ -148,14 +146,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     private long id;
 
     private final Reference<DeviceType> deviceType = ValueReference.absent();
-    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_REQUIRED + "}")
+    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED + "}")
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String mRID;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String serialNumber;
@@ -184,6 +182,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
+
+    private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
 
     private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
@@ -286,6 +286,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         boolean alreadyPersistent = this.id > 0;
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
+            this.saveDirtySecurityProperties();
             this.saveDirtyConnectionProperties();
             this.saveNewAndDirtyDialectProperties();
             this.notifyUpdated();
@@ -298,7 +299,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         }
     }
 
-    private void saveDirtyConnectionProperties(){
+    private void saveDirtyConnectionProperties() {
         this.getConnectionTaskImpls()
                 .filter(ConnectionTaskImpl::hasDirtyProperties)
                 .forEach(ConnectionTaskPropertyProvider::saveAllProperties);
@@ -369,6 +370,18 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     private void saveDirtyDialectProperties() {
         this.saveDialectProperties(this.dirtyDialectProperties);
         this.dirtyDialectProperties = new ArrayList<>();
+    }
+
+    private void saveDirtySecurityProperties() {
+        for (SecurityPropertySet securityPropertySet : dirtySecurityProperties.keySet()) {
+            //Persist the dirty values
+            this.securityPropertyService.setSecurityProperties(this, securityPropertySet, dirtySecurityProperties.get(securityPropertySet));
+        }
+        this.dirtySecurityProperties.clear();
+    }
+
+    public Map<SecurityPropertySet, TypedProperties> getDirtySecurityProperties() {
+        return dirtySecurityProperties;
     }
 
     private void saveDialectProperties(List<ProtocolDialectPropertiesImpl> dialectProperties) {
@@ -447,10 +460,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-            .getEntries()
-            .stream()
-            .filter(each -> each.getEndDevice().getId() == endDevice.getId())
-            .findFirst()
+                .getEntries()
+                .stream()
+                .filter(each -> each.getEndDevice().getId() == endDevice.getId())
+                .findFirst()
                 .ifPresent(group::remove);
     }
 
@@ -952,8 +965,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     }
 
     @Override
-    public void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
-        this.securityPropertyService.setSecurityProperties(this, securityPropertySet, typedProperties);
+    public void
+    setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
+        dirtySecurityProperties.put(securityPropertySet, typedProperties);
+        //Don't persist yet, need to be validated (done in the save step of this device)
     }
 
     private void addDeviceProperty(String name, String propertyValue) {
@@ -1017,9 +1032,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     }
 
     @Override
-    public void store(MeterReading meterReading) {
+    public List<Warning> store(MeterReading meterReading) {
+        OverflowCheck overflowCheck = OverflowCheck.from(dataModel, this);
         Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
-        meter.store(meterReading);
+        meter.store(overflowCheck.toCheckedMeterReading(meterReading));
+        return overflowCheck.getWarnings();
     }
 
     @Override
@@ -1707,7 +1724,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
                 .collect(Collectors.toList());
     }
 
-    private ConnectionTask add(ConnectionTaskImpl connectionTask){
+    private ConnectionTask add(ConnectionTaskImpl connectionTask) {
         Save.CREATE.validate(DeviceImpl.this.dataModel, connectionTask, Save.Create.class, Save.Update.class);
         DeviceImpl.this.connectionTasks.add(connectionTask);
         if (this.id != 0) {
@@ -1752,7 +1769,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
     }
 
     @Override
-    public void removeComTaskExecution(ComTaskExecution comTaskExecution){
+    public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
         this.comTaskExecutions
                 .stream()
                 .filter(x -> x.getId() == comTaskExecution.getId())
@@ -1801,8 +1818,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x-> x.executesComSchedule(comSchedule)).findFirst().
-                orElseThrow(()-> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
+        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule)).findFirst().
+                orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
         removeComTaskExecution(toRemove);
     }
 
@@ -2149,7 +2166,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange {
         public ScheduledComTaskExecution add() {
             executionsToDelete.forEach(DeviceImpl.this::removeComTaskExecution);
             ScheduledComTaskExecution comTaskExecution = super.add();
-            return (ScheduledComTaskExecution ) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
+            return (ScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
         }
     }
 

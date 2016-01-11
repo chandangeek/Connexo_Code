@@ -1,21 +1,25 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
+
+import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
+import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.impl.TableSpecs;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;

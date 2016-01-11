@@ -15,14 +15,14 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -297,10 +297,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected void doExecutionCompleted() {
-        super.doExecutionCompleted();
+    protected void doExecutionCompleted(List<String> updatedFields) {
+        super.doExecutionCompleted(updatedFields);
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(getConnectionStrategy())) {
             this.schedule(this.calculateNextPlannedExecutionTimestamp());
+            updatedFields.add(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName());
+            updatedFields.add(ConnectionTaskFields.PRIORITY.fieldName());
         }
     }
 

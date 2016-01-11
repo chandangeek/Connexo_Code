@@ -19,4 +19,5 @@ import java.util.List;
 public interface DeviceMessageFactory {
 
     List<DeviceMessage> findByDeviceAndState(Device device, DeviceMessageStatus pending);
+
 }

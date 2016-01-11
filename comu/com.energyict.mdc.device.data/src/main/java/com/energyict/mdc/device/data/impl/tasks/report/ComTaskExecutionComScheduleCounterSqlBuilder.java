@@ -1,11 +1,15 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
-import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.tasks.AbstractComTaskExecutionFilterSqlBuilder;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+
+import com.elster.jupiter.orm.QueryExecutor;
 
 import java.time.Clock;
 
@@ -16,11 +20,11 @@ import java.time.Clock;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-03 (13:41)
  */
-public class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
+class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
 
     private ServerComTaskStatus taskStatus;
 
-    public ComTaskExecutionDeviceTypeCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock, ComTaskExecutionFilterSpecification filterSpecification, QueryExecutor<Device> queryExecutor) {
+    ComTaskExecutionComScheduleCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock, ComTaskExecutionFilterSpecification filterSpecification, QueryExecutor<Device> queryExecutor) {
         super(clock, filterSpecification, queryExecutor);
         this.taskStatus = taskStatus;
     }
@@ -36,7 +40,7 @@ public class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTask
     private void appendSelectClause() {
         this.append("select '");
         this.append(this.taskStatus.getPublicStatus().name());
-        this.append("', dev.devicetype, count(*)");
+        this.append("', ctincs.comschedule, count(distinct cte.id)");
     }
 
     private void appendFromClause() {
@@ -44,18 +48,20 @@ public class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTask
         this.append(TableSpecs.DDC_COMTASKEXEC.name());
         this.append(" ");
         this.append(communicationTaskAliasName());
-        this.append(" join ");
-        this.append(TableSpecs.DDC_DEVICE.name());
-        this.append(" dev on cte.device = dev.id");
+        this.append(" join sch_comschedule cs on cte.comschedule = cs.id");
+        this.append(" join sch_comtaskincomschedule ctincs on ctincs.comschedule = cs.id");
     }
 
     private void appendWhereClause() {
+        this.appendWhereOrAnd();
+        this.append("cte.discriminator = ");
+        this.append(ComTaskExecutionImpl.SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR);
         this.appendWhereClause(this.taskStatus);
         this.appendDeviceInGroupSql();
     }
 
     private void appendGroupByClause() {
-        this.append(" group by dev.devicetype");
+        this.append(" group by ctincs.comschedule");
     }
 
 }

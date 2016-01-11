@@ -22,7 +22,7 @@ public interface ComSessionJournalEntry {
      *
      * @return The ComSession
      */
-    public ComSession getComSession ();
+    ComSession getComSession();
 
     /**
      * Gets the Date on which this ComSessionJournalEntry was created,
@@ -31,14 +31,14 @@ public interface ComSessionJournalEntry {
      *
      * @return The Date
      */
-    public Instant getTimestamp ();
+    Instant getTimestamp();
 
     /**
      * Gets the level at which this message journal entry was logged.
      *
      * @return The LogLevel
      */
-    public ComServer.LogLevel getLogLevel();
+    ComServer.LogLevel getLogLevel();
 
     /**
      * Gets the message that describes the event that caused this
@@ -46,7 +46,7 @@ public interface ComSessionJournalEntry {
      *
      * @return The message
      */
-    public String getMessage ();
+    String getMessage();
 
     /**
      * Gets the printed version of the error that caused this
@@ -55,6 +55,6 @@ public interface ComSessionJournalEntry {
      * @return The printed version of the error
      * @see Exception#printStackTrace()
      */
-    public String getStackTrace();
+    String getStackTrace();
 
 }

@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.time.Instant;
@@ -17,19 +17,19 @@ import java.util.logging.Logger;
 public class CommunicationTaskExecutionKpiCalculator extends AbstractDataCollectionKpiCalculatorImpl implements DataCollectionKpiCalculator {
 
     private final DataCollectionKpiImpl kpi;
-    private final CommunicationTaskService communicationTaskService;
+    private final CommunicationTaskReportService communicationTaskReportService;
     private final Logger logger;
 
-    public CommunicationTaskExecutionKpiCalculator(DataCollectionKpiImpl dataCollectionKpi, Instant timestamp, CommunicationTaskService communicationTaskService, Logger logger) {
+    public CommunicationTaskExecutionKpiCalculator(DataCollectionKpiImpl dataCollectionKpi, Instant timestamp, CommunicationTaskReportService communicationTaskReportService, Logger logger) {
         super(timestamp);
         this.kpi = dataCollectionKpi;
-        this.communicationTaskService = communicationTaskService;
+        this.communicationTaskReportService = communicationTaskReportService;
         this.logger = logger;
     }
 
     public void calculateAndStore() {
         if (this.kpi.calculatesComTaskExecutionKpi()) {
-            Map<TaskStatus, Long> statusCounters = this.communicationTaskService.getComTaskExecutionStatusCount();
+            Map<TaskStatus, Long> statusCounters = this.communicationTaskReportService.getComTaskExecutionStatusCount();
             long total = EnumSet.complementOf(EnumSet.of(TaskStatus.OnHold)).stream().mapToLong(statusCounters::get).sum();
             if (total > 0) {
                 this.calculateAndStore(this.kpi.communicationKpi().get(), statusCounters, total);

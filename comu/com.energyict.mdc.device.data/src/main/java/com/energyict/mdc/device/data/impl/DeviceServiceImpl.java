@@ -6,51 +6,47 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
-import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
-import com.energyict.mdc.device.data.impl.configchange.*;
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
+import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
+import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
+import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeExecutor;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
+import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -64,9 +60,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.util.HasId;
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
@@ -74,7 +67,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -84,6 +82,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-10 (16:27)
  */
+@LiteralSql
 public class DeviceServiceImpl implements ServerDeviceService {
 
     private final DeviceDataModelService deviceDataModelService;

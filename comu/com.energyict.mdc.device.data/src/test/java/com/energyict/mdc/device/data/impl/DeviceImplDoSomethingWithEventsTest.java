@@ -60,13 +60,17 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -89,15 +93,11 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-import org.junit.*;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -109,9 +109,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -248,8 +260,10 @@ public class DeviceImplDoSomethingWithEventsTest {
         private Clock clock = Clock.systemDefaultZone();
         private EngineConfigurationService engineConfigurationService;
         private SchedulingService schedulingService;
+        private com.energyict.mdc.tasks.TaskService mdcTaskService;
         private LicenseService licenseService;
         private IssueService issueService;
+        private com.energyict.mdc.issues.IssueService mdcIssueService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -313,6 +327,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);
                 this.issueService = injector.getInstance(IssueService.class);
+                this.mdcIssueService = injector.getInstance(com.energyict.mdc.issues.IssueService.class);
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
@@ -336,6 +351,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 mock(MasterDataService.class),
                                 transactionService,
                                 injector.getInstance(JsonService.class),
+                                mdcIssueService,
                                 injector.getInstance(MdcReadingTypeUtilService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
@@ -350,6 +366,7 @@ public class DeviceImplDoSomethingWithEventsTest {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
             this.licenseService = mock(LicenseService.class);
             when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
+            this.mdcTaskService = mock(com.energyict.mdc.tasks.TaskService.class);
         }
 
         public void cleanUpDataBase() throws SQLException {

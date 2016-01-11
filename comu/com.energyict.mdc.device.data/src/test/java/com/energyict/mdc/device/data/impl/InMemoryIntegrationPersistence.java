@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -41,6 +43,7 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -63,10 +66,27 @@ import com.energyict.mdc.device.config.impl.FiniteStateFinder;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
-import com.energyict.mdc.device.data.impl.finders.*;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTypeFinder;
+import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
+import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
+import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
+import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
+import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
-import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.ModemConnectionType;
+import com.energyict.mdc.device.data.impl.tasks.ModemNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -94,6 +114,7 @@ import com.energyict.mdc.scheduling.model.impl.ComScheduleFinder;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TaskFinder;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -110,14 +131,18 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -297,6 +322,8 @@ public class InMemoryIntegrationPersistence {
     private void initializePrivileges() {
         ((PrivilegesProvider)deviceConfigurationService).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
+        ((PrivilegesProvider)deviceDataModelService).getModuleResources().stream()
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
     private void initializeFactoryProviders() {
@@ -325,11 +352,29 @@ public class InMemoryIntegrationPersistence {
         this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
         when(this.principal.hasPrivilege(any(), anyString())).thenReturn(true);
+        Privilege ePrivilege1 = mockPrivilege(EditPrivilege.LEVEL_1);
+        Privilege vPrivilege1 = mockPrivilege(ViewPrivilege.LEVEL_1);
+        Set<Privilege> privileges = new HashSet<>();
+        privileges.add(ePrivilege1);
+        privileges.add(vPrivilege1);
+        when(this.principal.getPrivileges()).thenReturn(privileges);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.thesaurus = mock(Thesaurus.class);
         this.issueService = mock(IssueService.class, RETURNS_DEEP_STUBS);
         when(this.issueService.findStatus(any())).thenReturn(Optional.<IssueStatus>empty());
+    }
+
+    private Privilege mockPrivilege(EditPrivilege privilege1) {
+        Privilege privilege = mock(Privilege.class);
+        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
+        return privilege;
+    }
+
+    private Privilege mockPrivilege(ViewPrivilege privilege1) {
+        Privilege privilege = mock(Privilege.class);
+        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
+        return privilege;
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -376,8 +421,16 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.connectionTaskService();
     }
 
+    public ConnectionTaskReportService getConnectionTaskReportService() {
+        return this.deviceDataModelService.connectionTaskReportService();
+    }
+
     public ServerCommunicationTaskService getCommunicationTaskService() {
         return this.deviceDataModelService.communicationTaskService();
+    }
+
+    public CommunicationTaskReportService getCommunicationTaskReportService() {
+        return this.deviceDataModelService.communicationTaskReportService();
     }
 
     public DeviceDataModelService getDeviceDataModelService() {
