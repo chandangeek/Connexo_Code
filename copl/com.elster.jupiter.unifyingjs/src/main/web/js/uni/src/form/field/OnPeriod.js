@@ -106,7 +106,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                 xtype: 'container',
                 itemId: 'option-dow',
                 layout: 'hbox',
-                margin: '6 0 0 0',
+                margin: '0 0 0 0',
                 items: [
                     {
                         xtype: 'radio',
@@ -238,6 +238,7 @@ Ext.define('Uni.form.field.OnPeriod', {
     setOptionCurrentDisabled: function (disabled) {
         var me = this;
 
+        me.getOptionCurrentRadio().setVisible(!disabled);
         me.getOptionCurrentRadio().setDisabled(disabled);
 
         me.selectAvailableOption();
@@ -246,9 +247,11 @@ Ext.define('Uni.form.field.OnPeriod', {
     setOptionDayOfMonthDisabled: function (disabled) {
         var me = this,
             radio = me.getOptionDayOfMonthRadio(),
-            combo = me.getOptionDayOfMonthContainer().down('combobox');
+            combo = me.getOptionDayOfMonthContainer();
 
+        radio.setVisible(!disabled);
         radio.setDisabled(disabled);
+        combo.setVisible(!disabled);
         combo.setDisabled(disabled);
 
         if (disabled) {
@@ -265,7 +268,9 @@ Ext.define('Uni.form.field.OnPeriod', {
             radio = me.getOptionDayOfWeekRadio(),
             combo = me.getOptionDayOfWeekContainer().down('combobox');
 
+        radio.setVisible(!disabled);
         radio.setDisabled(disabled);
+        combo.setVisible(!disabled);
         combo.setDisabled(disabled);
 
         if(Ext.ComponentQuery.query('#period-interval')[0].getValue() === 'weeks') {
@@ -303,8 +308,8 @@ Ext.define('Uni.form.field.OnPeriod', {
     getOnValue: function () {
         var me = this,
             selectedValue = me.selectedValue,
-            dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').getValue(),
-            dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').getValue();
+            dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').disabled ? null : me.getOptionDayOfMonthContainer().down('combobox').getValue(),
+            dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').disabled ? null : me.getOptionDayOfWeekContainer().down('combobox').getValue();
 
         var result = {
             onCurrentDay: selectedValue === 'currentday'

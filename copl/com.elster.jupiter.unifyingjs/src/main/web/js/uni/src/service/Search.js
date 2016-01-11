@@ -351,17 +351,26 @@ Ext.define('Uni.service.Search', {
         var propertyName = field.get('propertyName'),
             type = this.columnMap[field.get('type')],
             displayValue = field.get('displayValue'),
-            defaultColumns = this.defaultColumns[this.getDomain().get('id')];
+            defaultColumns = this.defaultColumns[this.getDomain().get('id')],
+            renderer = undefined;
 
         if (!type) {
             type = 'gridcolumn';
+        }
+
+        if (type == 'booleancolumn'){
+            renderer  = function (value) {
+                return value ? Uni.I18n.translate('general.yes', 'UNI', 'Yes'):
+                    Uni.I18n.translate('general.no', 'UNI', 'No');
+            }
         }
 
         return {
             isDefault: defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0,
             dataIndex: propertyName,
             header: displayValue,
-            xtype: type
+            xtype: type,
+            renderer: renderer
         };
     },
 

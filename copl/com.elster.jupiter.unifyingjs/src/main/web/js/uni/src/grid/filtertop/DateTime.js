@@ -66,7 +66,10 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                         value: me.value ? me.value.getHours() : undefined,
                         minValue: 0,
                         maxValue: 23,
-                        editable: false,
+                        maxLength: 2,
+                        allowExponential: false,
+                        allowDecimals: false,
+                        editable: true,
                         emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
                         flex: 1,
                         valueToRaw: function (value) {
@@ -76,6 +79,12 @@ Ext.define('Uni.grid.filtertop.DateTime', {
 
                             value = value || 0;
                             return (value < 10 ? '0' : '') + value;
+                        },
+                        listeners: {
+                            blur: {
+                                fn: me.numberFieldValidation,
+                                scope: me
+                            }
                         }
                     },
                     {
@@ -89,7 +98,10 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                         value: me.value ? me.value.getMinutes() : undefined,
                         minValue: 0,
                         maxValue: 59,
-                        editable: false,
+                        maxLength: 2,
+                        allowExponential: false,
+                        allowDecimals: false,
+                        editable: true,
                         emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
                         flex: 1,
                         valueToRaw: function (value) {
@@ -99,6 +111,12 @@ Ext.define('Uni.grid.filtertop.DateTime', {
 
                             value = value || 0;
                             return (value < 10 ? '0' : '') + value;
+                        },
+                        listeners: {
+                            blur: {
+                                fn: me.numberFieldValidation,
+                                scope: me
+                            }
                         }
                     }
                 ]
@@ -106,6 +124,16 @@ Ext.define('Uni.grid.filtertop.DateTime', {
         ];
 
         me.callParent(arguments);
+    },
+
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue || value === 0) {
+            field.setValue(field.minValue);
+        } else if (value > field.maxValue) {
+            field.setValue(field.maxValue);
+        }
     },
 
     resetValue: function () {

@@ -156,7 +156,7 @@ Ext.define('Uni.view.search.Overview', {
                                 items: [
                                     {
                                         xtype: 'label',
-                                        text: 'Sort',
+                                        text: Uni.I18n.translate('general.sort', 'UNI', 'Sort'),
                                         width: 100
                                     },
                                     {
