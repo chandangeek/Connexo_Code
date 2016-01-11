@@ -54,7 +54,7 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "4.3.0_1";
+gTopicId = "4.4.0_1";
 </script>
  <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Import_services.htm">
  <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Monitor_import_services.htm">
@@ -68,10 +68,104 @@ gTopicId = "4.3.0_1";
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration </span>&gt;<span class="FM_UIRef"> Data import</span>&#160;&gt; <span class="FM_UIRef">Import services</span>.</p>
- <p class="FM_BodyProcedure">The overview page contains a table that shows al configured import services. In the table you can see the importer the service uses as well as the application that uses the importer. This table also shows the status of the import service and what data type can be imported.</p>
+ <p class="FM_BodyProcedure">The overview page contains a table that shows al configured import services. In the table you can see the importer the service uses as well as the application that uses the importer. This table also shows the status of the import service and what type of file can be imported.</p>
  <p class="FM_BodyProcedure">By selecting the import service in the table, you can see more details in the details pane on the bottom of the page.</p>
  <p class="FM_ListNumber1">2. &#160; Click the import service name.</p>
- <p class="FM_BodyProcedure">The page shows all details of the import service and also allows you to edit, remove and activate the service.</p>
+ <p class="FM_BodyProcedure">The page shows all details of the import service and also allows you to edit, remove and (de)activate the service.</p>
+ <p class="FM_H4Topic">Default importers</p>
+ <p class="FM_Body">Connexo provides different default importers that allow the import of different types of data to perform different actions in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>. These different importers are described here, the usage of the configured import service in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;are described in the <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;user guide.</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellHeading">Importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody">Usage point importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Import usage points using a CSV file.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Device connection attributes importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Importer developed to import different connection attributes of different connection methods and devices.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody">Device security attributes importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Importer developed to import different security attributes of different security settings and devices.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Devices commissioning importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Importer to transition devices to the commissioning state.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody">Devices decommissioning importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Importer to transition devices to the decommissioning state.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Devices installation importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Importer to install devices.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody">Devices remove importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Importer to remove selected devices from Connexo.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody">Devices shipment importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Importer to add devices to Connexo in bulk.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Device activation/deactivation importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Importer to transition devices to the active or inactive state.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody">Device readings importer</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">Importer designed to add meter readings to selected devices.</p>
+</td>
+</tr>
+ </table>
+
  <p class="FM_H4Topic">Add import service</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
@@ -121,7 +215,7 @@ gTopicId = "4.3.0_1";
 </tr>
   <tr style=" height : 34.00pt;" class="t2Row">
   <td style="width : 98.691pt; vertical-align : top;">
-  <p class="FM_CellBody">Folder scan frequency</p>
+  <p class="FM_CellBody" style="text-align  : left;">Folder scan frequency</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
   <p class="FM_CellBody">Select the frequency to check whether new files are available for import. </p>
@@ -154,7 +248,7 @@ gTopicId = "4.3.0_1";
  </table>
 
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
- <p class="FM_ListNumber1">4. &#160; Click the actions icon <img alt="masterActions00005.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image5" src="masterActions00005.png" />&#160;and select <span class="FM_UIRef">Activate</span>.</p>
+ <p class="FM_ListNumber1">4. &#160; Click the actions icon <img alt="masterActions00008.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image13" src="masterActions00008.png" />&#160;and select <span class="FM_UIRef">Activate</span>.</p>
  <p class="FM_PNote"><span class="FM_Icons">3</span></p>
  <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
  <p class="FM_BodyGrey">Before import services can be used in the other Connexo applications, this import service first has to be added to an application server.</p>
@@ -162,21 +256,21 @@ gTopicId = "4.3.0_1";
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data import</span>&#160;&gt; <span class="FM_UIRef">Import services</span>.</p>
- <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00006.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image6" src="masterActions00006.png" />&#160;and select <span class="FM_UIRef">Edit</span>. All parameters but the file importer can be edited.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00009.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image14" src="masterActions00009.png" />&#160;and select <span class="FM_UIRef">Edit</span>. All parameters except the file importer can be edited.</p>
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Save</span>.</p>
  <p class="FM_H4Topic">Remove import services</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data import</span>&#160;&gt; <span class="FM_UIRef">Import services</span>.</p>
- <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00007.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image7" src="masterActions00007.png" />&#160;and select <span class="FM_UIRef">Remove</span>. </p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00010.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image15" src="masterActions00010.png" />&#160;and select <span class="FM_UIRef">Remove</span>. </p>
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Remove</span>.</p>
  <p class="FM_H4Topic">Configure import services on an application server</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server</span>&#160;&gt; <span class="FM_UIRef">Application servers</span>.</p>
- <p class="FM_ListNumber1">2. &#160; Create a new one (<a href="Configure_application_servers.htm#XREF_33773_Add_an_application"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Add an application server”</span></a>) or edit an existing application server (<a href="Configure_application_servers.htm#XREF_11730_Edit_and_remove"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Edit and remove application servers”</span></a>).</p>
+ <p class="FM_ListNumber1">2. &#160; Create a new one (<a href="Configure_application_servers.htm#XREF_33773_Add_an_application"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Add an application server”</span></a>) or edit an existing application server (<a href="Configure_application_servers.htm#XREF_38485_Edit_application"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Edit application server”</span></a>).</p>
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add import services</span>.</p>
  <p class="FM_ListNumber1">4. &#160; Select one or more of the configured import services.</p>
- <p class="FM_ListNumber1">5. &#160; Remove import services by clicking the actions icon <img alt="masterActions00008.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image8" src="masterActions00008.png" />&#160;and selecting <span class="FM_UIRef">Remove</span>.</p>
+ <p class="FM_ListNumber1">5. &#160; Remove import services by clicking the actions icon <img alt="masterActions00011.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image16" src="masterActions00011.png" />&#160;and selecting <span class="FM_UIRef">Remove</span>.</p>
  </body>
 </html>

@@ -54,28 +54,21 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "4.1.0_2";
+gTopicId = "4.1.0_3";
 </script>
- <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Application_servers.htm">
- <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Relative_periods.htm">
+ <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Monitor_application_servers.htm">
+ <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Monitor_application_servers1.htm">
 </head>
 
 <body>
 <script type="text/javascript" src="../../ehlpdhtm.js"></script>
 
  <p class="FM_H3SectionTopic">Configure application servers</p>
- <p class="FM_H4Topic">View application servers</p>
- <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
- <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server</span>.</p>
- <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Application servers</span>.</p>
- <p class="FM_BodyProcedure">The application server page shows all servers that have been configured together with their status. Application server details are shown in the details pane on the bottom of the page.</p>
  <p class="FM_H4Topic"><a name="XREF_33773_Add_an_application"></a>Add an application server</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
- <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server</span>.</p>
- <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Application servers</span>.</p>
- <p class="FM_ListNumber1">3. &#160; Click Add application server and complete the following fields:</p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server</span>&#160;&gt; <span class="FM_UIRef">Application servers</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add application server</span> and complete the following fields:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
   <tr style=" height : 25.00pt;" class="t1st">
@@ -102,28 +95,302 @@ gTopicId = "4.1.0_2";
   <p class="FM_CellBody">Default path to store exported files and data. The path can be overruled in the export task configuration.</p>
 </td>
 </tr>
-  <tr style=" height : 104.19pt;" class="t2Row">
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Import path</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Default path to import data from. The path can be overruled in the import service configuration.</p>
+</td>
+</tr>
+  <tr style=" height : 104.19pt;" class="t1Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody"><a title="Are the services that run on the application server for which queues are used.">Message services</a></p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">Select the message services that need to be executed by the application server by removing those that do not need to be executed. This can be done by clicking the actions icon <img alt="masterActions.png" style=" margin-bottom:-4.000pt; width:100%; max-width:21px;" id="image0" src="masterActions.png" />&#160;and selecting <span class="FM_UIRef">Remove</span>.</p>
-  <p class="FM_CellBody">Change the number of threads by clicking the value.</p>
+  <p class="FM_CellBody">Select the message services that need to be executed by the application server by removing those that do not need to be executed. This can be done by clicking the remove icon <img alt="000016_UMNL_Deployment00001.png" style=" margin-bottom:-4.000pt; width:100%; max-width:21px;" id="image0" src="000016_UMNL_Deployment00001.png" />.</p>
+  <p class="FM_CellBody">Change the number of threads or the status of the service by clicking the value.</p>
   <p class="FM_CellBody">Message services can be added when you click <span class="FM_UIRef">Add message services</span>.</p>
+</td>
+</tr>
+  <tr style=" height : 52.19pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Import services</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">By default all configured import services are added to the application server. Remove import services by clicking the remove icon <img alt="000016_UMNL_Deployment00002.png" style=" margin-bottom:-4.000pt; width:100%; max-width:21px;" id="image1" src="000016_UMNL_Deployment00002.png" />, add import services by clicking <span class="FM_UIRef">Add import services</span>.</p>
 </td>
 </tr>
  </table>
 
- <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add</span>.</p>
- <p class="FM_ListNumber1">5. &#160; Click the actions icon <img alt="masterActions00001.png" style=" margin-bottom:-2.000pt; width:100%; max-width:21px;" id="image1" src="masterActions00001.png" />&#160;and select <span class="FM_UIRef">Activate</span>.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_ListNumber1">4. &#160; Click the actions icon <img alt="masterActions.png" style=" margin-bottom:-2.000pt; width:100%; max-width:21px;" id="image2" src="masterActions.png" />&#160;and select <span class="FM_UIRef">Activate</span>.</p>
  <p class="FM_PNote"><span class="FM_Icons">3</span></p>
  <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
  <p class="FM_BodyGrey">When you activate an application server this server becomes available in the application instead of being activated as such.</p>
- <p class="FM_H4Topic"><a name="XREF_11730_Edit_and_remove"></a>Edit and remove application servers</p>
+ <p class="FM_H4Topic"><a name="XREF_38485_Edit_application"></a>Edit application server</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
- <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server</span>.</p>
- <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Application servers</span>.</p>
- <p class="FM_ListNumber1">3. &#160; Click the actions icon <img alt="masterActions00002.png" style=" margin-bottom:-2.000pt; width:100%; max-width:21px;" id="image2" src="masterActions00002.png" />&#160;and select <span class="FM_UIRef">Remove</span>&#160;to delete the application server. Click <span class="FM_UIRef">Remove</span> in the dialog that appears.</p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server &gt; Application servers.</span></p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00001.png" style=" margin-bottom:-2.000pt; width:100%; max-width:21px;" id="image3" src="masterActions00001.png" />&#160;next to the application server you want to edit and select <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_ListNumber1">3. &#160; Change the application server parameters </p>
+ <p class="FM_ListNumber1">4. &#160; Add, edit or remove message and import services.</p>
+ <p class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+ <p class="FM_H4Topic">Edit message services on application server</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server &gt;&#160;Application servers &gt; </span>click<span class="FM_UIRef">&#160;</span>application server name &gt; select<span class="FM_UIRef">&#160;Message services </span>in the menu on the left.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the status or the number of threads to change the value.</p>
+ <p class="FM_ListNumber1">3. &#160; Remove message services by clicking the remove icon <img alt="000016_UMNL_Deployment00003.png" style=" margin-bottom:-4.000pt; width:100%; max-width:21px;" id="image4" src="000016_UMNL_Deployment00003.png" />&#160;or add services by clicking <span class="FM_UIRef">Add message service</span>.</p>
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Save changes</span>&#160;to save or click <span class="FM_UIRef">Undo</span> to cancel all changes made.</p>
+ <p class="FM_H4Topic">Edit import services on application server</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server &gt;&#160;Application servers &gt; </span>click<span class="FM_UIRef">&#160;</span>application server name &gt; select<span class="FM_UIRef">&#160;Import services </span>in the menu on the left.</p>
+ <p class="FM_ListNumber1">2. &#160; Remove import services by clicking the remove icon <img alt="000016_UMNL_Deployment00004.png" style=" margin-bottom:-4.000pt; width:100%; max-width:21px;" id="image5" src="000016_UMNL_Deployment00004.png" />&#160;or add services by clicking <span class="FM_UIRef">Add import service</span>.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Save changes</span>&#160;to save or click <span class="FM_UIRef">Undo</span> to cancel all changes made.</p>
+ <p class="FM_H4Topic"><a name="XREF_11730_Edit_and_remove"></a>Remove application servers</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server</span>&#160;&gt; <span class="FM_UIRef">Application servers</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00002.png" style=" margin-bottom:-2.000pt; width:100%; max-width:21px;" id="image6" src="masterActions00002.png" />&#160;and select <span class="FM_UIRef">Remove</span>&#160;to delete the application server. Click <span class="FM_UIRef">Remove</span> in the dialog that appears.</p>
+ <p class="FM_H4Topic">Default message services</p>
+ <p class="FM_Body">In Connexo different message services are available by default. The table below gives an overview of these services together with a short description.</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellHeading">Message service</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Connexo Facts search</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Required for the integration of <uservariable x-value="Facts" x-showvalue="TRUE" name="Reporter_App" x-format="Reporter_App">Facts</uservariable>&#160;with the other Connexo application.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Connexo Flow handler</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Required for the integration of <uservariable x-value="Flow" x-showvalue="TRUE" name="ProcDesign_App" x-format="ProcDesign_App">Flow</uservariable>&#160;with the other Connexo application.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Handle obsolete communication schedules</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">This service will handle inactivating all communication schedules of devices that use a communication task configuration of the device configuration that has been set on inactive.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Recalculate communication schedules</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">When the schedule of a shared communication schedule is adjusted, this service will calculate the next run of the communication tasks of all devices that use this shared communication schedule.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle data export</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Executes data export tasks, triggered manually or automatically.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle data import</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Handles all events from the import services, except those of the usage point importer.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Purge data</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Executes data purging in the background.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Data Validation</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Executes data validation tasks.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle estimation</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Executes data estimation tasks.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle overdue issues</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Checks whether issues are overdue and if they are, perform the action specified in the issue creation rule.</p>
+</td>
+</tr>
+  <tr style=" height : 73.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Itemize communications from filter</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Converts specified filter criteria on the communications page (Workspace &gt; Data communication &gt; Communications) into single items and performs the bulk action “Run” or “Run now” for every single item.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Itemize connection rescheduling from filter</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Converts specified filter criteria on the connections page (Workspace &gt;&#160;Data communication &gt; Connections) into single items and performs the bulk action “Run” for every single item.</p>
+</td>
+</tr>
+  <tr style=" height : 73.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Itemize connection property updates from filter</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Converts specified filter criteria on the connections page (Workspace &gt;&#160;Data communication &gt; Connections) into single items and performs the bulk action of changing the connection attributes for every single item.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Itemize com schedule addition/removal to/from device</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Converts specified filter criteria on the device search page into single items and performs the bulk action of adding the selected shared communication schedule to every single device.</p>
+</td>
+</tr>
+  <tr style=" height : 73.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle connection updates on comtask enablement</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">When changing the connection method of a communication task configuration on a device configuration, this service will change the connection method of every device using this device configuration.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle priority updates on comtask enablement</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">When changing the urgency of a communication task configuration on a device configuration, this service will change the urgency of every device using this device configuration.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Handle status updates on comtask enablement</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">When changing the status of a communication task configuration on a device configuration, this service will change the status of the communication task on every device using this device configuration.</p>
+</td>
+</tr>
+  <tr style=" height : 99.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Process firmware campaign</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">This service will which devices of the selected device group have the specified device type and will subsequently upload the desired firmware. Because it can take some time to calculate the amount of devices in the firmware campaign, the firmware campaign progress is not always shown immediately on the firmware campaign page.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Create data collection issues</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Picks up events created by the data collection engine and creates issues based on the configured issue creation rules.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Create data validation issues</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Picks up events created by the data validation engine and creates issues based on the configured issue creation rules.</p>
+</td>
+</tr>
+  <tr style=" height : 73.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Revalidate connection methods after property removal on configuration level</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">When removing one of connection details of the connection method configuration on a device configuration, this service will change the status of every device that inherited these connection details to “Incomplete”</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Calculate connection and communication KPIs</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Calculates the communication and connection KPIs on the time points specified in the configuration.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle connection property updates</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">&nbsp;</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Reschedule communication message handler</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">&nbsp;</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Handle connection rescheduling</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">&nbsp;</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Reschedule communication message handler</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">&nbsp;</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Change device state</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">When altering the device life cycle of a device type, this service will change the device state of all devices of this device type into the corresponding state of the new device life cycle.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Usage Point File Import</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Handles all events from the usage point importer.</p>
+</td>
+</tr>
+ </table>
+
  </body>
 </html>

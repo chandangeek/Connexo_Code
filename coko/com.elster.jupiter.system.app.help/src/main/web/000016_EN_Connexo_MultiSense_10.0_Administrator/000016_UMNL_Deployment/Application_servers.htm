@@ -57,7 +57,7 @@ gCommonRootRelPath = "../..";
 gTopicId = "4.1";
 </script>
  <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/System_configuration.htm">
- <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Configure_application_servers.htm">
+ <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Monitor_application_servers.htm">
 </head>
 
 <body>
@@ -73,7 +73,7 @@ gTopicId = "4.1";
  <p class="FM_Body">Using multiple servers also creates a more stable system because when one server is down due to error or maintenance, the second server can take over.</p>
  <p class="FM_H4Topic">Application servers in Connexo</p>
  <p class="FM_Body">Application servers in Connexo can easily be added and managed using the <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>&#160;application. When you add a new application server three parameters need to be defined: a unique name, the export path and the message services.</p>
- <p class="FM_Body">The export path sets the default path where files and data will be exported to. However this path can be overruled when you configure an export task. Beware that if you create multiple application servers for data export tasks that belong together, the export path of the different applications servers is the same. Otherwise your data will be scattered over different locations.</p>
- <p class="FM_Body">By default all <a title="Are the services that run on the application server for which queues are used.">message services</a> are added to the application server, but these can easily be removed to create the application server that meets your needs.</p>
+ <p class="FM_Body">The export path sets the default path where files and data will be exported to. However this path can be overruled when you configure an export task. Beware that if you create multiple application servers for data export tasks that belong together, the export path of the different applications servers is the same. Otherwise your data will be scattered over different locations. The same applies to import services.</p>
+ <p class="FM_Body">By default all <a title="Are the services that run on the application server for which queues are used.">message services</a> and import services are added to the application server, but these can easily be removed to create the application server that meets your needs.</p>
  </body>
 </html>
