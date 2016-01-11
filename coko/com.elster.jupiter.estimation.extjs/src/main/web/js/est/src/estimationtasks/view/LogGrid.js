@@ -15,7 +15,7 @@ Ext.define('Est.estimationtasks.view.LogGrid', {
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 },
-                flex: 2
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('estimationtasks.general.logLevel', 'EST', 'Log level'),
@@ -28,7 +28,7 @@ Ext.define('Est.estimationtasks.view.LogGrid', {
                 renderer: function (value) {
                     return '<div style="white-space: pre !important;">'+ value +'</div>';
                 },
-                flex: 5
+                flex: 6
             }
         ];
 
