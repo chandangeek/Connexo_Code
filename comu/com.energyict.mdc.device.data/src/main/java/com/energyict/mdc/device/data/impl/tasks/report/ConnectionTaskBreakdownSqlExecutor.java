@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
-import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskBreakdowns;
-
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
+import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskBreakdowns;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -119,8 +118,12 @@ class ConnectionTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
     }
 
     @Override
-    protected int bindBeforeDeviceStateSql(PreparedStatement statement, Instant now, int startPosition) {
-        return startPosition;
+    protected int bindBeforeDeviceStateSql(PreparedStatement statement, Instant now, int startPosition) throws SQLException {
+        int bindPosition = startPosition;
+        for (int i = 0; i < NUMBER_OF_UTC_SECONDS_BINDS; i++) {
+            statement.setLong(bindPosition++, now.getEpochSecond());
+        }
+        return bindPosition;
     }
 
     @Override
@@ -134,12 +137,8 @@ class ConnectionTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
     }
 
     @Override
-    protected int bindTaskStatusSql(PreparedStatement statement, Instant now, int startPosition) throws SQLException {
-        int bindPosition = startPosition;
-        for (int i = 0; i < NUMBER_OF_UTC_SECONDS_BINDS; i++) {
-            statement.setLong(bindPosition++, now.getEpochSecond());
-        }
-        return bindPosition;
+    protected int bindTaskStatusSql(PreparedStatement statement, Instant now, int startPosition) {
+        return startPosition;
     }
 
 }
