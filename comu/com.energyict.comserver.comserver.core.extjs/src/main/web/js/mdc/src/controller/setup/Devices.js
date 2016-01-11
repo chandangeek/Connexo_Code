@@ -232,6 +232,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 });
 
                 me.getApplication().fireEvent('changecontentevent', widget);
+
                 me.doRefresh();
                 transitionsStore.load({
                     callback: function () {
@@ -243,6 +244,8 @@ Ext.define('Mdc.controller.setup.Devices', {
                 attributesModel.load('attributes', {
                     success: function (attributes) {
                         me.getDeviceGeneralInformationForm().loadRecord(attributes);
+                        me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
+                            .update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
                     }
                 });
                 !!me.getDeviceCommunicationTopologyPanel() && me.getDeviceCommunicationTopologyPanel().setRecord(device);
