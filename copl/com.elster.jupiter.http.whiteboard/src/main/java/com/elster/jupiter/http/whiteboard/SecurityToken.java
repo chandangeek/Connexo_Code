@@ -20,7 +20,9 @@ import java.security.interfaces.RSAKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.*;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -45,7 +47,7 @@ public class SecurityToken {
     private SecurityToken() {
     }
 
-    public Optional<String> createToken(User user, long count) {
+    public Optional<String> createToken(HttpServletRequest request, HttpServletResponse response, User user, long count) {
         Optional<String> token = Optional.empty();
         try {
             Optional<RSAKey> rsaKey = getRSAKey(PRIVATE_KEY, "PRV");
@@ -74,6 +76,9 @@ public class SecurityToken {
                 signedJWT.sign(signer);
                 token = Optional.of(signedJWT.serialize());
 
+                response.setHeader("X-AUTH-TOKEN", token.get());
+                response.setHeader("Authorization", "Bearer " + token.get());
+                createCookie("X-CONNEXO-TOKEN",token.get(),"/",response);
             }
 
         } catch (NoSuchAlgorithmException e) {
@@ -94,15 +99,17 @@ public class SecurityToken {
                     long userId = Long.valueOf(signedJWT.get().getJWTClaimsSet().getSubject());
                     Optional<User> user = userService.getLoggedInUser(userId);
                     if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {
+                        response.setHeader("X-AUTH-TOKEN", token);
+                        response.setHeader("Authorization", "Bearer " + token);
                         return user;
                     } else if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime() + TIMEOUT*1000))) {
                         if(!userService.findUser(user.get().getName(), user.get().getDomain()).isPresent()) return Optional.empty();
                         long count = (Long) signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt");
-                        Optional<String> newToken = createToken(userService.getLoggedInUser(userId).get(),++count);
+                        Optional<String> newToken = createToken(request, response, userService.getLoggedInUser(userId).get(),++count);
                         if(newToken.isPresent()){
                             response.setHeader("X-AUTH-TOKEN", newToken.get());
-                            response.setHeader("Authorization", "Bearer " + newToken);
-                            createCookie("X-CONNEXO-TOKEN",newToken.get(),"/",-1,true,response);
+                            response.setHeader("Authorization", "Bearer " + newToken.get());
+                            createCookie("X-CONNEXO-TOKEN",newToken.get(),"/",response);
                             return user;
                         }
                     }
@@ -170,15 +177,15 @@ public class SecurityToken {
             return Optional.empty();
         }
 
-
-
-
     public void removeCookie(HttpServletRequest request, HttpServletResponse response) {
         Optional<Cookie> tokenCookie = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         if (tokenCookie.isPresent()) {
-            response.setHeader("Authorization", null);
-            response.setHeader("X-AUTH-TOKEN", null);
-            createCookie("X-CONNEXO-TOKEN", null, "/", 0, true, response);
+            StringBuilder cookie = new StringBuilder(tokenCookie.get().getName() + "=" + null + "; ");
+            cookie.append("Path=/; ");
+            cookie.append("Expires=Thu, 01 Jan 1970 00:00:01 GMT; ");
+            cookie.append("Max-Age=" + 0 + "; ");
+            cookie.append("HttpOnly");
+            response.setHeader("Set-Cookie", cookie.toString());
         }
     }
     public void invalidateSession(HttpServletRequest request){
@@ -186,12 +193,17 @@ public class SecurityToken {
         if (session != null) session.invalidate();
     }
 
-    public void createCookie(String cookieName, String cookieValue, String cookiePath, int maxAge, boolean isHTTPOnly, HttpServletResponse response ){
-        Cookie tokenCookie = new Cookie(cookieName, cookieValue);
-        tokenCookie.setPath(cookiePath);
-        tokenCookie.setMaxAge(maxAge); //seconds
-        tokenCookie.setHttpOnly(isHTTPOnly);
-        response.addCookie(tokenCookie);
+    public void createCookie(String cookieName, String cookieValue, String cookiePath, HttpServletResponse response ){
+        DateFormat dateFormatter = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss 'GMT'", Locale.US);
+        dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND, TIMEOUT+TOKEN_EXPTIME);
+        StringBuilder cookie = new StringBuilder(cookieName + "=" + cookieValue + "; ");
+        cookie.append("Path="+cookiePath + "; ");
+        cookie.append("Expires=" + dateFormatter.format(calendar.getTime()) + "; ");
+        cookie.append("Max-Age=" + (TIMEOUT+TOKEN_EXPTIME) + "; ");
+        cookie.append("HttpOnly");
+        response.setHeader("Set-Cookie", cookie.toString());
     }
 
     private Optional<RSAKey> getRSAKey(String key, String keyType) throws NoSuchAlgorithmException, InvalidKeySpecException {
