@@ -850,6 +850,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
             securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
+            device.save();
             context.commit();
         }
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
@@ -892,6 +893,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
             device.setSecurityProperties(secondSecurityPropertySet, securityProperties);
+            device.save();
+
             context.commit();
         }
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
@@ -934,6 +937,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
             device.getSecurityProperties(firstSecurityPropertySet);
+            device.save();
             context.commit();
         }
 
@@ -974,6 +978,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
             securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
+            device.save();
             context.commit();
         }
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
