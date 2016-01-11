@@ -28,7 +28,9 @@ public class BpmServerImpl implements BpmServer {
         this.setUrlFromContext(context);
         String user = this.getUserFromContext(context);
         String password = this.getPasswordFromContext(context);
-        this.basicAuthString = "Basic " + new String(Base64.getEncoder().encode((user + ":" + password).getBytes()));
+        if(user != null && password != null) {
+            this.basicAuthString = "Basic " + new String(Base64.getEncoder().encode((user + ":" + password).getBytes()));
+        }
     }
 
     private void setUrlFromContext(BundleContext context) {
@@ -45,9 +47,6 @@ public class BpmServerImpl implements BpmServer {
         if (context != null) {
             user = context.getProperty(BPM_USER);
         }
-        if (user == null) {
-            user = DEFAULT_BPM_USER;
-        }
         return user;
     }
 
@@ -55,9 +54,6 @@ public class BpmServerImpl implements BpmServer {
         String password = null;
         if (context != null) {
             password = context.getProperty(BPM_PASSWORD);
-        }
-        if (password == null) {
-            password = DEFAULT_BPM_PASSWORD;
         }
         return password;
     }
@@ -75,6 +71,7 @@ public class BpmServerImpl implements BpmServer {
     @Override
     public String doGet(String targetURL, String authorization) {
         HttpURLConnection httpConnection = null;
+        authorization = (basicAuthString != null)?basicAuthString:authorization;
         try {
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
@@ -114,6 +111,7 @@ public class BpmServerImpl implements BpmServer {
     public long doPost(String targetURL, String payload, String authorization) {
         long check = 0;
         HttpURLConnection httpConnection = null;
+        authorization = (basicAuthString != null)?basicAuthString:authorization;
         try {
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
