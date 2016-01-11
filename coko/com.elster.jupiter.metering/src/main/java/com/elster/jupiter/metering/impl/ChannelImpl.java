@@ -61,6 +61,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -384,11 +385,14 @@ public final class ChannelImpl implements ChannelContract {
                     .anyMatch(matchesReadingTypes);
     }
 
-    Optional<ReadingType> getDerivedReadingType(ReadingType readingType) {
-
-        // // TODO Channel should now do this independently
-
-        return Optional.empty();
+    Optional<IReadingType> getDerivedReadingType(IReadingType readingType) {
+        List<IReadingType> readingTypes = getReadingTypes();
+        return IntStream.range(1, readingTypes.size())
+                .filter(i -> readingTypes.get(i).equals(readingType))
+                .map(i -> i - 1)
+                .mapToObj(readingTypes::get)
+                .filter(candidate -> DerivationRule.MEASURED != getDerivationRule(candidate))
+                .findFirst();
     }
 
     private RecordSpec getRecordSpec() {
