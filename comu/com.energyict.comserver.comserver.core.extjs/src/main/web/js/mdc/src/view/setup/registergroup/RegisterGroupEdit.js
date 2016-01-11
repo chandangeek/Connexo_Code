@@ -75,13 +75,13 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                 field.focus(false, 200);
                                             }
                                         }
-                                    },
+                                    },/*,
                                     {
                                         xtype: 'label',
                                         itemId: 'separator',
                                         margin: '0 0 0 265',
                                         html: '<hr>'
-                                    },
+                                    },*/
                                     {
                                         xtype: 'displayfield',
                                         name: 'registerTypeInGroups',
