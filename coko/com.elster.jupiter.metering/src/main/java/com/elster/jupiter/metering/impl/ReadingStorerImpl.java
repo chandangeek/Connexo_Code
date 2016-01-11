@@ -310,16 +310,18 @@ class ReadingStorerImpl implements ReadingStorer {
                         Instant instant = entry.getKey().getLast();
                         int slotOffset = channelContract.getRecordSpecDefinition().slotOffset();
                         int index = derivation.getIndex();
-                        if (DerivationRule.MULTIPLIED.equals(derivation.getDerivationRule())) {
-                            if (values[index + slotOffset + 1] != storer.doNotUpdateMarker()) {
-                                BigDecimal multiplier = getMultiplier(channelContract, instant, readingTypes.get(index + 1), readingTypes.get(index));
-                                values[index + slotOffset] = ((BigDecimal) values[index + slotOffset + 1]).multiply(multiplier);
-                            }
-                        } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())) {
-                            if (values[index + slotOffset] != storer.doNotUpdateMarker()) {
-                                IReadingType target = (IReadingType) readingTypes.get(index).getBulkReadingType().get();
-                                BigDecimal multiplier = getMultiplier(channelContract, instant, target);
-                                values[index + slotOffset] = ((BigDecimal) values[index + slotOffset]).multiply(multiplier);
+                        if (values[index + slotOffset + 1] instanceof BigDecimal) {
+                            if (DerivationRule.MULTIPLIED.equals(derivation.getDerivationRule())) {
+                                if (values[index + slotOffset + 1] != storer.doNotUpdateMarker()) {
+                                    BigDecimal multiplier = getMultiplier(channelContract, instant, readingTypes.get(index + 1), readingTypes.get(index));
+                                    values[index + slotOffset] = ((BigDecimal) values[index + slotOffset + 1]).multiply(multiplier);
+                                }
+                            } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())) {
+                                if (values[index + slotOffset] != storer.doNotUpdateMarker()) {
+                                    IReadingType target = (IReadingType) readingTypes.get(index).getBulkReadingType().get();
+                                    BigDecimal multiplier = getMultiplier(channelContract, instant, target);
+                                    values[index + slotOffset] = ((BigDecimal) values[index + slotOffset]).multiply(multiplier);
+                                }
                             }
                         }
                     });
