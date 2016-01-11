@@ -9,6 +9,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -19,8 +20,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -31,7 +30,9 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -39,7 +40,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -141,11 +142,11 @@ public class ResourceHelper {
     }
 
     public void lockDeviceTypeOrThrowException(long id, long version) {
-        DeviceType deviceType = deviceConfigurationService.findDeviceType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE, id));
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_TYPE, id));
         deviceConfigurationService
                 .findAndLockDeviceType(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(deviceType.getName())
-                        .withActualVersion(() -> deviceType.getVersion())
+                        .withActualVersion(deviceType::getVersion)
                         .supplier());
     }
 
@@ -157,11 +158,11 @@ public class ResourceHelper {
     }
 
     public void lockLoadProfileTypeOrThrowException(long id, long version) {
-        LoadProfileType loadProfileType = masterDataService.findLoadProfileType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE, id));
+        LoadProfileType loadProfileType = masterDataService.findLoadProfileType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_LOAD_PROFILE_TYPE, id));
         masterDataService
                 .findAndLockLoadProfileTypeByIdAndVersion(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(loadProfileType.getName())
-                        .withActualVersion(() -> loadProfileType.getVersion())
+                        .withActualVersion(loadProfileType::getVersion)
                         .supplier());
     }
 
@@ -173,11 +174,11 @@ public class ResourceHelper {
     }
 
     public void lockRegisterTypeOrThrowException(long id, long version) {
-        RegisterType registerType = masterDataService.findRegisterType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE, id));
+        RegisterType registerType = masterDataService.findRegisterType(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_REGISTER_TYPE, id));
         masterDataService
                 .findAndLockRegisterTypeByIdAndVersion(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(registerType.getDescription())
-                        .withActualVersion(() -> registerType.getVersion())
+                        .withActualVersion(registerType::getVersion)
                         .supplier());
     }
 
@@ -591,7 +592,7 @@ public class ResourceHelper {
     }
 
     public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Device device, long cpsId) {
-        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.ofNullable(null), device.getDeviceType().getId(), device.getDeviceType().getVersion());
+        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.empty(), device.getDeviceType().getId(), device.getDeviceType().getVersion());
     }
 
     public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Channel channel, long cpsId) {
@@ -768,7 +769,7 @@ public class ResourceHelper {
 
     @SuppressWarnings("unchecked")
     public CustomPropertySetInfo getRegisterCustomPropertySetInfo(Register register, Instant effectiveTimestamp) {
-        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
+        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = getRegisteredCustomPropertySet(register);
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isViewableByCurrentUser()) {
             if (!registeredCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
                 return new CustomPropertySetInfo(
@@ -808,13 +809,27 @@ public class ResourceHelper {
 
     @SuppressWarnings("unchecked")
     public void setRegisterCustomPropertySet(Register register, CustomPropertySetInfo info) {
-        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
-        if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isEditableByCurrentUser()) {
-            customPropertySetService.setValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), register.getDevice().getId());
+        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(register)
+                .orElseThrow(conflictException(info));
+
+        if (registeredCustomPropertySet.isEditableByCurrentUser() && matches(info, registeredCustomPropertySet)) {
+            customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), register.getDevice().getId());
             register.getRegisterSpec().save();
         } else {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, info.id);
+            throw conflictException(info).get();
         }
+    }
+
+    private Supplier<LocalizedException> conflictException(CustomPropertySetInfo info) {
+        return () -> exceptionFactory.newException(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, info.id);
+    }
+
+    private boolean matches(CustomPropertySetInfo info, RegisteredCustomPropertySet registeredCustomPropertySet) {
+        return registeredCustomPropertySet.getCustomPropertySet().getId().equals(info.customPropertySetId);
+    }
+
+    private Optional<RegisteredCustomPropertySet> getRegisteredCustomPropertySet(Register register) {
+        return register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
     }
 
     @SuppressWarnings("unchecked")
@@ -894,7 +909,7 @@ public class ResourceHelper {
     }
 
     public Range<Instant> getCurrentTimeInterval(Device device, long cpsId) {
-        return getCurrentTimeInterval(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.ofNullable(null), device.getDeviceType().getId(), device.getDeviceType().getVersion());
+        return getCurrentTimeInterval(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.empty(), device.getDeviceType().getId(), device.getDeviceType().getVersion());
     }
 
     public Range<Instant> getCurrentTimeInterval(Channel channel, long cpsId) {

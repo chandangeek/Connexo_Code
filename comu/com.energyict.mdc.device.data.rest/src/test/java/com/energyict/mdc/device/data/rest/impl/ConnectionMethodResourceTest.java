@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -60,6 +61,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     Instant nextExecution = Instant.now();
     private ScheduledConnectionTask connectionTask;
     private Device device;
+    private PartialScheduledConnectionTask partialConnectionTask;
 
     @Override
     @Before
@@ -73,7 +75,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         connectionTask = mockConnectionTask(9);
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        PartialConnectionTask partialConnectionTask = mockPartialConnectionTask(31L, "AS1440");
+        partialConnectionTask = mockPartialConnectionTask(31L, "AS1440");
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
@@ -198,6 +200,10 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testCreateScheduledConnectionMethodWithInheritedProperty() {
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty("connectionTimeout", new TimeDuration(60, TimeDuration.TimeUnit.SECONDS));
+        when(partialConnectionTask.getTypedProperties()).thenReturn(typedProperties);
+
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
@@ -235,6 +241,9 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testUpdateScheduledConnectionMethodWithInheritedProperty() throws IOException {
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty("connectionTimeout", new TimeDuration(60, TimeDuration.TimeUnit.SECONDS));
+        when(partialConnectionTask.getTypedProperties()).thenReturn(typedProperties);
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
@@ -295,6 +304,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
         OutboundComPortPool comPortPool = mockComPortPool();
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
+        TypedProperties typedProperties = TypedProperties.empty();
+        when(connectionTask.getTypedProperties()).thenReturn(typedProperties);
         return connectionTask;
     }
 

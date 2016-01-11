@@ -22,9 +22,10 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -40,11 +41,7 @@ import org.junit.*;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -111,6 +108,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(customPropertySet.getId()).thenReturn("provider.class");
         MdcPropertyUtils mdcPropertyUtils = mock(MdcPropertyUtils.class);
         PropertyInfo propertyInfo = mock(PropertyInfo.class);
         PropertyValueInfo propertyValueInfo = mock(PropertyValueInfo.class);
@@ -234,6 +232,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.objectTypeVersion = 1L;
         info.timesliced = false;
         info.properties = new ArrayList<>();
+        info.customPropertySetId = "provider.class";
         Response response = target("devices/1/registers/1/customproperties/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
     }
