@@ -2,7 +2,7 @@ package com.elster.jupiter.gogo;
 
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -17,7 +17,7 @@ public class EndDeviceEventTypeFilter {
     private final EndDeviceType type;
     private final EndDeviceDomain domain;
     private final EndDeviceSubDomain subDomain;
-    private final EndDeviceEventorAction eventorAction;
+    private final EndDeviceEventOrAction eventorAction;
 
     public EndDeviceEventTypeFilter(String... filter) {
         if (filter.length == 0) {
@@ -31,7 +31,7 @@ public class EndDeviceEventTypeFilter {
             type = EndDeviceType.get(getFilterNumber(filter[0]));
             domain = EndDeviceDomain.get(getFilterNumber(filter[1]));
             subDomain = EndDeviceSubDomain.get(getFilterNumber(filter[2]));
-            eventorAction = EndDeviceEventorAction.get(getFilterNumber(filter[3]));
+            eventorAction = EndDeviceEventOrAction.get(getFilterNumber(filter[3]));
         } else {
             throw new IllegalArgumentException("Filter must contain 4 values");
         }
