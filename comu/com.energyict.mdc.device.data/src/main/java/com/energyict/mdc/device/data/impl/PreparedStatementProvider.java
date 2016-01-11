@@ -12,6 +12,6 @@ import java.sql.SQLException;
  */
 public interface PreparedStatementProvider {
 
-    public PreparedStatement prepare(Connection connection) throws SQLException;
+    PreparedStatement prepare(Connection connection) throws SQLException;
 
 }

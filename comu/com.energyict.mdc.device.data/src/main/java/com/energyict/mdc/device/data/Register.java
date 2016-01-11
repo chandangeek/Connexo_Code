@@ -34,14 +34,14 @@ import java.util.Optional;
 @ProviderType
 public interface Register<R extends Reading> extends BaseRegister {
 
-    public Device getDevice();
+    Device getDevice();
 
     /**
      * Returns this Register's specification.
      *
      * @return the spec
      */
-    public RegisterSpec getRegisterSpec();
+    RegisterSpec getRegisterSpec();
 
     /**
      * Gets the list of {@link Reading}s whose timestamp is within the given interval.
@@ -50,7 +50,7 @@ public interface Register<R extends Reading> extends BaseRegister {
      * @return The List of Reading
      * @see Reading#getTimeStamp()
      */
-    public List<R> getReadings(Interval interval);
+    List<R> getReadings(Interval interval);
 
     /**
      * Gets the {@link Reading} with the specified timestamp.
@@ -59,9 +59,9 @@ public interface Register<R extends Reading> extends BaseRegister {
      * @return The Reading
      * @see Reading#getTimeStamp()
      */
-    public Optional<R> getReading(Instant timestamp);
+    Optional<R> getReading(Instant timestamp);
 
-    public Optional<R> getLastReading();
+    Optional<R> getLastReading();
 
     /**
      * Return the &quot;timestamp&quot of the last reading for this Register.
@@ -69,12 +69,12 @@ public interface Register<R extends Reading> extends BaseRegister {
      * @return the <code>RegisterReading</code>
      * @see #getLastReading()
      */
-    public Optional<Instant> getLastReadingDate();
+    Optional<Instant> getLastReadingDate();
 
-    public ReadingType getReadingType();
+    ReadingType getReadingType();
 
-    public boolean hasData();
+    boolean hasData();
 
-    public RegisterDataUpdater startEditingData();
+    RegisterDataUpdater startEditingData();
 
 }

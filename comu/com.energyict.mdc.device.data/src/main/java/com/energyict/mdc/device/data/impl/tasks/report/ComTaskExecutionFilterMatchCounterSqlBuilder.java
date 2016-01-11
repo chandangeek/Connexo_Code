@@ -1,13 +1,16 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
-import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.tasks.AbstractComTaskExecutionFilterSqlBuilder;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+
+import com.elster.jupiter.orm.QueryExecutor;
 
 import java.time.Clock;
 
@@ -18,11 +21,11 @@ import java.time.Clock;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-06 (13:06)
  */
-public class ComTaskExecutionFilterMatchCounterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
+class ComTaskExecutionFilterMatchCounterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
 
     private ServerComTaskStatus taskStatus;
 
-    public ComTaskExecutionFilterMatchCounterSqlBuilder(ServerComTaskStatus taskStatus, ComTaskExecutionFilterSpecification filter, Clock clock, QueryExecutor<Device> queryExecutor) {
+    ComTaskExecutionFilterMatchCounterSqlBuilder(ServerComTaskStatus taskStatus, ComTaskExecutionFilterSpecification filter, Clock clock, QueryExecutor<Device> queryExecutor) {
         super(clock, filter, queryExecutor);
         this.taskStatus = taskStatus;
     }

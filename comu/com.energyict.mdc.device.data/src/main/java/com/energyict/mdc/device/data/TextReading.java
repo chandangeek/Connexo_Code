@@ -11,6 +11,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface TextReading extends Reading {
 
-    public String getValue();
+    String getValue();
 
 }

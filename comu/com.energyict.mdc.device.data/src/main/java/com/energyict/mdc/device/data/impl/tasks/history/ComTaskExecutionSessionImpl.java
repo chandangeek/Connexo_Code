@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComStatistics;
@@ -24,9 +24,13 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.google.common.collect.Range;
-import java.time.Instant;
-import java.util.*;
+
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 

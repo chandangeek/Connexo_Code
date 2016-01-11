@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
+import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
+
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -7,9 +11,6 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
-import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.google.common.collect.BoundType;
 import org.junit.Test;
@@ -30,21 +31,21 @@ public class CommunicationTaskServiceImplTest extends PersistenceIntegrationTest
     @Transactional
     public void testComTaskLastComSessionHighestPriorityCompletionCodeCountWithQueryEndDeviceGroup() throws Exception {
         QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        inMemoryPersistence.getCommunicationTaskService().getComTaskLastComSessionHighestPriorityCompletionCodeCount(queryEndDeviceGroup);
+        inMemoryPersistence.getCommunicationTaskReportService().getComTaskLastComSessionHighestPriorityCompletionCodeCount(queryEndDeviceGroup);
     }
 
     @Test
     @Transactional
     public void testComTaskLastComSessionHighestPriorityCompletionCodeCountWithEnumeratedEndDeviceGroup() throws Exception {
         EnumeratedEndDeviceGroup queryEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        inMemoryPersistence.getCommunicationTaskService().getComTaskLastComSessionHighestPriorityCompletionCodeCount(queryEndDeviceGroup);
+        inMemoryPersistence.getCommunicationTaskReportService().getComTaskLastComSessionHighestPriorityCompletionCodeCount(queryEndDeviceGroup);
     }
 
     @Test
     @Transactional
     public void testComTasksDeviceTypeHeatMapEnumeratedEndDeviceGroup() throws Exception {
         EnumeratedEndDeviceGroup queryEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        inMemoryPersistence.getCommunicationTaskService().getComTasksDeviceTypeHeatMap(queryEndDeviceGroup);
+        inMemoryPersistence.getCommunicationTaskReportService().getComTasksDeviceTypeHeatMap(queryEndDeviceGroup);
     }
 
     private EnumeratedEndDeviceGroup findOrCreateEnumeratedEndDeviceGroup() {

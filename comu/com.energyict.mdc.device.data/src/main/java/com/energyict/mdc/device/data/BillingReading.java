@@ -24,6 +24,6 @@ public interface BillingReading extends NumericalReading {
      *
      * @return The Interval
      */
-    public Optional<Range<Instant>> getRange();
+    Optional<Range<Instant>> getRange();
 
 }

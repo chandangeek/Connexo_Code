@@ -13,7 +13,7 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface FlagsReading extends Reading {
 
-    public long getFlags();
+    long getFlags();
 
     /**
      * Returns the value of the nth flag in this FlagsReading
@@ -37,6 +37,6 @@ public interface FlagsReading extends Reading {
      * @param flagIndex The index of the flag for which the value will be returned
      * @return The flag value
      */
-    public boolean getFlagValue(int flagIndex);
+    boolean getFlagValue(int flagIndex);
 
 }

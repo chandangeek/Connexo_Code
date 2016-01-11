@@ -66,10 +66,27 @@ import com.energyict.mdc.device.config.impl.FiniteStateFinder;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
-import com.energyict.mdc.device.data.impl.finders.*;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTypeFinder;
+import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
+import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
+import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
+import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
+import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
-import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.ModemConnectionType;
+import com.energyict.mdc.device.data.impl.tasks.ModemNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -97,6 +114,7 @@ import com.energyict.mdc.scheduling.model.impl.ComScheduleFinder;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TaskFinder;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -122,7 +140,9 @@ import java.util.Set;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -396,8 +416,16 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.connectionTaskService();
     }
 
+    public ConnectionTaskReportService getConnectionTaskReportService() {
+        return this.deviceDataModelService.connectionTaskReportService();
+    }
+
     public ServerCommunicationTaskService getCommunicationTaskService() {
         return this.deviceDataModelService.communicationTaskService();
+    }
+
+    public CommunicationTaskReportService getCommunicationTaskReportService() {
+        return this.deviceDataModelService.communicationTaskReportService();
     }
 
     public DeviceDataModelService getDeviceDataModelService() {

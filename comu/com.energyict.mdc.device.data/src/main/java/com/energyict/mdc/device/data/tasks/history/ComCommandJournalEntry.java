@@ -17,13 +17,13 @@ public interface ComCommandJournalEntry extends ComTaskExecutionJournalEntry {
      *
      * @return The CompletionCode
      */
-    public CompletionCode getCompletionCode ();
+    CompletionCode getCompletionCode();
 
     /**
      * Gets the human readable description of the command that was executed.
      *
      * @return The human readable description of the command that was executed
      */
-    public String getCommandDescription ();
+    String getCommandDescription();
 
 }

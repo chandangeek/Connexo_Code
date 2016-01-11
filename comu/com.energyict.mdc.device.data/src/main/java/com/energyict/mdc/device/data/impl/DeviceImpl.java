@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -92,6 +93,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.stream.Collectors.toList;
 
+@LiteralSql
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 @ValidSecurityProperties(groups = {Save.Update.class})

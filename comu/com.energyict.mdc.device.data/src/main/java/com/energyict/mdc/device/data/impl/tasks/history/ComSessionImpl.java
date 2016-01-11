@@ -1,18 +1,11 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComStatistics;
@@ -25,6 +18,14 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -48,6 +49,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * Date: 10/05/12
  * Time: 15:31
  */
+@LiteralSql
 public class ComSessionImpl implements ComSession {
 
     public enum Fields {

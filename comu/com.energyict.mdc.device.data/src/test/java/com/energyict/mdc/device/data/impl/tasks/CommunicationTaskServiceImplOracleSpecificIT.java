@@ -30,6 +30,8 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.BoundType;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -45,7 +47,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -122,10 +123,10 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;
         when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
-        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
         EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
-        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
         this.deviceType = oracleIntegrationPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
@@ -165,49 +166,49 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
     @Transactional
     public void testComTaskExecutionStatusCountForQueryEndDeviceGroup() throws Exception {
         QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        oracleIntegrationPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount(queryEndDeviceGroup);
+        oracleIntegrationPersistence.getCommunicationTaskReportService().getComTaskExecutionStatusCount(queryEndDeviceGroup);
     }
 
     @Test
     @Transactional
     public void testComTaskExecutionStatusCountForEnumeratedEndDeviceGroup() throws Exception {
         EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        oracleIntegrationPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount(enumeratedEndDeviceGroup);
+        oracleIntegrationPersistence.getCommunicationTaskReportService().getComTaskExecutionStatusCount(enumeratedEndDeviceGroup);
     }
 
     @Test
     @Transactional
     public void testCommunicationTasksComScheduleBreakdownWithQueryEndDeviceGroup() throws Exception {
         QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        oracleIntegrationPersistence.getCommunicationTaskService().getCommunicationTasksComScheduleBreakdown(EnumSet.of(TaskStatus.Busy), queryEndDeviceGroup);
+        oracleIntegrationPersistence.getCommunicationTaskReportService().getCommunicationTasksComScheduleBreakdown(EnumSet.of(TaskStatus.Busy), queryEndDeviceGroup);
     }
 
     @Test
     @Transactional
     public void testCommunicationTasksComScheduleBreakdownWithEnumeratedEndDeviceGroup() throws Exception {
         EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        oracleIntegrationPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount(enumeratedEndDeviceGroup);
+        oracleIntegrationPersistence.getCommunicationTaskReportService().getComTaskExecutionStatusCount(enumeratedEndDeviceGroup);
     }
 
     @Test
     @Transactional
     public void testCommunicationTasksDeviceTypeBreakdownWithQueryEndDeviceGroup() throws Exception {
         QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        oracleIntegrationPersistence.getCommunicationTaskService().getCommunicationTasksDeviceTypeBreakdown(EnumSet.of(TaskStatus.Busy), queryEndDeviceGroup);
+        oracleIntegrationPersistence.getCommunicationTaskReportService().getCommunicationTasksDeviceTypeBreakdown(EnumSet.of(TaskStatus.Busy), queryEndDeviceGroup);
     }
 
     @Test
     @Transactional
     public void testCommunicationTasksDeviceTypeBreakdownWithEnumeratedEndDeviceGroup() throws Exception {
         EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
-        oracleIntegrationPersistence.getCommunicationTaskService().getCommunicationTasksDeviceTypeBreakdown(EnumSet.of(TaskStatus.Busy), enumeratedEndDeviceGroup);
+        oracleIntegrationPersistence.getCommunicationTaskReportService().getCommunicationTasksDeviceTypeBreakdown(EnumSet.of(TaskStatus.Busy), enumeratedEndDeviceGroup);
     }
 
     @Test
     @Transactional
     public void testComTasksDeviceTypeHeatMapWithQueryEndDeviceGroup() throws Exception {
         QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
-        oracleIntegrationPersistence.getCommunicationTaskService().getComTasksDeviceTypeHeatMap(queryEndDeviceGroup);
+        oracleIntegrationPersistence.getCommunicationTaskReportService().getComTasksDeviceTypeHeatMap(queryEndDeviceGroup);
     }
 
     @Transactional
@@ -229,7 +230,7 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
         filter.comSchedules.add(comSchedule);
 
         // Business method
-        Map<TaskStatus, Long> statusCount = oracleIntegrationPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount(filter);
+        Map<TaskStatus, Long> statusCount = oracleIntegrationPersistence.getCommunicationTaskReportService().getComTaskExecutionStatusCount(filter);
 
         // Assertts
         assertThat(statusCount).isNotNull();
@@ -249,7 +250,7 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
         filter.comTasks.add(comTask);
 
         // Business method
-        Map<TaskStatus, Long> statusCount = oracleIntegrationPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount(filter);
+        Map<TaskStatus, Long> statusCount = oracleIntegrationPersistence.getCommunicationTaskReportService().getComTaskExecutionStatusCount(filter);
 
         // Assertts
         assertThat(statusCount).isNotNull();
@@ -262,7 +263,7 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
     @Test
     public void testGetComTaskExecutionStatusCount() {
         // Business method
-        Map<TaskStatus, Long> statusCount = oracleIntegrationPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount();
+        Map<TaskStatus, Long> statusCount = oracleIntegrationPersistence.getCommunicationTaskReportService().getComTaskExecutionStatusCount();
 
         // Assertts
         assertThat(statusCount).isNotNull();
@@ -279,7 +280,7 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
         filter.deviceTypes.add(deviceType);
 
         // Business method
-        Map<TaskStatus, Long> statusCount = oracleIntegrationPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount(filter);
+        Map<TaskStatus, Long> statusCount = oracleIntegrationPersistence.getCommunicationTaskReportService().getComTaskExecutionStatusCount(filter);
 
         // Assertts
         assertThat(statusCount).isNotNull();
