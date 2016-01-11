@@ -7,6 +7,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject', {
     fields: [
         {name: 'id', type: 'integer'},
         {name: 'name', type: 'string'},
+        {name: 'customPropertySetId', type: 'string'},
         {name: 'editable', type: 'boolean'},
         {name: 'timesliced', type: 'boolean'},
         {name: 'isActive', type: 'boolean'},

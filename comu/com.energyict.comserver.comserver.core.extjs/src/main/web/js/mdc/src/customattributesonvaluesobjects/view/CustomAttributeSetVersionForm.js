@@ -152,6 +152,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
 
         recordToSave.set('parent', recordToLoad.get('parent'));
         recordToSave.set('version', recordToLoad.get('version'));
+        recordToSave.set('objectTypeId', recordToLoad.get('objectTypeId'));
+        recordToSave.set('objectTypeVersion', recordToLoad.get('objectTypeVersion'));
         me.recordToSave = recordToSave;
         me.down('#custom-attribute-set-version-property-form-id').loadRecord(recordToLoad);
         me.setDateValues(startTime, endTime);

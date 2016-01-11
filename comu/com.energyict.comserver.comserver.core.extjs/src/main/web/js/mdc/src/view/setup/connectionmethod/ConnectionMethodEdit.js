@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 enforceMaxLength: true,
                                 listeners: {
                                     afterrender: function (field) {
-                                        field.focus(false, 500);
+                                        field.focus(false, 200);
                                     }
                                 }
                             },

@@ -141,7 +141,7 @@ Ext.define('Mdc.controller.Search', {
 
         grid.down('pagingtoolbartop').insert(3, {
             xtype: 'button',
-            text: 'Bulk actions',
+            text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
             itemId: 'search-bulk-actions-button',
             handler: me.showBulkAction,
             scope: me
