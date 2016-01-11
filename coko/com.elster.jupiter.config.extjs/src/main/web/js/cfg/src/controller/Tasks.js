@@ -243,7 +243,7 @@ Ext.define('Cfg.controller.Tasks', {
                 taskForm.loadRecord(record);
 
                 var selector = view.down('#cbo-validation-tasks-grouptype-trigger');
-                if (record.get('groupType') == 'End Device') { 
+                if (record.get('groupType') == 'End device') { 
                     selector.setValue('dg');
                 }
                 if (record.get('groupType') == 'Usage point') {
