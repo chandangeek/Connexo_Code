@@ -69,7 +69,12 @@ Ext.define('Cfg.view.validation.AddRule', {
                             enforceMaxLength: true,
                             labelWidth: 260,
                             name: 'name',
-                            width: 600
+                            width: 600,
+                            listeners: {
+                                afterrender: function (field) {
+                                    field.focus(false, 200);
+                                }
+                            }
                         },
                         {
                             xtype: 'combobox',

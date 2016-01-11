@@ -33,7 +33,7 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
+                                    fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                                     labelAlign: 'right',
                                     labelWidth: 250
                                 },
