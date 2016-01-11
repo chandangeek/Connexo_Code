@@ -7,8 +7,8 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
 
     requires: [
         'Mdc.view.setup.devicetopology.Grid',
-        'Mdc.view.setup.devicetopology.SideFilter',
-        'Mdc.view.setup.device.DeviceMenu'
+        'Mdc.view.setup.device.DeviceMenu',
+        'Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter'
     ],
 
     stores: [
@@ -30,9 +30,6 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                         toggleId: 'topologyLink'
                     }
                 ]
-            },
-            {
-                xtype: 'topology-side-filter'
             }
         ];
 
@@ -41,15 +38,6 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
             ui: 'large',
             title: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
             items: [
-                {
-                    title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
-                    xtype: 'filter-top-panel',
-                    itemId: 'topFilterDeviceTopology',
-                    margin: '0 0 20 0',
-                    name: 'filter',
-                    emptyText: Uni.I18n.translate('general.none', 'MDC', 'None'),
-                    hidden: true
-                },
                 {
                     xtype: 'preview-container',
                     grid: {
@@ -64,6 +52,12 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                             Uni.I18n.translate('deviceCommunicationTopology.empty.list.item2', 'MDC', 'The filter is too narrow.')
                         ]
                     }
+                }
+            ],
+            dockedItems: [
+                {
+                    dock: 'top',
+                    xtype: 'mdc-view-setup-devicechannels-topologiestopfilter'
                 }
             ]
         };
