@@ -1,10 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
-
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -13,6 +8,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -170,12 +169,12 @@ abstract class AbstractBreakdownSqlExecutor {
     private void bind(PreparedStatement statement) throws SQLException {
         Instant instant = this.dataModel.getInstance(Clock.class).instant();
         int bindPosition = this.bindBeforeDeviceStateSql(statement, instant, 1);
-        if (this.deviceGroupFragment.isPresent()) {
-            bindPosition = this.deviceGroupFragment.get().bind(statement, bindPosition);
-        }
         long nowInMillis = instant.toEpochMilli();
         for (int i = 0; i < this.numberOfUtcMilliBinds; i++) {
             statement.setLong(bindPosition++, nowInMillis);
+        }
+        if (this.deviceGroupFragment.isPresent()) {
+            bindPosition = this.deviceGroupFragment.get().bind(statement, bindPosition);
         }
         this.bindTaskStatusSql(statement, instant, bindPosition);
     }
