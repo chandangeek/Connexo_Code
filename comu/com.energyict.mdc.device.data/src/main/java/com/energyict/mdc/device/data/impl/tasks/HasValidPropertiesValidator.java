@@ -110,7 +110,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         for (PropertySpec propertySpec : this.getRequiredPropertySpecs(connectionType)) {
             String propertySpecName = propertySpec.getName();
             if (validConnectionTaskInIncompleteState &&
-                    (hasEmptyLocalValue(properties, propertySpecName) || !hasValue(properties, propertySpecName))) {
+                    ((hasEmptyLocalValue(properties, propertySpecName) && (hasEmptyInheritedValue(properties, propertySpecName))) || !hasValue(properties, propertySpecName))) {
                 context.disableDefaultConstraintViolation();
                 if (connectionTask.isAllowIncomplete()) {
                     context
@@ -128,6 +128,10 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     private boolean hasEmptyLocalValue(TypedProperties properties, String propertyName) {
         return properties.hasLocalValueFor(propertyName) && properties.getLocalValue(propertyName) == null;
+    }
+
+    private boolean hasEmptyInheritedValue(TypedProperties properties, String propertyName) {
+        return properties.getInheritedValue(propertyName) == null;
     }
 
     private boolean hasValue(TypedProperties properties, String propertyName) {
