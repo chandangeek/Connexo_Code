@@ -269,6 +269,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             });
             record.beginEdit();
             record.set('name', nameField.getValue());
+            for(i = 0; i < me.commands.length; i++) {
+                if(me.commands[1].categoryName) {
+                    delete me.commands[i].categoryName;
+                }
+            }
             record.set('commands', me.commands);
             record.set('messages', messages);
             record.endEdit();
