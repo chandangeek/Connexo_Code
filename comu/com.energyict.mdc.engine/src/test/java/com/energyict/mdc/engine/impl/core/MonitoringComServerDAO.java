@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
 import com.energyict.mdc.engine.impl.tools.Counter;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -27,6 +28,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -471,8 +473,9 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
+        public List<Warning> storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
             // Not storing readings in mock mode
+            return Collections.emptyList();
         }
 
 
@@ -575,8 +578,9 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
+    public List<Warning> storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
         // Not storing readings in mock mode
+        return Collections.emptyList();
     }
 
     @Override

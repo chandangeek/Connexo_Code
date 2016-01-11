@@ -10,8 +10,8 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -51,6 +51,7 @@ import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -500,9 +501,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
+    public List<Warning> storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
         Device device = deviceIdentifier.findDevice();
-        device.store(meterReading);
+        return device.store(meterReading);
     }
 
     @Override

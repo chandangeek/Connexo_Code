@@ -4,6 +4,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -46,7 +47,7 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
     public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         long timeDifference = this.clockCommand.getTimeDifference().orElse(TimeDuration.TimeUnit.MILLISECONDS.during(0)).getMilliSeconds();
         if (aboveMaximum(timeDifference)) {
-            addIssue(getIssueService().newWarning(timeDifference, "timediffXlargerthanmaxdefined", timeDifference), CompletionCode.ConfigurationWarning);
+            addIssue(getIssueService().newWarning(timeDifference, getThesaurus(), MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);
         } else if (!belowMinimum(timeDifference)) {
             deviceProtocol.setTime(Date.from(getCommandRoot().getServiceProvider().clock().instant()));
         }

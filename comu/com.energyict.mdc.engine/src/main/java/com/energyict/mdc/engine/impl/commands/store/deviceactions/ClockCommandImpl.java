@@ -114,7 +114,7 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
                 // just for certainty, should never get here
                 addIssue(getIssueService().newProblem(
                         clockTask.getClockTaskType(),
-                        "unknownclocktasktype",
+                        MessageSeeds.UNKNOWN_CLOCKTASK_TYPE.getKey(),
                         clockTask.getClockTaskType()),
                         CompletionCode.UnexpectedError);
                 setClockCommand(new UnKnownClockTaskTypeCommand(getCommandRoot()));

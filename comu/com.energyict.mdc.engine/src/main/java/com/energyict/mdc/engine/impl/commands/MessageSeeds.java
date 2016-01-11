@@ -49,7 +49,7 @@ public enum MessageSeeds implements MessageSeed {
     INBOUND_DUPLICATE_SERIALNUMBER_FAILURE(5033, "MDC.inbound.data.duplicate.serialnumber", "Failed to process the inbound request because multiple devices were found with the same serialnumber ''{0}''"),
     CONFIG_SERIAL_NUMBER_MISMATCH(5034, "serialNumberMismatch", "SerialNumber mismatch; meter has {0}, while {1} is configured in EIServer"),
     UNSUPPORTED_DISCOVERY_RESULT_TYPE(5035, "unsupportedDiscoveryResultType", "Discovery Result type {0} is unknown, not supported or no longer supported"),
-    MAXIMUM_TIME_DIFFERENCE_EXCEEDED(5036, "maxTimeDiffExceeded", "Time difference exceeds the configured maximum\\: The time difference ({0}) is larger than the configured allowed maximum ({1})"),
+    MAXIMUM_TIME_DIFFERENCE_EXCEEDED(5036, "maxTimeDiffExceeded", "Time difference exceeds the configured maximum: The time difference ({0}) is larger than the configured allowed maximum ({1})"),
     INCORRECT_NUMBER_OF_COMTASKS(5037, "incorrectNbrOfComTasks", "Incorrect number of PreparedComTaskExecutions. Expected {0} but got {1}"),
     SESSION_FOR_COMTASK_MISSING(5038, "comTaskSessionMissing", "Expected session for ComTask {0} was not found in ComSessionShadow"),
     CONNECTION_FAILURE(5039, "connectionFailure", "Failure to connect to device"),
@@ -58,6 +58,13 @@ public enum MessageSeeds implements MessageSeed {
     UNEXPECTED_IO_EXCEPTION(5042, "unexpectedIOException", "Exception occurred while communication with a device"),
     COMMUNICATION_FAILURE(5043, "communicationFailure", "Communication with device failed", Level.SEVERE),
     NO_NEW_LOAD_PROFILE_DATA_COLLECTED(5044, "noLoadProfileDataCollected", "No new loadprofile data was collected for {0} since {1}", Level.WARNING),
+    TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED(5045, "timediffXlargerthanmaxdefined", "Time difference is larger ({0}) than the maximum defined on the ComTask, setting the time will not be performed"),
+    TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED(5046, "timediffXbelowthanmindefined", "Time difference of {0} is smaller that the configured minimum"),
+    INTERVALS_MARKED_AS_BAD_TIME(5047, "intervalsMarkedAsBadTime", "Load profile intervals will be marked as bad time: The time difference ({0}) exceeds the configured allowed maximum ({1})"),
+    NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER(5048, "notPossibleToVerifySerialNumber", "It is not possible to verify the serialnumber of device {0} with protocol {1}"),
+    DEVICEPROTOCOL_PROTOCOL_ISSUE(5049, "deviceprotocol.protocol.issue", "An error occurred during the execution of the protocol: {0}"),
+    DEVICEPROTOCOL_LEGACY_ISSUE(5050, "deviceprotocol.legacy.issue", "An error occurred during the execution of a legacy protocol, see following stacktrace: {0}"),
+    LOADPROFILE_NOT_SUPPORTED(5051, "loadProfileXnotsupported", "Load profile with OBIS code '{0}' is not supported by the device"),
     ;
 
     private final int number;

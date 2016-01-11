@@ -1,13 +1,11 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.FakeTransactionService;
@@ -24,6 +22,9 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Interval;
 
 import java.sql.SQLException;
 import java.time.Clock;

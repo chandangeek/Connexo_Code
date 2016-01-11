@@ -4,6 +4,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -88,10 +89,10 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
                 deviceProtocol.setTime(now);
                 this.timeSet = now;
             } else {
-                addIssue(getIssueService().newWarning(timeDifference, "timediffXbelowthanmindefined", timeDifference), CompletionCode.ConfigurationWarning);
+                addIssue(getIssueService().newWarning(timeDifference, getThesaurus(), MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);
             }
         } else {
-            addIssue(getIssueService().newWarning(timeDifference, "timediffXlargerthanmaxdefined", timeDifference), CompletionCode.ConfigurationWarning);
+            addIssue(getIssueService().newWarning(timeDifference, getThesaurus(), MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);
         }
     }
 

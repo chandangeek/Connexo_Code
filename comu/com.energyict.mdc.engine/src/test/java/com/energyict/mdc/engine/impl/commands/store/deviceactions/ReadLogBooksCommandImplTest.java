@@ -111,9 +111,9 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         when((logBookIdentifier3).getLogBook()).thenReturn(logBook3);
         when(logBook3.getId()).thenReturn(30L);
 
-        LogBookReader logBookReader1 = new LogBookReader(this.clock, logBookObisCode1, Optional.of(lastLogBookDate1), logBookIdentifier1, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
-        LogBookReader logBookReader2 = new LogBookReader(this.clock, logBookObisCode2, Optional.of(lastLogBookDate2), logBookIdentifier2, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
-        LogBookReader logBookReader3 = new LogBookReader(this.clock, logBookObisCode3, Optional.of(lastLogBookDate3), logBookIdentifier3, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
+        LogBookReader logBookReader1 = new LogBookReader(this.clock, logBookObisCode1, Optional.of(lastLogBookDate1), logBookIdentifier1, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        LogBookReader logBookReader2 = new LogBookReader(this.clock, logBookObisCode2, Optional.of(lastLogBookDate2), logBookIdentifier2, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        LogBookReader logBookReader3 = new LogBookReader(this.clock, logBookObisCode3, Optional.of(lastLogBookDate3), logBookIdentifier3, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
 
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot commandRoot = new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider);

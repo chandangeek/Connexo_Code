@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
@@ -98,7 +99,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     }
 
     @Test(expected = CodingException.class)
-     public void commandRootNullTest(){
+    public void commandRootNullTest() {
         new ClockCommandImpl(getSetClockTask(), null, comTaskExecution);
         // exception should be thrown because the TimeDifferenceCommandImpl is null
     }
@@ -142,12 +143,12 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertThat(clockCommand.getWarnings()).hasSize(1);
         assertThat(clockCommand.getProblems()).isEmpty();
         assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("timediffXlargerthanmaxdefined");
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED.getKey());
     }
 
     @Test
     public void setClockCommandBelowMinTest() {
-        Clock frozenClock =  Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         when(commandRootServiceProvider.clock()).thenReturn(frozenClock);
         validationDate = Date.from(frozenClock.instant());
         ClockTask clockTask = getSetClockTask();
@@ -166,7 +167,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandWithinBoundaryWithNegativeTimeDiffTest() {
-        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(),ZoneId.systemDefault());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         when(commandRootServiceProvider.clock()).thenReturn(frozenClock);
         validationDate = Date.from(frozenClock.instant());
         ClockTask clockTask = getSetClockTask();
@@ -209,14 +210,15 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertThat(clockCommand.getWarnings()).hasSize(1);
         assertThat(clockCommand.getProblems()).isEmpty();
         assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("timediffXlargerthanmaxdefined");
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED.getKey());
     }
 
     @Test
     public void setClockCommandBelowMinWithNegativeDiffTest() {
-    	Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         when(commandRootServiceProvider.clock()).thenReturn(frozenClock);
-        validationDate = Date.from(frozenClock.instant());ClockTask clockTask = getSetClockTask();
+        validationDate = Date.from(frozenClock.instant());
+        ClockTask clockTask = getSetClockTask();
         long deviceTime = frozenClock.millis() + ((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // time difference negative, but smaller than the max clock diff
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
@@ -232,9 +234,10 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void clockCommandForceClockTest() {
-    	Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         when(commandRootServiceProvider.clock()).thenReturn(frozenClock);
-        validationDate = Date.from(frozenClock.instant());ClockTask clockTask = getForceClockTask();
+        validationDate = Date.from(frozenClock.instant());
+        ClockTask clockTask = getForceClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
         assertThat(clockCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{clockTaskType: FORCECLOCK}");
@@ -288,7 +291,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertThat(clockCommand.getWarnings()).hasSize(1);
         assertThat(clockCommand.getProblems()).isEmpty();
         assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("timediffXbelowthanmindefined");
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED.getKey());
     }
 
     @Test
@@ -358,11 +361,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertThat(clockCommand.getWarnings()).hasSize(1);
         assertThat(clockCommand.getProblems()).isEmpty();
         assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("timediffXbelowthanmindefined");
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED.getKey());
     }
 
     @Test
-    public void testJournalMessageDescriptionWithErrorLevel () {
+    public void testJournalMessageDescriptionWithErrorLevel() {
         ClockTask clockTask = getSynchronizeClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
 
@@ -374,7 +377,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     }
 
     @Test
-    public void testJournalMessageDescriptionWithInfoLevel () {
+    public void testJournalMessageDescriptionWithInfoLevel() {
         ClockTask clockTask = getSynchronizeClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
 
@@ -386,7 +389,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     }
 
     @Test
-    public void testJournalMessageDescriptionWithTraceLevel () {
+    public void testJournalMessageDescriptionWithTraceLevel() {
         ClockTask clockTask = getSynchronizeClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
 

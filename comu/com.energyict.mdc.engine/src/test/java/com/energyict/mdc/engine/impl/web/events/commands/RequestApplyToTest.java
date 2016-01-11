@@ -1,18 +1,18 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventReceiver;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;

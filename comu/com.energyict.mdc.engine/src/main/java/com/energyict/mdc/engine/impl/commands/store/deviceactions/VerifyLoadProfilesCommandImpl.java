@@ -145,7 +145,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     }
 
     private Issue loadProfileNotSupportedIssue(ObisCode profileObisCode) {
-        return getIssueService().newProblem(profileObisCode, "loadProfileXnotsupported", profileObisCode, CompletionCode.ConfigurationWarning);
+        return getIssueService().newProblem(profileObisCode, getThesaurus(), MessageSeeds.LOADPROFILE_NOT_SUPPORTED, profileObisCode, CompletionCode.ConfigurationWarning);
     }
 
     private void createAndAddFailedCollectedLoadProfile(LoadProfileReader loadProfileReader, ResultType resultType, Issue issue) {

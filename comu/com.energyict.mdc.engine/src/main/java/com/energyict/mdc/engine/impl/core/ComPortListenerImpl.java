@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.logging.InboundComPortLogger;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
@@ -30,6 +31,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
     private static final Duration WAIT_AFTER_COMMUNICATION_TIMEOUT = Duration.ofMinutes(1);
 
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
+    private final InboundCommunicationHandler.ServiceProvider serviceProvider;
     private InboundComPort comPort;
     private ComServerDAO comServerDAO;
     private ThreadFactory threadFactory;
@@ -47,11 +49,13 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
      */
     protected abstract void doRun();
 
-    protected ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
-        this(comPort, clock, comServerDAO, Executors.defaultThreadFactory(), deviceCommandExecutor);
+    protected abstract void setThreadPrinciple();
+
+    protected ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+        this(comPort, clock, comServerDAO, Executors.defaultThreadFactory(), deviceCommandExecutor, serviceProvider);
     }
 
-    protected ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor) {
+    protected ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
         this.loggerHolder = new LoggerHolder(comPort);
         this.doSetComPort(comPort);
@@ -59,6 +63,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         this.comServerDAO = comServerDAO;
         this.threadFactory = threadFactory;
         this.deviceCommandExecutor = deviceCommandExecutor;
+        this.serviceProvider = serviceProvider;
         this.changesInterpollDelay = comPort.getComServer().getChangesInterPollDelay();
         this.clock = clock;
         this.lastActivityTimestamp = clock.instant();
@@ -155,6 +160,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     @Override
     public void run () {
+        setThreadPrinciple();
         while (this.continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             try {
                 this.doRun();
@@ -194,6 +200,10 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     protected InboundComPortLogger getLogger() {
         return this.loggerHolder.get();
+    }
+
+    InboundCommunicationHandler.ServiceProvider getServiceProvider() {
+        return serviceProvider;
     }
 
     private class LoggerHolder {
