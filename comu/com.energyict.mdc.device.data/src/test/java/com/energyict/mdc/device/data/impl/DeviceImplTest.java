@@ -22,16 +22,12 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.impl.ChannelSpecImpl;
 import com.energyict.mdc.device.config.impl.LoadProfileSpecImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.*;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.issues.impl.IssueCollectorDefaultImplementation;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,6 +100,8 @@ public class DeviceImplTest {
     private com.energyict.mdc.issues.IssueService mdcIssueService;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     @Before
     public void setUp() {
@@ -193,7 +191,7 @@ public class DeviceImplTest {
     private DeviceImpl createDevice(BigDecimal registerOverflow, BigDecimal bulkOverflow) {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskProvider,
-                manuallyScheduledComTaskExecutionTaskProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService);
+                manuallyScheduledComTaskExecutionTaskProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, mdcReadingTypeUtilService);
         LoadProfileSpecImpl loadProfileSpec1 = new LoadProfileSpecImpl(dataModel, eventService, thesaurus);
         ChannelSpecImpl channelSpec1 = new ChannelSpecImpl(dataModel, eventService, thesaurus);
         channelSpec1.setOverflow(registerOverflow);
