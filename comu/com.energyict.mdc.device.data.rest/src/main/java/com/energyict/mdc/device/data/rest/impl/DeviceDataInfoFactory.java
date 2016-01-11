@@ -206,12 +206,12 @@ public class DeviceDataInfoFactory {
         setMultiplierIfApplicable(numericalReadingInfo, device);
 
         Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
+        int numberOfFractionDigits = ((NumericalRegisterSpec) register.getRegisterSpec()).getNumberOfFractionDigits();
         if(collectedValue != null){
-            int numberOfFractionDigits = ((NumericalRegisterSpec) register.getRegisterSpec()).getNumberOfFractionDigits();
             numericalReadingInfo.value = collectedValue.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
             numericalReadingInfo.rawValue = numericalReadingInfo.value;
-            setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         }
+        setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
         return numericalReadingInfo;
     }

@@ -40,6 +40,6 @@ public abstract class ReadingInfo {
         this.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
     }
 
-    protected abstract BaseReading createNew(Register register);
+    protected abstract BaseReading createNew(Register<?, ?> register);
 
 }

@@ -14,7 +14,7 @@ public class FlagsReadingInfo extends ReadingInfo {
     public FlagsReadingInfo() {}
 
     @Override
-    protected BaseReading createNew(Register register) {
+    protected BaseReading createNew(Register<?, ?> register) {
         return ReadingImpl.of(register.getReadingType().getMRID(), BigDecimal.valueOf(this.value), this.timeStamp);
     }
 

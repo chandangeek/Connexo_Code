@@ -12,7 +12,7 @@ public class TextReadingInfo extends ReadingInfo {
     public TextReadingInfo() {}
 
     @Override
-    protected BaseReading createNew(Register register) {
+    protected BaseReading createNew(Register<?, ?> register) {
         return ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp);
     }
 
