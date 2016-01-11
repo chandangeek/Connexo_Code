@@ -13,7 +13,6 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -211,6 +210,25 @@ public class SecurityContext {
      * applied)
      */
     public byte[] dataTransportEncryption(byte[] plainText) throws UnsupportedException {
+        return dataTransportEncryption(plainText, true);
+    }
+
+    /**
+     * <pre>
+     * Constructs a ciphered xDLMS APDU. The globalCiphering-PDU-Tag is NOT included.
+     * The returned byteArray will contain the:
+     * 	- Length
+     * 	- SecurityHeader
+     * 	- ciphered APDU
+     * 	- (Tag)
+     * </pre>
+     *
+     * @param plainText - the text to encrypt ...
+     * @param incrementFrameCounter - increment frame counter flag
+     * @return the cipherText (or the plainText when no security has to be
+     * applied)
+     */
+    public byte[] dataTransportEncryption(byte[] plainText, boolean incrementFrameCounter) throws UnsupportedException {
         try {
             switch (this.securityPolicy) {
                 case SECURITYPOLICY_NONE: {
@@ -264,7 +282,9 @@ public class SecurityContext {
                     throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy);
             }
         } finally {
-            incFrameCounter();
+            if(incrementFrameCounter) {
+                incFrameCounter();
+            }
         }
     }
 
@@ -622,6 +642,13 @@ public class SecurityContext {
      */
     public void incFrameCounter() {
         this.frameCounter++;
+    }
+
+    /**
+     * Decrements the existing frameCounter
+     */
+    public void decrementFrameCounter() {
+        this.frameCounter--;
     }
 
     /**
