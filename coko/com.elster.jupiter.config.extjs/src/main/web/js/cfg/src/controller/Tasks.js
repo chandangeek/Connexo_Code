@@ -243,10 +243,10 @@ Ext.define('Cfg.controller.Tasks', {
                 taskForm.loadRecord(record);
 
                 var selector = view.down('#cbo-validation-tasks-grouptype-trigger');
-                if (record.get('groupType') == 'End device') { 
+                if (record.get('groupType') == Uni.I18n.translate('general.group.device', 'CFG', 'End device')) { 
                     selector.setValue('dg');
                 }
-                if (record.get('groupType') == 'Usage point') {
+                if (record.get('groupType') == Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage point')) {
                     selector.setValue('upg');
                 }
                 
