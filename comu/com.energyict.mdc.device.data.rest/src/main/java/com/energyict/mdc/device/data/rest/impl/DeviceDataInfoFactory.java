@@ -189,7 +189,10 @@ public class DeviceDataInfoFactory {
     private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive) {
         BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
         setCommonReadingInfo(reading, billingReadingInfo);
-        billingReadingInfo.multiplier = register.getMultiplier(register.getLastReadingDate().orElse(clock.instant())).orElseGet(() -> null);
+        Instant timeStamp = reading.getTimeStamp();
+        if(timeStamp != null){
+            billingReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
+        }
         if (reading.getQuantity() != null) {
             billingReadingInfo.value = reading.getQuantity().getValue();
             setCalculatedValueIfApplicable(reading, register, billingReadingInfo, 0);
@@ -204,7 +207,10 @@ public class DeviceDataInfoFactory {
     private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, Register<?, ?> register, boolean isValidationStatusActive) {
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
         setCommonReadingInfo(reading, numericalReadingInfo);
-        numericalReadingInfo.multiplier = register.getMultiplier(register.getLastReadingDate().orElse(clock.instant())).orElseGet(() -> null);
+        Instant timeStamp = reading.getTimeStamp();
+        if(timeStamp != null){
+            numericalReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
+        }
 
         Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
         int numberOfFractionDigits = ((NumericalRegisterSpec) register.getRegisterSpec()).getNumberOfFractionDigits();
