@@ -10,6 +10,7 @@ import java.util.List;
 public class ProtocolTaskInfo {
     public Long id;
     public String category;
+    public String categoryId;
     public String action;
     public List<ParameterInfo> parameters;
 
@@ -20,6 +21,7 @@ public class ProtocolTaskInfo {
             protocolTaskInfo = new ProtocolTaskInfo();
             protocolTaskInfo.id = protocolTask.getId();
             protocolTaskInfo.category = thesaurus.getString(protocolTaskCategory.getId(),protocolTaskCategory.getId());
+            protocolTaskInfo.categoryId = protocolTaskCategory.getId();
             String actionString = protocolTaskCategory.getActionAsStr(protocolTaskCategory.getAction(protocolTask));
             protocolTaskInfo.action = thesaurus.getString(actionString,actionString);
             protocolTaskInfo.parameters = protocolTaskCategory.getProtocolTaskParameters(protocolTask);
