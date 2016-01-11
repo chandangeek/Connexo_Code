@@ -61,7 +61,7 @@ public abstract class MeasurementTypeImpl extends PersistentIdObject<Measurement
     protected final MasterDataService masterDataService;
 
     private ObisCode obisCodeCached;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_OBIS_CODE_IS_REQUIRED + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String obisCode;
     private String oldObisCode;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_READING_TYPE_IS_REQUIRED + "}")

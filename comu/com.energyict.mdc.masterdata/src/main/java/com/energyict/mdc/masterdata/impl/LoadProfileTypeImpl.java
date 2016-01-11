@@ -56,8 +56,8 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         }
     }
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
@@ -73,11 +73,11 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     private final MasterDataService masterDataService;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String obisCode;
     private String oldObisCode;
     private ObisCode obisCodeCached;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @IncorrectTimeDuration(groups = {Save.Create.class, Save.Update.class})
     private TimeDuration interval;
     private long oldIntervalSeconds;

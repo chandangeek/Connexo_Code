@@ -56,7 +56,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", strict = false)
     public void testLogBookTypeCreationWithoutName() {
         LogBookType logBookType = PersistenceTest.inMemoryPersistence.getMasterDataService().newLogBookType(null, OBIS_CODE);
 
@@ -68,7 +68,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", strict = false)
     public void testLogBookTypeCreationWithEmptyName() {
         LogBookType logBookType = PersistenceTest.inMemoryPersistence.getMasterDataService().newLogBookType("", OBIS_CODE);
 
@@ -99,7 +99,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     public void testLogBookTypeCreationWithoutObisCode() {
         String logBookTypeName = "testDuplicateLogBookType";
         LogBookType logBookType = PersistenceTest.inMemoryPersistence.getMasterDataService().newLogBookType(logBookTypeName, null);

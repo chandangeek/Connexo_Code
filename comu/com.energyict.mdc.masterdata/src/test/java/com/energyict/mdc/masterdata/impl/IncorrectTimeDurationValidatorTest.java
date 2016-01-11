@@ -65,6 +65,6 @@ public class IncorrectTimeDurationValidatorTest {
     public void testInvalidEmptyInterval() throws Exception {
         TimeDuration interval = new TimeDuration(0, TimeDuration.TimeUnit.MINUTES);
         assertThat(new IncorrectTimeDurationValidator().isValid(interval, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{" + MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED.getKey() + "}");
+        verify(context).buildConstraintViolationWithTemplate("{" + MessageSeeds.FIELD_IS_REQUIRED.getKey() + "}");
     }
 }

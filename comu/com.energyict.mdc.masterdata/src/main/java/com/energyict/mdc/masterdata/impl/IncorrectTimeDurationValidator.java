@@ -19,7 +19,7 @@ public class IncorrectTimeDurationValidator implements ConstraintValidator<Incor
             context.disableDefaultConstraintViolation();
 
             context.buildConstraintViolationWithTemplate(
-                    "{" + MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED.getKey() + "}").addConstraintViolation();
+                    "{" + MessageSeeds.FIELD_IS_REQUIRED.getKey() + "}").addConstraintViolation();
             return false;
         }
         if ((interval.getTimeUnit() == TimeDuration.TimeUnit.WEEKS)) {
