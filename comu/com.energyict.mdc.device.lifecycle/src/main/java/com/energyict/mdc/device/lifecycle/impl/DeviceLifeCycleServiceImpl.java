@@ -327,7 +327,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void effectiveTimestampAfterLastData(Instant effectiveTimestamp, Device device, Instant max) {
-        throw new EffectiveTimestampNotAfterLastDataException(thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE,
+        throw new EffectiveTimestampNotAfterLastDataException(thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_DATA,
                 device, effectiveTimestamp, max, getLongDateFormatForCurrentUser());
     }
 
