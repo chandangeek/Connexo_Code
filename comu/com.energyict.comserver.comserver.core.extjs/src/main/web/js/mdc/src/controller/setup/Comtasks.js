@@ -624,6 +624,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             protocol.action = action;
             protocol.parameters = [];
 
+
             if (Ext.isEmpty(protocol.action)) {
                 actionContainer.markInvalid(
                     Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
@@ -632,7 +633,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             }
 
             Ext.Array.each(self.commands, function (item) {
-                if (item.category === protocol.category) {
+                if (item.categoryId === protocol.categoryId) {
                     protocol.id = item.id;
                     numItem = self.commands.indexOf(item);
                 }
@@ -686,7 +687,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             }
         }
         if (couldAdd) {
-            btnToRemoveAfterValidation && btnToRemoveAfterValidation.destroy();
+            if(btnToRemoveAfterValidation) {
+                btnToRemoveAfterValidation.destroy()
+
+            }
 
             if (self.commands.length === 1) {
                 editView.down('#noActionsAddedMsg').hide();
