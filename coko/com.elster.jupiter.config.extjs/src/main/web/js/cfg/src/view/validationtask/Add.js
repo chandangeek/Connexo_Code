@@ -75,6 +75,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 xtype: 'combobox',
                                 name: 'grouptypeTrigger',
                                 width: 235,
+                                emptyText: Uni.I18n.translate('validationTasks.general.selectGroupType', 'CFG', 'Select a group type...'),
                                 store: [
                                     ['dg', Uni.I18n.translate('general.group.device', 'CFG', 'End device')],
                                     ['upg', Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage point')]
@@ -94,7 +95,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                             {
                                 xtype: 'displayfield',
                                 itemId: 'no-group',
-                                value: '<div style="color: #EB5642">' + Uni.I18n.translate('validationTasks.general.selectGroupType', 'CFG', 'No group type selected.') + '</div>',
+                                value: '<div style="color: #EB5642">' + Uni.I18n.translate('validationTasks.general.noGroupTypeSelected', 'CFG', 'No group type selected.') + '</div>',
                                 htmlEncode: false,
                                 labelwidth: 500,
                                 width: 235
