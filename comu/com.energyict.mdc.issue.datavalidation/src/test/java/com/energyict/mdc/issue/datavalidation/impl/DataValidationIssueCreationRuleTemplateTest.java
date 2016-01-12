@@ -174,7 +174,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     public void testCreateIssue() {
         Instant now = Instant.now();
         channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now);
-        Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
+        Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -195,7 +195,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         Channel channel = meter.activate(fixedTime).createChannel(readingType);
 
         Instant now = Instant.now();
-        Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
+        Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -215,7 +215,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     public void testNotDuplicateIssueButUpdate() {
         Instant now = Instant.now();
         channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now);
-        Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
+        Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -224,7 +224,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(1);
 
         channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now.plus(2, ChronoUnit.MINUTES));
-        message = mockCanntEstimateDataMessage(now.plus(2, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.MINUTES), channel, readingType);
+        message = mockCannotEstimateDataMessage(now.plus(2, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
 
         issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -238,7 +238,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     public void testCreateNewIssueWhileHistoricalExists() {
         Instant now = Instant.now();
         channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now);
-        Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
+        Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -247,7 +247,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(1);
         issueDataValidationService.findOpenIssue(issueDataValidation.getId()).get().close(issueService.findStatus(IssueStatus.RESOLVED).get());
 
-        message = mockCanntEstimateDataMessage(now.plus(2, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.MINUTES), channel, readingType);
+        message = mockCannotEstimateDataMessage(now.plus(2, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
 
         issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -268,7 +268,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         //create issue
         ReadingQualityRecord readingQuality = channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime);
         channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime.plus(1, ChronoUnit.MINUTES));
-        message = mockCanntEstimateDataMessage(fixedTime, fixedTime.plus(1, ChronoUnit.MINUTES), channel, readingType);
+        message = mockCannotEstimateDataMessage(fixedTime, fixedTime.plus(1, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
@@ -295,7 +295,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         assertThat(issues.get(0).getNotEstimatedBlocks()).isEmpty();
     }
 
-    private Message mockCanntEstimateDataMessage(Instant start, Instant end, Channel channel, ReadingType readingType) {
+    private Message mockCannotEstimateDataMessage(Instant start, Instant end, Channel channel, ReadingType readingType) {
         Message message = mock(Message.class);
         Map<String, Object> map = new HashMap<>();
         map.put("event.topics", "com/elster/jupiter/estimation/estimationblock/FAILURE");
@@ -344,11 +344,11 @@ public class DataValidationIssueCreationRuleTemplateTest {
         return amrSystem.findMeter(String.valueOf(device.getId())).get();
     }
 
-    private CreationRule createRuleForDeviceConfiguration(String name, DeviceConfiguration... deviceConfiguration) {
+    private CreationRule createRuleForDeviceConfiguration(String name, DeviceConfiguration... deviceConfigurations) {
         CreationRuleBuilder ruleBuilder = issueCreationService.newCreationRule();
         Map<String, Object> props = new HashMap<>();
         List<HasIdAndName> value = new ArrayList<>();
-        for (DeviceConfiguration config : deviceConfiguration) {
+        for (DeviceConfiguration config : deviceConfigurations) {
             HasIdAndName deviceConfig = mock(HasIdAndName.class);
             when(deviceConfig.getId()).thenReturn(config.getId());
             value.add(deviceConfig);
