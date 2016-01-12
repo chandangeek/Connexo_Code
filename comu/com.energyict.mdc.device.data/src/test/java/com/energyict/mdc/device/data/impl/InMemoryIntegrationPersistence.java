@@ -378,8 +378,16 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.connectionTaskService();
     }
 
+    public ConnectionTaskReportService getConnectionTaskReportService() {
+        return this.deviceDataModelService.connectionTaskReportService();
+    }
+
     public ServerCommunicationTaskService getCommunicationTaskService() {
         return this.deviceDataModelService.communicationTaskService();
+    }
+
+    public CommunicationTaskReportService getCommunicationTaskReportService() {
+        return this.deviceDataModelService.communicationTaskReportService();
     }
 
     public DeviceDataModelService getDeviceDataModelService() {

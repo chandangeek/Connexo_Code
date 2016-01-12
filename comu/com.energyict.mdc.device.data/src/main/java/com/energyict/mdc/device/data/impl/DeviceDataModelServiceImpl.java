@@ -17,6 +17,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -30,8 +31,6 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -50,8 +49,14 @@ import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.impl.tasks.report.CommunicationTaskReportServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.report.ConnectionTaskReportServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -61,6 +66,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -92,6 +98,7 @@ import java.util.Set;
  * @since 2014-09-30 (17:33)
  */
 @Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
+@LiteralSql
 public class DeviceDataModelServiceImpl implements DeviceDataModelService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
@@ -104,7 +111,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
-    private volatile com.elster.jupiter.tasks.TaskService taskService;
+    private volatile com.elster.jupiter.tasks.TaskService jupiterTaskService;
     private volatile Clock clock;
     private volatile KpiService kpiService;
     private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
@@ -115,16 +122,18 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile SchedulingService schedulingService;
+    private volatile TaskService mdcTaskService;
     private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
-    private volatile TaskService mdcTaskService;
     private volatile MasterDataService masterDataService;
     private volatile TransactionService transactionService;
     private volatile JsonService jsonService;
 
     private ServerConnectionTaskService connectionTaskService;
+    private ConnectionTaskReportService connectionTaskReportService;
     private ServerCommunicationTaskService communicationTaskService;
+    private CommunicationTaskReportService communicationTaskReportService;
     private ServerDeviceService deviceService;
     private ServerLoadProfileService loadProfileService;
     private ServerLogBookService logBookService;
@@ -133,7 +142,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private BatchService batchService;
     private DeviceMessageService deviceMessageService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
-
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -144,7 +152,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     @Inject
     public DeviceDataModelServiceImpl(
             BundleContext bundleContext,
-            OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
+            OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService jupiterTaskService, IssueService issueService,
             PropertySpecService propertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
             CustomPropertySetService customPropertySetService, ProtocolPluggableService protocolPluggableService,
             EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
@@ -159,7 +167,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.setNlsService(nlsService);
         this.setClock(clock);
         this.setKpiService(kpiService);
-        this.setTaskService(taskService);
+        this.setJupiterTaskService(jupiterTaskService);
         this.setIssueService(issueService);
         this.setPropertySpecService(propertySpecService);
         this.setJupiterPropertySpecService(jupiterPropertySpecService);
@@ -171,13 +179,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.setValidationService(validationService);
         this.setEstimationService(estimationService);
         this.setSchedulingService(schedulingService);
+        this.setMdcTaskService(mdcTaskService);
         this.setMessagingService(messageService);
         this.setSecurityPropertyService(securityPropertyService);
         this.setUserService(userService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setMeteringGroupsService(meteringGroupsService);
         this.setQueryService(queryService);
-        this.setMdcTaskService(mdcTaskService);
         this.setMasterDataService(masterDataService);
         this.setTransactionService(transactionService);
         this.setJsonService(jsonService);
@@ -343,6 +351,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     @Reference
+    public void setMdcTaskService(TaskService mdcTaskService) {
+        this.mdcTaskService = mdcTaskService;
+    }
+
+    @Reference
     public void setSecurityPropertyService(SecurityPropertyService securityPropertyService) {
         this.securityPropertyService = securityPropertyService;
     }
@@ -363,8 +376,18 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     @Override
+    public ConnectionTaskReportService connectionTaskReportService() {
+        return this.connectionTaskReportService;
+    }
+
+    @Override
     public ServerCommunicationTaskService communicationTaskService() {
         return this.communicationTaskService;
+    }
+
+    @Override
+    public CommunicationTaskReportService communicationTaskReportService() {
+        return communicationTaskReportService;
     }
 
     @Override
@@ -414,17 +437,12 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
 
     @Override
     public com.elster.jupiter.tasks.TaskService taskService() {
-        return taskService;
+        return jupiterTaskService;
     }
 
     @Reference
-    public void setTaskService(com.elster.jupiter.tasks.TaskService taskService) {
-        this.taskService = taskService;
-    }
-
-    @Reference
-    public void setMdcTaskService(TaskService taskService) {
-        this.mdcTaskService = taskService;
+    public void setJupiterTaskService(com.elster.jupiter.tasks.TaskService jupiterTaskService) {
+        this.jupiterTaskService = jupiterTaskService;
     }
 
     @Reference
@@ -462,11 +480,14 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
                 bind(IssueService.class).toInstance(issueService);
                 bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
                 bind(KpiService.class).toInstance(kpiService);
-                bind(com.elster.jupiter.tasks.TaskService.class).toInstance(taskService);
+                bind(com.elster.jupiter.tasks.TaskService.class).toInstance(jupiterTaskService);
+                bind(TaskService.class).toInstance(mdcTaskService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(ServerConnectionTaskService.class).toInstance(connectionTaskService);
+                bind(ConnectionTaskReportService.class).toInstance(connectionTaskReportService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(ServerCommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(CommunicationTaskReportService.class).toInstance(communicationTaskReportService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(ServerDeviceService.class).toInstance(deviceService);
                 bind(LoadProfileService.class).toInstance(loadProfileService);
@@ -493,9 +514,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     private void createRealServices() {
-        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService, protocolPluggableService, clock);
-        this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService, clock);
-        this.deviceService = new DeviceServiceImpl(this, queryService, thesaurus);
+        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, protocolPluggableService);
+        this.connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
+        this.communicationTaskService = new CommunicationTaskServiceImpl(this);
+        this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
+        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService, meteringService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
@@ -505,7 +528,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
 
     private void registerRealServices(BundleContext bundleContext) {
         this.registerConnectionTaskService(bundleContext);
+        this.registerConnectionTaskReportService(bundleContext);
         this.registerCommunicationTaskService(bundleContext);
+        this.registerCommunicationTaskReportService(bundleContext);
         this.registerDeviceService(bundleContext);
         this.registerLoadProfileService(bundleContext);
         this.registerLogBookService(bundleContext);
@@ -519,9 +544,17 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.serviceRegistrations.add(bundleContext.registerService(ServerConnectionTaskService.class, this.connectionTaskService, null));
     }
 
+    private void registerConnectionTaskReportService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(ConnectionTaskReportService.class, this.connectionTaskReportService, null));
+    }
+
     private void registerCommunicationTaskService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(CommunicationTaskService.class, this.communicationTaskService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerCommunicationTaskService.class, this.communicationTaskService, null));
+    }
+
+    private void registerCommunicationTaskReportService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(CommunicationTaskReportService.class, this.communicationTaskReportService, null));
     }
 
     private void registerDeviceService(BundleContext bundleContext) {

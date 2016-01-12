@@ -7,15 +7,14 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeHandler;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import java.util.Arrays;
@@ -33,7 +32,7 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
  */
 public class Installer {
 
-    private final static Logger LOGGER = Logger.getLogger(Installer.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_NAME = "COMSCHED_RECALCULATOR";
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
@@ -114,8 +113,8 @@ public class Installer {
                 queue.activate();
                 queue.subscribe(subscriberName);
             } else {
-                boolean alreadySubscribed = destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
-                if (!alreadySubscribed) {
+                boolean notSubscribedYet = !destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
+                if (notSubscribedYet) {
                     destinationSpecOptional.get().activate();
                     destinationSpecOptional.get().subscribe(subscriberName);
                 }

@@ -18,27 +18,27 @@ public interface ComStatistics {
      *
      * @return The number of bytes sent
      */
-    public long getNumberOfBytesSent();
+    long getNumberOfBytesSent();
 
     /**
      * Gets the number of bytes received while communicating with the {@link com.energyict.mdc.device.data.Device}.
      *
      * @return The number of bytes received
      */
-    public long getNumberOfBytesReceived();
+    long getNumberOfBytesReceived();
 
     /**
      * Gets the number of packets sent while communicating with the {@link com.energyict.mdc.device.data.Device}.
      *
      * @return The number of packets sent
      */
-    public long getNumberOfPacketsSent();
+    long getNumberOfPacketsSent();
 
     /**
      * Gets the number of packets received while communicating with the {@link com.energyict.mdc.device.data.Device}.
      *
      * @return The number of packets received
      */
-    public long getNumberOfPacketsReceived();
+    long getNumberOfPacketsReceived();
 
 }

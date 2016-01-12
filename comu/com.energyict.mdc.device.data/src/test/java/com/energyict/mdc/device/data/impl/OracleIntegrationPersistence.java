@@ -17,8 +17,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -42,6 +44,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
@@ -59,6 +62,8 @@ import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeIm
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -106,6 +111,7 @@ import java.util.Properties;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -125,6 +131,7 @@ public class OracleIntegrationPersistence {
     private BundleContext bundleContext;
     private Principal principal;
     private EventAdmin eventAdmin;
+    private Thesaurus thesaurus;
     private TransactionService transactionService;
     private EventService eventService;
     private static final Clock clock = mock(Clock.class);
@@ -251,6 +258,11 @@ public class OracleIntegrationPersistence {
         when(this.principal.getName()).thenReturn(testName);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
+        this.thesaurus = mock(Thesaurus.class);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in " + OracleIntegrationPersistence.class.getSimpleName());
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -289,8 +301,16 @@ public class OracleIntegrationPersistence {
         return this.deviceDataModelService.connectionTaskService();
     }
 
+    public ConnectionTaskReportService getConnectionTaskReportService() {
+        return this.deviceDataModelService.connectionTaskReportService();
+    }
+
     public ServerCommunicationTaskService getCommunicationTaskService() {
         return this.deviceDataModelService.communicationTaskService();
+    }
+
+    public CommunicationTaskReportService getCommunicationTaskReportService() {
+        return this.deviceDataModelService.communicationTaskReportService();
     }
 
     public ServerDeviceService getDeviceService() {
@@ -354,6 +374,7 @@ public class OracleIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(Thesaurus.class).toInstance(thesaurus);
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());

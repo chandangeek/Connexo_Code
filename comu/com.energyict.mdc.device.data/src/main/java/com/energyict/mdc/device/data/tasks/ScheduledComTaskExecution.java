@@ -21,9 +21,9 @@ public interface ScheduledComTaskExecution extends ComTaskExecution {
      *
      * @return The ComSchedule
      */
-    public ComSchedule getComSchedule();
+    ComSchedule getComSchedule();
 
     @Override
-    public ScheduledComTaskExecutionUpdater getUpdater();
+    ScheduledComTaskExecutionUpdater getUpdater();
 
 }

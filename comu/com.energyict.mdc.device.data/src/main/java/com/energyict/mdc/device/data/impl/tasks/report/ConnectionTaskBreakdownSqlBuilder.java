@@ -1,6 +1,7 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.energyict.mdc.device.data.impl.PreparedStatementProvider;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
@@ -30,10 +31,10 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
     private final EnumSet<ServerConnectionTaskStatus> taskStatusses;
     private final boolean includeBusyTasks;
     private final EndDeviceGroup deviceGroup;
-    private final ConnectionTaskServiceImpl connectionTaskService;
+    private final ConnectionTaskReportServiceImpl connectionTaskService;
     private SqlBuilder sqlBuilder;
 
-    public ConnectionTaskBreakdownSqlBuilder(Optional<String> groupByAspect, Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskServiceImpl connectionTaskService) {
+    ConnectionTaskBreakdownSqlBuilder(Optional<String> groupByAspect, Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskReportServiceImpl connectionTaskService) {
         super();
         this.groupByAspect = groupByAspect.<GroupByAspect>map(GroupBySingleAspect::new).orElseGet(NoGrouping::new);
         this.taskStatusses = EnumSet.copyOf(taskStatusses);

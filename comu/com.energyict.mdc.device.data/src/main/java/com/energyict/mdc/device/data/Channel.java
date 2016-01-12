@@ -1,11 +1,12 @@
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
+
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -42,11 +43,11 @@ public interface Channel extends BaseChannel {
      */
     ChannelSpec getChannelSpec();
 
-    public String getName();
+    String getName();
 
-    public TimeDuration getInterval();
+    TimeDuration getInterval();
 
-    public Optional<Instant> getLastReading();
+    Optional<Instant> getLastReading();
 
     long getId();
 
@@ -66,8 +67,8 @@ public interface Channel extends BaseChannel {
 
     Optional<Instant> getLastDateTime();
 
-    public boolean hasData();
+    boolean hasData();
 
-    public ChannelDataUpdater startEditingData();
+    ChannelDataUpdater startEditingData();
 
 }

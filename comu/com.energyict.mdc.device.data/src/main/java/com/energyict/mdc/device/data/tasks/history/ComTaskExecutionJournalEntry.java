@@ -20,19 +20,19 @@ import java.time.Instant;
 @ProviderType
 public interface ComTaskExecutionJournalEntry extends HasId {
 
-    public ComTaskExecutionSession getComTaskExecutionSession ();
+    ComTaskExecutionSession getComTaskExecutionSession();
 
-    public Instant getTimestamp ();
+    Instant getTimestamp();
 
-    public String getErrorDescription ();
+    String getErrorDescription();
 
-    public void accept(JournalEntryVisitor visitor);
+    void accept(JournalEntryVisitor visitor);
 
     /**
      * Gets the level at which this message journal entry was logged.
      *
      * @return The LogLevel
      */
-    public ComServer.LogLevel getLogLevel();
+    ComServer.LogLevel getLogLevel();
 
 }

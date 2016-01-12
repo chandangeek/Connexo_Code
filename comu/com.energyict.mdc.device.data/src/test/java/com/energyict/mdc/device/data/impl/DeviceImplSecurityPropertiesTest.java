@@ -1,40 +1,41 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import javax.inject.Provider;
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import javax.inject.Provider;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Optional;
+
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the security properties of the {@link DeviceImpl} component.
@@ -82,11 +83,43 @@ public class DeviceImplSecurityPropertiesTest {
     @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
+    private MdcReadingTypeUtilService readingTypeUtilService;
+    @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private DeviceType deviceType;
+    @Mock
+    private DeviceLifeCycle deviceLifeCycle;
+    @Mock
+    private FiniteStateMachine finiteStateMachine;
     @Mock
     private SecurityPropertySet securityPropertySet;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private AmrSystem amrSystem;
+    @Mock
+    private Meter meter;
+    @Mock
+    private LifecycleDates lifeCycleDates;
+
+
+    @Before
+    public void setup() {
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        MeterBuilder meterBuilder = FakeBuilder.initBuilderStub(meter, MeterBuilder.class);
+        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(meter.getLifecycleDates()).thenReturn(lifeCycleDates);
+        mockDataModelWithNoValidationIssues();
+        when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));
+    }
+
+    private DeviceImpl setId(DeviceImpl entity, long id) {
+        field("id").ofType(Long.TYPE).in(entity).set(id);
+        return entity;
+    }
 
     @Test
     public void getSecurityPropertiesUsesClock() {
@@ -155,12 +188,22 @@ public class DeviceImplSecurityPropertiesTest {
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty("One", BigDecimal.TEN);
         properties.setProperty("Two", "just a string");
+        setId(device, 1000L); // fake the device as an already persisted device
 
         // Business method
         device.setSecurityProperties(this.securityPropertySet, properties);
+        device.save();
 
         // Asserts
         verify(this.securityPropertyService).setSecurityProperties(device, this.securityPropertySet, properties);
+    }
+
+    private void mockDataModelWithNoValidationIssues() {
+        ValidatorFactory validationFactory = mock(ValidatorFactory.class);
+        Validator validator = mock(Validator.class);
+        when(validationFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
+        when(dataModel.getValidatorFactory()).thenReturn(validationFactory);
     }
 
     private DeviceImpl getTestInstance() {

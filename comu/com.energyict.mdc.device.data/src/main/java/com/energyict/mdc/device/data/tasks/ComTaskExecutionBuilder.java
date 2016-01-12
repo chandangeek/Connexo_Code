@@ -10,7 +10,7 @@ import java.time.Instant;
 @ProviderType
 public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
 
-    public ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask);
+    ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask);
 
     /**
      * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
@@ -23,11 +23,11 @@ public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
      * @param connectionTask the ConnectionTask to set
      * @return the current updater
      */
-    public ComTaskExecutionBuilder<C> connectionTask(ConnectionTask<?, ?> connectionTask);
+    ComTaskExecutionBuilder<C> connectionTask(ConnectionTask<?, ?> connectionTask);
 
-    public ComTaskExecutionBuilder<C> priority(int executionPriority);
+    ComTaskExecutionBuilder<C> priority(int executionPriority);
 
-    public ComTaskExecutionBuilder<C> ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
+    ComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
     // For adhoc comtaskExecutions
     public ComTaskExecutionBuilder<C> scheduleNow();
@@ -42,6 +42,6 @@ public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
      *
      * @return the newly created ComTaskExecution
      */
-    public C add();
+    C add();
 
 }
