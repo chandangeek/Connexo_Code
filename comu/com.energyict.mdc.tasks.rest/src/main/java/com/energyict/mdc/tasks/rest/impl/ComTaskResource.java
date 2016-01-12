@@ -121,7 +121,7 @@ public class ComTaskResource {
         Set<Long> protocolTasksIds = new HashSet<>();
 
         for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
-            Categories category = Categories.valueOf(protocolTaskInfo.category.toUpperCase());
+            Categories category = Categories.valueOf(protocolTaskInfo.categoryId.toUpperCase());
             if (protocolTaskInfo.id != null) {
                 protocolTasksIds.add(protocolTaskInfo.id);
                 taskService.findProtocolTask(protocolTaskInfo.id).ifPresent(t -> category.updateProtocolTask(masterDataService, t, protocolTaskInfo));
