@@ -73,14 +73,14 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
     private String updateTag;
 
     @Inject
-    public StandardCsvDataFormatter(Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService, MeteringService meteringService) {
+    StandardCsvDataFormatter(Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService, MeteringService meteringService) {
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.dataExportService = dataExportService;
         this.meteringService = meteringService;
     }
 
-    public StandardCsvDataFormatter(Map<String, Object> propertyMap, Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService, MeteringService meteringService) {
+    StandardCsvDataFormatter(Map<String, Object> propertyMap, Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService, MeteringService meteringService) {
         this.validationService = validationService;
         this.thesaurus = thesaurus;
         this.dataExportService = dataExportService;

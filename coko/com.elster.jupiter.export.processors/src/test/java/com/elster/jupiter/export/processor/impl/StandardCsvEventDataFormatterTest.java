@@ -8,18 +8,16 @@ import com.elster.jupiter.export.MeterEventData;
 import com.elster.jupiter.export.TextLineExportData;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -52,7 +50,7 @@ public class StandardCsvEventDataFormatterTest {
 
     @Test
     public void test() {
-        TranslatablePropertyValueInfo translatablePropertyValueInfo = new TranslatablePropertyValueInfo("Comma (,)", "Comma (,)");
+        TranslatablePropertyValueInfo translatablePropertyValueInfo = new TranslatablePropertyValueInfo(FormatterProperties.SEPARATOR_COMMA.getKey(), "Comma (,)");
         StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag");
 
         MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();

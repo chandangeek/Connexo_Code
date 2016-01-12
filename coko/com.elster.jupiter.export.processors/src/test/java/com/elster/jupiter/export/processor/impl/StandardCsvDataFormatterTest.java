@@ -30,15 +30,9 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -56,6 +50,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -167,7 +167,7 @@ public class StandardCsvDataFormatterTest {
         when(dataValidationStatus2.getValidationResult()).thenReturn(ValidationResult.VALID);
         when(dataValidationStatus3.getValidationResult()).thenReturn(ValidationResult.NOT_VALIDATED);
 
-        TranslatablePropertyValueInfo semicolonValueInfo = new TranslatablePropertyValueInfo("Semicolon (;)", "Semicolon (;)");
+        TranslatablePropertyValueInfo semicolonValueInfo = new TranslatablePropertyValueInfo(FormatterProperties.SEPARATOR_SEMICOLON.getKey(), "Semicolon (;)");
         properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile, propertyPath);
         when(propertyExtension.getName()).thenReturn("fileFormat.fileExtension");
         when(propertyExtension.getValue()).thenReturn("csv");
