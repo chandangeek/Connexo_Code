@@ -78,7 +78,7 @@ class SDKTopologyTaskDialectCustomPropertySet implements CustomPropertySet<Devic
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(SDKTopologyTaskDialectProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

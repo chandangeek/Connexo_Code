@@ -5,11 +5,6 @@ import com.elster.jupiter.nls.TranslationKey;
 /**
  * Specifies the possible DeviceProtocolDialect names.
  *
- * <p>
- * Each name should be unique, as it is used in RelationTypes! <BR>
- * The length of the name is limited to 24 characters!
- * </p>
- *
  * @author sva
  * @since 17/10/12 (10:23)
  */

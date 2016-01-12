@@ -79,11 +79,11 @@ public class EDPDeviceProtocolDialectCustomPropertySet implements CustomProperty
         List<PropertySpec> propertySpecs = new ArrayList<>();
         Stream
             .of(EDPDeviceProtocolDialectProperties.ActualFields.values())
-            .map(field -> field.propertySpec(this.propertySpecService))
+            .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
             .forEach(propertySpecs::add);
         Stream
             .of(EDPDeviceProtocolDialectProperties.EDPFields.values())
-            .map(field -> field.propertySpec(this.propertySpecService))
+            .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
             .forEach(propertySpecs::add);
         return propertySpecs;
     }

@@ -91,7 +91,7 @@ public class CX20009 extends AbstractDlmsProtocol {
     @Override
     public EDPProperties getDlmsProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new EDPProperties(getPropertySpecService());
+            dlmsProperties = new EDPProperties(this.getPropertySpecService(), this.getThesaurus());
         }
         return (EDPProperties) dlmsProperties;
     }

@@ -2,8 +2,11 @@ package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
@@ -15,30 +18,64 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-27 (08:41)
  */
-class EiWebPlusDialectProperties extends CommonDeviceProtocolDialectProperties {
+public class EiWebPlusDialectProperties extends CommonDeviceProtocolDialectProperties {
+
+    public static final String SERVER_LOG_LEVEL_KEY = "serverLogLevel";
+    public static final String PORT_LOG_LEVEL_KEY = "portLogLevel";
+
+    public enum TranslationKeys implements TranslationKey {
+        SERVER_LOG_LEVEL(SERVER_LOG_LEVEL_KEY, "Server log level"),
+        SERVER_LOG_LEVEL_DESCRIPTION(SERVER_LOG_LEVEL_KEY + ".description", "Server log level"),
+        PORT_LOG_LEVEL(PORT_LOG_LEVEL_KEY, "Port log level"),
+        PORT_LOG_LEVEL_DESCRIPTION(PORT_LOG_LEVEL_KEY + ".description", "Port log level");
+
+        private final String key;
+        private final String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String getKey() {
+            return "eiwebplus.dialect." + this.key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.defaultFormat;
+        }
+    }
 
     enum ActualFields {
-        SERVER_LOG_LEVEL("serverLogLevel", "ServerLogLevel", "SERVERLOGLEVEL") {
+        SERVER_LOG_LEVEL(SERVER_LOG_LEVEL_KEY, "ServerLogLevel", "SERVERLOGLEVEL") {
             @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService) {
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
-                        .stringPropertySpecWithValuesAndDefaultValue(
-                                this.propertySpecName(),
-                                false,
-                                EiWebPlusDialect.DEFAULT_LOG_LEVEL,
-                                "OFF", "SEVERE", "WARNING", "INFO", "FINE", "FINER", "FINEST", "ALL");
+                        .specForValuesOf(new StringFactory())
+                        .named(TranslationKeys.SERVER_LOG_LEVEL)
+                        .describedAs(TranslationKeys.SERVER_LOG_LEVEL_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .addValues("SEVERE", "WARNING", "INFO", "FINE", "FINER", "FINEST", "ALL")
+                        .markExhaustive()
+                        .setDefaultValue("OFF")
+                        .finish();
             }
 
         },
-        PORT_LOG_LEVEL("portLogLevel", "PortLogLevel", "PORTLOGLEVEL") {
+        PORT_LOG_LEVEL(PORT_LOG_LEVEL_KEY, "PortLogLevel", "PORTLOGLEVEL") {
             @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService) {
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
-                        .stringPropertySpecWithValuesAndDefaultValue(
-                                this.propertySpecName(),
-                                false,
-                                EiWebPlusDialect.DEFAULT_LOG_LEVEL,
-                                "OFF", "SEVERE", "WARNING", "INFO", "FINE", "FINER", "FINEST", "ALL");
+                        .specForValuesOf(new StringFactory())
+                        .named(TranslationKeys.PORT_LOG_LEVEL)
+                        .describedAs(TranslationKeys.PORT_LOG_LEVEL_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .addValues("OFF", "SEVERE", "WARNING", "INFO", "FINE", "FINER", "FINEST", "ALL")
+                        .markExhaustive()
+                        .setDefaultValue(EiWebPlusDialect.DEFAULT_LOG_LEVEL)
+                        .finish();
             }
 
         };
@@ -65,7 +102,7 @@ class EiWebPlusDialectProperties extends CommonDeviceProtocolDialectProperties {
             return this.databaseName;
         }
 
-        public abstract PropertySpec propertySpec(PropertySpecService propertySpecService);
+        public abstract PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
 
         public void addTo(Table table) {
             table

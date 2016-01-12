@@ -52,7 +52,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getAuthenticationKey() {
         if (this.authenticationKey == null) {
-            String hex = properties.<String>getTypedProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString());
+            String hex = properties.<String>getTypedProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey());
             this.authenticationKey = DLMSUtils.hexStringToByteArray(hex);
         }
         return this.authenticationKey;
@@ -63,7 +63,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getGlobalKey() {
         if (this.encryptionKey == null) {
-            String hex = properties.<String>getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString());
+            String hex = properties.<String>getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey());
             this.encryptionKey = DLMSUtils.hexStringToByteArray(hex);
         }
         return this.encryptionKey;
@@ -76,7 +76,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getHLSSecret() {
         if (this.hlsSecret == null) {
-            String passwordString = properties.<Password>getTypedProperty(SecurityPropertySpecName.PASSWORD.toString()).getValue();
+            String passwordString = properties.<Password>getTypedProperty(SecurityPropertySpecName.PASSWORD.getKey()).getValue();
             byte[] passwordBytes = new byte[passwordString.length()];
             for (int i = 0; i < passwordString.length(); i++) {
                 passwordBytes[i] = (byte) passwordString.charAt(i);

@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.elster.garnet;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
@@ -116,7 +115,7 @@ public class GarnetProperties implements HasDynamicProperties {
 
     public byte[] getManufacturerKey() {
         if (this.manufacturerKey == null) {
-            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString());
+            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.getKey());
             if (hex != null) {
                 this.manufacturerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.manufacturerKey.length != 16) {
@@ -133,7 +132,7 @@ public class GarnetProperties implements HasDynamicProperties {
 
     public byte[] getCustomerKey() {
         if (this.customerKey == null) {
-            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString());
+            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.getKey());
             if (hex != null) {
                 this.customerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.customerKey.length != 16) {
@@ -172,12 +171,21 @@ public class GarnetProperties implements HasDynamicProperties {
         return this.properties;
     }
 
-
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.propertySpecService.bigDecimalPropertySpecWithValues(DEVICE_ID, true, DEFAULT_DEVICE_ID),
-                this.propertySpecService.referencePropertySpec(TIMEOUT, false, FactoryIds.TIMEZONE_IN_USE));
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(DEVICE_ID, DEVICE_ID)
+                        .describedAs(DEVICE_ID)
+                        .markRequired()
+                        .setDefaultValue(DEFAULT_DEVICE_ID)
+                        .finish(),
+                this.propertySpecService
+                        .referenceSpec(TimeZoneInUse.class)
+                        .named(TIMEOUT, TIMEOUT)
+                        .describedAs(TIMEOUT)
+                        .finish());
     }
 
 }

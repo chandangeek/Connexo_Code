@@ -78,7 +78,7 @@ public class EiWebPlusDialectCustomPropertySet implements CustomPropertySet<Devi
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(EiWebPlusDialectProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

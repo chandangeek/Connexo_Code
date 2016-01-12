@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -90,6 +91,7 @@ import java.util.logging.Logger;
 public class GprsRequestFactory implements RequestFactory {
 
     private PropertySpecService propertySpecService;
+    private Thesaurus thesaurus;
     private MeterInfo meterInfo;
     private GasQuality gasQuality;
     private final GprsConnection connection;
@@ -107,24 +109,12 @@ public class GprsRequestFactory implements RequestFactory {
     protected TableDECQueryResponseStructure tableDEC;
     protected boolean isEK155Protocol;
 
-    /**
-     * @param comChannel
-     * @param logger
-     * @param properties
-     * @param propertySpecService
-     */
-    public GprsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, boolean isEK155Protocol, PropertySpecService propertySpecService) {
+    public GprsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, boolean isEK155Protocol, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this(comChannel, logger, properties, timeZone, null, isEK155Protocol);
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
-    /**
-     * @param comChannel
-     * @param logger
-     * @param properties
-     * @param timeZone
-     * @param identificationStructure
-     */
     public GprsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure, boolean isEK155Protocol) {
         this.connection = new SecureGprsConnection(comChannel, properties, logger);
         this.logger = logger;
@@ -152,7 +142,7 @@ public class GprsRequestFactory implements RequestFactory {
 
     public MTU155Properties getProperties() {
         if (properties == null) {
-            this.properties = new MTU155Properties(TypedProperties.empty(), propertySpecService);
+            this.properties = new MTU155Properties(TypedProperties.empty(), propertySpecService, this.thesaurus);
         }
         return properties;
     }

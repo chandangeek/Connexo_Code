@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
-
-import com.elster.jupiter.properties.PropertySpec;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,15 +25,40 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     public static final String SOURCE_PROPERTY_NAME = "API_source";
     public static final String AUTHENTICATION_PROPERTY_NAME = "API_authentication";
 
+    public enum TranslationKeys implements TranslationKey {
+        SOURCE_PROPERTY(SOURCE_PROPERTY_NAME, "API source"),
+        AUTHENTICATION_PROPERTY(AUTHENTICATION_PROPERTY_NAME, "API authentication");
+
+        private final String propertySpecName;
+        private final String defaultFormat;
+
+        TranslationKeys(String propertySpecName, String defaultFormat) {
+            this.propertySpecName = propertySpecName;
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String getKey() {
+            return "ServletBasedInboundSMS." + this.propertySpecName;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return defaultFormat;
+        }
+
+    }
     protected TypedProperties properties;
     protected HttpServletRequest request;
     protected HttpServletResponse response;
     protected InboundDiscoveryContext context;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     // Subclasses should add @Inject
-    protected AbstractSMSServletBasedInboundDeviceProtocol(PropertySpecService propertySpecService) {
+    protected AbstractSMSServletBasedInboundDeviceProtocol(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -67,7 +93,11 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     }
 
     private PropertySpec sourcePropertySpec() {
-        return this.propertySpecService.stringPropertySpec(SOURCE_PROPERTY_NAME, true, "");
+        return this.propertySpecService
+                .stringSpec()
+                .named(TranslationKeys.SOURCE_PROPERTY)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     protected String sourcePropertyValue() {
@@ -75,7 +105,11 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     }
 
     private PropertySpec authenticationPropertySpec() {
-        return this.propertySpecService.stringPropertySpec(AUTHENTICATION_PROPERTY_NAME, true, "");
+        return this.propertySpecService
+                .stringSpec()
+                .named(TranslationKeys.AUTHENTICATION_PROPERTY)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     protected String authenticationPropertyValue() {
@@ -85,6 +119,5 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     protected Object getProperty(String propertyName) {
         return this.properties.getProperty(propertyName);
     }
+
 }
-
-

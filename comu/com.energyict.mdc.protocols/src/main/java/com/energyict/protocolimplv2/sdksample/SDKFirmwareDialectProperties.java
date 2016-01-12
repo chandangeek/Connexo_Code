@@ -2,9 +2,10 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
@@ -19,17 +20,19 @@ import javax.validation.constraints.Size;
 class SDKFirmwareDialectProperties extends CommonDeviceProtocolDialectProperties {
 
     enum ActualFields {
-        ACTIVE_METER_FIRMWARE_VERSION("activeMeterFirmwareVersion", "ActiveMeterFirmwareVersion", "ACTIVE_METER_FIRMWARE_VERSION"),
-        PASSIVE_METER_FIRMWARE_VERSION("passiveMeterFirmwareVersion", "PassiveMeterFirmwareVersion", "PASSIVE_METER_FIRMWARE_VERSION"),
-        ACTIVE_COMMUNICATION_FIRMWARE_VERSION("activeCommunicationFirmwareVersion", "ActiveCommunicationFirmwareVersion", "ACTIVE_COMM_FIRMWARE_VERSION"),
-        PASSIVE_COMMUNICATION_FIRMWARE_VERSION("passiveCommunicationFirmwareVersion", "PassiveCommunicationFirmwareVersion", "PASSIVE_COMM_FIRMWARE_VERSION");
+        ACTIVE_METER_FIRMWARE_VERSION("activeMeterFirmwareVersion", SDKTranslationKeys.ACTIVE_METER_FIRMWARE_VERSION, "ActiveMeterFirmwareVersion", "ACTIVE_METER_FIRMWARE_VERSION"),
+        PASSIVE_METER_FIRMWARE_VERSION("passiveMeterFirmwareVersion", SDKTranslationKeys.PASSIVE_METER_FIRMWARE_VERSION, "PassiveMeterFirmwareVersion", "PASSIVE_METER_FIRMWARE_VERSION"),
+        ACTIVE_COMMUNICATION_FIRMWARE_VERSION("activeCommunicationFirmwareVersion", SDKTranslationKeys.ACTIVE_COMMUNICATION_FIRMWARE_VERSION, "ActiveCommunicationFirmwareVersion", "ACTIVE_COMM_FIRMWARE_VERSION"),
+        PASSIVE_COMMUNICATION_FIRMWARE_VERSION("passiveCommunicationFirmwareVersion", SDKTranslationKeys.PASSIVE_COMMUNICATION_FIRMWARE_VERSION, "PassiveCommunicationFirmwareVersion", "PASSIVE_COMM_FIRMWARE_VERSION");
 
         private final String javaName;
+        private final TranslationKey nameTranslationKey;
         private final String propertySpecName;
         private final String databaseName;
 
-        ActualFields(String javaName, String propertySpecName, String databaseName) {
+        ActualFields(String javaName, TranslationKey nameTranslationKey, String propertySpecName, String databaseName) {
             this.javaName = javaName;
+            this.nameTranslationKey = nameTranslationKey;
             this.propertySpecName = propertySpecName;
             this.databaseName = databaseName;
         }
@@ -46,8 +49,12 @@ class SDKFirmwareDialectProperties extends CommonDeviceProtocolDialectProperties
             return this.databaseName;
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertySpecName(), false, new StringFactory());
+        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .stringSpec()
+                    .named(this.propertySpecName(), nameTranslationKey)
+                    .fromThesaurus(thesaurus)
+                    .finish();
         }
 
         public void addTo(Table table) {

@@ -73,7 +73,7 @@ public class InboundProximusCustomPropertySet implements CustomPropertySet<Conne
         EnumSet<InboundProximusConnectionProperties.Fields> fields = EnumSet.allOf(InboundProximusConnectionProperties.Fields.class);
         fields.remove(InboundProximusConnectionProperties.Fields.CONNECTION_PROVIDER);
         return fields.stream()
-                .map(prop -> prop.propertySpec(this.propertySpecService))
+                .map(prop -> prop.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

@@ -3,6 +3,8 @@ package com.energyict.protocols.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -17,6 +19,8 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.impl.channels.ServerConnectionType;
+import com.energyict.protocols.impl.channels.TranslationKeys;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -31,9 +35,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,8 +51,8 @@ import java.util.Map;
  * Date: 28/11/13
  * Time: 16:27
  */
-@Component(name = "com.energyict.protocols.mdc.services.connectiontypeservice", service = ConnectionTypeService.class, immediate = true)
-public class ConnectionTypeServiceImpl implements ConnectionTypeService {
+@Component(name = "com.energyict.protocols.mdc.services.connectiontypeservice", service = {ConnectionTypeService.class, TranslationKeyProvider.class}, immediate = true)
+public class ConnectionTypeServiceImpl implements ConnectionTypeService, TranslationKeyProvider {
 
     public static final String RXTX_PLAIN_GUICE_INJECTION_NAME = "rxtx-none";
     public static final String RXTX_AT_GUICE_INJECTION_NAME = "rxtx-at";
@@ -120,6 +127,24 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
                             .toInstance(v));
             }
         };
+    }
+
+    @Override
+    public String getComponentName() {
+        return DeviceProtocolService.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        Collections.addAll(keys, TranslationKeys.values());
+        Collections.addAll(keys, ConnectionTypePropertySpecName.values());
+        return keys;
     }
 
     @Activate

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
@@ -65,8 +66,8 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
                 .add();
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return this.deviceSecurityProperty.getPropertySpec(propertySpecService);
+        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return this.deviceSecurityProperty.getPropertySpec(propertySpecService, thesaurus);
         }
 
     }
@@ -83,7 +84,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         if (password != null) {
             this.password = password.getValue();
         }
-        this.userName = (String) propertyValues.getProperty(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString());
+        this.userName = (String) propertyValues.getProperty(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey());
     }
 
     @Override
@@ -91,7 +92,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         if (!is(this.password).empty()) {
             propertySetValues.setProperty(DeviceSecurityProperty.PASSWORD.javaName(), new Password(this.password));
         }
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString(), this.userName);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey(), this.userName);
     }
 
     private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {

@@ -73,7 +73,7 @@ public class OutboundProximusCustomPropertySet implements CustomPropertySet<Conn
         EnumSet<OutboundProximusConnectionProperties.Fields> fields = EnumSet.allOf(OutboundProximusConnectionProperties.Fields.class);
         fields.remove(OutboundProximusConnectionProperties.Fields.CONNECTION_PROVIDER);
         return fields.stream()
-                .map(prop -> prop.propertySpec(this.propertySpecService))
+                .map(prop -> prop.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

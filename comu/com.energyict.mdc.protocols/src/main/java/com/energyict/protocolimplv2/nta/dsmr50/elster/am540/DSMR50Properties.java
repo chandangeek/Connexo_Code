@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Extension of the standard DLMS properties, adding DSMR50 stuff
+ * Extension of the standard DLMS properties, adding DSMR50 stuff.
  * <p>
  * Copyrights EnergyICT
  *
@@ -40,8 +40,8 @@ public class DSMR50Properties extends G3Properties {
     private static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = true;
     private static final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
 
-    public DSMR50Properties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public DSMR50Properties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     /**
@@ -68,23 +68,47 @@ public class DSMR50Properties extends G3Properties {
     }
 
     private PropertySpec readCachePropertySpec() {
-        return getPropertySpecService().booleanPropertySpec(READCACHE_PROPERTY, false, false);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(READCACHE_PROPERTY, TranslationKeys.READCACHE_PROPERTY)
+                .fromThesaurus(getThesaurus())
+                .setDefaultValue(false)
+                .finish();
     }
 
     private PropertySpec aarqTimeoutPropertySPec() {
-        return getPropertySpecService().timeDurationPropertySpec(AARQ_TIMEOUT_PROPERTY, false, DEFAULT_AARQ_TIMEOUT_PROPERTY);
+        return getPropertySpecService()
+                .timeDurationSpec()
+                .named(AARQ_TIMEOUT_PROPERTY, TranslationKeys.AARQ_TIMEOUT_PROPERTY)
+                .fromThesaurus(getThesaurus())
+                .setDefaultValue(DEFAULT_AARQ_TIMEOUT_PROPERTY)
+                .finish();
     }
 
     private PropertySpec aarqRetriesPropertySPec() {
-        return getPropertySpecService().bigDecimalPropertySpec(AARQ_RETRIES_PROPERTY, false, DEFAULT_AARQ_RETRIES_PROPERTY);
+        return getPropertySpecService()
+                .bigDecimalSpec()
+                .named(AARQ_RETRIES_PROPERTY, TranslationKeys.AARQ_RETRIES_PROPERTY)
+                .fromThesaurus(getThesaurus())
+                .setDefaultValue(DEFAULT_AARQ_RETRIES_PROPERTY)
+                .finish();
     }
 
     private PropertySpec pskPropertySPec() {
-        return getPropertySpecService().basicPropertySpec(PSK_PROPERTY, false, HexStringFactory.class);
+        return getPropertySpecService()
+                .hexStringSpec()
+                .named(PSK_PROPERTY, TranslationKeys.PSK_PROPERTY)
+                .fromThesaurus(getThesaurus())
+                .finish();
     }
 
     private PropertySpec cumulativeCaptureTimePropertySPec() {
-        return getPropertySpecService().booleanPropertySpec(CumulativeCaptureTimeChannel, false, false);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(CumulativeCaptureTimeChannel, TranslationKeys.CumulativeCaptureTimeChannel)
+                .fromThesaurus(getThesaurus())
+                .setDefaultValue(false)
+                .finish();
     }
 
     @Override
@@ -111,12 +135,12 @@ public class DSMR50Properties extends G3Properties {
         if (useBeaconMirrorDeviceDialect() && !usesPublicClient()) {
             return BigDecimal.ONE.intValue();   // When talking to the Beacon mirrored device, we should always use client address 1 (except for the public client, which is always 16)
         } else {
-            return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+            return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
         }
     }
 
     public boolean usesPublicClient() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE) == PUBLIC_CLIENT_MAC_ADDRESS;
+        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE) == PUBLIC_CLIENT_MAC_ADDRESS;
     }
 
     public boolean useBeaconMirrorDeviceDialect() {
@@ -152,10 +176,21 @@ public class DSMR50Properties extends G3Properties {
     }
 
     private PropertySpec checkNumberOfBlocksDuringFirmwareResumePropertySpec() {
-        return getPropertySpecService().booleanPropertySpec(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, false, DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, TranslationKeys.CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME)
+                .fromThesaurus(getThesaurus())
+                .setDefaultValue(DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME)
+                .finish();
     }
 
     private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
-        return getPropertySpecService().booleanPropertySpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, TranslationKeys.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL)
+                .fromThesaurus(getThesaurus())
+                .setDefaultValue(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE)
+                .finish();
     }
+
 }

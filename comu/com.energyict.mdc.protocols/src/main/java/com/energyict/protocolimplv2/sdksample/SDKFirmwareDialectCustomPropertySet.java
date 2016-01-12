@@ -78,7 +78,7 @@ class SDKFirmwareDialectCustomPropertySet implements CustomPropertySet<DevicePro
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(SDKFirmwareDialectProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

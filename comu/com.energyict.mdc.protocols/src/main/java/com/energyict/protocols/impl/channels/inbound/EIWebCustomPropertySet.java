@@ -7,9 +7,9 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -87,18 +87,18 @@ public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionProvi
 
     private PropertySpec ipAddressPropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        EIWebConnectionProperties.Fields.IP_ADDRESS.propertySpecName(),
-                        false,
-                        new StringFactory());
+                .stringSpec()
+                .named(EIWebConnectionProperties.Fields.IP_ADDRESS.propertySpecName(), ConnectionTypePropertySpecName.EIWEB_IP_ADDRESS)
+                .fromThesaurus(thesaurus)
+                .finish();
     }
 
     private PropertySpec macAddressPropertySpec() {
         return this.getPropertySpecService()
-                .basicPropertySpec(
-                        EIWebConnectionProperties.Fields.MAC_ADDRESS.propertySpecName(),
-                        false,
-                        new StringFactory());
+                .stringSpec()
+                .named(EIWebConnectionProperties.Fields.MAC_ADDRESS.propertySpecName(), ConnectionTypePropertySpecName.EIWEB_MAC_ADDRESS)
+                .fromThesaurus(thesaurus)
+                .finish();
     }
 
 }

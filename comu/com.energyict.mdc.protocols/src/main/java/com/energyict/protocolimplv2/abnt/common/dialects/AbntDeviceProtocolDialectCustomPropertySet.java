@@ -78,7 +78,7 @@ public class AbntDeviceProtocolDialectCustomPropertySet implements CustomPropert
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

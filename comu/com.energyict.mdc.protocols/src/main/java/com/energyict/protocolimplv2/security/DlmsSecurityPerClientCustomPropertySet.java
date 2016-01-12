@@ -46,7 +46,7 @@ public class DlmsSecurityPerClientCustomPropertySet extends SecurityCustomProper
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(DlmsSecurityPerClientProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

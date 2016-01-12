@@ -46,7 +46,7 @@ public class MTU155CustomPropertySet extends SecurityCustomPropertySet<MTU155Sec
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(MTU155SecurityProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

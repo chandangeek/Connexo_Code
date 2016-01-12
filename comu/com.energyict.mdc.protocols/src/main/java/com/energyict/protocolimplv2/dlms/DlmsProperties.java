@@ -1,8 +1,11 @@
 package com.energyict.protocolimplv2.dlms;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
@@ -14,12 +17,14 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -35,19 +40,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     public static final String SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
     public static final String SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
-    public static final String ADDRESSING_MODE = "AddressingMode";
-    public static final String MANUFACTURER = "Manufacturer";
-    public static final String INFORMATION_FIELD_SIZE = "InformationFieldSize";
-    public static final String WAKE_UP = "WakeUp";
     public static final String DEVICE_ID = "DeviceId";
-    public static final String CIPHERING_TYPE = "CipheringType";
-    public static final String NTA_SIMULATION_TOOL = "NTASimulationTool";
-    public static final String BULK_REQUEST = "BulkRequest";
-    public static final String CONFORMANCE_BLOCK_VALUE = "ConformanceBlockValue";
-    public static final String VALIDATE_INVOKE_ID = "ValidateInvokeId";
-    public static final String MAX_REC_PDU_SIZE = "MaxRecPDUSize";
-    public static final String REQUEST_TIMEZONE = "RequestTimeZone";
-    public static final String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
 
     public static final BigDecimal DEFAULT_UPPER_SERVER_MAC_ADDRESS = BigDecimal.ONE;
@@ -72,13 +65,67 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     public static final BigDecimal DEFAULT_ROUND_TRIP_CORRECTION = new BigDecimal(0);
     public static final Boolean DEFAULT_FIX_MBUS_HEX_SHORT_ID = false;
 
+    public enum TranslationKeys implements TranslationKey {
+        SERVER_UPPER_MAC_ADDRESS_TK(SERVER_UPPER_MAC_ADDRESS, "Server upper mac address"),
+        SERVER_LOWER_MAC_ADDRESS_TK(SERVER_LOWER_MAC_ADDRESS, "Server lower mac address"),
+        ADDRESSING_MODE_TK(DlmsProtocolProperties.ADDRESSING_MODE, "Addressing mode"),
+        MANUFACTURER_TK(DlmsProtocolProperties.MANUFACTURER, "Manufacturer"),
+        INFORMATION_FIELD_SIZE_TK(DlmsProtocolProperties.INFORMATION_FIELD_SIZE, "Information field size"),
+        WAKE_UP_TK(DlmsProtocolProperties.WAKE_UP, "WakeUp"),
+        DEVICE_ID_TK(DEVICE_ID, "DeviceId"),
+        CIPHERING_TYPE_TK(DlmsProtocolProperties.CIPHERING_TYPE, "Ciphering type"),
+        NTA_SIMULATION_TOOL_TK(DlmsProtocolProperties.NTA_SIMULATION_TOOL, "NTA simulation tool"),
+        BULK_REQUEST_TK(DlmsProtocolProperties.BULK_REQUEST, "Bulk request"),
+        CONFORMANCE_BLOCK_VALUE_TK(DlmsProtocolProperties.CONFORMANCE_BLOCK_VALUE, "Conformance block value"),
+        VALIDATE_INVOKE_ID_TK(DlmsProtocolProperties.VALIDATE_INVOKE_ID, "Validate invokeId"),
+        MAX_REC_PDU_SIZE_TK(DlmsProtocolProperties.MAX_REC_PDU_SIZE, "Max rec PDU size"),
+        REQUEST_TIMEZONE_TK(DlmsProtocolProperties.REQUEST_TIMEZONE, "Request timezone"),
+        ROUND_TRIP_CORRECTION_TK(DlmsProtocolProperties.ROUND_TRIP_CORRECTION, "Roundtrip correction"),
+        FIX_MBUS_HEX_SHORT_ID_TK(FIX_MBUS_HEX_SHORT_ID, "Fix Mbus hex shortId"),
+        NODEID_TK(MeterProtocol.NODEID, "Node id"),
+        CALLING_AP_TITLE_TK(IDIS.CALLING_AP_TITLE, "Calling AP title"),
+        G3_MAC_ADDRESS_PROP_NAME_TK("MAC_address", "MAC address"),
+        G3_SHORT_ADDRESS_PROP_NAME_TK("Short_MAC_address", "Short MAC address"),
+        G3_LOGICAL_DEVICE_ID_PROP_NAME_TK("Logical_device_id", "Logical device id"),
+        AARQ_TIMEOUT_PROPERTY("AARQTimeout", "AARQ Timeout"),
+        AARQ_RETRIES_PROPERTY("AARQRetries", "AARQ Retries"),
+        READCACHE_PROPERTY("ReadCache", "Read cache"),
+        CumulativeCaptureTimeChannel("CumulativeCaptureTimeChannel", "Cumulative capture time channel"),
+        PSK_PROPERTY("PSK", "PSK"),
+        CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME("CheckNumberOfBlocksDuringFirmwareResume", "Check number of blocks during firmware resume"),
+        USE_EQUIPMENT_IDENTIFIER_AS_SERIAL("UseEquipmentIdentifierAsSerialNumber", "Use equipment identifier as serial number");
+
+        private final String propertySpecName;
+        private final String defaultFormat;
+
+        TranslationKeys(String propertySpecName, String defaultFormat) {
+            this.propertySpecName = propertySpecName;
+            this.defaultFormat = defaultFormat;
+        }
+
+        public String getPropertySpecName() {
+            return propertySpecName;
+        }
+
+        @Override
+        public String getKey() {
+            return "DlmsProperties." + this.propertySpecName;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return defaultFormat;
+        }
+
+    }
+
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private SecurityProvider securityProvider;
     private String serialNumber = "";
 
-    public DlmsProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public DlmsProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
         this.properties = TypedProperties.empty();
     }
 
@@ -128,7 +175,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public int getClientMacAddress() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
     }
 
     @Override
@@ -143,22 +190,22 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public int getAddressingMode() {
-        return parseBigDecimalProperty(ADDRESSING_MODE, DEFAULT_ADDRESSING_MODE);
+        return parseBigDecimalProperty(DlmsProtocolProperties.ADDRESSING_MODE, DEFAULT_ADDRESSING_MODE);
     }
 
     @Override
     public String getManufacturer() {
-        return properties.getTypedProperty(MANUFACTURER, DEFAULT_MANUFACTURER);
+        return properties.getTypedProperty(DlmsProtocolProperties.MANUFACTURER, DEFAULT_MANUFACTURER);
     }
 
     @Override
     public int getInformationFieldSize() {
-        return parseBigDecimalProperty(INFORMATION_FIELD_SIZE, DEFAULT_INFORMATION_FIELD_SIZE);
+        return parseBigDecimalProperty(DlmsProtocolProperties.INFORMATION_FIELD_SIZE, DEFAULT_INFORMATION_FIELD_SIZE);
     }
 
     @Override
     public boolean isWakeUp() {
-        return properties.getTypedProperty(WAKE_UP, DEFAULT_WAKE_UP);
+        return properties.getTypedProperty(DlmsProtocolProperties.WAKE_UP, DEFAULT_WAKE_UP);
     }
 
     @Override
@@ -168,17 +215,17 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public CipheringType getCipheringType() {
-        return CipheringType.fromValue(parseBigDecimalProperty(CIPHERING_TYPE, DEFAULT_CIPHERING_TYPE));
+        return CipheringType.fromValue(parseBigDecimalProperty(DlmsProtocolProperties.CIPHERING_TYPE, DEFAULT_CIPHERING_TYPE));
     }
 
     @Override
     public boolean isNtaSimulationTool() {
-        return properties.getTypedProperty(NTA_SIMULATION_TOOL, DEFAULT_NTA_SIMULATION_TOOL);
+        return properties.getTypedProperty(DlmsProtocolProperties.NTA_SIMULATION_TOOL, DEFAULT_NTA_SIMULATION_TOOL);
     }
 
     @Override
     public boolean isBulkRequest() {
-        return getProperties().getTypedProperty(BULK_REQUEST, DEFAULT_BULK_REQUEST);
+        return getProperties().getTypedProperty(DlmsProtocolProperties.BULK_REQUEST, DEFAULT_BULK_REQUEST);
     }
 
     @Override
@@ -187,7 +234,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
         if (getReference().equals(DLMSReference.SN)) {
             defaultValue = DEFAULT_CONFORMANCE_BLOCK_VALUE_SN;
         }
-        return new ConformanceBlock(parseBigDecimalProperty(CONFORMANCE_BLOCK_VALUE, defaultValue));
+        return new ConformanceBlock(parseBigDecimalProperty(DlmsProtocolProperties.CONFORMANCE_BLOCK_VALUE, defaultValue));
     }
 
     @Override
@@ -198,7 +245,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     @Override
     public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
         byte invokeIdAndPriority = (byte) (DEFAULT_INVOKE_ID_AND_PRIORITY.intValue());
-        if (properties.<Boolean>getTypedProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) {
+        if (properties.<Boolean>getTypedProperty(DlmsProtocolProperties.VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) {
             return new IncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
         } else {
             return new NonIncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
@@ -207,7 +254,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public int getMaxRecPDUSize() {
-        return parseBigDecimalProperty(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
+        return parseBigDecimalProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
     @Override
@@ -222,12 +269,12 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public boolean isRequestTimeZone() {
-        return properties.<Boolean>getTypedProperty(REQUEST_TIMEZONE, DEFAULT_REQUEST_TIMEZONE);
+        return properties.<Boolean>getTypedProperty(DlmsProtocolProperties.REQUEST_TIMEZONE, DEFAULT_REQUEST_TIMEZONE);
     }
 
     @Override
     public int getRoundTripCorrection() {
-        return parseBigDecimalProperty(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
+        return parseBigDecimalProperty(DlmsProtocolProperties.ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
     }
 
     /**
@@ -306,24 +353,24 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(Arrays.asList(
-                getPropertySpecService().bigDecimalPropertySpec(SERVER_UPPER_MAC_ADDRESS, false, DEFAULT_UPPER_SERVER_MAC_ADDRESS),
-                getPropertySpecService().bigDecimalPropertySpec(SERVER_LOWER_MAC_ADDRESS, false, DEFAULT_LOWER_SERVER_MAC_ADDRESS),
-                getPropertySpecService().bigDecimalPropertySpec(ADDRESSING_MODE, false, DEFAULT_ADDRESSING_MODE),
-                getPropertySpecService().stringPropertySpecWithValuesAndDefaultValue(MANUFACTURER, false, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000"),
-                getPropertySpecService().bigDecimalPropertySpec(INFORMATION_FIELD_SIZE, false, DEFAULT_INFORMATION_FIELD_SIZE),
-                getPropertySpecService().booleanPropertySpec(WAKE_UP, false, DEFAULT_WAKE_UP),
-                getPropertySpecService().stringPropertySpec(DEVICE_ID, false, DEFAULT_DEVICE_ID),
-                getPropertySpecService().bigDecimalPropertySpec(CIPHERING_TYPE, false, DEFAULT_CIPHERING_TYPE),
-                getPropertySpecService().booleanPropertySpec(NTA_SIMULATION_TOOL, false, DEFAULT_NTA_SIMULATION_TOOL),
-                getPropertySpecService().booleanPropertySpec(BULK_REQUEST, false, DEFAULT_BULK_REQUEST),
-                getPropertySpecService().bigDecimalPropertySpec(CONFORMANCE_BLOCK_VALUE, false, DEFAULT_CONFORMANCE_BLOCK_VALUE_LN),
-                getPropertySpecService().booleanPropertySpec(VALIDATE_INVOKE_ID, false, DEFAULT_VALIDATE_INVOKE_ID),
-                getPropertySpecService().bigDecimalPropertySpec(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE),
-                getPropertySpecService().booleanPropertySpec(REQUEST_TIMEZONE, false, DEFAULT_REQUEST_TIMEZONE),
-                getPropertySpecService().bigDecimalPropertySpec(ROUND_TRIP_CORRECTION, false, DEFAULT_ROUND_TRIP_CORRECTION),
-                getPropertySpecService().booleanPropertySpec(FIX_MBUS_HEX_SHORT_ID, false, DEFAULT_FIX_MBUS_HEX_SHORT_ID)
-        ));
+        Collections.addAll(
+                propertySpecs,
+                this.bigDecimalSpec(TranslationKeys.SERVER_UPPER_MAC_ADDRESS_TK, DEFAULT_UPPER_SERVER_MAC_ADDRESS),
+                this.bigDecimalSpec(TranslationKeys.SERVER_LOWER_MAC_ADDRESS_TK, DEFAULT_LOWER_SERVER_MAC_ADDRESS),
+                this.bigDecimalSpec(TranslationKeys.ADDRESSING_MODE_TK, DEFAULT_ADDRESSING_MODE),
+                this.stringSpec(TranslationKeys.MANUFACTURER_TK, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000"),
+                this.bigDecimalSpec(TranslationKeys.INFORMATION_FIELD_SIZE_TK, DEFAULT_INFORMATION_FIELD_SIZE),
+                this.booleanSpec(TranslationKeys.WAKE_UP_TK, DEFAULT_WAKE_UP),
+                this.stringSpec(TranslationKeys.DEVICE_ID_TK, DEFAULT_DEVICE_ID),
+                this.bigDecimalSpec(TranslationKeys.CIPHERING_TYPE_TK, DEFAULT_CIPHERING_TYPE),
+                this.booleanSpec(TranslationKeys.NTA_SIMULATION_TOOL_TK, DEFAULT_NTA_SIMULATION_TOOL),
+                this.booleanSpec(TranslationKeys.BULK_REQUEST_TK, DEFAULT_BULK_REQUEST),
+                this.bigDecimalSpec(TranslationKeys.CONFORMANCE_BLOCK_VALUE_TK, DEFAULT_CONFORMANCE_BLOCK_VALUE_LN),
+                this.booleanSpec(TranslationKeys.VALIDATE_INVOKE_ID_TK, DEFAULT_VALIDATE_INVOKE_ID),
+                this.bigDecimalSpec(TranslationKeys.MAX_REC_PDU_SIZE_TK, DEFAULT_MAX_REC_PDU_SIZE),
+                this.booleanSpec(TranslationKeys.REQUEST_TIMEZONE_TK, DEFAULT_REQUEST_TIMEZONE),
+                this.bigDecimalSpec(TranslationKeys.ROUND_TRIP_CORRECTION_TK, DEFAULT_ROUND_TRIP_CORRECTION),
+                this.booleanSpec(TranslationKeys.FIX_MBUS_HEX_SHORT_ID_TK, DEFAULT_FIX_MBUS_HEX_SHORT_ID));
         return propertySpecs;
     }
 

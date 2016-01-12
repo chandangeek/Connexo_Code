@@ -3,11 +3,12 @@ package com.energyict.protocols.impl.channels.sms;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
@@ -37,6 +38,11 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
             }
 
             @Override
+            public TranslationKey nameTranslationKey() {
+                throw new UnsupportedOperationException("ConnectionProvider should not be exposed as a PropertySpec");
+            }
+
+            @Override
             public String databaseName() {
                 return "CONNECTIONPROVIDER";
             }
@@ -49,7 +55,12 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
         PHONE_NUMBER {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_PHONE_NUMBER.toString();
+                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_PHONE_NUMBER.propertySpecName();
+            }
+
+            @Override
+            public TranslationKey nameTranslationKey() {
+                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_PHONE_NUMBER;
             }
 
             @Override
@@ -60,7 +71,12 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
         CALL_HOME_ID {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_CALL_HOME_ID.toString();
+                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_CALL_HOME_ID.propertySpecName();
+            }
+
+            @Override
+            public TranslationKey nameTranslationKey() {
+                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_CALL_HOME_ID;
             }
 
             @Override
@@ -75,6 +91,8 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
 
         public abstract String propertySpecName();
 
+        public abstract TranslationKey nameTranslationKey();
+
         public abstract String databaseName();
 
         public void addTo(Table table) {
@@ -85,8 +103,13 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
                 .add();
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertySpecName(), true, new StringFactory());
+        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .stringSpec()
+                    .named(this.propertySpecName(), this.nameTranslationKey())
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
         }
 
     }

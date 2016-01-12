@@ -45,7 +45,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         HOST {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString();
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName();
             }
 
             @Override
@@ -56,7 +56,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         PORT_NUMBER {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString();
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName();
             }
 
             @Override
@@ -67,7 +67,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         CONNECTION_TIMEOUT {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.toString();
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName();
             }
 
             @Override
@@ -78,7 +78,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         BUFFER_SIZE {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_BUFFER_SIZE.toString();
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_BUFFER_SIZE.propertySpecName();
             }
 
             @Override
@@ -92,7 +92,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         POST_DIAL_DELAY_MILLIS {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_DELAY_MILLIS.toString();
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_DELAY_MILLIS.propertySpecName();
             }
 
             @Override
@@ -108,7 +108,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         POST_DIAL_COMMAND_ATTEMPTS {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND_ATTEMPTS.toString();
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND_ATTEMPTS.propertySpecName();
             }
 
             @Override
@@ -122,7 +122,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         POST_DIAL_COMMAND {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND.toString();
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND.propertySpecName();
             }
 
             @Override
