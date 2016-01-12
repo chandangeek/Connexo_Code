@@ -11,7 +11,13 @@ public final class BeanEvaluationException extends BaseException {
 	private static final long serialVersionUID = 1L;
 
 	public BeanEvaluationException(Object bean, Throwable cause) {
-        super(MessageSeeds.BEAN_AVALUATION_FAILED, cause, bean);
+        super(MessageSeeds.BEAN_EVALUATION_FAILED, cause, bean);
         set("bean", bean);
     }
+
+	public BeanEvaluationException(Class beanClass, Throwable cause) {
+        super(MessageSeeds.BEAN_EVALUATION_FAILED_ON_CLASS, cause, beanClass);
+        set("beanClass", beanClass);
+    }
+
 }

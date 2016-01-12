@@ -12,6 +12,20 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class DefaultBeanService implements BeanService {
+
+    @Override
+    public Class<?> getPropertyType(Class beanClass, String property) throws NoSuchPropertyException {
+        return getter(beanClass, property).getReturnType();
+    }
+
+    @Override
+    public Class<?> getPropertyType(Object bean, String property) throws NoSuchPropertyException {
+        if (bean == null) {
+            throw new IllegalArgumentException("Cannot evaluate null as a bean.");
+        }
+        return getter(bean, property).getReturnType();
+    }
+
     @Override
     public Object get(Object bean, String property) {
         if (bean == null) {
@@ -37,15 +51,45 @@ public class DefaultBeanService implements BeanService {
     }
 
     private PropertyDescriptor descriptor(Object bean, String property) {
-        PropertyDescriptor descriptor = null;
         BeanInfo info = getAllBeanInfo(bean);
+        PropertyDescriptor descriptor = this.descriptor(info, property);
+        if (descriptor == null) {
+            throw new NoSuchPropertyException(bean, property);
+        }
+        return descriptor;
+    }
+
+    private PropertyDescriptor descriptor(Class beanClass, String property) {
+        BeanInfo info = getAllBeanInfo(beanClass);
+        PropertyDescriptor descriptor = this.descriptor(info, property);
+        if (descriptor == null) {
+            if (!beanClass.isInterface()) {
+                Class superclass = beanClass.getSuperclass();
+                if (superclass != null) {
+                    return this.descriptor(superclass, property);
+                }
+            }
+            // Try the interfaces
+            for (Class interfaze : beanClass.getInterfaces()) {
+                try {
+                    return this.descriptor(interfaze, property);
+                }
+                catch (NoSuchPropertyException e) {
+                    // Try the next interface
+                }
+            }
+            // None of the superclasses or interface has the property
+            throw new NoSuchPropertyException(beanClass, property);
+        }
+        return descriptor;
+    }
+
+    private PropertyDescriptor descriptor(BeanInfo info, String property) {
+        PropertyDescriptor descriptor = null;
         for (PropertyDescriptor candidate : info.getPropertyDescriptors()) {
             if (candidate.getName().equals(property)) {
                 descriptor = candidate;
             }
-        }
-        if (descriptor == null) {
-            throw new NoSuchPropertyException(bean, property);
         }
         return descriptor;
     }
@@ -58,8 +102,20 @@ public class DefaultBeanService implements BeanService {
         }
     }
 
+    private BeanInfo getAllBeanInfo(Class beanClass) {
+        try {
+            return Introspector.getBeanInfo(beanClass);
+        } catch (IntrospectionException e) {
+            throw new BeanEvaluationException(beanClass, e);
+        }
+    }
+
     private Method getter(Object bean, String property) {
         return descriptor(bean, property).getReadMethod();
+    }
+
+    private Method getter(Class beanClass, String property) {
+        return descriptor(beanClass, property).getReadMethod();
     }
 
     private Object invokeGetter(Object bean, Method getter) {

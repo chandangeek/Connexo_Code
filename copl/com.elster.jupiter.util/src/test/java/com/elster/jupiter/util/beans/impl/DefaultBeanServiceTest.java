@@ -2,9 +2,8 @@ package com.elster.jupiter.util.beans.impl;
 
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.NoSuchPropertyException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,9 +23,56 @@ public class DefaultBeanServiceTest {
         bean.setAge(AGE);
     }
 
-    @After
-    public void tearDown() {
+    @Test
+    public void testPropertyTypeForClass() {
+        // Business method
+        Class<?> propertyType = beanService.getPropertyType(Bean.class, "name");
 
+        // Asserts
+        assertThat(propertyType).isEqualTo(String.class);
+    }
+
+    @Test
+    public void testPropertyTypeForInterfaceHierarchy() {
+        // Business method
+        Class<?> propertyType = beanService.getPropertyType(HasThat.class, "this");
+
+        // Asserts
+        assertThat(propertyType).isEqualTo(String.class);
+    }
+
+    @Test
+    public void testPropertyTypeForClassHierarchy() {
+        // Business method
+        Class<?> propertyType = beanService.getPropertyType(HasThisAndThat.class, "this");
+
+        // Asserts
+        assertThat(propertyType).isEqualTo(String.class);
+    }
+
+    @Test(expected = NoSuchPropertyException.class)
+    public void testPropertyTypeForNonExistingPropertyOnClass() {
+        // Business method
+        beanService.getPropertyType(Bean.class, "doesNotExist");
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void testPropertyType() {
+        // Business method
+        Class<?> propertyType = beanService.getPropertyType(bean, "name");
+
+        // Asserts
+        assertThat(propertyType).isEqualTo(String.class);
+    }
+
+    @Test(expected = NoSuchPropertyException.class)
+    public void testPropertyTypeForNonExistingProperty() {
+        // Business method
+        beanService.getPropertyType(bean, "doesNotExist");
+
+        // Asserts: see expected exception rule
     }
 
     @Test
@@ -34,11 +80,29 @@ public class DefaultBeanServiceTest {
         assertThat(beanService.get(bean, "name")).isEqualTo(NAME);
     }
 
+    @Test(expected = NoSuchPropertyException.class)
+    public void testGetterForPropertyThatDoesNotExist() {
+        // Business method
+        beanService.get(bean, "doesNotExist");
+
+        // Asserts: see expected exception rule
+    }
+
     @Test
     public void testSetter() {
+        // Business method
         beanService.set(bean, "name", "Franky Avalon");
 
+        // Asserts
         assertThat(bean.getName()).isEqualTo("Franky Avalon");
+    }
+
+    @Test(expected = NoSuchPropertyException.class)
+    public void testSetterForPropertyThatDoesNotExist() {
+        // Business method
+        beanService.set(bean, "doesNotExist", "Franky Avalon");
+
+        // Asserts: see expected exception rule
     }
 
     @Test(expected = IllegalArgumentException.class)
