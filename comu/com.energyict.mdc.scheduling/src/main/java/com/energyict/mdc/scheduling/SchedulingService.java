@@ -17,7 +17,7 @@ public interface SchedulingService {
     public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeSchFilterQS";
     public String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize com schedule addition/removal to/from device";
     public String COM_SCHEDULER_QUEUE_DESTINATION = "SchCommQD";
-    public String COM_SCHEDULER_QUEUE_SUBSCRIBER = "ReschCommQS";
+    public String COM_SCHEDULER_QUEUE_SUBSCRIBER = "SchCommQS";
     public String COM_SCHEDULER_QUEUE_DISPLAYNAME = "Handle addition/removal of a com schedule to/from a device";
 
     public NextExecutionSpecs findNextExecutionSpecs(long id);
