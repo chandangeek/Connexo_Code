@@ -40,12 +40,6 @@ import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecific
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -53,13 +47,21 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link OfflineDeviceImpl} component.
@@ -180,7 +182,7 @@ public class OfflineDeviceImplTest {
     public void setupDeviceMessageService() {
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
-        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, timeService, ormService);
+        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, ormService);
         this.deviceMessageSpecificationService = new DeviceMessageSpecificationServiceImpl(propertySpecService, this.nlsService);
     }
 
