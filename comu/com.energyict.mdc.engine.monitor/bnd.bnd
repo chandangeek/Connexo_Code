@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.engine.monitor.impl.*, com.energyict.mdc.engine.monitor.extjs
+Export-Package: com.energyict.mdc.engine.monitor
+-include: -../development.bnd

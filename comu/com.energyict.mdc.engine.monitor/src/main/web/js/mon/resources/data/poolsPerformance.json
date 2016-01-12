@@ -1,0 +1,14 @@
+{
+    "poolsData": [
+        {
+            "priority": "Low", // "Low", "Average" or "High"
+            "pools":
+                [
+                    { "name": "Inbound pool",       "delay":50, "threads": 21,  "ports": 30 },
+                    { "name": "Com port pool",      "delay":36, "threads": 20,  "ports": 25 },
+                    { "name": "Outbound pool 1",    "delay":65, "threads": 55,  "ports": 40 },
+                    { "name": "Outbound pool 2",    "delay":75, "threads": 15,  "ports": 25 }
+                ]
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "com.elster.jupiter.loaderjs",
+  "format": "1",
+  "version": "1.1.0",
+  "creator": "Elster Jupiter Project",
+  "summary": "Short summary",
+  "detailedDescription": "Long description of package",
+  "type": "code",
+  "signatures": [
+    {
+      "name": "Elster Jupiter Project",
+      "uuid": "42cfa37d-4c40-4c43-97e5-c05cb505bf1c",
+      "created": "2015-05-05T14:13:36Z",
+      "algorithm": "SHA1withRSA",
+      "nonce": "Oi8cAj7m4Ac\u003d",
+      "signature": "XSUzjdeYwx9075smz0hOym3/HO/LuTgynVuOPBG1zgKn1ijRm5Zrg7beAeZExCgQL2F2XOkCCcZaq7zuLTLmNWvCyLsgd1ND+gtAfuc4YAVZ1JMBrBsBIsTHY4jvdhoZRNmFF4Lb/Ug+adBBGWHon7hHqEd4AhYry4bneAmfMTPejVKmKhvdYhXT2zhazQiGXVdOchbtk4af/ENGeeADrIhPmfKBS3N6IQzjPLOzjmyDB44Gq4Mdcm5lklGNBoZLsfj0kDo2U8sxveV/NZDNyGrMB2JJQMSI7cdySCx3wVChVTpwoIyc0rIbvCihCNbgXKNbhF1SNPT2s4UlGTi7eA\u003d\u003d"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+[
+    {
+        "title": "Unifying JS guides",
+        "items": [
+            {
+                "name": "getting_started_with_unifying_js",
+                "url": "getting_started_with_unifying_js",
+                "title": "Getting started",
+                "description": "This introduction to Unifying JS explains how you can get started.",
+                "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "adding_a_guide",
+                "url": "adding_a_guide",
+                "title": "How to add a guide",
+                "description": "This guide explains how a new guide can be added.",
+                "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "development_guidelines",
+                "url": "development_guidelines",
+                "title": "Development guidelines",
+                "description": "This guide contains development guidelines.",
+                "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "ui_agreements",
+                "url": "ui_agreements",
+                "title": "UI Agreements",
+                "description": "This guides contains some UI agreements",
+                "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "url_routing_with_crossroadsjs",
+                "url": "url_routing_with_crossroadsjs",
+                "title": "URL Routing With Crossroads.js",
+                "description": "Tutorial on how to use routes with Crossroads.js.",
+                "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "form_validation",
+                "url": "form_validation",
+                "title": "Form validation",
+                "description": "How to use form validation.",
+                "icon": "../icons/icon-00.png"
+            },
+            {
+                "name": "unified_apps_integration",
+                "url": "unified_apps_integration",
+                "title": "Unified apps integration",
+                "description": "How to integrate your application into the master app.",
+                "icon": "../icons/icon-00.png"
+            }
+        ]
+    }
+]

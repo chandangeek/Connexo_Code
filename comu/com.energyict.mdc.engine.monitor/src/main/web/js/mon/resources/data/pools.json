@@ -1,0 +1,9 @@
+{
+    "success": true,
+    "pools": [
+        { "name": "Inbound pool",  "inbound":true,    "active": true  },
+        { "name": "Com port pool", "inbound":false,   "active": false  },
+        { "name": "Outbound pool 1", "inbound":false, "active": true },
+        { "name": "Outbound pool 2", "inbound":false, "active": false }
+    ]
+}

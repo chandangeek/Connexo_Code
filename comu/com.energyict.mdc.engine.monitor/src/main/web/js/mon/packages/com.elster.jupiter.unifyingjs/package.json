@@ -1,0 +1,22 @@
+{
+  "name": "com.elster.jupiter.unifyingjs",
+  "format": "1",
+  "version": "1.1.0",
+  "creator": "Elster Jupiter Project",
+  "summary": "Short summary",
+  "detailedDescription": "Long description of package",
+  "type": "code",
+  "requires": [
+    "com.elster.jupiter.loaderjs"
+  ],
+  "signatures": [
+    {
+      "name": "Elster Jupiter Project",
+      "uuid": "42cfa37d-4c40-4c43-97e5-c05cb505bf1c",
+      "created": "2015-05-05T14:20:42Z",
+      "algorithm": "SHA1withRSA",
+      "nonce": "m/2vpErLTPY\u003d",
+      "signature": "AHbNVR2MQKk0niRHJF/1Y8wuufRY/9nO8qCgDNMRW18VbyO38MC5QRqVw6EvwxGLbrw/1hnukWjJB0D48nup1W72gqsK78KM/wBrojut0uzWwMhYDF4ni21oRxzwcVE1YJSYwFJrDHHRy6bUJO6Q+Pup/DmAZEHEGwZd3vHKlk9T2ExY8duhbeId3rIIrRSRCqir3P9iw7rc+aessbxLWVdZC1U90BpwMelkhV1hSKW6YKrL/PN9EXmebgO3ZjWgMJeFGUZVuOaQkHVfzEGGg9S+1KR4wV/XS47xebveFZqbVtCuIKTZTFQpxQNacR6IrzyYq3sr0ZmU6KbFmjLkmw\u003d\u003d"
+    }
+  ]
+}
