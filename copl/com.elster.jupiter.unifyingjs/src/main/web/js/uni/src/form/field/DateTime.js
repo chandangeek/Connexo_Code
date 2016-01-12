@@ -223,11 +223,10 @@ Ext.define('Uni.form.field.DateTime', {
 
     getValue: function () {
         var me = this,
-            date,
+            date = me.down('#date-time-field-date').getValue(),
             hours = me.down('#date-time-field-hours').getValue(),
             minutes = me.down('#date-time-field-minutes').getValue();
 
-        date = me.down('#date-time-field-date').getValue();
         if (Ext.isDate(date)) {
             date.setHours(0);
             date.setMinutes(0);
