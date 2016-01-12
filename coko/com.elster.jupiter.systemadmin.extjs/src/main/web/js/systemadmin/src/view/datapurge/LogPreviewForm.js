@@ -10,7 +10,10 @@ Ext.define('Sam.view.datapurge.LogPreviewForm', {
             fieldLabel: Uni.I18n.translate('datapurge.log.form.startedon', 'SAM', 'Data purge task started on'),
             name: 'startDate',
             renderer: function (value) {
-                return value ? Uni.I18n.translate('general.dateattime', 'SAM', '{0} At {1}',[Uni.DateTime.formatDateLong(value),Uni.DateTime.formatTimeLong(value)]).toLowerCase():'';
+                return value
+                    ? Uni.I18n.translate('general.dateAtTime', 'SAM', '{0} at {1}',
+                        [Uni.DateTime.formatDateLong(value),Uni.DateTime.formatTimeLong(value)])
+                    : '';
             }
         },
         {
