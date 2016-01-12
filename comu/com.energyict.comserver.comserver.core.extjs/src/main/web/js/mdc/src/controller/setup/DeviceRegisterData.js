@@ -121,8 +121,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             var calculatedValueColumn = widget.down('grid').down('[dataIndex=calculatedValue]');
                             calculatedValueColumn.setText(Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + ' (' + calculatedUnit + ')');
                             calculatedValueColumn.setVisible(true);
-                        } else {
-                            preview.down('displayfield[name=calculatedValue]').setVisible(false);
+                        } else if (preview.down('#mdc-calculated-value-field')) {
+                            preview.down('#mdc-calculated-value-field').setVisible(false);
                         }
 
                         if (isCumulative) {
@@ -131,7 +131,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                                 + ' (' + (calculatedReadingType ? calculatedUnit : collectedUnit) + ')'
                             );
                             deltaValueColumn.setVisible(true);
-                        } else {
+                        } else if (preview.down('displayfield[name=deltaValue]')) {
                             preview.down('displayfield[name=deltaValue]').setVisible(false);
                         }
                         preview.down('#mdc-register-preview-'+type+'-multiplier').setVisible(multiplier);

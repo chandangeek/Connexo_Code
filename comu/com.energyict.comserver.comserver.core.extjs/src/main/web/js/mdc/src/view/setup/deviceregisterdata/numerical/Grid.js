@@ -97,6 +97,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 }
             },
             {
+                xtype: 'edited-column',
+                dataIndex: 'calculatedModificationState',
+                header: '',
+                width: 30,
+                emptyText: ' '
+            },
+            {
                 xtype: 'validation-flag-column',
                 dataIndex: 'deltaValue',
                 align: 'right',

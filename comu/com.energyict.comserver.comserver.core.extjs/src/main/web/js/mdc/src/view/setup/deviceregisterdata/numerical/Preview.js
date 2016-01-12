@@ -32,7 +32,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         name: 'timeStamp',
                         renderer: function (value) {
                             if (!Ext.isEmpty(value)) {
-                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]);
+                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                                    [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]
+                                );
                             }
                         }
                     },
@@ -41,7 +43,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         name: 'reportedDateTime',
                         renderer: function (value) {
                             if (!Ext.isEmpty(value)) {
-                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]);
+                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                                    [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]
+                                );
                             }
                         }
                     },
@@ -73,17 +77,32 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         ]
                     },
                     {
+                        xtype: 'fieldcontainer',
+                        itemId: 'mdc-calculated-value-field',
                         fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
-                        name: 'calculatedValue',
-                        renderer: function (value) {
-                            var record = this.up('form').getRecord();
-                            if (record && value) {
-                                var me = this.up('form').up('#deviceregisterreportpreview');
-                                return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCalculated;
-                            } else {
-                                return '-'
+                        layout: {
+                            type: 'hbox'
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                margin: '0 10 0 0',
+                                name: 'calculatedValue',
+                                renderer: function (value) {
+                                    var record = this.up('form').getRecord();
+                                    if (record && value) {
+                                        var me = this.up('form').up('#deviceregisterreportpreview');
+                                        return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCalculated;
+                                    } else {
+                                        return '-'
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'edited-displayfield',
+                                name: 'calculatedModificationState'
                             }
-                        }
+                        ]
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),

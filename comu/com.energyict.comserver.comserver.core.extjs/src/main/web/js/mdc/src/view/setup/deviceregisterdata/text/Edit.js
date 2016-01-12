@@ -53,10 +53,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Edit', {
                         name: 'timeStamp',
                         fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                         itemId: 'timeStampDisplayField',
-                        format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
-                                return Ext.util.Format.date(new Date(value), this.format);
+                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                                    [ Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]
+                                );
                             }
                         },
                         submitValue: true,

@@ -219,10 +219,19 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                     router: router
                                 });
                                 me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                                if (reading.get('calculatedValue')) {
+                                    reading.set('value', reading.get('calculatedValue'));
+                                } else if (reading.get('collectedValue')) {
+                                    reading.set('value', reading.get('collectedValue'));
+                                }
                                 widget.down('form').loadRecord(reading);
                                 widget.setValues(register);
                                 me.getApplication().fireEvent('changecontentevent', widget);
-                                widget.down('#stepsMenu').setTitle(Ext.util.Format.date(new Date(reading.get('timeStamp')), 'M j, Y \\a\\t G:i'));
+                                widget.down('#stepsMenu').setTitle(
+                                    Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                                        [ Uni.DateTime.formatDateShort(new Date(reading.get('timeStamp'))), Uni.DateTime.formatTimeShort(new Date(reading.get('timeStamp')))]
+                                    )
+                                );
                                 widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'));
                             },
 
