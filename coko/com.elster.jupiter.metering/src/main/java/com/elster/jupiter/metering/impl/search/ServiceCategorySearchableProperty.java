@@ -2,7 +2,9 @@ package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.properties.EnumFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
@@ -82,8 +84,10 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     }
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.newPropertySpecBuilder(new EnumFactory(ServiceKind.class))
-                .name(FIELDNAME, FIELDNAME)
+        return this.propertySpecService
+                .specForValuesOf(new EnumFactory(ServiceKind.class))
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
+                .fromThesaurus(this.thesaurus)
                 .addValues(ServiceKind.values())
                 .markExhaustive()
                 .finish();

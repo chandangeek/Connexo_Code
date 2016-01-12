@@ -1,17 +1,16 @@
 package com.elster.jupiter.metering.impl.search.enddevice;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Exposes the master resource identifier (mRID)
@@ -79,10 +78,11 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableEnd
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                FIELDNAME,
-                false,
-                new StringFactory());
+        return this.propertySpecService
+                .stringSpec()
+                .named(FIELDNAME, PropertyTranslationKeys.ENDDEVICE_MRID)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     @Override

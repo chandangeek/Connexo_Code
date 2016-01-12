@@ -88,10 +88,10 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public PropertySpec getSpecification() {
-
         return this.propertySpecService
-                .newPropertySpecBuilder(new EnumFactory(UsagePointConnectedKind.class))
-                .name(FIELDNAME, FIELDNAME)
+                .specForValuesOf(new EnumFactory(UsagePointConnectedKind.class))
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE)
+                .fromThesaurus(this.thesaurus)
                 .addValues(UsagePointConnectedKind.values())
                 .markExhaustive()
                 .finish();
