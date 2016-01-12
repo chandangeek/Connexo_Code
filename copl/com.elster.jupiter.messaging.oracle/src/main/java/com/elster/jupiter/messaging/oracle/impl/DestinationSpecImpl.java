@@ -441,7 +441,7 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     private void doPurgeErrors() {
-        String sql = "DECLARE po dbms_aqadm.aq$_purge_options_t; BEGIN po.block := TRUE; DBMS_AQADM.PURGE_QUEUE_TABLE(queue_table => ?, purge_condition => 'qtview.original_queue_name = ''" + name + "''', purge_options => po); END;";
+        String sql = "DECLARE po dbms_aqadm.aq$_purge_options_t; BEGIN po.block := TRUE; DBMS_AQADM.PURGE_QUEUE_TABLE(queue_table => ?, purge_condition => 'upper(qtview.original_queue_name) = upper(''" + name + "'')', purge_options => po); END;";
         try (Connection connection = dataModel.getConnection(false)) {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int parameterIndex = 0;
