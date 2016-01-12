@@ -83,12 +83,16 @@ public final class DeviceLifeCyclePropertySupport {
      * Provides the PropertySpec for the multiplier
      *
      * @param service The PropertySpecService that effectively creates the PropertySpec
+     * @param thesaurus The Thesaurus that holds the translation for the property spec keys
+     *
      * @return The PropertySpec
      */
-    public static PropertySpec multiplierPropertySpec(PropertySpecService service) {
-        return service.boundedDecimalPropertySpec(
-                DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key(),
-                false, BigDecimal.ONE, BigDecimal.valueOf(Integer.MAX_VALUE));
+    public static PropertySpec multiplierPropertySpec(PropertySpecService service, Thesaurus thesaurus) {
+        return service.boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(Integer.MAX_VALUE))
+                .named(MicroActionTranslationKey.MICRO_ACTION_NAME_SET_MULTIPLIER)
+                .describedAs(MicroActionTranslationKey.MICRO_ACTION_DESCRIPTION_SET_MULTIPLIER)
+                .fromThesaurus(thesaurus)
+                .finish();
     }
 
     /**

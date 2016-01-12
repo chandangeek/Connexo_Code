@@ -29,7 +29,7 @@ public class SetMultiplier extends TranslatableServerMicroAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Collections.singletonList(DeviceLifeCyclePropertySupport.multiplierPropertySpec(propertySpecService));
+        return Collections.singletonList(DeviceLifeCyclePropertySupport.multiplierPropertySpec(propertySpecService, this.getThesaurus()));
     }
 
     @Override
