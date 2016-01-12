@@ -1,19 +1,14 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.common.FactoryIds;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.PricingInformationActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.PricingInformationUserFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.StandingChargeAttributeName;
 
 /**
  * Provides a summary of all messages related to pricing.
@@ -27,22 +22,52 @@ public enum PricingInformationMessage implements DeviceMessageSpecEnum {
     ReadPricingInformation(DeviceMessageId.PRICING_GET_INFORMATION, "Read pricing information"),
     SetPricingInformation(DeviceMessageId.PRICING_SET_INFORMATION, "Set pricing information") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            propertySpecs.add(propertySpecService.referencePropertySpec(PricingInformationUserFileAttributeName, true, FactoryIds.USERFILE));
-            propertySpecs.add(propertySpecService.basicPropertySpec(PricingInformationActivationDateAttributeName, true, new DateAndTimeFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(UserFile.class)
+                            .named(PricingInformationDeviceMessageAttributes.PricingInformationUserFileAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(PricingInformationDeviceMessageAttributes.PricingInformationActivationDateAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetStandingCharge(DeviceMessageId.PRICING_SET_STANDING_CHARGE, "Set standing charge") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            propertySpecs.add(propertySpecService.basicPropertySpec(StandingChargeAttributeName, true, new BigDecimalFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(PricingInformationActivationDateAttributeName, true, new DateAndTimeFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(PricingInformationDeviceMessageAttributes.StandingChargeAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(PricingInformationDeviceMessageAttributes.PricingInformationActivationDateAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     UpdatePricingInformation(DeviceMessageId.PRICING_UPDATE_INFORMATION, "Update pricing information") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            propertySpecs.add(propertySpecService.referencePropertySpec(PricingInformationUserFileAttributeName, true, FactoryIds.USERFILE));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(UserFile.class)
+                            .named(PricingInformationDeviceMessageAttributes.PricingInformationUserFileAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     };
 
@@ -69,13 +94,13 @@ public enum PricingInformationMessage implements DeviceMessageSpecEnum {
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     };
 

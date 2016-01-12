@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,19 +35,21 @@ public interface DeviceMessageSpecEnum extends TranslationKey {
      * specify in detail which attributes are required and which are optional.
      *
      * @param propertySpecService The PropertySpecService
+     * @param thesaurus The Thesaurus
      * @return The List of PropertySpec
      */
-    List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService);
+    List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus);
 
     /**
      * Gets the {@link PropertySpec} with the specified name.
      *
      * @param name The name
      * @param propertySpecService The PropertySpecService
+     * @param thesaurus The Thesaurus
      * @return The PropertySpec or <code>null</code> if no such PropertySpec exists
      */
-    default Optional<PropertySpec> getPropertySpec(String name, PropertySpecService propertySpecService) {
-        return getPropertySpecs(propertySpecService)
+    default Optional<PropertySpec> getPropertySpec(String name, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        return getPropertySpecs(propertySpecService, thesaurus)
                 .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
                 .findAny();

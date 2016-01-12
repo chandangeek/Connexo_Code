@@ -1,14 +1,5 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttributes;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -16,6 +7,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -175,6 +174,30 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         Stream.of(TotalizersConfigurationDeviceMessage.values()).forEach(keys::add);
         Stream.of(ZigBeeConfigurationDeviceMessage.values()).forEach(keys::add);
         Stream.of(DeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PLCConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PublicLightingDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(UplinkDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(ChannelConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(FirmwareDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(ClockDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(DisplayDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(DLMSConfigurationDeviceMessage.allTranslationKeys()).forEach(keys::add);
+        Stream.of(FirewallDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(EventsDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(MailDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(ModemDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(OpusDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PeakShaverDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PowerConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PPPConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(SMSConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(LoadProfileDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(PricingInformationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(ConfigurationChangeDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(ContactorDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(EIWebConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(MBusSetupDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(ZigBeeConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
         return keys;
     }
 

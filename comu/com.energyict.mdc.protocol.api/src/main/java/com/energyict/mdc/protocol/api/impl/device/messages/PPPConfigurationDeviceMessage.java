@@ -1,11 +1,10 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,74 +18,74 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetISP1Phone(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_PHONE, "Set ISP1 phone") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetISP1PhoneAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetISP1PhoneAttributeName;
         }
     },
     SetISP1Username(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_USERNAME, "Set ISP1 username") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetISP1UsernameAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetISP1UsernameAttributeName;
         }
     },
     SetISP1Password(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_PASSWORD, "Set ISP1 password") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetISP1PasswordAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetISP1PasswordAttributeName;
         }
     },
     SetISP1Tries(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_TRIES, "Set ISP1 tries") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetISP1TriesAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetISP1TriesAttributeName;
         }
     },
     SetISP2Phone(DeviceMessageId.PPP_CONFIGURATION_SET_ISP2_PHONE, "Set ISP2 phone") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetISP2PhoneAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetISP2PhoneAttributeName;
         }
     },
     SetISP2Username(DeviceMessageId.PPP_CONFIGURATION_SET_ISP2_USERNAME, "Set ISP2 username") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetISP2UsernameAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetISP2UsernameAttributeName;
         }
     },
     SetISP2Password(DeviceMessageId.PPP_CONFIGURATION_SET_ISP2_PASSWORD, "Set ISP2 password") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetISP2PasswordAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetISP2PasswordAttributeName;
         }
     },
     SetISP2Tries(DeviceMessageId.PPP_CONFIGURATION_SET_ISP2_TRIES, "Set ISP2 tries") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetISP2TriesAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetISP2TriesAttributeName;
         }
     },
     SetPPPIdleTimeout(DeviceMessageId.PPP_CONFIGURATION_SET_IDLE_TIMEOUT, "Set PPP idle timeout") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetPPPIdleTimeoutAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetPPPIdleTimeoutAttributeName;
         }
     },
     SetPPPRetryInterval(DeviceMessageId.PPP_CONFIGURATION_SET_RETRY_INTERVAL, "Set PPP retry interval") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetPPPRetryIntervalAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetPPPRetryIntervalAttributeName;
         }
     },
     SetPPPOptions(DeviceMessageId.PPP_CONFIGURATION_SET_OPTIONS, "Set PPP options") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetPPPOptionsAttributeName;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetPPPOptionsAttributeName;
         }
     },
     SetPPPIdleTime(DeviceMessageId.PPP_CONFIGURATION_SET_IDLE_TIME, "Set PPP idle time"){
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetPPPIdleTime;
+        protected TranslationKey translationKey() {
+            return PPPConfigurationDeviceMessageAttributes.SetPPPIdleTime;
         }
     };
 
@@ -113,16 +112,12 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.stringProperty(this.propertyName(), propertySpecService));
+        propertySpecs.add(propertySpecService.stringSpec().named(this.translationKey()).fromThesaurus(thesaurus).markRequired().finish());
         return propertySpecs;
     }
 
-    private PropertySpec stringProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new StringFactory());
-    }
-
-    protected abstract String propertyName();
+    protected abstract TranslationKey translationKey();
 
 }

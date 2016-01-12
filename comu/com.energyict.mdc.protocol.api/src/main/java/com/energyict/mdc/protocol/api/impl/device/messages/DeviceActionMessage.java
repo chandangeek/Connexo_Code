@@ -1,11 +1,10 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -37,118 +36,174 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
     RESTORE_FACTORY_SETTINGS(DeviceMessageId.DEVICE_ACTIONS_RESTORE_FACTORY_SETTINGS, "Restore factory settings"),
     SetFTIONReboot(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_REBOOT, "FTION reboot") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.FTIONReboot, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.FTIONReboot, propertySpecService, thesaurus));
         }
     },
     SetFTIONInitialize(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_INITIALIZE, "FTION initialize") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.FTIONInitialize, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.FTIONInitialize, propertySpecService, thesaurus));
         }
     },
     SetFTIONMailLog(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_MAIL_LOG, "FTION mail log") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.FTIONMailLog, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.FTIONMailLog, propertySpecService, thesaurus));
         }
     },
     SetFTIONSaveConfig(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_SAVE_CONFIG, "FTION save configuration") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.FTIONSaveConfig, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.FTIONSaveConfig, propertySpecService, thesaurus));
         }
     },
     SetFTIONUpgrade(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_UPGRADE, "FTION upgrade") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.FTIONUpgrade, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.FTIONUpgrade, propertySpecService, thesaurus));
         }
     },
     SetFTIONClearMem(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_CLEAR_MEM, "FTION clear memory") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.FTIONClearMem, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.FTIONClearMem, propertySpecService, thesaurus));
         }
     },
     SetFTIONMailConfig(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_MAIL_CONFIG, "FTION mail configuration") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.FTIONMailConfig, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.FTIONMailConfig, propertySpecService, thesaurus));
         }
     },
     SetFTIONModemReset(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_MODEM_RESET, "FTION modem reset") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.FTIONModemReset, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.FTIONModemReset, propertySpecService, thesaurus));
         }
     },
     SetChangeAdminPassword(DeviceMessageId.DEVICE_ACTIONS_CHANGE_ADMIN_PASSWORD, "Change admin password") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.AdminOld, true, new StringFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.AdminNew, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.AdminOld, propertySpecService, thesaurus));
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.AdminNew, propertySpecService, thesaurus));
         }
     },
     SetOutputOn(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_ON, "Set output on") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.OutputOn, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputOn, propertySpecService, thesaurus));
         }
     },
     SetOutputOff(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_OFF, "Set output off") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.OutputOff, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputOff, propertySpecService, thesaurus));
         }
     },
     SetOutputToggle(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_TOGGLE, "Set output toggle") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.OutputToggle, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputToggle, propertySpecService, thesaurus));
         }
     },
     SetOutputPulse(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_PULSE, "Set output pulse") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.OutputPulse, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputPulse, propertySpecService, thesaurus));
         }
     },
     SetAnalogOut(DeviceMessageId.DEVICE_ACTIONS_SET_ANALOG_OUT, "Set Analog out") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, true, analogOutPossibleValues()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.AnalogOutValue, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .bigDecimalSpec()
+                            .named(DeviceMessageConstants.id, DeviceMessageAttributes.DeviceActionMessageId)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .addValues(analogOutPossibleValues())
+                            .finish());
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.AnalogOutValue, propertySpecService, thesaurus));
         }
     },
     BILLING_RESET_CONTRACT_1(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_1, "Billing reset contract 1"),
     BILLING_RESET_CONTRACT_2(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_2, "Billing reset contract 2"),
     SET_PASSIVE_EOB_DATETIME(DeviceMessageId.DEVICE_ACTIONS_SET_PASSIVE_EOB_DATETIME, "Set passive EOB date") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(DeviceMessageConstants.contractAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.year, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.month, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.day, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.dayOfWeek, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.hour, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.minute, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.second, true, ""));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .bigDecimalSpec()
+                            .named(DeviceMessageConstants.contractAttributeName, DeviceMessageAttributes.DeviceActionMessageContract)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .addValues(BigDecimal.ONE, BigDecimals.TWO)
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.year, DeviceMessageAttributes.DeviceActionMessageYear)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.month, DeviceMessageAttributes.DeviceActionMessageMonth)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.day, DeviceMessageAttributes.DeviceActionMessageDay)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.dayOfWeek, DeviceMessageAttributes.DeviceActionMessageDayOfWeek)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.hour, DeviceMessageAttributes.DeviceActionMessageHour)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.minute, DeviceMessageAttributes.DeviceActionMessageMinute)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageConstants.second, DeviceMessageAttributes.DeviceActionMessageSecond)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     REBOOT_APPLICATION(DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATION, "Reboot the application"),
@@ -159,25 +214,25 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
     RtuPlusServerExitMaintenanceMode(DeviceMessageId.DEVICE_ACTIONS_RTU_PLUS_SERVER_EXIT_MAINTENANCE_MODE, "RtuPlusServer exit maintencance mode"),
     ForceMessageToFailed(DeviceMessageId.DEVICE_ACTIONS_FORCE_MESSAGE_TO_FAILED, "Force message to failed"){
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.deviceId, true, ""));
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.trackingId, true, ""));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.deviceId, propertySpecService, thesaurus));
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.trackingId, propertySpecService, thesaurus));
         }
     },
     FTIONUpgradeAndInit(DeviceMessageId.DEVICE_ACTIONS_FTION_UPGRADE_AND_INIT, "FTION upgrade and init"),
     FTIONUpgradeAndInitWithNewEIServerURL(DeviceMessageId.DEVICE_ACTIONS_FTION_UPGRADE_AND_INIT_WITH_NEW_EISERVER_URL, "FTION upgrade and init with new EIServer url"){
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.servletURL, true, ""));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.servletURL, propertySpecService, thesaurus));
         }
     },
     FTIONUpgradeWithNewEIServerURL(DeviceMessageId.DEVICE_ACTIONS_FTION_UPGRADE_WITH_NEW_EISERVER_URL, "FTION upgrade with new EIServer url"){
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.servletURL, true, ""));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.servletURL, propertySpecService, thesaurus));
         }
     },
     FTIONInitDatabaseKeepConfig(DeviceMessageId.DEVICE_ACTIONS_FTION_INIT_DATABASE_KEEP_CONFIG, "FTION init database and keep configuration"),
@@ -218,14 +273,18 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     };
+
+    protected PropertySpec stringSpec(DeviceMessageAttributes name, PropertySpecService service, Thesaurus thesaurus) {
+        return service.stringSpec().named(name).fromThesaurus(thesaurus).markRequired().finish();
+    }
 
 }

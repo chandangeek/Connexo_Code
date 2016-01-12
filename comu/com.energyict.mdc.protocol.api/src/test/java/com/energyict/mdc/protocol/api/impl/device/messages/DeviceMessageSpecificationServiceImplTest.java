@@ -1,20 +1,5 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.JupiterReferenceFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.elster.jupiter.nls.Layer;
@@ -22,19 +7,19 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -173,125 +158,8 @@ public class DeviceMessageSpecificationServiceImplTest {
             hasSize(1);
     }
 
-    @Test
-    public void testNoCategoriesHaveUserfileProperties () {
-        this.testNoCategoriesHaveUnsupportedReferenceProperties(FactoryIds.USERFILE);
-    }
-
-    @Test
-    public void testNoCategoriesHaveCodeTableProperties () {
-        this.testNoCategoriesHaveUnsupportedReferenceProperties(FactoryIds.CODE);
-    }
-
-    private void testNoCategoriesHaveUnsupportedReferenceProperties (FactoryIds unsupportedFactoryId) {
-        List<DeviceMessageCategory> categories = this.newServiceWithRealPropertSpecService().filteredCategoriesForUserSelection();
-
-        // Business method
-        List<PropertySpec> propertySpecs = categories.stream().
-                flatMap(category -> category.getMessageSpecifications().stream()).
-                flatMap(messageSpec -> messageSpec.getPropertySpecs().stream()).
-                collect(Collectors.toList());
-
-        // Asserts
-        assertThat(propertySpecs).doNotHave(new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                if (propertySpec.isReference()) {
-                    JupiterReferenceFactory valueFactory = (JupiterReferenceFactory) propertySpec.getValueFactory();
-                    return valueFactory.getObjectFactoryId() == unsupportedFactoryId.id();
-                }
-                else {
-                    return false;
-                }
-            }
-        });
-    }
-
     private DeviceMessageSpecificationService newService () {
         return new DeviceMessageSpecificationServiceImpl(propertySpecService, nlsService);
     }
 
-    private DeviceMessageSpecificationService newServiceWithRealPropertSpecService () {
-        PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, this.timeService, ormService);
-        propertySpecService.addFactoryProvider(new FinderProvider());
-        return new DeviceMessageSpecificationServiceImpl(propertySpecService, nlsService);
-    }
-
-    private class LoadProfile implements BaseLoadProfile<BaseChannel>, HasId {
-        @Override
-        public long getId() {
-            return 0;
-        }
-
-        @Override
-        public ObisCode getDeviceObisCode() {
-            return null;
-        }
-
-        @Override
-        public BaseDevice getDevice() {
-            return null;
-        }
-
-        @Override
-        public long getLoadProfileTypeId() {
-            return 0;
-        }
-
-        @Override
-        public ObisCode getLoadProfileTypeObisCode() {
-            return null;
-        }
-    }
-
-    private class LoadProfileFinder implements CanFindByLongPrimaryKey<LoadProfile> {
-        @Override
-        public FactoryIds factoryId() {
-            return FactoryIds.LOADPROFILE;
-        }
-
-        @Override
-        public Class<LoadProfile> valueDomain() {
-            return LoadProfile.class;
-        }
-
-        @Override
-        public Optional<LoadProfile> findByPrimaryKey(long id) {
-            return Optional.empty();
-        }
-    }
-
-    private class LogBook implements HasId {
-        @Override
-        public long getId() {
-            return 0;
-        }
-    }
-
-    private class LogBookFinder implements CanFindByLongPrimaryKey<LogBook> {
-        @Override
-        public FactoryIds factoryId() {
-            return FactoryIds.LOGBOOK;
-        }
-
-        @Override
-        public Class<LogBook> valueDomain() {
-            return LogBook.class;
-        }
-
-        @Override
-        public Optional<LogBook> findByPrimaryKey(long id) {
-            return Optional.empty();
-        }
-    }
-
-    private class FinderProvider implements ReferencePropertySpecFinderProvider {
-        public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-            List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-            finders.add(new LoadProfileFinder());
-            finders.add(new LogBookFinder());
-            return finders;
-        }
-
-    }
 }

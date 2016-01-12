@@ -1,11 +1,10 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,50 +18,50 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     IEC1107LimitPowerQuality(DeviceMessageId.POWER_CONFIGURATION_IEC1107_LIMIT_POWER_QUALITY, "Limit power quality") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.powerQualityThresholdAttributeName;
+        protected TranslationKey translationKey() {
+            return ConfigurationChangeDeviceMessageAttributes.powerQualityThresholdAttributeName;
         }
     },
     SetReferenceVoltage(DeviceMessageId.POWER_CONFIGURATION_SET_REFERENCE_VOLTAGE, "Set reference voltage") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.ReferenceVoltageAttributeName;
+        protected TranslationKey translationKey() {
+            return PowerConfigurationDeviceMessageAttributes.ReferenceVoltageAttributeName;
         }
     },
     SetVoltageSagTimeThreshold(DeviceMessageId.POWER_CONFIGURATION_SET_VOLTAGE_SAG_TIME_THRESHOLD, "Set voltage sag time treshold") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.VoltageSagTimeThresholdAttributeName;
+        protected TranslationKey translationKey() {
+            return PowerConfigurationDeviceMessageAttributes.VoltageSagTimeThresholdAttributeName;
         }
     },
     SetVoltageSwellTimeThreshold(DeviceMessageId.POWER_CONFIGURATION_SET_VOLTAGE_SWELL_TIME_THRESHOLD, "Set voltage swell time treshold") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName;
+        protected TranslationKey translationKey() {
+            return PowerConfigurationDeviceMessageAttributes.VoltageSwellTimeThresholdAttributeName;
         }
     },
     SetVoltageSagThreshold(DeviceMessageId.POWER_CONFIGURATION_SET_VOLTAGE_SAG_THRESHOLD, "Set voltage sag threshold") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.VoltageSagThresholdAttributeName;
+        protected TranslationKey translationKey() {
+            return PowerConfigurationDeviceMessageAttributes.VoltageSagThresholdAttributeName;
         }
     },
     SetVoltageSwellThreshold(DeviceMessageId.POWER_CONFIGURATION_SET_VOLTAGE_SWELL_THRESHOLD, "Set voltage swell threshold") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.VoltageSwellThresholdAttributeName;
+        protected TranslationKey translationKey() {
+            return PowerConfigurationDeviceMessageAttributes.VoltageSwellThresholdAttributeName;
         }
     },
     SetLongPowerFailureTimeThreshold(DeviceMessageId.POWER_CONFIGURATION_SET_LONG_POWER_FAILURE_TIME_THRESHOLD, "Set long power failure time treshold") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName;
+        protected TranslationKey translationKey() {
+            return PowerConfigurationDeviceMessageAttributes.LongPowerFailureTimeThresholdAttributeName;
         }
     },
     SetLongPowerFailureThreshold(DeviceMessageId.POWER_CONFIGURATION_SET_LONG_POWER_FAILURE_THRESHOLD, "Set long power failure treshold") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.LongPowerFailureThresholdAttributeName;
+        protected TranslationKey translationKey() {
+            return PowerConfigurationDeviceMessageAttributes.LongPowerFailureThresholdAttributeName;
         }
     };
 
@@ -89,16 +88,12 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.bigDecimalProperty(this.propertyName(), propertySpecService));
+        propertySpecs.add(propertySpecService.bigDecimalSpec().named(translationKey()).fromThesaurus(thesaurus).markRequired().finish());
         return propertySpecs;
     }
 
-    private PropertySpec bigDecimalProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new BigDecimalFactory());
-    }
-
-    protected abstract String propertyName();
+    protected abstract TranslationKey translationKey();
 
 }

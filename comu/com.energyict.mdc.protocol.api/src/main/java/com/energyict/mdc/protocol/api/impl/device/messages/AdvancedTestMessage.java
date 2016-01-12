@@ -1,16 +1,12 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.UserFileConfigAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.xmlConfigAttributeName;
 
 /**
  * Provides a summary of all <i>Advanced Test</i> related messages
@@ -23,16 +19,28 @@ public enum AdvancedTestMessage implements DeviceMessageSpecEnum {
 
     XML_CONFIG(DeviceMessageId.ADVANCED_TEST_XML_CONFIG, "XML configuration") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(xmlConfigAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.xmlConfigAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     USERFILE_CONFIG(DeviceMessageId.ADVANCED_TEST_USERFILE_CONFIG, "User file configuration") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(UserFileConfigAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.UserFileConfigAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     LogObjectList(DeviceMessageId.ADVANCED_TEST_LOG_OBJECT_LIST, "Log object list");
@@ -60,13 +68,13 @@ public enum AdvancedTestMessage implements DeviceMessageSpecEnum {
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     };
 

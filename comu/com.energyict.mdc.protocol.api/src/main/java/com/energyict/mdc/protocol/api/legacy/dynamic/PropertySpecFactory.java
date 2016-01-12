@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.api.legacy.dynamic;
 
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import java.util.List;
@@ -20,23 +19,14 @@ import java.util.stream.Collectors;
  */
 public class PropertySpecFactory {
 
-    /**
-     * Creates a PropertySpec for a String value.
-     *
-     * @param name The name of the PropertySpec
-     * @param propertySpecService The PropertySpecService
-     * @return The PropertySpec
-     */
-    public static PropertySpec stringPropertySpec(String name, PropertySpecService propertySpecService) {
-        return simplePropertySpec(propertySpecService, name, new StringFactory());
-    }
-
-    private static PropertySpec simplePropertySpec(PropertySpecService propertySpecService, String name, com.elster.jupiter.properties.ValueFactory valueFactory) {
-        return propertySpecService.basicPropertySpec(name, false, valueFactory);
-    }
-
     public static List<PropertySpec> toPropertySpecs(List<String> keys, PropertySpecService propertySpecService) {
-        return keys.stream().map(key -> stringPropertySpec(key, propertySpecService)).collect(Collectors.toList());
+        return keys
+                .stream()
+                .map(key -> propertySpecService
+                        .stringSpec()
+                        .named(key, key).describedAs(key)
+                        .finish())
+                .collect(Collectors.toList());
     }
 
     // Hide utility class constructor

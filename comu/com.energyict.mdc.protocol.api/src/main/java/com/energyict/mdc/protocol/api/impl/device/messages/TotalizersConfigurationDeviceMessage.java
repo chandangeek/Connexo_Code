@@ -1,12 +1,10 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,16 +18,16 @@ public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecEnu
 
     SetSumMask(DeviceMessageId.TOTALIZER_CONFIGURATION_SET_SUM_MASK, "Set sum mask") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(DeviceMessageConstants.SetSumMaskAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(propertySpecService.stringSpec().named(DeviceMessageAttributes.SetSumMaskAttributeName).fromThesaurus(thesaurus).markRequired().finish());
         }
     },
     SetSubstractMask(DeviceMessageId.TOTALIZER_CONFIGURATION_SET_SUBSTRACT_MASK, "Set subtract mask") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(this.stringProperty(DeviceMessageConstants.SetSubstractMaskAttributeName, propertySpecService));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(propertySpecService.stringSpec().named(DeviceMessageAttributes.SetSubstractMaskAttributeName).fromThesaurus(thesaurus).markRequired().finish());
         }
     };
 
@@ -57,18 +55,20 @@ public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecEnu
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-        propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.id, true, new BigDecimalFactory()));
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        propertySpecs.add(
+                propertySpecService
+                        .bigDecimalSpec()
+                        .named(DeviceMessageConstants.id, DeviceMessageAttributes.DeviceActionMessageId)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish());
     };
-
-    protected PropertySpec stringProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new StringFactory());
-    }
 
 }

@@ -1,11 +1,10 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,38 +18,38 @@ public enum SMSConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetSmsDataNbr(DeviceMessageId.SMS_CONFIGURATION_SET_DATA_NUMBER, "Set SMS data number") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetSmsDataNbrAttributeName;
+        protected TranslationKey translationKey() {
+            return SMSConfigurationDeviceMessageAttributes.SetSmsDataNbrAttributeName;
         }
     },
     SetSmsAlarmNbr(DeviceMessageId.SMS_CONFIGURATION_SET_ALARM_NUMBER, "Set SMS alarm number") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetSmsAlarmNbrAttributeName;
+        protected TranslationKey translationKey() {
+            return SMSConfigurationDeviceMessageAttributes.SetSmsAlarmNbrAttributeName;
         }
     },
     SetSmsEvery(DeviceMessageId.SMS_CONFIGURATION_SET_EVERY, "Set SMS every") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetSmsEveryAttributeName;
+        protected TranslationKey translationKey() {
+            return SMSConfigurationDeviceMessageAttributes.SetSmsEveryAttributeName;
         }
     },
     SetSmsNbr(DeviceMessageId.SMS_CONFIGURATION_SET_NUMBER, "Set SMS number") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetSmsNbrAttributeName;
+        protected TranslationKey translationKey() {
+            return SMSConfigurationDeviceMessageAttributes.SetSmsNbrAttributeName;
         }
     },
     SetSmsCorrection(DeviceMessageId.SMS_CONFIGURATION_SET_CORRECTION, "Set SMS correction") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetSmsCorrectionAttributeName;
+        protected TranslationKey translationKey() {
+            return SMSConfigurationDeviceMessageAttributes.SetSmsCorrectionAttributeName;
         }
     },
     SetSmsConfig(DeviceMessageId.SMS_CONFIGURATION_SET_CONFIG, "Set SMS configuration") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetSmsConfigAttributeName;
+        protected TranslationKey translationKey() {
+            return SMSConfigurationDeviceMessageAttributes.SetSmsConfigAttributeName;
         }
     };
 
@@ -77,16 +76,12 @@ public enum SMSConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.stringProperty(this.propertyName(), propertySpecService));
+        propertySpecs.add(propertySpecService.stringSpec().named(translationKey()).fromThesaurus(thesaurus).markRequired().finish());
         return propertySpecs;
     }
 
-    private PropertySpec stringProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new StringFactory());
-    }
-
-    protected abstract String propertyName();
+    protected abstract TranslationKey translationKey();
 
 }

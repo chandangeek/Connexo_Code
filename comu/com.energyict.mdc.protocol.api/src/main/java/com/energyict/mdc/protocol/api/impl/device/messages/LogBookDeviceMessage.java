@@ -1,25 +1,14 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetAlarmAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetConditionAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetConditionValueAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetImmediateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetInputChannelAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetInverseAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetOutputChannelAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTagAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTimeFalseAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTimeTrueAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.fromDateAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toDateAttributeName;
 
@@ -34,88 +23,172 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecEnum {
 
     SetInputChannel(DeviceMessageId.LOG_BOOK_SET_INPUT_CHANNEL, "Set input channel") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetInputChannelAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetInputChannelAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetCondition(DeviceMessageId.LOG_BOOK_SET_CONDITION, "Set condition") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetConditionAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetConditionAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetConditionValue(DeviceMessageId.LOG_BOOK_SET_CONDITION_VALUE, "Set condition value") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetConditionValueAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetConditionValueAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetTimeTrue(DeviceMessageId.LOG_BOOK_SET_TIME_TRUE, "Set time true") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetTimeTrueAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetTimeTrueAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetTimeFalse(DeviceMessageId.LOG_BOOK_SET_TIME_FALSE, "Set time false") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetTimeFalseAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetTimeFalseAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetOutputChannel(DeviceMessageId.LOG_BOOK_SET_OUTPUT_CHANNEL, "Set output channel") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetOutputChannelAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetOutputChannelAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetAlarm(DeviceMessageId.LOG_BOOK_SET_ALARM, "Set alarm") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetAlarmAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetAlarmAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetTag(DeviceMessageId.LOG_BOOK_SET_TAG, "Set tag") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetTagAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetTagAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetInverse(DeviceMessageId.LOG_BOOK_SET_INVERSE, "Set inverse") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetInverseAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetInverseAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SetImmediate(DeviceMessageId.LOG_BOOK_SET_IMMEDIATE, "Set immediate") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(SetImmediateAttributeName, true, new StringFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(EventsDeviceMessageAttributes.SetImmediateAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     ReadDebugLogBook(DeviceMessageId.LOG_BOOK_READ_DEBUG, "Read debug logbook") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(fromDateAttributeName, true, new DateAndTimeFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(toDateAttributeName, true, new DateAndTimeFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(fromDateAttributeName, EventsDeviceMessageAttributes.fromDateAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(toDateAttributeName, EventsDeviceMessageAttributes.toDateAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     ReadManufacturerSpecificLogBook(DeviceMessageId.LOG_BOOK_READ_MANUFACTURER_SPECIFIC, "Read manufacturer specific logbook") {
         @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(fromDateAttributeName, true, new DateAndTimeFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(toDateAttributeName, true, new DateAndTimeFactory()));
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(fromDateAttributeName, EventsDeviceMessageAttributes.fromDateAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(toDateAttributeName, EventsDeviceMessageAttributes.toDateAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     ResetMainLogbook(DeviceMessageId.LOG_BOOK_RESET_MAIN_LOGBOOK, "Reset main logbook"),
@@ -148,13 +221,13 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecEnum {
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        this.addPropertySpecs(propertySpecs, propertySpecService);
+        this.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
         return propertySpecs;
     }
 
-    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     }
 

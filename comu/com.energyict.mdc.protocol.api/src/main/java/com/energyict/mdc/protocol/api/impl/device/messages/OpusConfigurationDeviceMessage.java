@@ -1,11 +1,10 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,26 +18,26 @@ public enum OpusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetOpusOSNbr(DeviceMessageId.OPUS_CONFIGURATION_SET_OS_NUMBER, "Set opus OS number") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetOpusOSNbrAttributeName;
+        protected TranslationKey translationKey() {
+            return OpusDeviceMessageAttributes.SetOpusOSNbrAttributeName;
         }
     },
     SetOpusPassword(DeviceMessageId.OPUS_CONFIGURATION_SET_PASSWORD, "Set opus password") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetOpusPasswordAttributeName;
+        protected TranslationKey translationKey() {
+            return OpusDeviceMessageAttributes.SetOpusPasswordAttributeName;
         }
     },
     SetOpusTimeout(DeviceMessageId.OPUS_CONFIGURATION_SET_TIMEOUT, "Set opus timeout") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetOpusTimeoutAttributeName;
+        protected TranslationKey translationKey() {
+            return OpusDeviceMessageAttributes.SetOpusTimeoutAttributeName;
         }
     },
     SetOpusConfig(DeviceMessageId.OPUS_CONFIGURATION_SET_CONFIG, "Set opus configuration") {
         @Override
-        protected String propertyName() {
-            return DeviceMessageConstants.SetOpusConfigAttributeName;
+        protected TranslationKey translationKey() {
+            return OpusDeviceMessageAttributes.SetOpusConfigAttributeName;
         }
     };
 
@@ -65,16 +64,12 @@ public enum OpusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         return this.id;
     }
 
-    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.stringProperty(this.propertyName(), propertySpecService));
+        propertySpecs.add(propertySpecService.stringSpec().named(this.translationKey()).fromThesaurus(thesaurus).markRequired().finish());
         return propertySpecs;
     }
 
-    private PropertySpec stringProperty(String name, PropertySpecService propertySpecService) {
-        return propertySpecService.basicPropertySpec(name, true, new StringFactory());
-    }
-
-    protected abstract String propertyName();
+    protected abstract TranslationKey translationKey();
 
 }
