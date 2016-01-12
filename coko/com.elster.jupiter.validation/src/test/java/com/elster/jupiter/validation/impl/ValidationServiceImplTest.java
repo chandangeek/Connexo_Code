@@ -380,7 +380,7 @@ public class ValidationServiceImplTest {
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
         Map<Channel, Range<Instant>> changeScope = ImmutableMap.of(channel1, Range.atLeast(Instant.EPOCH));
-        validationService.validate(meterActivation, changeScope);
+        validationService.moveLastCheck(meterActivation, changeScope);
         verify(meterActivationValidation).moveLastCheckedBefore(changeScope);
     }
 
@@ -665,6 +665,7 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
         when(meterValidation.getValidateOnStorage()).thenReturn(true);
+        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         validationService.deactivateValidation(meter);
 
@@ -714,6 +715,7 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
         when(meterValidation.getValidateOnStorage()).thenReturn(false);
+        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         validationService.deactivateValidation(meter);
 
@@ -728,7 +730,7 @@ public class ValidationServiceImplTest {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(ID);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterValidationImpl>empty());
-
+        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
         validationService.deactivateValidation(meter);
 
         verify(meterValidation, never()).setActivationStatus(anyBoolean());

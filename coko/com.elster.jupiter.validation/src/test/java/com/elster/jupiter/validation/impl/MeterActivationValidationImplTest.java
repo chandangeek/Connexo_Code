@@ -120,6 +120,7 @@ public class MeterActivationValidationImplTest {
         meterActivationValidation = new MeterActivationValidationImpl(dataModel, clock).init(meterActivation);
         meterActivationValidation.setRuleSet(validationRuleSet);
         meterActivationValidation.save();
+        meterActivationValidation.activate();
     }
 
     @After
