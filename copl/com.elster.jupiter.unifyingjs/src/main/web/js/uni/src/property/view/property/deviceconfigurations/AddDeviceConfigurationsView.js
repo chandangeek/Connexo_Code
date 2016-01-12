@@ -24,7 +24,7 @@ Ext.define('Uni.property.view.property.deviceconfigurations.AddDeviceConfigurati
                         title: Uni.I18n.translate('deviceconfigurations.empty.deviceconfiguration.title', 'UNI', 'No device configurations found'),
                         reasons: [
                             Uni.I18n.translate('deviceconfigurations.empty.list.item1', 'UNI', 'No device configurations have been added yet.'),
-                            Uni.I18n.translate('deviceconfigurations.empty.list.item2', 'UNI', 'Device configurations exists, but you do not have permission to view them.')
+                            Uni.I18n.translate('deviceconfigurations.empty.list.item2', 'UNI', 'Device configurations exist, but you do not have permission to view them.')
                         ]
                     }
                 }
