@@ -190,7 +190,9 @@ public class SecurityToken {
     }
     public void invalidateSession(HttpServletRequest request){
         HttpSession session = request.getSession(false);
-        if (session != null) session.invalidate();
+        if (session != null) {
+            session.invalidate();
+        }
     }
 
     public void createCookie(String cookieName, String cookieValue, String cookiePath, HttpServletResponse response ){
