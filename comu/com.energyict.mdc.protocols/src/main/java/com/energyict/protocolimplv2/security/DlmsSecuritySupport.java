@@ -248,7 +248,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_ENCRYPTIONLEVEL_1).format();
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_ENCRYPTIONLEVEL_2).format();
         }
 
         @Override
@@ -273,7 +273,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_ENCRYPTIONLEVEL_2).format();
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_ENCRYPTIONLEVEL_1).format();
         }
 
         @Override
