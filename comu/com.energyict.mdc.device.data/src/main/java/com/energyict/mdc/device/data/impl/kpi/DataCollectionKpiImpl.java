@@ -372,16 +372,6 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         recurrentTask.ifPresent(RecurrentTask::delete);
     }
 
-
-    private String getRecurrentTaskName() {
-        String devicegroupName = this.deviceGroup.get().getName();
-        if (connectionKpi.isPresent()) {
-            return devicegroupName + " - Communication KPI";
-        } else {
-            return devicegroupName + " - Connection KPI";
-        }
-    }
-
     private interface RecurrentTaskSaveStrategy {
         void save();
     }
@@ -426,7 +416,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
                 DestinationSpec destination = messageService.getDestinationSpec(DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
                 RecurrentTask recurrentTask = taskService.newBuilder()
                         .setApplication("MultiSense")
-                        .setName(getRecurrentTaskName())
+                        .setName(taskName())
                         .setScheduleExpression(this.toScheduleExpression(this.kpi.get()))
                         .setDestination(destination)
                         .setPayLoad(scheduledExcutionPayload())
@@ -461,7 +451,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         }
 
         private String taskName() {
-            return this.kpiType.recurrentTaskName();
+            return this.kpiType.recurrentTaskName(deviceGroup.get().getName());
         }
 
     }

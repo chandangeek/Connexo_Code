@@ -25,7 +25,7 @@ enum KpiType {
     CONNECTION {
         @Override
         public String recurrentTaskNamePattern() {
-            return "ConnectionKpiCalculator({0})";
+            return "{0} - Connection KPI";
         }
 
         @Override
@@ -37,7 +37,7 @@ enum KpiType {
     COMMUNICATION {
         @Override
         public String recurrentTaskNamePattern() {
-            return "CommunicationKpiCalculator({0})";
+            return "{0} - Communication KPI";
         }
 
         @Override
@@ -57,8 +57,8 @@ enum KpiType {
     private static final Pattern PAYLOAD_PARSE_PATTERN = Pattern.compile("(\\w*)-(\\d*)");
     public abstract String recurrentTaskNamePattern();
 
-    public String recurrentTaskName() {
-        return MessageFormat.format(this.recurrentTaskNamePattern(), UUID.randomUUID());
+    public String recurrentTaskName(String deviceGroup) {
+        return MessageFormat.format(this.recurrentTaskNamePattern(), deviceGroup);
     }
 
     public String recurrentPayload(DataCollectionKpiImpl dataCollectionKpi) {
