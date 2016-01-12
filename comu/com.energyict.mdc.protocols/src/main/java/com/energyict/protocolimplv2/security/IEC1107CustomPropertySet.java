@@ -43,7 +43,7 @@ public class IEC1107CustomPropertySet extends SecurityCustomPropertySet<IEC1107S
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService));
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus));
     }
 
 }

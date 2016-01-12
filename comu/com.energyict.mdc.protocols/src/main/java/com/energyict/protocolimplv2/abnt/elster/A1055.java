@@ -316,7 +316,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     public RequestFactory getRequestFactory() {
         if (this.requestFactory == null) {
-            this.requestFactory = new RequestFactory(propertySpecService);
+            this.requestFactory = new RequestFactory(this.propertySpecService, this.thesaurus);
         }
         return this.requestFactory;
     }

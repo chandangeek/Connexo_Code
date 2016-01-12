@@ -188,7 +188,7 @@ public class RtuPlusServer implements DeviceProtocol {
         TypedProperties clone = getDynamicProperties().getProperties().clone();
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.SECURITY_LEVEL, "0:0");
-        G3GatewayProperties publicClientProperties = new G3GatewayProperties(propertySpecService);
+        G3GatewayProperties publicClientProperties = new G3GatewayProperties(propertySpecService, thesaurus);
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(getDynamicProperties().getSecurityPropertySet());
 
@@ -328,7 +328,7 @@ public class RtuPlusServer implements DeviceProtocol {
      */
     G3GatewayProperties getDynamicProperties() {
         if (dynamicProperties == null) {
-            dynamicProperties = new G3GatewayProperties(propertySpecService);
+            dynamicProperties = new G3GatewayProperties(propertySpecService, thesaurus);
         }
         return dynamicProperties;
     }

@@ -78,7 +78,7 @@ public class CTRDeviceProtocolDialectCustomPropertySet implements CustomProperty
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(CTRDeviceProtocolDialectProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

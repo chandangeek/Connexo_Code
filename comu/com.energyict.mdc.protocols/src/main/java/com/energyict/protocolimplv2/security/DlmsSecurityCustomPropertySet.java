@@ -44,10 +44,10 @@ public class DlmsSecurityCustomPropertySet extends SecurityCustomPropertySet<Dlm
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService));
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService, this.thesaurus));
     }
 
 }

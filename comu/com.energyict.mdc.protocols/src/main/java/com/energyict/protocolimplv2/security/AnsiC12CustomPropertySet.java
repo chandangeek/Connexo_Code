@@ -44,9 +44,9 @@ public class AnsiC12CustomPropertySet extends SecurityCustomPropertySet<AnsiC12S
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(this.propertySpecService));
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(this.propertySpecService, this.thesaurus));
     }
 
 }

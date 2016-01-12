@@ -120,20 +120,20 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password(""));
             if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), ((Password) property).getValue());
             } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), property);
             }
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME,
                     deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
                             ":" +
                             deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
             typedProperties.setProperty(getDataTransportEncryptionKeyLegacyPropertyName(),
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey(), ""));
             typedProperties.setProperty(getDataTransportAuthenticationKeyLegacyPropertyname(),
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey(), ""));
         }
         return typedProperties;
     }
@@ -174,13 +174,13 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     }
 
     private void checkForCorrectClientMacAddressPropertySpecType(TypedProperties typedProperties) {
-        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey());
         if (clientMacAddress != null && String.class.isAssignableFrom(clientMacAddress.getClass())) {
-            typedProperties.removeProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+            typedProperties.removeProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey());
             try {
-                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal((String) clientMacAddress));
+                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), new BigDecimal((String) clientMacAddress));
             } catch (NumberFormatException e) {
-                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal("1"));
+                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), new BigDecimal("1"));
 
             }
         }
@@ -231,7 +231,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -254,9 +254,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -279,9 +279,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -304,9 +304,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -328,7 +328,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -351,8 +351,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -377,7 +377,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -401,8 +401,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 
@@ -426,8 +426,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
 
         }
     }
@@ -452,9 +452,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService, thesaurus),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 

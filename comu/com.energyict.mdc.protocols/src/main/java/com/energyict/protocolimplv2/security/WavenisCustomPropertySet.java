@@ -44,8 +44,8 @@ public class WavenisCustomPropertySet extends SecurityCustomPropertySet<WavenisS
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService));
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus),
+                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService, this.thesaurus));
     }
 
 }

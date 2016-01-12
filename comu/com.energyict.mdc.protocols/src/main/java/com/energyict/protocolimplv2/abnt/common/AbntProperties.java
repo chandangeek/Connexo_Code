@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -7,6 +8,8 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
+
+import com.energyict.protocolimplv2.abnt.AbntTranslationKeys;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 
 import java.math.BigDecimal;
@@ -25,25 +28,15 @@ public class AbntProperties extends BasicDynamicPropertySupport {
     public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
     public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(50, TimeDuration.TimeUnit.MILLISECONDS);
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
-    private static final BigDecimal DEFAULT_READER_SERIAL_NUMBER = new BigDecimal(1);
+    private static final BigDecimal DEFAULT_READER_SERIAL_NUMBER = BigDecimal.ONE;
 
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
 
-    public AbntProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public AbntProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
-    /**
-     * The security set of a device. It contains all properties related to security.
-     */
-    public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
-        return securityPropertySet;
-    }
-
-    /**
-     * Setter for the device's security set
-     */
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         this.securityPropertySet = deviceProtocolSecurityPropertySet;
         this.properties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
@@ -91,9 +84,12 @@ public class AbntProperties extends BasicDynamicPropertySupport {
      */
     public long getForcedDelay() {
         long forcedDelay = getProperties().getTypedProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY).getMilliSeconds();
-        return (forcedDelay < DEFAULT_FORCED_DELAY.getMilliSeconds())
-                ? DEFAULT_FORCED_DELAY.getMilliSeconds()
-                : forcedDelay;
+        if (forcedDelay < DEFAULT_FORCED_DELAY.getMilliSeconds()) {
+            return DEFAULT_FORCED_DELAY.getMilliSeconds();
+        }
+        else {
+            return forcedDelay;
+        }
     }
 
     public long getDelayAfterError() {
@@ -125,7 +121,12 @@ public class AbntProperties extends BasicDynamicPropertySupport {
     }
 
     private PropertySpec readerSerialNumberPropertySpec() {
-        return getPropertySpecService().bigDecimalPropertySpec(READER_SERIAL_NUMBER_PROPERTY, false, DEFAULT_READER_SERIAL_NUMBER);
+        return this.getPropertySpecService()
+                .bigDecimalSpec()
+                .named(READER_SERIAL_NUMBER_PROPERTY, AbntTranslationKeys.READER_SERIAL_NUMBER)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(DEFAULT_READER_SERIAL_NUMBER)
+                .finish();
     }
 
     @Override

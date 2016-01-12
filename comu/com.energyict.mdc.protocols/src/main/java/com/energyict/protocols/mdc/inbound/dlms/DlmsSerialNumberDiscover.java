@@ -1,20 +1,25 @@
 package com.energyict.protocols.mdc.inbound.dlms;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelInputStreamAdapter;
+import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.protocols.mdc.inbound.dlms.aso.SimpleApplicationServiceObject;
+import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
+import com.energyict.protocols.mdc.inbound.general.InboundConnection;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -22,14 +27,8 @@ import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.io.ComChannelInputStreamAdapter;
-import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
-import com.energyict.protocols.mdc.inbound.dlms.aso.SimpleApplicationServiceObject;
-import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
-import com.energyict.protocols.mdc.inbound.general.InboundConnection;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocolimplv2.dlms.DlmsTranslationKeys;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -190,8 +189,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
         }
     }
 
@@ -203,9 +201,24 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     @Override
     public List<PropertySpec> getPropertySpecs () {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false, new BigDecimalFactory()));
-        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false, new BigDecimalFactory()));
-        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(DEVICE_ID_OBISCODE_KEY, false, new ObisCodeValueFactory()));
+        propertySpecs.add(
+                this.getPropertySpecService()
+                        .bigDecimalSpec()
+                        .named(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, DlmsTranslationKeys.CLIENT_MAC_ADDRESS)
+                        .fromThesaurus(this.getThesaurus())
+                        .finish());
+        propertySpecs.add(
+                this.getPropertySpecService()
+                        .bigDecimalSpec()
+                        .named(DlmsProtocolProperties.SERVER_MAC_ADDRESS, DlmsTranslationKeys.SERVER_MAC_ADDRESS)
+                        .fromThesaurus(this.getThesaurus())
+                        .finish());
+        propertySpecs.add(
+                this.getPropertySpecService()
+                        .obisCodeSpec()
+                        .named(DEVICE_ID_OBISCODE_KEY, DlmsTranslationKeys.DEVICE_ID_OBISCODE_KEY)
+                        .fromThesaurus(getThesaurus())
+                        .finish());
         return propertySpecs;
     }
 

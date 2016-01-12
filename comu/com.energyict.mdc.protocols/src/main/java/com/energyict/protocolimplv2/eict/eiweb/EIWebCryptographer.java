@@ -28,7 +28,7 @@ public class EIWebCryptographer implements Cryptographer {
      * protocol that is however coded in the protocol module and can
      * therefore not be referenced here.
      */
-    private static final String EIWEB_PROTOCOL_PASSWORD_PROPERTY_NAME = SecurityPropertySpecName.PASSWORD.toString();
+    private static final String EIWEB_PROTOCOL_PASSWORD_PROPERTY_NAME = SecurityPropertySpecName.PASSWORD.getKey();
 
     private InboundDiscoveryContext inboundDiscoveryContext;
     private int usageCount = 0;

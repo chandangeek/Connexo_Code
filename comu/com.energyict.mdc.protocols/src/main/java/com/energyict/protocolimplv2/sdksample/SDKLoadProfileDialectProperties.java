@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
@@ -44,8 +44,12 @@ class SDKLoadProfileDialectProperties extends CommonDeviceProtocolDialectPropert
             return this.databaseName;
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertySpecName(), false, new ObisCodeValueFactory());
+        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .obisCodeSpec()
+                    .named(SDKTranslationKeys.NOT_SUPPORTED_LOAD_PROFILE)
+                    .fromThesaurus(thesaurus)
+                    .finish();
         }
 
         public void addTo(Table table) {

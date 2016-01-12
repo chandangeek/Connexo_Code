@@ -78,7 +78,7 @@ class SDKTimeDialectCustomPropertySet implements CustomPropertySet<DeviceProtoco
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(SDKTimeDialectProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

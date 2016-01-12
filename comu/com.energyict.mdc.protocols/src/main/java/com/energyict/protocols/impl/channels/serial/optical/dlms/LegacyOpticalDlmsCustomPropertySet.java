@@ -5,12 +5,11 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
+import com.energyict.protocols.impl.channels.TranslationKeys;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 
 import java.math.BigDecimal;
@@ -97,44 +96,52 @@ public class LegacyOpticalDlmsCustomPropertySet implements CustomPropertySet<Con
 
 
     private PropertySpec getAddressingModePropertySpec() {
-        PropertySpecBuilder builder = this.propertySpecService.newPropertySpecBuilder(new BigDecimalFactory());
-        builder.
-            name(LegacyOpticalDlmsConnectionProperties.Field.ADDRESSING_MODE.javaName()).
-            markExhaustive().
-            addValues(
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(TranslationKeys.LEGACY_OPTICAL_DLMS_ADDRESSING_MODE)
+                .fromThesaurus(this.thesaurus)
+                .markExhaustive()
+                .addValues(
                     BigDecimal.ONE,
                     DEFAULT_ADDRESSING_MODE,
-                    BigDecimal.valueOf(4)).
-            setDefaultValue(DEFAULT_ADDRESSING_MODE);
-        return builder.finish();
+                    BigDecimal.valueOf(4))
+                .setDefaultValue(DEFAULT_ADDRESSING_MODE).finish();
     }
 
     PropertySpec getDataLinkLayerTypePropertySpec() {
-        return this.propertySpecService.bigDecimalPropertySpec(
-                LegacyOpticalDlmsConnectionProperties.Field.DATA_LINK_LAYER_TYPE.javaName(),
-                false,
-                BigDecimal.ZERO);
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(LegacyOpticalDlmsConnectionProperties.Field.DATA_LINK_LAYER_TYPE.javaName(), TranslationKeys.DATA_LINK_LAYER_TYPE)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(BigDecimal.ZERO)
+                .finish();
     }
 
     private PropertySpec getServerMacAddress() {
-        return this.propertySpecService.bigDecimalPropertySpec(
-                LegacyOpticalDlmsConnectionProperties.Field.SERVER_MAC_ADDRESS.javaName(),
-                false,
-                DEFAULT_SERVER_MAC_ADDRESS);
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(LegacyOpticalDlmsConnectionProperties.Field.SERVER_MAC_ADDRESS.javaName(), TranslationKeys.SERVER_MAC_ADDRESS)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_SERVER_MAC_ADDRESS)
+                .finish();
     }
 
     private PropertySpec getServerLowerMacAddress() {
-        return this.propertySpecService.bigDecimalPropertySpec(
-                LegacyOpticalDlmsConnectionProperties.Field.SERVER_LOWER_MAC_ADDRESS.javaName(),
-                false,
-                DEFAULT_SERVER_LOWER_MAC_ADDRESS);
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(LegacyOpticalDlmsConnectionProperties.Field.SERVER_LOWER_MAC_ADDRESS.javaName(), TranslationKeys.SERVER_LOWER_MAC_ADDRESS)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_SERVER_LOWER_MAC_ADDRESS)
+                .finish();
     }
 
     private PropertySpec getServerUpperMacAddress() {
-        return this.propertySpecService.bigDecimalPropertySpec(
-                LegacyOpticalDlmsConnectionProperties.Field.SERVER_UPPER_MAC_ADDRESS.javaName(),
-                false,
-                DEFAULT_SERVER_UPPER_MAC_ADDRESS);
+        return this.propertySpecService
+                .bigDecimalSpec()
+                .named(LegacyOpticalDlmsConnectionProperties.Field.SERVER_UPPER_MAC_ADDRESS.javaName(), TranslationKeys.SERVER_UPPER_MAC_ADDRESS)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(DEFAULT_SERVER_UPPER_MAC_ADDRESS)
+                .finish();
     }
 
 }

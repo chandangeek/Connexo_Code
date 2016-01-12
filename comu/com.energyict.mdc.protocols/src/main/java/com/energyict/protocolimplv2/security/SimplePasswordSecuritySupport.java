@@ -64,11 +64,11 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password(""));
             if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), ((Password) property).getValue());
             } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), property);
             }
         }
         return typedProperties;
@@ -113,7 +113,7 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
         }
     }
 

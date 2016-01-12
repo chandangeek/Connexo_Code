@@ -343,7 +343,7 @@ public class MTU155 implements DeviceProtocol {
 
     public MTU155Properties getMTU155Properties() {
         if (this.properties == null) {
-            this.properties = new MTU155Properties(allProperties, propertySpecService);
+            this.properties = new MTU155Properties(this.allProperties, this.propertySpecService, this.thesaurus);
         }
         return this.properties;
     }
@@ -356,7 +356,7 @@ public class MTU155 implements DeviceProtocol {
                     getMTU155Properties(),
                     getTimeZone(),
                     ((CTRDeviceProtocolCache) deviceCache).getSmsWriteDataBlockID(),
-                    false, propertySpecService);
+                    false, propertySpecService, thesaurus);
 
         } else {
             this.requestFactory = new GprsRequestFactory(
@@ -365,7 +365,8 @@ public class MTU155 implements DeviceProtocol {
                     getMTU155Properties(),
                     getTimeZone(),
                     false,
-                    propertySpecService);
+                    this.propertySpecService,
+                    this.thesaurus);
         }
     }
 

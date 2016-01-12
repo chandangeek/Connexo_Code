@@ -88,19 +88,19 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password(""));
             if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), ((Password) property).getValue());
             } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), property);
             }
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
             typedProperties.setProperty("KeyC",
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.getKey(), ""));
             typedProperties.setProperty("KeyT",
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.getKey(), ""));
             typedProperties.setProperty("KeyF",
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.getKey(), ""));
         }
         return typedProperties;
     }
@@ -115,20 +115,20 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
             }
 
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = typedSecurityProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            final Object property = typedSecurityProperties.getProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password(""));
             if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), ((Password) property).getValue());
             } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), property);
             }
 
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(securityProperties.get(0).getEncryptionDeviceAccessLevel().getId()));
             typedProperties.setProperty("KeyC",
-                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), ""));
+                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.getKey(), ""));
             typedProperties.setProperty("KeyT",
-                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), ""));
+                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.getKey(), ""));
             typedProperties.setProperty("KeyF",
-                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), ""));
+                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.getKey(), ""));
 
         }
         return typedProperties;
@@ -178,19 +178,19 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
     }
 
     private PropertySpec getPasswordPropertySpec() {
-        return MTU155SecurityProperties.ActualFields.PASSWORD.propertySpec(this.propertySpecService);
+        return MTU155SecurityProperties.ActualFields.PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyTPropertySpec() {
-        return MTU155SecurityProperties.ActualFields.TEMPORARY_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return MTU155SecurityProperties.ActualFields.TEMPORARY_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyCPropertySpec() {
-        return MTU155SecurityProperties.ActualFields.SERVICE_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return MTU155SecurityProperties.ActualFields.SERVICE_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyFPropertySpec() {
-        return MTU155SecurityProperties.ActualFields.FACTORY_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return MTU155SecurityProperties.ActualFields.FACTORY_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     /**

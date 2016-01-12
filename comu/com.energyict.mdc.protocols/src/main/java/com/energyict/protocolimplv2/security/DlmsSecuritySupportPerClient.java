@@ -214,75 +214,75 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     }
 
     private PropertySpec getEncryptionKeyPublicPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyExtDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyManagementPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyFirmwarePropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getEncryptionKeyManufacturerPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_ENCRYPTION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyPublicPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyExtDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyManagementPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyFirmwarePropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getAuthenticationKeyManufacturerPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_AUTHENTICATION_KEY.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordPublicPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.DATA_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.DATA_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordExtDataPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordManagementPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordFirmwarePropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     private PropertySpec getPasswordManufacturerPropertySpec() {
-        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_PASSWORD.propertySpec(this.propertySpecService);
+        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_PASSWORD.propertySpec(this.propertySpecService, this.thesaurus);
     }
 
     @Override
@@ -367,7 +367,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
                     getDataTransportEncryptionKeyPropertyValue(deviceProtocolSecurityPropertySet));
             typedProperties.setProperty("DataTransportAuthenticationKey",
                     getDataTransportAuthenticationKeyPropertyValue(deviceProtocolSecurityPropertySet));
-            typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
+            typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(),
                     clientId
             );
         }
@@ -376,16 +376,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private Object getDataTransportAuthenticationKeyPropertyValue(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         List<String> authenticationKeyNames = Arrays.asList(
-                SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString(),
-                SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER
-                .toString());
+                SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.getKey(), SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.getKey(), SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.getKey(),
+                SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.getKey(), SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.getKey(), SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER
+                .getKey());
         return getValueFrom(authenticationKeyNames, deviceProtocolSecurityPropertySet);
     }
 
     private Object getDataTransportEncryptionKeyPropertyValue(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         List<String> encryptionKeyNames = Arrays.asList(
-                SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.toString(), SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString(), SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.toString(),
-                SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString(), SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.toString(), SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString());
+                SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.getKey(), SecurityPropertySpecName.ENCRYPTION_KEY_DATA.getKey(), SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.getKey(),
+                SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.getKey(), SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.getKey(), SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.getKey());
         return getValueFrom(encryptionKeyNames, deviceProtocolSecurityPropertySet);
     }
 
@@ -402,23 +402,23 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     private void convertToProperPassword(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, TypedProperties typedProperties) {
         // override the password (as it is provided as a Password object instead of a String
         List<String> passWordPropertyNames = Arrays.asList(
-                SecurityPropertySpecName.PASSWORD_PUBLIC.toString(), SecurityPropertySpecName.PASSWORD_DATA.toString(), SecurityPropertySpecName.PASSWORD_EXT_DATA.toString(),
-                SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), SecurityPropertySpecName.PASSWORD_FIRMWARE.toString(), SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString());
+                SecurityPropertySpecName.PASSWORD_PUBLIC.getKey(), SecurityPropertySpecName.PASSWORD_DATA.getKey(), SecurityPropertySpecName.PASSWORD_EXT_DATA.getKey(),
+                SecurityPropertySpecName.PASSWORD_MANAGEMENT.getKey(), SecurityPropertySpecName.PASSWORD_FIRMWARE.getKey(), SecurityPropertySpecName.PASSWORD_MANUFACTURER.getKey());
         boolean notFound = true;
         for (String passWordPropertyName : passWordPropertyNames) {
             final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(passWordPropertyName);
             if (property != null && notFound) {
                 if (Password.class.isAssignableFrom(property.getClass())) {
-                    typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
+                    typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), ((Password) property).getValue());
                 }
                 else {
-                    typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+                    typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), property);
                 }
                 notFound = false;
             }
         }
         if (notFound) {
-            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password(""));
         }
     }
 
@@ -458,7 +458,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     }
 
     private int getClientMacAddressValue(TypedProperties typedProperties) {
-        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey());
         if (clientMacAddress != null) {
             if (String.class.isAssignableFrom(clientMacAddress.getClass())) {
                 return Integer.valueOf((String) clientMacAddress);

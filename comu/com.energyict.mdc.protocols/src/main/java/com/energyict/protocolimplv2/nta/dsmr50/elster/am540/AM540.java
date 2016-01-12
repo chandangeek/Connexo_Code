@@ -186,7 +186,7 @@ public class AM540 extends AbstractDlmsProtocol {
 
     public DSMR50Properties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new DSMR50Properties(getPropertySpecService());
+            dlmsProperties = new DSMR50Properties(getPropertySpecService(), this.getThesaurus());
         }
         return (DSMR50Properties) dlmsProperties;
     }
@@ -403,7 +403,7 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public DSMR50Properties getDlmsProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new DSMR50Properties(getPropertySpecService());
+            dlmsProperties = new DSMR50Properties(getPropertySpecService(), this.getThesaurus());
         }
         return (DSMR50Properties) dlmsProperties;
     }

@@ -78,7 +78,7 @@ public class ACE4000DeviceProtocolDialectCustomPropertySet implements CustomProp
     public List<PropertySpec> getPropertySpecs() {
         return Stream
                 .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService))
+                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }
 

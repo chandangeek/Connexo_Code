@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -11,12 +13,10 @@ import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
+
+import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -170,16 +170,24 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                propertySpecService.basicPropertySpec(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), false, BigDecimalFactory.class),
-                propertySpecService.basicPropertySpec(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), false, BigDecimalFactory.class));
+                propertySpecService
+                        .bigDecimalSpec()
+                        .named(TranslationKeys.TIMEOUT)
+                        .fromThesaurus(this.thesaurus)
+                        .finish(),
+                propertySpecService
+                        .bigDecimalSpec()
+                        .named(TranslationKeys.RETRIES)
+                        .fromThesaurus(this.thesaurus)
+                        .finish());
     }
 
     public int getTimeOutProperty() {
-        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), new BigDecimal(TIMEOUT_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(TranslationKeys.TIMEOUT.getKey(), "Timeout"), new BigDecimal(TIMEOUT_DEFAULT)).intValue();
     }
 
     public int getRetriesProperty() {
-        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), new BigDecimal(RETRIES_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(TranslationKeys.RETRIES.getKey(), "Retries"), new BigDecimal(RETRIES_DEFAULT)).intValue();
     }
 
     public TypedProperties getTypedProperties() {

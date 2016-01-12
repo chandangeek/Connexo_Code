@@ -1,8 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
 import java.util.logging.Level;
 
@@ -33,9 +32,7 @@ public enum MessageSeeds implements MessageSeed {
     INBOUND_UNEXPECTED_FRAME(223, "unexpectedInboundFrame", "Received an unexpected first inbound frame\\: '{0}'. {1}", Level.SEVERE),
     INBOUND_TIMEOUT(224, "inboundTimeout", "A timeout occurred while trying to receive an inbound frame\\: {0}", Level.SEVERE),
     UNEXPECTED_IO_EXCEPTION(226, "unexpectedIOException", "Exception occurred while communication with a device", Level.SEVERE),
-    TIMEOUT(243, "protocol.timeout", "Timeout", Level.INFO),
     RETRIES(243, "protocol.retries", "Retries", Level.INFO),
-    DEVICEDIALHOMEID(244, "deviceDialHomeId", "Device call home ID", Level.INFO),
     EVENT_VALUE(245, "protocol.eventvalue", "Value", Level.INFO),
     UNSUPPORTED_AUTHENTICATION_TYPE(246, "authentication.unsupported", "This is an unsupported authentication level : {0}", Level.SEVERE),
     UNKNOWN_ENCRYPTION_ALGORITHM(247, "encryption.unknown.algorithm", "Unknown encryption algorithm", Level.SEVERE),

@@ -44,8 +44,8 @@ public class BasicAuthenticationCustomPropertySet extends SecurityCustomProperty
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.propertySpec(this.propertySpecService),
-                BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.propertySpec(this.propertySpecService));
+                BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.propertySpec(this.propertySpecService, this.thesaurus),
+                BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.propertySpec(this.propertySpecService, this.thesaurus));
     }
 
 }

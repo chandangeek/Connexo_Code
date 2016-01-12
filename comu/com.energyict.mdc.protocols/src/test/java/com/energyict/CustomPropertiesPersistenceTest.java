@@ -11,6 +11,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,7 @@ public abstract class CustomPropertiesPersistenceTest {
     protected <T extends PersistentDomainExtension<?>> void checkJavaxAnnotationsOnFields(Class<T> clazz) {
         this.getAllFields(clazz)
             .filter(this::isNotPrimaryKeyField)
+            .filter(this::isNotStatic)
             .forEach(this::checkJavaxAnnotationsOnField);
     }
 
@@ -43,6 +45,10 @@ public abstract class CustomPropertiesPersistenceTest {
             && !CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName().equals(field.getName())
             && !HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName().equals(field.getName())
             && !HardCodedFieldNames.INTERVAL.javaName().equals(field.getName());
+    }
+
+    private boolean isNotStatic(Field field) {
+        return !Modifier.isStatic(field.getModifiers());
     }
 
     private void checkJavaxAnnotationsOnField(Field field) {

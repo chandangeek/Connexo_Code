@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.EncryptedStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
@@ -278,20 +278,22 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 .add();
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                    .name(this.propertySpecName.toString())
+        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .encryptedStringSpec()
+                    .named(this.propertySpecName)
+                    .fromThesaurus(thesaurus)
                     .markRequired()
                     .finish();
 
         }
 
         public void copyPropertyTo(CustomPropertySetValues propertySetValues, DlmsSecurityPerClientProperties perClientProperties) {
-            perClientProperties.setPropertyIfNotNull(propertySetValues, this.propertySpecName().toString(), this.getValue(perClientProperties));
+            perClientProperties.setPropertyIfNotNull(propertySetValues, this.propertySpecName().getKey(), this.getValue(perClientProperties));
         }
 
         public void copyPropertyFrom(CustomPropertySetValues propertySetValues, DlmsSecurityPerClientProperties perClientProperties) {
-            this.setValue(perClientProperties, (String) propertySetValues.getProperty(this.propertySpecName().toString()));
+            this.setValue(perClientProperties, (String) propertySetValues.getProperty(this.propertySpecName().getKey()));
         }
 
         protected abstract String getValue(DlmsSecurityPerClientProperties perClientProperties);

@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
@@ -32,14 +34,36 @@ import java.util.TimeZone;
  * Extra requests are sent in the normal protocol session (e.g. fetch meter data).
  * <p/>
  *
- * @author: sva
- * @since: 26/10/12 (11:40)
+ * @author sva
+ * @since 26/10/12 (11:40)
  */
 public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
-    private static final String DEVICE_TYPE_KEY ="Device type";
+    private static final String DEVICE_TYPE_KEY ="ctr.inbound.devicetype";
     private static final String MTU155_DEVICE_TYPE = "MTU155";
     private static final String EK155_DEVICE_TYPE = "EK155";
+
+    public enum TranslationKeys implements TranslationKey {
+        DEVICE_TYPE(DEVICE_TYPE_KEY, "Device type");
+
+        private final String key;
+        private final String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String getKey() {
+            return this.key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.defaultFormat;
+        }
+    }
 
     DeviceIdentifier deviceIdentifier;
     private RequestFactory requestFactory;
@@ -91,9 +115,11 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
             requestFactory = new GprsRequestFactory(
                     getComChannel(),
                     getContext().getLogger(),
-                    new MTU155Properties(getTypedProperties(), getPropertySpecService()),
+                    new MTU155Properties(getTypedProperties(), getPropertySpecService(), this.getThesaurus()),
                     TimeZone.getDefault(),  //Timezone not known - using the default one
-                    isEK155Device(), getPropertySpecService());
+                    isEK155Device(),
+                    getPropertySpecService(),
+                    this.getThesaurus());
         }
         return requestFactory;
     }
@@ -110,7 +136,15 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     private PropertySpec getDeviceTypePropertySpec() {
-        return getPropertySpecService().stringPropertySpecWithValuesAndDefaultValue(DEVICE_TYPE_KEY, true, MTU155_DEVICE_TYPE, MTU155_DEVICE_TYPE, EK155_DEVICE_TYPE);
+        return getPropertySpecService()
+                .specForValuesOf(new StringFactory())
+                .named(TranslationKeys.DEVICE_TYPE)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markExhaustive()
+                .setDefaultValue(MTU155_DEVICE_TYPE)
+                .addValues(MTU155_DEVICE_TYPE, EK155_DEVICE_TYPE)
+                .finish();
     }
 
     public String getDeviceTypeProperty() {
