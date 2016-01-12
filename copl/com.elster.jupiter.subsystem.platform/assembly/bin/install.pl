@@ -79,12 +79,13 @@ sub check_create_users {
 	if ("$OS" eq "linux") {
 		if ("$INSTALL_CONNEXO" eq "yes") {
 			if (`cat /etc/passwd|grep connexo:` eq "") {
-				system("useradd -m -r connexo") == 0 or die "system useradd -m -r connexo failed: $?";
+				system("groupadd connexo") == 0 or die "system groupadd connexo failed: $?";
+				system("useradd -U -r connexo") == 0 or die "system useradd -U -r connexo failed: $?";
 			}
 		}
 		if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
 			if (`cat /etc/passwd|grep tomcat:` eq "") {
-				system("useradd -m -r tomcat") == 0 or die "system useradd -m -r tomcat failed: $?";
+				system("useradd -U -r tomcat") == 0 or die "system useradd -U -r tomcat failed: $?";
 			}
 		}
 	}

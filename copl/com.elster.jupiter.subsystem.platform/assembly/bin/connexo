@@ -6,15 +6,6 @@
 # description: This script starts Connexo
 # processname: java
 
-# Source function library.
-. /etc/rc.d/init.d/functions
-
-# Source networking configuration.
-. /etc/sysconfig/network
-
-# Check that networking is up.
-[ ${NETWORKING} = "no" ] && exit 0
-
 RETVAL=0
 
 # See how we were called.
