@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.data.importers.impl.properties;
 
-import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import java.time.Clock;
-import java.time.ZoneOffset;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -26,6 +25,7 @@ public class TimeZonePropertySpecTest {
     @Mock
     private Thesaurus thesaurus;
 
+    private Clock clock = Clock.systemUTC();
     private TimeZonePropertySpec propertySpec;
 
     @Before
@@ -34,7 +34,7 @@ public class TimeZonePropertySpecTest {
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
-        propertySpec = new TimeZonePropertySpec("name", thesaurus, Clock.system(ZoneOffset.UTC));
+        this.propertySpec = new TimeZonePropertySpec("name", TranslationKeys.DEVICE_DATA_IMPORTER_TIMEZONE, this.thesaurus, this.clock);
     }
 
     @Test

@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.data.importers.impl.attributes;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.TimeZoneFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.parsers.BigDecimalParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
@@ -13,13 +20,6 @@ import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ThreeStateFactory;
-import com.elster.jupiter.properties.TimeZoneFactory;
-import com.elster.jupiter.properties.ValueFactory;
 import org.joda.time.DateTimeConstants;
 
 import java.text.ParseException;
@@ -76,7 +76,7 @@ public enum DynamicPropertyConverter {
     },
     THREE_STATE_FACTORY(ThreeStateFactory.class) {
         @Override
-        public String convert(String stringValue) throws ParseException {
+        public String convert(String stringValue) {
             if (is(stringValue).emptyOrOnlyWhiteSpace()) {
                 return null;
             } else if (Boolean.TRUE.toString().equalsIgnoreCase(stringValue.trim())) {
@@ -117,7 +117,7 @@ public enum DynamicPropertyConverter {
     },
     BOOLEAN(BooleanFactory.class) {
         @Override
-        public String convert(String stringValue) throws ParseException {
+        public String convert(String stringValue) {
             if (!is(stringValue).emptyOrOnlyWhiteSpace() && Boolean.TRUE.toString().equalsIgnoreCase(stringValue.trim())) {
                 return "1";
             } else {
@@ -132,7 +132,7 @@ public enum DynamicPropertyConverter {
     },
     BIG_DECIMAL(BigDecimalFactory.class) {
         @Override
-        public String convert(String stringValue) throws ParseException {
+        public String convert(String stringValue) {
             if (stringValue == null || this.config == null) {
                 return stringValue;
             }
@@ -171,9 +171,9 @@ public enum DynamicPropertyConverter {
     public abstract String getExpectedFormat(Thesaurus thesaurus);
 
     public static Optional<DynamicPropertyConverter> of(Class<? extends ValueFactory> clazz) {
-        for (DynamicPropertyConverter cvsPropertyParser : DynamicPropertyConverter.values()) {
-            if (cvsPropertyParser.clazz.equals(clazz)) {
-                return Optional.of(cvsPropertyParser);
+        for (DynamicPropertyConverter propertyConverter : DynamicPropertyConverter.values()) {
+            if (propertyConverter.clazz.equals(clazz)) {
+                return Optional.of(propertyConverter);
             }
         }
         return Optional.empty();
