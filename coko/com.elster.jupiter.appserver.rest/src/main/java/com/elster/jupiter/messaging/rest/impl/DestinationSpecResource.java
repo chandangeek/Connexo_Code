@@ -61,7 +61,7 @@ public class DestinationSpecResource {
 
     private Function<? super DestinationSpec, ? extends DestinationSpecInfo> mapToInfo(@QueryParam("state") boolean withState) {
         return withState
-                ? destinationSpecInfoFactory::withAppServers
+                ? destinationSpecInfoFactory::withStats
                 : destinationSpecInfoFactory::from;
     }
 
