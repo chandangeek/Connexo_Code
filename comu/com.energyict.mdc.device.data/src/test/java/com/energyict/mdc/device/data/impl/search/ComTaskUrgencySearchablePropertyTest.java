@@ -11,14 +11,16 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -41,6 +43,7 @@ public class ComTaskUrgencySearchablePropertyTest {
     @Mock
     private OrmService ormService;
 
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
     private SearchablePropertyGroup parentGroup;
 
@@ -51,7 +54,7 @@ public class ComTaskUrgencySearchablePropertyTest {
         when(this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_URGENCY)).thenReturn(messageFormat);
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(this.timeService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         this.parentGroup = new ComTaskSearchablePropertyGroup(this.thesaurus);
     }
 

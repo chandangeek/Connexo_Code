@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -16,6 +17,11 @@ public class RegisterObisCodeSearchableProperty extends AbstractObisCodeSearchab
     @Inject
     public RegisterObisCodeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(RegisterObisCodeSearchableProperty.class, propertySpecService, thesaurus);
+    }
+
+    @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.REGISTER_OBISCODE;
     }
 
     @Override
@@ -39,11 +45,6 @@ public class RegisterObisCodeSearchableProperty extends AbstractObisCodeSearchab
         builder.closeBracket();
         builder.closeBracket();
         return builder;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.REGISTER_OBISCODE).format();
     }
 
     @Override

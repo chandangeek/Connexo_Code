@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
@@ -12,6 +12,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionFilterSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -32,7 +33,6 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
     static final String PROPERTY_NAME = "device.comtask.status";
 
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
     private final Clock clock;
 
     private SearchDomain searchDomain;
@@ -40,8 +40,8 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
 
     @Inject
     public ComTaskStatusSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus, Clock clock) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
         this.clock = clock;
     }
 
@@ -64,7 +64,6 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
     }
-
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
@@ -106,17 +105,22 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
     }
 
     @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.COMTASK_STATUS;
+    }
+
+    @Override
     public PropertySpec getSpecification() {
-        return propertySpecService.stringReferencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                new ComTaskStatusFinder(thesaurus),
-                getPossibleValues()
-        );
+        return propertySpecService
+                .specForValuesOf(new ComTaskExecutionValueFactory())
+                .named(this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(getPossibleValues())
+                .finish();
     }
 
     private ComTaskStatusInfo[] getPossibleValues() {
-        return Stream.of(TaskStatus.values()).map(status -> new ComTaskStatusInfo(thesaurus, status)).toArray(ComTaskStatusInfo[]::new);
+        return Stream.of(TaskStatus.values()).map(status -> new ComTaskStatusInfo(this.getThesaurus(), status)).toArray(ComTaskStatusInfo[]::new);
     }
 
     @Override
@@ -130,11 +134,6 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
     }
 
     @Override
-    public String getDisplayName() {
-        return thesaurus.getFormat(PropertyTranslationKeys.COMTASK_STATUS).format();
-    }
-
-    @Override
     public List<SearchableProperty> getConstraints() {
         return Collections.emptyList();
     }
@@ -144,27 +143,22 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
         //nothing to refresh
     }
 
-    static class ComTaskStatusFinder implements CanFindByStringKey<ComTaskStatusInfo> {
+    private class ComTaskExecutionValueFactory extends SearchHelperValueFactory<ComTaskStatusInfo> {
 
-        private final Thesaurus thesaurus;
-
-        public ComTaskStatusFinder(Thesaurus thesaurus) {
-            this.thesaurus = thesaurus;
+        private ComTaskExecutionValueFactory() {
+            super(ComTaskStatusInfo.class);
         }
 
         @Override
-        public Optional<ComTaskStatusInfo> find(String key) {
-            try {
-                return Optional.of(new ComTaskStatusInfo(thesaurus, TaskStatus.valueOf(key)));
-            } catch (IllegalArgumentException e) {
-                return Optional.empty();
-            }
+        public ComTaskStatusInfo fromStringValue(String stringValue) {
+            return new ComTaskStatusInfo(getThesaurus(), TaskStatus.valueOf(stringValue));
         }
 
         @Override
-        public Class<ComTaskStatusInfo> valueDomain() {
-            return ComTaskStatusInfo.class;
+        public String toStringValue(ComTaskStatusInfo object) {
+            return object.getId();
         }
+
     }
 
     static class ComTaskStatusInfo extends HasIdAndName {
@@ -172,13 +166,13 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
         final Thesaurus thesaurus;
         TaskStatus taskStatus;
 
-        public ComTaskStatusInfo(Thesaurus thesaurus, TaskStatus taskStatus) {
+        ComTaskStatusInfo(Thesaurus thesaurus, TaskStatus taskStatus) {
             this.thesaurus = thesaurus;
             this.taskStatus = taskStatus;
         }
 
         @Override
-        public Object getId() {
+        public String getId() {
             return taskStatus.name();
         }
 
@@ -191,4 +185,5 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
             return taskStatus;
         }
     }
+
 }

@@ -1,15 +1,13 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.Optional;
 
@@ -20,7 +18,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-28 (11:24)
  */
-public interface ServerDeviceService extends DeviceService, ReferencePropertySpecFinderProvider {
+public interface ServerDeviceService extends DeviceService {
 
     /**
      * Tests if there are {@link Device}s that were created
@@ -29,7 +27,7 @@ public interface ServerDeviceService extends DeviceService, ReferencePropertySpe
      * @param deviceConfiguration The DeviceConfiguration
      * @return <code>true</code> iff there is at least one Device created from the DeviceConfiguration
      */
-    public boolean hasDevices(DeviceConfiguration deviceConfiguration);
+    boolean hasDevices(DeviceConfiguration deviceConfiguration);
 
     /**
      * Tests if there are {@link Device}s that overrule properties
@@ -38,7 +36,7 @@ public interface ServerDeviceService extends DeviceService, ReferencePropertySpe
      * @param configurationProperties The DeviceConfiguration
      * @return <code>true</code> iff there is at least one Device with overruling properties
      */
-    public boolean hasDevices(ProtocolDialectConfigurationProperties configurationProperties);
+    boolean hasDevices(ProtocolDialectConfigurationProperties configurationProperties);
 
     /**
      * Counts the number of {@link Device}s that rely on the value
@@ -51,9 +49,9 @@ public interface ServerDeviceService extends DeviceService, ReferencePropertySpe
      * @param propertySpec            The PropertySpec
      * @return <code>true</code> iff there is at least one Device with overruling properties
      */
-    public long countDevicesThatRelyOnRequiredProperty(ProtocolDialectConfigurationProperties configurationProperties, PropertySpec propertySpec);
+    long countDevicesThatRelyOnRequiredProperty(ProtocolDialectConfigurationProperties configurationProperties, PropertySpec propertySpec);
 
-    public Query<Device> deviceQuery();
+    Query<Device> deviceQuery();
 
     /**
      * Checks if there is currently an active 'ChangeDeviceConfiguration' happening.
@@ -63,10 +61,10 @@ public interface ServerDeviceService extends DeviceService, ReferencePropertySpe
      * @param destinationDeviceConfiguration the destination DeviceConfiguration
      * @return true if there is currently a changeDeviceConfiguration happening for either of the DeviceConfigurations
      */
-    public boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration);
+    boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration);
 
-    public Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id);
+    Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id);
 
-    public Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id);
+    Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id);
 
 }

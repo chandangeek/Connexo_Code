@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 /**
  * Insert your comments here.
@@ -21,7 +19,12 @@ public enum ModemConnectionProperties {
 
         @Override
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.propertyName(), true, new StringFactory());
+            return propertySpecService
+                    .stringSpec()
+                    .named(this.propertyName(), this.propertyName())
+                    .describedAs(null)
+                    .markRequired()
+                    .finish();
         }
     };
 

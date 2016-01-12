@@ -49,10 +49,10 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(new StringFactory()).
-                    name(javaName(), javaName()).
-                    finish();
+            return propertySpecService
+                    .specForValuesOf(new StringFactory())
+                    .named(javaName(), javaName()).describedAs("Description for " + javaName())
+                    .finish();
         }
 
     }
