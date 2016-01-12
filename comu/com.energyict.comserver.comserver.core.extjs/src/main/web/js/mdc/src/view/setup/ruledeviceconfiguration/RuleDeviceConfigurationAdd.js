@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAdd', 
                             title: Uni.I18n.translate('validation.empty.deviceConfiguration.title', 'MDC', 'No device configurations found'),
                             reasons: [
                                 Uni.I18n.translate('deviceConfiguration.empty.list.item1', 'MDC', 'No device configurations have been added yet.'),
-                                Uni.I18n.translate('deviceConfiguration.empty.list.item2', 'MDC', 'Device configurations exists, but you do not have permission to view them.')
+                                Uni.I18n.translate('deviceConfiguration.empty.list.item2', 'MDC', 'Device configurations exist, but you do not have permission to view them.')
                             ]
                         },
                         onLoad: function () {

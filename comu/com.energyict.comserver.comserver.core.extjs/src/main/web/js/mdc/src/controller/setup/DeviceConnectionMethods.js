@@ -389,9 +389,12 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         Ext.Array.each(connectionMethod.propertiesStore.data.items, function (connectionMethodProperty) {
                             if (property.get('key') == connectionMethodProperty.get('key')) {
                                 if (!propertyForm.down('#' + property.get('key')).down('uni-default-button').isDisabled()) {
-                                    property.getPropertyValue().set('inheritedValue', '');
+                                    //property.getPropertyValue().set('inheritedValue', '');
+                                    property.getPropertyValue().set('propertyHasValue', true);
                                 } else {
-                                    property.getPropertyValue().set('inheritedValue', connectionMethodProperty.getPropertyValue().get('value'));
+                                    //property.getPropertyValue().set('inheritedValue', connectionMethodProperty.getPropertyValue().get('value'));
+                                    property.getPropertyValue().set('value', '');
+                                    property.getPropertyValue().set('propertyHasValue', false);
                                 }
                             }
                         });

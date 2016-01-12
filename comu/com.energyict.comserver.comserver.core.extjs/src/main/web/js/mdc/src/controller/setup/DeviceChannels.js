@@ -13,7 +13,6 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         'Mdc.model.Device',
         'Mdc.model.LoadProfileOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDevice',
-        'Mdc.model.filter.DeviceChannelsFilter',
         'Mdc.model.ChannelValidationPreview'
     ],
 
@@ -32,10 +31,6 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         {
             ref: 'preview',
             selector: 'deviceLoadProfileChannelsSetup #deviceLoadProfileChannelsPreview'
-        },
-        {
-            ref: 'channelsFilterForm',
-            selector: '#device-channels-filter nested-form'
         },
         {
             ref: 'deviceLoadProfileChannelsPreviewForm',
