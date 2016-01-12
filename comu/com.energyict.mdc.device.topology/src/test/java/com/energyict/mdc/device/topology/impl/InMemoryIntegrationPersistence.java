@@ -42,20 +42,16 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
-import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -96,8 +92,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -267,18 +261,8 @@ public class InMemoryIntegrationPersistence {
             this.threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
             this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
-            initializeFactoryProviders();
             ctx.commit();
         }
-    }
-
-    private void initializeFactoryProviders() {
-        getPropertySpecService().addFactoryProvider(() -> {
-            List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-            finders.add(new ConnectionTaskFinder(dataModel));
-            finders.add(new ProtocolDialectPropertiesFinder(dataModel));
-            return finders;
-        });
     }
 
     private void initializeMocks(String testName) {
