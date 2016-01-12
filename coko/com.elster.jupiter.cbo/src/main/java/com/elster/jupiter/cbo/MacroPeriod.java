@@ -5,7 +5,7 @@ public enum MacroPeriod {
 	BILLINGPERIOD(8, "Billing period"),
 	DAILY(11, "Daily"),
 	MONTHLY(13, "Monthly"),
-	SEASONAL (22,"Season"),
+	SEASONAL (22,"Seasonal"),
 	WEEKLYS (24,"Weekly"),
 	SPECIFIEDPERIOD (32,"Specified period");
 
