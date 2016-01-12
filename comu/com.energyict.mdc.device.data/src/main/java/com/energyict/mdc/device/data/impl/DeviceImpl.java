@@ -271,7 +271,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             Save.CREATE.save(dataModel, this);
             Meter meter = this.createKoreMeter();
-            this.createMeterConfiguration(meter);
+            this.createMeterConfiguration(meter, this.clock.instant());
             this.saveNewDialectProperties();
             this.notifyCreated();
         }
@@ -283,11 +283,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .forEach(ConnectionTaskPropertyProvider::saveAllProperties);
     }
 
-    private void createMeterConfiguration(Meter meter) {
-        Instant now = clock.instant();
+    private void createMeterConfiguration(Meter meter, Instant timeStamp) {
+        meter.getConfiguration(timeStamp).ifPresent(meterConfiguration -> meterConfiguration.endAt(timeStamp));
         if (getDeviceConfiguration().getChannelSpecs().size() > 0 || getDeviceConfiguration().getRegisterSpecs().size() > 0) {
             MultiplierType defaultMultiplierType = getDefaultMultiplierType();
-            Meter.MeterConfigurationBuilder meterConfigurationBuilder = meter.startingConfigurationOn(now);
+            Meter.MeterConfigurationBuilder meterConfigurationBuilder = meter.startingConfigurationOn(timeStamp);
             createMeterConfigurationsForChannelSpecs(defaultMultiplierType, meterConfigurationBuilder);
             createMeterConfigurationsForRegisterSpecs(defaultMultiplierType, meterConfigurationBuilder);
             meterConfigurationBuilder.create();
@@ -780,8 +780,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void createNewMeterActivation() {
-        activate(clock.instant());
+    public void createNewMeterActivation(Instant meterActivationStartTime) {
+        activate(meterActivationStartTime);
+    }
+
+    @Override
+    public void updateMeterConfiguration(Instant updateTimeStamp) {
+        createMeterConfiguration(findKoreMeter(getMdcAmrSystem()).get(), updateTimeStamp);
     }
 
     @Override
@@ -818,6 +823,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet) {
         ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).deleteSecurityPropertiesFor(this, securityPropertySet);
+    }
+
+    public Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
+        Optional<MeterConfiguration> configuration = findKoreMeter(getMdcAmrSystem()).get().getConfiguration(timeStamp);
+        if(configuration.isPresent()){
+            Optional<MeterReadingTypeConfiguration> mrtConfiguration = configuration.get().getReadingTypeConfigs().stream().filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().equals(readingType)).findAny();
+            if(mrtConfiguration.isPresent()){
+                return mrtConfiguration.get().getCalculated();
+            } else {
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
@@ -1460,6 +1478,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             newMeterActivation = meter.activate(start);
         }
+        meterActivation.getMultiplier(getDefaultMultiplierType()).ifPresent(multiplier -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier));
         return newMeterActivation;
     }
 

@@ -16,16 +16,20 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import org.assertj.core.api.Condition;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the persistent {@link LoadProfileImpl} component.
@@ -42,6 +46,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     private final Unit unit1 = Unit.get("kWh");
     private final Unit unit2 = Unit.get("MWh");
     private final BigDecimal overflow = BigDecimal.TEN;
+    private final Instant januaryTenth = Instant.ofEpochSecond(1452384000L);
 
     private ReadingType rt_bulkActiveEnergySecondary;
     private ReadingType rt_deltaActiveEnergyPrimary15Min;
@@ -84,6 +89,11 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     public void initBefore() {
         this.setupReadingTypes();
         deviceConfigurationWithLoadProfileAndChannels = createDeviceConfigurationWithLoadProfileSpecAndTwoChannelSpecsSpecs();
+    }
+
+    @After
+    public void reset() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryFirst);
     }
 
     private void setupReadingTypes() {
@@ -312,10 +322,11 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     @Transactional
     public void createLoadProfilesWithMultipliedConfiguredChannelsNoMultiplierYetOnDeviceTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithOneChannelConfiguredToMultiply();
-
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryFirst);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createLoadProfilesWithMultipliedConfiguredChannelsNoMultiplierYetOnDeviceTest", MRID);
         device.save();
         final LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryTenth);
 
         assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
             @Override
@@ -330,11 +341,13 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     @Transactional
     public void createLoadProfilesWithMultipliedConfiguredChannelsAndMultiplierOnDeviceTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithOneChannelConfiguredToMultiply();
-
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryFirst);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createLoadProfilesWithMultipliedConfiguredChannelsAndMultiplierOnDeviceTest", MRID);
         device.save();
         device.setMultiplier(BigDecimal.valueOf(7L));
         final LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
+
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryTenth);
 
         assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
             @Override

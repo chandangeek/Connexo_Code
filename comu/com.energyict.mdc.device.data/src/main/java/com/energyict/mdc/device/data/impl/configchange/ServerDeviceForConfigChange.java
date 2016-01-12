@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public interface ServerDeviceForConfigChange extends Device {
 
     void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
-    void createNewMeterActivation();
+    void createNewMeterActivation(Instant meterActivationStartTime);
 
     void removeLoadProfiles(List<LoadProfile> loadProfiles);
 
@@ -58,4 +59,11 @@ public interface ServerDeviceForConfigChange extends Device {
      * @param securityPropertySet the set which modelled the securityProperties
      */
     void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet);
+
+    /**
+     * Updates the meterConfiguration with the current DeviceConfiguration
+     *
+     * @param updateTimeStamp the timeStamp of the update
+     */
+    void updateMeterConfiguration(Instant updateTimeStamp);
 }
