@@ -1,13 +1,13 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

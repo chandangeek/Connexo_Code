@@ -1,15 +1,14 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.impl.commands.*;
-import com.elster.jupiter.demo.impl.commands.devices.*;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.search.SearchService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -23,6 +22,25 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
+import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
+import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
+import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDefaultDeviceLifeCycleCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
+import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
+import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
+import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
+import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
+import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
+import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddRegisterReadingsCommand;
@@ -672,7 +690,6 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-
 
     @SuppressWarnings("unused")
     public void createNtaConfig(){

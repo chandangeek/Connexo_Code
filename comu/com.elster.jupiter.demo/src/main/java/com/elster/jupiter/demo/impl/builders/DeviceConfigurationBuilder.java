@@ -1,7 +1,5 @@
 package com.elster.jupiter.demo.impl.builders;
 
-import com.elster.jupiter.demo.impl.Log;
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -10,6 +8,9 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.demo.impl.Log;
+import com.elster.jupiter.demo.impl.UnableToCreate;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;

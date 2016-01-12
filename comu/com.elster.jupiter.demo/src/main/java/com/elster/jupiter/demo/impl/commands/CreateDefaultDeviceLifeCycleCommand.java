@@ -1,11 +1,5 @@
 package com.elster.jupiter.demo.impl.commands;
 
-import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -17,6 +11,13 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAct
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
+import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.streams.DecoratedStream;
 
 import javax.inject.Inject;
 import java.time.Clock;

@@ -1,10 +1,11 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import com.energyict.mdc.favorites.FavoriteDeviceGroup;
+import com.energyict.mdc.favorites.FavoritesService;
+
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.favorites.FavoriteDeviceGroup;
-import com.energyict.mdc.favorites.FavoritesService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

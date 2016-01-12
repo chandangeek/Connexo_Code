@@ -1,11 +1,15 @@
 package com.elster.jupiter.demo.impl.templates;
 
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.DeviceTypeBuilder;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**

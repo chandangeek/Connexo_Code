@@ -107,6 +107,7 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
