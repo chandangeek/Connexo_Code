@@ -7696,7 +7696,6 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 .x-container-navigationheader {
   background-color: #2e587e;
   color: white;
-  z-index: 20000;
   padding-right: 10px;
   background: -webkit-linear-gradient(left, #2e587e, #529ebe);
   /* For Safari 5.1 to 6.0 */
@@ -7707,7 +7706,7 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   background: linear-gradient(to right, #2e587e, #529ebe);
   /* Standard syntax */
 }
-/* line 64, ../../sass/src/container/NavigationHeader.scss */
+/* line 63, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter, .x-container-navigationheader .nav-toggler, .x-container-navigationheader .notifications-anchor, .x-container-navigationheader .search-button, .x-container-navigationheader .nav-help, .x-container-navigationheader .user-menu {
   background: none;
   border: none;
@@ -7733,29 +7732,29 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   margin-top: 3px;
   margin-left: 10px;
 }
-/* line 67, ../../sass/src/container/NavigationHeader.scss */
+/* line 66, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter:hover, .x-container-navigationheader .nav-toggler:hover, .x-container-navigationheader .notifications-anchor:hover, .x-container-navigationheader .search-button:hover, .x-container-navigationheader .nav-help:hover, .x-container-navigationheader .user-menu:hover {
   background-color: #71adc7;
 }
-/* line 71, ../../sass/src/container/NavigationHeader.scss */
+/* line 70, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter .x-btn-icon-el, .x-container-navigationheader .nav-toggler .x-btn-icon-el, .x-container-navigationheader .notifications-anchor .x-btn-icon-el, .x-container-navigationheader .search-button .x-btn-icon-el, .x-container-navigationheader .nav-help .x-btn-icon-el, .x-container-navigationheader .user-menu .x-btn-icon-el {
   margin-top: 12px;
   margin-right: auto;
   margin-left: auto;
 }
-/* line 80, ../../sass/src/container/NavigationHeader.scss */
+/* line 79, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter .x-btn-arrow .x-btn-icon-el, .x-container-navigationheader .nav-toggler .x-btn-arrow .x-btn-icon-el, .x-container-navigationheader .notifications-anchor .x-btn-arrow .x-btn-icon-el, .x-container-navigationheader .search-button .x-btn-arrow .x-btn-icon-el, .x-container-navigationheader .nav-help .x-btn-arrow .x-btn-icon-el, .x-container-navigationheader .user-menu .x-btn-arrow .x-btn-icon-el {
   margin-right: 0;
 }
-/* line 86, ../../sass/src/container/NavigationHeader.scss */
+/* line 85, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter {
   padding: 0 1px;
 }
-/* line 90, ../../sass/src/container/NavigationHeader.scss */
+/* line 89, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter .x-btn-arrow .x-btn-icon-el {
   margin-right: auto;
 }
-/* line 96, ../../sass/src/container/NavigationHeader.scss */
+/* line 95, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .x-menu-active {
   background-color: #71adc7;
 }
@@ -7771,19 +7770,19 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 .x-container-navigationheader .nav-toggler .x-btn-arrow-bottom {
   padding-bottom: inherit;
 }
-/* line 103, ../../sass/src/container/NavigationHeader.scss */
+/* line 102, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph {
   opacity: 0.5;
 }
-/* line 107, ../../sass/src/container/NavigationHeader.scss */
+/* line 106, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler:hover .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
-/* line 112, ../../sass/src/container/NavigationHeader.scss */
+/* line 111, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .x-pressed .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
-/* line 118, ../../sass/src/container/NavigationHeader.scss */
+/* line 117, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler .x-pressed .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
@@ -7799,24 +7798,24 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 .x-container-navigationheader .uni-nav-appcenter .x-btn-arrow-bottom, .x-container-navigationheader .notifications-anchor .x-btn-arrow-bottom {
   padding-bottom: inherit;
 }
-/* line 128, ../../sass/src/container/NavigationHeader.scss */
+/* line 127, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter {
   border-right: 1px solid #597d9d;
   margin-right: 0 !important;
 }
-/* line 132, ../../sass/src/container/NavigationHeader.scss */
+/* line 131, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .uni-nav-appcenter.x-menu-active {
   background-color: #2e587e;
 }
-/* line 137, ../../sass/src/container/NavigationHeader.scss */
+/* line 136, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field {
   width: 240px;
 }
-/* line 141, ../../sass/src/container/NavigationHeader.scss */
+/* line 140, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body {
   float: right;
 }
-/* line 144, ../../sass/src/container/NavigationHeader.scss */
+/* line 143, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body input {
   border-radius: 10px;
   -moz-border-radius: 10px;
@@ -7829,16 +7828,16 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   width: 120px;
   height: 24px;
 }
-/* line 158, ../../sass/src/container/NavigationHeader.scss */
+/* line 157, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body input:focus, .x-container-navigationheader .search-field .x-form-item-body input:hover {
   width: 240px;
 }
-/* line 165, ../../sass/src/container/NavigationHeader.scss */
+/* line 164, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .user-menu {
   padding-left: 0;
   padding-right: 8px;
 }
-/* line 170, ../../sass/src/container/NavigationHeader.scss */
+/* line 169, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-button {
   padding-left: 8px;
   margin-left: 4px;
