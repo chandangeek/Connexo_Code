@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 
 import java.util.Set;
 

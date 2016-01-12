@@ -7,10 +7,10 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -149,24 +149,24 @@ public abstract class AbstractComCommandExecuteTest {
 
     class SimpleNlsMessageFormat implements NlsMessageFormat {
 
-        private final String defaultFormat;
+        private final String key;
 
         SimpleNlsMessageFormat(TranslationKey translationKey) {
-            this.defaultFormat = translationKey.getDefaultFormat();
+            this.key = translationKey.getKey();
         }
 
         SimpleNlsMessageFormat(MessageSeed messageSeed) {
-            this.defaultFormat = messageSeed.getDefaultFormat();
+            this.key = messageSeed.getKey();
         }
 
         @Override
         public String format(Object... args) {
-            return MessageFormat.format(this.defaultFormat, args);
+            return this.key;    // Don't format, just return the key
         }
 
         @Override
         public String format(Locale locale, Object... args) {
-            return MessageFormat.format(this.defaultFormat, args);
+            return this.key;    // Don't format, just return the key
         }
     }
 }

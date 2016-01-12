@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
@@ -142,7 +143,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertThat(clockCommand.getWarnings()).hasSize(1);
         assertThat(clockCommand.getProblems()).isEmpty();
         assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("Time difference is larger (11.000) than the maximum defined on the ComTask, setting the time will not be performed");
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED.getKey());
     }
 
     @Test
@@ -209,7 +210,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertThat(clockCommand.getWarnings()).hasSize(1);
         assertThat(clockCommand.getProblems()).isEmpty();
         assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("Time difference is larger (-11.000) than the maximum defined on the ComTask, setting the time will not be performed");
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED.getKey());
     }
 
     @Test
@@ -290,7 +291,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertThat(clockCommand.getWarnings()).hasSize(1);
         assertThat(clockCommand.getProblems()).isEmpty();
         assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("Time difference of 1.000 is smaller that the configured minimum");
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED.getKey());
     }
 
     @Test
@@ -360,7 +361,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertThat(clockCommand.getWarnings()).hasSize(1);
         assertThat(clockCommand.getProblems()).isEmpty();
         assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo("Time difference of -1.000 is smaller that the configured minimum");
+        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED.getKey());
     }
 
     @Test

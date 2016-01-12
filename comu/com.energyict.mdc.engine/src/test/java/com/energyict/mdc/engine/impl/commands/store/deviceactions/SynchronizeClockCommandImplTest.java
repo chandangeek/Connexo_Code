@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -97,7 +98,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).hasSize(1);
         assertThat(command.getWarnings()).hasSize(1);
         assertThat(command.getProblems()).isEmpty();
-        assertThat(command.getIssues().get(0).getDescription()).isEqualTo("Time difference is larger (500.000) than the maximum defined on the ComTask, setting the time will not be performed");
+        assertThat(command.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED.getKey());
     }
 
     @Test
@@ -220,7 +221,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).hasSize(1);
         assertThat(command.getWarnings()).hasSize(1);
         assertThat(command.getProblems()).isEmpty();
-        assertThat(command.getIssues().get(0).getDescription()).isNotEmpty();
+        assertThat(command.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED.getKey());
     }
 
     @Test
@@ -252,7 +253,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         command.execute(deviceProtocol, this.newTestExecutionContext());
 
         assertThat(command.getIssues()).hasSize(1);
-        assertThat(command.getIssues().get(0).getDescription()).isNotEmpty();
+        assertThat(command.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED.getKey());
         verify(deviceProtocol, never()).setTime(any(Date.class));
     }
 
