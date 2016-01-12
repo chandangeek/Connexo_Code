@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.nls.NlsService;

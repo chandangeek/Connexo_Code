@@ -42,9 +42,7 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
@@ -71,7 +69,6 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
@@ -83,7 +80,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.*;
@@ -123,7 +120,6 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     private KpiService kpiService;
 
     private InMemoryBootstrapModule bootstrapModule;
-    private Injector injector;
     private TransactionService transactionService;
     private ProtocolPluggableService protocolPluggableService;
     @Mock
@@ -131,14 +127,9 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     @Mock
     private DataVaultService dataVaultService;
     private DeviceConfigurationService deviceConfigurationService;
-    private CommunicationTaskService communicationTaskService;
     private TopologyService topologyService;
     private DeviceService deviceService;
 
-    private ConnectionTypePluggableClass connectionTypePluggableClass;
-    private DeviceType deviceType;
-    private DeviceConfiguration deviceConfiguration;
-    private ProtocolDialectConfigurationProperties configDialectProps;
     private Device device;
 
     private class MockModule extends AbstractModule {
@@ -158,7 +149,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     public void initializeDatabase(boolean showSqlLogging) {
         when(this.connectionTypeService.createConnectionType(NoParamsConnectionType.class.getName())).thenReturn(new NoParamsConnectionType());
         this.bootstrapModule = new InMemoryBootstrapModule();
-        this.injector = Guice.createInjector(
+        Injector injector = Guice.createInjector(
                 new MockModule(),
                 this.bootstrapModule,
                 new ThreadSecurityModule(principal),
@@ -199,21 +190,21 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new ProtocolApiModule(),
                 new PluggableModule(),
                 new SchedulingModule());
-        this.transactionService = this.injector.getInstance(TransactionService.class);
+        this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(EventService.class);
             injector.getInstance(CustomPropertySetService.class);
-            this.injector.getInstance(OrmService.class);
+            injector.getInstance(OrmService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MasterDataService.class);
-            this.deviceConfigurationService = this.injector.getInstance(DeviceConfigurationService.class);
-            this.protocolPluggableService = this.injector.getInstance(ProtocolPluggableService.class);
-            ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
+            this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
+            this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
             injector.getInstance(MeteringGroupsService.class);
-            DeviceDataModelServiceImpl deviceDataModelService = this.injector.getInstance(DeviceDataModelServiceImpl.class);
-            this.communicationTaskService = deviceDataModelService.communicationTaskService();
+            DeviceDataModelServiceImpl deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
+            deviceDataModelService.communicationTaskReportService();
             this.deviceService = deviceDataModelService.deviceService();
-            this.topologyService = this.injector.getInstance(TopologyService.class);
+            this.topologyService = injector.getInstance(TopologyService.class);
             ctx.commit();
         }
     }
@@ -226,23 +217,24 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(0);
-        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
         EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);
-        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
 
         try (TransactionContext ctx = this.transactionService.getContext()) {
-            this.deviceType = this.deviceConfigurationService.newDeviceType(DEVICE_TYPE_NAME, this.deviceProtocolPluggableClass);
-            this.deviceType.save();
-            DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
-            this.deviceConfiguration = deviceConfigurationBuilder.add();
-            this.configDialectProps = this.deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new TestDialect());
-            this.deviceConfiguration.save();
-            this.deviceConfiguration.activate();
-            this.device = this.deviceService.newDevice(this.deviceConfiguration, "SimpleDevice", "mrid");
+            DeviceType deviceType = this.deviceConfigurationService.newDeviceType(DEVICE_TYPE_NAME, this.deviceProtocolPluggableClass);
+            deviceType.save();
+            DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
+            DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+            deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new TestDialect());
+            deviceConfiguration.save();
+            deviceConfiguration.activate();
+            this.device = this.deviceService.newDevice(deviceConfiguration, "SimpleDevice", "mrid");
             this.device.save();
-            this.connectionTypePluggableClass = this.protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
-            this.connectionTypePluggableClass.save();
+            ConnectionTypePluggableClass connectionTypePluggableClass = this.protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class
+                    .getName());
+            connectionTypePluggableClass.save();
             ctx.commit();
         }
     }
