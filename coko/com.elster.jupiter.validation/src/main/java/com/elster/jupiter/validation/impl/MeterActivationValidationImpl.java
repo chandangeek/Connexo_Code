@@ -40,7 +40,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     private final DataModel dataModel;
     private final Clock clock;
-    private boolean active = true;
+    private boolean active = false;
 
     @Inject
     MeterActivationValidationImpl(DataModel dataModel, Clock clock) {

@@ -261,6 +261,10 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                             meterValidation.save();
                         }
                 );
+        Optional<? extends MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
+        if (currentMeterActivation.isPresent()) {
+            getIMeterActivationValidations(currentMeterActivation.get()).stream().forEach(IMeterActivationValidation::deactivate);
+        }
     }
 
     @Override
@@ -376,6 +380,15 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     public void validate(MeterActivation meterActivation, Map<Channel, Range<Instant>> ranges) {
+        if (isValidationActiveOnStorage(meterActivation)) {
+            MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
+            container.moveLastCheckedBefore(ranges);
+            container.validate();
+        }
+    }
+
+
+    public void moveLastCheck(MeterActivation meterActivation, Map<Channel, Range<Instant>> ranges) {
         MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
         container.moveLastCheckedBefore(ranges);
         if (isValidationActiveOnStorage(meterActivation)) {
