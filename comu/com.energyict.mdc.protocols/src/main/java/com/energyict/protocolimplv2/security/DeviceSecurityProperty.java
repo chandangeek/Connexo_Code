@@ -79,20 +79,13 @@ public enum DeviceSecurityProperty {
     CLIENT_MAC_ADDRESS {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return propertySpecService.boundedDecimalPropertySpecWithDefaultValue(
-                    SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
-                    true,
-                    BigDecimal.valueOf(1),
-                    BigDecimal.valueOf(127),
-                    BigDecimal.valueOf(1)
-            // From COPL-1151 branch
             return propertySpecService
-                    .bigDecimalSpec()
+                    .boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(127))
                     .named(SecurityPropertySpecName.CLIENT_MAC_ADDRESS)
                     .fromThesaurus(thesaurus)
-                    .markRequired().
-                            finish();
-            );
+                    .markRequired()
+                    .setDefaultValue(BigDecimal.ONE)
+                    .finish();
         }
 
         @Override
