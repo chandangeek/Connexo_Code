@@ -20,16 +20,23 @@ public interface IdentificationService {
 
     DeviceIdentifier createDeviceIdentifierByMRID(String mRID);
 
+    /**
+     * Creates a DeviceIdentifier based on the serialNumber of the device.
+     * <b>Note:</b> Be careful when using this identifier. Not all devices <i>have</i> a unique serialnumber.
+     * Some don't have a serialnumber at all.
+     *
+     * @param serialNumber the serialNumber of the device
+     * @return the Identifier based on the given serialnumber
+     */
     DeviceIdentifier createDeviceIdentifierBySerialNumber(String serialNumber);
 
-    DeviceIdentifier createDeviceIdentifierByCallHomeId(String serialNumber);
+    DeviceIdentifier createDeviceIdentifierByCallHomeId(String callHomeId);
 
     DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(BaseDevice device);
 
     DeviceIdentifier createDeviceIdentifierByProperty(String propertyName, String propertyValue);
 
     DeviceIdentifier createDeviceIdentifierByConnectionTaskProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
-
 
     LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id);
 
@@ -39,13 +46,11 @@ public interface IdentificationService {
 
     LoadProfileIdentifier createLoadProfileIdentifierForFirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier);
 
-
     LogBookIdentifier createLogbookIdentifierByDatabaseId(long id);
 
     LogBookIdentifier createLogbookIdentifierByObisCodeAndDeviceIdentifier(ObisCode logbookObisCode, DeviceIdentifier deviceIdentifier);
 
     LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(BaseLogBook logBook);
-
 
     MessageIdentifier createMessageIdentifierByDatabaseId(long id);
 
