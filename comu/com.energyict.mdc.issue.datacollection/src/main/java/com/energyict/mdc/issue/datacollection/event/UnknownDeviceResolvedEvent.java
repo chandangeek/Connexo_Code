@@ -1,23 +1,22 @@
 package com.energyict.mdc.issue.datacollection.event;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.google.inject.Injector;
+
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class UnknownDeviceResolvedEvent extends UnknownSlaveDeviceEvent {
     @Inject
