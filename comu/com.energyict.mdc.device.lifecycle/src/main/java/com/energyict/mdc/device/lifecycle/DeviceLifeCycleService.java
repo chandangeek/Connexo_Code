@@ -1,5 +1,10 @@
 package com.energyict.mdc.device.lifecycle;
 
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
@@ -7,14 +12,9 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAct
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
 import java.util.List;
@@ -40,7 +40,7 @@ public interface DeviceLifeCycleService {
      * that integrate with the platform and will
      * also be used as a translation key.
      */
-    public enum MicroActionPropertyName {
+    enum MicroActionPropertyName {
         LAST_CHECKED(Keys.LAST_CHECKED_TIMESTAMP_PROPERTY_NAME),
         MULTIPLIER(Keys.MULTIPLIER_PROPERTY_NAME);
 
@@ -66,7 +66,7 @@ public interface DeviceLifeCycleService {
      * @param device The Device
      * @return The List of ExecutableAction
      */
-    public List<ExecutableAction> getExecutableActions(Device device);
+    List<ExecutableAction> getExecutableActions(Device device);
 
     /**
      * Gets the {@link ExecutableAction} for the current user
@@ -77,7 +77,7 @@ public interface DeviceLifeCycleService {
      * @param eventType The StateTransitionEventType
      * @return The ExecutableAction
      */
-    public Optional<ExecutableAction> getExecutableActions(Device device, StateTransitionEventType eventType);
+    Optional<ExecutableAction> getExecutableActions(Device device, StateTransitionEventType eventType);
 
     /**
      * Gets the {@link PropertySpec}s for the specified {@link MicroAction}.
@@ -91,7 +91,7 @@ public interface DeviceLifeCycleService {
      * @return The List of PropertySpec
      * @see #execute(AuthorizedTransitionAction, Device, Instant, List)
      */
-    public List<PropertySpec> getPropertySpecsFor(MicroAction action);
+    List<PropertySpec> getPropertySpecsFor(MicroAction action);
 
     /**
      * Creates an ExecutableActionProperty with the specified value
@@ -105,7 +105,7 @@ public interface DeviceLifeCycleService {
      * @return The ExecutableActionProperty
      * @throws InvalidValueException Thrown when the value is not compatible with the PropertySpec
      */
-    public ExecutableActionProperty toExecutableActionProperty(Object value, PropertySpec propertySpec) throws InvalidValueException;
+    ExecutableActionProperty toExecutableActionProperty(Object value, PropertySpec propertySpec) throws InvalidValueException;
 
     /**
      * Executes the {@link AuthorizedTransitionAction} on the specified {@link Device}
@@ -128,7 +128,7 @@ public interface DeviceLifeCycleService {
      * @see DeviceLifeCycleService#toExecutableActionProperty(Object, PropertySpec)
      * @throws SecurityException Thrown when the current user is not allowed to execute this action
      */
-    public void execute(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException;
+    void execute(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException;
 
     /**
      * Executes the {@link AuthorizedBusinessProcessAction} on the specified {@link Device}
@@ -146,7 +146,7 @@ public interface DeviceLifeCycleService {
      * @see AuthorizedBusinessProcessAction#getLevels()
      * @throws SecurityException Thrown when the current user is not allowed to execute this action
      */
-    public void execute(AuthorizedBusinessProcessAction action, Device device, Instant effectiveTimestamp) throws SecurityException, DeviceLifeCycleActionViolationException;
+    void execute(AuthorizedBusinessProcessAction action, Device device, Instant effectiveTimestamp) throws SecurityException, DeviceLifeCycleActionViolationException;
 
     /**
      * Triggers a new {@link StateTransitionTriggerEvent} for the
@@ -156,7 +156,7 @@ public interface DeviceLifeCycleService {
      * @param device The Device
      * @param effectiveTimestamp The point in time when the resulting state change should become effective
      */
-    public void triggerEvent(CustomStateTransitionEventType eventType, Device device, Instant effectiveTimestamp);
+    void triggerEvent(CustomStateTransitionEventType eventType, Device device, Instant effectiveTimestamp);
 
     String getName(MicroCheck microCheck);
 

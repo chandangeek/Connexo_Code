@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.i18n;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -15,6 +15,7 @@ import java.util.Optional;
  */
 public enum MicroActionTranslationKey implements TranslationKey {
 
+    MICRO_ACTION_NAME_SET_LAST_CHECKED(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), "Last checked date"),
     MICRO_ACTION_NAME_SET_LAST_READING(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.SET_LAST_READING, "Prepare for data collection"),
     MICRO_ACTION_NAME_ENABLE_VALIDATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.ENABLE_VALIDATION, "Activate validation"),
     MICRO_ACTION_NAME_DISABLE_VALIDATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DISABLE_VALIDATION, "Deactivate validation"),
@@ -33,6 +34,7 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_NAME_FORCE_DISABLE_ESTIMATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DISABLE_ESTIMATION, "Deactivate estimation"),
     MICRO_ACTION_NAME_SET_MULTIPLIER(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.SET_MULTIPLIER, "Set multiplier"),
 
+    MICRO_ACTION_DESCRIPTION_NAME_SET_LAST_CHECKED(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), "Set the last checked date, so date can be validated from the transition date."),
     MICRO_ACTION_DESCRIPTION_SET_LAST_READING(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.SET_LAST_READING, "Set the last reading date, so data can be collected starting from the transition date."),
     MICRO_ACTION_DESCRIPTION_ENABLE_VALIDATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.ENABLE_VALIDATION, "Activate the data validation on this device. This auto action is effective immediately."),
     MICRO_ACTION_DESCRIPTION_DISABLE_VALIDATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DISABLE_VALIDATION, "Deactivate the data validation on this device. This auto action is effective immediately."),
