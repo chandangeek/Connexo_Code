@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -17,9 +18,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
@@ -36,18 +35,14 @@ public class DeviceGroupSearchableProperty extends AbstractSearchableDevicePrope
 
     private DeviceSearchDomain domain;
 
-    private final DeviceService deviceService;
     private final MeteringGroupsService meteringGroupsService;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceGroupSearchableProperty(MeteringGroupsService meteringGroupsService, PropertySpecService propertySpecService, Thesaurus thesaurus, DeviceService deviceService) {
-        super();
+    public DeviceGroupSearchableProperty(MeteringGroupsService meteringGroupsService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.meteringGroupsService = meteringGroupsService;
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
-        this.deviceService = deviceService;
     }
 
     DeviceGroupSearchableProperty init(DeviceSearchDomain domain) {
@@ -81,17 +76,20 @@ public class DeviceGroupSearchableProperty extends AbstractSearchableDevicePrope
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_GROUP).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.DEVICE_GROUP;
     }
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                FactoryIds.DEVICE_GROUP,
-                this.meteringGroupsService.findEndDeviceGroups());
+        List<EndDeviceGroup> endDeviceGroups = this.meteringGroupsService.findEndDeviceGroups();
+        return this.propertySpecService
+                .referenceSpec(EndDeviceGroup.class)
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(endDeviceGroups.toArray(new EndDeviceGroup[endDeviceGroups.size()]))
+                .markExhaustive()
+                .finish();
     }
 
     @Override

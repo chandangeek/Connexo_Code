@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
@@ -12,6 +11,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConnectionDirectionSearchableProperty extends AbstractSearchableDeviceProperty {
 
@@ -29,14 +29,13 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
 
     private final PropertySpecService propertySpecService;
 
-    private final Thesaurus thesaurus;
     private SearchDomain searchDomain;
     private SearchablePropertyGroup group;
 
     @Inject
     public ConnectionDirectionSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     ConnectionDirectionSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup parentGroup) {
@@ -52,7 +51,7 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return this.thesaurus.getFormat(((ConnectionTaskDirectionWrapper) value).getContainer().getTranslationKey()).format();
+        return this.getThesaurus().getFormat(((ConnectionTaskDirectionWrapper) value).getContainer().getTranslationKey()).format();
     }
 
     @Override
@@ -91,14 +90,16 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.stringReferencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                new ConnectionTaskDirectionFinder(),
+        Stream<ConnectionTaskDirectionWrapper> stream =
                 Arrays.stream(ConnectionTaskDirectionContainer.values())
-                        .map(ConnectionTaskDirectionWrapper::new)
-                        .collect(Collectors.toList())
-                        .toArray(new ConnectionTaskDirectionWrapper[ConnectionTaskDirectionContainer.values().length]));
+                .map(ConnectionTaskDirectionWrapper::new);
+        return this.propertySpecService
+                .specForValuesOf(new ConnectionTaskDirectionValueFactory())
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(stream.toArray(ConnectionTaskDirectionWrapper[]::new))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -112,8 +113,8 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_DIRECTION).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CONNECTION_DIRECTION;
     }
 
     @Override
@@ -148,25 +149,29 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
         }
     }
 
-    static final class ConnectionTaskDirectionFinder implements CanFindByStringKey<ConnectionTaskDirectionWrapper> {
-        @Override
-        public Optional<ConnectionTaskDirectionWrapper> find(String key) {
-            return Arrays.stream(ConnectionTaskDirectionContainer.values())
-                    .filter(dc -> dc.code.equals(key))
-                    .map(ConnectionTaskDirectionWrapper::new)
-                    .findFirst();
+    private class ConnectionTaskDirectionValueFactory extends SearchHelperValueFactory<ConnectionTaskDirectionWrapper> {
+        private ConnectionTaskDirectionValueFactory() {
+            super(ConnectionTaskDirectionWrapper.class);
         }
 
         @Override
-        public Class<ConnectionTaskDirectionWrapper> valueDomain() {
-            return ConnectionTaskDirectionWrapper.class;
+        public ConnectionTaskDirectionWrapper fromStringValue(String stringValue) {
+            return Arrays.stream(ConnectionTaskDirectionContainer.values())
+                    .filter(dc -> dc.code.equals(stringValue))
+                    .map(ConnectionTaskDirectionWrapper::new)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        @Override
+        public String toStringValue(ConnectionTaskDirectionWrapper object) {
+            return object.getId();
         }
     }
-
     static final class ConnectionTaskDirectionWrapper extends HasIdAndName {
         private ConnectionTaskDirectionContainer container;
 
-        public ConnectionTaskDirectionWrapper(ConnectionTaskDirectionContainer container) {
+        ConnectionTaskDirectionWrapper(ConnectionTaskDirectionContainer container) {
             this.container = container;
         }
 

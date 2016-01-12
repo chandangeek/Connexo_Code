@@ -11,22 +11,20 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.FactoryIds;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.scheduling.model.impl.ComScheduleFinder;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -54,14 +52,11 @@ public class ComTaskScheduleNameSearchablePropertyTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
     private SchedulingService schedulingService;
-    @Mock
-    private ComScheduleFinder comScheduleFinder;
     @Mock
     private ComSchedule comSchedule;
 
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
 
     @Before
@@ -72,12 +67,8 @@ public class ComTaskScheduleNameSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.COMTASK_SCHEDULE_NAME.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_SCHEDULE_NAME)).thenReturn(messageFormat);
 
-        when(this.comScheduleFinder.factoryId()).thenReturn(FactoryIds.COMSCHEDULE);
-        when(this.comScheduleFinder.valueDomain()).thenReturn(ComSchedule.class);
-        when(this.referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(this.comScheduleFinder));
         when(this.schedulingService.getAllSchedules()).thenReturn(Collections.singletonList(comSchedule));
-        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService), dataVaultService, timeService, ormService);
-        propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
+        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService, this.ormService, this.beanService), dataVaultService, ormService);
         this.parentGroup = new ComTaskSearchablePropertyGroup(this.thesaurus);
     }
 

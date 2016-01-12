@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -21,6 +22,11 @@ public class ComTaskNextCommunicationSearchableProperty extends AbstractDateSear
     }
 
     @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.COMTASK_NEXT_COMMUNICATION;
+    }
+
+    @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
     }
 
@@ -33,11 +39,6 @@ public class ComTaskNextCommunicationSearchableProperty extends AbstractDateSear
         sqlBuilder.add(toSqlFragment("DDC_COMTASKEXEC.NEXTEXECUTIONTIMESTAMP", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.COMTASK_NEXT_COMMUNICATION).format();
     }
 
     @Override

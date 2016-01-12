@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,22 +11,26 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationStatusSearchablePropertyTest {
@@ -43,20 +48,25 @@ public class EstimationStatusSearchablePropertyTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
+    private NlsMessageFormat messageFormat;
 
+    private BeanService beanService = new DefaultBeanService();
     private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private PropertySpecService propertySpecService;
     private EstimationSearchablePropertyGroup estimationSearchablePropertyGroup;
 
     @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+    }
+
+    @Before
     public void initializeMocks() {
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.ESTIMATION_STATUS.getDefaultFormat());
-        when(thesaurus.getFormat(PropertyTranslationKeys.ESTIMATION_STATUS)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, ormService, this.beanService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         this.estimationSearchablePropertyGroup = new EstimationSearchablePropertyGroup(thesaurus);
     }
 
@@ -137,7 +147,7 @@ public class EstimationStatusSearchablePropertyTest {
         PropertySpec specification = property.getSpecification();
 
         // Asserts
-        assertThat(specification.getPossibleValues().getAllValues()).isEmpty();
+        assertThat(specification.getPossibleValues()).isNull();
     }
 
     @Test
@@ -154,4 +164,5 @@ public class EstimationStatusSearchablePropertyTest {
     private EstimationStatusSearchableProperty getTestInstance() {
         return new EstimationStatusSearchableProperty(propertySpecService, thesaurus).init(this.domain, estimationSearchablePropertyGroup);
     }
+
 }

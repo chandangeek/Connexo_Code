@@ -1,14 +1,14 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.elster.jupiter.cbo.IllegalEnumValueException;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -19,6 +19,9 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -30,15 +33,14 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
     private final Class<T> implClass;
     private final MeteringService meteringService;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
     private DeviceSearchDomain domain;
     private SearchablePropertyGroup group;
 
     public AbstractReadingTypeUnitOfMeasureSearchableProperty(Class<T> clazz, MeteringService meteringService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.implClass = clazz;
         this.meteringService = meteringService;
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     T init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
@@ -86,15 +88,11 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
         sqlBuilder.append(" where ");
         sqlBuilder.append(contains.getCollection().stream()
                 .map(UnitOfMeasureInfo.class::cast)
-                .map(unit -> {
-                    StringBuilder builder = new StringBuilder(' ');
-                    builder.append("MDS_MEASUREMENTTYPE.readingtype like '%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.");
-                    builder.append(unit.getMetricMultiplier().getId());
-                    builder.append(".");
-                    builder.append(unit.getReadingTypeUnit().getId());
-                    builder.append(".%' ");
-                    return builder.toString();
-                })
+                .map(unit -> ' ' + "MDS_MEASUREMENTTYPE.readingtype like '%.%.%.%.%.%.%.%.%.%.%.%.%.%.%." +
+                        unit.getMetricMultiplier().getId() +
+                        "." +
+                        unit.getReadingTypeUnit().getId() +
+                        ".%' ")
                 .collect(Collectors.joining(" OR ")));
         sqlBuilder.closeBracket();
         return sqlBuilder;
@@ -120,12 +118,13 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.stringReferencePropertySpec(
-                getName(),
-                false,
-                new UnitOfMeasureFinder(),
-                getPossibleValues()
-        );
+        return this.propertySpecService
+                    .specForValuesOf(new UnitOfMeasureValueFactory())
+                    .named(getName(), PropertyTranslationKeys.READING_TYPE_UNIT_OF_MEASURE)
+                    .fromThesaurus(this.getThesaurus())
+                    .addValues(getPossibleValues())
+                    .markExhaustive()
+                    .finish();
     }
 
     private UnitOfMeasureInfo[] getPossibleValues() {
@@ -146,8 +145,8 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.READING_TYPE_UNIT_OF_MEASURE).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.READING_TYPE_UNIT_OF_MEASURE;
     }
 
     @Override
@@ -160,27 +159,52 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
         //nothing to refresh
     }
 
-    static class UnitOfMeasureFinder implements CanFindByStringKey<UnitOfMeasureInfo> {
-
+    private class UnitOfMeasureValueFactory implements ValueFactory<UnitOfMeasureInfo> {
         @Override
-        public Optional<UnitOfMeasureInfo> find(String key) {
-            String[] parts = key.split(":");
-            if (parts.length != 2) {
-                return Optional.empty();
-            }
-            try {
-                MetricMultiplier metricMultiplier = MetricMultiplier.get(Integer.parseInt(parts[0]));
-                ReadingTypeUnit readingTypeUnit = ReadingTypeUnit.get(Integer.parseInt(parts[1]));
-                return Optional.of(new UnitOfMeasureInfo(metricMultiplier, readingTypeUnit));
-            } catch (NumberFormatException | IllegalEnumValueException e) {
-                return Optional.empty();
-            }
+        public UnitOfMeasureInfo fromStringValue(String stringValue) {
+            return null;
         }
 
         @Override
-        public Class<UnitOfMeasureInfo> valueDomain() {
+        public String toStringValue(UnitOfMeasureInfo object) {
+            return object.getId();
+        }
+
+        @Override
+        public Class<UnitOfMeasureInfo> getValueType() {
             return UnitOfMeasureInfo.class;
         }
+
+        @Override
+        public UnitOfMeasureInfo valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(UnitOfMeasureInfo object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, UnitOfMeasureInfo value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            }
+            else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, UnitOfMeasureInfo value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            }
+            else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+
     }
 
     static class UnitOfMeasureInfo extends HasIdAndName {
@@ -188,7 +212,7 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
         private MetricMultiplier metricMultiplier;
         private ReadingTypeUnit readingTypeUnit;
 
-        public UnitOfMeasureInfo(MetricMultiplier metricMultiplier, ReadingTypeUnit readingTypeUnit) {
+        UnitOfMeasureInfo(MetricMultiplier metricMultiplier, ReadingTypeUnit readingTypeUnit) {
             this.metricMultiplier = metricMultiplier;
             this.readingTypeUnit = readingTypeUnit;
         }

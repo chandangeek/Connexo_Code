@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
@@ -18,7 +19,8 @@ public abstract class AbstractDynamicSearchableProperty<T> extends AbstractSearc
     private SearchablePropertyGroup group;
     private PropertySpec propertySpec;
 
-    public AbstractDynamicSearchableProperty(Class<T> implClass) {
+    public AbstractDynamicSearchableProperty(Class<T> implClass, Thesaurus thesaurus) {
+        super(thesaurus);
         this.implClass = implClass;
     }
 
@@ -72,7 +74,7 @@ public abstract class AbstractDynamicSearchableProperty<T> extends AbstractSearc
 
     @Override
     public String getDisplayName() {
-        return this.propertySpec.getName();
+        return this.propertySpec.getDisplayName();
     }
 
     @Override

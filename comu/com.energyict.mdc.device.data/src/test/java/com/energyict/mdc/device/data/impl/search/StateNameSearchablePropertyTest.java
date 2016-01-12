@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -15,20 +16,14 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.FactoryIds;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
-import com.energyict.mdc.device.config.impl.FiniteStateFinder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -36,11 +31,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link StateNameSearchableProperty} component.
@@ -58,6 +60,8 @@ public class StateNameSearchablePropertyTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
+    private NlsMessageFormat messageFormat;
+    @Mock
     private DataVaultService dataVaultService;
     @Mock
     private TimeService timeService;
@@ -66,36 +70,27 @@ public class StateNameSearchablePropertyTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
-    private FiniteStateFinder finiteStateFinder;
-    @Mock
-    private DeviceTypeFinder deviceTypeFinder;
-    @Mock
     private DeviceConfigurationService deviceConfigurationService;
 
     private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
+
+    @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+    }
 
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, this.dataVaultService, this.timeService, this.ormService);
-        when(this.thesaurus.getStringBeyondComponent(eq("One"), anyString())).thenReturn("One");
-        when(this.thesaurus.getStringBeyondComponent(eq("Two"), anyString())).thenReturn("Two");
-        NlsMessageFormat deviceStatusMessageFormat = mock(NlsMessageFormat.class);
-        when(deviceStatusMessageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_STATUS.getDefaultFormat());
-        when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_STATUS)).thenReturn(deviceStatusMessageFormat);
-        when(this.deviceTypeFinder.factoryId()).thenReturn(FactoryIds.DEVICE_TYPE);
-        when(this.deviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
-        when(this.finiteStateFinder.factoryId()).thenReturn(FactoryIds.FINITE_STATE);
-        when(this.finiteStateFinder.valueDomain()).thenReturn(State.class);
-        when(this.referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder, this.finiteStateFinder));
+        com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, this.dataVaultService, this.ormService);
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
     }
 
@@ -155,7 +150,7 @@ public class StateNameSearchablePropertyTest {
     }
 
     @Test
-    public void specificationIsAReference() {
+    public void specificationIsNotAReference() {
         StateNameSearchableProperty property = this.getTestInstance();
 
         // Business method
@@ -163,8 +158,8 @@ public class StateNameSearchablePropertyTest {
 
         // Asserts
         assertThat(specification).isNotNull();
-        assertThat(specification.isReference()).isTrue();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(State.class);
+        assertThat(specification.isReference()).isFalse();
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(StateNameSearchableProperty.DeviceState.class);
     }
 
     @Test
@@ -206,7 +201,7 @@ public class StateNameSearchablePropertyTest {
     public void refreshWithTooManyConstrictions() {
         StateNameSearchableProperty property = this.getTestInstance();
         DeviceType deviceType = mock(DeviceType.class);
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Collections.singletonList(deviceType));
         SearchableProperty otherSearchableProperty = mock(SearchableProperty.class);
         SearchablePropertyConstriction otherConstriction = SearchablePropertyConstriction.noValues(otherSearchableProperty);
 
@@ -222,7 +217,7 @@ public class StateNameSearchablePropertyTest {
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList("Wrong", "type"));
 
         // Business method
-        property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
+        property.refreshWithConstrictions(Collections.singletonList(deviceTypeConstriction));
 
         // Asserts: see expected exception rule
     }
@@ -243,10 +238,10 @@ public class StateNameSearchablePropertyTest {
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
 
         StateNameSearchableProperty property = this.getTestInstance();
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Collections.singletonList(deviceType));
 
         // Business method
-        property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
+        property.refreshWithConstrictions(Collections.singletonList(deviceTypeConstriction));
 
         // Asserts
         PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
@@ -264,7 +259,7 @@ public class StateNameSearchablePropertyTest {
         when(state1.getId()).thenReturn(STATE_1_ID);
         when(state1.getName()).thenReturn("One");
         FiniteStateMachine fsm1 = mock(FiniteStateMachine.class);
-        when(fsm1.getStates()).thenReturn(Arrays.asList(state1));
+        when(fsm1.getStates()).thenReturn(Collections.singletonList(state1));
         DeviceLifeCycle deviceLifeCycle1 = mock(DeviceLifeCycle.class);
         when(deviceLifeCycle1.getFiniteStateMachine()).thenReturn(fsm1);
         DeviceType deviceType1 = mock(DeviceType.class);
@@ -274,7 +269,7 @@ public class StateNameSearchablePropertyTest {
         when(state2.getId()).thenReturn(STATE_2_ID);
         when(state2.getName()).thenReturn("Two");
         FiniteStateMachine fsm2 = mock(FiniteStateMachine.class);
-        when(fsm2.getStates()).thenReturn(Arrays.asList(state2));
+        when(fsm2.getStates()).thenReturn(Collections.singletonList(state2));
         DeviceLifeCycle deviceLifeCycle2 = mock(DeviceLifeCycle.class);
         when(deviceLifeCycle2.getFiniteStateMachine()).thenReturn(fsm2);
         DeviceType deviceType2 = mock(DeviceType.class);
@@ -285,7 +280,7 @@ public class StateNameSearchablePropertyTest {
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType1, deviceType2));
 
         // Business method
-        property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
+        property.refreshWithConstrictions(Collections.singletonList(deviceTypeConstriction));
 
         // Asserts
         PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
@@ -313,10 +308,10 @@ public class StateNameSearchablePropertyTest {
         StateNameSearchableProperty property = this.getTestInstance();
         SearchableProperty otherProperty = mock(SearchableProperty.class);
         when(otherProperty.hasName(anyString())).thenReturn(false);
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(otherProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(otherProperty, Collections.singletonList(deviceType));
 
         // Business method
-        property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
+        property.refreshWithConstrictions(Collections.singletonList(deviceTypeConstriction));
 
         // Asserts: see expected exception rule
         PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();

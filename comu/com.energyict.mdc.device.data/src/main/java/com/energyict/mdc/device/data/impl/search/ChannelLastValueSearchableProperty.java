@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -16,6 +17,11 @@ public class ChannelLastValueSearchableProperty extends AbstractDateSearchablePr
     @Inject
     public ChannelLastValueSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(ChannelLastValueSearchableProperty.class, propertySpecService, thesaurus);
+    }
+
+    @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CHANNEL_LAST_VALUE;
     }
 
     @Override
@@ -45,11 +51,6 @@ public class ChannelLastValueSearchableProperty extends AbstractDateSearchablePr
         builder.add(toSqlFragment("IDS_TIMESERIES.LASTTIME", condition, now));
         builder.closeBracket();
         return builder;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.CHANNEL_LAST_VALUE).format();
     }
 
     @Override

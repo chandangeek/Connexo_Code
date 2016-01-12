@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -42,8 +43,8 @@ public class ChannelObisCodeSearchableProperty extends AbstractObisCodeSearchabl
     }
 
     @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.CHANNEL_OBISCODE).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CHANNEL_OBISCODE;
     }
 
     @Override

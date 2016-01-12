@@ -1,13 +1,8 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -20,14 +15,19 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -50,7 +50,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     private SearchableProperty parent;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private List<DeviceState> states = Collections.emptyList();
+    private DeviceState[] states = new DeviceState[0];
 
     static final class DeviceState implements HasId, HasName {
         private long id;
@@ -94,7 +94,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
 
     @Inject
     public StateNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -131,8 +131,8 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_STATUS).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.DEVICE_STATUS;
     }
 
     @Override
@@ -147,11 +147,13 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                VIRTUAL_FIELD_NAME,
-                false,
-                FactoryIds.FINITE_STATE,
-                this.states);
+        return this.propertySpecService
+                .specForValuesOf(new DeviceStateValueFactory())
+                .named(VIRTUAL_FIELD_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(this.states)
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -190,7 +192,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
                 .map(DeviceType.class::cast)
                 .flatMap(deviceType1 -> this.getDeviceStatesFor(deviceType1, displayStrategy))
                 .sorted((state1, state2) -> state1.getName().compareToIgnoreCase(state2.getName()))
-                .collect(Collectors.toList());
+                .toArray(DeviceState[]::new);
     }
 
     private void validateAllParentsAreDeviceTypes(List<Object> list) {
@@ -235,6 +237,25 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         sqlBuilder.add(this.toSqlFragment("fs.id", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
+    }
+
+    private class DeviceStateValueFactory extends SearchHelperValueFactory<DeviceState> {
+        private DeviceStateValueFactory() {
+            super(DeviceState.class);
+        }
+
+        @Override
+        public DeviceState fromStringValue(String stringValue) {
+            return Arrays.stream(states)
+                    .filter(state -> String.valueOf(state.getId()).equals(stringValue))
+                    .findAny()
+                    .orElse(null);
+        }
+
+        @Override
+        public String toStringValue(DeviceState object) {
+            return String.valueOf(object.getId());
+        }
     }
 
     private enum DisplayStrategy {

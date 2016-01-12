@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -144,9 +145,8 @@ public class SecurityPropertyServiceImplTest {
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet = TestProtocolWithOnlySecurityProperties.getCustomPropertySet(
                 new PropertySpecServiceImpl(
-                        new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService),
+                        new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, new DefaultBeanService()),
                         this.dataVaultService,
-                        this.timeService,
                         this.ormService));
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
         when(this.pluggableService
