@@ -9,19 +9,17 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
-import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
@@ -124,13 +122,13 @@ public class DeviceLifeCycleActionResource {
                     try {
                         requestedAction.execute(info.effectiveTimestamp, executableProperties);
                         transaction.commit();
-                    } catch (SecurityException | InvalidLastCheckedException | ActionDoesNotRelateToDeviceStateException | EffectiveTimestampNotInRangeException | EffectiveTimestampNotAfterLastStateChangeException ex) {
-                        wizardResult.result = false;
-                        wizardResult.message = ex.getLocalizedMessage();
                     } catch (RequiredMicroActionPropertiesException violationEx) {
                         wrapWithFormValidationErrorAndRethrow(violationEx);
                     } catch (MultipleMicroCheckViolationsException violationEx) {
                         getFailedExecutionMessage(violationEx, wizardResult);
+                    } catch (SecurityException | InvalidLastCheckedException | DeviceLifeCycleActionViolationException ex) {
+                        wizardResult.result = false;
+                        wizardResult.message = ex.getLocalizedMessage();
                     }
                 }
             }
