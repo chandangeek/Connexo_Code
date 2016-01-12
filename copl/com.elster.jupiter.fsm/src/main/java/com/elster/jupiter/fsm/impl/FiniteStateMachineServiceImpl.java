@@ -74,7 +74,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile EventService eventService;
     private volatile TransactionService transactionService;
     private volatile List<StandardEventPredicate> standardEventPredicates = new CopyOnWriteArrayList<>();
-    private Thesaurus thesaurus;
+    private volatile Thesaurus thesaurus;
+    private volatile boolean registered = false;
 
     // For OSGi purposes
     public FiniteStateMachineServiceImpl() {
@@ -133,6 +134,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
+        createStandardEventTypeNoTransaction(new ArrayList<>(standardEventPredicates));
+        registered = true;
     }
 
     // For integration testing components only
@@ -232,7 +235,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         this.standardEventPredicates.add(predicate);
         // check if dataModel is installed because this method can be/us called before the install is run
         // the install() will install predicates that have been registerd before the dataModel was installed
-        if (dataModel.isInstalled()) {
+        if (dataModel.isInstalled() && registered) {
             this.createStandardEventType(predicate);
         }
     }
