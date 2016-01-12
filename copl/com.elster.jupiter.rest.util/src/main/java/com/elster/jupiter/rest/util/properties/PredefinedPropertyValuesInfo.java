@@ -1,5 +1,7 @@
 package com.elster.jupiter.rest.util.properties;
 
+import com.elster.jupiter.properties.PropertySelectionMode;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
