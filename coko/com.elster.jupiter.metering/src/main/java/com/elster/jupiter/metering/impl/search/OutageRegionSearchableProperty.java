@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl.search;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
@@ -78,10 +77,11 @@ public class OutageRegionSearchableProperty implements SearchableUsagePointPrope
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                "outageRegion",
-                false,
-                new StringFactory());
+        return this.propertySpecService
+                .stringSpec()
+                .named("outageRegion", PropertyTranslationKeys.USAGEPOINT_OUTAGEREGION)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     @Override
