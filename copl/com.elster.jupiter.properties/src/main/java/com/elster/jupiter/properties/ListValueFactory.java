@@ -1,7 +1,5 @@
-package com.elster.jupiter.properties.impl;
+package com.elster.jupiter.properties;
 
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -35,7 +33,7 @@ public class ListValueFactory<T> implements ValueFactory<List> {
         this.separator = separator;
     }
 
-    ValueFactory<T> getActualFactory() {
+    public ValueFactory<T> getActualFactory() {
         return actualFactory;
     }
 

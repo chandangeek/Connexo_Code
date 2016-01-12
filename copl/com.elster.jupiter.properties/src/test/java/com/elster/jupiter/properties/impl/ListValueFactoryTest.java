@@ -1,5 +1,6 @@
 package com.elster.jupiter.properties.impl;
 
+import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;

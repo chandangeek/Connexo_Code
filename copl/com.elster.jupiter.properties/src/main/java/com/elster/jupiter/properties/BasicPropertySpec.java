@@ -1,7 +1,5 @@
 package com.elster.jupiter.properties;
 
-import com.elster.jupiter.properties.impl.ListValueFactory;
-
 import java.io.Serializable;
 import java.util.Collection;
 
@@ -135,16 +133,22 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     protected boolean isPossibleValue(Object value) {
         if (value instanceof Collection && this.supportsMultiValues()) {
             Collection valueCollection = (Collection) value;
-            return valueCollection.stream().anyMatch(this::isPossibleValue);
+            ListValueFactory listValueFactory = (ListValueFactory) this.valueFactory;
+            return valueCollection.stream().anyMatch(each -> this.isPossibleValue(each, listValueFactory.getActualFactory()));
         }
         else {
-            Object dbValue = this.valueFactory.valueToDatabase(value);
-            return possibleValues
-                    .getAllValues()
-                    .stream()
-                    .map(pv -> this.valueFactory.valueToDatabase(pv))
-                    .anyMatch(possibleDbValue -> possibleDbValue.equals(dbValue));
+            return this.isPossibleValue(value, this.valueFactory);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean isPossibleValue(Object value, ValueFactory valueFactory) {
+        Object dbValue = valueFactory.valueToDatabase(value);
+        return possibleValues
+                .getAllValues()
+                .stream()
+                .map(valueFactory::valueToDatabase)
+                .anyMatch(possibleDbValue -> possibleDbValue.equals(dbValue));
     }
 
     @SuppressWarnings("unchecked")
