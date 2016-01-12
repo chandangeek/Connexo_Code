@@ -33,8 +33,6 @@ import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
-import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
@@ -56,6 +54,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
 import com.jayway.jsonpath.JsonModel;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -65,12 +64,6 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -88,6 +81,10 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -818,7 +815,5 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         assertThat(connectionTask.getProperty("port")).isNull();
         assertThat(connectionTask.getProperty("ipAddress").getValue()).isEqualTo("10.10.10.1");
     }
-
-
 
 }

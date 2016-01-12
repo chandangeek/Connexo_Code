@@ -1,5 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
@@ -10,12 +16,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 
-import com.elster.jupiter.properties.BasicPropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
@@ -50,7 +50,10 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        BasicPropertySpec propertySpec = new BasicPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), new StringFactory());
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
+        when(propertySpec.isRequired()).thenReturn(false);
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(deviceType.getId()).thenReturn(11L);
         when(deviceType.getName()).thenReturn("device");
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);

@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
@@ -13,7 +13,6 @@ import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
@@ -30,11 +29,8 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionType.Direction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -42,10 +38,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -73,10 +72,10 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
         connectionTask = mockConnectionTask(9);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         partialConnectionTask = mockPartialConnectionTask(31L, "AS1440");
-        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
@@ -167,9 +166,11 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
-        info.properties = new ArrayList<>();
-        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout","connectionTimeout",new PropertyValueInfo<>(new TimeDuration("15 seconds"),null,null,null),new PropertyTypeInfo(SimplePropertyType.TIMEDURATION,null,null,null),false);
-        info.properties.add(propertyInfo);
+        info.properties = Collections.singletonList(
+                new PropertyInfo("connectionTimeout", "connectionTimeout",
+                        new PropertyValueInfo<>(new TimeDuration("15 seconds"), null, null, null),
+                        new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                        false));
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
@@ -188,7 +189,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                 new PropertyValueInfo("", "", null, null),
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
                 false);
-        info.properties = Arrays.asList(propertyInfo);
+        info.properties = Collections.singletonList(propertyInfo);
         Device.ScheduledConnectionTaskBuilder connectionTaskBuilder = mock(Device.ScheduledConnectionTaskBuilder.class);
         when(device.getScheduledConnectionTaskBuilder(Matchers.any())).thenReturn(connectionTaskBuilder);
         when(connectionTaskBuilder.add()).thenReturn(connectionTask);
@@ -211,7 +212,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                 new PropertyValueInfo(null, new TimeDurationInfo(new TimeDuration("15 minutes")), null, null),
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
                 false);
-        info.properties = Arrays.asList(propertyInfo);
+        info.properties = Collections.singletonList(propertyInfo);
         Device.ScheduledConnectionTaskBuilder connectionTaskBuilder = mock(Device.ScheduledConnectionTaskBuilder.class);
         when(device.getScheduledConnectionTaskBuilder(Matchers.any())).thenReturn(connectionTaskBuilder);
         when(connectionTaskBuilder.add()).thenReturn(connectionTask);
@@ -230,7 +231,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                 new PropertyValueInfo<>(null, null, null, null),
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
                 false);
-        info.properties = Arrays.asList(propertyInfo);
+        info.properties = Collections.singletonList(propertyInfo);
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
@@ -251,7 +252,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                 new PropertyValueInfo<>(null, new TimeDurationInfo(new TimeDuration("15 minutes")), null, null),
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
                 false);
-        info.properties = Arrays.asList(propertyInfo);
+        info.properties = Collections.singletonList(propertyInfo);
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
@@ -287,7 +288,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         return connectionTask;
     }
 
-    private <T> PartialScheduledConnectionTask mockPartialConnectionTask(long id, String name) {
+    private PartialScheduledConnectionTask mockPartialConnectionTask(long id, String name) {
         PartialScheduledConnectionTask connectionTask = mock(PartialScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(id);
         when(connectionTask.getName()).thenReturn(name);
@@ -295,8 +296,12 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionType.getDirection()).thenReturn(Direction.OUTBOUND);
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
-        BasicPropertySpec propertySpec = new BasicPropertySpec("connectionTimeout", new TimeDurationValueFactory());
-        when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("connectionTimeout");
+        when(propertySpec.getDisplayName()).thenReturn("Connection timeout");
+        when(propertySpec.isRequired()).thenReturn(false);
+        when(propertySpec.getValueFactory()).thenReturn(new TimeDurationValueFactory());
+        when(pluggableClass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);

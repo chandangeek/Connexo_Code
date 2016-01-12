@@ -507,20 +507,24 @@ public class DeviceResource {
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
 
-        deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().sorted((c1, c2) -> c1.getName().compareToIgnoreCase(c2.getName())).forEach(category -> {
-            List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
-                    .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
-                    .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
-                    .filter(dms -> device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
-                    .sorted(Comparator.comparing(DeviceMessageSpec::getName))
-                    .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
-                    .collect(Collectors.toList());
-            if (!deviceMessageSpecs.isEmpty()) {
-                DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
-                info.deviceMessageSpecs = deviceMessageSpecs;
-                infos.add(info);
-            }
-        });
+        deviceMessageSpecificationService
+                .filteredCategoriesForUserSelection()
+                .stream()
+                .sorted((c1, c2) -> c1.getName().compareToIgnoreCase(c2.getName()))
+                .forEach(category -> {
+                    List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
+                            .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
+                            .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
+                            .filter(dms -> device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
+                            .sorted(Comparator.comparing(DeviceMessageSpec::getName))
+                            .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
+                            .collect(Collectors.toList());
+                    if (!deviceMessageSpecs.isEmpty()) {
+                        DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
+                        info.deviceMessageSpecs = deviceMessageSpecs;
+                        infos.add(info);
+                    }
+                });
         List<DeviceMessageCategoryInfo> deviceMessageCategoryInfosInPage = ListPager.of(infos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("categories", deviceMessageCategoryInfosInPage, queryParameters);
     }

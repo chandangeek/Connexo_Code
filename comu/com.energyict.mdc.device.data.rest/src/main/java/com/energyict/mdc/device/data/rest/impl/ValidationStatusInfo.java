@@ -20,6 +20,7 @@ public class ValidationStatusInfo {
         }
         else {
             this.lastChecked = null;
+            this.allDataValidated = false;
         }
         this.hasValidation = hasValidation;
     }

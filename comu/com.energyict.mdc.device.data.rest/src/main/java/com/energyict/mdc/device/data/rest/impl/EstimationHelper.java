@@ -80,7 +80,10 @@ public class EstimationHelper {
     }
 
     public EstimationResult previewEstimate(Device device, ReadingType readingType, Range<Instant> range, Estimator estimator) {
-        MeterActivation meterActivation = device.getCurrentMeterActivation().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METER_ACTIVATION_NOT_FOUND));
+        MeterActivation meterActivation = device.getMeterActivationsMostRecentFirst().stream()
+                .filter(ma -> ma.getInterval().toOpenClosedRange().contains(range.upperEndpoint()))
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METER_ACTIVATION_NOT_FOUND));
         return estimationService.previewEstimate(meterActivation, range, readingType, estimator);
     }
 
