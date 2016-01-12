@@ -270,7 +270,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             record.beginEdit();
             record.set('name', nameField.getValue());
             for(i = 0; i < me.commands.length; i++) {
-                if(me.commands[1].categoryName) {
+                if(me.commands[i].categoryName) {
                     delete me.commands[i].categoryName;
                 }
             }
