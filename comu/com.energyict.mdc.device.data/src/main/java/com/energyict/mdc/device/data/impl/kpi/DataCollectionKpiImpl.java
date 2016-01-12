@@ -26,6 +26,7 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -373,15 +374,6 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
 
-    private String getRecurrentTaskName() {
-        String devicegroupName = this.deviceGroup.get().getName();
-        if (connectionKpi.isPresent()) {
-            return devicegroupName + " - Communication KPI";
-        } else {
-            return devicegroupName + " - Connection KPI";
-        }
-    }
-
     private interface RecurrentTaskSaveStrategy {
         void save();
     }
@@ -426,7 +418,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
                 DestinationSpec destination = messageService.getDestinationSpec(DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
                 RecurrentTask recurrentTask = taskService.newBuilder()
                         .setApplication("MultiSense")
-                        .setName(getRecurrentTaskName())
+                        .setName(taskName())
                         .setScheduleExpression(this.toScheduleExpression(this.kpi.get()))
                         .setDestination(destination)
                         .setPayLoad(scheduledExcutionPayload())
@@ -461,7 +453,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         }
 
         private String taskName() {
-            return this.kpiType.recurrentTaskName();
+            return this.kpiType.recurrentTaskName(deviceGroup.get());
         }
 
     }
