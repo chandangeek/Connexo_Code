@@ -1,5 +1,39 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -41,42 +75,8 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.ResourceDefinition;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -95,18 +95,19 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static com.elster.jupiter.util.conditions.Where.where;
-import static java.util.stream.Collectors.toList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Provides an implementation for the {@link DeviceConfigurationService} interface.
@@ -726,23 +727,21 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration) {
-        List<ReadingType> readingTypes = new ArrayList<>();
-        for (LoadProfileSpec spec : configuration.getLoadProfileSpecs()) {
-            for (ChannelType channelType : spec.getLoadProfileType().getChannelTypes()) {
-                ReadingType readingType = channelType.getReadingType();
-                readingTypes.add(readingType);
-                if (readingType.isCumulative()) {
-                    Optional<ReadingType> delta = readingType.getCalculatedReadingType();
-                    if (delta.isPresent()) {
-                        readingTypes.add(delta.get());
-                    }
-                }
-            }
-        }
-        for (RegisterSpec spec : configuration.getRegisterSpecs()) {
-            readingTypes.add(spec.getRegisterType().getReadingType());
-        }
-        return readingTypes;
+        Stream<ReadingType> loadProfileReadingTypes = configuration.getLoadProfileSpecs()
+                .stream()
+                .map(LoadProfileSpec::getChannelSpecs)
+                .flatMap(List::stream)
+                .map(channelSpec -> channelSpec.getCalculatedReadingType()
+                        .map(calculated -> (List<ReadingType>) ImmutableList.of(channelSpec.getReadingType(), calculated))
+                        .orElseGet(() -> Collections.singletonList(channelSpec.getReadingType())))
+                .flatMap(List::stream);
+        Stream<ReadingType> registerReadingTypes = configuration.getRegisterSpecs()
+                .stream()
+                .map(RegisterSpec::getReadingType);
+        return Stream.of(loadProfileReadingTypes, registerReadingTypes)
+                .flatMap(Function.identity())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
