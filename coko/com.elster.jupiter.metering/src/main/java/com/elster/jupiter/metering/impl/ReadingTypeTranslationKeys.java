@@ -151,6 +151,9 @@ public final class ReadingTypeTranslationKeys {
                 case ANGLESECOND: {
                     return this.unit.name();
                 }
+                case NOTAPPLICABLE: {
+                    return "None";
+                }
                 default: {
                     String symbol = this.unit.getSymbol();
                     if (is(symbol).emptyOrOnlyWhiteSpace()) {
