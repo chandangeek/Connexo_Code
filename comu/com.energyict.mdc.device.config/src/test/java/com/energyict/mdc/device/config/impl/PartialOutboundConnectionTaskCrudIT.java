@@ -42,13 +42,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -103,9 +100,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.Condition;
@@ -278,11 +273,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     }
 
     private static void initializeConnectionTypes(PropertySpecServiceImpl propertySpecService) {
-        propertySpecService.addFactoryProvider(() -> {
-            List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-            finders.add(new ConnectionTaskFinder());
-            return finders;
-        });
         connectionTypeService = mock(ConnectionTypeService.class);
         when(connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
         when(connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
@@ -1142,25 +1132,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     }
 
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
-
-    }
-
-    public static class ConnectionTaskFinder implements CanFindByLongPrimaryKey {
-
-        @Override
-        public FactoryIds factoryId() {
-            return FactoryIds.CONNECTION_TASK;
-        }
-
-        @Override
-        public Class valueDomain() {
-            return null;
-        }
-
-        @Override
-        public Optional findByPrimaryKey(long id) {
-            return null;
-        }
 
     }
 

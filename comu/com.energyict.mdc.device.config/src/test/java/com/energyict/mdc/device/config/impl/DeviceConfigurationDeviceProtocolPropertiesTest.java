@@ -1,15 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -35,9 +32,25 @@ public class DeviceConfigurationDeviceProtocolPropertiesTest extends DeviceTypeP
 
     @Before
     public void initializeProtocolProperties() {
-        PropertySpec bigDecimalPropertySpec = inMemoryPersistence.getPropertySpecService().basicPropertySpec(NUMERIC_PROPERTY_SPEC_NAME, true, new BigDecimalFactory());
-        PropertySpec stringPropertySpec = inMemoryPersistence.getPropertySpecService().basicPropertySpec(STRING_PROPERTY_SPEC_NAME, true, new StringFactory());
-        PropertySpec defaultPropertySpec = inMemoryPersistence.getPropertySpecService().stringPropertySpec(DEFAULT_PROPERTY_SPEC_NAME, true, DEFAULT_VALUE);
+        PropertySpec bigDecimalPropertySpec = inMemoryPersistence.getPropertySpecService()
+                .bigDecimalSpec()
+                .named(NUMERIC_PROPERTY_SPEC_NAME, NUMERIC_PROPERTY_SPEC_NAME)
+                .describedAs(NUMERIC_PROPERTY_SPEC_NAME)
+                .markRequired()
+                .finish();
+        PropertySpec stringPropertySpec = inMemoryPersistence.getPropertySpecService()
+                .stringSpec()
+                .named(STRING_PROPERTY_SPEC_NAME, STRING_PROPERTY_SPEC_NAME)
+                .describedAs(STRING_PROPERTY_SPEC_NAME)
+                .markRequired()
+                .finish();
+        PropertySpec defaultPropertySpec = inMemoryPersistence.getPropertySpecService()
+                .stringSpec()
+                .named(DEFAULT_PROPERTY_SPEC_NAME, DEFAULT_PROPERTY_SPEC_NAME)
+                .describedAs(DEFAULT_PROPERTY_SPEC_NAME)
+                .markRequired()
+                .setDefaultValue(DEFAULT_VALUE)
+                .finish();
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.asList(bigDecimalPropertySpec, stringPropertySpec, defaultPropertySpec));
     }
 

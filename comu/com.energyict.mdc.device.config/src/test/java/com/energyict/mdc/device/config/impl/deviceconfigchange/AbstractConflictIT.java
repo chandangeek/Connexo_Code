@@ -39,15 +39,20 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.impl.*;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
+import com.energyict.mdc.device.config.impl.InboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.config.impl.IpConnectionType;
+import com.energyict.mdc.device.config.impl.OutboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.config.impl.PartialOutboundConnectionTaskCrudIT;
+import com.energyict.mdc.device.config.impl.ServerDeviceType;
+import com.energyict.mdc.device.config.impl.SpyEventService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -78,32 +83,32 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.verification.VerificationMode;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.verification.VerificationMode;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -259,11 +264,6 @@ public abstract class AbstractConflictIT {
     }
 
     private static void initializeConnectionTypes(PropertySpecServiceImpl propertySpecService) {
-        propertySpecService.addFactoryProvider(() -> {
-            List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-            finders.add(new PartialOutboundConnectionTaskCrudIT.ConnectionTaskFinder());
-            return finders;
-        });
         connectionTypeService = mock(ConnectionTypeService.class);
         when(connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
         when(connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
@@ -318,4 +318,5 @@ public abstract class AbstractConflictIT {
     void verifyConflictValidation(VerificationMode mode, DeviceConfigConflictMapping deviceConfigConflictMapping) {
         verify(eventService.getSpy(), mode).postEvent(EventType.DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE.topic(), deviceConfigConflictMapping);
     }
+
 }
