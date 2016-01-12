@@ -460,7 +460,7 @@ Ext.define('Fim.controller.ImportServices', {
     updateProperties: function (control, records) {
         var me = this,
             addImportServiceView = me.getAddPage(),
-            record = records[0],
+            record = records[0] ? records[0] : records,
             propertyForm = addImportServiceView.down('grouped-property-form');
 
         if (record && record.properties() && record.properties().count()) {
