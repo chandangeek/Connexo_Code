@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -17,7 +18,6 @@ public class ConnectionNameSearchableProperty extends AbstractNameSearchableProp
     public ConnectionNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(ConnectionNameSearchableProperty.class, propertySpecService, thesaurus);
     }
-
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
@@ -43,7 +43,8 @@ public class ConnectionNameSearchableProperty extends AbstractNameSearchableProp
     }
 
     @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.CONNECTION_NAME).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CONNECTION_NAME;
     }
+
 }

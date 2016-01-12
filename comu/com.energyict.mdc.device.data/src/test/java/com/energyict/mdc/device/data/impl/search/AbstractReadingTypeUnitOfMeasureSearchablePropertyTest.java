@@ -13,15 +13,16 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.*;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -45,10 +46,9 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchablePropertyTest {
     @Mock
     Thesaurus thesaurus;
     @Mock
-    ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
     MeteringService meteringService;
 
+    private BeanService beanService = new DefaultBeanService();
     com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     PropertySpecService propertySpecService;
 
@@ -62,8 +62,8 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchablePropertyTest {
         ReadingType rt2 = mockReadingType(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
         ReadingType rt3 = mockReadingType(MetricMultiplier.KILO, ReadingTypeUnit.WATT);
         when(meteringService.getAvailableNonEquidistantReadingTypes()).thenReturn(Arrays.asList(rt1, rt2, rt3));
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService, this.beanService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
     }
 
     private ReadingType mockReadingType(MetricMultiplier multiplier, ReadingTypeUnit unit) {

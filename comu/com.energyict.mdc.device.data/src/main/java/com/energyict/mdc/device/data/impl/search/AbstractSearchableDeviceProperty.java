@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
@@ -41,6 +43,22 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     private SqlBuilder underConstruction = new SqlBuilder();
     private String columnName;
     private Instant now;
+    private final Thesaurus thesaurus;
+
+    protected AbstractSearchableDeviceProperty(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    protected abstract TranslationKey getNameTranslationKey();
+
+    @Override
+    public String getDisplayName() {
+        return this.thesaurus.getFormat(this.getNameTranslationKey()).format();
+    }
 
     @Override
     public final String toDisplay(Object value) {
@@ -212,7 +230,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     private static class InstantFragment extends ProxyAwareSqlFragment implements SqlFragment {
         private final Instant instant;
 
-        public InstantFragment(ValueBinder valueBinder, Instant instant) {
+        private InstantFragment(ValueBinder valueBinder, Instant instant) {
             super(valueBinder);
             this.instant = instant;
         }

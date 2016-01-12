@@ -2,13 +2,13 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.impl.security.BasicAuthenticationCustomPropertySet;
 import com.energyict.mdc.device.data.impl.security.BasicAuthenticationSecurityProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -36,7 +36,13 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -193,11 +199,15 @@ public class TestProtocol implements DeviceProtocol {
     }
 
     private PropertySpec getUserNamePropertySpec() {
-        return new BasicPropertySpec(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), new StringFactory());
+        BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
+        propertySpec.setName(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName());
+        return propertySpec;
     }
 
     private PropertySpec getPasswordPropertySpec() {
-        return new BasicPropertySpec(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), new StringFactory());
+        BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
+        propertySpec.setName(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
+        return propertySpec;
     }
 
     @Override
@@ -271,7 +281,9 @@ public class TestProtocol implements DeviceProtocol {
     }
 
     public PropertySpec getOptionalPropertySpec(){
-        return new BasicPropertySpec(MYOPTIONALPROPERTY, false, new StringFactory());
+        BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
+        propertySpec.setName(MYOPTIONALPROPERTY);
+        return propertySpec;
     }
 
     @Override

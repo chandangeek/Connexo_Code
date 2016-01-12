@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -22,6 +22,7 @@ public abstract class AbstractObisCodeSearchableProperty<T> extends AbstractSear
     private SearchablePropertyGroup group;
 
     public AbstractObisCodeSearchableProperty(Class<T> clazz, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.implClass = clazz;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
@@ -61,12 +62,15 @@ public abstract class AbstractObisCodeSearchableProperty<T> extends AbstractSear
     @Override
     public abstract String getName();
 
+    protected abstract TranslationKey getNameTranslationKey();
+
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                getName(),
-                false,
-                new StringFactory());
+        return this.propertySpecService
+                .stringSpec()
+                .named(this.getNameTranslationKey())
+                .fromThesaurus(thesaurus)
+                .finish();
     }
 
     @Override

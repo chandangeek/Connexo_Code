@@ -26,6 +26,7 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -372,6 +373,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         recurrentTask.ifPresent(RecurrentTask::delete);
     }
 
+
     private interface RecurrentTaskSaveStrategy {
         void save();
     }
@@ -451,7 +453,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         }
 
         private String taskName() {
-            return this.kpiType.recurrentTaskName();
+            return this.kpiType.recurrentTaskName(deviceGroup.get());
         }
 
     }

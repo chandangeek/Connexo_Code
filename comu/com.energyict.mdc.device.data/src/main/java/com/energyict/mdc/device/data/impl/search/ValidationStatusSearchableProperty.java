@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -26,12 +27,11 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
     private SearchablePropertyGroup group;
 
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     @Inject
     public ValidationStatusSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     ValidationStatusSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
@@ -81,13 +81,17 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
     }
 
     @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.VALIDATION_STATUS;
+    }
+
+    @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.booleanPropertySpec(
-                PROPERTY_NAME,
-                PROPERTY_NAME,
-                false,
-                null
-        );
+        return this.propertySpecService
+                .booleanSpec()
+                .named(this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .finish();
     }
 
     @Override
@@ -101,11 +105,6 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.VALIDATION_STATUS).format();
-    }
-
-    @Override
     public List<SearchableProperty> getConstraints() {
         return Collections.emptyList();
     }
@@ -114,4 +113,5 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         //nothing to refresh
     }
+
 }

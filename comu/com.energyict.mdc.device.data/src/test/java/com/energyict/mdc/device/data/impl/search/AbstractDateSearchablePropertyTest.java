@@ -9,15 +9,17 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -40,12 +42,13 @@ public abstract class AbstractDateSearchablePropertyTest {
     @Mock
     SearchablePropertyGroup parentGroup;
 
+    private BeanService beanService = new DefaultBeanService();
     PropertySpecService propertySpecService;
 
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService), this.dataVaultService, this.timeService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService), this.dataVaultService, this.ormService);
     }
 
     @Test

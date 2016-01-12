@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.engine.config.ComPortPool;
 
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (09:40)
  */
-public interface ServerConnectionTaskService extends ConnectionTaskService, ReferencePropertySpecFinderProvider {
+public interface ServerConnectionTaskService extends ConnectionTaskService {
 
     /**
      * Tests if the specified {@link ComPortPool} is used

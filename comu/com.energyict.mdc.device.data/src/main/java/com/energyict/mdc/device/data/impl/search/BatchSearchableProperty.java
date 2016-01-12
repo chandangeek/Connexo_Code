@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -27,7 +27,7 @@ public class BatchSearchableProperty extends AbstractSearchableDeviceProperty {
 
     @Inject
     public BatchSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -63,8 +63,8 @@ public class BatchSearchableProperty extends AbstractSearchableDeviceProperty {
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.BATCH).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.BATCH;
     }
 
     @Override
@@ -79,10 +79,11 @@ public class BatchSearchableProperty extends AbstractSearchableDeviceProperty {
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                DeviceFields.BATCH.fieldName(),
-                false,
-                new StringFactory());
+        return this.propertySpecService
+                .stringSpec()
+                .named(DeviceFields.BATCH.fieldName(), this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .finish();
     }
 
     @Override

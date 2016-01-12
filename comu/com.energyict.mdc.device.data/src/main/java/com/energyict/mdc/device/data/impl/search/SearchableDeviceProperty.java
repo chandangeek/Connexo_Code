@@ -22,7 +22,7 @@ public interface SearchableDeviceProperty extends SearchableProperty {
      *
      * @param builder The JoinClauseBuilder
      */
-    public void appendJoinClauses(JoinClauseBuilder builder);
+    void appendJoinClauses(JoinClauseBuilder builder);
 
     /**
      * Converts the {@link Condition} that is expected to be
@@ -33,6 +33,6 @@ public interface SearchableDeviceProperty extends SearchableProperty {
      * @param now The current timestamp
      * @return The SqlFragment
      */
-    public SqlFragment toSqlFragment(Condition condition, Instant now);
+    SqlFragment toSqlFragment(Condition condition, Instant now);
 
 }
