@@ -25,10 +25,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("/estimationrulesets")
@@ -86,13 +83,19 @@ public class DeviceConfigurationEstimationRuleSetResource {
     }
     
     private List<DeviceConfiguration> computeLinkableDeviceConfigs(EstimationRuleSet estimationRuleSet) {
+        Comparator<DeviceConfiguration> byDeviceType = (e1, e2) -> e1
+                .getDeviceType().getName().compareToIgnoreCase(e2.getDeviceType().getName());
+
+        Comparator<DeviceConfiguration> byName = (e1, e2) -> e1.getName()
+                .compareToIgnoreCase(e2.getName());
+
         Set<ReadingType> readingTypesInRuleSet = readingTypesFor(estimationRuleSet);
         return deviceConfigurationService.findAllDeviceTypes().stream()
             .flatMap(deviceType -> deviceType.getConfigurations().stream())
             .filter(deviceConfig -> !areLinked(deviceConfig, estimationRuleSet))
             .filter(deviceConfig -> haveCommonReadingTypes(readingTypesInRuleSet, readingTypesFor(deviceConfig)))
-            .sorted((dc1, dc2) -> dc1.getName().compareToIgnoreCase(dc2.getName()))
-            .collect(Collectors.toList());
+                .sorted(byDeviceType.thenComparing(byName))
+                .collect(Collectors.toList());
     }
 
     private Set<ReadingType> readingTypesFor(EstimationRuleSet estimationRuleSet) {

@@ -1185,7 +1185,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("properties");
         assertThat(propertyInfos).isNotNull().hasSize(1);
         Map<String, Object> macAddressProperty = propertyInfos.get(0);
-        assertThat(macAddressProperty).hasSize(5)
+        assertThat(macAddressProperty)
+                .hasSize(5)
                 .containsKey("key")
                 .containsKey("name")
                 .containsKey("propertyValueInfo")
@@ -1199,6 +1200,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         PropertySpec propertySpec1 = mock(PropertySpec.class);
         when(propertySpec1.getName()).thenReturn("macAddress");
+        when(propertySpec1.getDisplayName()).thenReturn("MAC address");
         when(propertySpec1.getValueFactory()).thenReturn(new StringFactory());
         TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty("macAddress", "aa:bb:cc:dd:ee:ff");
