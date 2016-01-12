@@ -3,7 +3,10 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.impl.TableSpecs;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
@@ -12,13 +15,13 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,7 +42,9 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
 
     @Before
     public void restoreDefaultLifeCycle() {
+        this.inMemoryPersistence.getService(OrmService.class).invalidateCache(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name());
         this.changeInitialState(DefaultState.IN_STOCK);
+
     }
 
     @Test
@@ -371,7 +376,9 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     private void changeInitialState(DefaultState defaultState) {
         FiniteStateMachine stateMachine = deviceType.getDeviceLifeCycle().getFiniteStateMachine();
         Optional<State> state = stateMachine.getState(defaultState.getKey());
-        stateMachine.startUpdate().complete(state.get());
+        if (!stateMachine.getInitialState().equals(state.get())) {
+            stateMachine.startUpdate().complete(state.get());
+        }
     }
 
     private Device createSimpleDevice(String mRID, Instant when) {
